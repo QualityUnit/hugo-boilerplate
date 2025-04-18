@@ -1,43 +1,26 @@
 <style>
   :root {
-    /* Primary colors */
-    --color-primary: {{ .Site.Params.theme.colors.primary | default "#ff0000" }};
+    /* === Primary Theme Colors === */
+    --color-primary: {{ .Site.Params.theme.colors.primary | default "#1a73e8" }};
     --color-primary-light: {{ .Site.Params.theme.colors.primaryLight | default "#4285f4" }};
     --color-primary-dark: {{ .Site.Params.theme.colors.primaryDark | default "#1557b0" }};
 
-    /* Secondary colors */
     --color-secondary: {{ .Site.Params.theme.colors.secondary | default "#34a853" }};
-    --color-secondary-light: {{ .Site.Params.theme.colors.secondaryLight | default "#46c167" }};
-    --color-secondary-dark: {{ .Site.Params.theme.colors.secondaryDark | default "#2d8644" }};
-
-    /* Accent color */
     --color-accent: {{ .Site.Params.theme.colors.accent | default "#fbbc05" }};
 
-    /* Text colors */
     --color-text: {{ .Site.Params.theme.colors.text | default "#202124" }};
-    --color-text-light: {{ .Site.Params.theme.colors.textLight | default "#5f6368" }};
-    --color-text-muted: {{ .Site.Params.theme.colors.textMuted | default "#9aa0a6" }};
-
-    /* Background colors */
     --color-background: {{ .Site.Params.theme.colors.background | default "#ffffff" }};
-    --color-background-alt: {{ .Site.Params.theme.colors.backgroundAlt | default "#f8f9fa" }};
-    --color-background-dark: {{ .Site.Params.theme.colors.backgroundDark | default "#f1f3f4" }};
 
     /* Gradients */
     --gradient-primary: linear-gradient(to right, var(--color-primary), var(--color-primary-light));
   }
-  
-  /* Utility classes for gradients */
-  .bg-gradient-primary { background: var(--gradient-primary); }
-  
-  /* Text gradient utility */
-  .text-gradient {
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
+
+  /* === Utilities === */
+  .bg-gradient-primary {
+    background-image: var(--gradient-primary);
   }
-  
+
+  .text-gradient,
   .text-gradient-primary {
     background-image: var(--gradient-primary);
     background-clip: text;
