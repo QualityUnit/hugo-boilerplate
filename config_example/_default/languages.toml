@@ -1,0 +1,34 @@
+# Language configuration
+[languages]
+  [languages.en]
+    languageName = "English"
+    title = "English Site Title"
+    weight = 1
+    contentDir = "content/en"
+    baseURL = "https://example.com"
+    [languages.en.params]
+      bcp47Lang = "en-us"
+      description = "English site description"
+      gaMeasurementID = "G-PROD7890123"
+
+  [languages.de]
+    languageName = "Deutsch"
+    title = "Deutsche Site Title"
+    weight = 2
+    contentDir = "content/de"
+    baseURL = "https://example.de"
+    [languages.de.params]
+      bcp47Lang = "de"
+      description = "Deutsche Seitenbeschreibung"
+      gaMeasurementID = "G-GERMAN12345"
+
+  [languages.sk]
+    languageName = "Slovenčina"
+    title = "Slovenský Názov Stránky"
+    weight = 3
+    contentDir = "content/sk"
+    baseURL = "https://example.sk"
+    [languages.sk.params]
+      bcp47Lang = "sk"
+      description = "Slovenský popis stránky"
+      gaMeasurementID = "G-SLOVAK67890"

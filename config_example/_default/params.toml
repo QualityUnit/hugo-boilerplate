@@ -1,0 +1,30 @@
+# Site parameters
+[params]
+  description = "A clean Hugo boilerplate"
+  author = "Your Name"
+  mainSections = ["blog"]
+  dateFormat = "January 2, 2006"
+  
+  # Image processing configuration
+  [params.imaging]
+    # Default resample filter used for resizing. Default is Box,
+    # a simple and fast averaging filter appropriate for downscaling.
+    # See https://github.com/disintegration/imaging
+    resampleFilter = "Lanczos"
+    
+    # Default JPEG quality setting. Default is 75.
+    quality = 85
+    
+    # Anchor used when cropping pictures.
+    # Default is "smart" which does Smart Cropping, using https://github.com/muesli/smartcrop
+    anchor = "smart"
+    
+    # Default background color.
+    # Hugo will preserve transparency for target formats that support it,
+    # but will fall back to this color for JPEG.
+    # Expects a standard HEX color string with 3 or 6 digits.
+    # See https://www.google.com/search?q=color+picker
+    bgColor = "#ffffff"
+
+    # Default WebP quality setting. Default is 75.
+    webpQuality = 85

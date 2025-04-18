@@ -94,14 +94,15 @@ This theme uses Tailwind CSS which requires PostCSS for processing. You **must**
 module.exports = {
   plugins: {
     tailwindcss: {
-      config: './themes/boilerplate/tailwind.config.js'
+      config: './themes/boilerplate/tailwind.config.js',
     },
-    autoprefixer: {}
-  }
-}
+    autoprefixer: {},
+  },
+};
 ```
 
 This configuration tells PostCSS to:
+
 1. Use the Tailwind CSS plugin with the configuration file located in the theme directory
 2. Apply autoprefixer for cross-browser compatibility
 
@@ -125,21 +126,25 @@ module.exports = {
     'postcss-import': {},
     'tailwindcss/nesting': {},
     tailwindcss: {
-      config: './themes/boilerplate/tailwind.config.js'
+      config: './themes/boilerplate/tailwind.config.js',
     },
     autoprefixer: {
-      flexbox: 'no-2009'
+      flexbox: 'no-2009',
     },
     'postcss-preset-env': {
-      features: { 'nesting-rules': false }
-    }
-  }
-}
+      features: { 'nesting-rules': false },
+    },
+  },
+};
 ```
 
 ## Configuration
 
 ### Basic Configuration
+
+This theme supports two configuration approaches:
+
+#### Option 1: Using a Single Configuration File (Traditional)
 
 Add the following to your `hugo.toml` file:
 
@@ -163,9 +168,31 @@ defaultContentLanguageInSubdir = true
   dateFormat = "January 2, 2006"
 ```
 
+#### Option 2: Using Split Configuration Files (Recommended)
+
+For better organization, you can split your configuration into multiple files in a `config/_default/` directory:
+
+1. Copy the example configuration structure from the theme:
+
+```bash
+mkdir -p config/_default
+cp -r themes/boilerplate/config_example/_default/* config/_default/
+```
+
+2. Edit the individual configuration files to customize your site:
+   - `hugo.toml` - Basic site configuration
+   - `languages.toml` - Multilingual settings
+   - `menus.toml` - Navigation menu structure
+   - `params.toml` - Site parameters and features
+   - `outputFormats.toml` - Output format configuration
+   - `markup.toml` - Content rendering settings
+   - `module.toml` - Hugo modules configuration
+
+This modular approach makes your configuration more maintainable, especially for complex sites.
+
 ### Multilingual Setup
 
-The theme supports multiple languages out of the box. Configure them in your `hugo.toml`:
+The theme supports multiple languages out of the box. Configure them in `languages.toml` (if using split configuration) or in your `hugo.toml` under the `[languages]` section:
 
 ```toml
 [languages]
@@ -190,9 +217,27 @@ The theme supports multiple languages out of the box. Configure them in your `hu
       description = "Deutsche Seitenbeschreibung"
 ```
 
+### Menu Configuration
+
+Define your site's navigation in `menus.toml` (if using split configuration) or in your `hugo.toml` under language-specific menu sections:
+
+```toml
+[languages.en.menu]
+  [[languages.en.menu.main]]
+    identifier = "home"
+    name = "Home"
+    url = "/"
+    weight = 1
+  [[languages.en.menu.main]]
+    identifier = "blog"
+    name = "Blog"
+    url = "/blog/"
+    weight = 2
+```
+
 ### Image Processing Configuration
 
-For optimal image processing, add the following to your `hugo.toml`:
+For optimal image processing, add the following to your `params.toml` (if using split configuration) or to the `[params]` section of your `hugo.toml`:
 
 ```toml
 [params.imaging]
@@ -284,7 +329,7 @@ Main content about the term goes here...
 The theme includes various shortcodes for common components:
 
 ```markdown
-{{< products-with-image-grid 
+{{< products-with-image-grid
   background="bg-gray-50"
   product="{ title: 'Product Title', ... }" >}}
 
@@ -299,7 +344,7 @@ The theme includes various shortcodes for common components:
 You can include partials in your templates:
 
 ```go
-{{ partial "headers/centered_with_eyebrow.html" (dict 
+{{ partial "headers/centered_with_eyebrow.html" (dict
   "eyebrow" "Eyebrow Text"
   "heading" "Main Heading"
   "description" "Description text") }}

@@ -1,0 +1,24 @@
+baseURL = 'http://localhost:1313/'
+languageCode = 'en-us'
+title = 'Hugo Boilerplate'
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+theme = 'boilerplate'
+
+# Asset configuration for multilingual sites
+assetDir = "assets"
+
+# Taxonomies
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+# Build settings
+[build]
+  writeStats = true
+
+# Multilingual settings
+[sitemap]
+  changefreq = "monthly"
+  filename = "sitemap.xml"
+  priority = 0.5

@@ -1,0 +1,5 @@
+# Module configuration
+# Uncomment and modify as needed
+
+#[[module.imports]]
+#  path = "github.com/gohugoio/hugo-mod-bootstrap-scss/v5"

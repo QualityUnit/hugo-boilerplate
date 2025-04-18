@@ -1,0 +1,36 @@
+# Menu configuration
+[languages.en.menu]
+  [[languages.en.menu.main]]
+    identifier = "home"
+    name = "Home"
+    url = "/"
+    weight = 1
+  [[languages.en.menu.main]]
+    identifier = "blog"
+    name = "Blog"
+    url = "/blog/"
+    weight = 2
+
+[languages.de.menu]
+  [[languages.de.menu.main]]
+    identifier = "home"
+    name = "Startseite"
+    url = "/"
+    weight = 1
+  [[languages.de.menu.main]]
+    identifier = "blog"
+    name = "Blog"
+    url = "/blog/"
+    weight = 2
+
+[languages.sk.menu]
+  [[languages.sk.menu.main]]
+    identifier = "home"
+    name = "Domov"
+    url = "/"
+    weight = 1
+  [[languages.sk.menu.main]]
+    identifier = "blog"
+    name = "Blog"
+    url = "/blog/"
+    weight = 2
