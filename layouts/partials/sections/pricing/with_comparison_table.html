@@ -1,22 +1,24 @@
 {{/*
 @section: Pricing with Comparison Table
-@description: A comprehensive pricing section that displays multiple pricing tiers with a detailed feature comparison table, including both mobile and desktop views.
+@description: A comprehensive pricing section that displays multiple pricing tiersComparison with a detailed feature comparison table, including both mobile and desktop views.
 @params:
-  - tagline: Text above the heading (optional, default: "Pricing")
-  - heading: Main heading text (optional, default: "Pricing that grows with you")
-  - description: Text below the heading (optional, default: "Choose an affordable plan...")
-  - backgroundColor: Background color for the section (optional, default: "white")
-  - taglineColor: Color for the tagline text (optional, default: "indigo-600")
-  - headingColor: Color for the heading text (optional, default: "gray-900")
-  - descriptionColor: Color for the description text (optional, default: "gray-600")
-  - checkColor: Color for the checkmark icons (optional, default: "indigo-600")
-  - dashColor: Color for the dash icons (optional, default: "gray-400")
-  - tiers: Array of tier objects (optional, includes defaults)
+  - taglineComparison: Text above the heading (optional, default: "Pricing")
+  - headingComparison: Main heading text (optional, default: "Pricing that grows with you")
+  - descriptionComparison: Text below the heading (optional, default: "Choose an affordable plan...")
+  - backgroundColorComparison: Background color for the section (optional, default: "white")
+  - taglineColorComparison: Color for the tagline text (optional, default: "indigo-600")
+  - headingColorComparison: Color for the heading text (optional, default: "gray-900")
+  - descriptionColorComparison: Color for the description text (optional, default: "gray-600")
+  - checkColorComparison: Color for the checkmark icons (optional, default: "indigo-600")
+  - dashColorComparison: Color for the dash icons (optional, default: "gray-400")
+  - togglePrice: Boolean to control whether to show the monthly/annual pricing toggle (optional, default: false)
+  - tiersComparison: Array of tier objects (optional, includes defaults)
     - name: Name of the tier
     - id: ID for accessibility
-    - price: Price for the tier
-    - interval: Text after the price (e.g., "/month")
     - emphasized: Boolean to indicate if this is the emphasized tier
+    - monthlyPrice: The monthly price to display
+    - annualPrice: The annual price to display (only shown when togglePrice is true)
+    - interval: The price interval text (e.g. "/month")
     - cta: Object with text and url for the call-to-action button
     - ctaColor: Color for the CTA button text
     - ctaBgColor: Color for the CTA button background (for filled buttons)
@@ -27,72 +29,66 @@
     - name: Name of the category
     - features: Array of feature objects
       - name: Name of the feature
-      - tiers: Object with tier names as keys and feature values as values
+      - tiersComparison: Object with tier names as keys and feature values as values
         (can be boolean, string, or number)
 @example:
-  {{ partial "sections/pricing/with_comparison_table.html" (dict 
-      "tagline" "Plans" 
-      "heading" "Find the right plan for your business"
-      "description" "Whether you're a startup or enterprise, we have a plan that fits your needs and budget."
-      "tiers" (slice
-          (dict 
-              "name" "Basic" 
-              "id" "tier-basic" 
-              "price" "$29" 
-              "interval" "/month" 
-              "emphasized" false 
+  {{ partial "sections/pricing/with_comparison_table.html" (dict
+      "taglineComparison" "Plans"
+      "headingComparison" "Find the right plan for your business"
+      "descriptionComparison" "Whether you're a startup or enterprise, we have a plan that fits your needs and budget."
+      "tiersComparison" (slice
+          (dict
+              "name" "Basic"
+              "id" "tier-basic"
+              "emphasized" false
               "cta" (dict "text" "Get started" "url" "/signup/basic")
-              "ctaColor" "indigo-600" 
-              "ctaBorderColor" "indigo-200" 
+              "ctaColor" "indigo-600"
+              "ctaBorderColor" "indigo-200"
               "ctaHoverBorderColor" "indigo-300"
           )
-          (dict 
-              "name" "Pro" 
-              "id" "tier-pro" 
-              "price" "$79" 
-              "interval" "/month" 
-              "emphasized" true 
+          (dict
+              "name" "Pro"
+              "id" "tier-pro"
+              "emphasized" true
               "cta" (dict "text" "Get started" "url" "/signup/pro")
-              "ctaColor" "white" 
-              "ctaBgColor" "indigo-600" 
+              "ctaColor" "white"
+              "ctaBgColor" "indigo-600"
               "ctaHoverBgColor" "indigo-500"
           )
-          (dict 
-              "name" "Enterprise" 
-              "id" "tier-enterprise" 
-              "price" "$199" 
-              "interval" "/month" 
-              "emphasized" false 
+          (dict
+              "name" "Enterprise"
+              "id" "tier-enterprise"
+              "emphasized" false
               "cta" (dict "text" "Contact sales" "url" "/contact")
-              "ctaColor" "indigo-600" 
-              "ctaBorderColor" "indigo-200" 
+              "ctaColor" "indigo-600"
+              "ctaBorderColor" "indigo-200"
               "ctaHoverBorderColor" "indigo-300"
           )
       )
       "featureCategories" (slice
-          (dict 
-              "name" "Core Features" 
+          (dict
+              "name" "Core Features"
               "features" (slice
-                  (dict 
-                      "name" "Storage" 
-                      "tiers" (dict "Basic" "10GB" "Pro" "50GB" "Enterprise" "Unlimited")
+                  (dict
+                      "name" "Storage"
+                      "tiersComparison" (dict "Basic" "10GB" "Pro" "50GB" "Enterprise" "Unlimited")
                   )
-                  (dict 
-                      "name" "API access" 
-                      "tiers" (dict "Basic" false "Pro" true "Enterprise" true)
+                  (dict
+                      "name" "API access"
+                      "tiersComparison" (dict "Basic" false "Pro" true "Enterprise" true)
                   )
               )
           )
-          (dict 
-              "name" "Support" 
+          (dict
+              "name" "Support"
               "features" (slice
-                  (dict 
-                      "name" "Priority support" 
-                      "tiers" (dict "Basic" false "Pro" true "Enterprise" true)
+                  (dict
+                      "name" "Priority support"
+                      "tiersComparison" (dict "Basic" false "Pro" true "Enterprise" true)
                   )
-                  (dict 
-                      "name" "Dedicated account manager" 
-                      "tiers" (dict "Basic" false "Pro" false "Enterprise" true)
+                  (dict
+                      "name" "Dedicated account manager"
+                      "tiersComparison" (dict "Basic" false "Pro" false "Enterprise" true)
                   )
               )
           )
@@ -101,25 +97,27 @@
 @note: This section automatically adapts between mobile and desktop views. On mobile, each tier is displayed as a card in a vertical stack, while on desktop it shows a full comparison table. The emphasized tier is visually highlighted to draw attention to your recommended plan.
 */}}
 
-{{/* 
+{{/*
   With Comparison Table Pricing Section
-  
+
   Parameters:
-  - tagline: Text above the heading (default: "Pricing")
-  - heading: Main heading text (default: "Pricing that grows with you")
-  - description: Text below the heading (default: "Choose an affordable plan...")
-  - backgroundColor: Background color for the section (default: "white")
-  - taglineColor: Color for the tagline text (default: "indigo-600")
-  - headingColor: Color for the heading text (default: "gray-900")
-  - descriptionColor: Color for the description text (default: "gray-600")
-  - checkColor: Color for the checkmark icons (default: "indigo-600")
-  - dashColor: Color for the dash icons (default: "gray-400")
-  - tiers: Array of tier configurations, each with:
+  - taglineComparison: Text above the heading (default: "Our Plans")
+  - headingComparison: Main heading text (default: "Compare plans")
+  - descriptionComparison: Text below the heading (default: "Check out our plan comparisons and select the best one for you")
+  - backgroundColorComparison: Background color for the section (default: "white")
+  - taglineColorComparison: Color for the tagline text (default: "indigo-600")
+  - headingColorComparison: Color for the heading text (default: "gray-900")
+  - descriptionColorComparison: Color for the description text (default: "gray-600")
+  - checkColorComparison: Color for the checkmark icons (default: "primary")
+  - dashColorComparison: Color for the dash icons (default: "gray-400")
+  - togglePrice: Boolean to control whether to show the monthly/annual pricing toggle (default: false)
+  - tiersComparison: Array of tier configurations, each with:
     - name: Name of the tier
     - id: ID for accessibility
-    - price: Price for the tier
-    - interval: Text after the price (e.g., "/month")
     - emphasized: Boolean to indicate if this is the emphasized tier
+    - monthlyPrice: The monthly price to display
+    - annualPrice: The annual price to display (only shown when togglePrice is true)
+    - interval: The price interval text (e.g. "/month")
     - cta: Object with text and url for the call-to-action button
     - ctaColor: Color for the CTA button text
     - ctaBgColor: Color for the CTA button background (for filled buttons)
@@ -130,274 +128,926 @@
     - name: Name of the category
     - features: Array of features, each with:
       - name: Name of the feature
-      - tiers: Object with tier names as keys and feature values as values
+      - tiersComparison: Object with tier names as keys and feature values as values
         (can be boolean, string, or number)
 */}}
 
-{{ $tagline := .tagline | default "Pricing" }}
-{{ $heading := .heading | default "Pricing that grows with you" }}
-{{ $description := .description | default "Choose an affordable plan that's packed with the best features for engaging your audience, creating customer loyalty, and driving sales." }}
-{{ $backgroundColor := .backgroundColor | default "white" }}
-{{ $taglineColor := .taglineColor | default "indigo-600" }}
-{{ $headingColor := .headingColor | default "gray-900" }}
-{{ $descriptionColor := .descriptionColor | default "gray-600" }}
-{{ $checkColor := .checkColor | default "indigo-600" }}
-{{ $dashColor := .dashColor | default "gray-400" }}
-
-{{ $tiers := .tiers | default (slice 
-  (dict 
-    "name" "Starter" 
-    "id" "tier-starter" 
-    "price" "$19" 
-    "interval" "/month" 
-    "emphasized" false 
-    "cta" (dict 
-      "text" "Buy plan" 
-      "url" "#"
-    ) 
-    "ctaColor" "indigo-600" 
-    "ctaBorderColor" "indigo-200" 
-    "ctaHoverBorderColor" "indigo-300"
-  ) 
-  (dict 
-    "name" "Growth" 
-    "id" "tier-growth" 
-    "price" "$49" 
-    "interval" "/month" 
-    "emphasized" true 
-    "cta" (dict 
-      "text" "Buy plan" 
-      "url" "#"
-    ) 
-    "ctaColor" "white" 
-    "ctaBgColor" "indigo-600" 
-    "ctaHoverBgColor" "indigo-500"
-  ) 
-  (dict 
-    "name" "Scale" 
-    "id" "tier-scale" 
-    "price" "$99" 
-    "interval" "/month" 
-    "emphasized" false 
-    "cta" (dict 
-      "text" "Buy plan" 
-      "url" "#"
-    ) 
-    "ctaColor" "indigo-600" 
-    "ctaBorderColor" "indigo-200" 
-    "ctaHoverBorderColor" "indigo-300"
-  )
-) }}
-
-{{ $featureCategories := .featureCategories | default (slice 
-  (dict 
-    "name" "Features" 
-    "features" (slice 
-      (dict 
-        "name" "Edge content delivery" 
-        "tiers" (dict "Starter" true "Growth" true "Scale" true)
-      ) 
-      (dict 
-        "name" "Custom domains" 
-        "tiers" (dict "Starter" "1" "Growth" "3" "Scale" "Unlimited")
-      ) 
-      (dict 
-        "name" "Team members" 
-        "tiers" (dict "Starter" "3" "Growth" "20" "Scale" "Unlimited")
-      ) 
-      (dict 
-        "name" "Single sign-on (SSO)" 
-        "tiers" (dict "Starter" false "Growth" false "Scale" true)
-      )
+{{ $taglineComparison := .taglineComparison | default "" }}
+{{ $headingComparison := .headingComparison | default "Pricing that grows with you" }}
+{{ $descriptionComparison := .descriptionComparison | default "Choose an affordable plan that's packed with the best features for engaging your audience, creating customer loyalty, and driving sales." }}
+{{ $backgroundColorComparison := .backgroundColorComparison | default "white" }}
+{{ $taglineColorComparison := .taglineColorComparison| default "primary" }}
+{{ $headingColorComparison := .headingColorComparison | default "gray-900" }}
+{{ $descriptionColorComparison := .descriptionColorComparison | default "gray-600" }}
+{{ $checkColorComparison := .checkColorComparison | default "primary" }}
+{{ $dashColorComparison := .dashColorComparison | default "gray-400" }}
+{{ $toggleTextColor := .toggleTextColor | default "gray-500" }}
+{{ $toggleActiveColor := .toggleActiveColor | default "white" }}
+{{ $toggleActiveBgColor := .toggleActiveBgColor | default "indigo-600" }}
+{{ $toggleBorderColor := .toggleBorderColor | default "gray-200" }}
+{{ $togglePrice := .togglePrice | default true }}
+{{ $tiersComparison := .tiersComparison | default (slice
+    (dict
+        "name" "Small business"
+        "id" "tier-comparison-small"
+        "emphasized" false
+        "monthlyPrice" "$19"
+        "annualPrice" "$15"
+        "interval" "/month"
+        "cta" (dict
+            "text" "Try for free"
+            "url" "/trial"
+        )
+        "ctaColor" "primary"
+        "ctaBorderColor" "primary-light"
+        "ctaHoverBorderColor" "primary"
     )
-  ) 
-  (dict 
-    "name" "Reporting" 
-    "features" (slice 
-      (dict 
-        "name" "Advanced analytics" 
-        "tiers" (dict "Starter" true "Growth" true "Scale" true)
-      ) 
-      (dict 
-        "name" "Basic reports" 
-        "tiers" (dict "Starter" false "Growth" true "Scale" true)
-      ) 
-      (dict 
-        "name" "Professional reports" 
-        "tiers" (dict "Starter" false "Growth" false "Scale" true)
-      ) 
-      (dict 
-        "name" "Custom report builder" 
-        "tiers" (dict "Starter" false "Growth" false "Scale" true)
-      )
+    (dict
+        "name" "Medium business"
+        "id" "tier-comparison-medium"
+        "monthlyPrice" "$35"
+        "annualPrice" "$29"
+        "interval" "/month"
+        "emphasized" false
+        "cta" (dict
+            "text" "Try for free"
+            "url" "/trial"
+        )
+        "ctaColor" "primary"
+        "ctaBorderColor" "primary-light"
+        "ctaHoverBorderColor" "primary"
     )
-  ) 
-  (dict 
-    "name" "Support" 
-    "features" (slice 
-      (dict 
-        "name" "24/7 online support" 
-        "tiers" (dict "Starter" true "Growth" true "Scale" true)
-      ) 
-      (dict 
-        "name" "Quarterly workshops" 
-        "tiers" (dict "Starter" false "Growth" true "Scale" true)
-      ) 
-      (dict 
-        "name" "Priority phone support" 
-        "tiers" (dict "Starter" false "Growth" false "Scale" true)
-      ) 
-      (dict 
-        "name" "1:1 onboarding tour" 
-        "tiers" (dict "Starter" false "Growth" false "Scale" true)
-      )
+    (dict
+        "name" "Large business"
+        "id" "tier-comparison-large"
+        "monthlyPrice" "$59"
+        "annualPrice" "$49"
+        "interval" "/month"
+        "emphasized" true
+        "cta" (dict
+            "text" "Try for free"
+            "url" "/trial"
+        )
+        "ctaColor" "white"
+        "ctaBgColor" "primary"
+        "ctaHoverBgColor" "primary-dark"
     )
-  )
-) }}
+)}}
 
-<div class="bg-{{ $backgroundColor }} py-24 sm:py-32">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
-    <div class="mx-auto max-w-4xl text-center">
-      <h2 class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</h2>
-      <p class="mt-2 text-5xl font-semibold tracking-tight text-balance text-{{ $headingColor }} sm:text-6xl">{{ $heading }}</p>
-    </div>
-    <p class="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-{{ $descriptionColor }} sm:text-xl/8">{{ $description }}</p>
+{{ $featureCategories := .featureCategories | default (slice
+    (dict
+        "name" "Communication channels"
+        "features" (slice
+        (dict
+                "name" "Customer Portal"
+                "tooltip" "Setup a customer portal complete with a knowledge base, forum, and FAQs. Customer portal feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Contact forms – Contact us buttons"
+                "tooltip" "Give your customers the option to reach out via a contact form that’s placed directly on your website.Contact form feature"
+                "tiersComparison" (dict "Small business" "3" "Medium business" "10" "Large business" "50" "Enterprise" "200")
+                )
+        (dict
+                "name" "Slack notifications"
+                "tooltip" "Give your customers the option to reach out via a contact form that’s placed directly on your website.Contact form feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Customer forum"
+                "tooltip" "Create an online community forum for your users. Empower them to ask questions, provide answers, and lead discussions. Customer forum feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Email ticketing – Incoming email accounts"
+                "tooltip" "Smart email ticketing ensures no emails get lost or remain unanswered. Our ticketing system also prevents duplicate responses with the agent collision detection feature. Ticketing feature"
+                "tiersComparison" (dict "Small business" "3" "Medium business" "10" "Large business" "150" "Enterprise" "500")
+                )
+        (dict
+                "name" "Email ticketing – Outgoing email accounts"
+                "tooltip" "Smart email ticketing ensures no emails get lost or remain unanswered. Our ticketing system also prevents duplicate responses with the agent collision detection feature. Ticketing feature"
+                "tiersComparison" (dict "Small business" "3" "Medium business" "10" "Large business" "150" "Enterprise" "500")
+                )
+        (dict
+                "name" "Live chat button"
+                "tooltip" "Gain customer trust and boost sales with personalized, real-time live chat support. Live chat feature"
+                "tiersComparison" (dict "Small business" "2" "Medium business" "5" "Large business" "50" "Enterprise" "100")
+                )
+        (dict
+                "name" "Proactive chat invitations"
+                "tooltip" "Engage your website visitors by inviting them to chat with your agents. Proactive chat invitations feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Call center"
+                "tooltip" "Utilize call center to efficiently manage and handle customer interactions. Call center feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Feedback buttons"
+                "tooltip" "Encourage customers to send you new ideas and Feedback for future development. Feedback&Suggestions feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Viber"
+                "tooltip" "Respond to Viber messages directly from your LiveAgent dashboard. Viber feature"
+                "tiersComparison" (dict "Small business" "$39/month" "Medium business" "$39/month" "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Twitter"
+                "tooltip" "Monitor unique keywords and respond to Tweets that require action. All responses made from LiveAgent are sent as Tweets. Twitter feature"
+                "tiersComparison" (dict "Small business" "$39/month" "Medium business" "$39/month" "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Facebook"
+                "tooltip" "Respond to Facebook messages, posts, comments, or mentions directly from LiveAgent. Facebook feature"
+                "tiersComparison" (dict "Small business" "$39/month" "Medium business" "$39/month" "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Facebook + Instagram"
+                "tooltip" "Instagram integration is not possible without having Facebook integration. Instagram feature"
+                "tiersComparison" (dict "Small business" "$39/month + $19/month" "Medium business" "$39/month + $19/month" "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "WhatsApp"
+                "tooltip" "Integrate your WhatsApp number with your LiveAgent ticketing system and use it to reply to WhatsApp messages within the ticketing system. Note: The integration currently works only with Twilio and 360dialog providers."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" "3 numbers" "Enterprise" "3+ numbers")
+                )
+        (dict
+                "name" "Video call functionality"
+                "tooltip" "Increase outbound sales and improve customer satisfaction with our video call feature. Get personal, and don’t forget to smile! Video call feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        )
+    )
+    (dict
+        "name" "Conversation management"
+        "features" (slice
+        (dict
+                "name" "Ticket history"
+                "tooltip" "Store all tickets and chat transcripts indefinitely. Access all past tickets, conversations, and call recordings for quality assurance, legal, or training purposes at any time."
+                "tiersComparison" (dict "Small business" "Unlimited" "Medium business" "Unlimited" "Large business" "Unlimited" "Enterprise" "Unlimited")
+                )
+        (dict
+                "name" "Merge tickets"
+                "tooltip" "Received multiple tickets about the same issue and want to combine them? No problem! Use our merge tickets feature."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Custom ticket fields"
+                "tooltip" "Learned some valuable information? Create a custom ticket field and add it to the ticket info panel. Custom ticket field feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Split tickets"
+                "tooltip" "Received a ticket with multiple requests? Split the ticket into two and assign each to a different agent/department. Split tickets feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Internal tickets"
+                "tooltip" "Create an internal note for your colleagues. The notes are visible to agents only, so there’s no need to worry that other end-users or customers seeing your private notes. Internal tickets"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Attachments"
+                "tooltip" "Easily drag and drop attachments (images, music, video, documents, etc.) to share them with your customers. Attachments feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Ticket mass actions"
+                "tooltip" "Select multiple tickets at once and run mass actions tosavetime. With this feature, you can resolve, transfer, or delete multiple tickets with a single click. Ticket mass actions feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "To Solve Algorithm"
+                "tooltip" "Automatically prioritize tickets that need to be solved according to service level agreements (SLAs) and the date and time they were received. To Solve Feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Ticket satisfaction survey"
+                "tooltip" "Automatically send out ticket satisfaction survey emails after each interaction to ensure your customers receive high-quality service."
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Custom tags"
+                "tooltip" "Add custom tags to organize and filter through tickets while viewing their contents at a glance."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Custom ticket filters"
+                "tooltip" "Create unique ticket filters to make searching and filtering easier. Custom ticket filters feature"
+                "tiersComparison" (dict "Small business" "300 filters / agent" "Medium business" "500 filters / agent" "Large business" "1000 filters / agent" "Enterprise" "5000 filters / agent")
+                )
+        (dict
+                "name" "Agent notes to tickets"
+                "tooltip" "Add private notes to tickets. Private notes are visible to agents only, so there’s no need to worry about your customers or other end users seeing them. Agent notes to tickets feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Real-time dashboards"
+                "tooltip" "A real-time overview of your usage statistics."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Ticket transfers"
+                "tooltip" "Transfer tickets to the agents or departments that are best equipped to handle them with a single click."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "WYSIWYG editor"
+                "tooltip" "Use our WYSIWYG editor to style the content of your emails, email templates, and knowledge base articles. WYSIWYG editor feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Multiple ticket tabs"
+                "tooltip" "Solving more than one ticket at a time? No problem! Open up multiple ticket tabs in your LiveAgent app and switch back and forth as needed. Multiple ticket tabs feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Business hours"
+                "tooltip" "When are you available to help your customers? Let them know with the Business hours feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Departments"
+                "tooltip" "Create sales, marketing, and tech support departments for easier ticket routing and division of responsibilities.Departments feature"
+                "tiersComparison" (dict "Small business" "10" "Medium business" "20" "Large business" "150" "Enterprise" "300")
+                )
+        (dict
+                "name" "Roles in departments"
+                "tooltip" ""
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" false "Enterprise" true)
+                )
+        (dict
+                "name" "Canned messages"
+                "tooltip" "Speed up your responses by using predefined sequences of text. Canned messages feature"
+                "tiersComparison" (dict "Small business" "20" "Medium business" "100" "Large business" "500" "Enterprise" "1000")
+                )
+        (dict
+                "name" "Contacts & Groups"
+                "tooltip" "Segment customers by interests, age, nationality, or any other metric. Contacts feature & Groups feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Predefined answers"
+                "tooltip" "Create predefined answers for support queries that can be answered with a generic response. Predefined answers feature"
+                "tiersComparison" (dict "Small business" "20" "Medium business" "100" "Large business" "500" "Enterprise" "1000")
+                )
+        (dict
+                "name" "Chat transcripts"
+                "tooltip" "Do your customers need a copy of the conversation they’ve had with you? Provide them with chat transcripts via email."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "File sharing over chat"
+                "tooltip" "Our live chat supports JPG, JPEG, PNG, GIF, PDF, and TXT file sharing."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Mobile chat window"
+                "tooltip" "Our live chat widgets are responsive – customers can start chats on mobile or desktop with ease."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Chat welcome message setting"
+                "tooltip" "Send out automated chat welcome messages to your new website visitors to showcase that you’re online and available to help them as needed."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Real-time visitors monitor"
+                "tooltip" "Monitor what your website visitors are up to. See which URLs they have open, how long they’ve been browsing each page, and get notified when they navigate to a new page on your website."
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Chat Satisfaction Surveys"
+                "tooltip" "Get immediate feedback after each customer interaction.Find out how you can improve, what was done right, and monitor customer satisfaction over time. Agent ratings feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Time Tracking"
+                "tooltip" "Gain a deeper understanding of your help desk’s performance by tracking your agent’s working habits. See how long it takes them to respond to each ticket, how long they were online, or how long their breaks were. Time tracking feature"
+                "tiersComparison" (dict "Small business" "$19 / month" "Medium business" "$19 / month" "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Call Queueing"
+                "tooltip" "If all online agents are busy with ongoing calls, LiveAgent will automatically create a call queue for new callers. Call queue indicator"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "IVR"
+                "tooltip" "Improve your customer’s call center experience by designing comprehensive interactive voice response (IVR) trees that route them to the correct support department or agent. IVR feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "In call recordings"
+                "tooltip" "Unlimited call recording ensures that you are always protected with high quality recordings of your calls whenever you need them most. Unlimited call recordings feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Call routing & transfers"
+                "tooltip" "Our call center software is equipped with ACD and attended call transfers. Enjoy seamless call transitions from one department or agent to another starting today. Call routing and Call transfers feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Custom roles"
+                "tooltip" "Create and name roles and customize agent permissions. Custom roles feature"
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" "3" "Enterprise" "40")
+                )
+        )
+    )
+    (dict
+        "name" "Customization"
+        "features" (slice
+        (dict
+                "name" "API keys"
+                "tooltip" "The API rate limit is set right now to 180 requests per minute, counted for each API key separately. API rate limit"
+                "tiersComparison" (dict "Small business" "1" "Medium business" "5" "Large business" "10" "Enterprise" "100")
+                )
+        (dict
+                "name" "Customer mail templates"
+                "tooltip" "Configure email templates for your customers and agents. All the email templates sent from LiveAgent can be formatted as HTML or plain text emails. Mail templates feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Rules & Time rules"
+                "tooltip" "Create custom triggers, automation rules, and time rules to speed up repetitive tasks that don’t require the attention of your agents. Rules and Time rules feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Gamification"
+                "tooltip" "Motivate, entertain, increase productivity, and foster collaboration in teams. Gamification feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Contact form widgets customization"
+                "tooltip" "Choose a contact form widget from our template gallery and customize it to match your business’s aesthetic."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Chat widgets customization"
+                "tooltip" "Choose a chat widget from our template gallery and customize it to match your business’s color palette."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Sound configuration"
+                "tooltip" "Customize or disable any notification sounds that you hear in LiveAgent. Choose from our existing sounds or upload your own files. Sound configuration feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Search & replace"
+                "tooltip" "LiveAgent can automatically search for specific strings in every incoming message and replace them with something else before being displayed or stored in the database. Search & replace feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Call widgets customization"
+                "tooltip" "Create enticing call widgets or choose from our template gallery. Customize any existing design according to your needs."
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Video call widgets customization"
+                "tooltip" "Create engaging video call widgets or choose an existing design from our template gallery. Customize any existing template according to your needs."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Knowledge base"
+                "tooltip" "Create categories in your Customer portal based on your products, services, or types of customers. Add knowledge base articles, Forums, or feedback boards. Knowledge base"
+                "tiersComparison" (dict "Small business" "1" "Medium business" "1" "Large business" "2" "Enterprise" "10")
+                )
+        (dict
+                "name" "Additional knowledge base"
+                "tooltip" "Gives you the opportunity to create an unlimited amount of separate customer portals, where each one of them can have its own unique design, settings, and content. Knowledge base"
+                "tiersComparison" (dict "Small business" "$19 / month / per KB" "Medium business" "$19 / month / per KB" "Large business" "$19 / month / per KB" "Enterprise" "$19 / month / per KB")
+                )
+        (dict
+                "name" "Branding free"
+                "tooltip" "Remove LiveAgent branding from live chat windows and buttons, knowledge base/customer portal, call windows and buttons, contact forms, feedback forms, and email templates."
+                "tiersComparison" (dict "Small business" false "Medium business" "$19 / month / per acc" "Large business" "$19 / month / per acc" "Enterprise" true)
+                )
+        (dict
+                "name" "Custom domain parking"
+                "tooltip" "Park your LiveAgent account to make it accessible from your own domain. Custom domain parking"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        )
+    )
+    (dict
+        "name" "Reporting"
+        "features" (slice
+        (dict
+                "name" "Analytics overview"
+                "tooltip" "Get an overview of your customer support. See who is interacting with your company and monitor the service they’re receiving. Analytics overview feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Performance report"
+                "tooltip" "Monitor the performance of your support agents. See who is the most productive, who prefers e-mails over live chats, and who delivers consistent results over time. Performance report feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Agent report"
+                "tooltip" "Create agent reports for work time, answered tickets, chats, calls, sales, ratings, and more from a specific time range. Agent report feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Agents ratings"
+                "tooltip" "Generate agent rating reports complete with customer’s comments. Agents ratings feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Department report"
+                "tooltip" "Generate reports about each department’s number of answered tickets, chats, calls, and more during a specific time range. Department report feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Channel report"
+                "tooltip" "LiveAgent provides you with detailed insights about every communication channel: email, live chat, call center, contact forms, Instagram, Facebook messages, Tweets etc. Channel report feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Ticket history"
+                "tooltip" "Filter tickets by day, week, month, year, or a custom date range to generate a ticket history report. Find out which departments had the most assigned tickets, which agents solved them, their current statuses, and more."
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "My work report"
+                "tooltip" "Generate reports about the work you’ve done in a day, week, month, year, or during a custom date range. Find out how many tickets were assigned to you, from which channel they came from, and their current status."
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Agent availability for calls, chats, ticket"
+                "tooltip" "Monitor the availability of your agents and see exactly when they’re online (date, hours, from, to). Agent availability feature"
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Call, chat availability"
+                "tooltip" "Generate reports about each agent’s availability to answer calls and chats. Discover who’s most involved, and who needs to ramp up their support efforts."
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Call, chat, ticket loady"
+                "tooltip" "Find out which agents had the most tickets, calls, and chats assigned to them to compare and optimize your agent’s workloads."
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        )
+    )
+    (dict
+        "name" "AI features"
+        "features" (slice
+        (dict
+                "name" "AI Answer Assistant"
+                "tooltip" "Enhance your customer support with AI Answer Assistant. Powered by ChatGPT and your OpenAI API key, it generates polished email replies, streamlining responses and boosting agent efficiency."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "AI Chatbot"
+                "tooltip" "AI Chatbot answers simple customer questions instantly using your knowledge sources and transfers complex queries to your team. AI Chatbot feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        )
+    )
+    (dict
+        "name" "Support and services"
+        "features" (slice
+        (dict
+                "name" "Customer support service"
+                "tooltip" "We’re here for you 24/7, all year round. Reach out to our support team via live chat, email, WhatsApp, social media, or our customer portal for assistance anytime."
+                "tiersComparison" (dict "Small business" "best effort" "Medium business" "24/7" "Large business" "24/7" "Enterprise" "24/7")
+                )
+        (dict
+                "name" "Assisted domain parking"
+                "tooltip" "Let us handle your domain parking effortlessly. If you have a custom domain, simply ensure the CNAME record is set up and send us your SSL certificate details, including the private key and intermediate/root certificates (CA bundle). Our team will take care of the rest."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Design customization assistance"
+                "tooltip" "Sit back and relax while we set up your LiveAgent account for you. Log in to a ready to use helpdesk system that will boost your agent’s productivity and improve your customer service."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "AI configuration service"
+                "tooltip" "Receive expert guidance and assisted AI workflow setup to streamline your daily operations and meet your unique needs."
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Chatbot setup service"
+                "tooltip" "Efficiently deploy chatbots with our expert setup assistance, designed to enhance user interaction and support."
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "IVR setup service"
+                "tooltip" "Streamline your call management with expert assistance in setting up an efficient Interactive Voice Response system."
+                "tiersComparison" (dict "Small business" false "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Product setup training"
+                "tooltip" "Equip your support team manager with the skills needed to effectively implement and manage our helpdesk tool for your organization."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Consulting services"
+                "tooltip" "Maximize your potential with our expert consulting services. Book a call with our team to get tailored advice and strategies to drive innovation, improve efficiency, and achieve your goals."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Priority support"
+                "tooltip" "Get swift assistance with your queries, ensuring minimal wait times and immediate attention."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" false "Enterprise" true)
+                )
+        (dict
+                "name" "Dedicated account manager"
+                "tooltip" "Enjoy personalized support with a dedicated account manager. They’re available to address your needs, provide insights, and help you maximize your experience with us."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" false "Enterprise" true)
+                )
+        (dict
+                "name" "Scheduled release management"
+                "tooltip" "Enjoy scheduled release management with seamless version updates, timed to align with your preferences."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" false "Enterprise" true)
+                )
+        (dict
+                "name" "Service review call and reports"
+                "tooltip" "Stay informed with service review calls and reports on your team’s raised tickets. Discuss quality, explore new features, and identify improvements to optimize your experience."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" false "Enterprise" true)
+                )
+        (dict
+                "name" "Custom billing setup"
+                "tooltip" "Customize your billing preferences to align with your business needs for a streamlined payment experience."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" false "Enterprise" true)
+                )
+        )
+    )
+    (dict
+        "name" "Product capabilities"
+        "features" (slice
+        (dict
+                "name" "Multiple language support"
+                "tooltip" "LiveAgent currently supports 45 language translations with new ones being added regularly. Multiple language support feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Multiple website support"
+                "tooltip" "Have multiple businesses, products, or subdomains with unique websites? No problem, LiveAgent can fetch and streamline all tickets into a single LiveAgent account."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Multibrand support"
+                "tooltip" "Handle help desk communication for multiple brands and business from one software."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Hardware IP phone"
+                "tooltip" "Feel more comfortable using your hardware phone? No problem! Connect it with LiveAgent to answer calls on it. There’s no need to use softphones or answer calls in-browser if you’re not into it."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "iPhone/Android apps"
+                "tooltip" "We offer a LiveAgent app for both Android and iOS operating systems. iPhone/Android mobile applications feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Integrations"
+                "tooltip" "Get access to all LiveAgent plugins and integrations with other software solutions to unify and simplify your workflow."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        )
+    )
+    (dict
+        "name" "Security and permissions"
+        "features" (slice
+        (dict
+                "name" "EU/US/UK/SG Data Center"
+                "tooltip" "Currently, we have multiple data centers around the world. We are installing our customer accounts on the best possible server point depending on where they are located and taking their national laws into account. Multiple Data Centers"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "SpamAssassin Integration"
+                "tooltip" "Save time and fight against spam with automatic spam filtering. LiveAgent implements the SpamAssassin anti-spam platform, which blocks spam. SPAM filters feature"
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Access restriction to agent panel"
+                "tooltip" "Restrict the number of IP numbers that have access to your agent panel."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Password Policy Management"
+                "tooltip" "Restrict the number of IP numbers that have access to your agent panel."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "2-step verification"
+                "tooltip" "Protect your LiveAgent account with your password and an additional code from the Google Authenticator mobile app. 2-step verification feature."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "HTTPS encryption"
+                "tooltip" "Protect your LiveAgent account with your password and an additional code from the Google Authenticator mobile app. 2-step verification feature."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Banned visitors list"
+                "tooltip" "Is someone spamming you or being obnoxious? Ban their IP address to prevent them from chatting with you. Lift the ban when you’re ready by reviewing the list of visitors who are banned from your chat."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Audit Log"
+                "tooltip" "Is someone spamming you or being obnoxious? Ban their IP address to prevent them from chatting with you. Lift the ban when you’re ready by reviewing the list of visitors who are banned from your chat."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "SSO"
+                "tooltip" "Use single sign-on (SSO) to make logins easier for your agents. Log in once without re-entering authentication factors and speed up the process."
+                "tiersComparison" (dict "Small business" false "Medium business" false "Large business" true "Enterprise" true)
+                )
+        (dict
+                "name" "Customisation of system email templates"
+                "tooltip" "Change the wording and design of all system emails and customize them whenever you need to."
+                "tiersComparison" (dict "Small business" true "Medium business" true "Large business" true "Enterprise" true)
+                )
+        )
+    )
+    (dict
+        "name" "Automation"
+        "features" (slice
+        (dict
+                "name" "Event Rules"
+                "tooltip" "Set up automation rules for various events and determine what actions will perform automatically whenever a specific event happens in LiveAgent."
+                "tiersComparison" (dict "Small business" "50" "Medium business" "150" "Large business" "500" "Enterprise" "1000")
+                )
+        (dict
+                "name" "Time Rules"
+                "tooltip" "Set up time-based rules that will perform actions automatically after certain time periods pass in your LiveAgent system."
+                "tiersComparison" (dict "Small business" false "Medium business" "30" "Large business" "100" "Enterprise" "200")
+                )
+        (dict
+                "name" "SLA rules"
+                "tooltip" "Set up internal Service Level Agreement (SLA) rules that ensure a smooth experience for your agents and customers. Use them to determine responsibility, penalties and remedies for maintaining a correct workflow."
+                "tiersComparison" (dict "Small business" false "Medium business" "5" "Large business" "50" "Enterprise" "100")
+                )
+        (dict
+                "name" "SLA levels"
+                "tooltip" "Set up your Service Level Agreement (SLA) rules in multiple levels to ensure correct workflows on more than one level. You can use them to specify workflows in different circumstances."
+                "tiersComparison" (dict "Small business" false "Medium business" "5" "Large business" "20" "Enterprise" "100")
+                )
+        )
+    )
+    )
+}}
 
-    <!-- Mobile view (xs to lg) -->
-    <div class="mx-auto mt-12 max-w-md space-y-8 sm:mt-16 lg:hidden">
-      {{ range $index, $tier := $tiers }}
-        {{ $bgClass := "" }}
-        {{ $ringClass := "ring-1 ring-gray-200" }}
-        {{ if $tier.emphasized }}
-          {{ $bgClass = "bg-gray-400/5" }}
-          {{ $ringClass = "ring-1 ring-gray-200 ring-inset" }}
-        {{ end }}
-        <section class="{{ $bgClass }} {{ if $tier.emphasized }}rounded-xl{{ end }} p-8 {{ $ringClass }}">
-          <h3 id="{{ $tier.id }}" class="text-sm/6 font-semibold text-{{ if $tier.emphasized }}{{ $taglineColor }}{{ else }}gray-900{{ end }}">{{ $tier.name }}</h3>
-          <p class="mt-2 flex items-baseline gap-x-1 text-gray-900">
-            <span class="text-4xl font-semibold">{{ $tier.price }}</span>
-            <span class="text-sm font-semibold">{{ $tier.interval }}</span>
-          </p>
-          
-          {{ if $tier.emphasized }}
-            <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md bg-{{ $tier.ctaBgColor }} px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
-          {{ else }}
-            <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaBorderColor }} ring-inset hover:ring-{{ $tier.ctaHoverBorderColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
-          {{ end }}
-          
-          <ul role="list" class="mt-10 space-y-4 text-sm/6 text-gray-900">
-            {{ range $categoryIndex, $category := $featureCategories }}
-              <li>
-                <ul role="list" class="space-y-4">
-                  {{ range $featureIndex, $feature := $category.features }}
-                    {{ $tierValue := index $feature.tiers $tier.name }}
-                    {{ if $tierValue }}
-                      <li class="flex gap-x-3">
-                        <svg class="h-6 w-5 flex-none text-{{ $checkColor }}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
-                        </svg>
-                        <span>
-                          {{ $feature.name }}
-                          {{ if ne $tierValue true }}
-                            <span class="text-sm/6 text-gray-500">({{ $tierValue }})</span>
-                          {{ end }}
-                        </span>
-                      </li>
-                    {{ end }}
-                  {{ end }}
-                </ul>
-              </li>
+<div id="comparison-table" class="bg-{{ $backgroundColorComparison }} py-12">
+    <div class="mx-auto max-w-7xl">
+        <div class="mx-auto max-w-4xl text-center">
+            {{ if $headingComparison }}
+                <h2 class="text-base/7 font-semibold text-{{ $taglineColorComparison }}">{{ $taglineComparison }}</h2>
             {{ end }}
-          </ul>
-        </section>
-      {{ end }}
-    </div>
-
-    <!-- Desktop view (lg+) -->
-    <div class="isolate mt-20 hidden lg:block">
-      <div class="relative -mx-8">
-        <div class="absolute inset-x-4 inset-y-0 -z-10 flex">
-          <div class="flex w-1/4 px-4" style="margin-left: 50%" aria-hidden="true">
-            <div class="w-full rounded-t-xl border-x border-t border-gray-900/10 bg-gray-400/5"></div>
-          </div>
+            <p class="mt-2 mb-2 text-5xl font-semibold tracking-tight text-balance text-{{ $headingColorComparison }} sm:text-6xl">{{ $headingComparison }}</p>
         </div>
-        <table class="w-full table-fixed border-separate border-spacing-x-8 text-left">
-          <caption class="sr-only">
-            Pricing plan comparison
-          </caption>
-          <colgroup>
-            <col class="w-1/4">
-            {{ range $tiers }}
-              <col class="w-1/4">
+        <p class="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-{{ $descriptionColorComparison }} sm:text-xl/8">{{ $descriptionComparison }}</p>
+        <div class="mt-8 flex justify-center">
+            {{ if $togglePrice }}
+            <fieldset aria-label="Payment frequency">
+                <div class="grid grid-cols-2 gap-x-1 rounded-full p-1 text-center text-xs/5 font-semibold ring-1 ring-{{ $toggleBorderColor }} ring-inset">
+                    <!-- Monthly option -->
+                    <label class="cursor-pointer rounded-full px-2.5 py-1 bg-{{ $toggleActiveBgColor }} text-{{ $toggleActiveColor }}" id="monthly-label">
+                        <input type="radio" name="frequency" value="monthly" class="sr-only" checked>
+                        <span>Monthly</span>
+                    </label>
+                    <!-- Annual option -->
+                    <label class="cursor-pointer rounded-full px-2.5 py-1 text-{{ $toggleTextColor }}" id="annually-label">
+                        <input type="radio" name="frequency" value="annually" class="sr-only">
+                        <span>Annually</span>
+                    </label>
+                </div>
+            </fieldset>
             {{ end }}
-          </colgroup>
-          <thead>
-            <tr>
-              <td></td>
-              {{ range $tiers }}
-                <th scope="col" class="px-6 pt-6 xl:px-8 xl:pt-8">
-                  <div class="text-sm/7 font-semibold text-gray-900">{{ .name }}</div>
-                </th>
-              {{ end }}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row"><span class="sr-only">Price</span></th>
-              {{ range $tier := $tiers }}
-                <td class="px-6 pt-2 xl:px-8">
-                  <div class="flex items-baseline gap-x-1 text-gray-900">
-                    <span class="text-4xl font-semibold">{{ $tier.price }}</span>
-                    <span class="text-sm/6 font-semibold">{{ $tier.interval }}</span>
-                  </div>
-                  {{ if $tier.emphasized }}
-                    <a href="{{ $tier.cta.url }}" class="mt-8 block rounded-md bg-{{ $tier.ctaBgColor }} px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
-                  {{ else }}
-                    <a href="{{ $tier.cta.url }}" class="mt-8 block rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaBorderColor }} ring-inset hover:ring-{{ $tier.ctaHoverBorderColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
-                  {{ end }}
-                </td>
-              {{ end }}
-            </tr>
-            
-            {{ range $categoryIndex, $category := $featureCategories }}
-              <tr>
-                <th scope="colgroup" colspan="{{ add (len $tiers) 1 }}" class="pt-{{ if eq $categoryIndex 0 }}8{{ else }}16{{ end }} pb-4 text-sm/6 font-semibold text-gray-900">
-                  {{ $category.name }}
-                  <div class="absolute inset-x-8 mt-4 h-px bg-gray-900/10"></div>
-                </th>
-              </tr>
-              
-              {{ range $featureIndex, $feature := $category.features }}
-                <tr>
-                  <th scope="row" class="py-4 text-sm/6 font-normal text-gray-900">
-                    {{ $feature.name }}
-                    <div class="absolute inset-x-8 mt-4 h-px bg-gray-900/5"></div>
-                  </th>
-                  
-                  {{ range $tierIndex, $tier := $tiers }}
-                    {{ $tierValue := index $feature.tiers $tier.name }}
-                    <td class="px-6 py-4 xl:px-8">
-                      {{ if eq $tierValue true }}
-                        <svg class="mx-auto size-5 text-{{ $checkColor }}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="sr-only">Included in {{ $tier.name }}</span>
-                      {{ else if eq $tierValue false }}
-                        <svg class="mx-auto size-5 text-{{ $dashColor }}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                          <path fill-rule="evenodd" d="M4 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 10Z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="sr-only">Not included in {{ $tier.name }}</span>
-                      {{ else }}
-                        <div class="text-center text-sm/6 text-gray-500">{{ $tierValue }}</div>
-                      {{ end }}
-                    </td>
-                  {{ end }}
-                </tr>
-              {{ end }}
+        </div>
+        <!-- Mobile view (xs to lg) -->
+        <div class="mx-auto mt-12 max-w-md space-y-8 sm:mt-16 lg:hidden">
+            {{ range $index, $tier := $tiersComparison }}
+                {{ $bgClass := "" }}
+                {{ $ringClass := "ring-1 ring-gray-200" }}
+                {{ if $tier.emphasized }}
+                    {{ $bgClass = "bg-gray-400/5" }}
+                    {{ $ringClass = "ring-1 ring-gray-200 ring-inset" }}
+                {{ end }}
+                <section class="{{ $bgClass }} {{ if $tier.emphasized }}rounded-xl{{ end }} p-8 {{ $ringClass }}">
+                    <h3 id="{{ $tier.id }}"
+                        class="text-sm/6 font-semibold text-{{ if $tier.emphasized }}{{ $taglineColorComparison }}{{ else }}gray-900{{ end }}">{{ $tier.name }}</h3>
+                    <p class="mt-6 flex items-baseline gap-x-1">
+                        {{ if $togglePrice }}
+                        <!-- Monthly price (default visible) -->
+                        <span class="text-4xl font-semibold tracking-tight text-{{ $tier.priceColor }} monthly-price">{{ $tier.monthlyPrice }}</span>
+                        <!-- Annual price (hidden by default) -->
+                        <span class="text-4xl font-semibold tracking-tight text-{{ $tier.priceColor }} annual-price hidden">{{ $tier.annualPrice }}</span>
+                        {{ else }}
+                        <!-- Only monthly price when toggle is disabled -->
+                        <span class="text-4xl font-semibold tracking-tight text-{{ $tier.priceColor }}">{{ $tier.monthlyPrice }}</span>
+                        {{ end }}
+                        <!-- Interval -->
+                        <span class="text-sm/6 font-semibold text-{{ $tier.intervalColor }}">{{ $tier.interval }}</span>
+                    </p>
+                    {{ if $tier.emphasized }}
+                        <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}"
+                           class="mt-8 not-prose block rounded-md bg-{{ $tier.ctaBgColor }} px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
+                    {{ else }}
+                        <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}"
+                           class="mt-8 not-prose block rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaBorderColor }} ring-inset hover:ring-{{ $tier.ctaHoverBorderColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
+                    {{ end }}
+
+                    <ul role="list" class="mt-10 space-y-4 text-sm/6 text-gray-900">
+                        {{ range $categoryIndex, $category := $featureCategories }}
+                            <li>
+                                <ul role="list" class="space-y-4">
+                                    {{ range $featureIndex, $feature := $category.features }}
+                                        {{ $tierValue := index $feature.tiersComparison $tier.name }}
+                                        {{ if $tierValue }}
+                                            <li class="flex gap-x-3">
+                                                <svg class="h-6 w-5 flex-none text-{{ $checkColorComparison }}"
+                                                     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
+                                                     data-slot="icon">
+                                                    <path fill-rule="evenodd"
+                                                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                                          clip-rule="evenodd"/>
+                                                </svg>
+                                                <span>
+                                                        {{ if $feature.tooltip }}
+															{{ partial "components/tooltip/tooltip.html" (dict "content" $feature.name "text" $feature.tooltip) }}
+                                                        {{ else }}
+															{{ $feature.name }}
+                                                        {{ end }}
+                                                        {{ if ne $tierValue true }}
+															<span class="text-sm/6 text-gray-500">({{ $tierValue }})</span>
+                                                        {{ end }}
+                                                </span>
+                                            </li>
+                                        {{ end }}
+                                    {{ end }}
+                                </ul>
+                            </li>
+                        {{ end }}
+                    </ul>
+                </section>
             {{ end }}
-          </tbody>
-        </table>
-      </div>
+        </div>
+
+        <!-- Desktop view (lg+) -->
+        <div class="isolate mt-20 hidden lg:block">
+            <div class="relative -mx-8">
+				{{ $columnCount := add (len $tiersComparison) 1 }}
+				{{ range $index, $tier := $tiersComparison }}
+					{{ if $tier.emphasized }}
+						{{ $columnWidth := div 100 $columnCount }}
+						{{ $marginLeft := mul $columnWidth (add $index 1) }}
+						<div
+							class="pointer-events-none absolute top-0 left-0 -z-10 h-full px-4"
+							style="width: {{ $columnWidth }}%; margin-left: {{ $marginLeft }}%;">
+							<div class="w-full rounded-t-xl border-x border-t border-gray-900/10 bg-gray-400/5 h-full"></div>
+						</div>
+					{{ end }}
+				{{ end }}
+                <table class="w-full table-fixed border-separate border-spacing-x-8 text-left">
+                    <caption class="sr-only">
+                        Pricing plan comparison
+                    </caption>
+                    <colgroup>
+                        <col class="w-1/4">
+                        {{ range $tiersComparison }}
+                            <col class="w-1/4">
+                        {{ end }}
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <td></td>
+                        {{ range $tiersComparison }}
+                            <th scope="col" class="px-6 pt-6 xl:px-8 xl:pt-8">
+                                <div class="text-sm/7 font-semibold text-gray-900">{{ .name }}</div>
+                            </th>
+                        {{ end }}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                       <th scope="row"><span class="sr-only">Price</span></th>
+                        {{ range $tier := $tiersComparison }}
+							<td class="px-6 pt-2 xl:px-8">
+							<p class="mt-6 flex items-baseline gap-x-1">
+								{{ if $togglePrice }}
+								<!-- Monthly price (default visible) -->
+								<span class="text-4xl font-semibold tracking-tight text-{{ $tier.priceColor }} monthly-price">{{ $tier.monthlyPrice }}</span>
+								<!-- Annual price (hidden by default) -->
+								<span class="text-4xl font-semibold tracking-tight text-{{ $tier.priceColor }} annual-price hidden">{{ $tier.annualPrice }}</span>
+								{{ else }}
+								<!-- Only monthly price when toggle is disabled -->
+								<span class="text-4xl font-semibold tracking-tight text-{{ $tier.priceColor }}">{{ $tier.monthlyPrice }}</span>
+								{{ end }}
+								<!-- Interval -->
+								<span class="text-sm/6 font-semibold text-{{ $tier.intervalColor }}">{{ $tier.interval }}</span>
+							</p>
+							{{ if $tier.emphasized }}
+								<a href="{{ $tier.cta.url }}"
+									class="mt-8 not-prose block rounded-md bg-{{ $tier.ctaBgColor }} px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
+							{{ else }}
+								<a href="{{ $tier.cta.url }}"
+									class="mt-8 not-prose block rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaBorderColor }} ring-inset hover:ring-{{ $tier.ctaHoverBorderColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
+							{{ end }}
+                            </td>
+                        {{ end }}
+                    </tr>
+
+                    {{ range $categoryIndex, $category := $featureCategories }}
+                        <tr>
+                            <th scope="colgroup" colspan="{{ add (len $tiersComparison) 1 }}"
+                                class="pt-{{ if eq $categoryIndex 0 }}8{{ else }}16{{ end }} pb-4 text-sm/6 font-semibold text-gray-900">
+                                {{ $category.name }}
+                                <div class="absolute inset-x-8 mt-4 h-px bg-gray-900/10"></div>
+                            </th>
+                        </tr>
+
+                        {{ range $featureIndex, $feature := $category.features }}
+                            <tr>
+                                <th scope="row" class="not-prose py-4 text-sm/6 font-normal text-gray-900">
+                                    {{ if $feature.tooltip }}
+                                        {{ partial "components/tooltip/tooltip.html" (dict "content" $feature.name "text" $feature.tooltip) }}
+                                    {{ else }}
+                                        {{ $feature.name }}
+                                    {{ end }}
+                                    <div class="absolute inset-x-8 mt-4 h-px bg-gray-900/5"></div>
+                                </th>
+
+                                {{ range $tierIndex, $tier := $tiersComparison }}
+                                    {{ $tierValue := index $feature.tiersComparison $tier.name }}
+                                    <td class="px-6 py-4 xl:px-8">
+                                        {{ if eq $tierValue true }}
+                                            <svg class="mx-auto size-5 text-{{ $checkColorComparison }}" viewBox="0 0 20 20"
+                                                 fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd"
+                                                      d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                                      clip-rule="evenodd"/>
+                                            </svg>
+                                            <span class="sr-only">Included in {{ $tier.name }}</span>
+                                        {{ else if eq $tierValue false }}
+                                            <svg class="mx-auto size-5 text-{{ $dashColorComparison }}" viewBox="0 0 20 20"
+                                                 fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd"
+                                                      d="M4 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 10Z"
+                                                      clip-rule="evenodd"/>
+                                            </svg>
+                                            <span class="sr-only">Not included in {{ $tier.name }}</span>
+                                        {{ else }}
+                                            <div class="text-center text-sm/6 text-gray-500">{{ $tierValue }}</div>
+                                        {{ end }}
+                                    </td>
+                                {{ end }}
+                            </tr>
+                        {{ end }}
+                    {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
+{{ if $togglePrice }}
+<!-- JavaScript for toggle functionality -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const monthlyLabel = document.getElementById('monthly-label');
+    const annuallyLabel = document.getElementById('annually-label');
+    const monthlyPrices = document.querySelectorAll('.monthly-price');
+    const annualPrices = document.querySelectorAll('.annual-price');
+    
+    // Function to toggle between monthly and annual pricing
+    function togglePricing(isMonthly) {
+      if (isMonthly) {
+        monthlyLabel.classList.add('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
+        monthlyLabel.classList.remove('text-{{ $toggleTextColor }}');
+        annuallyLabel.classList.remove('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
+        annuallyLabel.classList.add('text-{{ $toggleTextColor }}');
+        
+        monthlyPrices.forEach(el => el.classList.remove('hidden'));
+        annualPrices.forEach(el => el.classList.add('hidden'));
+      } else {
+        annuallyLabel.classList.add('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
+        annuallyLabel.classList.remove('text-{{ $toggleTextColor }}');
+        monthlyLabel.classList.remove('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
+        monthlyLabel.classList.add('text-{{ $toggleTextColor }}');
+        
+        monthlyPrices.forEach(el => el.classList.add('hidden'));
+        annualPrices.forEach(el => el.classList.remove('hidden'));
+      }
+    }
+    
+    // Set up event listeners for the toggle
+    monthlyLabel.addEventListener('click', function() {
+      togglePricing(true);
+    });
+    
+    annuallyLabel.addEventListener('click', function() {
+      togglePricing(false);
+    });
+    
+    // Initialize with monthly pricing
+    togglePricing(true);
+  });
+</script>
+{{ end }}

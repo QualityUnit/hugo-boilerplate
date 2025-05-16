@@ -1,0 +1,87 @@
+{{ $params := .Page.Params }}
+{{ $taglineComparison := .Get "taglineComparison" | default $params.taglineComparison | default (.Get 0) | default "" }}
+{{ $headingComparison := .Get "headingComparison" | default $params.headingComparison | default (.Get 1) | default "Compare plans" }}
+{{ $descriptionComparison := .Get "descriptionComparison" | default $params.descriptionComparison | default (.Get 2) | default "Check out our plan comparisons and select the best one for you" }}
+{{ $backgroundColorComparison := .Get "backgroundColorComparison" | default $params.backgroundColor | default (.Get 3) | default "white" }}
+{{ $taglineColorComparison := .Get "taglineColorComparison" | default $params.taglineColorComparison | default (.Get 4) | default "indigo-600" }}
+{{ $headingColorComparison := .Get "headingColorComparison" | default $params.headingColorComparison | default (.Get 5) | default "gray-900" }}
+{{ $descriptionColorComparison := .Get "descriptionColorComparison" | default $params.descriptionColorComparison | default (.Get 6) | default "gray-600" }}
+{{ $checkColorComparison := .Get "checkColorComparison" | default $params.checkColorComparison | default (.Get 7) | default "primary" }}
+{{ $dashColorComparison := .Get "dashColorComparison" | default $params.dashColorComparison | default (.Get 8) | default "gray-400" }}
+{{ $togglePrice := .Get "togglePrice" | default $params.togglePrice | default true }}
+{{ $tiersComparison := .Get "tiersComparison" | default $params.tiersComparison | default "" }}
+
+{{ $featureCategories := .Get "featureCategories" | default $params.featureCategories | default "" }}
+
+{{ partial "sections/pricing/with_comparison_table.html" (dict
+  "taglineComparison" $taglineComparison
+  "headingComparison" $headingComparison
+  "descriptionComparison" $descriptionComparison
+  "backgroundColorComparison" $backgroundColorComparison
+  "taglineColorComparison" $taglineColorComparison
+  "headingColorComparison" $headingColorComparison
+  "descriptionColorComparison" $descriptionColorComparison
+  "tiersComparison" $tiersComparison
+  "checkColorComparison" $checkColorComparison
+  "dashColorComparison" $dashColorComparison
+  "featureCategories" $featureCategories
+  "togglePrice" $togglePrice
+) }}
+
+{{/*
+  USAGE EXAMPLE:
+
+  {{< pricing-with-comparison-table >}}
+
+  Or with custom parameters:
+
+  {{< pricing-with-comparison-table
+    taglineComparison="Our Plans"
+    headingComparison="Simple, transparent pricing"
+    descriptionComparison="Choose the plan that fits your needs."
+    backgroundColorComparison="gray-50"
+    taglineColorComparison="blue-600"
+    headingColorComparison="gray-900"
+    descriptionColorComparison="gray-600"
+    checkColorComparison="primary"
+    dashColorComparison="gray-400"
+    togglePrice=true
+    tiersComparison="custom_tiers_variable" 
+    featureCategories="custom_features_variable"
+  >}}
+
+  Note: The tiers and feature categories are automatically pulled from page parameters.
+  You can define these in your markdown file frontmatter like:
+
+  +++
+  title = "Pricing"
+  tagline = "Simple and transparent"
+  heading = "Pricing Plans"
+  description = "Choose the plan that fits your needs."
+
+  [[tiers]]
+  name = "Basic"
+  id = "tier-basic"
+  price = "$19"
+  interval = "/month"
+  emphasized = false
+  # other tier properties...
+
+  [[tiers]]
+  name = "Pro"
+  # other tier properties...
+
+  [[tiers]]
+  name = "Enterprise"
+  # other tier properties...
+
+  # Optional: Define FAQ questions which will be used to generate feature categories
+  [[faq]]
+  question = "Question 1"
+  answer = "Answer 1"
+
+  [[faq]]
+  question = "Question 2"
+  answer = "Answer 2"
+  +++
+*/}}
