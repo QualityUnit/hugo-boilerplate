@@ -5,9 +5,17 @@
   - backgroundColor: Background color class (default: "bg-white")
   - heading: Main heading text (default: "Protect your device")
   - description: Description text below the main heading (default: "As a digital creative, your laptop or tablet is at the center of your work. Keep your device safe with a fabric sleeve that matches in quality and looks.")
+  - layoutSize: Layout ratio between content and image ("small-text" for current layout, "balanced" for 50/50, "wide-text" for wider text)
   - features: Array of feature objects with the following structure:
     - title: Feature title
     - description: Feature description
+    - listItems: Optional array of list items for this feature
+    - ctaText: Optional CTA button text for this feature
+    - ctaUrl: Optional CTA button URL for this feature
+    - ctaStyle: Optional CTA button style class (default: "bg-primary hover:bg-primary-dark text-white")
+    - secondaryCta: Optional secondary CTA button text for this feature
+    - secondaryCtaUrl: Optional secondary CTA button URL for this feature
+    - secondaryCtaStyle: Optional secondary CTA button style class (default: "border border-gray-300 text-gray-700 hover:bg-gray-50")
     - imageUrl: URL to feature image
     - imageAlt: Alt text for feature image
     - imagePosition: Position of the image ("left" or "right")
@@ -15,23 +23,58 @@
 */}}
 
 {{ $backgroundColor := .backgroundColor | default "bg-white" }}
-{{ $heading := .heading | default "Protect your device" }}
-{{ $description := .description | default "As a digital creative, your laptop or tablet is at the center of your work. Keep your device safe with a fabric sleeve that matches in quality and looks." }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $layoutSize := .layoutSize | default "small-text" }}
 {{ $page := .page }}
+
+{{/* Define layout classes based on layoutSize */}}
+{{ $textColClasses := "" }}
+{{ $imageColClasses := "" }}
+{{ $textColStartClasses := "" }}
+{{ $imageColStartClasses := "" }}
+{{ $headingClasses := "" }}
+{{ $textClasses := "" }}
+
+{{ if eq $layoutSize "balanced" }}
+  {{/* 50/50 split */}}
+  {{ $textColClasses = "lg:col-span-6" }}
+  {{ $headingClasses = "text-3xl" }}
+  {{ $textClasses = "text-md" }}
+  {{ $imageColClasses = "lg:col-span-6" }}
+  {{ $textColStartClasses = "lg:col-start-7" }}
+  {{ $imageColStartClasses = "lg:col-start-1" }}
+{{ else if eq $layoutSize "wide-text" }}
+  {{/* Wide text, small image (7/5 split on lg, 8/4 on xl) */}}
+  {{ $textColClasses = "lg:col-span-7 xl:col-span-8" }}
+  {{ $headingClasses = "text-4xl" }}
+  {{ $textClasses = "text-lg" }}
+  {{ $imageColClasses = "lg:col-span-5 xl:col-span-4" }}
+  {{ $textColStartClasses = "lg:col-start-6 xl:col-start-5" }}
+  {{ $imageColStartClasses = "lg:col-start-1" }}
+{{ else }}
+  {{/* Default: small-text (current layout - 5/7 split on lg, 4/8 on xl) */}}
+  {{ $textColClasses = "lg:col-span-5 xl:col-span-4" }}
+  {{ $headingClasses = "text-lg" }}
+  {{ $textClasses = "text-sm" }}
+  {{ $imageColClasses = "lg:col-span-7 xl:col-span-8" }}
+  {{ $textColStartClasses = "lg:col-start-8 xl:col-start-9" }}
+  {{ $imageColStartClasses = "lg:col-start-1" }}
+{{ end }}
 
 {{ $features := .features | default (slice 
   (dict 
-    "title" "Minimal and thoughtful"
-    "description" "Our laptop sleeve is compact and precisely fits 13\" devices. The zipper allows you to access the interior with ease, and the front pouch provides a convenient place for your charger cable."
+    "title" ""
+    "description" ""
     "imageUrl" "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-feature-07-detail-01.jpg"
-    "imageAlt" "White canvas laptop sleeve with gray felt interior, silver zipper, and tan leather zipper pull."
+    "imageAlt" ""
     "imagePosition" "right"
   )
   (dict 
-    "title" "Refined details"
-    "description" "We design every detail with the best materials and finishes. This laptop sleeve features durable canvas with double-stitched construction, a felt interior, and a high quality zipper that hold up to daily use."
+    "title" ""
+    "description" ""
     "imageUrl" "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-feature-07-detail-02.jpg"
-    "imageAlt" "Detail of zipper pull with tan leather and silver rivet."
+    "imageAlt" ""
     "imagePosition" "left"
   )
 ) }}
@@ -39,19 +82,51 @@
 <div class="{{ $backgroundColor }}">
   <div class="mx-auto max-w-2xl px-4 py-24 sm:px-6 sm:py-32 lg:max-w-7xl lg:px-8">
     <div class="mx-auto max-w-3xl text-center">
-      <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ $heading }}</h2>
-      <p class="mt-4 text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+      {{ if $heading }}
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ $heading }}</h2>
+      {{ end }}
+      {{ if $description }}
+        <p class="mt-4 text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+      {{ end }}
     </div>
 
     <div class="mt-16 space-y-16">
       {{ range $index, $feature := $features }}
         <div class="flex flex-col-reverse lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-8">
           {{ if eq $feature.imagePosition "right" }}
-            <div class="mt-6 lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:mt-0 xl:col-span-4">
-              <h3 class="text-lg font-medium text-gray-900">{{ $feature.title }}</h3>
-              <p class="mt-2 text-sm text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $feature.description "page" $page) | safeHTML }}</p>
+            <div class="mt-6 {{ $textColClasses }} lg:col-start-1 lg:row-start-1 lg:mt-0">
+              <h3 class="{{ $headingClasses }} font-medium text-gray-900">{{ $feature.title }}</h3>
+              <p class="mt-2 {{ $textClasses }} text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $feature.description "page" $page) | safeHTML }}</p>
+              {{ if $feature.listItems }}
+                <ul class="mt-4 space-y-2">
+                  {{ range $feature.listItems }}
+                    <li class="flex items-start">
+                      <svg class="h-4 w-4 text-primary mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                      </svg>
+                      <span class="{{ $textClasses }} text-gray-600">{{ . }}</span>
+                    </li>
+                  {{ end }}
+                </ul>
+              {{ end }}
+              {{ if or $feature.ctaText $feature.secondaryCta }}
+                <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                  {{ if $feature.ctaText }}
+                    {{ $ctaStyle := $feature.ctaStyle | default "bg-primary hover:bg-primary-dark text-white" }}
+                    <a href="{{ $feature.ctaUrl }}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md {{ $ctaStyle }} transition-colors duration-200">
+                      {{ $feature.ctaText }}
+                    </a>
+                  {{ end }}
+                  {{ if $feature.secondaryCta }}
+                    {{ $secondaryCtaStyle := $feature.secondaryCtaStyle | default "border border-gray-300 text-gray-700 hover:bg-gray-50" }}
+                    <a href="{{ $feature.secondaryCtaUrl }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md {{ $secondaryCtaStyle }} transition-colors duration-200">
+                      {{ $feature.secondaryCta }}
+                    </a>
+                  {{ end }}
+                </div>
+              {{ end }}
             </div>
-            <div class="flex-auto lg:col-span-7 lg:col-start-6 lg:row-start-1 xl:col-span-8 xl:col-start-5">
+            <div class="flex-auto {{ $imageColClasses }} {{ if eq $layoutSize "balanced" }}lg:col-start-7{{ else if eq $layoutSize "wide-text" }}lg:col-start-8 xl:col-start-9{{ else }}lg:col-start-6 xl:col-start-5{{ end }} lg:row-start-1">
               {{ partial "components/media/lazyimg.html" (dict 
                 "src" $feature.imageUrl
                 "alt" $feature.imageAlt
@@ -59,11 +134,39 @@
               ) }}
             </div>
           {{ else }}
-            <div class="mt-6 lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:mt-0 xl:col-span-4 xl:col-start-9">
-              <h3 class="text-lg font-medium text-gray-900">{{ $feature.title }}</h3>
-              <p class="mt-2 text-sm text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $feature.description "page" $page) | safeHTML }}</p>
+            <div class="mt-6 {{ $textColClasses }} {{ $textColStartClasses }} lg:row-start-1 lg:mt-0">
+              <h3 class="{{ $headingClasses }} font-medium text-gray-900">{{ $feature.title }}</h3>
+              <p class="mt-2 {{ $textClasses }} text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $feature.description "page" $page) | safeHTML }}</p>
+              {{ if $feature.listItems }}
+                <ul class="mt-4 space-y-2">
+                  {{ range $feature.listItems }}
+                    <li class="flex items-start">
+                      <svg class="h-4 w-4 text-primary mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                      </svg>
+                      <span class="{{ $textClasses }} text-gray-600">{{ . }}</span>
+                    </li>
+                  {{ end }}
+                </ul>
+              {{ end }}
+              {{ if or $feature.ctaText $feature.secondaryCta }}
+                <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                  {{ if $feature.ctaText }}
+                    {{ $ctaStyle := $feature.ctaStyle | default "bg-primary hover:bg-primary-dark text-white" }}
+                    <a href="{{ $feature.ctaUrl }}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md {{ $ctaStyle }} transition-colors duration-200">
+                      {{ $feature.ctaText }}
+                    </a>
+                  {{ end }}
+                  {{ if $feature.secondaryCta }}
+                    {{ $secondaryCtaStyle := $feature.secondaryCtaStyle | default "border border-gray-300 text-gray-700 hover:bg-gray-50" }}
+                    <a href="{{ $feature.secondaryCtaUrl }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md {{ $secondaryCtaStyle }} transition-colors duration-200">
+                      {{ $feature.secondaryCta }}
+                    </a>
+                  {{ end }}
+                </div>
+              {{ end }}
             </div>
-            <div class="flex-auto lg:col-span-7 lg:col-start-1 lg:row-start-1 xl:col-span-8">
+            <div class="flex-auto {{ $imageColClasses }} {{ $imageColStartClasses }} lg:row-start-1">
               {{ partial "components/media/lazyimg.html" (dict 
                 "src" $feature.imageUrl
                 "alt" $feature.imageAlt

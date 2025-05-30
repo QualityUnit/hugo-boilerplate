@@ -5,11 +5,19 @@
   - backgroundColor: Background color class (default: "bg-white")
   - heading: Main heading text (default: "Protect your device")
   - description: Description text below the main heading
+  - layoutSize: Layout ratio between content and image ("small-text" for current layout, "balanced" for 50/50, "wide-text" for wider text)
   
   Inner Content (optional JSON array):
   - Array of feature objects with the following structure:
     - title: Feature title
     - description: Feature description
+    - listItems: Optional array of list items for this feature
+    - ctaText: Optional CTA button text for this feature
+    - ctaUrl: Optional CTA button URL for this feature
+    - ctaStyle: Optional CTA button style class (default: "bg-indigo-600 hover:bg-indigo-700 text-white")
+    - secondaryCta: Optional secondary CTA button text for this feature
+    - secondaryCtaUrl: Optional secondary CTA button URL for this feature
+    - secondaryCtaStyle: Optional secondary CTA button style class (default: "border border-gray-300 text-gray-700 hover:bg-gray-50")
     - imageUrl: URL to feature image
     - imageAlt: Alt text for feature image
     - imagePosition: Position of the image ("left" or "right")
@@ -18,11 +26,15 @@
   {{< features-with-alternating-sections 
       heading="Our Product Features" 
       description="Discover the thoughtful design and functionality of our products."
+      layoutSize="balanced"
   >}}
     [
       {
         "title": "Advanced Sensor Technology",
         "description": "Our cameras use cutting-edge sensor technology that captures crisp, clear images even in low light conditions.",
+        "listItems": ["4K Ultra HD resolution", "Low-light performance", "Auto-focus technology"],
+        "ctaText": "Learn More",
+        "ctaUrl": "/features/sensors",
         "imageUrl": "/images/features/advanced-sensor.jpg",
         "imageAlt": "Close-up of the advanced sensor technology inside the camera",
         "imagePosition": "right"
@@ -30,6 +42,11 @@
       {
         "title": "Weather-Resistant Design",
         "description": "Built to withstand harsh outdoor conditions with a fully weatherproof enclosure that protects against rain, snow, and extreme temperatures.",
+        "listItems": ["IP67 waterproof rating", "Temperature range -20°C to 60°C", "Corrosion-resistant materials"],
+        "ctaText": "View Specs",
+        "ctaUrl": "/specifications",
+        "secondaryCta": "Get Quote",
+        "secondaryCtaUrl": "/quote",
         "imageUrl": "/images/features/weather-resistant.jpg",
         "imageAlt": "Camera being tested under simulated rain conditions",
         "imagePosition": "left"
@@ -41,22 +58,23 @@
 */}}
 
 {{ $backgroundColor := .Get "backgroundColor" | default "bg-white" }}
-{{ $heading := .Get "heading" | default "Protect your device" }}
-{{ $description := .Get "description" | default "As a digital creative, your laptop or tablet is at the center of your work. Keep your device safe with a fabric sleeve that matches in quality and looks." }}
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $layoutSize := .Get "layoutSize" | default "small-text" }}
 
 {{ $defaultFeatures := slice 
   (dict 
-    "title" "Minimal and thoughtful"
-    "description" "Our laptop sleeve is compact and precisely fits 13\" devices. The zipper allows you to access the interior with ease, and the front pouch provides a convenient place for your charger cable."
+    "title" ""
+    "description" ""
     "imageUrl" "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-feature-07-detail-01.jpg"
-    "imageAlt" "White canvas laptop sleeve with gray felt interior, silver zipper, and tan leather zipper pull."
+    "imageAlt" ""
     "imagePosition" "right"
   )
   (dict 
-    "title" "Refined details"
-    "description" "We design every detail with the best materials and finishes. This laptop sleeve features durable canvas with double-stitched construction, a felt interior, and a high quality zipper that hold up to daily use."
+    "title" ""
+    "description" ""
     "imageUrl" "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-feature-07-detail-02.jpg"
-    "imageAlt" "Detail of zipper pull with tan leather and silver rivet."
+    "imageAlt" ""
     "imagePosition" "left"
   )
 }}
@@ -72,6 +90,7 @@
   "backgroundColor" $backgroundColor
   "heading" $heading
   "description" $description
+  "layoutSize" $layoutSize
   "features" $features
   "page" $.Page
 ) }}
