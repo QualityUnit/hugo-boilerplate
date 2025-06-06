@@ -15,151 +15,448 @@
     <h3 class="text-xl font-semibold mb-4">Buttons</h3>
     
     <div class="space-y-6">
-      <!-- Primary Button -->
-      <div class="mb-6">
-        <h4 class="text-lg font-medium mb-3">Primary Button</h4>
-        <p class="text-text-light mb-4">Main action button with customizable colors and styling.</p>
+      <!-- Button Component Overview -->
+      <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 mb-6">
+        <h4 class="text-md font-medium text-indigo-800 mb-2">💡 Button Component</h4>
+        <p class="text-sm text-indigo-700 mb-2">Universal button component with support for different variants and customization options.</p>
+        <p class="text-sm text-indigo-700">Buttons are rendered based on the <code>variant</code> parameter, which determines their appearance. All buttons use the same partial <code>components/buttons/buttons.html</code>.</p>
+      </div>
+      
+      <!-- Button Comparison - Light vs Dark Mode -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Light Mode Buttons -->
+        <div class="p-6 bg-white rounded-lg border border-gray-100 shadow-sm">
+          <h4 class="text-lg font-medium mb-4 text-center">Light Mode Buttons</h4>
+          <div class="space-y-6">
+            <!-- Primary Buttons Light -->
+            <div>
+              <h5 class="font-medium text-sm mb-3 text-gray-700">Primary Buttons</h5>
+              <div class="flex flex-wrap gap-4 justify-center">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Primary Button" 
+                  "url" "#primary" 
+                  "variant" "primary"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Hover" 
+                  "url" "#" 
+                  "variant" "primary"
+                  "classes" "hover"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Focus" 
+                  "url" "#" 
+                  "variant" "primary"
+                  "classes" "focus"
+                ) }}
+              </div>
+            </div>
+            
+            <!-- Secondary Buttons Light -->
+            <div>
+              <h5 class="font-medium text-sm mb-3 text-gray-700">Secondary Buttons</h5>
+              <div class="flex flex-wrap gap-4 justify-center">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Secondary Button" 
+                  "url" "#secondary" 
+                  "variant" "secondary"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Hover" 
+                  "url" "#" 
+                  "variant" "secondary"
+                  "classes" "hover"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Focus" 
+                  "url" "#" 
+                  "variant" "secondary"
+                  "classes" "focus"
+                ) }}
+              </div>
+            </div>
+            
+            <!-- Text Buttons Light -->
+            <div>
+              <h5 class="font-medium text-sm mb-3 text-gray-700">Text Buttons</h5>
+              <div class="flex flex-wrap gap-4 justify-center">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Text Button" 
+                  "url" "#text" 
+                  "variant" "text"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Hover" 
+                  "url" "#" 
+                  "variant" "text"
+                  "classes" "hover"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Focus" 
+                  "url" "#" 
+                  "variant" "text"
+                  "classes" "focus"
+                ) }}
+              </div>
+            </div>
+          </div>
+        </div>
         
-        <div class="bg-background p-4 rounded border mb-4">
-          <h5 class="font-medium mb-2">Usage:</h5>
-          <pre class="text-sm overflow-x-auto"><code>{{`{{ partial "components/buttons/primary.html" (dict 
+        <!-- Dark Mode Buttons -->
+        <div class="p-6 section-bg-dark dark text-white rounded-lg shadow-md">
+          <h4 class="text-lg font-medium mb-4 text-center">Dark Mode Buttons</h4>
+          <div class="space-y-6">
+            <!-- Primary Buttons Dark -->
+            <div>
+              <h5 class="font-medium text-sm mb-3 text-gray-300">Primary Buttons</h5>
+              <div class="flex flex-wrap gap-4 justify-center">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Primary Button" 
+                  "url" "#primary" 
+                  "variant" "primary"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Hover" 
+                  "url" "#" 
+                  "variant" "primary"
+                  "classes" "hover"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Focus" 
+                  "url" "#" 
+                  "variant" "primary"
+                  "classes" "focus"
+                ) }}
+              </div>
+            </div>
+            
+            <!-- Secondary Buttons Dark -->
+            <div>
+              <h5 class="font-medium text-sm mb-3 text-gray-300">Secondary Buttons</h5>
+              <div class="flex flex-wrap gap-4 justify-center">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Secondary Button" 
+                  "url" "#secondary" 
+                  "variant" "secondary"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Hover" 
+                  "url" "#" 
+                  "variant" "secondary"
+                  "classes" "hover"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Focus" 
+                  "url" "#" 
+                  "variant" "secondary"
+                  "classes" "focus"
+                ) }}
+              </div>
+            </div>
+            
+            <!-- Text Buttons Dark -->
+            <div>
+              <h5 class="font-medium text-sm mb-3 text-gray-300">Text Buttons</h5>
+              <div class="flex flex-wrap gap-4 justify-center">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Text Button" 
+                  "url" "#text" 
+                  "variant" "text"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Hover" 
+                  "url" "#" 
+                  "variant" "text"
+                  "classes" "hover"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Focus" 
+                  "url" "#" 
+                  "variant" "text"
+                  "classes" "focus"
+                ) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Button Usage and Documentation -->
+      <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 mb-6">
+        <h4 class="text-md font-medium text-indigo-800 mb-2">Button Usage Documentation</h4>
+        <p class="text-sm text-indigo-700 mb-2">Below you'll find detailed documentation for each button type, including code examples and best practices.</p>
+      </div>
+      
+      <!-- Primary Button -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-4 bg-white rounded-lg border border-gray-100 shadow-sm">
+        <div>
+          <h4 class="text-lg font-medium mb-2">Primary Button</h4>
+          <p class="text-text-light mb-3 text-sm">Use for the main action or call-to-action on a page. Limited to one primary button per section.</p>
+          
+          <div class="mt-6 space-y-4">
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Get Started" 
+                  "url" "#" 
+                  "variant" "primary"
+                ) }}
+              </div>
+              <div class="text-xs text-gray-500">Standard primary button</div>
+            </div>
+            
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Start Free Trial" 
+                  "url" "#" 
+                  "variant" "primary"
+                  "classes" "w-full"
+                ) }}
+              </div>
+              <div class="text-xs text-gray-500">Full-width button</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h5 class="font-medium mb-3 text-sm">Usage:</h5>
+          <pre class="text-xs overflow-x-auto p-3 bg-gray-100 rounded"><code>{{`{{ partial "components/buttons/buttons.html" (dict 
   "text" "Get Started" 
   "url" "/signup" 
+  "variant" "primary"
   "classes" "w-full sm:w-auto"
-  "target" "_self"
-  "id" "signup-button"
-  "ariaLabel" "Sign up for account"
 ) }}`}}</code></pre>
-        </div>
-
-        <div class="bg-gray-50 p-4 rounded border">
-          <h5 class="font-medium mb-3">Live Example:</h5>
-          <div class="flex gap-4 flex-wrap">
-            {{ partial "components/buttons/primary.html" (dict 
-              "text" "Get Started" 
-              "url" "#demo" 
-            ) }}
-            {{ partial "components/buttons/primary.html" (dict 
-              "text" "Learn More" 
-              "url" "#info" 
-            ) }}
-            {{ partial "components/buttons/primary.html" (dict 
-              "text" "Contact Sales" 
-              "url" "#contact" 
-            ) }}
-          </div>
-          <div class="mt-3 text-xs text-gray-600">
-            <strong>Parameters:</strong> text (required), i18nKey (optional), url (required), classes, target, rel, id, ariaLabel
+          <div class="mt-4 text-xs text-gray-600">
+            <strong>Parameters:</strong>
+            <ul class="mt-1 space-y-1 pl-4 list-disc">
+              <li><code>text</code> - Button text (required)</li>
+              <li><code>url</code> - Button link URL (required)</li>
+              <li><code>variant</code> - "primary" (default), "secondary", or "text"</li>
+              <li><code>classes</code> - Additional CSS classes</li>
+              <li><code>target</code> - Link target (default: "_self")</li>
+              <li><code>rel</code> - Link relationship</li>
+              <li><code>id</code> - Button ID attribute</li>
+              <li><code>ariaLabel</code> - Accessibility label</li>
+            </ul>
           </div>
         </div>
       </div>
-
-      <!-- outline Button -->
-      <div class="mb-6">
-        <h4 class="text-lg font-medium mb-3">Outline Button</h4>
-        <p class="text-text-light mb-4">Outline action button with outline styling.</p>
+      
+      <!-- Secondary Button -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-4 bg-white rounded-lg border border-gray-100 shadow-sm">
+        <div>
+          <h4 class="text-lg font-medium mb-2">Secondary Button</h4>
+          <p class="text-text-light mb-3 text-sm">Use for alternative actions or secondary importance options that complement the primary action.</p>
+          
+          <div class="mt-6 space-y-4">
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Learn More" 
+                  "url" "#" 
+                  "variant" "secondary"
+                ) }}
+              </div>
+              <div class="text-xs text-gray-500">Standard secondary button</div>
+            </div>
+            
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "View Demo" 
+                  "url" "#" 
+                  "variant" "secondary"
+                  "target" "_blank"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Documentation" 
+                  "url" "#" 
+                  "variant" "secondary"
+                ) }}
+              </div>
+              <div class="text-xs text-gray-500">Multiple buttons together</div>
+            </div>
+          </div>
+        </div>
         
-        <div class="bg-background p-4 rounded border mb-4">
-          <h5 class="font-medium mb-2">Usage:</h5>
-          <pre class="text-sm overflow-x-auto"><code>{{`{{ partial "components/buttons/outline.html" (dict 
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h5 class="font-medium mb-3 text-sm">Usage:</h5>
+          <pre class="text-xs overflow-x-auto p-3 bg-gray-100 rounded"><code>{{`{{ partial "components/buttons/buttons.html" (dict 
   "text" "Learn More" 
   "url" "/features" 
-  "variant" "dark"
-  "classes" "ml-4"
+  "variant" "secondary"
 ) }}`}}</code></pre>
-        </div>
-
-        <div class="bg-gray-50 p-4 rounded border">
-          <h5 class="font-medium mb-3">Live Example:</h5>
-          <div class="flex gap-4 flex-wrap">
-            {{ partial "components/buttons/outline.html" (dict 
-              "text" "Learn More" 
-              "url" "#features" 
-              "variant" "dark"
-            ) }}
-            {{ partial "components/buttons/outline.html" (dict 
-              "text" "View Demo" 
-              "url" "#demo" 
-              "variant" "light"
-            ) }}
-          </div>
-          <div class="mt-3 text-xs text-gray-600">
-            <strong>Parameters:</strong> text (required), i18nKey (optional), url (required), variant ("dark" or "light"), classes, target, rel, id, ariaLabel
+          <div class="mt-4 text-xs text-gray-600">
+            <strong>When to use:</strong>
+            <ul class="mt-1 space-y-1 pl-4 list-disc">
+              <li>Secondary actions alongside a primary button</li>
+              <li>Less important options that still need visibility</li>
+              <li>Alternative flows or pathways</li>
+            </ul>
           </div>
         </div>
       </div>
-
+      
       <!-- Text Button -->
-      <div class="mb-6">
-        <h4 class="text-lg font-medium mb-3">Text Button</h4>
-        <p class="text-text-light mb-4">Minimal text-only button for subtle actions.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-4 bg-white rounded-lg border border-gray-100 shadow-sm">
+        <div>
+          <h4 class="text-lg font-medium mb-2">Text Button</h4>
+          <p class="text-text-light mb-3 text-sm">Minimalist text-only button for subtle, low-emphasis actions or links.</p>
+          
+          <div class="mt-6 space-y-4">
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Skip for now" 
+                  "url" "#" 
+                  "variant" "text"
+                ) }}
+              </div>
+              <div class="text-xs text-gray-500">Standard text button</div>
+            </div>
+            
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Terms & Conditions" 
+                  "url" "#" 
+                  "variant" "text"
+                ) }}
+                {{ partial "components/buttons/buttons.html" (dict 
+                  "text" "Privacy Policy" 
+                  "url" "#" 
+                  "variant" "text"
+                ) }}
+              </div>
+              <div class="text-xs text-gray-500">Multiple text links</div>
+            </div>
+          </div>
+        </div>
         
-        <div class="bg-background p-4 rounded border mb-4">
-          <h5 class="font-medium mb-2">Usage:</h5>
-          <pre class="text-sm overflow-x-auto"><code>{{`{{ partial "components/buttons/text.html" (dict 
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h5 class="font-medium mb-3 text-sm">Usage:</h5>
+          <pre class="text-xs overflow-x-auto p-3 bg-gray-100 rounded"><code>{{`{{ partial "components/buttons/buttons.html" (dict 
   "text" "Skip for now" 
   "url" "/dashboard" 
-  "showArrow" true
-  "icon" "arrow-right"
-  "iconPosition" "right"
+  "variant" "text"
 ) }}`}}</code></pre>
-        </div>
-
-        <div class="bg-gray-50 p-4 rounded border">
-          <h5 class="font-medium mb-3">Live Example:</h5>
-          <div class="flex gap-4 flex-wrap items-center">
-            {{ partial "components/buttons/text.html" (dict 
-              "text" "Skip for now" 
-              "url" "#skip" 
-            ) }}
-            {{ partial "components/buttons/text.html" (dict 
-              "text" "Read documentation" 
-              "url" "#docs" 
-              "showArrow" true
-            ) }}
-          </div>
-          <div class="mt-3 text-xs text-gray-600">
-            <strong>Parameters:</strong> text (required), i18nKey (optional), url (required), icon, iconPosition ("left" or "right"), showArrow, classes, target, rel, id, ariaLabel
+          <div class="mt-4 text-xs text-gray-600">
+            <strong>Best for:</strong>
+            <ul class="mt-1 space-y-1 pl-4 list-disc">
+              <li>Low-priority actions</li>
+              <li>Cancel or "back" options</li>
+              <li>Footer links or legal information</li>
+              <li>When space is limited and visual noise should be minimized</li>
+            </ul>
           </div>
         </div>
       </div>
-
-      <!-- Icon Button -->
-      <div class="mb-6">
-        <h4 class="text-lg font-medium mb-3">Icon Button</h4>
-        <p class="text-text-light mb-4">Button with icon support for enhanced visual communication.</p>
+      
+      <!-- Button States -->
+      <div class="p-5 bg-white rounded-lg border border-gray-100 shadow-sm mb-8">
+        <h4 class="text-lg font-medium mb-4">Button States</h4>
+        <p class="text-text-light mb-4 text-sm">Buttons have different visual states based on user interaction. These states are automatically handled by CSS.</p>
         
-        <div class="bg-background p-4 rounded border mb-4">
-          <h5 class="font-medium mb-2">Usage:</h5>
-          <pre class="text-sm overflow-x-auto"><code>{{`{{ partial "components/buttons/icon.html" (dict 
-  "text" "Download PDF" 
-  "url" "/document.pdf" 
-  "icon" "download"
-  "iconPosition" "left"
-  "variant" "primary"
-) }}`}}</code></pre>
-        </div>
-
-        <div class="bg-gray-50 p-4 rounded border">
-          <h5 class="font-medium mb-3">Live Example:</h5>
-          <div class="flex gap-4 flex-wrap">
-            {{ partial "components/buttons/icon.html" (dict 
-              "text" "Map" 
-              "url" "#map" 
-              "icon" "map"
-              "iconPosition" "left"
-              "variant" "primary"
-            ) }}
-            {{ partial "components/buttons/icon.html" (dict 
-              "text" "Share" 
-              "url" "#share" 
-              "icon" "share"
-              "iconPosition" "right"
-              "variant" "outline-dark"
-            ) }}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-3 bg-gray-50 rounded">
+            <h5 class="font-medium text-sm mb-2">Default</h5>
+            <div class="flex justify-center">
+              {{ partial "components/buttons/buttons.html" (dict 
+                "text" "Default State" 
+                "url" "#" 
+                "variant" "primary"
+              ) }}
+            </div>
+            <div class="text-xs text-center mt-2 text-gray-500">Normal button state</div>
           </div>
-          <div class="mt-3 text-xs text-gray-600">
-            <strong>Parameters:</strong> text (required), i18nKey (optional), url (required), icon (required), iconPosition ("left" or "right"), variant ("primary", "outline-light", "outline-dark", "text"), classes, target, rel, id, ariaLabel
+          
+          <div class="p-3 bg-gray-50 rounded">
+            <h5 class="font-medium text-sm mb-2">Hover</h5>
+            <div class="flex justify-center">
+              {{ partial "components/buttons/buttons.html" (dict 
+                "text" "Hover State" 
+                "url" "#" 
+                "variant" "primary"
+                "classes" "hover"
+              ) }}
+            </div>
+            <div class="text-xs text-center mt-2 text-gray-500">When cursor hovers over button</div>
+          </div>
+          
+          <div class="p-3 bg-gray-50 rounded">
+            <h5 class="font-medium text-sm mb-2">Focus/Active</h5>
+            <div class="flex justify-center">
+              {{ partial "components/buttons/buttons.html" (dict 
+                "text" "Focus State" 
+                "url" "#" 
+                "variant" "primary"
+                "classes" "focus"
+              ) }}
+            </div>
+            <div class="text-xs text-center mt-2 text-gray-500">When button is focused/clicked</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Advanced Usage -->
+      <div class="p-5 bg-white rounded-lg border border-gray-100 shadow-sm">
+        <h4 class="text-lg font-medium mb-3">Advanced Usage Examples</h4>
+        <p class="text-text-light mb-4 text-sm">Customize buttons with additional classes and attributes to fit various design needs.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h5 class="font-medium mb-3 text-sm">Responsive Width</h5>
+            <div class="mb-3">
+              {{ partial "components/buttons/buttons.html" (dict 
+                "text" "Full Width on Mobile" 
+                "url" "#responsive" 
+                "variant" "primary"
+                "classes" "w-full sm:w-auto"
+              ) }}
+            </div>
+            <pre class="text-xs overflow-x-auto p-2 bg-gray-100 rounded"><code>{{`"classes" "w-full sm:w-auto"`}}</code></pre>
+          </div>
+          
+          <div>
+            <h5 class="font-medium mb-3 text-sm">External Links</h5>
+            <div class="mb-3">
+              {{ partial "components/buttons/buttons.html" (dict 
+                "text" "External Link" 
+                "url" "https://tailwindcss.com" 
+                "variant" "secondary"
+                "target" "_blank"
+                "rel" "noopener"
+              ) }}
+            </div>
+            <pre class="text-xs overflow-x-auto p-2 bg-gray-100 rounded"><code>{{`"target" "_blank"
+"rel" "noopener"`}}</code></pre>
+          </div>
+          
+          <div>
+            <h5 class="font-medium mb-3 text-sm">Custom Padding</h5>
+            <div class="mb-3">
+              {{ partial "components/buttons/buttons.html" (dict 
+                "text" "Custom Padding" 
+                "url" "#custom" 
+                "variant" "primary"
+                "classes" "py-3 px-8"
+              ) }}
+            </div>
+            <pre class="text-xs overflow-x-auto p-2 bg-gray-100 rounded"><code>{{`"classes" "py-3 px-8"`}}</code></pre>
+          </div>
+          
+          <div>
+            <h5 class="font-medium mb-3 text-sm">Accessibility</h5>
+            <div class="mb-3">
+              {{ partial "components/buttons/buttons.html" (dict 
+                "text" "Download PDF" 
+                "url" "#download" 
+                "variant" "secondary"
+                "ariaLabel" "Download product brochure as PDF"
+              ) }}
+            </div>
+            <pre class="text-xs overflow-x-auto p-2 bg-gray-100 rounded"><code>{{`"ariaLabel" "Download product brochure as PDF"`}}</code></pre>
           </div>
         </div>
       </div>

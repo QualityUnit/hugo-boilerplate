@@ -1,0 +1,52 @@
+{{/*
+@component: Button (variant-based)
+@description: Renders a button with different styles based on the variant.
+@params:
+  - text: Button text (required)
+  - url: Button URL (required)
+  - variant: Button type (e.g., "primary", "secondary", "text") (required)
+  - classes: Additional Tailwind classes (optional)
+  - target: Link target attribute (default: "_self")
+  - rel: Link rel attribute (optional)
+  - id: HTML id attribute (optional)
+  - ariaLabel: ARIA label (optional; defaults to button text)
+@example:
+  {{ partial "components/button.html" (dict
+      "text" "Get started"
+      "url" "/signup"
+      "variant" "primary"
+  ) }}
+*/}}
+
+{{ $text := .text | default "" }}
+{{ $url := .url | default "" }}
+{{ $variant := .variant | default "primary" }}
+{{ $classes := .classes | default "" }}
+{{ $target := .target | default "_self" }}
+{{ $rel := .rel | default "" }}
+{{ $id := .id | default "" }}
+{{ $ariaLabel := .ariaLabel | default $text }}
+
+{{ $variantClass := "" }}
+{{ if eq $variant "primary" }}
+  {{ $variantClass = "btn-primary dark:btn-primary-dark" }}
+{{ else if eq $variant "secondary" }}
+  {{ $variantClass = "btn-secondary dark:btn-secondary-dark" }}
+{{ else if eq $variant "text" }}
+  {{ $variantClass = "btn-text dark:btn-text-dark" }}
+{{ else }}
+  {{ $variantClass = "btn-primary dark:btn-primary-dark" }} {{/* fallback */}}
+{{ end }}
+
+{{ if and $text $url }}
+  <a
+    href="{{ if not (or (hasPrefix $url "http") (hasPrefix $url "#")) }}{{ $url | relLangURL }}{{ else }}{{ $url }}{{ end }}"
+    class="{{ $variantClass }} {{ $classes }}"
+    aria-label="{{ $ariaLabel }}"
+    target="{{ $target }}"
+    {{ with $id }}id="{{ . }}"{{ end }}
+    {{ with $rel }}rel="{{ . }}"{{ end }}
+  >
+    {{ $text }}
+  </a>
+{{ end }}

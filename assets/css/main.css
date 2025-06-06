@@ -4,38 +4,74 @@
 
 /* Custom styles can be added below */
 @layer components {
+  /* 🎨 SECTION BACKGROUNDS */
+  .section-bg-light {
+    @apply bg-white;
+    /* Light background, typically for white or neutral sections */
+  }
 
-    /* Button styles */
-  .btn {
-    @apply inline-flex items-center justify-center px-3.5 py-2.5 text-sm font-semibold rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors duration-200;
+  .section-bg-dark {
+    @apply bg-gray-900;
+    /* Dark background, used for contrast or "dark mode" sections */
   }
-  
+
+  /* 📝 TEXT STYLES */
+  .text-heading {
+    @apply text-gray-900 dark:text-white;
+    /* Main heading text – black in light mode, white in dark mode */
+  }
+
+  .text-body {
+    @apply text-gray-600 dark:text-gray-300;
+    /* Body text – medium gray in light mode, light gray in dark mode */
+  }
+
+  .text-muted {
+    @apply text-gray-500 dark:text-gray-400;
+    /* Subtle/secondary text – slightly muted for less emphasis */
+  }
+
+  /* 🔘 BUTTONS */
+
   .btn-primary {
-    @apply btn bg-primary text-white shadow-sm hover:bg-primary-700 hover:shadow-md focus-visible:outline-primary-400;
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-white bg-primary hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+    /* Primary button on light backgrounds – white text, primary background */
   }
-  
-  .btn-outline-light {
-    @apply btn border border-white text-white bg-transparent hover:bg-white hover:text-gray-900 hover:border-white focus-visible:outline-gray-400;
+
+  .btn-primary-dark {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-md text-white bg-primary-500 hover:bg-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300;
+    /* Primary button on dark backgrounds – slightly lighter background for contrast */
   }
-  
-  .btn-outline-dark {
-    @apply btn border border-gray-800 text-gray-800 bg-transparent hover:bg-gray-900 hover:text-white hover:border-gray-900 focus-visible:outline-gray-400;
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary hover:text-primary-600;
+    /* Secondary button – no background, just primary-colored text on light background */
   }
-  
+
+  .btn-secondary-dark {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary-300 hover:text-primary-200;
+    /* Secondary button for dark backgrounds – uses lighter primary text for visibility */
+  }
+
   .btn-text {
-    @apply inline-flex items-center text-sm/6 font-semibold text-gray-900 bg-transparent hover:text-primary hover:translate-x-1 hover:underline transition-all duration-200;
+    @apply text-sm font-semibold text-gray-900 hover:text-primary dark:text-white;
+    /* Minimal text button – typically inline or tertiary CTA on light background */
   }
-  
-  /* Add any custom component styles here */
-  .container {
-    @apply px-4 mx-auto;
-    max-width: 1280px;
+
+  .btn-text-dark {
+    @apply text-sm font-semibold text-white hover:text-primary-300;
+    /* Minimal text button for dark backgrounds */
+  }
+
+  .wrapper {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 }
 
 @layer utilities {
-  /* Add any custom utility classes here */
+  /* Custom utility classes */
   .text-shadow {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Light text shadow for subtle depth */
   }
 }

@@ -10,12 +10,12 @@
   {{ $cookieConsent := resources.Get "js/cookie-consent.js" | resources.Minify | resources.Fingerprint }}
   <script src="{{ $cookieConsent.RelPermalink }}" defer></script>
 </head>
-<body>
+<body class="antialiased bg-white">
 <!-- Initialize linkbuilding tracking for all pages -->
 {{ .Scratch.Set "processedLinks" slice }}
   
 {{ partialCached "header.html" . }}
-<main class="container mx-auto px-4 py-8 pb-16">
+<main class="w-full">
   {{ block "main" . }}{{ end }}
 </main>
  
