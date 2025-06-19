@@ -80,7 +80,7 @@
           )
       )
   ) }}
-@note: This section uses a responsive bento grid layout that dynamically arranges cards based on their size. Large cards take 3 columns (2 per row) and small cards take 2 columns (3 per row) in a 6-column grid system. Cards will automatically flow to new rows as needed.
+@note: This section uses a responsive bento grid layout with alternating widths (2/3 and 1/3). Cards have custom border radius patterns: first row (32px top-left or top-right), subsequent rows (32px bottom corners), and shadow-lg for depth. The layout alternates column spans in each row for visual variety.
 */}}
 
 {{/* Dynamic Bento Grid Section */}}
@@ -89,8 +89,8 @@
 {{ $description := .description | default "" }}
 {{ $linkText := .linkText | default "" }}
 {{ $linkUrl := .linkUrl | default "" }}
-{{ $taglineColor := .taglineColor | default "primary" }}
-{{ $backgroundColor := .backgroundColor | default "white" }}
+{{ $taglineColor := .taglineColor | default "blue-500" }}
+{{ $backgroundColor := .backgroundColor | default "gray-50" }}
 
 {{/* Default cards if none provided */}}
 
@@ -99,46 +99,72 @@
 <div class="bg-{{ $backgroundColor }} py-24 sm:py-32">
   <div class="wrapper">
     {{ if $tagline }}
-    <h2 class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</h2>
+      <h2 class="text-base/7 font-semibold text-{{ $taglineColor }} mb-4">{{ $tagline }}</h2>
     {{ end }}
 
     {{ if $heading }}
-    <p class="mt-2 max-w-lg text-4xl font-semibold tracking-tight text-pretty text-gray-950 sm:text-5xl">{{ $heading }}</p>
+      <p class="max-w-lg text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl">{{ $heading }}</p>
     {{ end }}
 
     {{ if $description }}
-    <p class="mt-1 text-lg/8 text-gray-600">{{ partial "utils/linkbuilding" (dict "content" $description "page" .Page) | safeHTML }}</p>
+      <p class="mt-1 text-lg/8 text-gray-600">{{ partial "utils/linkbuilding" (dict "content" $description "page" .Page) | safeHTML }}</p>
     {{ end }}
 
     {{ if $linkUrl }}
-    <div class="mt-1">
-      {{ partial "components/buttons/buttons.html" (dict
-        "text" $linkText
-        "url" $linkUrl
-        "variant" "primary"
-      ) }}
-    </div>
+      <div class="mt-1">
+        {{ partial "components/buttons/buttons.html" (dict
+          "text" $linkText
+          "url" $linkUrl
+          "variant" "primary"
+        ) }}
+      </div>
     {{ end }}
-
-    <div class="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6">
+    
+    <div class="mt-16 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6">
       {{ range $index, $card := $cards }}
-        {{ $cardSize := $card.cardSize | default "large" }}
-        {{ $colSpan := cond (eq $cardSize "small") "lg:col-span-2" "lg:col-span-3" }}
+        {{ $rowIndex := div $index 2 }}
+        {{ $positionInRow := mod $index 2 }}
+        {{ $isEvenRow := eq (mod $rowIndex 2) 0 }}
+        {{ $colSpan := "" }}
+        {{ if $isEvenRow }}
+          {{ $colSpan = cond (eq $positionInRow 0) "lg:col-span-4" "lg:col-span-2" }}
+        {{ else }}
+          {{ $colSpan = cond (eq $positionInRow 0) "lg:col-span-2" "lg:col-span-4" }}
+        {{ end }}
+        {{/* Calculate border radius based on position */}}
+        {{ $borderRadius := "" }}
+        {{ if eq $rowIndex 0 }}
+          {{/* First row */}}
+          {{ if eq $positionInRow 0 }}
+            {{ $borderRadius = "rounded-[10px] lg:rounded-[32px_10px_10px_10px]" }}
+          {{ else }}
+            {{ $borderRadius = "rounded-[10px] lg:rounded-[10px_32px_10px_10px]" }}
+          {{ end }}
+        {{ else if eq $positionInRow 0 }}
+          {{/* Left position in other rows */}}
+          {{ $borderRadius = "rounded-[10px] lg:rounded-[10px_10px_10px_32px]" }}
+        {{ else }}
+          {{/* Right position in other rows */}}
+          {{ $borderRadius = "rounded-[10px] lg:rounded-[10px_10px_32px_10px]" }}
+        {{ end }}
         {{ $url := $card.url | default "" }}
         {{ $cardImageClasses := $card.cardImageClasses | default "h-80 object-cover object-left" }}
-        <div class="relative {{ $colSpan }}">
-          <div class="absolute inset-px rounded-lg bg-white"></div>
+        {{ $backgroundColorImage := $card.backgroundColorImage | default "bg-gray-200" }}
+        <div class="relative {{ $colSpan }} shadow-lg {{ $borderRadius }}">
+          <div class="absolute inset-px {{ $borderRadius }} bg-white"></div>
           {{ if $url }}
             {{ $cardImageClasses = $card.cardImageClasses | default "h-80 object-cover object-left transition-transform group-hover:scale-105" }}
 
             <a href="{{ $url }}" class="relative block h-full group">
-              <div class="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
-                {{ partial "components/media/lazyimg.html" (dict
-                  "src" $card.image
-                  "alt" $card.imageAlt
-                  "class" $card.cardImageClasses
-                  "maxWidth" 600
-                ) }}
+              <div class="relative flex h-full flex-col overflow-hidden {{ $borderRadius }}">
+                <div class="{{ $backgroundColorImage }}">
+                  {{ partial "components/media/lazyimg.html" (dict
+                    "src" $card.image
+                    "alt" $card.imageAlt
+                    "class" $card.cardImageClasses
+                    "maxWidth" 600
+                  ) }}
+                </div>
                 {{ if or $card.category $card.title $card.description }}
                 <div class="p-10 pt-4">
                   <h3 class="text-sm/4 font-semibold text-{{ $card.categoryColor }}">{{ $card.category }}</h3>
@@ -147,25 +173,27 @@
                 </div>
                 {{ end }}
               </div>
-              <div class="pointer-events-none absolute inset-px rounded-lg ring-1 shadow-sm ring-black/5 group-hover:ring-2 group-hover:ring-{{ $card.categoryColor | default "primary" }}/30"></div>
+              <div class="pointer-events-none absolute inset-px {{ $borderRadius }} ring-1 shadow-sm ring-black/5 group-hover:ring-2 group-hover:ring-{{ $card.categoryColor | default "primary" }}/30"></div>
             </a>
           {{ else }}
-            <div class="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
-              {{ partial "components/media/lazyimg.html" (dict
+            <div class="relative flex h-full flex-col overflow-hidden {{ $borderRadius }}">
+              <div class="{{ $backgroundColorImage }}">
+                {{ partial "components/media/lazyimg.html" (dict
                 "src" $card.image
                 "alt" $card.imageAlt
                 "class" $cardImageClasses
                 "maxWidth" 600
               ) }}
+              </div>
               {{ if or $card.category $card.title $card.description }}
-              <div class="p-10 pt-4">
-                <h3 class="text-sm/4 font-semibold text-{{ $card.categoryColor }}">{{ $card.category }}</h3>
-                <p class="mt-2 text-lg font-medium tracking-tight text-gray-950">{{ $card.title }}</p>
-                <p class="mt-2 max-w-lg text-sm/6 text-gray-600">{{ $card.description }}</p>
+              <div class="p-10 pt-8 flex flex-col gap-y-2">
+                <h3 class="font-semibold text-base text-{{ $card.categoryColor }}">{{ $card.category }}</h3>
+                <p class="font-semibold text-lg text-gray-900">{{ $card.title }}</p>
+                <p class="text-sm/8 text-gray-600">{{ $card.description }}</p>
               </div>
               {{ end }}
             </div>
-            <div class="pointer-events-none absolute inset-px rounded-lg ring-1 shadow-sm ring-black/5"></div>
+            <div class="pointer-events-none absolute inset-px {{ $borderRadius }} ring-1 shadow-sm ring-black/5"></div>
           {{ end }}
         </div>
       {{ end }}
