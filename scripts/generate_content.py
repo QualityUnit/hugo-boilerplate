@@ -249,6 +249,12 @@ def save_content(content, filename, output_dir, allow_overwrite=True):
     try:
         # Create output directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
+
+        # Ensure output_dir has / at the end
+        if not output_dir.endswith('/'):
+            output_dir += '/'
+        # ensure filename doesn't start with /
+        filename = filename.lstrip('/')
         
         output_path = os.path.join(output_dir, filename)
         
