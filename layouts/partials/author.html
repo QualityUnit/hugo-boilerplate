@@ -5,16 +5,13 @@
 {{/* First try to get author from content file */}}
 {{ $authorPath := printf "author/%s" $authorKey }}
 {{ with site.GetPage $authorPath }}
-  {{ $authorData = dict
-    "name" .Title
-    "role" .Params.role
-    "image" .Params.image
-    "description" .Params.description
-  }}
-{{ else }}
-  {{/* Fallback to data file if content page doesn't exist */}}
-  {{ if and site.Data.authors $authorKey (index site.Data.authors $authorKey) }}
-    {{ $authorData = index site.Data.authors $authorKey }}
+  {{ if .Params.role }}
+    {{ $authorData = dict
+      "name" .Title
+      "role" .Params.role
+      "image" .Params.image
+      "description" .Params.description
+    }}
   {{ end }}
 {{ end }}
 

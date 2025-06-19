@@ -22,8 +22,8 @@ Examples:
     python generate_content.py --input_file topics.csv --flow_id "flow-id" --output_dir output
     python generate_content.py --input_file glossaries.csv --flow_id 8eeb2771-10c0-4165-a16b-37fe81707659 --output_dir ../../../content/en/glossary
     
-    # Prevent overwriting existing files
-    python generate_content.py --input_file topics.csv --flow_id "flow-id" --output_dir output --no-overwrite
+    # Enable overwriting existing files
+    python generate_content.py --input_file topics.csv --flow_id "flow-id" --output_dir output --overwrite
 """
 
 import os
@@ -415,9 +415,9 @@ def main():
         help="Directory where generated content will be saved"
     )
     parser.add_argument(
-        "--no-overwrite",
+        "--overwrite",
         action="store_true",
-        help="Prevent overwriting existing files (default: allow overwrite)"
+        help="Enable overwriting existing files (default: do not overwrite)"
     )
     
     args = parser.parse_args()
@@ -435,8 +435,8 @@ def main():
     print(f"Found {len(topics)} topics in {args.input_file}")
     
     # Process topics
-    process_topics(topics, args.flow_id, workspace_id, args.output_dir, allow_overwrite=not args.no_overwrite)
-    
+    process_topics(topics, args.flow_id, workspace_id, args.output_dir, allow_overwrite=args.overwrite)
+
     print("\nContent generation completed!")
 
 if __name__ == "__main__":
