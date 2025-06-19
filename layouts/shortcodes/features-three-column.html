@@ -47,7 +47,7 @@
 {{ $eyebrow := .Get "eyebrow" | default "" }}
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
-{{ $bgColor := .Get "bgColor" | default "bg-white" }}
+{{ $theme := .Get "theme" | default "light" }}
 
 {{ $defaultFeatures := slice }}
 
@@ -62,7 +62,7 @@
   "eyebrow" $eyebrow
   "heading" $heading
   "description" $description
-  "bgColor" $bgColor
+  "theme" $theme
   "features" $features
   "page" $.Page
 ) }}

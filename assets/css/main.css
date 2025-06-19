@@ -27,7 +27,7 @@
   }
 
   .text-body {
-    @apply text-gray-600 dark:text-white;
+    @apply text-gray-600 dark:text-gray-300;
     /* Body text – medium gray in light mode, light gray in dark mode */
   }
 

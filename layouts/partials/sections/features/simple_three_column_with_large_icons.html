@@ -5,7 +5,7 @@
   - eyebrow: Text displayed above the heading (optional)
   - heading: Main section heading (optional, default: "Stay on top of customer support")
   - description: Section description text (optional, default: "Lorem ipsum dolor sit amet consect adipisicing elit...")
-  - bgColor: Background color class (optional, default: "bg-white")
+  - theme: "light" (default) or "dark" — add class="dark" for section
   - features: Array of feature objects (optional, includes defaults)
     - icon: SVG path for the icon (as HTML string)
     - title: Feature title
@@ -48,51 +48,55 @@
 {{ $eyebrowColor := .eyebrowColor | default "text-primary" }}
 {{ $heading := .heading | default "" }}
 {{ $description := .description | default "" }}
-{{ $bgColor := .bgColor | default "bg-white" }}
 {{ $features := .features | default (slice) }}
 {{ $page := .page }}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
 
-<div class="{{ $bgColor }} py-12">
-  <div class="wrapper">
-    <div class="mx-auto max-w-4xl">
-      {{ if $eyebrow }}
-      <p class="text-base font-semibold leading-7 {{ $eyebrowColor }}">{{ $eyebrow }}</p>
-      {{ end }}
-      {{ if $heading }}
-      <h2 class="text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl">{{ $heading }}</h2>
-      {{ end }}
-      {{ if $description }}
-      <p class="mt-6 text-lg/8 text-gray-600">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
-      {{ end }}
-    </div>
-    <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-      <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-        {{ range $features }}
-        <div class="relative pl-0">
-          <dt class="font-semibold text-gray-900 flex items-center">
-            {{ if .icon }}
-            <div class="size-5 text-primary mr-2 flex-shrink-0">
-              {{ partial "components/media/icon.html" (dict "icon" .icon) }}
-            </div>
-            {{ end }}
-            <span>{{ .title }}</span>
-          </dt>
-          <dd class="mt-1 text-base/7 text-gray-600 {{ if not .icon }} pl-0 {{ end }}">
-            <p>{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</p>
-            {{ if .link }}
-            <p class="mt-6">
-              {{ partial "components/buttons/buttons.html" (dict
-                "text" .link.text
-                "url" .link.url
-                "variant" "text"
-                "showArrow" true
-              ) }}
-            </p>
-            {{ end }}
-          </dd>
-        </div>
+<div class="{{ $theme }}">
+  <div class="section-bg-light dark:section-bg-dark {{ if $isDark }}py-32{{ else }}py-12{{ end }}">
+    <div class="wrapper">
+      <div class="max-w-2xl">
+        {{ if $eyebrow }}
+        <p class="text-base font-semibold leading-7 {{ $eyebrowColor }}">{{ $eyebrow }}</p>
         {{ end }}
-      </dl>
+        {{ if $heading }}
+        <h2 class="text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
+        {{ end }}
+        {{ if $description }}
+        <p class="mt-6 text-lg/9 text-body">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+        {{ end }}
+      </div>
+      <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+        <dl class="grid max-w-xl grid-cols-1 gap-x-16 gap-y-24 lg:max-w-none lg:grid-cols-3">
+          {{ range $features }}
+          <div class="relative pl-0">
+            {{ if .icon }}
+              <div class="size-10 bg-primary-500 text-white mb-6 p-2 rounded-lg flex-shrink-0">
+                {{ partial "components/media/icon.html" (dict "icon" .icon) }}
+              </div>
+            {{ end }}
+            <dt class="font-semibold text-lg text-heading flex items-center">
+              <span>{{ .title }}</span>
+            </dt>
+            <dd class="mt-1 pl-0 text-base/7 text-body {{ if not .icon }} pl-0 {{ end }}">
+              <p>{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</p>
+              {{ if .link }}
+              <p class="mt-4">
+                {{ partial "components/buttons/buttons.html" (dict
+                  "text" .link.text
+                  "url" .link.url
+                  "variant" "text"
+                  "showArrow" true
+                ) }}
+              </p>
+              {{ end }}
+            </dd>
+          </div>
+          {{ end }}
+        </dl>
+      </div>
     </div>
   </div>
 </div>
