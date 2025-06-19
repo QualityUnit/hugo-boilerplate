@@ -46,7 +46,7 @@
   >
 {{ else }}
 
-    {{ $availableWidths := slice 150 300 768 1024 }}
+    {{ $availableWidths := slice 300 768 1024 }}
 
     <!-- Extract paths for processed images -->
     {{ $filename := path.Base $src }}
@@ -223,18 +223,18 @@
     {{ $availableSrcWidths := slice }}
     {{ $availableWebpWidths := slice }}
 
-    {{ range $sortedWidths }}
-      {{ $currentWidth := . }}
-      {{ $currentSrcPath := printf "%s%s-%d%s" $processedDirPath $basename $currentWidth $extension }}
-      {{ $currentWebpPath := printf "%s%s-%d.webp" $processedDirPath $basename $currentWidth }}
+    {{ range $availableWidths }}
+        {{ $currentWidth := . }}
+        {{ $currentSrcPath := printf "%s%s-%d%s" $processedDirPath $basename $currentWidth $extension }}
+        {{ $currentWebpPath := printf "%s%s-%d.webp" $processedDirPath $basename $currentWidth }}
 
-      {{ if fileExists (printf "static%s" $currentSrcPath) }}
-        {{ $availableSrcWidths = $availableSrcWidths | append (dict "width" $currentWidth "path" $currentSrcPath) }}
-      {{ end }}
+        {{ if fileExists (printf "static%s" $currentSrcPath) }}
+            {{ $availableSrcWidths = $availableSrcWidths | append (dict "width" $currentWidth "path" $currentSrcPath) }}
+        {{ end }}
 
-      {{ if fileExists (printf "static%s" $currentWebpPath) }}
-        {{ $availableWebpWidths = $availableWebpWidths | append (dict "width" $currentWidth "path" $currentWebpPath) }}
-      {{ end }}
+        {{ if fileExists (printf "static%s" $currentWebpPath) }}
+            {{ $availableWebpWidths = $availableWebpWidths | append (dict "width" $currentWidth "path" $currentWebpPath) }}
+        {{ end }}
     {{ end }}
 
     {{ if and $hasOptimizedOriginal $useOriginal }}

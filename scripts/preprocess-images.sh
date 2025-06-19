@@ -22,7 +22,7 @@ mkdir -p "$TARGET_DIR"
 
 # Define image widths - can be adjusted or extended without changing the code logic
 # Each width will create a resized version of the image
-IMAGE_WIDTHS=(150 300 768 1024)
+IMAGE_WIDTHS=(300 768 1024)
 
 # Quality settings
 QUALITY_JPG=95
