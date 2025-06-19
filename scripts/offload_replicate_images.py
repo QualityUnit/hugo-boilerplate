@@ -81,7 +81,7 @@ def process_image_url(url, out_dir, title, md_stem, idx=None):
         else:
             out_filename = f"{md_stem}_{safe_title}{ext}"
     #if filename contains more dash symbols, replace them with one ... e.g. --- > -
-    out_filename = re.sub(r'-+', '-', out_filename)
+    out_filename = re.sub(r'-+', '-', out_filename)[-100:]
 
     # 4. Download image if it doesn't exist
     out_path = out_dir / out_filename
