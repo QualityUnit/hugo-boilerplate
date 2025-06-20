@@ -3,7 +3,6 @@
 A clean and minimal Hugo theme designed for QualityUnit websites with a focus on performance, SEO, and responsive design. 
 This theme includes Tailwind CSS integration, comprehensive SEO features, responsive image processing, and multilingual support out of the box.
 
-
 ## Projects running this theme
 - [AiMingle](https://www.aimingle.cz/) - https://github.com/QualityUnit/aimingle-hugo
 - [FlowHunt](https://www.flowhunt.io/) - https://github.com/QualityUnit/flowhunt-hugo
