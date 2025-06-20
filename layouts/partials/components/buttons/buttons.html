@@ -11,12 +11,20 @@
   - id: HTML id attribute (optional)
   - ariaLabel: ARIA label (optional; defaults to button text)
   - showArrow: Boolean to show an arrow after the text (optional, default: false)
+  - dataAttributes: Data attributes for the button/link (optional)
 @example:
-  {{ partial "components/button.html" (dict
+  {{ partial "components/buttons/buttons.html" (dict
       "text" "Get started"
       "url" "/signup"
       "variant" "primary"
       "showArrow" true
+  ) }}
+
+  {{ partial "components/buttons/buttons.html" (dict
+      "text" "Save Settings"
+      "url" "#"
+      "variant" "primary"
+      "dataAttributes" "data-cookie-consent=accept-all"
   ) }}
 */}}
 
@@ -29,6 +37,7 @@
 {{ $id := .id | default "" }}
 {{ $ariaLabel := .ariaLabel | default $text }}
 {{ $showArrow := .showArrow | default false }}
+{{ $dataAttributes := .dataAttributes | default "" }}
 
 {{ $variantClass := "" }}
 {{ if eq $variant "primary" }}
@@ -49,6 +58,7 @@
     target="{{ $target }}"
     {{ with $id }}id="{{ . }}"{{ end }}
     {{ with $rel }}rel="{{ . }}"{{ end }}
+    {{ with $dataAttributes }}{{ . | safeHTMLAttr }}{{ end }}
   >
     {{ $text }}{{ if $showArrow }} <span aria-hidden="true" class="btn-arrow">&rarr;</span>{{ end }}
   </a>
