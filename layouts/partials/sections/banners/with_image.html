@@ -16,6 +16,7 @@
 @example:
   {{ partial "sections/banners/with_image.html" (dict 
       "text" "Showcase Your Expertise" 
+      "textClasses" "text-2xl lg:text-4xl font-bold m-0"
       "image" "/images/landing-pages/ai-training-sertificate.png"
       "image_alt" "Certificate of completion"
       "textColor" "text-gray-900"
@@ -27,6 +28,7 @@
 */}}
 
 {{- $text := .text | default "" -}}
+{{- $textClasses := .textClasses | default "text-2xl lg:text-4xl font-bold m-0" -}}
 {{- $backgroundColor := .backgroundColor | default "" -}}
 {{- $gradientFromColor := .gradientFromColor | default "from-[#1a1a1a]" -}}
 {{- $gradientToColor := .gradientToColor | default "to-[#0f1f5c]" -}}
@@ -51,7 +53,7 @@
             </div>
             <div class="w-full md:w-3/4 md:pl-6">
                 <div class="{{ $textColor }}">
-                    <h2 class="text-2xl lg:text-4xl font-bold m-0">{{ $text | safeHTML }}</h2>
+                    <h2 class="{{ $textClasses }}">{{ $text | safeHTML }}</h2>
                 </div>
             </div>
         </div>
