@@ -20,6 +20,15 @@
     /* Dark background, used for contrast or "dark mode" sections */
   }
 
+  /* Cookie consent styles - simplified */
+  .cookie-hidden {
+    @apply hidden !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
   /* 📝 TEXT STYLES */
   .text-heading {
     @apply text-gray-900 dark:text-white;
@@ -89,6 +98,7 @@
   iframe {
     outline: none !important;
   }
+
 }
 
 @layer utilities {

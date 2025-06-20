@@ -1,0 +1,105 @@
+{{/*
+@section: Cookie Consent Left Aligned Banner
+@description: A GDPR-compliant cookie consent banner with simplified implementation
+*/}}
+
+{{- $title := .title | default (i18n "cookie_consent_title") -}}
+{{- $message := .message | default (i18n "cookie_consent_message") -}}
+{{- $policyText := .policyText | default "privacy policy" -}}
+{{- $policyUrl := .policyUrl | default "/privacy-policy/" -}}
+{{- $acceptAllText := i18n "cookie_consent_accept_all" -}}
+{{- $acceptNecessaryText := i18n "cookie_consent_accept_necessary" -}}
+{{- $settingsText := i18n "cookie_consent_settings" -}}
+{{- $backgroundColor := .backgroundColor | default "bg-white" -}}
+{{- $textColor := .textColor | default "text-gray-900" -}}
+{{- $linkColor := .linkColor | default "text-indigo-600" -}}
+{{- $bannerId := "cookie-consent-banner" -}}
+
+<div id="{{ $bannerId }}" data-cookie-consent-banner class="pointer-events-none fixed inset-x-0 bottom-0 px-6 pb-6 z-50">
+    <div class="pointer-events-auto max-w-xl rounded-xl {{ $backgroundColor }} p-6 ring-1 shadow-lg ring-gray-900/10">
+        <p class="text-sm/6 {{ $textColor }}"><strong class="text-md mb-4 font-semibold">{{ $title }}</strong><br> {{ $message }} See our <a href="{{ $policyUrl }}" class="font-semibold {{ $linkColor }}">{{ $policyText }}</a>.</p>
+        <div class="mt-4 flex items-center gap-x-3 flex-wrap">
+            {{ partial "components/buttons/buttons.html" (dict
+            "text" $acceptAllText
+            "url" "#"
+            "dataAttributes" "data-cookie-consent=accept-all"
+            "variant" "primary"
+            "classes" "text-sm"
+            ) }}
+
+            {{ partial "components/buttons/buttons.html" (dict
+            "text" $acceptNecessaryText
+            "dataAttributes" "data-cookie-consent=accept-necessary"
+            "url" "#"
+            "variant" "secondary"
+            "classes" "text-sm"
+            ) }}
+
+            {{ partial "components/buttons/buttons.html" (dict
+            "text" $settingsText
+            "url" "#"
+            "dataAttributes" "data-cookie-consent=settings"
+            "variant" "text"
+            "classes" "text-sm"
+            ) }}
+        </div>
+    </div>
+</div>
+
+<!-- Cookie Settings Modal (hidden by default) -->
+<div id="cookie-settings-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50" data-cookie-settings-close></div>
+    <div class="relative mx-auto max-w-xl p-4 sm:p-6 bg-white rounded-lg shadow-xl mt-20">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">{{ i18n "cookie_settings_title" }}</h2>
+            <button type="button" class="text-gray-400 hover:text-gray-500" data-cookie-settings-close>
+                <span class="sr-only">{{ i18n "cookie_settings_close" }}</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="space-y-4">
+            <div class="border-b pb-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-medium">{{ i18n "cookie_settings_necessary_title" }}</h3>
+                        <p class="text-sm text-gray-500">{{ i18n "cookie_settings_necessary_description" }}</p>
+                    </div>
+                    <div class="ml-3 flex h-5 items-center">
+                        <input id="necessary-cookies" name="necessary-cookies" type="checkbox" checked disabled class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-b pb-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-medium">{{ i18n "cookie_settings_analytics_title" }}</h3>
+                        <p class="text-sm text-gray-500">{{ i18n "cookie_settings_analytics_description" }}</p>
+                    </div>
+                    <div class="ml-3 flex h-5 items-center">
+                        <input id="analytics-cookies" name="analytics-cookies" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-x-3">
+            {{ partial "components/buttons/buttons.html" (dict
+            "text" (i18n "cookie_settings_cancel")
+            "url" "#"
+            "dataAttributes" "data-cookie-settings-close"
+            "variant" "secondary"
+            ) }}
+
+            {{ partial "components/buttons/buttons.html" (dict
+            "text" (i18n "cookie_settings_save")
+            "url" "#"
+            "dataAttributes" "data-cookie-settings-save"
+            "variant" "primary"
+            ) }}
+        </div>
+    </div>
+</div>

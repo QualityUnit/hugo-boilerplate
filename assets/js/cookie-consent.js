@@ -1,184 +1,129 @@
 /**
- * Cookie Consent Functionality
- * Handles user preferences for cookies and manages Google Analytics tracking
+ * Cookie Consent - Zjednodušená implementácia
  */
 
-// Wait for the window to fully load, not just DOM content
-window.addEventListener('load', function() {
-  // Cookie utility functions
-  const CookieUtils = {
-    setCookie: function(name, value, days) {
-      const date = new Date();
-      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-      const expires = "expires=" + date.toUTCString();
-      document.cookie = name + "=" + value + ";" + expires + ";path=/";
-    },
-    
-    getCookie: function(name) {
-      const nameEQ = name + "=";
-      const ca = document.cookie.split(';');
-      for(let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-      }
-      return null;
-    },
-    
-    deleteCookie: function(name) {
-      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+// Jednoduché funkcie pre prácu s cookies
+const CookieManager = {
+  set(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
+  },
+
+  get(name) {
+    const nameEQ = `${name}=`;
+    return document.cookie.split(';')
+      .map(c => c.trim())
+      .find(c => c.startsWith(nameEQ))
+      ?.substring(nameEQ.length) || null;
+  },
+
+  delete(name) {
+    this.set(name, "", -1);
+  }
+};
+
+// Hlavná funkcionalita pre cookie consent
+document.addEventListener('DOMContentLoaded', function() {
+  // Elementy
+  const banner = document.getElementById('cookie-consent-banner');
+  const modal = document.getElementById('cookie-settings-modal');
+  const analyticsCheckbox = document.getElementById('analytics-cookies');
+
+  // Stav cookies
+  const consentStatus = CookieManager.get('cookie_consent_status');
+
+  // Odstránenie inline štýlov, ktoré by mohli prekážať
+  if (banner) {
+    banner.removeAttribute('style');
+  }
+
+  // Skryť/zobraziť banner podľa stavu cookies
+  if (consentStatus) {
+    hideBanner();
+  } else {
+    showBanner();
+  }
+
+  // Aplikovať predchádzajúci výber
+  if (consentStatus === 'all' && analyticsCheckbox) {
+    analyticsCheckbox.checked = true;
+    updateAnalyticsConsent(true);
+  }
+
+  // Event handlery pre tlačidlá
+  document.addEventListener('click', function(event) {
+    // Akceptovať všetky cookies
+    if (event.target.closest('[data-cookie-consent="accept-all"]')) {
+      setConsent('all');
+      hideBanner();
     }
-  };
-  
-  // Cookie Consent Manager
-  const CookieConsent = {
-    consentBanner: document.getElementById('cookie-consent-banner'),
-    settingsModal: document.getElementById('cookie-settings-modal'),
-    analyticsCheckbox: document.getElementById('analytics-cookies'),
-    
-    init: function() {
-      // Double check if the element exists
-      if (!this.consentBanner) {
-        this.consentBanner = document.querySelector('[data-cookie-consent-banner]');
-      }
-      
-      // Check if consent has already been given or rejected
-      const consentStatus = CookieUtils.getCookie('cookie_consent_status');
-      
-      if (!consentStatus) {
-        // Show the consent banner if no consent decision has been made yet
-        if (this.consentBanner) {
-          // Force the banner to be visible
-          this.consentBanner.style.display = 'block';
-          this.consentBanner.style.visibility = 'visible';
-          this.consentBanner.style.opacity = '1';
-        }
-      } else {
-        // Hide the banner if consent has already been given or rejected
-        if (this.consentBanner) {
-          this.hideBanner();
-        }
-        
-        // Apply the saved consent if it exists
-        const allowAnalytics = consentStatus === 'all';
-        this.applyConsent(allowAnalytics);
-      }
-      
-      this.setupEventListeners();
-    },
-    
-    setupEventListeners: function() {
-      // Accept all cookies
-      const acceptAllButtons = document.querySelectorAll('[data-cookie-consent="accept-all"]');
-      acceptAllButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          this.setConsent('all');
-          this.hideBanner();
-        });
-      });
-      
-      // Accept necessary cookies only
-      const acceptNecessaryButtons = document.querySelectorAll('[data-cookie-consent="accept-necessary"]');
-      acceptNecessaryButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          this.setConsent('necessary');
-          this.hideBanner();
-        });
-      });
-      
-      // Open settings modal
-      const settingsButtons = document.querySelectorAll('[data-cookie-consent="settings"]');
-      settingsButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          this.showSettingsModal();
-        });
-      });
-      
-      // Close settings modal
-      const closeModalButtons = document.querySelectorAll('[data-cookie-settings-close]');
-      closeModalButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          this.hideSettingsModal();
-        });
-      });
-      
-      // Save settings
-      const saveSettingsButtons = document.querySelectorAll('[data-cookie-settings-save]');
-      saveSettingsButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const allowAnalytics = this.analyticsCheckbox && this.analyticsCheckbox.checked;
-          this.setConsent(allowAnalytics ? 'all' : 'necessary');
-          this.hideSettingsModal();
-          this.hideBanner();
-        });
-      });
-    },
-    
-    setConsent: function(level) {
-      // Save the consent status in a cookie
-      CookieUtils.setCookie('cookie_consent_status', level, 365);
-      // Apply the consent settings
-      const allowAnalytics = level === 'all';
-      this.applyConsent(allowAnalytics);
-    },
-    
-    applyConsent: function(allowAnalytics) {
-      // Use the global function from google-analytics-consent.html if available
-      if (typeof window.updateGoogleAnalyticsConsent === 'function') {
-        window.updateGoogleAnalyticsConsent(allowAnalytics);
-      } 
-      // Fallback to direct gtag calls if the global function isn't available
-      else if (typeof window.gtag === 'function') {
-        window.gtag('consent', 'update', {
-          'analytics_storage': allowAnalytics ? 'granted' : 'denied',
-          'ad_storage': allowAnalytics ? 'granted' : 'denied',
-          'ad_user_data': allowAnalytics ? 'granted' : 'denied',
-          'ad_personalization': allowAnalytics ? 'granted' : 'denied'
-        });
-        
-        // Update Google Analytics tracking status
-        this.updateGoogleAnalyticsTracking(allowAnalytics);
-      }
-    },
-    
-    updateGoogleAnalyticsTracking: function(enabled) {
-      // This function can be used to enable/disable Google Analytics tracking
-      if (typeof window.gtag === 'function') {
-        if (enabled) {
-          // Enable tracking by setting consent parameters
-          window.gtag('set', 'url_passthrough', true);
-          window.gtag('set', 'ads_data_redaction', false);
-        } else {
-          // Disable tracking
-          window.gtag('set', 'url_passthrough', false);
-          window.gtag('set', 'ads_data_redaction', true);
-        }
-      }
-    },
-    
-    hideBanner: function() {
-      if (this.consentBanner) {
-        this.consentBanner.style.display = 'none';
-        this.consentBanner.style.visibility = 'hidden';
-        this.consentBanner.style.opacity = '0';
-      }
-    },
-    
-    showSettingsModal: function() {
-      if (this.settingsModal) {
-        this.settingsModal.style.display = 'block';
-        this.settingsModal.classList.remove('hidden');
-      }
-    },
-    
-    hideSettingsModal: function() {
-      if (this.settingsModal) {
-        this.settingsModal.style.display = 'none';
-        this.settingsModal.classList.add('hidden');
-      }
+
+    // Akceptovať len nevyhnutné cookies
+    if (event.target.closest('[data-cookie-consent="accept-necessary"]')) {
+      setConsent('necessary');
+      hideBanner();
     }
-  };
-  
-  // Initialize the cookie consent functionality
-  CookieConsent.init();
+
+    // Otvoriť nastavenia
+    if (event.target.closest('[data-cookie-consent="settings"]')) {
+      modal?.classList.remove('hidden');
+    }
+
+    // Zatvoriť nastavenia
+    if (event.target.closest('[data-cookie-settings-close]')) {
+      modal?.classList.add('hidden');
+    }
+
+    // Uložiť nastavenia
+    if (event.target.closest('[data-cookie-settings-save]')) {
+      const allowAnalytics = analyticsCheckbox?.checked || false;
+      setConsent(allowAnalytics ? 'all' : 'necessary');
+      modal?.classList.add('hidden');
+      hideBanner();
+    }
+  });
+
+  // Funkcia na skrytie bannera
+  function hideBanner() {
+    if (banner) {
+      // Odstránenie akýchkoľvek inline štýlov
+      banner.removeAttribute('style');
+      // Pridanie triedy pre skrytie
+      banner.classList.add('cookie-hidden');
+      // Dodatočné nastavenie pre prípad, že CSS zlyhá
+      banner.style.display = 'none';
+      banner.style.visibility = 'hidden';
+      banner.style.opacity = '0';
+    }
+  }
+
+  // Funkcia na zobrazenie bannera
+  function showBanner() {
+    if (banner) {
+      banner.classList.remove('cookie-hidden');
+      banner.style.display = 'block';
+      banner.style.visibility = 'visible';
+      banner.style.opacity = '1';
+    }
+  }
+
+  // Nastaviť cookies a aplikovať nastavenia
+  function setConsent(level) {
+    CookieManager.set('cookie_consent_status', level, 365);
+    updateAnalyticsConsent(level === 'all');
+    console.log('Cookie consent set to:', level); // Pre debugovanie
+  }
+
+  // Aktualizovať nastavenia pre Google Analytics
+  function updateAnalyticsConsent(allowed) {
+    if (typeof window.gtag === 'function') {
+      window.gtag('consent', 'update', {
+        'analytics_storage': allowed ? 'granted' : 'denied',
+        'ad_storage': allowed ? 'granted' : 'denied',
+        'ad_user_data': allowed ? 'granted' : 'denied',
+        'ad_personalization': allowed ? 'granted' : 'denied'
+      });
+    }
+  }
 });
