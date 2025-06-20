@@ -1,11 +1,9 @@
 @import "fonts.css";
+@import 'typewriter.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import custom component styles */
-@import 'typewriter.css';
 
 /* Custom styles can be added below */
 @layer components {
