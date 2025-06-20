@@ -4,7 +4,7 @@
 @params:
   This component expects a page context (.) that has the following properties:
   - Title: The title of the post
-  - Params.image: Featured image URL (uses a placeholder if not provided)
+  - Params.image: Featured image URL (uses a placeholder if not provided youtubeVideoID, if youtubeVideoID provided, uses YouTube thumbnail)
   - Params.description or .Description or .Summary: Post description/summary
   - Date: Publication date
   - ReadingTime: Estimated reading time in minutes
@@ -27,7 +27,16 @@
 {{ end }}
 {{ $page := .page | default . }}
 {{ $imageSectionHeight := div (mul $cardHeight 45) 100 }} {{/* 45% of cardHeight */}}
-{{ $image := $page.Params.image | default "/placeholder-image.jpg" }}
+
+{{ $image := "" }}
+{{ if (isset $page.Params "image") }}
+  {{ $image = $page.Params.image }}
+{{ else if $page.Params.youtubeVideoID }}
+  {{ $image = (printf "https://img.youtube.com/vi/%s/hqdefault.jpg" $page.Params.youtubeVideoID) }}
+{{ else }}
+  {{ $image = "/placeholder-image.jpg" }}
+{{ end }}
+
 {{ $title := $page.Title }}
 {{ $showImages := true }}
 {{ if (isset . "showImages") }}
