@@ -47,7 +47,7 @@
   {{ $border = printf "border %s" $borderColor }}
 {{ end }}
 
-<span class="inline-flex items-center {{ $rounded }} {{ $bgColor }} {{ $textColor }} {{ $padding }} {{ $size }} {{ $fontWeight }} {{ $border }} {{ $classes }}">
+<span class="inline-flex items-center {{ $rounded }} {{ $bgColor }} {{ $textColor }} {{ $padding }} {{ $size }} {{ $fontWeight }} {{ $border }} {{ $classes }} [&_a]:no-underline [&_a]:text-white [&_a:hover]:text-white [&_a:focus]:text-white [&_a]:font-semibold [&_a]:px-1">
   {{/* Icon rendering if specified */}}
   {{ if $icon }}
     {{ $iconPath := printf "themes/boilerplate/layouts/partials/icons/%s.html" $icon }}

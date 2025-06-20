@@ -12,7 +12,7 @@
   - titleClass: CSS classes for title (optional, default: "text-3xl lg:text-5xl font-bold text-center mt-0 mb-6")
   - description: Section description text (comes from .md file content)
   - descriptionColor: Color class for description (optional, default: "text-gray-900")
-  - descriptionClass: CSS classes for description (optional, default: "text-lg leading-8 text-center max-w-3xl mx-auto")
+  - descriptionClass: CSS classes for description (optional, default: "text-lg leading-8 text-center max-w-5xl mx-auto")
   - sessions: Array of session objects for pricing (optional)
     Each session requires: title, subtitle, count, countLabel, smallGroupTitle, smallGroupPrice, largeGroupTitle, largeGroupPrice
   - session1, session2: Alternative way to pass individual session objects (optional)
@@ -22,7 +22,8 @@
   - ctaUrl: URL for call-to-action button (optional)
   - sessionFeatures: Array of course feature objects (optional)
     Each feature requires: title, items (array of learning points)
-  - bannerText: Banner text content, supports HTML (optional)
+  - bannerTextTop: Banner text content, supports HTML (optional)
+  - bannerTextBottom: Additional banner text content, supports HTML (optional)
   - bannerImage: Path to banner image (optional, default: "/images/landing-pages/ai-training-sertificate.png")
   - bannerImageAlt: Alt text for banner image (optional)
   - bannerTextColor: Text color for banner (optional, default: "text-white")
@@ -33,7 +34,8 @@
     description="Ensuring teams get the most value from the integrated Microsoft Copilot is crucial any company using Microsoft products. Our mentored learning sessions help teams work smarter and use integrated generative AI tools to enhance everyday workflows."
     ctaText="Book Now"
     ctaUrl="/booking/"
-    bannerText="Showcase Your Expertise<br><b>With Our Certificate!</b>"
+    bannerTextTop="Showcase Your Expertise"
+    bannerTextBottom="With Our Certificate!"
     comment="Main AI training course details"
     sectionClass="mx-auto max-w-7xl mb-0"
     >}}
@@ -99,13 +101,13 @@
 {{/* Header content */}}
 {{ $title := .title | default "" }}
 {{ $titleColor := .titleColor | default "text-gray-900" }}
-{{ $titleClass := .titleClass | default "text-3xl lg:text-5xl font-bold text-center mt-0 mb-6" }}
+{{ $titleClass := .titleClass | default "text-3xl lg:text-5xl font-semibold text-center mt-0 mb-6" }}
 {{ $description := .description | default "" }}
 {{ $descriptionColor := .descriptionColor | default "text-gray-900" }}
-{{ $descriptionClass := .descriptionClass | default "text-lg leading-8 text-center max-w-3xl mx-auto" }}
+{{ $descriptionClass := .descriptionClass | default "text-lg leading-8 text-center max-w-5xl mx-auto" }}
 
 {{/* Pricing configuration */}}
-{{ $pricingContainerClass := .pricingContainerClass | default "max-w-3xl mx-auto mb-6 border rounded-md p-5 bg-white" }}
+{{ $pricingContainerClass := .pricingContainerClass | default "max-w-5xl mx-auto mb-10 border rounded-md p-5 bg-white shadow-lg" }}
 {{ $sessions := cond (isset . "sessions") .sessions (cond (isset . "session1") (slice .session1 .session2) (slice)) }}
 {{ $labels := .labels | default (slice) }}
 {{ $ctaText := .ctaText | default "" }}
@@ -117,15 +119,20 @@
 {{/* Banner configuration */}}
 {{ $bannerImage := .bannerImage | default "/images/landing-pages/ai-training-sertificate.png" }}
 {{ $bannerImageAlt := .bannerImageAlt | default "" }}
-{{ $bannerText := .bannerText | default "" }}
+{{ $bannerText := .bannerTextTop | default "" }}
+{{ $bannerTextBottom := .bannerTextBottom | default "" }}
+{{ if $bannerTextBottom }}
+    {{ $bannerText = print $bannerText "<span class='block mt-3 font-bold'>" $bannerTextBottom "</span>" | safeHTML }}
+{{ end }}
+
 {{ $bannerTextColor := .bannerTextColor | default "text-white" }}
 {{ $bannerBackgroundColor := .bannerBackgroundColor | default "bg-gradient-to-l from-[#1a1a1a] to-[#0f1f5c] bg-opacity-10" }}
 
 <section class="bg-white">
-    <div class="wrapper bg-gray-50 py-16 lg:py-20 rounded-2xl">
+    <div class="wrapper bg-gray-50 p-16 lg:px-32 rounded-2xl">
     <!-- Icons Section - Technology Partners -->
     {{ if $icons}}
-    <div class="flex flex-wrap justify-center items-center gap-12 md:gap-16 lg:gap-20 mb-20">
+    <div class="flex flex-wrap justify-center items-center gap-12 md:gap-16 lg:gap-20 mb-5">
         {{ range $icons }}
         <div class="flex items-center justify-center w-auto h-auto">
             {{ partial "components/media/lazyimg.html" (dict 
@@ -142,7 +149,7 @@
     {{ end }}
 
     <!-- Title and Description -->
-    <div class="text-center mb-20">
+    <div class="text-center mb-16">
         {{ if $title }}
         <h2 class="{{ $titleClass }} {{ $titleColor }}">{{ $title }}</h2>
         {{ end }}
@@ -159,75 +166,112 @@
     <div class="{{ $pricingContainerClass }}">
         <!-- Pricing Grid -->
         {{ if gt (len $sessions) 0 }}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-6 relative">
-            <!-- First Row - Session 1 Details -->
-            <div class="bg-gray-200 p-5 col-span-2 md:order-1 order-1 rounded-md">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <div class="font-medium">{{ index $sessions 0 "title" }}</div>
-                        <div class="text-gray-900 text-sm">{{ index $sessions 0 "subtitle" }}</div>
+            {{ if eq (len $sessions) 1 }}
+                <!-- Single Session Layout -->
+                <div class="mb-6">
+                    <!-- Session Details - Top Block -->
+                    <div class="bg-gray-200 px-5 py-2.5 rounded-md mb-8 grid grid-cols-2">
+                        <div class="pr-5">
+                            <div class="text-sm text-gray-900">{{ i18n "courses.format" }}:</div>
+                            <div class="text-base font-bold">{{ index $sessions 0 "title" }}</div>
+                            <div class="text-gray-900 text-sm">{{ index $sessions 0 "subtitle" }}</div>
+                        </div>
+                        <div class="mt-5 pl-6">
+                            <div class="text-sm font-bold text-gray-900">{{ i18n "courses.additional_material" | default "Additional material" }}</div>
+                            <div class="text-base">{{ i18n "courses.hints_tips_ebook" | default "Hints & Tips ebook" }}</div>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <div class="font-medium">{{ index $sessions 0 "count" }}</div>
-                        <div class="text-gray-900 text-sm">{{ index $sessions 0 "countLabel" }}</div>
+                    
+                    <!-- Pricing Grid - Bottom -->
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <!-- Small Group Pricing -->
+                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 rounded-md">
+                            <div class="text-sm text-gray-900">{{ index $sessions 0 "smallGroupTitle" }}</div>
+                            <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 0 "smallGroupPrice" }}</div>
+                        </div>
+
+                        <!-- Large Group Pricing -->
+                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 rounded-md">
+                            <div class="text-sm text-gray-900">{{ index $sessions 0 "largeGroupTitle" }}</div>
+                            <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 0 "largeGroupPrice" }}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            {{ if gt (len $sessions) 1 }}
-            <!-- First Row - Session 2 Details -->
-            <div class="bg-gray-200 p-5 col-span-2 md:order-2 order-4 rounded-md">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <div class="font-medium">{{ index $sessions 1 "title" }}</div>
-                        <div class="text-gray-900 text-sm">{{ index $sessions 1 "subtitle" }}</div>
+            {{ else }}
+                <!-- Multiple Sessions Layout - 4-column Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-5 mb-6 relative">
+                    <!-- First Row - Session 1 Details -->
+                    <div class="bg-gray-200 px-5 py-2.5 col-span-2 md:order-1 order-1 rounded-md">
+                        <div class="text-sm text-gray-900">{{ i18n "courses.format" }}:</div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-base font-bold">{{ index $sessions 0 "title" }}</div>
+                                <div class="text-gray-900 text-sm">{{ index $sessions 0 "subtitle" }}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-base font-bold">{{ index $sessions 0 "count" }}</div>
+                                <div class="text-gray-900 text-sm">{{ index $sessions 0 "countLabel" }}</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <div class="font-medium">{{ index $sessions 1 "count" }}</div>
-                        <div class="text-gray-900 text-sm">{{ index $sessions 1 "countLabel" }}</div>
+                    
+                    {{ if gt (len $sessions) 1 }}
+                        <!-- First Row - Session 2 Details -->
+                        <div class="bg-gray-200 px-5 py-2.5 col-span-2 md:order-2 order-4 rounded-md">
+                            <div class="text-sm text-gray-900">{{ i18n "courses.format" }}:</div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-base font-bold">{{ index $sessions 1 "title" }}</div>
+                                    <div class="text-gray-900 text-sm">{{ index $sessions 1 "subtitle" }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-base font-bold">{{ index $sessions 1 "count" }}</div>
+                                    <div class="text-gray-900 text-sm">{{ index $sessions 1 "countLabel" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    {{ end }}
+                    
+                    <!-- Second Row - Session 1 Pricing -->
+                    <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-3 order-2 rounded-md">
+                        <div class="text-sm text-gray-900">{{ index $sessions 0 "smallGroupTitle" }}</div>
+                        <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 0 "smallGroupPrice" }}</div>
                     </div>
+
+                    <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-4 order-3 rounded-md">
+                        <div class="text-sm text-gray-900">{{ index $sessions 0 "largeGroupTitle" }}</div>
+                        <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 0 "largeGroupPrice" }}</div>
+                    </div>
+
+                    {{ if gt (len $sessions) 1 }}
+                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-5 order-5 rounded-md">
+                            <div class="text-sm text-gray-900">{{ index $sessions 1 "smallGroupTitle" }}</div>
+                            <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 1 "smallGroupPrice" }}</div>
+                        </div>
+
+                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-6 order-6 rounded-md">
+                            <div class="text-sm text-gray-900">{{ index $sessions 1 "largeGroupTitle" }}</div>
+                            <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 1 "largeGroupPrice" }}</div>
+                        </div>
+
+                        <!-- "or" separator -->
+                        <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                            <div class="bg-transparent px-4 py-1 text-gray-900 text-sm">{{ i18n "courses.or" }}</div>
+                        </div>
+                    {{ end }}
                 </div>
-            </div>
             {{ end }}
-            
-            <!-- Second Row - Session 1 Pricing -->
-            <div class="bg-gray-200 p-5 md:order-3 order-2 rounded-md">
-                <div class="text-sm text-gray-900">{{ index $sessions 0 "smallGroupTitle" }}</div>
-                <div class="font-bold text-xl lg:text-3xl">{{ index $sessions 0 "smallGroupPrice" }}</div>
-            </div>
-
-            <div class="bg-gray-200 p-5 md:order-4 order-3 rounded-md">
-                <div class="text-sm text-gray-900">{{ index $sessions 0 "largeGroupTitle" }}</div>
-                <div class="font-bold text-xl lg:text-3xl">{{ index $sessions 0 "largeGroupPrice" }}</div>
-            </div>
-
-            {{ if gt (len $sessions) 1 }}
-            <div class="bg-gray-200 p-5 md:order-5 order-5 rounded-md">
-                <div class="text-sm text-gray-900">{{ index $sessions 1 "smallGroupTitle" }}</div>
-                <div class="font-bold text-xl lg:text-3xl">{{ index $sessions 1 "smallGroupPrice" }}</div>
-            </div>
-
-            <div class="bg-gray-200 p-5 md:order-6 order-6 rounded-md">
-                <div class="text-sm text-gray-900">{{ index $sessions 1 "largeGroupTitle" }}</div>
-                <div class="font-bold text-xl lg:text-3xl">{{ index $sessions 1 "largeGroupPrice" }}</div>
-            </div>
-            
-            <!-- "or" separator -->
-            <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                <div class="bg-white px-4 py-1 text-gray-900 text-sm">{{ i18n "courses.or" }}</div>
-            </div>
-            {{ end }}
-        </div>
         {{ end }}
 
         <!-- Labels Section -->
         {{ if $labels }}
-        <div class="mb-6 space-y-3">
+        <div class="mb-6 flex flex-wrap gap-2">
             {{ range $labels }}
             {{ partial "components/label/label.html" (dict 
                 "text" .text
                 "bgColor" .bgColor
                 "textColor" .textColor
+                "size" "text-sm"
             ) }}
             {{ end }}
         </div>
@@ -239,6 +283,7 @@
                 "text" $ctaText 
                 "url" $ctaUrl 
                 "variants" "primary"
+                "classes" "flex align-center w-full sm:w-auto"
             ) }}
         {{ end }}
     </div>
@@ -246,16 +291,21 @@
 
     <!-- Course Features Grid -->
     {{ if $sessionFeatures }}
-    <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-6">
+    <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-6">
         {{ range $index, $feature := $sessionFeatures }}
-        <div class="bg-gray-150 rounded-lg p-5 border border-gray-200 overflow-hidden">
+        <div class="bg-gray-150 rounded-lg p-8 border border-gray-200 shadow-lg overflow-hidden">
             <div class="text-xs font-medium mb-2">{{ i18n "courses.session" }} {{ add $index 1 }}:</div>
             <h3 class="text-base font-semibold text-gray-900 mt-0 mb-8">{{ $feature.title }}</h3>
             <p class="text-sm text-gray-600 mb-4">{{ i18n "courses.you_will_learn" }}</p>
-            <ul role="list" class="space-y-3 not-prose">
+            <ul role="list" class="space-y-3 gap-y-1.5 not-prose">
                 {{ range $feature.items }}
-                <li class="flex gap-2 items-start">
-                    <span class="flex-shrink-0 w-4 h-4 mt-1 text-primary">{{ partial "icons/check-circle" . }}</span>
+                <li class="flex gap-x-3 mt-0 items-start">
+                    <span class="flex-shrink-0 w-4 h-4 mt-1">
+                        {{ partial "components/media/lazysvg.html" (dict 
+                            "src" "/images/icons/check-circle.svg" 
+                            "alt" "Check circle icon"
+                        ) }}
+                    </span>
                     <span class="text-base text-gray-900">{{ . }}</span>
                 </li>
                 {{ end }}
@@ -267,9 +317,10 @@
 
     <!-- Banner -->
     {{ if $bannerText }}
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-5xl mx-auto">
         {{ partial "sections/banners/with_image.html" (dict 
             "text" $bannerText
+            "textClasses" "text-2xl lg:text-4xl font-normal m-0"
             "image" $bannerImage
             "image_alt" $bannerImageAlt
             "backgroundColor" $bannerBackgroundColor

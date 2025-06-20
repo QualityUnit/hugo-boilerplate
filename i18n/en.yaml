@@ -90,5 +90,6 @@ get_started: "Get started"
 
 # AI training courses translations
 courses.session: "Session"
+courses.format: "Format"
 courses.you_will_learn: "You will learn:"
 courses.or: "or"

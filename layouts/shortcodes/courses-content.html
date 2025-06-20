@@ -6,7 +6,8 @@
   - description: Section description text (optional, defaults to page description)
   - ctaText: Text for the call-to-action button (optional)
   - ctaUrl: URL for the call-to-action button (optional)
-  - bannerText: Text for the bottom banner, supports HTML (optional)
+  - bannerTextTop: Text for the top banner, supports HTML (optional)
+  - bannerTextBottom: Text for the bottom banner, supports HTML (optional)
   - bannerImage: Path to banner image (optional)
   - bannerImageAlt: Alt text for banner image (optional)
   - sectionClass: CSS classes for the main section (optional)
@@ -27,7 +28,8 @@
     description="Ensuring teams get the most value from the integrated Microsoft Copilot is crucial any company using Microsoft products. Our mentored learning sessions help teams work smarter and use integrated generative AI tools to enhance everyday workflows."
     ctaText="Book Now"
     ctaUrl="/booking/"
-    bannerText="Showcase Your Expertise<br><b>With Our Certificate!</b>"
+    bannerTextTop="Showcase Your Expertise"
+    bannerTextBottom="With Our Certificate!"
     comment="Main AI training course details"
     sectionClass="mx-auto max-w-7xl mb-0"
     >}}
@@ -110,7 +112,8 @@
 {{ $sessionFeaturesEnabled := .Get "sessionFeaturesEnabled" | default true }}
 
 {{/* Banner configuration - HTML is supported in text */}}
-{{ $bannerText := .Get "bannerText" | default nil }}
+{{ $bannerTextTop := .Get "bannerTextTop" | default nil }}
+{{ $bannerTextBottom := .Get "bannerTextBottom" | default nil }}
 {{ $bannerImage := .Get "bannerImage" | default nil }}
 {{ $bannerImageAlt := .Get "bannerImageAlt" | default nil }}
 {{ $bannerTextColor := .Get "bannerTextColor" | default nil }}
@@ -145,7 +148,8 @@
     "ctaText" $ctaText
     "ctaUrl" $ctaUrl
     "sessionFeatures" $features
-    "bannerText" $bannerText
+    "bannerTextTop" $bannerTextTop
+    "bannerTextBottom" $bannerTextBottom
     "comment" $comment
     "sectionClass" $sectionClass
     "bgColor" $bgColor
