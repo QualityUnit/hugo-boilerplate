@@ -40,14 +40,19 @@
 {{/* Logos */}}
 {{ $defaultLogos := slice 
   (dict
-    "name" "LiveAgent"
-    "image" "/images/logos/liveagent_logo_v2.svg"
-    "url" "https://www.liveagent.com/"
-  )
-  (dict
     "name" "PostAffiliatePro"
     "image" "/images/logos/pap-logo_v2.svg"
     "url" "https://www.postaffiliatepro.com/"
+  )
+  (dict
+    "name" "KPMG"
+    "image" "/images/logos/kpmg_logo_v2.svg"
+    "url" "https://kpmg.com/sk/sk/home.html"
+  )
+  (dict
+    "name" "LiveAgent"
+    "image" "/images/logos/liveagent_logo_v2.svg"
+    "url" "https://www.liveagent.com/"
   )
   (dict
     "name" "HZ-Containers"
@@ -59,11 +64,6 @@
     "image" "/images/logos/vgd_logo_v2.svg"
     "url" "https://be.vgd.eu/en/services/audit"
   )
-  (dict
-    "name" "KPMG"
-    "image" "/images/logos/kpmg_logo_v2.svg"
-    "url" "https://kpmg.com/sk/sk/home.html"
-  )
 }}
 {{ $logos := .logos | default $defaultLogos }}
 
@@ -73,7 +73,7 @@
   {{ $description := .description | default "" }}
 
   <div class="{{ $darkClass }}">
-    <div class="section-bg-light dark:section-bg-dark dark:my-12 dark:lg:mb-24 py-12 lg:py-24">
+    <div class="section-bg-light dark:section-bg-dark dark:my-12 dark:lg:mb-24 py-12 lg:py-16">
       <div class="wrapper">
         {{ if or $heading $description }}
         <div class="text-center mb-8 sm:mb-12 {{ if $heading }}pt-4{{ end }}">
@@ -82,10 +82,10 @@
         </div>
         {{ end }}
 
-        <div class="mx-auto flex flex-wrap justify-center items-center gap-8 sm:gap-12 md:gap-16">
+        <div class="mx-auto flex flex-wrap justify-center lg:justify-between items-center gap-8 sm:gap-12 md:gap-16">
           {{ range $index, $logo := $logos }}
             <div class="flex items-center justify-center">
-              {{ $class := "block max-h-12 h-8 lg:h-10 w-full object-contain" }}
+              {{ $class := "block max-h-12 h-10 lg:h-12 w-full object-contain" }}
               {{ if $logo.url }}<a href="{{ $logo.url }}" target="_blank" rel="noopener noreferrer" title="{{ $logo.name }}">{{ end }}
                   {{ partial "components/media/lazyimg.html" (dict
                     "src" $logo.image

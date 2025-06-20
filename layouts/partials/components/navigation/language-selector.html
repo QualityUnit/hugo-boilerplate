@@ -30,7 +30,7 @@
           {{ $countryCode := partial "helpers/get-country-code.html" (dict "code" $code) }}
           
           <!-- Create flag image url -->
-          {{ $flagUrl := printf "https://flagcdn.com/24x18/%s.png" $countryCode }}
+          {{ $flagUrl := printf "/flags/%s.png" $countryCode }}
 
           <!-- Get language URL -->
           {{ $href := partial "helpers/get-language-url.html" (dict 
@@ -62,7 +62,7 @@
         {{ $countryCode := partial "helpers/get-country-code.html" (dict "code" $lang) }}
         
         <!-- Create flag image url -->
-        {{ $flagUrl := printf "https://flagcdn.com/24x18/%s.png" $countryCode }}
+        {{ $flagUrl := printf "/flags/%s.png" $countryCode }}
         
         <!-- Get language URL -->
         {{ $href := partial "helpers/get-language-url.html" (dict 
