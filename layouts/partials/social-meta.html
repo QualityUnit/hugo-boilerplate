@@ -13,6 +13,8 @@
 {{ $ogImage := "" }}
 {{ if .Params.image }}
   {{ $ogImage = .Params.image | absURL }}
+{{ else if .Params.youtubeVideoID }}
+  {{ $ogImage = printf "https://img.youtube.com/vi/%s/maxresdefault.jpg" .Params.youtubeVideoID | absURL }}
 {{ end }}
 
 <!-- Default image fallback with existence check -->
