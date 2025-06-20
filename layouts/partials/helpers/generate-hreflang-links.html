@@ -32,7 +32,7 @@
 
       <!-- Get target language URL with correct base and path -->
       {{ $langBaseURL := $langData.baseURL }}
-      {{ $href := print $langData.baseDomainName (strings.TrimSuffix "/" $langBaseURL) "/" $pathWithoutLang }}
+      {{ $href := print $langData.baseDomainName (replaceRE "/+" "/" (print (strings.TrimSuffix "/" $langBaseURL) "/" $pathWithoutLang)) }}
 
       <!-- Check if alternate URL has path when canonical has path -->
       {{ $shouldIncludeLink := true }}
