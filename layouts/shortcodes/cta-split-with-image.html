@@ -1,0 +1,89 @@
+{{/*
+@shortcode: cta-split-with-image
+@description: A shortcode wrapper for the CTA split with image partial section. Creates a two-column call-to-action section with a colorful image on one side and content with tagline, heading, description, and CTA button on the other.
+@usage:
+  {{< cta-split-with-image 
+      tagline="Award winning support" 
+      heading="We're here to help"
+      description="Lorem ipsum dolor sit amet, consectetur adipiscing elit..."
+      cta-text="Visit the help center"
+      cta-url="#"
+      image-url="https://images.unsplash.com/photo-1525130413817-d45c1d127c42"
+      image-alt="Support team"
+      tagline-color="indigo-400"
+  >}}
+@parameters:
+  - tagline: Short text displayed above heading (optional)
+  - heading: Main section heading (optional)
+  - description: Descriptive text below heading (optional)
+  - cta-text: CTA button text (optional)
+  - cta-url: CTA button URL (optional)
+  - image-url: Image URL (optional)
+  - image-alt: Alt text for the image (optional)
+  - tagline-color: Color class for the tagline text (optional)
+@example:
+  {{< cta-split-with-image 
+      tagline="24/7 Customer Support" 
+      heading="We're always here when you need us"
+      description="Our dedicated support team is available around the clock to answer your questions and help solve any issues you might encounter."
+      cta-text="Contact support"
+      cta-url="/support"
+      image-url="/images/support-team.jpg"
+      image-alt="Our customer support team"
+      tagline-color="blue-400"
+  >}}
+*/}}
+
+{{/* Extract parameters from shortcode */}}
+{{ $tagline := .Get "tagline" }}
+{{ $heading := .Get "heading" }}
+{{ $description := .Get "description" }}
+{{ $ctaText := .Get "cta-text" }}
+{{ $ctaUrl := .Get "cta-url" }}
+{{ $imageUrl := .Get "image-url" }}
+{{ $imageAlt := .Get "image-alt" }}
+{{ $taglineColor := .Get "tagline-color" }}
+
+{{/* Build parameters dict for the partial */}}
+{{ $params := dict }}
+
+{{ if $tagline }}
+  {{ $params = merge $params (dict "tagline" $tagline) }}
+{{ end }}
+
+{{ if $heading }}
+  {{ $params = merge $params (dict "heading" $heading) }}
+{{ end }}
+
+{{ if $description }}
+  {{ $params = merge $params (dict "description" $description) }}
+{{ end }}
+
+{{ if or $ctaText $ctaUrl }}
+  {{ $cta := dict }}
+  {{ if $ctaText }}
+    {{ $cta = merge $cta (dict "text" $ctaText) }}
+  {{ end }}
+  {{ if $ctaUrl }}
+    {{ $cta = merge $cta (dict "url" $ctaUrl) }}
+  {{ end }}
+  {{ $params = merge $params (dict "cta" $cta) }}
+{{ end }}
+
+{{ if or $imageUrl $imageAlt }}
+  {{ $image := dict }}
+  {{ if $imageUrl }}
+    {{ $image = merge $image (dict "url" $imageUrl) }}
+  {{ end }}
+  {{ if $imageAlt }}
+    {{ $image = merge $image (dict "alt" $imageAlt) }}
+  {{ end }}
+  {{ $params = merge $params (dict "image" $image) }}
+{{ end }}
+
+{{ if $taglineColor }}
+  {{ $params = merge $params (dict "taglineColor" $taglineColor) }}
+{{ end }}
+
+{{/* Render the partial with the parameters */}}
+{{ partial "sections/cta/split_with_image.html" $params }}
