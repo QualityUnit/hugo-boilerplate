@@ -83,7 +83,9 @@
             {{- $url := .Permalink -}}
             {{- if $url -}}
               {{- $domain := (urls.Parse $url).Host -}}
-              {{- $domains = $domains | append $domain -}}
+              {{- if not (in $domains $domain) -}}
+                {{- $domains = $domains | append $domain -}}
+              {{- end -}}
             {{- end -}}
           {{- end -}}
           {{- range $index, $domain := $domains -}}
