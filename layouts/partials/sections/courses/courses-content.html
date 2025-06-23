@@ -126,7 +126,9 @@
 {{ end }}
 
 {{ $bannerTextColor := .bannerTextColor | default "text-white" }}
-{{ $bannerBackgroundColor := .bannerBackgroundColor | default "bg-gradient-to-l from-[#1a1a1a] to-[#0f1f5c] bg-opacity-10" }}
+{{ $bannerBackgroundColor := .bannerBackgroundColor | default "bg-[#0f172a]" }}
+{{ $gradientFromColor := .gradientFromColor | default "from-[#0084ff]" }}
+{{ $gradientToColor := .gradientToColor | default "to-[#1a56db]" }}
 
 <section class="bg-white">
     <div class="wrapper bg-gray-50 p-16 lg:px-32 rounded-2xl">
@@ -317,7 +319,7 @@
 
     <!-- Banner -->
     {{ if $bannerText }}
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-5xl mx-auto"> 
         {{ partial "sections/banners/with_image.html" (dict 
             "text" $bannerText
             "textClasses" "text-2xl lg:text-4xl font-normal m-0"
@@ -325,6 +327,8 @@
             "image_alt" $bannerImageAlt
             "backgroundColor" $bannerBackgroundColor
             "textColor" $bannerTextColor
+            "gradientFromColor" $gradientFromColor
+            "gradientToColor" $gradientToColor
         ) }}
     </div>
     {{ end }}

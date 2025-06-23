@@ -30,16 +30,16 @@
 {{- $text := .text | default "" -}}
 {{- $textClasses := .textClasses | default "text-2xl lg:text-4xl font-bold m-0" -}}
 {{- $backgroundColor := .backgroundColor | default "" -}}
-{{- $gradientFromColor := .gradientFromColor | default "from-[#1a1a1a]" -}}
-{{- $gradientToColor := .gradientToColor | default "to-[#0f1f5c]" -}}
+{{- $gradientFromColor := .gradientFromColor | default "from-[#0084ff]" -}}
+{{- $gradientToColor := .gradientToColor | default "to-[#1f56db]" -}}
 {{- $textColor := .textColor | default "text-white" -}}
 {{- $image := .image | default "/images/landing-pages/ai-training-sertificate.png" -}}
 {{- $imageAlt := .image_alt | default $text -}}
 
-<section class="relative isolate">
-    <div class="mx-auto max-w-7xl not-prose">
+<section class="relative overflow-hidden">
+    <div class="mx-auto max-w-7xl not-prose relative">
         <div class="flex flex-col md:flex-row items-center p-6 rounded-lg {{ $backgroundColor }}">
-            <div class="w-full md:w-1/4 mb-4 md:mb-0">
+            <div class="w-full md:w-1/4 mb-4 md:mb-0 relative z-10">
                 <div class="flex justify-center md:justify-start">
                     {{ partial "components/media/lazyimg.html" (dict 
                         "src" $image
@@ -51,11 +51,12 @@
                     }}
                 </div>
             </div>
-            <div class="w-full md:w-3/4 md:pl-6">
+            <div class="w-full md:w-3/4 md:pl-6 relative z-10">
                 <div class="{{ $textColor }}">
                     <h2 class="{{ $textClasses }}">{{ $text | safeHTML }}</h2>
                 </div>
             </div>
+            <div class="absolute w-[561px] h-[481px] left-10 -bottom-96 rotate-12 rounded-full bg-gradient-to-tr {{ $gradientFromColor }} {{ $gradientToColor }} opacity-50 blur-2xl z-0"></div>
         </div>
     </div>
 </section>
