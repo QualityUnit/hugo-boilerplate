@@ -28,6 +28,30 @@ IMAGE_ATTRIBUTES = [
     # Add more as needed
 ]
 
+# Configurable list of shortcodes and their image attributes to process
+# Each entry specifies:
+# - name: the shortcode name
+# - attributes: list of attribute names that contain image URLs
+# - use_alt: name of attribute to use for alt text (default: 'imageAlt')
+SHORTCODE_IMAGE_ATTRIBUTES = [
+    {
+        "name": "lazyimg",
+        "attributes": ["src"],
+        "use_alt": "alt"
+    },
+    {
+        "name": "features-with-fading-image",
+        "attributes": ["imageUrl"],
+        "use_alt": "imageAlt"
+    },
+    # Add more shortcodes as needed, for example:
+    # {
+    #     "name": "hero-banner",
+    #     "attributes": ["backgroundImg", "logoImg"],
+    #     "use_alt": "altText"
+    # },
+]
+
 def url_matches_prefix(url):
     return any(url.startswith(prefix) for prefix in IMG_URL_PREFIXES)
 
@@ -176,6 +200,7 @@ def process_md_file(md_path):
             new_toml = toml_section
     else:
         new_toml = toml_section
+
     # Process body images
     lines = body.splitlines()
     for idx, line in enumerate(lines):
@@ -205,64 +230,87 @@ def process_md_file(md_path):
                 modified_line = modified_line.replace(match.group(0), new_img_md)
                 body_changed = True
                 changed = True
-        line = modified_line
+        lines[idx] = modified_line
 
-        # Shortcode lazyimg src attribute (single line)
-        lazyimg_match = re.search(r'\{\{<\s*lazyimg[^\n]*src="([^"]+)"', line)
-        if lazyimg_match:
-            url = lazyimg_match.group(1)
-            if url_matches_prefix(url):
-                # Extract alt attribute if it exists in the shortcode
-                alt_match = re.search(r'alt="([^"]+)"', line)
-                alt_text = alt_match.group(1) if alt_match else f"lazyimg_{idx}"
-                out_dir = STATIC_IMAGES_DIR / rel_folder
-                out_dir.mkdir(parents=True, exist_ok=True)
-                out_filename_result = process_image_url(url, out_dir, alt_text, md_stem, idx=f"lazy{idx}")
+    # Combine all lines back to body content
+    body = '\n'.join(lines)
 
-                if out_filename_result:
-                    local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
-                    line = re.sub(r'(src=")([^"]+)(")', f'\\1{local_url}\\3', line)
-                    body_changed = True
-                    changed = True
-        lines[idx] = line
-
-    # Handle multi-line lazyimg shortcodes
-    full_content = '\n'.join(lines)
-    multi_lazyimg_pattern = re.compile(r'\{\{<\s*lazyimg\s+[^>]*?src="([^"]+)"[^>]*?>}}', re.DOTALL)
-
-    # Use a list to build replacements to avoid issues with replacing content that is being iterated over
-    replacements = []
-    for match_idx, match in enumerate(multi_lazyimg_pattern.finditer(full_content)):
-        url = match.group(1)
-        if url_matches_prefix(url):
-            try:
-                shortcode = match.group(0)
-                alt_match = re.search(r'alt="([^"]+)"', shortcode)
-                alt_text = alt_match.group(1) if alt_match else "lazyimg_multi"
-                out_dir = STATIC_IMAGES_DIR / rel_folder
-                out_dir.mkdir(parents=True, exist_ok=True)
-                out_filename_result = process_image_url(url, out_dir, alt_text, md_stem, idx=f"multilazy{match_idx}")
-
-                if out_filename_result:
-                    local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
-                    new_shortcode = re.sub(r'(src=")([^"]+)(")', f'\\1{local_url}\\3', shortcode)
-                    replacements.append((shortcode, new_shortcode))
-                    body_changed = True
-                    changed = True
-            except Exception as e:
-                print(f"!!! ERROR processing multi-line lazyimg for {url}: {e}")
-                continue
-
-    for old, new in replacements:
-        full_content = full_content.replace(old, new)
-
-    if body_changed:
-        body = full_content
+    # Process all shortcodes using the general method
+    body, sc_changed = process_shortcodes(body, rel_folder, md_stem)
+    if sc_changed:
+        body_changed = True
+        changed = True
 
     if changed:
         # Write both TOML and body together, always
         with open(md_path, 'w', encoding='utf-8') as f:
             f.write(f"+++\n{new_toml}\n+++\n{body}")
+
+def process_shortcodes(content, rel_folder, md_stem):
+    """
+    Process all shortcodes defined in SHORTCODE_IMAGE_ATTRIBUTES
+    Returns: (modified_content, changed_flag)
+    """
+    modified_content = content
+    content_changed = False
+
+    for shortcode_config in SHORTCODE_IMAGE_ATTRIBUTES:
+        shortcode_name = shortcode_config["name"]
+        image_attributes = shortcode_config["attributes"]
+        alt_attribute = shortcode_config.get("use_alt", "imageAlt")
+
+        # Create a pattern that matches this shortcode and captures its contents
+        # Works for both single-line and multi-line shortcodes
+        pattern = re.compile(
+            r'\{\{<\s*' + re.escape(shortcode_name) + r'\s+([^>]*?)>}}',
+            re.DOTALL
+        )
+
+        # Find all instances of this shortcode
+        replacements = []
+        for match_idx, match in enumerate(pattern.finditer(modified_content)):
+            shortcode_content = match.group(0)
+            attributes_text = match.group(1)
+
+            # Process each image attribute in this shortcode
+            new_shortcode = shortcode_content
+            for attr_name in image_attributes:
+                # Look for the attribute in the shortcode content
+                attr_pattern = re.compile(r'(?:^|\s)' + re.escape(attr_name) + r'="([^"]+)"')
+                attr_match = attr_pattern.search(attributes_text)
+
+                if attr_match:
+                    url = attr_match.group(1)
+                    if url_matches_prefix(url):
+                        # Get alt text if it exists
+                        alt_pattern = re.compile(r'(?:^|\s)' + re.escape(alt_attribute) + r'="([^"]+)"')
+                        alt_match = alt_pattern.search(attributes_text)
+                        alt_text = alt_match.group(1) if alt_match else f"{shortcode_name}_{match_idx}"
+
+                        # Process the image
+                        out_dir = STATIC_IMAGES_DIR / rel_folder
+                        out_dir.mkdir(parents=True, exist_ok=True)
+                        out_filename_result = process_image_url(
+                            url, out_dir, alt_text, md_stem,
+                            idx=f"{shortcode_name}{match_idx}_{attr_name}"
+                        )
+
+                        if out_filename_result:
+                            local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
+                            # Replace the URL in the attribute
+                            new_attr = f'{attr_name}="{local_url}"'
+                            old_attr = f'{attr_name}="{url}"'
+                            new_shortcode = new_shortcode.replace(old_attr, new_attr)
+                            content_changed = True
+
+            if new_shortcode != shortcode_content:
+                replacements.append((shortcode_content, new_shortcode))
+
+        # Apply all replacements
+        for old, new in replacements:
+            modified_content = modified_content.replace(old, new)
+
+    return modified_content, content_changed
 
 def main():
     for root, _, files in os.walk(CONTENT_DIR):
