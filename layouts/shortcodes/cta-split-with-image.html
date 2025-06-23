@@ -3,6 +3,7 @@
 @description: A shortcode wrapper for the CTA split with image partial section. Creates a two-column call-to-action section with a colorful image on one side and content with tagline, heading, description, and CTA button on the other.
 @usage:
   {{< cta-split-with-image 
+      theme="light"
       tagline="Award winning support" 
       heading="We're here to help"
       description="Lorem ipsum dolor sit amet, consectetur adipiscing elit..."
@@ -10,9 +11,10 @@
       cta-url="#"
       image-url="https://images.unsplash.com/photo-1525130413817-d45c1d127c42"
       image-alt="Support team"
-      tagline-color="indigo-400"
+      tagline-color="primary-400"
   >}}
 @parameters:
+  - theme: Theme variant (optional, default: "light", options: "light", "dark")
   - tagline: Short text displayed above heading (optional)
   - heading: Main section heading (optional)
   - description: Descriptive text below heading (optional)
@@ -23,6 +25,7 @@
   - tagline-color: Color class for the tagline text (optional)
 @example:
   {{< cta-split-with-image 
+      theme="dark"
       tagline="24/7 Customer Support" 
       heading="We're always here when you need us"
       description="Our dedicated support team is available around the clock to answer your questions and help solve any issues you might encounter."
@@ -30,11 +33,12 @@
       cta-url="/support"
       image-url="/images/support-team.jpg"
       image-alt="Our customer support team"
-      tagline-color="blue-400"
+      tagline-color="primary-400"
   >}}
 */}}
 
 {{/* Extract parameters from shortcode */}}
+{{ $theme := .Get "theme" }}
 {{ $tagline := .Get "tagline" }}
 {{ $heading := .Get "heading" }}
 {{ $description := .Get "description" }}
@@ -46,6 +50,10 @@
 
 {{/* Build parameters dict for the partial */}}
 {{ $params := dict }}
+
+{{ if $theme }}
+  {{ $params = merge $params (dict "theme" $theme) }}
+{{ end }}
 
 {{ if $tagline }}
   {{ $params = merge $params (dict "tagline" $tagline) }}

@@ -33,38 +33,47 @@
 */}}
 
 {{/* Split CTA Section with Image */}}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+
 {{ $tagline := .tagline }}
 {{ $heading := .heading }}
 {{ $description := .description }}
 {{ $cta := .cta }}
-{{ $image := .image }}}
+{{ $image := .image }}
 {{ $taglineColor := .taglineColor | default "primary-400" }}
 
-<div class="relative bg-gray-900">
-  <div class="relative h-80 overflow-hidden bg-primary md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
-    {{ partial "components/media/lazyimg.html" (dict 
-      "src" $image.url 
-      "alt" $image.alt 
-      "class" "size-full object-cover"
-      "maxWidth" 800
-    ) }}
-  </div>
-  <div class="relative mx-auto max-w-7xl py-24 sm:py-32 lg:px-8 lg:py-40">
-    <div class="pr-6 pl-6 md:ml-auto md:w-2/3 md:pl-16 lg:w-1/2 lg:pr-0 lg:pl-24 xl:pl-32">
-      {{ if $tagline }}
-        <h2 class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</h2>
-      {{ end }}
-      {{ if $heading }}
-        <p class="mt-2 text-4xl font-semibold tracking-tight text-white sm:text-5xl">{{ $heading }}</p>
-      {{ end }}
-      {{ if $description }}
-        <p class="mt-6 text-base/7 text-gray-300">{{ $description }}</p>
-      {{ end }}
-      {{ if and $cta $cta.text $cta.url }}
-        <div class="mt-8">
-          <a href="{{ $cta.url }}" class="inline-flex rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">{{ $cta.text }}</a>
-        </div>
-      {{ end }}
+<div class="{{ $darkClass }} my-32">
+  <div class="relative section-bg-light dark:section-bg-dark">
+    <div class="relative h-full overflow-hidden bg-primary not-prose md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
+      {{ partial "components/media/lazyimg.html" (dict 
+        "src" $image.url
+        "alt" $image.alt
+        "class" "size-full object-cover"
+      ) }}
+    </div>
+    <div class="relative mx-auto max-w-7xl py-24 sm:py-32 lg:px-16 lg:py-40">
+      <div class="pr-6 pl-6 md:ml-auto md:w-2/3 md:pl-16 lg:w-1/2 lg:pr-0 lg:pl-24 xl:pl-32">
+        {{ if $tagline }}
+          <h2 class="text-base/7 not-prose font-semibold text-{{ $taglineColor }}">{{ $tagline }}</h2>
+        {{ end }}
+        {{ if $heading }}
+          <p class="mt-2.5 text-4xl not-prose font-semibold tracking-tight text-heading sm:text-5xl">{{ $heading }}</p>
+        {{ end }}
+        {{ if $description }}
+          <p class="mt-6 text-base/7 not-prose text-body">{{ $description }}</p>
+        {{ end }}
+        {{ if and $cta $cta.text $cta.url }}
+          <div class="mt-8">
+            {{ partial "components/buttons/buttons.html" (dict
+              "text" $cta.text
+              "url" $cta.url
+              "variant" "secondary"
+              ) }}
+          </div>
+        {{ end }}
+      </div>
     </div>
   </div>
 </div>
