@@ -1,25 +1,18 @@
 <!DOCTYPE html>
 <html lang="{{ site.Language.LanguageCode }}" dir="{{ or site.Language.LanguageDirection `ltr` }}">
 <head>
-  {{ partial "head.html" . }}
-
-  <!-- Google Analytics with Consent Mode -->
-  {{ partialCached "utils/analytics/google-analytics-consent.html" . }}
-
-  <!-- Cookie Consent JS -->
-  {{ $cookieConsent := resources.Get "js/cookie-consent.js" | resources.Minify | resources.Fingerprint }}
-  <script src="{{ $cookieConsent.RelPermalink }}" defer></script>
+  {{ partialCached "head.html" . .Permalink }}
 </head>
 <body class="antialiased bg-white">
 <!-- Initialize linkbuilding tracking for all pages -->
 {{ .Scratch.Set "processedLinks" slice }}
 
-{{ partialCached "header.html" . }}
+{{ partialCached "header.html" . site.Language.LanguageCode }}
 <main class="w-full">
   {{ block "main" . }}{{ end }}
 </main>
 
-{{ partial "footer.html" . }}
+{{ partialCached "footer.html" . .Permalink}}
 
 <!-- Cookie Consent Banner -->
 {{ partialCached "cookies-bar" (dict
