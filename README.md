@@ -153,6 +153,7 @@ You need to create a `package.json` file in your project root (not in the theme 
     "gulp-postcss": "^10.0.0",
     "postcss": "^8.4.31",
     "postcss-cli": "^10.1.0",
+    "postcss-import": "^16.1.0",
     "tailwindcss": "^3.4.17",
     "yargs": "^18.0.0"
   }
@@ -163,7 +164,11 @@ You need to create a `package.json` file in your project root (not in the theme 
 
 The theme uses a Gulp-based build system that:
 
-1. **CSS Processing**: Processes Tailwind CSS with PostCSS and minifies with cssnano
+1. **CSS Processing**: 
+   - Processes CSS `@import` statements with postcss-import
+   - Compiles Tailwind CSS with PostCSS
+   - Adds vendor prefixes with autoprefixer
+   - Minifies output with cssnano
 2. **JavaScript Bundling**: Uses ESBuild for fast bundling and minification
 3. **Watch Mode**: Provides live reloading during development
 4. **Hugo Integration**: Automatically starts Hugo server with configurable options
@@ -175,6 +180,7 @@ The build system requires a `gulpfile.js` in your project root:
 ```javascript
 const gulp = require('gulp');
 const postcss = require('gulp-postcss');
+const postcssImport = require('postcss-import');
 const tailwindcss = require('tailwindcss');
 const autoprefixer = require('autoprefixer');
 const esbuild = require('esbuild');
@@ -188,6 +194,18 @@ const cssSrc = 'themes/boilerplate/assets/css/main.css';
 const cssDest = 'static/css';
 const jsEntryPoints = ['themes/boilerplate/assets/js/main.js'];
 const jsDest = 'static/js';
+
+// CSS build with @import processing
+function buildCSS() {
+    return gulp.src(cssSrc)
+        .pipe(postcss([
+            postcssImport,    // Process @import statements first
+            tailwindcss,
+            autoprefixer,
+            cssnano()
+        ]))
+        .pipe(gulp.dest(cssDest));
+}
 
 // Build tasks and configuration...
 ```
@@ -242,10 +260,29 @@ module.exports = {
 
 The Gulp build system automatically:
 
-1. **Processes CSS**: Runs Tailwind CSS compilation with PostCSS
-2. **Applies Autoprefixer**: Adds vendor prefixes for browser compatibility  
-3. **Minifies Output**: Uses cssnano for production-ready CSS
-4. **Watches Changes**: Rebuilds CSS when source files change
+1. **Processes @import statements**: Uses postcss-import to inline imported CSS files
+2. **Compiles Tailwind CSS**: Runs Tailwind CSS compilation with PostCSS
+3. **Applies Autoprefixer**: Adds vendor prefixes for browser compatibility  
+4. **Minifies Output**: Uses cssnano for production-ready CSS
+5. **Watches Changes**: Rebuilds CSS when source files change
+
+### CSS Import System
+
+The theme supports CSS imports in the main CSS file:
+
+```css
+/* themes/boilerplate/assets/css/main.css */
+@import "./fonts.css";
+@import "./typewriter.css";
+@import "./lazy-images.css";
+@import "./lazy-videos.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+The `postcss-import` plugin automatically inlines these imports during the build process, creating a single minified CSS file in `static/css/main.css`.
 
 ## JavaScript Bundling with ESBuild
 
@@ -288,10 +325,17 @@ function buildJS() {
 
 If you encounter build errors:
 
-1. **Verify Dependencies**: Ensure all npm packages are installed correctly
+1. **Verify Dependencies**: Ensure all npm packages are installed correctly with `npm install`
 2. **Check File Paths**: Confirm Tailwind content paths match your project structure
-3. **Gulp Configuration**: Verify gulpfile.js is properly configured
+3. **Gulp Configuration**: Verify gulpfile.js is properly configured with all required plugins
 4. **PostCSS Config**: Ensure postcss.config.js exists in project root
+5. **CSS Import Errors**: Check that imported CSS files exist in the correct paths relative to main.css
+
+**Common Issues:**
+
+- **MIME type errors**: Usually resolved by properly configuring postcss-import plugin
+- **Missing CSS files**: Ensure all @import paths are correct and files exist
+- **Build failures**: Check that all dependencies are installed and paths are correct
 
 ## Configuration
 
