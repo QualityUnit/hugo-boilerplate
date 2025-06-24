@@ -14,3 +14,7 @@
     <script src="{{ .RelPermalink }}" integrity="{{- .Data.Integrity }}" crossorigin="anonymous"></script>
   {{- end }}
 {{- end }}
+
+<!-- Cookie Consent JS -->
+{{ $cookieConsent := resources.Get "js/cookie-consent.js" | resources.Minify | resources.Fingerprint }}
+<script src="{{ $cookieConsent.RelPermalink }}" defer></script>
