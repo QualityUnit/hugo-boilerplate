@@ -1,5 +1,8 @@
 @import "fonts.css";
 @import 'typewriter.css';
+@import "lazy-images.css";
+@import "lazy-videos.css";
+
 
 @tailwind base;
 @tailwind components;
