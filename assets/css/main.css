@@ -94,6 +94,10 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
+  /* Icons - fill for light and dark mode */
+  .icon-color {
+    @apply text-primary dark:text-primary-500;
+  }
 
    /* Eliminate focus outline for iframes */
   iframe {
