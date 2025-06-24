@@ -658,11 +658,11 @@ npm run dev
 
 #### Development Mode (with live reload)
 ```bash
-# Start development server with watch mode
+# Start development server with watch mode (all languages)
 npm run dev
 
 # Or with specific options
-gulp dev --all          # Include all languages
+gulp dev --en           # English only (faster)
 gulp dev --metrics      # Show template metrics
 ```
 
@@ -699,9 +699,9 @@ npm run watch
 
 The Gulp configuration supports various Hugo server options:
 
-- `--all` - Include all languages (default uses English only)
+- `--en` - English only (faster startup, less memory usage)
 - `--metrics` - Show template metrics and hints
-- `--configDir` - Specify custom config directory
+- Default - All languages (complete multilingual experience)
 
 
 ## Generating new content using FlowHunt Flows
