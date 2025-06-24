@@ -1,4 +1,4 @@
-home = ["HTML", "RSS", "SITEMAP", "ROBOTS", "JSON"]
-section = ["HTML", "RSS"]
-taxonomy = ["HTML", "RSS"]
-term = ["HTML", "RSS"]
+home = ["HTML", "SITEMAP", "ROBOTS", "JSON", "CSS"]
+section = ["HTML"]
+taxonomy = ["HTML"]
+term = ["HTML"]

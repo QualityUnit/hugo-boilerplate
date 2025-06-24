@@ -9,8 +9,9 @@
 {{ with .Permalink }}<link rel="canonical" href="{{ . }}">{{ end }}
 
 <!-- Generate hreflang alternate links -->
-{{ partial "helpers/generate-hreflang-links.html" (dict "currentPage" . "defaultLang" "en") | safeHTML }}
+{{ ( partialCached "helpers/generate-hreflang-links.html" (dict "currentPage" . "defaultLang" "en") .Permalink ) | safeHTML }}
 {{ partial "social-meta.html" . | safeHTML }}
 {{ partialCached "head/variables.html" . }}
 {{ partialCached "head/css.html" . }}
 {{ partialCached "head/js.html" . }}
+{{ partialCached "utils/analytics/google-analytics-consent.html" . }}
