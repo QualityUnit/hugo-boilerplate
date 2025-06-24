@@ -82,7 +82,7 @@
 <div class="{{ $darkClass }}">
   <div class="section-bg-light dark:section-bg-dark">
     <div class="relative isolate lg:pt-7">
-        <div class="wrapper py-24 sm:py-32 lg:py-40">
+        <div class="wrapper py-24 sm:py-32">
           <div class="mx-auto max-w-2xl text-center">
             {{ if $announcement.text }}
               <div class="hidden sm:mb-8 sm:flex sm:justify-center">
@@ -99,10 +99,10 @@
             {{ end }}
 
             {{ if $heading }}
-              <h1 class="text-5xl font-semibold tracking-tight text-balance text-heading sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>
+              <h1 class="text-5xl font-semibold tracking-[-4.248px] leading-none text-balance text-heading sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>
             {{ end }}
             {{ if $description }}
-              <p class="mt-8 text-lg font-medium text-pretty text-body sm:text-xl/8">{{ $description }}</p>
+              <p class="mt-9 text-lg font-medium text-pretty text-body sm:text-xl/8">{{ $description }}</p>
             {{ end }}
 
             {{ if $tags }}
@@ -112,11 +112,11 @@
             {{ $primaryCTA := $cta.primary | default dict }}
             {{ $secondaryCTA := $cta.secondary | default dict }}
             {{ $primaryVariant := $primaryCTA.variant | default "primary" }}
-            {{ $secondaryVariant := $secondaryCTA.variant | default "text" }}
+            {{ $secondaryVariant := $secondaryCTA.variant | default "secondary" }}
 
 
             {{ if or $primaryCTA.text $secondaryCTA.text }}
-              <div class="mt-10 flex items-center justify-center gap-x-6">
+              <div class="mt-9 flex items-center justify-center gap-x-6">
                   {{ if $primaryCTA.text }}
                     {{ partial "components/buttons/buttons.html" (dict
                       "text" $primaryCTA.text
@@ -129,7 +129,7 @@
                       "text" $secondaryCTA.text
                       "url" $secondaryCTA.url
                       "variant" $secondaryVariant
-                        "arrow" true
+                      "arrow" true
                     ) }}
                   {{ end }}
               </div>
@@ -137,7 +137,7 @@
           </div>
 
           {{ if $image.src }}
-            <div class="mt-16 flow-root sm:mt-24">
+            <div class="mt-16 flow-root sm:mt-[4.5rem]">
               <div class="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 dark:bg-white/5 dark:ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                 {{ partial "components/media/lazyimg.html" (dict
                   "src" $image.src
