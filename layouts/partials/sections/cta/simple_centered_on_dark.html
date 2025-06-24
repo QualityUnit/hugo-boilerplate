@@ -12,7 +12,6 @@
     - url: Button URL
   - gradientStartColor: Starting color for the background gradient (optional, default: "#7775D6")
   - gradientEndColor: Ending color for the background gradient (optional, default: "#E935C1")
-  - gradientId: Unique ID for the gradient definition (optional, default: auto-generated)
 @example:
   {{ partial "sections/cta/simple_centered_on_dark.html" (dict
       "heading" "Transform your workflow today"
@@ -35,27 +34,25 @@
   "text" ((i18n "learnMore") | default "")
   "url" "#"
 ) }}
-{{ $gradientStartColor := .gradientStartColor | default "#7775D6" }}
-{{ $gradientEndColor := .gradientEndColor | default "#E935C1" }}
-{{ $gradientId := .gradientId | default "8d958450-c69f-4251-94bc-4e091a323369" }}
+{{ $gradientStartColor := .gradientStartColor | default "#0084ff" }}
+{{ $gradientEndColor := .gradientEndColor | default "#1a56db" }}
 
-<div class="wrapper">
-  <div class="relative isolate overflow-hidden bg-gray-900 rounded-xl my-16">
+<div class="wrapper dark">
+  <div class="relative isolate overflow-hidden section-bg-light dark:section-bg-dark rounded-[2rem] my-32">
   <div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
     <div class="mx-auto max-w-2xl text-center">
-      <h2 class="text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl">{{ $heading }}</h2>
+      <h2 class="text-4xl font-semibold tracking-[−2.832px] text-balance text-white sm:text-5xl">{{ $heading }}</h2>
       <p class="mx-auto mt-6 max-w-xl text-lg/8 text-pretty text-gray-300">{{ $description }}</p>
       <div class="mt-10 flex items-center justify-center gap-x-6">
         {{ partial "components/buttons/buttons.html" (dict
           "text" $primaryCta.text
           "url" $primaryCta.url
-          "variant" "primary"
+          "variant" "secondary"
         ) }}
         {{ partial "components/buttons/buttons.html" (dict
           "text" $secondaryCta.text
           "url" $secondaryCta.url
-          "variant" "text"
-          "classes" "text-white"
+          "variant" "secondary"
           "showArrow" true
         ) }}
       </div>
