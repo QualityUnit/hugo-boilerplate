@@ -1,3 +1,1 @@
-{{- $css := resources.Get "css/main.css" | css.PostCSS (dict "inlineImports" true) | resources.Minify | resources.Fingerprint "sha512" -}}
-
-<link rel="stylesheet" href="{{ $css.RelPermalink }}?v={{ now.Unix }}" integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/main.css?v={{ partialCached "helpers/build-timestamp.html" . }}" crossorigin="anonymous">
