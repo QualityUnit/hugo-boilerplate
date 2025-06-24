@@ -5,8 +5,9 @@
   - text: Button text (required)
   - url: Button URL (required)
   - variant: Button type (e.g., "primary", "secondary", "text") (required)
+  - size: Button size (e.g., "lg", "xl") (optional, default: "lg")
   - classes: Additional Tailwind classes (optional)
-  - target: Link target attribute (default: "_self")
+  - target: Link target attribute (optional, default: "_self")
   - rel: Link rel attribute (optional)
   - id: HTML id attribute (optional)
   - ariaLabel: ARIA label (optional; defaults to button text)
@@ -17,6 +18,7 @@
       "text" "Get started"
       "url" "/signup"
       "variant" "primary"
+      "size" "xl"
       "showArrow" true
   ) }}
 
@@ -28,38 +30,60 @@
   ) }}
 */}}
 
+{{/* Define variables */}}
 {{ $text := .text | default "" }}
 {{ $url := .url | default "" }}
 {{ $variant := .variant | default "primary" }}
+{{ $size := .size | default "lg" }}
 {{ $classes := .classes | default "" }}
 {{ $target := .target | default "_self" }}
 {{ $rel := .rel | default "" }}
 {{ $id := .id | default "" }}
 {{ $ariaLabel := .ariaLabel | default $text }}
 {{ $showArrow := .showArrow | default false }}
+{{ $iconArrow := "arrow-up-right" }}
 {{ $dataAttributes := .dataAttributes | default "" }}
 
-{{ $variantClass := "" }}
-{{ if eq $variant "primary" }}
-  {{ $variantClass = "btn-primary dark:btn-primary-dark" }}
-{{ else if eq $variant "secondary" }}
-  {{ $variantClass = "btn-secondary dark:btn-secondary-dark" }}
-{{ else if eq $variant "text" }}
-  {{ $variantClass = "btn-text dark:btn-text-dark" }}
-{{ else }}
-  {{ $variantClass = "btn-primary dark:btn-primary-dark" }} {{/* fallback */}}
+{{/* Determine variant classes */}}
+{{ $variantClasses := dict
+  "primary" "btn-primary dark:btn-primary-dark"
+  "primary-alternate" "btn-primary-alternate dark:btn-primary-alternate-dark"
+  "secondary" "btn-secondary dark:btn-secondary-dark"
+  "secondary-alternate" "btn-secondary-alternate dark:btn-secondary-alternate-dark"
+  "text" "btn-text dark:btn-text-dark"
+}}
+
+{{ $variantClass := index $variantClasses $variant | default "btn-primary dark:btn-primary-dark" }}
+
+{{/* Special handling for text variant icon */}}
+{{ if eq $variant "text" }}
+  {{ $iconArrow = "arrow-right" }}
 {{ end }}
 
+{{/* Determine size classes */}}
+{{ $sizeClasses := dict
+  "lg" "px-3 py-2"
+  "xl" "px-3.5 py-2.5"
+}}
+
+{{ $sizeClass := index $sizeClasses $size | default "px-3 py-2" }}
+
+{{/* Render button if required parameters are provided */}}
 {{ if and $text $url }}
   <a
     href="{{ if not (or (hasPrefix $url "http") (hasPrefix $url "#")) }}{{ $url | relLangURL }}{{ else }}{{ $url }}{{ end }}"
-    class="{{ $variantClass }} {{ $classes }} not-prose group"
+    class="{{ $variantClass }} {{ $sizeClass }} {{ $classes }} not-prose group"
     aria-label="{{ $ariaLabel }}"
     target="{{ $target }}"
     {{ with $id }}id="{{ . }}"{{ end }}
     {{ with $rel }}rel="{{ . }}"{{ end }}
     {{ with $dataAttributes }}{{ . | safeHTMLAttr }}{{ end }}
   >
-    {{ $text }}{{ if $showArrow }} <span aria-hidden="true" class="btn-arrow">&rarr;</span>{{ end }}
+    {{ $text }}
+    {{ if $showArrow }}
+      <span aria-hidden="true" class="ml-1.5 btn-arrow">
+        {{ partial "components/media/icon.html" (dict "icon" $iconArrow "class" "w-5 h-5 p-0.5") }}
+      </span>
+    {{ end }}
   </a>
 {{ end }}
