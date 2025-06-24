@@ -1,0 +1,22 @@
+{{- $.Scratch.Add "css" "" -}}
+
+{{/* First add all theme CSS files */}}
+{{- $themeCSSDir := "themes/boilerplate/assets/css" -}}
+{{- range (readDir $themeCSSDir) -}}
+  {{- if (strings.HasSuffix .Name ".css") -}}
+    {{- $content := readFile (print $themeCSSDir "/" .Name) -}}
+    {{- $.Scratch.Add "css" (print "/* Theme: " .Name " */\n" $content "\n\n") -}}
+  {{- end -}}
+{{- end -}}
+
+{{/* Then add project CSS files which will have higher priority/specificity */}}
+{{- $projectCSSDir := "assets/css" -}}
+{{- range (readDir $projectCSSDir) -}}
+  {{- if (strings.HasSuffix .Name ".css") -}}
+    {{- $content := readFile (print $projectCSSDir "/" .Name) -}}
+    {{- $.Scratch.Add "css" (print "/* Project: " .Name " */\n" $content "\n\n") -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $cssContent := $.Scratch.Get "css" | resources.FromString "styles.css" | css.PostCSS | minify -}}
+{{ $cssContent.Content | safeCSS }}
