@@ -84,3 +84,5 @@ get_started: "Başla"
 courses.session: "Oturum"
 courses.you_will_learn: "Öğrenecekleriniz:"
 courses.or: "veya"
+
+courses.format: "Format"

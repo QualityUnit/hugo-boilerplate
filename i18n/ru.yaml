@@ -84,3 +84,5 @@ get_started: "Начать"
 courses.session: "Сессия"
 courses.you_will_learn: "Вы узнаете:"
 courses.or: "или"
+
+courses.format: "Format"
