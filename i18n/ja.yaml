@@ -84,3 +84,5 @@ get_started: "開始する"
 courses.session: "セッション"
 courses.you_will_learn: "学ぶ内容："
 courses.or: "または"
+
+courses.format: "Format"

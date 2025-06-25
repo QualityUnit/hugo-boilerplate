@@ -84,3 +84,5 @@ get_started: "Aan de slag"
 courses.session: "Sessie"
 courses.you_will_learn: "Je zult leren:"
 courses.or: "of"
+
+courses.format: "Format"

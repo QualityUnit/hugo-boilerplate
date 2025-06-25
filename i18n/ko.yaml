@@ -84,3 +84,5 @@ get_started: "시작하기"
 courses.session: "세션"
 courses.you_will_learn: "학습 내용:"
 courses.or: "또는"
+
+courses.format: "Format"

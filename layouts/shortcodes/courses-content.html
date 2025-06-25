@@ -6,9 +6,14 @@
   - description: Section description text (optional, defaults to page description)
   - ctaText: Text for the call-to-action button (optional)
   - ctaUrl: URL for the call-to-action button (optional)
-  - bannerText: Text for the bottom banner, supports HTML (optional)
+  - bannerTextTop: Text for the top banner, supports HTML (optional)
+  - bannerTextBottom: Text for the bottom banner, supports HTML (optional)
   - bannerImage: Path to banner image (optional)
   - bannerImageAlt: Alt text for banner image (optional)
+  - bannerTextColor: Text color for banner (optional)
+  - bannerBackgroundColor: Background color for banner (optional)
+  - gradientFromColor: Tailwind CSS gradient from-color for banner background (optional)
+  - gradientToColor: Tailwind CSS gradient to-color for banner background (optional)
   - sectionClass: CSS classes for the main section (optional)
   - bgColor: Background color class (optional)
   - padding: Padding classes (optional)
@@ -27,7 +32,8 @@
     description="Ensuring teams get the most value from the integrated Microsoft Copilot is crucial any company using Microsoft products. Our mentored learning sessions help teams work smarter and use integrated generative AI tools to enhance everyday workflows."
     ctaText="Book Now"
     ctaUrl="/booking/"
-    bannerText="Showcase Your Expertise<br><b>With Our Certificate!</b>"
+    bannerTextTop="Showcase Your Expertise"
+    bannerTextBottom="With Our Certificate!"
     comment="Main AI training course details"
     sectionClass="mx-auto max-w-7xl mb-0"
     >}}
@@ -110,11 +116,14 @@
 {{ $sessionFeaturesEnabled := .Get "sessionFeaturesEnabled" | default true }}
 
 {{/* Banner configuration - HTML is supported in text */}}
-{{ $bannerText := .Get "bannerText" | default nil }}
+{{ $bannerTextTop := .Get "bannerTextTop" | default nil }}
+{{ $bannerTextBottom := .Get "bannerTextBottom" | default nil }}
 {{ $bannerImage := .Get "bannerImage" | default nil }}
 {{ $bannerImageAlt := .Get "bannerImageAlt" | default nil }}
 {{ $bannerTextColor := .Get "bannerTextColor" | default nil }}
 {{ $bannerBackgroundColor := .Get "bannerBackgroundColor" | default nil }}
+{{ $gradientFromColor := .Get "gradientFromColor" | default nil }}
+{{ $gradientToColor := .Get "gradientToColor" | default nil }}
 
 {{/* Legacy session configuration */}}
 {{ $session1 := .Get "session1" | default nil }}
@@ -145,7 +154,8 @@
     "ctaText" $ctaText
     "ctaUrl" $ctaUrl
     "sessionFeatures" $features
-    "bannerText" $bannerText
+    "bannerTextTop" $bannerTextTop
+    "bannerTextBottom" $bannerTextBottom
     "comment" $comment
     "sectionClass" $sectionClass
     "bgColor" $bgColor
@@ -167,6 +177,8 @@
     "bannerImageAlt" $bannerImageAlt
     "bannerTextColor" $bannerTextColor
     "bannerBackgroundColor" $bannerBackgroundColor
+    "gradientFromColor" $gradientFromColor
+    "gradientToColor" $gradientToColor
     "session1" $session1
     "session2" $session2
 ) }}

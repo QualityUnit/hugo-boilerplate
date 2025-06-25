@@ -84,3 +84,5 @@ get_started: "Začít"
 courses.session: "Lekce"
 courses.you_will_learn: "Naučíte se:"
 courses.or: "nebo"
+
+courses.format: "Format"

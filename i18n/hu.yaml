@@ -84,3 +84,5 @@ get_started: "Kezdés"
 courses.session: "Alkalom"
 courses.you_will_learn: "Amit tanulni fog:"
 courses.or: "vagy"
+
+courses.format: "Format"

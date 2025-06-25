@@ -125,88 +125,217 @@ echo 'theme = "boilerplate"' >> hugo.toml
 
 ## Dependencies
 
-This theme requires Node.js and npm for Tailwind CSS processing. You need to create a `package.json` file in your project root (not in the theme directory) with the necessary dependencies.
+This theme requires Node.js and npm for build process orchestration. The project uses Gulp for task management, Tailwind CSS for styling, and ESBuild for JavaScript bundling.
 
-You can use the example provided in the theme at `themes/boilerplate/package.json.example`:
+You need to create a `package.json` file in your project root (not in the theme directory) with the necessary dependencies.
 
-```bash
-# Copy the example package.json to your project root
-cp themes/boilerplate/package.json.example package.json
-
-# Install dependencies
-npm install
-```
-
-The minimum required dependencies are:
+### Required Dependencies
 
 ```json
 {
+  "name": "your-project-name",
+  "version": "1.0.0",
+  "description": "Your project description",
+  "scripts": {
+    "start": "gulp",
+    "dev": "gulp dev",
+    "watch": "gulp watch",
+    "build": "gulp css && gulp js"
+  },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
-    "autoprefixer": "^10.4.16",
+    "autoprefixer": "^10.4.21",
+    "cssnano": "^7.0.7",
+    "esbuild": "^0.25.5",
+    "gulp": "^5.0.1",
+    "gulp-postcss": "^10.0.0",
     "postcss": "^8.4.31",
     "postcss-cli": "^10.1.0",
-    "tailwindcss": "^3.3.5"
+    "postcss-import": "^16.1.0",
+    "tailwindcss": "^3.4.17",
+    "yargs": "^18.0.0"
   }
 }
+```
+
+### Build System Overview
+
+The theme uses a Gulp-based build system that:
+
+1. **CSS Processing**: 
+   - Processes CSS `@import` statements with postcss-import
+   - Compiles Tailwind CSS with PostCSS
+   - Adds vendor prefixes with autoprefixer
+   - Minifies output with cssnano
+2. **JavaScript Bundling**: Uses ESBuild for fast bundling and minification
+3. **Watch Mode**: Provides live reloading during development
+4. **Hugo Integration**: Automatically starts Hugo server with configurable options
+
+### Gulpfile Configuration
+
+The build system requires a `gulpfile.js` in your project root:
+
+```javascript
+const gulp = require('gulp');
+const postcss = require('gulp-postcss');
+const postcssImport = require('postcss-import');
+const tailwindcss = require('tailwindcss');
+const autoprefixer = require('autoprefixer');
+const esbuild = require('esbuild');
+const { spawn } = require('child_process');
+const cssnano = require('cssnano');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
+
+// CSS and JS source paths
+const cssSrc = 'themes/boilerplate/assets/css/main.css';
+const cssDest = 'static/css';
+const jsEntryPoints = ['themes/boilerplate/assets/js/main.js'];
+const jsDest = 'static/js';
+
+// CSS build with @import processing
+function buildCSS() {
+    return gulp.src(cssSrc)
+        .pipe(postcss([
+            postcssImport,    // Process @import statements first
+            tailwindcss,
+            autoprefixer,
+            cssnano()
+        ]))
+        .pipe(gulp.dest(cssDest));
+}
+
+// Build tasks and configuration...
 ```
 
 ## PostCSS Configuration
 
 ### Required Setup
 
-This theme uses Tailwind CSS which requires PostCSS for processing. You **must** create a `postcss.config.js` file in your project root (not in the theme directory) with the following content:
+This theme uses Tailwind CSS which is processed through Gulp and PostCSS. You **must** create a `postcss.config.js` file in your project root (not in the theme directory) with the following content:
 
 ```javascript
 // postcss.config.js in your project root
 module.exports = {
   plugins: {
-    tailwindcss: {
-      config: './themes/boilerplate/tailwind.config.js',
-    },
+    tailwindcss: {},
     autoprefixer: {},
   },
 };
 ```
 
-This configuration tells PostCSS to:
+### Tailwind Configuration
 
-1. Use the Tailwind CSS plugin with the configuration file located in the theme directory
-2. Apply autoprefixer for cross-browser compatibility
+The theme includes a pre-configured `tailwind.config.js` that:
 
-### Troubleshooting PostCSS Issues
-
-If you encounter errors related to PostCSS processing (such as `Cannot read properties of undefined (reading 'blocklist')`), check the following:
-
-1. Ensure your `postcss.config.js` is in the project root, not just in the theme directory
-2. Verify that all dependencies are installed correctly with `npm install`
-3. Make sure the path to the Tailwind config file is correct relative to your project structure
-4. Check for any path resolution issues in your project's JavaScript configuration files
-
-### Advanced PostCSS Configuration
-
-For advanced users who want to customize the PostCSS processing:
+1. Scans the correct template directories for class usage
+2. Includes necessary Tailwind plugins
+3. Provides custom color schemes and utilities
 
 ```javascript
-// postcss.config.js with additional options
+// tailwind.config.js example
 module.exports = {
-  plugins: {
-    'postcss-import': {},
-    'tailwindcss/nesting': {},
-    tailwindcss: {
-      config: './themes/boilerplate/tailwind.config.js',
+    darkMode: 'class',
+    content: [
+        './layouts/**/*.html',
+        './themes/boilerplate/layouts/**/*.html', 
+        './themes/boilerplate/assets/js/**/*.js',
+    ],
+    theme: {
+        extend: {
+            // Custom theme extensions
+        },
     },
-    autoprefixer: {
-      flexbox: 'no-2009',
-    },
-    'postcss-preset-env': {
-      features: { 'nesting-rules': false },
-    },
-  },
+    plugins: [
+        require('@tailwindcss/typography'),
+        require('@tailwindcss/forms'),
+        require('@tailwindcss/aspect-ratio'),
+    ],
 };
 ```
+
+### Build Process Integration
+
+The Gulp build system automatically:
+
+1. **Processes @import statements**: Uses postcss-import to inline imported CSS files
+2. **Compiles Tailwind CSS**: Runs Tailwind CSS compilation with PostCSS
+3. **Applies Autoprefixer**: Adds vendor prefixes for browser compatibility  
+4. **Minifies Output**: Uses cssnano for production-ready CSS
+5. **Watches Changes**: Rebuilds CSS when source files change
+
+### CSS Import System
+
+The theme supports CSS imports in the main CSS file:
+
+```css
+/* themes/boilerplate/assets/css/main.css */
+@import "./fonts.css";
+@import "./typewriter.css";
+@import "./lazy-images.css";
+@import "./lazy-videos.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+The `postcss-import` plugin automatically inlines these imports during the build process, creating a single minified CSS file in `static/css/main.css`.
+
+## JavaScript Bundling with ESBuild
+
+The theme uses ESBuild for fast JavaScript bundling and processing:
+
+### ESBuild Configuration
+
+JavaScript files are processed with the following settings:
+
+- **Entry Points**: `themes/boilerplate/assets/js/main.js`
+- **Output**: `static/js/` directory
+- **Format**: IIFE (Immediately Invoked Function Expression)
+- **Bundling**: Enabled for dependency resolution
+- **Minification**: Enabled for production builds
+- **Watch Mode**: Available for development
+
+### JavaScript Development
+
+1. **Main Entry**: Place your JavaScript in `themes/boilerplate/assets/js/main.js`
+2. **Modules**: Import ES6 modules normally - ESBuild handles bundling
+3. **Build**: Run `gulp js` or `npm run build` to process JavaScript
+4. **Watch**: Use `gulp dev` for automatic rebuilding during development
+
+### JavaScript Build Process
+
+```javascript
+// gulpfile.js JavaScript task example
+function buildJS() {
+    return esbuild.build({
+        entryPoints: ['themes/boilerplate/assets/js/main.js'],
+        bundle: true,
+        minify: true,
+        format: 'iife',
+        outdir: 'static/js'
+    });
+}
+```
+
+### Troubleshooting Build Issues
+
+If you encounter build errors:
+
+1. **Verify Dependencies**: Ensure all npm packages are installed correctly with `npm install`
+2. **Check File Paths**: Confirm Tailwind content paths match your project structure
+3. **Gulp Configuration**: Verify gulpfile.js is properly configured with all required plugins
+4. **PostCSS Config**: Ensure postcss.config.js exists in project root
+5. **CSS Import Errors**: Check that imported CSS files exist in the correct paths relative to main.css
+
+**Common Issues:**
+
+- **MIME type errors**: Usually resolved by properly configuring postcss-import plugin
+- **Missing CSS files**: Ensure all @import paths are correct and files exist
+- **Build failures**: Check that all dependencies are installed and paths are correct
 
 ## Configuration
 
@@ -503,12 +632,76 @@ To print debug messages during development, you can use the `{{ printf }}` funct
 ```
 
 
-## Init project:
-- checkout from git
-- init git submodules `git submodule update --init --recursive`
-- install dependencies `npm install`
-- build css `npm run build:css`
-- start server `hugo server --gc`
+## Project Initialization
+
+### Quick Start
+
+```bash
+# 1. Checkout from git
+git clone your-repo-url
+cd your-project
+
+# 2. Initialize git submodules
+git submodule update --init --recursive
+
+# 3. Install dependencies
+npm install
+
+# 4. Build assets
+npm run build
+
+# 5. Start development server
+npm run dev
+```
+
+### Development Workflow
+
+#### Development Mode (with live reload)
+```bash
+# Start development server with watch mode (all languages)
+npm run dev
+
+# Or with specific options
+gulp dev --en           # English only (faster)
+gulp dev --metrics      # Show template metrics
+```
+
+#### Production Build
+```bash
+# Build assets for production
+npm run build
+
+# Start server without watch
+npm start
+```
+
+#### Asset-only Operations
+```bash
+# Build CSS only
+gulp css
+
+# Build JavaScript only
+gulp js
+
+# Watch for changes without server
+npm run watch
+```
+
+### Gulp Tasks Available
+
+- `gulp` (default) - Build assets and start Hugo server
+- `gulp dev` - Development mode with watch and live reload
+- `gulp css` - Build CSS with Tailwind processing
+- `gulp js` - Bundle JavaScript with ESBuild
+- `gulp watch` - Watch mode for asset changes only
+
+### Server Options
+
+The Gulp configuration supports various Hugo server options:
+
+- `--en` - English only (faster startup, less memory usage)
+- `--metrics` - Show template metrics and hints
+- Default - All languages (complete multilingual experience)
 
 
 ## Generating new content using FlowHunt Flows
