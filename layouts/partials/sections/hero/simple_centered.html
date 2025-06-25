@@ -138,11 +138,11 @@
 
           {{ if $image.src }}
             <div class="mt-16 flow-root sm:mt-[4.5rem]">
-              <div class="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 dark:bg-white/5 dark:ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
+              <div class="rounded-[2rem] bg-[linear-gradient(205deg,_theme(colors.primary.100)_66.27%,_theme(colors.primary.300)_99.99%)]">
                 {{ partial "components/media/lazyimg.html" (dict
                   "src" $image.src
                   "alt" $image.alt
-                  "class" "w-full rounded-xl bg-gray-900/5 object-cover shadow-lg ring-1 ring-inset ring-gray-900/10 dark:bg-white/5 dark:ring-white/10"
+                  "class" "mx-auto max-w-[1145px] h-auto object-cover"
                 ) }}
               </div>
             </div>
