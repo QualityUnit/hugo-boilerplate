@@ -1,115 +1,83 @@
 {{/*
-@section: Split Content with Image
-@description: A responsive two-column layout with an image on one side and rich content on the other, ideal for feature highlights, product descriptions, or about sections.
-@params:
-  - bgColor: Background color class (optional, default: "bg-white")
-  - image: URL to the main image (optional, has default)
-  - imageAlt: Alt text for the image (optional, default: "Featured image")
-  - imageBgColor: Background color class for the image container (optional, default: "bg-gray-50")
-  - imageHeight: Height class for the image container (optional, default: "h-full")
-  - imageObjectFit: Object fit class for the image (optional, default: "object-cover")
-  - eyebrow: Small text displayed above heading (optional, default: "Deploy faster")
-  - eyebrowColor: Color class for eyebrow text (optional, default: "text-primary")
-  - heading: Main section heading (optional, default: "A better workflow")
-  - headingColor: Color class for heading (optional, default: "text-gray-900")
-  - description: Section description text (optional, has default)
-  - descriptionColor: Color class for description (optional, default: "text-gray-700")
-  - contentColor: Color class for main content text (optional, default: "text-gray-700")
-  - markdownContent: Main content as markdown text, will be rendered as HTML (optional, has default)
-  - featureTextColor: Color class for feature description text (optional, default: "text-gray-600")
-  - featureHeadingColor: Color class for feature heading (optional, default: "text-gray-900")
-  - iconColor: Color class for feature icons (optional, default: "text-primary")
-  - features: Array of feature objects (optional, includes defaults)
-    - icon: SVG path for the feature icon
-    - title: Feature title text
-    - description: Feature description text
-@example:
-  {{ partial "sections/content/split_with_image.html" (dict 
-      "eyebrow" "Our Platform" 
-      "heading" "Designed for modern workflows"
-      "description" "Our platform streamlines development processes, enabling teams to deploy faster and collaborate more effectively."
-      "image" "/images/platform-dashboard.jpg"
-      "imageAlt" "Platform dashboard interface showing deployment metrics"
-      "markdownContent" "
-Our platform is designed to make your workflow more efficient and productive.
+split_with_image partial
+Responsive two-column layout with image and rich content.
 
-## Key benefits
-
-* **Faster deployment** - Push changes directly to production with confidence
-* **Seamless collaboration** - Work together across teams and time zones
-* **Built-in analytics** - Track performance metrics in real-time
-
-The system automatically scales based on your needs, so you never have to worry about infrastructure management again.
-      "
-      "features" (slice
-          (dict 
-              "icon" "link" 
-              "title" "One-click Deployment" 
-              "description" "Deploy your projects with a single click through our intuitive interface or API."
-          )
-          (dict 
-              "icon" "lock" 
-              "title" "Enterprise Security" 
-              "description" "Bank-grade security protocols with automatic SSL certificates and advanced access controls."
-          )
-      )
-      "subheading" "Built for developers"
-  ) }}
-@note: This section has a responsive layout - on mobile the image appears above the content, while on desktop the image takes up half the width on the left side with content on the right. The image scales to fill its container while maintaining aspect ratio. The markdownContent parameter allows for rich formatting including paragraphs, lists, headings, and emphasis.
+Parameters:
+- layout: "image-left" | "image-right" (default: "image-left")
+- image, imageAlt, imageBgColor: Image settings
+- eyebrow, heading, description: Text content
+- link, linkText, buttonStyle: CTA button
+- markdownContent, contentAsHTML: Main content
+- features: [{icon, title, description}]
+- stats: [{number, label}]
+- quote: {text, author, role, company, avatar}
+- Color classes: *Color parameters for styling
 */}}
 
-{{/* Configurable variables */}}
-{{ $bgColor := .bgColor | default "bg-white" }}
-
-{{/* Image section */}}
-{{ $image := .image | default "" }}
-{{ $imageAlt := .imageAlt | default "" }}
-{{ $imageBgColor := .imageBgColor | default "bg-gray-50" }}
-{{ $imageHeight := .imageHeight | default "h-full" }}
-{{ $imageObjectFit := .imageObjectFit | default "object-cover" }}
-
-{{/* Content section */}}
-{{ $eyebrow := .eyebrow | default "" }}
+{{ $layout := .layout | default "image-left" }}
+{{ $image := .image }}
+{{ $imageAlt := .imageAlt }}
+{{ $eyebrow := .eyebrow }}
 {{ $eyebrowColor := .eyebrowColor | default "text-primary" }}
-{{ $heading := .heading | default "" }}
-{{ $headingColor := .headingColor | default "text-gray-900" }}
+{{ $heading := .heading }}
+{{ $headingColor := .headingColor | default "text-heading" }}
 {{ $description := .description }}
 {{ $descriptionColor := .descriptionColor | default "text-gray-700" }}
-
-{{/* Main content */}}
+{{ $link := .link }}
+{{ $linkText := .linkText }}
+{{ $linkTarget := .linkTarget | default "_self" }}
+{{ $buttonStyle := .buttonStyle | default "primary" }}
 {{ $contentColor := .contentColor | default "text-gray-700" }}
 {{ $markdownContent := .markdownContent }}
-{{/* Features */}}
-{{ $featureTextColor := .featureTextColor | default "text-gray-600" }}
-{{ $featureHeadingColor := .featureHeadingColor | default "text-gray-900" }}
-{{ $iconColor := .iconColor | default "text-primary" }}
-{{ $features := .features | default (slice) }}
 {{ $contentAsHTML := .contentAsHTML | default false }}
+{{ $features := .features | default (slice) }}
+{{ $stats := .stats | default (slice) }}
+{{ $quote := .quote }}
 
 
-<div class="relative {{ $bgColor }} mb-2.5">
-  <div class="wrapper lg:flex lg:justify-between lg:items-center">
-    <div class="lg:flex lg:w-1/2 lg:items-center lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:right-0 xl:w-1/2">
-      <div class="relative flex items-center justify-center w-full overflow-hidden">
-        {{ partial "components/media/lazyimg.html" (dict
-          "src" $image 
-          "alt" $imageAlt
-          "class" "w-full max-h-full {{ $imageBgColor }} {{ $imageObjectFit }} rounded-lg"
-        ) }}
+<div class="split-with-image-section section-bg-light py-24 lg:py-32">
+  <div class="wrapper lg:flex lg:justify-between lg:items-stretch{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
+    <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
+      <div class="relative py-6 flex items-start justify-center w-full overflow-hidden mx-auto max-w-[608px] max-h-[560px]">
+        {{ if $link }}
+          <a href="{{ $link }}" target="{{ $linkTarget }}" class="block w-full">
+        {{ end }}
+            {{ partial "components/media/lazyimg.html" (dict
+              "src" $image
+              "alt" $imageAlt
+              "class" "w-full max-w-[484px] max-h-[522px] object-cover rounded-lg hover:opacity-90 transition-opacity duration-200"
+            ) }}
+        {{ if $link }}
+          </a>
+        {{ end }}
       </div>
     </div>
-    <div class="lg:contents">
-      <div class="mx-auto max-w-2xl pt-16 pb-24 sm:pt-20 sm:pb-32 lg:mr-0 lg:ml-8 lg:w-full lg:max-w-lg lg:flex-none lg:pt-32 xl:w-1/2">
+    <div class="lg:flex lg:w-1/2 lg:items-center">
+      <div class="py-4 lg:w-full lg:flex-none {{ if eq $layout "image-right" }}lg:pl-0 lg:ml-0 lg:mr-8{{ else }}lg:pl-20 lg:mr-0 lg:ml-8{{ end }}">
         {{ if $eyebrow }}
-        <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ $eyebrow }}</p>
+          <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ $eyebrow }}</p>
         {{ end }}
         {{ if $heading}}
-        <h2 class="mt-2 text-4xl font-semibold tracking-tight text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
+          <h2 class="mt-3 text-4xl font-semibold tracking-[-2.832px] leading-none text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
         {{ end }}
         {{ if $description }}
-        <p class="mt-6 text-xl/8 {{ $descriptionColor }}">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
+          <p class="mt-6 text-lg/7 {{ $descriptionColor }}">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
         {{ end }}
-        <div class="mt-10 max-w-xl text-base/7 {{ $contentColor }} lg:max-w-none">
+
+        {{/* Button */}}
+        {{ if $link }}
+        <div class="mt-6">
+          {{ partial "components/buttons/buttons.html" (dict
+            "text" $linkText
+            "url" $link
+            "target" $linkTarget
+            "variant" $buttonStyle
+          ) }}
+        </div>
+        {{ end }}
+
+        {{/* Main content */}}
+        <div class="mt-10 max-w-full {{ $contentColor }} lg:max-w-full">
           {{ if $markdownContent }}
             {{ if $contentAsHTML }}
                 {{ $markdownContent | safeHTML }}
@@ -117,20 +85,58 @@ The system automatically scales based on your needs, so you never have to worry 
                 {{ $markdownContent | markdownify }}
             {{ end }}
           {{ end }}
-          {{ if $features }}
-          <ul role="list" class="mt-8 pl-0 space-y-8 {{ $featureTextColor }}">
-            {{ range $features }}
-            <li class="flex item gap-x-3">
-              {{ if .icon }}
-              <span class="size-5 text-primary mr-2 flex-shrink-0">{{ partial "components/media/icon.html" (dict "icon" .icon) }}</span>
-              {{ end }}
-              <span><strong class="font-semibold {{ $featureHeadingColor }}">{{ .title }}.</strong> {{ .description }}</span>
-            </li>
-            {{ end }}
-          </ul>
-          {{ end }}
         </div>
-      </div>
+
+        {{/* Features */}}
+        {{ if $features }}
+        <dl class="mt-10 max-w-full space-y-8 text-lg/7 text-body lg:max-w-full">
+          {{ range $features }}
+          <div class="relative pl-9">
+            <dt class="inline font-bold text-heading">
+              {{ if .icon }}
+                <span class="absolute left-1 top-1 size-5 text-primary">
+                  {{ partial "components/media/icon.html" (dict "icon" .icon) }}
+                </span>
+              {{ end }}
+              {{ .title }}.
+            </dt>
+            <dd class="inline">{{ .description }}</dd>
+          </div>
+          {{ end }}
+        </dl>
+        {{ end }}
+
+        {{/* Stats */}}
+        {{ if $stats }}
+        <dl class="mt-10 grid max-w-full grid-cols-1 gap-8 sm:grid-cols-2">
+          {{ range $stats }}
+          <div class="flex flex-col gap-y-3 border-l border-gray-900/10 pl-6">
+            <dt class="text-sm/6 text-body">{{ .label }}</dt>
+            <dd class="order-first text-3xl font-semibold tracking-tight text-heading">{{ .number }}</dd>
+          </div>
+          {{ end }}
+        </dl>
+        {{ end }}
+
+        {{/* Quote */}}
+        {{ if $quote }}
+        <div class="lg:max-w-full">
+          <figure class="mt-10 border-l border-gray-200 pl-8 text-body">
+            <blockquote class="text-base/7">
+              <p>"{{ $quote.text }}"</p>
+            </blockquote>
+            <figcaption class="mt-6 flex gap-x-4 text-sm/6">
+              {{ if $quote.avatar }}
+              <img src="{{ $quote.avatar }}" alt="{{ $quote.author }}" class="size-6 flex-none rounded-full" />
+              {{ end }}
+              <div>
+                <span class="font-semibold text-heading">{{ $quote.author }}</span>
+                {{ if $quote.role }} – {{ $quote.role }}{{ end }}{{ if $quote.company }}, {{ $quote.company }}{{ end }}
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+      {{ end }}
     </div>
   </div>
 </div>
