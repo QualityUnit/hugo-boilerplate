@@ -131,7 +131,7 @@
 {{ $gradientToColor := .gradientToColor | default "to-[#1a56db]" }}
 
 <section class="bg-white">
-    <div class="wrapper bg-gray-50 p-16 lg:px-32 rounded-2xl">
+    <div class="wrapper bg-gray-50 p-16 lg:px-32 rounded-xl">
     <!-- Icons Section - Technology Partners -->
     {{ if $icons}}
     <div class="flex flex-wrap justify-center items-center gap-12 md:gap-16 lg:gap-20 mb-5">
@@ -172,7 +172,7 @@
                 <!-- Single Session Layout -->
                 <div class="mb-6">
                     <!-- Session Details - Top Block -->
-                    <div class="bg-gray-200 px-5 py-2.5 rounded-md mb-8 grid grid-cols-2">
+                    <div class="bg-gray-200 px-5 py-2.5 rounded-xl mb-8 grid grid-cols-2">
                         <div class="pr-5">
                             <div class="text-sm text-gray-900">{{ i18n "courses.format" }}:</div>
                             <div class="text-base font-bold">{{ index $sessions 0 "title" }}</div>
@@ -187,13 +187,13 @@
                     <!-- Pricing Grid - Bottom -->
                     <div class="grid grid-cols-2 gap-2.5">
                         <!-- Small Group Pricing -->
-                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 rounded-md">
+                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 rounded-xl">
                             <div class="text-sm text-gray-900">{{ index $sessions 0 "smallGroupTitle" }}</div>
                             <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 0 "smallGroupPrice" }}</div>
                         </div>
 
                         <!-- Large Group Pricing -->
-                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 rounded-md">
+                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 rounded-xl">
                             <div class="text-sm text-gray-900">{{ index $sessions 0 "largeGroupTitle" }}</div>
                             <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 0 "largeGroupPrice" }}</div>
                         </div>
@@ -203,7 +203,7 @@
                 <!-- Multiple Sessions Layout - 4-column Grid -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-5 mb-6 relative">
                     <!-- First Row - Session 1 Details -->
-                    <div class="bg-gray-200 px-5 py-2.5 col-span-2 md:order-1 order-1 rounded-md">
+                    <div class="bg-gray-200 px-5 py-2.5 col-span-2 md:order-1 order-1 rounded-xl">
                         <div class="text-sm text-gray-900">{{ i18n "courses.format" }}:</div>
                         <div class="flex justify-between items-center">
                             <div>
@@ -219,7 +219,7 @@
                     
                     {{ if gt (len $sessions) 1 }}
                         <!-- First Row - Session 2 Details -->
-                        <div class="bg-gray-200 px-5 py-2.5 col-span-2 md:order-2 order-4 rounded-md">
+                        <div class="bg-gray-200 px-5 py-2.5 col-span-2 md:order-2 order-4 rounded-xl">
                             <div class="text-sm text-gray-900">{{ i18n "courses.format" }}:</div>
                             <div class="flex justify-between items-center">
                                 <div>
@@ -235,23 +235,23 @@
                     {{ end }}
                     
                     <!-- Second Row - Session 1 Pricing -->
-                    <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-3 order-2 rounded-md">
+                    <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-3 order-2 rounded-xl">
                         <div class="text-sm text-gray-900">{{ index $sessions 0 "smallGroupTitle" }}</div>
                         <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 0 "smallGroupPrice" }}</div>
                     </div>
 
-                    <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-4 order-3 rounded-md">
+                    <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-4 order-3 rounded-xl">
                         <div class="text-sm text-gray-900">{{ index $sessions 0 "largeGroupTitle" }}</div>
                         <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 0 "largeGroupPrice" }}</div>
                     </div>
 
                     {{ if gt (len $sessions) 1 }}
-                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-5 order-5 rounded-md">
+                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-5 order-5 rounded-xl">
                             <div class="text-sm text-gray-900">{{ index $sessions 1 "smallGroupTitle" }}</div>
                             <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 1 "smallGroupPrice" }}</div>
                         </div>
 
-                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-6 order-6 rounded-md">
+                        <div class="bg-gray-200 p-5 flex flex-col gap-y-1.5 md:order-6 order-6 rounded-xl">
                             <div class="text-sm text-gray-900">{{ index $sessions 1 "largeGroupTitle" }}</div>
                             <div class="font-bold text-xl lg:text-[26px]">{{ index $sessions 1 "largeGroupPrice" }}</div>
                         </div>
@@ -295,7 +295,7 @@
     {{ if $sessionFeatures }}
     <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-6">
         {{ range $index, $feature := $sessionFeatures }}
-        <div class="bg-gray-150 rounded-lg p-8 border border-gray-200 shadow-lg overflow-hidden">
+        <div class="bg-gray-150 rounded-xl p-8 border border-gray-200 shadow-lg overflow-hidden">
             <div class="text-xs font-medium mb-2">{{ i18n "courses.session" }} {{ add $index 1 }}:</div>
             <h3 class="text-base font-semibold text-gray-900 mt-0 mb-8">{{ $feature.title }}</h3>
             <p class="text-sm text-gray-600 mb-4">{{ i18n "courses.you_will_learn" }}</p>

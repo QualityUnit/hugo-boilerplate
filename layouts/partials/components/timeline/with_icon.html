@@ -21,7 +21,7 @@
         {{ if $item.description }}<small class="mt-2 font-sans text-sm text-slate-600 antialiased">{{ $item.description }}</small>{{end}}
         {{ if $item.code }}
           <p class="mt-2 font-bold font-sans text-sm text-slate-600 antialiased">{{ $sourceCodeTitle | default (i18n "source_code") | default "Code:" }}</p>
-          <pre class="mt-2 rounded-md bg-gray-800 p-4 text-sm text-white dark:bg-slate-800 w-full whitespace-pre-line break-words">
+          <pre class="mt-2 rounded-xl bg-gray-800 p-4 text-sm text-white dark:bg-slate-800 w-full whitespace-pre-line break-words">
             <code class="block w-full text-white whitespace-pre-line break-words">{{ $item.code }}</code>
           </pre>
         {{ end }}

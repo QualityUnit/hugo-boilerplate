@@ -33,7 +33,7 @@
 {{ $bgColor := .bgColor | default "bg-gray-100" }}
 {{ $textColor := .textColor | default "text-gray-500" }}
 {{ $borderColor := .borderColor | default "" }}
-{{ $rounded := .rounded | default "rounded-md" }}
+{{ $rounded-xl := .rounded-xl | default "rounded-xl" }}
 {{ $size := .size | default "text-xs" }}
 {{ $padding := .padding | default "px-2 py-0.5" }}
 {{ $fontWeight := .fontWeight | default "font-semibold" }}
@@ -47,7 +47,7 @@
   {{ $border = printf "border %s" $borderColor }}
 {{ end }}
 
-<span class="inline-flex items-center {{ $rounded }} {{ $bgColor }} {{ $textColor }} {{ $padding }} {{ $size }} {{ $fontWeight }} {{ $border }} {{ $classes }} [&_a]:no-underline [&_a]:text-white [&_a:hover]:text-white [&_a:focus]:text-white [&_a]:font-semibold [&_a]:px-1">
+<span class="inline-flex items-center {{ $rounded-xl }} {{ $bgColor }} {{ $textColor }} {{ $padding }} {{ $size }} {{ $fontWeight }} {{ $border }} {{ $classes }} [&_a]:no-underline [&_a]:text-white [&_a:hover]:text-white [&_a:focus]:text-white [&_a]:font-semibold [&_a]:px-1">
   {{/* Icon rendering if specified */}}
   {{ if $icon }}
     {{ $iconPath := printf "themes/boilerplate/layouts/partials/icons/%s.html" $icon }}
