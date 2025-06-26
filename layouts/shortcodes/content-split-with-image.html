@@ -6,6 +6,8 @@
     - Supports mixed content: markdown/HTML + JSON data block
     - Uses START_JSON_BLOCK/END_JSON_BLOCK markers to separate JSON from content (markdown/HTML)
     - JSON markers are removed from final rendered content
+    - Robust JSON parsing with error handling and fallback mechanisms
+    - Graceful degradation when JSON is malformed or missing
 
     Parameters:
     - heading: Main title for the section
@@ -229,11 +231,30 @@
             {{ $potentialJSON := index $jsonParts 0 }}
             {{ $afterJson := index $jsonParts 1 }}
 
-            {{/* Parse JSON if present */}}
-            {{ with $potentialJSON | unmarshal }}
-                {{ if or .features .stats .quote .markdownContent .htmlContent .contentAsHTML }}
-                    {{ $innerData = . }}
+            {{/* Parse JSON if present with error handling */}}
+            {{ $potentialJSON = trim $potentialJSON " \n\r\t" }}
+            {{ if $potentialJSON }}
+              {{ $parseResult := dict }}
+              {{ if $potentialJSON }}
+                {{ $jsonString := trim $potentialJSON " \n\r\t" }}
+                {{ if $jsonString }}
+                  {{ $unmarshalResult := dict }}
+                  {{ $errorOccurred := false }}
+                  {{/* Attempt to unmarshal JSON with error handling */}}
+                  {{ $unmarshalResult = unmarshal $jsonString }}
+                  {{ if not $unmarshalResult }}
+                    {{ warnf "JSON unmarshal returned empty result in inner-content-json-block. JSON content (first 200 chars): %s. Using empty fallback." (substr $jsonString 0 200) }}
+                    {{ $unmarshalResult = dict }}
+                  {{ end }}
+                  {{ $parseResult = $unmarshalResult }}
                 {{ end }}
+              {{ end }}
+              
+              {{ if or $parseResult.features $parseResult.stats $parseResult.quote $parseResult.markdownContent $parseResult.htmlContent $parseResult.contentAsHTML }}
+                {{ $innerData = $parseResult }}
+              {{ else }}
+                {{ warnf "JSON block found but contains no recognized data structures (features, stats, quote, markdownContent, htmlContent, contentAsHTML). Content: %s" (substr $potentialJSON 0 200) }}
+              {{ end }}
             {{ end }}
 
             {{/* Reconstruct markdown content (exclude JSON block) */}}
@@ -259,7 +280,16 @@
   {{ if eq . "features" }}
     {{ $features = $currentPage.Params.features | default $features }}
   {{ else }}
-    {{ $features = . | unmarshal | default $features }}
+    {{ $jsonString := trim . " \n\r\t" }}
+    {{ if $jsonString }}
+      {{ $unmarshalResult := dict }}
+      {{ $unmarshalResult = unmarshal $jsonString }}
+      {{ if $unmarshalResult }}
+        {{ $features = $unmarshalResult }}
+      {{ else }}
+        {{ warnf "Failed to parse features JSON from shortcode parameter. JSON content (first 200 chars): %s. Using fallback." (substr $jsonString 0 200) }}
+      {{ end }}
+    {{ end }}
   {{ end }}
 {{ end }}
 
@@ -267,7 +297,16 @@
   {{ if eq . "stats" }}
     {{ $stats = $currentPage.Params.stats | default $stats }}
   {{ else }}
-    {{ $stats = . | unmarshal | default $stats }}
+    {{ $jsonString := trim . " \n\r\t" }}
+    {{ if $jsonString }}
+      {{ $unmarshalResult := dict }}
+      {{ $unmarshalResult = unmarshal $jsonString }}
+      {{ if $unmarshalResult }}
+        {{ $stats = $unmarshalResult }}
+      {{ else }}
+        {{ warnf "Failed to parse stats JSON from shortcode parameter. JSON content (first 200 chars): %s. Using fallback." (substr $jsonString 0 200) }}
+      {{ end }}
+    {{ end }}
   {{ end }}
 {{ end }}
 
@@ -275,7 +314,16 @@
   {{ if eq . "quote" }}
     {{ $quote = $currentPage.Params.quote | default $quote }}
   {{ else }}
-    {{ $quote = . | unmarshal | default $quote }}
+    {{ $jsonString := trim . " \n\r\t" }}
+    {{ if $jsonString }}
+      {{ $unmarshalResult := dict }}
+      {{ $unmarshalResult = unmarshal $jsonString }}
+      {{ if $unmarshalResult }}
+        {{ $quote = $unmarshalResult }}
+      {{ else }}
+        {{ warnf "Failed to parse quote JSON from shortcode parameter. JSON content (first 200 chars): %s. Using fallback." (substr $jsonString 0 200) }}
+      {{ end }}
+    {{ end }}
   {{ end }}
 {{ end }}
 
