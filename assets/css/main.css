@@ -46,7 +46,64 @@
     /* Subtle/secondary text – slightly muted for less emphasis */
   }
 
-   /* 🔘 BUTTONS */
+  .text-placeholder {
+    @apply text-gray-400 dark:text-gray-500;
+    /* Placeholder text – light gray in light mode, slightly darker in dark mode */
+  }
+
+  /* PRODUCT CONTENT STYLES */
+  .product-primary {
+    @apply text-primary dark:text-primary-500;
+    /* Primary product text – primary color in light mode, primary-500 in dark mode */
+  }
+
+  .product-text {
+    @apply text-primary dark:text-primary-300;
+    /* Product text – primary color in light mode, lighter primary-300 in dark mode */
+  }
+
+  .product-surface {
+    @apply bg-primary-500 dark:bg-primary-500 bg-opacity-20;
+    /* Product surface – light primary background in light mode, dark primary in dark mode */
+  }
+
+  .product-border {
+    @apply border-primary-500 dark:border-primary-400;
+    /* Product border – primary color in light mode, lighter primary-400 in dark mode */
+  }
+
+  .product-icon {
+    @apply text-primary dark:text-primary-500;
+    /* Product icon – primary color in light mode, primary-500 in dark mode */
+  }
+
+  .product-underlight {
+    @apply bg-primary-300 dark:bg-primary-900;
+    /* Product underlight – light primary background in light mode, dark primary in dark mode */
+  }
+
+  /* SURFACE STYLES */
+  .surface-primary {
+    @apply bg-white dark:bg-gray-900;
+    /* Primary surface background – white in light mode, dark gray in dark mode */
+  }
+
+  .surface-secondary {
+    @apply bg-gray-50 dark:bg-gray-400/10;
+    /* Secondary surface background – light gray in light mode, very light gray in dark mode */
+  }
+
+  .surface-border {
+    @apply border-gray-300 dark:border-gray-600;
+    /* Surface border – light gray in light mode, darker gray in dark mode */
+  }
+
+  .surface-divider {
+    @apply border-t border-gray-200 dark:border-gray-700;
+    /* Surface divider – light gray top border in light mode, darker gray in dark mode */
+  }
+
+  /* 🔘 BUTTONS */
 
   /* Common button transition */
   .btn-transition {
@@ -114,9 +171,97 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /* Icons - fill for light and dark mode */
-  .icon-color {
-    @apply text-primary dark:text-primary-500;
+  /* ICONS STYLES */
+  .icon-primary {
+    @apply text-white dark:text-white;
+    /* Primary icon color – white in both light and dark mode */
+  }
+
+  .icon-secondary {
+    @apply text-gray-400 dark:text-gray-500;
+    /* Secondary icon color – light gray in light mode, slightly darker in dark mode */
+  }
+
+  /* BADGES */
+  .badge-gray-with-border {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-gray-100 dark:bg-gray-400/20 border border-gray-200 dark:border-gray-400/20 text-gray-500 dark:text-gray-400 leading-4 tracking-[0.216px];
+    /* Gray badge with border – light gray background, gray text */
+  }
+
+  .badge-red-with-border {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-red-50 dark:bg-red-300/20 border border-red-100 dark:border-red-300/20 text-red-700 dark:text-red-300 leading-4 tracking-[0.216px];
+    /* Red badge with border – light red background, red text */
+  }
+
+  .badge-yellow-with-border {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-yellow-50 dark:bg-yellow-500/20 border border-yellow-200 dark:border-yellow-500/20 text-yellow-800 dark:text-yellow-500 leading-4 tracking-[0.216px];
+    /* Yellow badge with border – light yellow background, yellow text */
+  }
+
+  .badge-green-with-border {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-green-50 dark:bg-green-500/20 border border-green-200 dark:border-green-500/20 text-green-700 dark:text-green-400 leading-4 tracking-[0.216px];
+    /* Green badge with border – light green background, green text */
+  }
+
+  .badge-blue-with-border {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-blue-50 dark:bg-blue-500/20 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 leading-4 tracking-[0.216px];
+    /* Blue badge with border – light blue background, blue text */
+  }
+
+  .badge-purple-with-border {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-purple-50 dark:bg-purple-500/20 border border-purple-200 dark:border-purple-500/20 text-purple-700 dark:text-purple-400 leading-4 tracking-[0.216px];
+    /* Purple badge with border – light purple background, purple text */
+  }
+
+  .badge-indigo-with-border {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-indigo-50 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 leading-4 tracking-[0.216px];
+    /* Indigo badge with border – light indigo background, indigo text */
+  }
+
+  .badge-pink-with-border {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-pink-50 dark:bg-pink-500/20 border border-pink-200 dark:border-pink-500/20 text-pink-700 dark:text-pink-400 leading-4 tracking-[0.216px];
+    /* Pink badge with border – light pink background, pink text */
+  }
+
+  /* FLAT BADGES WITHOUT BORDERS */
+  .badge-gray {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-gray-100 dark:bg-gray-400/20 text-gray-500 dark:text-gray-400 leading-4 tracking-[0.216px];
+    /* Gray flat badge – light gray background, gray text */
+  }
+
+  .badge-red {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-red-50 dark:bg-red-300/20 text-red-700 dark:text-red-300 leading-4 tracking-[0.216px];
+    /* Red flat badge – light red background, red text */
+  }
+
+  .badge-yellow {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-yellow-50 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-500 leading-4 tracking-[0.216px];
+    /* Yellow flat badge – light yellow background, yellow text */
+  }
+
+  .badge-green {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-green-50 dark:bg-green-500/20 text-green-700 dark:text-green-400 leading-4 tracking-[0.216px];
+    /* Green flat badge – light green background, green text */
+  }
+
+  .badge-blue {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-blue-50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 leading-4 tracking-[0.216px];
+    /* Blue flat badge – light blue background, blue text */
+  }
+
+  .badge-purple {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-purple-50 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 leading-4 tracking-[0.216px];
+    /* Purple flat badge – light purple background, purple text */
+  }
+
+  .badge-indigo {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 leading-4 tracking-[0.216px];
+    /* Indigo flat badge – light indigo background, indigo text */
+  }
+
+  .badge-pink {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-pink-50 dark:bg-pink-500/20 text-pink-700 dark:text-pink-400 leading-4 tracking-[0.216px];
+    /* Pink flat badge – light pink background, pink text */
   }
 
    /* Eliminate focus outline for iframes */
