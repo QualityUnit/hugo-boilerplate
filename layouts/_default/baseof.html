@@ -7,12 +7,12 @@
 <!-- Initialize linkbuilding tracking for all pages -->
 {{ .Scratch.Set "processedLinks" slice }}
 
-{{ partialCached "header.html" . site.Language.LanguageCode }}
+{{ partialCached "header.html" . (printf "header-%s" site.Language.Lang) }}
 <main class="w-full">
   {{ block "main" . }}{{ end }}
 </main>
 
-{{ partialCached "footer.html" . .Permalink}}
+{{ partial "footer.html" . }}
 
 <!-- Cookie Consent Banner -->
 {{ partialCached "cookies-bar" (dict
