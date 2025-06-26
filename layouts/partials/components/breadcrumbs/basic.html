@@ -5,7 +5,7 @@
   - items: Array of breadcrumb items, each with:
     - title: Text to display for the breadcrumb link
     - url: URL for the breadcrumb link
-  - separator: Symbol to display between items (optional, default: "/")
+  - homeUrl: URL for the home page (optional, default: "/")
 @example:
   {{ partial "components/breadcrumbs/basic.html" (dict
     "items" (slice 
@@ -13,20 +13,41 @@
       (dict "title" "Marketing" "url" "/plus/ui-blocks/marketing")
       (dict "title" "Page Sections" "url" "/plus/ui-blocks/marketing#product-marketing-sections")
     )
-    "separator" ">"
+    "homeUrl" "/"
   ) }}
 */}}
 
 {{- $items := .items -}}
-{{- $separator := .separator | default "/" -}}
+{{- $homeUrl := .homeUrl | default "/" -}}
 
-<nav class="wrapper flex gap-2 py-8" aria-label="Breadcrumbs">
-  {{- range $index, $item := $items -}}
-    {{- if $index -}}
-      <p class="text-gray-400 select-none text-base tracking-widest text-pretty" aria-hidden="true">{{ $separator }}</p>
+<nav class="wrapper flex gap-2 py-8" aria-label="Breadcrumb">
+  <ol role="list" class="flex items-center space-x-4">
+    <li>
+      <div>
+        <a href="{{ $homeUrl }}" class="text-gray-400 hover:text-gray-600">
+          {{ partial "icons/home-solid.html" (dict "class" "size-5 block h-5 shrink-0") }}
+          <span class="sr-only">Home</span>
+        </a>
+      </div>
+    </li>
+    {{- range $index, $item := $items -}}
+    {{- if not (and (eq $index 0) (or (eq $item.title "Home") (eq $item.title "home"))) -}}
+    <li>
+      <div class="flex items-center">
+        <span class="mr-4 text-gray-400">/</span>
+        {{- $isLast := eq (add $index 1) (len $items) -}}
+        {{- if $isLast -}}
+        <a href="{{ $item.url }}" class="text-sm font-medium text-gray-900 hover:text-gray-700" aria-current="page">{{ $item.title }}</a>
+        {{- else -}}
+        <a href="{{ $item.url }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">{{ $item.title }}</a>
+        {{- end -}}
+      </div>
+    </li>
     {{- end -}}
-    <a class="hover:text-gray-950 text-base tracking-widest text-pretty text-gray-600" href="{{ $item.url }}">{{ $item.title }}</a>
-  {{- end -}}
+    {{- end -}}
+  </ol>
+</nav>
+  </ol>
 </nav>
 
 {{ partial "schemaorg/breadcrumbs.html" (dict "items" $items) }}
