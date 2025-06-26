@@ -2,14 +2,14 @@
 <div class="wrapper flex items-center justify-between border-t border-gray-200 my-16 py-3">
     <div class="flex flex-1 justify-between sm:hidden">
     {{ if $paginator.HasPrev }}
-    <a href="{{ $paginator.Prev.URL }}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ i18n "pagination_previous" }}</a>
+    <a href="{{ $paginator.Prev.URL }}" class="relative inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ i18n "pagination_previous" }}</a>
     {{ else }}
-    <span class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 cursor-not-allowed">{{ i18n "pagination_previous" }}</span>
+    <span class="relative inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 cursor-not-allowed">{{ i18n "pagination_previous" }}</span>
     {{ end }}
     {{ if $paginator.HasNext }}
-    <a href="{{ $paginator.Next.URL }}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ i18n "pagination_next" }}</a>
+    <a href="{{ $paginator.Next.URL }}" class="relative ml-3 inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ i18n "pagination_next" }}</a>
     {{ else }}
-    <span class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 cursor-not-allowed">{{ i18n "pagination_next" }}</span>
+    <span class="relative ml-3 inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 cursor-not-allowed">{{ i18n "pagination_next" }}</span>
     {{ end }}
     </div>
     <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
@@ -19,14 +19,14 @@
         </p>
     </div>
     <div>
-        <nav class="isolate inline-flex -space-x-px rounded-md" aria-label="Pagination">
+        <nav class="isolate inline-flex -space-x-px rounded-lg" aria-label="Pagination">
         {{ if $paginator.HasPrev }}
-        <a href="{{ $paginator.Prev.URL }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+        <a href="{{ $paginator.Prev.URL }}" class="relative inline-flex items-center rounded-l-lg px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
             <span class="sr-only">{{ i18n "pagination_previous" }}</span>
             {{ partial "icons/chevron-left" "w-5 h-5" }}
         </a>
         {{ else }}
-        <span class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-300 ring-1 ring-inset ring-gray-300 cursor-not-allowed">
+        <span class="relative inline-flex items-center rounded-l-lg px-2 py-2 text-gray-300 ring-1 ring-inset ring-gray-300 cursor-not-allowed">
             <span class="sr-only">{{ i18n "pagination_previous" }}</span>
             {{ partial "icons/chevron-left" "w-5 h-5" }}
         </span>
@@ -42,12 +42,12 @@
         {{ end }}
         
         {{ if $paginator.HasNext }}
-        <a href="{{ $paginator.Next.URL }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+        <a href="{{ $paginator.Next.URL }}" class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
             <span class="sr-only">{{ i18n "pagination_next" }}</span>
             {{ partial "icons/chevron-right" "w-5 h-5" }}
         </a>
         {{ else }}
-        <span class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-300 ring-1 ring-inset ring-gray-300 cursor-not-allowed">
+        <span class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-gray-300 ring-1 ring-inset ring-gray-300 cursor-not-allowed">
             <span class="sr-only">{{ i18n "pagination_next" }}</span>
             {{ partial "icons/chevron-right" "w-5 h-5" }}
         </span>

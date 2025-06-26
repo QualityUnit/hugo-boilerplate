@@ -71,7 +71,7 @@
           {{ if $card.url }}
           <a href="{{ $card.url }}" class="relative flex flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] h-full group">
           {{ else }}
-          <div class="relative flex flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
+          <div class="relative flex flex-col overflow-hidden rounded-lg-[calc(var(--radius-lg)+1px)]">
           {{ end }}
             {{ if and $card.image (eq $imagePosition "top") }}
             <div class="@container flex items-center justify-center px-8 pt-8 sm:px-10 sm:pt-10">

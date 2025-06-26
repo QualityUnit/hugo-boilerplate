@@ -213,7 +213,7 @@
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto grid max-w-md grid-cols-1 gap-8 lg:max-w-4xl lg:grid-cols-2">
           {{ range $tier := $tiers }}
-          <div class="flex flex-col justify-between rounded-3xl bg-{{ $tier.backgroundColor }} p-8 ring-1 shadow-xl ring-{{ $tier.borderColor }} sm:p-10">
+          <div class="flex flex-col justify-between rounded-xl bg-{{ $tier.backgroundColor }} p-8 ring-1 shadow-xl ring-{{ $tier.borderColor }} sm:p-10">
             <div>
               <h3 id="{{ $tier.id }}" class="text-base/7 font-semibold text-{{ $tier.nameColor }}">{{ $tier.name }}</h3>
               <div class="mt-4 flex items-baseline gap-x-2">
@@ -232,16 +232,16 @@
                 {{ end }}
               </ul>
             </div>
-            <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md bg-{{ $tier.ctaBgColor }} px-3.5 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaBgColor }}">{{ $tier.cta.text }}</a>
+            <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-lg bg-{{ $tier.ctaBgColor }} px-3.5 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaBgColor }}">{{ $tier.cta.text }}</a>
           </div>
           {{ end }}
 
-          <div class="flex flex-col items-start gap-x-8 gap-y-6 rounded-3xl p-8 ring-1 ring-{{ $extraTier.borderColor }} sm:gap-y-10 sm:p-10 lg:col-span-2 lg:flex-row lg:items-center">
+          <div class="flex flex-col items-start gap-x-8 gap-y-6 rounded-xl p-8 ring-1 ring-{{ $extraTier.borderColor }} sm:gap-y-10 sm:p-10 lg:col-span-2 lg:flex-row lg:items-center">
             <div class="lg:min-w-0 lg:flex-1">
               <h3 class="text-base/7 font-semibold text-{{ $extraTier.nameColor }}">{{ $extraTier.name }}</h3>
               <p class="mt-1 text-base/7 text-{{ $extraTier.descriptionColor }}">{{ $extraTier.description }}</p>
             </div>
-            <a href="{{ $extraTier.cta.url }}" class="rounded-md px-3.5 py-2 text-sm/6 font-semibold text-{{ $extraTier.ctaColor }} ring-1 ring-{{ $extraTier.ctaRingColor }} ring-inset hover:ring-{{ $extraTier.ctaHoverRingColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $extraTier.ctaColor }}">{{ $extraTier.cta.text }} <span aria-hidden="true">&rarr;</span></a>
+            <a href="{{ $extraTier.cta.url }}" class="rounded-lg px-3.5 py-2 text-sm/6 font-semibold text-{{ $extraTier.ctaColor }} ring-1 ring-{{ $extraTier.ctaRingColor }} ring-inset hover:ring-{{ $extraTier.ctaHoverRingColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $extraTier.ctaColor }}">{{ $extraTier.cta.text }} <span aria-hidden="true">&rarr;</span></a>
           </div>
         </div>
       </div>

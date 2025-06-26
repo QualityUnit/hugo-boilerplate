@@ -5,7 +5,7 @@
   <div class="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-lg border border-cyan-200">
     <h2 class="text-2xl font-bold text-cyan-900 mb-3">🔧 Utils Reference</h2>
     <p class="text-cyan-800 mb-4">Utility partials and helper functions for common functionality like analytics, content relationships, and link building. These tools enhance your site's functionality and user experience.</p>
-    <div class="bg-cyan-100 p-3 rounded border border-cyan-300">
+    <div class="bg-cyan-100 p-3 rounded-lg border border-cyan-300">
       <p class="text-sm text-cyan-800"><strong>💡 Tip:</strong> Utils are typically called internally by other partials or used in layouts, but understanding them helps you customize behavior and add advanced functionality.</p>
     </div>
   </div>
@@ -17,13 +17,13 @@
     
     <div class="space-y-6">
       <!-- Google Analytics Consent -->
-      <div class="bg-background p-4 rounded border">
+      <div class="bg-background p-4 rounded-lg border">
         <h4 class="font-medium mb-3">Google Analytics with Consent</h4>
         <p class="text-text-light text-sm mb-4">GDPR-compliant Google Analytics implementation with consent management and privacy controls.</p>
         
         <div class="mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
-          <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded"><code>{{ `{{ partial "utils/analytics/google-analytics-consent.html" (dict 
+          <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded-lg"><code>{{ `{{ partial "utils/analytics/google-analytics-consent.html" (dict 
   "measurement_id" "G-XXXXXXXXXX"
   "consent_mode" true
   "anonymize_ip" true
@@ -33,37 +33,37 @@
 ) }}` }}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded">
+        <div class="bg-gray-50 p-4 rounded-lg">
           <h5 class="font-medium mb-2">Parameters:</h5>
           <div class="space-y-2">
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">measurement_id</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">measurement_id</code>
               <span class="text-xs text-gray-600 ml-2">Your GA4 Measurement ID</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">consent_mode</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">consent_mode</code>
               <span class="text-xs text-gray-600 ml-2">Enable Google Consent Mode v2</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">anonymize_ip</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">anonymize_ip</code>
               <span class="text-xs text-gray-600 ml-2">Anonymize visitor IP addresses</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">cookie_domain</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">cookie_domain</code>
               <span class="text-xs text-gray-600 ml-2">Cookie domain setting</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">cookie_expires</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">cookie_expires</code>
               <span class="text-xs text-gray-600 ml-2">Cookie expiration in seconds</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">debug_mode</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">debug_mode</code>
               <span class="text-xs text-gray-600 ml-2">Enable debug mode for testing</span>
             </div>
           </div>
         </div>
 
-        <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+        <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p class="text-sm text-yellow-700">
             <strong>Privacy Note:</strong> This implementation includes consent mode for GDPR compliance. Ensure you have a proper cookie consent banner that updates the consent state.
           </p>
@@ -79,13 +79,13 @@
     
     <div class="space-y-6">
       <!-- Related Content -->
-      <div class="bg-background p-4 rounded border">
+      <div class="bg-background p-4 rounded-lg border">
         <h4 class="font-medium mb-3">Related Content</h4>
         <p class="text-text-light text-sm mb-4">Automatically find and display related content based on tags, categories, or custom criteria.</p>
         
         <div class="mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
-          <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded"><code>{{ `{{ partial "related_content.html" (dict
+          <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded-lg"><code>{{ `{{ partial "related_content.html" (dict
   "page" .
   "limit" 3
   "match_tags" true
@@ -96,46 +96,46 @@
 ) }}` }}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded mb-4">
+        <div class="bg-gray-50 p-4 rounded-lg mb-4">
           <h5 class="font-medium mb-2">Parameters:</h5>
           <div class="space-y-2">
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">page</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">page</code>
               <span class="text-xs text-gray-600 ml-2">Current page context (usually .)</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">limit</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">limit</code>
               <span class="text-xs text-gray-600 ml-2">Maximum number of related items</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">match_tags</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">match_tags</code>
               <span class="text-xs text-gray-600 ml-2">Match by tags</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">match_categories</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">match_categories</code>
               <span class="text-xs text-gray-600 ml-2">Match by categories</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">exclude_current</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">exclude_current</code>
               <span class="text-xs text-gray-600 ml-2">Exclude current page from results</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">sort_by</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">sort_by</code>
               <span class="text-xs text-gray-600 ml-2">"date", "title", "weight", or "publishdate"</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">template</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">template</code>
               <span class="text-xs text-gray-600 ml-2">"card", "list", or "minimal"</span>
             </div>
           </div>
         </div>
 
-        <div class="bg-blue-50 p-3 rounded border border-blue-200">
+        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
           <h5 class="font-medium mb-2 text-blue-800">Example Output:</h5>
           <div class="space-y-2">
-            <div class="bg-white p-3 rounded border">
+            <div class="bg-white p-3 rounded-lg border">
               <div class="flex items-start space-x-3">
-                <div class="w-16 h-16 bg-gray-200 rounded"></div>
+                <div class="w-16 h-16 bg-gray-200 rounded-lg"></div>
                 <div>
                   <h6 class="font-medium text-sm">Building AI Workflows with FlowHunt</h6>
                   <p class="text-xs text-gray-600 mt-1">Learn how to create powerful automation workflows using our drag-and-drop interface...</p>
@@ -149,13 +149,13 @@
       </div>
 
       <!-- Link Building -->
-      <div class="bg-background p-4 rounded border">
+      <div class="bg-background p-4 rounded-lg border">
         <h4 class="font-medium mb-3">Link Building</h4>
         <p class="text-text-light text-sm mb-4">Intelligent link generation with proper attributes, tracking, and SEO optimization.</p>
         
         <div class="mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
-          <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded"><code>{{ `{{ partial "utils/linkbuilding.html" (dict 
+          <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded-lg"><code>{{ `{{ partial "utils/linkbuilding.html" (dict 
   "url" "https://example.com"
   "text" "Learn More"
   "class" "text-blue-600 hover:text-blue-800"
@@ -167,56 +167,56 @@
 ) }}` }}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded mb-4">
+        <div class="bg-gray-50 p-4 rounded-lg mb-4">
           <h5 class="font-medium mb-2">Parameters:</h5>
           <div class="space-y-2">
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">url</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">url</code>
               <span class="text-xs text-gray-600 ml-2">Link destination URL</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">text</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">text</code>
               <span class="text-xs text-gray-600 ml-2">Link text content</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">class</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">class</code>
               <span class="text-xs text-gray-600 ml-2">CSS classes to apply</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">external</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">external</code>
               <span class="text-xs text-gray-600 ml-2">Add target="_blank" and security attrs</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">nofollow</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">nofollow</code>
               <span class="text-xs text-gray-600 ml-2">Add rel="nofollow" attribute</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">track_clicks</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">track_clicks</code>
               <span class="text-xs text-gray-600 ml-2">Enable click tracking</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">track_category</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">track_category</code>
               <span class="text-xs text-gray-600 ml-2">Analytics event category</span>
             </div>
             <div class="flex justify-between items-start">
-              <code class="text-sm font-mono bg-white px-2 py-1 rounded">track_label</code>
+              <code class="text-sm font-mono bg-white px-2 py-1 rounded-lg">track_label</code>
               <span class="text-xs text-gray-600 ml-2">Analytics event label</span>
             </div>
           </div>
         </div>
 
-        <div class="bg-green-50 p-3 rounded border border-green-200">
+        <div class="bg-green-50 p-3 rounded-lg border border-green-200">
           <h5 class="font-medium mb-2 text-green-800">Generated Link Examples:</h5>
           <div class="space-y-2 text-sm">
-            <div class="bg-white p-2 rounded font-mono text-xs">
+            <div class="bg-white p-2 rounded-lg font-mono text-xs">
               <strong>Internal Link:</strong><br>
               <code>&lt;a href="/features" class="text-blue-600"&gt;Learn More&lt;/a&gt;</code>
             </div>
-            <div class="bg-white p-2 rounded font-mono text-xs">
+            <div class="bg-white p-2 rounded-lg font-mono text-xs">
               <strong>External Link:</strong><br>
               <code>&lt;a href="https://example.com" target="_blank" rel="noopener noreferrer" class="text-blue-600"&gt;Learn More&lt;/a&gt;</code>
             </div>
-            <div class="bg-white p-2 rounded font-mono text-xs">
+            <div class="bg-white p-2 rounded-lg font-mono text-xs">
               <strong>Tracked Link:</strong><br>
               <code>&lt;a href="/signup" onclick="gtag('event', 'click', {category: 'cta', label: 'header-signup'})"&gt;Sign Up&lt;/a&gt;</code>
             </div>
@@ -233,11 +233,11 @@
     
     <div class="space-y-6">
       <!-- In Layout Templates -->
-      <div class="bg-background p-4 rounded border">
+      <div class="bg-background p-4 rounded-lg border">
         <h4 class="font-medium mb-3">In Layout Templates</h4>
         <p class="text-text-light text-sm mb-4">Add analytics and enhanced links to your base layouts.</p>
         
-        <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded"><code>{{ `<!-- In baseof.html or head.html -->
+        <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded-lg"><code>{{ `<!-- In baseof.html or head.html -->
 {{ if site.GoogleAnalytics }}
   {{ partial "utils/analytics/google-analytics-consent.html" (dict 
     "measurement_id" site.GoogleAnalytics
@@ -264,11 +264,11 @@
       </div>
 
       <!-- In Content Templates -->
-      <div class="bg-background p-4 rounded border">
+      <div class="bg-background p-4 rounded-lg border">
         <h4 class="font-medium mb-3">In Content Templates</h4>
         <p class="text-text-light text-sm mb-4">Enhance blog posts and pages with related content and smart links.</p>
         
-        <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded"><code>{{ `<!-- In single.html or blog post template -->
+        <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded-lg"><code>{{ `<!-- In single.html or blog post template -->
 <article>
   {{ .Content }}
   
@@ -302,11 +302,11 @@
       </div>
 
       <!-- In Shortcodes -->
-      <div class="bg-background p-4 rounded border">
+      <div class="bg-background p-4 rounded-lg border">
         <h4 class="font-medium mb-3">In Custom Shortcodes</h4>
         <p class="text-text-light text-sm mb-4">Create reusable shortcodes that leverage utils for enhanced functionality.</p>
         
-        <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded"><code>{{ `<!-- Create shortcode: layouts/shortcodes/cta-button.html -->
+        <pre class="text-sm overflow-x-auto bg-gray-100 p-3 rounded-lg"><code>{{ `<!-- Create shortcode: layouts/shortcodes/cta-button.html -->
 {{ partial "utils/linkbuilding.html" (dict 
   "url" (.Get "url")
   "text" (.Get "text")
@@ -329,7 +329,7 @@
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="space-y-4">
-        <div class="bg-white p-4 rounded border">
+        <div class="bg-white p-4 rounded-lg border">
           <h4 class="font-medium mb-2 text-green-700">🚀 Performance</h4>
           <ul class="text-sm space-y-1 text-green-600">
             <li>• Load analytics scripts asynchronously</li>
@@ -340,7 +340,7 @@
           </ul>
         </div>
         
-        <div class="bg-white p-4 rounded border">
+        <div class="bg-white p-4 rounded-lg border">
           <h4 class="font-medium mb-2 text-orange-700">📊 Analytics</h4>
           <ul class="text-sm space-y-1 text-orange-600">
             <li>• Set up conversion goals in GA4</li>
@@ -352,7 +352,7 @@
       </div>
       
       <div class="space-y-4">
-        <div class="bg-white p-4 rounded border">
+        <div class="bg-white p-4 rounded-lg border">
           <h4 class="font-medium mb-2 text-blue-700">🔍 SEO</h4>
           <ul class="text-sm space-y-1 text-blue-600">
             <li>• Use descriptive link text</li>
@@ -363,7 +363,7 @@
           </ul>
         </div>
         
-        <div class="bg-white p-4 rounded border">
+        <div class="bg-white p-4 rounded-lg border">
           <h4 class="font-medium mb-2 text-purple-700">🛡️ Privacy</h4>
           <ul class="text-sm space-y-1 text-purple-600">
             <li>• Implement consent management</li>

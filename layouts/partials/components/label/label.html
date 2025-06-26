@@ -6,7 +6,7 @@
   - bgColor: Background color class (default: "bg-gray-100")
   - textColor: Text color class (default: "text-gray-500")
   - borderColor: Border color class (default: none)
-  - rounded: Rounded corners style (default: "rounded-md")
+  - rounded: Rounded corners style (default: "rounded-lg")
   - size: Size variant (default: "text-xs")
   - padding: Padding classes (default: "px-2.5 py-1.5")
   - fontWeight: Font weight class (default: "font-semibold")
@@ -33,7 +33,7 @@
 {{ $bgColor := .bgColor | default "bg-gray-100" }}
 {{ $textColor := .textColor | default "text-gray-500" }}
 {{ $borderColor := .borderColor | default "" }}
-{{ $rounded := .rounded | default "rounded-md" }}
+{{ $rounded := .rounded | default "rounded-lg" }}
 {{ $size := .size | default "text-xs" }}
 {{ $padding := .padding | default "px-2 py-0.5" }}
 {{ $fontWeight := .fontWeight | default "font-semibold" }}

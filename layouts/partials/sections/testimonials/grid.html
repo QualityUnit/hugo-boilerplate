@@ -137,7 +137,7 @@
       {{ range $index, $testimonial := $testimonials }}
         {{ if $testimonial.featured }}
           <!-- Featured testimonial (larger) -->
-          <figure class="col-span-1 md:col-span-2 rounded-2xl {{ $cardBgColor }} ring-1 {{ $cardShadow }} {{ $cardRingColor }}">
+          <figure class="col-span-1 md:col-span-2 rounded-xl {{ $cardBgColor }} ring-1 {{ $cardShadow }} {{ $cardRingColor }}">
             <blockquote class="p-6 text-lg font-semibold tracking-tight text-gray-900 sm:p-10 sm:text-xl/8">
               <p>"{{ $testimonial.quote }}"</p>
             </blockquote>
@@ -156,7 +156,7 @@
           </figure>
         {{ else }}
           <!-- Regular testimonial -->
-          <figure class="rounded-2xl {{ $cardBgColor }} p-6 ring-1 {{ $cardShadow }} {{ $cardRingColor }} relative min-h-[340px]">
+          <figure class="rounded-xl {{ $cardBgColor }} p-6 ring-1 {{ $cardShadow }} {{ $cardRingColor }} relative min-h-[340px]">
             <blockquote class="text-gray-900">
               <p>"{{ $testimonial.quote }}"</p>
             </blockquote>

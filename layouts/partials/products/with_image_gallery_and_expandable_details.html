@@ -59,9 +59,9 @@
         <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
           <div class="grid grid-cols-4 gap-6" aria-orientation="horizontal" role="tablist">
             {{ range $index, $image := $product.images }}
-                <button id="tabs-1-tab-{{ add $index 1 }}" class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium text-gray-900 uppercase hover:bg-gray-50 focus:ring-3 focus:ring-indigo-500/50 focus:ring-offset-4 focus:outline-hidden product-thumbnail-btn" aria-controls="tabs-1-panel-{{ add $index 1 }}" role="tab" type="button" data-index="{{ $index }}">
+                <button id="tabs-1-tab-{{ add $index 1 }}" class="relative flex h-24 cursor-pointer items-center justify-center rounded-lg bg-white text-sm font-medium text-gray-900 uppercase hover:bg-gray-50 focus:ring-3 focus:ring-indigo-500/50 focus:ring-offset-4 focus:outline-hidden product-thumbnail-btn" aria-controls="tabs-1-panel-{{ add $index 1 }}" role="tab" type="button" data-index="{{ $index }}">
                   <span class="sr-only">{{ $image.alt }}</span>
-                  <span class="absolute inset-0 overflow-hidden rounded-md">
+                  <span class="absolute inset-0 overflow-hidden rounded-lg">
                     {{ partial "components/media/lazyimg.html" (dict 
                       "src" $image.url
                       "alt" $image.alt
@@ -69,7 +69,7 @@
                     ) }}
                   </span>
                   <!-- Selected: "ring-indigo-500", Not Selected: "ring-transparent" -->
-                  <span class="pointer-events-none absolute inset-0 rounded-md ring-2 {{ if eq $index 0 }}ring-indigo-500{{ else }}ring-transparent{{ end }} ring-offset-2" aria-hidden="true"></span>
+                  <span class="pointer-events-none absolute inset-0 rounded-lg ring-2 {{ if eq $index 0 }}ring-indigo-500{{ else }}ring-transparent{{ end }} ring-offset-2" aria-hidden="true"></span>
                 </button>
             {{ end }}
           </div>
@@ -170,7 +170,7 @@
           {{ end }}
 
           <div class="mt-10 flex">
-            <a href="{{ .buttonUrl | default "#" }}" class="flex max-w-xs flex-1 items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 focus:outline-hidden sm:w-full">
+            <a href="{{ .buttonUrl | default "#" }}" class="flex max-w-xs flex-1 items-center justify-center rounded-lg border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 focus:outline-hidden sm:w-full">
               {{ .buttonText | default "Buy now" }}
             </a>
 

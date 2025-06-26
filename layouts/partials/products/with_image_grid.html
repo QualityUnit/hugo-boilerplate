@@ -178,11 +178,11 @@
               <div class="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4">
                 {{ range $size := $product.sizes }}
                   <!-- Active: "ring-2 ring-indigo-500" -->
-                  <label class="group relative flex {{ if $size.disabled }}cursor-not-allowed{{ else }}cursor-pointer{{ end }} items-center justify-center rounded-md border {{ if $size.disabled }}bg-gray-50{{ else }}bg-white{{ end }} px-4 py-3 text-sm font-medium {{ if $size.disabled }}text-gray-200{{ else }}text-gray-900{{ end }} uppercase hover:bg-gray-50 focus:outline-hidden sm:flex-1 sm:py-6">
+                  <label class="group relative flex {{ if $size.disabled }}cursor-not-allowed{{ else }}cursor-pointer{{ end }} items-center justify-center rounded-lg border {{ if $size.disabled }}bg-gray-50{{ else }}bg-white{{ end }} px-4 py-3 text-sm font-medium {{ if $size.disabled }}text-gray-200{{ else }}text-gray-900{{ end }} uppercase hover:bg-gray-50 focus:outline-hidden sm:flex-1 sm:py-6">
                     <input type="radio" name="size-choice" value="{{ $size.name }}" {{ if $size.disabled }}disabled{{ end }} class="sr-only">
                     <span>{{ $size.name }}</span>
                     {{ if $size.disabled }}
-                      <span aria-hidden="true" class="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200">
+                      <span aria-hidden="true" class="pointer-events-none absolute -inset-px rounded-lg border-2 border-gray-200">
                         <svg class="absolute inset-0 size-full stroke-2 text-gray-200" viewBox="0 0 100 100" preserveAspectRatio="none" stroke="currentColor">
                           <line x1="0" y1="100" x2="100" y2="0" vector-effect="non-scaling-stroke" />
                         </svg>
@@ -192,7 +192,7 @@
                         Active: "border", Not Active: "border-2"
                         Checked: "border-indigo-500", Not Checked: "border-transparent"
                       -->
-                      <span class="pointer-events-none absolute -inset-px rounded-md" aria-hidden="true"></span>
+                      <span class="pointer-events-none absolute -inset-px rounded-lg" aria-hidden="true"></span>
                     {{ end }}
                   </label>
                 {{ end }}
@@ -200,7 +200,7 @@
             </fieldset>
           </div>
 
-          <button type="submit" class="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden">Add to bag</button>
+          <button type="submit" class="mt-10 flex w-full items-center justify-center rounded-lg border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden">Add to bag</button>
         </form>
       </div>
 

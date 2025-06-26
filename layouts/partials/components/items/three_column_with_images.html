@@ -153,11 +153,11 @@
             {{ partial "components/media/lazyimg.html" (dict 
               "src" .image 
               "alt" .imageAlt 
-              "class" "aspect-video w-full rounded-2xl {{ $imageBgColor }} object-cover sm:aspect-2/1 lg:aspect-3/2"
+              "class" "aspect-video w-full rounded-xl {{ $imageBgColor }} object-cover sm:aspect-2/1 lg:aspect-3/2"
               "maxWidth" 600
             ) }}
           {{ end }}
-          <div class="absolute inset-0 rounded-2xl ring-1 {{ $imageRingColor }} ring-inset"></div>
+          <div class="absolute inset-0 rounded-xl ring-1 {{ $imageRingColor }} ring-inset"></div>
         </div>
         <div class="max-w-xl">
           <div class="mt-8 flex items-center gap-x-4 text-xs">

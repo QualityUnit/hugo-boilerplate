@@ -124,7 +124,7 @@
     </div>
     <div class="mx-auto mt-16 grid max-w-2xl auto-rows-fr grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
       {{ range $items }}
-      <article class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl {{ $cardBgColor }} {{ $cardPadding }}">
+      <article class="relative isolate flex flex-col justify-end overflow-hidden rounded-xl {{ $cardBgColor }} {{ $cardPadding }}">
         {{ if .image }}
           {{ partial "components/media/lazyimg.html" (dict 
             "src" .image 
@@ -134,7 +134,7 @@
           ) }}
         {{ end }}
         <div class="absolute inset-0 -z-10 {{ $gradientOverlay }}"></div>
-        <div class="absolute inset-0 -z-10 rounded-2xl ring-1 {{ $ringColor }} ring-inset"></div>
+        <div class="absolute inset-0 -z-10 rounded-xl ring-1 {{ $ringColor }} ring-inset"></div>
 
         <div class="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm/6 {{ $dateColor }}">
           {{ if .date }}<time datetime="{{ .date }}" class="mr-8">{{ .dateDisplay }}</time>{{ end }}

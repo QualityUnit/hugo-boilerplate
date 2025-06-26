@@ -27,22 +27,22 @@
           (dict 
               "url" "/images/team/office-collaboration.jpg"
               "alt" "Team collaboration session"
-              "class" "aspect-7/5 w-[37rem] max-w-none rounded-2xl bg-gray-50 object-cover"
+              "class" "aspect-7/5 w-[37rem] max-w-none rounded-xl bg-gray-50 object-cover"
           )
           (dict 
               "url" "/images/team/team-meeting.jpg"
               "alt" "Team meeting"
-              "class" "aspect-4/3 w-[24rem] max-w-none flex-none rounded-2xl bg-gray-50 object-cover"
+              "class" "aspect-4/3 w-[24rem] max-w-none flex-none rounded-xl bg-gray-50 object-cover"
           )
           (dict 
               "url" "/images/team/workspace.jpg"
               "alt" "Modern workspace"
-              "class" "aspect-7/5 w-[37rem] max-w-none flex-none rounded-2xl bg-gray-50 object-cover"
+              "class" "aspect-7/5 w-[37rem] max-w-none flex-none rounded-xl bg-gray-50 object-cover"
           )
           (dict 
               "url" "/images/team/team-building.jpg"
               "alt" "Team building activity"
-              "class" "aspect-4/3 w-[24rem] max-w-none rounded-2xl bg-gray-50 object-cover"
+              "class" "aspect-4/3 w-[24rem] max-w-none rounded-xl bg-gray-50 object-cover"
           )
       )
       "primaryCtaColor" "blue-600"
@@ -63,22 +63,22 @@
   (dict 
     "url" "https://images.unsplash.com/photo-1670272502246-768d249768ca?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1152&q=80"
     "alt" ""
-    "class" "aspect-7/5 w-[37rem] max-w-none rounded-2xl bg-gray-50 object-cover"
+    "class" "aspect-7/5 w-[37rem] max-w-none rounded-xl bg-gray-50 object-cover"
   )
   (dict 
     "url" "https://images.unsplash.com/photo-1605656816944-971cd5c1407f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=768&h=604&q=80"
     "alt" ""
-    "class" "aspect-4/3 w-[24rem] max-w-none flex-none rounded-2xl bg-gray-50 object-cover"
+    "class" "aspect-4/3 w-[24rem] max-w-none flex-none rounded-xl bg-gray-50 object-cover"
   )
   (dict 
     "url" "https://images.unsplash.com/photo-1568992687947-868a62a9f521?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1152&h=842&q=80"
     "alt" ""
-    "class" "aspect-7/5 w-[37rem] max-w-none flex-none rounded-2xl bg-gray-50 object-cover"
+    "class" "aspect-7/5 w-[37rem] max-w-none flex-none rounded-xl bg-gray-50 object-cover"
   )
   (dict 
     "url" "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=768&h=604&q=80"
     "alt" ""
-    "class" "aspect-4/3 w-[24rem] max-w-none rounded-2xl bg-gray-50 object-cover"
+    "class" "aspect-4/3 w-[24rem] max-w-none rounded-xl bg-gray-50 object-cover"
   )
 ) }}
 {{ $primaryCtaColor := .primaryCtaColor | default "indigo-600" }}
@@ -92,7 +92,7 @@
         <p class="mt-6 text-xl/8 text-gray-600">{{ $description1 }}</p>
         <p class="mt-6 text-base/7 text-gray-600">{{ $description2 }}</p>
         <div class="mt-10 flex">
-          <a href="{{ $cta.url }}" class="rounded-md bg-{{ $primaryCtaColor }} px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-{{ $primaryCtaHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $primaryCtaColor }}">{{ $cta.text }} <span aria-hidden="true">&rarr;</span></a>
+          <a href="{{ $cta.url }}" class="rounded-lg bg-{{ $primaryCtaColor }} px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-{{ $primaryCtaHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $primaryCtaColor }}">{{ $cta.text }} <span aria-hidden="true">&rarr;</span></a>
         </div>
       </div>
       <div class="flex flex-wrap items-start justify-end gap-6 sm:gap-8 lg:contents">

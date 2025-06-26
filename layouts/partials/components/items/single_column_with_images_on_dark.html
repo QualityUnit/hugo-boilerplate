@@ -167,11 +167,11 @@
               {{ partial "components/media/lazyimg.html" (dict 
                 "src" .image 
                 "alt" .imageAlt 
-                "class" "absolute inset-0 size-full rounded-2xl {{ $imageBgColor }} object-cover"
+                "class" "absolute inset-0 size-full rounded-xl {{ $imageBgColor }} object-cover"
                 "maxWidth" 600
               ) }}
             {{ end }}
-            <div class="absolute inset-0 rounded-2xl ring-1 {{ $imageRingColor }} ring-inset"></div>
+            <div class="absolute inset-0 rounded-xl ring-1 {{ $imageRingColor }} ring-inset"></div>
           </div>
           <div>
             <div class="flex items-center gap-x-4 text-xs">

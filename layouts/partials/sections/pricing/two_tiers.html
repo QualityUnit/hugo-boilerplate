@@ -170,7 +170,7 @@
   <div class="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
     {{ range $index, $tier := $tiers }}
       {{ if $tier.primary }}
-        <div class="relative rounded-3xl bg-{{ $tier.backgroundColor }} p-8 ring-1 shadow-2xl ring-{{ $tier.borderColor }} sm:p-10">
+        <div class="relative rounded-xl bg-{{ $tier.backgroundColor }} p-8 ring-1 shadow-2xl ring-{{ $tier.borderColor }} sm:p-10">
           <h3 id="{{ $tier.id }}" class="text-base/7 font-semibold text-{{ $tier.nameColor }}">{{ $tier.name }}</h3>
           <p class="mt-4 flex items-baseline gap-x-2">
             <span class="text-5xl font-semibold tracking-tight text-{{ $tier.priceColor }}">{{ $tier.price }}</span>
@@ -187,10 +187,10 @@
             </li>
             {{ end }}
           </ul>
-          <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md bg-{{ $tier.ctaBgColor }} px-3.5 py-2.5 text-center text-sm font-semibold text-{{ $tier.ctaColor }} shadow-sm hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaBgColor }} sm:mt-10">{{ $tier.cta.text }}</a>
+          <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-lg bg-{{ $tier.ctaBgColor }} px-3.5 py-2.5 text-center text-sm font-semibold text-{{ $tier.ctaColor }} shadow-sm hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaBgColor }} sm:mt-10">{{ $tier.cta.text }}</a>
         </div>
       {{ else }}
-        <div class="rounded-3xl bg-{{ $tier.backgroundColor }} p-8 ring-1 ring-{{ $tier.borderColor }} sm:mx-8 sm:rounded-t-none sm:p-10 lg:mx-0 lg:rounded-tr-3xl lg:rounded-bl-none">
+        <div class="rounded-xl bg-{{ $tier.backgroundColor }} p-8 ring-1 ring-{{ $tier.borderColor }} sm:mx-8 sm:rounded-t-none sm:p-10 lg:mx-0 lg:rounded-tr-3xl lg:rounded-bl-none">
           <h3 id="{{ $tier.id }}" class="text-base/7 font-semibold text-{{ $tier.nameColor }}">{{ $tier.name }}</h3>
           <p class="mt-4 flex items-baseline gap-x-2">
             <span class="text-5xl font-semibold tracking-tight text-{{ $tier.priceColor }}">{{ $tier.price }}</span>
@@ -207,7 +207,7 @@
             </li>
             {{ end }}
           </ul>
-          <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaRingColor }} ring-inset hover:ring-{{ $tier.ctaHoverRingColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaColor }} sm:mt-10">{{ $tier.cta.text }}</a>
+          <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-lg px-3.5 py-2.5 text-center text-sm font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaRingColor }} ring-inset hover:ring-{{ $tier.ctaHoverRingColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaColor }} sm:mt-10">{{ $tier.cta.text }}</a>
         </div>
       {{ end }}
     {{ end }}

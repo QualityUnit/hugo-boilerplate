@@ -57,7 +57,7 @@
       <div class="-mt-8 w-full max-w-2xl xl:-mb-8 xl:w-96 xl:flex-none">
         <div class="relative aspect-2/1 h-full md:-mx-8 xl:mx-0 xl:aspect-auto">
           {{ if $personImage }}
-            {{ partial "components/media/lazyimg.html" (dict "src" $personImage "alt" $personImageAlt "class" "absolute inset-0 size-full rounded-2xl {{ $personImageBg }} object-cover shadow-2xl") }}
+            {{ partial "components/media/lazyimg.html" (dict "src" $personImage "alt" $personImageAlt "class" "absolute inset-0 size-full rounded-xl {{ $personImageBg }} object-cover shadow-2xl") }}
           {{ end }}
         </div>
       </div>

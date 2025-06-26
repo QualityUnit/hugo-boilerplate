@@ -300,7 +300,7 @@
     <div class="isolate mx-auto mt-10 grid max-w-md grid-cols-1 gap-8 md:max-w-2xl md:grid-cols-2 lg:max-w-4xl xl:mx-0 xl:max-w-none xl:grid-cols-4">
       {{ range $index, $tier := $tiers }}
         {{ $borderWidth := or $tier.borderWidth 1 }}
-        <div class="rounded-3xl p-8 ring-{{ $borderWidth }} ring-{{ $tier.borderColor }}">
+        <div class="rounded-xl p-8 ring-{{ $borderWidth }} ring-{{ $tier.borderColor }}">
           <h3 id="{{ $tier.id }}" class="text-lg/8 font-semibold text-{{ $tier.nameColor }}">{{ $tier.name }}</h3>
           <p class="mt-4 text-sm/6 text-{{ $tier.descriptionColor }}">{{ $tier.description }}</p>
           <p class="mt-6 flex items-baseline gap-x-1">
@@ -313,9 +313,9 @@
           </p>
           
           {{ if $tier.emphasized }}
-            <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-6 block rounded-md bg-{{ $tier.ctaBgColor }} px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
+            <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-6 block rounded-lg bg-{{ $tier.ctaBgColor }} px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
           {{ else }}
-            <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-6 block rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaBorderColor }} ring-inset hover:ring-{{ $tier.ctaHoverBorderColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
+            <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-6 block rounded-lg px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaBorderColor }} ring-inset hover:ring-{{ $tier.ctaHoverBorderColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
           {{ end }}
           
           <ul role="list" class="mt-8 space-y-3 text-sm/6 text-{{ $tier.featureColor }}">

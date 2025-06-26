@@ -88,7 +88,7 @@
           {{ if or $primaryCtaText $secondaryCtaText }}
           <div class="mt-10 flex items-center gap-x-6">
             {{ if $primaryCtaText }}
-            <a href="{{ $primaryCtaUrl }}" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $primaryCtaText }}</a>
+            <a href="{{ $primaryCtaUrl }}" class="rounded-lg bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $primaryCtaText }}</a>
             {{ end }}
             {{ if $secondaryCtaText }}
             <a href="{{ $secondaryCtaUrl }}" class="text-sm/6 font-semibold text-gray-900">{{ $secondaryCtaText }} <span aria-hidden="true">→</span></a>

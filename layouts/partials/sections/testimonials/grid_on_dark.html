@@ -141,7 +141,7 @@
     <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 grid-rows-1 gap-8 text-sm/6 sm:mt-20 sm:grid-cols-2 xl:mx-0 xl:max-w-none xl:grid-flow-col xl:grid-cols-4">
       {{ range $index, $testimonial := $testimonials }}
         {{ if $testimonial.featured }}
-          <figure class="rounded-2xl {{ $cardBgColor }} ring-1 {{ $cardShadow }} {{ $cardRingColor }} sm:col-span-2 xl:col-start-2 xl:row-end-1">
+          <figure class="rounded-xl {{ $cardBgColor }} ring-1 {{ $cardShadow }} {{ $cardRingColor }} sm:col-span-2 xl:col-start-2 xl:row-end-1">
             <blockquote class="p-6 text-lg font-semibold tracking-tight text-white sm:p-12 sm:text-xl/8">
               <p>"{{ $testimonial.quote }}"</p>
             </blockquote>
@@ -174,7 +174,7 @@
             {{ end }}
           {{ end }}
           
-          <figure class="rounded-2xl {{ $cardBgColor }} p-6 ring-1 {{ $cardShadow }} {{ $cardRingColor }}">
+          <figure class="rounded-xl {{ $cardBgColor }} p-6 ring-1 {{ $cardShadow }} {{ $cardRingColor }}">
             <blockquote class="text-white">
               <p>"{{ $testimonial.quote }}"</p>
             </blockquote>

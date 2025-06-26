@@ -16,7 +16,7 @@
   {{ .content | replaceRE "(\\S+)$" "<div class='whitespace-nowrap'>$1" | safeHTML }}<span class="group relative inline-block align-middle pl-2">
     {{ partial "icons/information-circle" "h-4 w-4 text-gray-400 hover:text-gray-500 cursor-pointer tooltip-trigger" }}
     <div
-      class="pointer-events-none absolute {{ $tooltipPosition }} z-10 w-64 rounded-md bg-gray-900 px-3 py-2 text-xs text-white font-normal opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 tooltip-content"
+      class="pointer-events-none absolute {{ $tooltipPosition }} z-10 w-64 rounded-lg bg-gray-900 px-3 py-2 text-xs text-white font-normal opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 tooltip-content"
       data-tooltip
       role="tooltip"
       aria-hidden="true"

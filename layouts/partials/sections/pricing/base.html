@@ -140,7 +140,7 @@
     <p class="mx-auto mt-6 not-prose max-w-2xl text-pretty text-center text-lg font-medium text-{{ $descriptionColor }} sm:text-xl/8">{{ $description }}</p>
     <div class="isolate mx-auto mt-16 grid items-stretch grid-cols-1 {{ $columnsClass }} gap-y-8 sm:gap-x-4 sm:gap-y-4 sm:mt-20 lg:gap-x-5">
       {{ range $tier := $tiers }}
-      <div class='flex flex-col h-full rounded-3xl bg-{{ $tier.backgroundColor }} p-8 {{ if $tier.popular }}ring-2 ring-primary{{ else }} ring-1 ring-{{ $tier.borderColor }}{{ end }} {{ if $tier.darkTheme }}bg-slate-900 ring-slate-900{{ end }} xl:p-10 w-full'>
+      <div class='flex flex-col h-full rounded-xl bg-{{ $tier.backgroundColor }} p-8 {{ if $tier.popular }}ring-2 ring-primary{{ else }} ring-1 ring-{{ $tier.borderColor }}{{ end }} {{ if $tier.darkTheme }}bg-slate-900 ring-slate-900{{ end }} xl:p-10 w-full'>
         <div class="flex flex-col flex-grow">
           <div class="flex items-start justify-between gap-x-4">
             <h3 id="{{ $tier.id }}" class="mb-5 not-prose text-lg/8 font-semibold text-{{ $tier.nameColor }} {{ if $tier.popular }}text-primary{{ end }}">{{ $tier.name }}</h3>
@@ -158,7 +158,7 @@
             {{ if $tier.ctaBgColor }}
             <a href="{{ $tier.cta.url }}"
                aria-describedby="{{ $tier.id }}"
-               class="block not-prose rounded-md {{ if $tier.popular }}bg-primary {{ else }} bg-{{ $tier.ctaBgColor }} {{ end }} px-3 py-2 text-center text-[14px] font-semibold text-white hover:bg-primary-dark hover:no-underline hover:font-semibold shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+               class="block not-prose rounded-lg {{ if $tier.popular }}bg-primary {{ else }} bg-{{ $tier.ctaBgColor }} {{ end }} px-3 py-2 text-center text-[14px] font-semibold text-white hover:bg-primary-dark hover:no-underline hover:font-semibold shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
                 {{ $tier.cta.text }}
             </a>
             {{ else }}
@@ -174,7 +174,7 @@
                     "text" $tier.cta.text 
                     "url" $tier.cta.url 
                     "variant" "secondary"
-                    "classes" (printf "not-prose block rounded-md px-3 py-2 text-primary text-center text-[14px] font-semibold hover:no-underline ring-1 ring-%s ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" ($tier.ctaRingColor | default "gray-300"))
+                    "classes" (printf "not-prose block rounded-lg px-3 py-2 text-primary text-center text-[14px] font-semibold hover:no-underline ring-1 ring-%s ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" ($tier.ctaRingColor | default "gray-300"))
                 ) }}
               {{ end }}
             {{ end }}

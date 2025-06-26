@@ -138,7 +138,7 @@
 
           {{ if $image.src }}
             <div class="mt-16 flow-root sm:mt-[4.5rem]">
-              <div class="rounded-[2rem] bg-[linear-gradient(205deg,_theme(colors.primary.100)_66.27%,_theme(colors.primary.300)_99.99%)]">
+              <div class="rounded-lg bg-[linear-gradient(205deg,_theme(colors.primary.100)_66.27%,_theme(colors.primary.300)_99.99%)]">
                 {{ partial "components/media/lazyimg.html" (dict
                   "src" $image.src
                   "alt" $image.alt

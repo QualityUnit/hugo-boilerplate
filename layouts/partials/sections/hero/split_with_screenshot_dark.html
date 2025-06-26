@@ -108,19 +108,19 @@
       <h1 class="mt-10 text-5xl font-semibold tracking-tight text-pretty text-white sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>
       <p class="mt-8 text-lg font-medium text-pretty text-gray-400 sm:text-xl/8">{{ $description }}</p>
       <div class="mt-10 flex items-center gap-x-6">
-        <a href="{{ $cta.primary.url }}" class="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $cta.primary.text }}</a>
+        <a href="{{ $cta.primary.url }}" class="rounded-lg bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $cta.primary.text }}</a>
         <a href="{{ $cta.secondary.url }}" class="text-sm/6 font-semibold text-white">{{ $cta.secondary.text }} <span aria-hidden="true">→</span></a>
       </div>
     </div>
     <div class="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:mt-0 lg:mr-0 lg:ml-10 lg:max-w-none lg:flex-none xl:ml-32">
       <div class="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
-        <div class="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
+        <div class="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-white/10 lg:-m-4 lg:rounded-xl lg:p-4">
           {{ partial "components/media/lazyimg.html" (dict 
             "src" $screenshot.url 
             "alt" $screenshot.alt 
             "width" $screenshot.width 
             "height" $screenshot.height 
-            "class" "w-[76rem] rounded-md bg-white/5 ring-1 shadow-2xl ring-white/10"
+            "class" "w-[76rem] rounded-lg bg-white/5 ring-1 shadow-2xl ring-white/10"
             "maxWidth" 800
           ) }}
         </div>
