@@ -84,31 +84,33 @@
         {{ $imagePosition := $card.imagePosition | default "top" }}
         <div class="relative group transition-transform duration-300 ease-in-out hover:transform hover:-translate-y-1">
           <div class="absolute inset-px rounded-2xl border surface-secondary surface-border shadow-lg"></div>
-              <div class="p-8 relative flex flex-col overflow-hidden">
+              <div class="relative flex flex-col overflow-hidden">
                 {{ if and $card.image (eq $imagePosition "top") }}
                   <div class="@container flex items-center justify-center">
                     {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")) }}
                   </div>
                 {{ end }}
                 
-                {{ if $card.title }}
-                  <p class="text-base/8 font-medium tracking-tight text-heading max-lg:text-center {{ if $card.url }}group-hover:text-product-primary{{ end }}">{{ $card.title }}</p>
-                {{ end }}
+                <div class="@container p-8 flex items-center justify-center">
+                  {{ if $card.title }}
+                    <p class="text-base/8 font-medium tracking-tight text-heading max-lg:text-center {{ if $card.url }}group-hover:text-product-primary{{ end }}">{{ $card.title }}</p>
+                  {{ end }}
 
-                {{ if $card.description }}
-                  <p class="max-w-lg text-sm/8 text-body max-lg:text-center">{{ $card.description }}</p>
-                {{ end }}
+                  {{ if $card.description }}
+                    <p class="max-w-lg text-sm/8 text-body max-lg:text-center">{{ $card.description }}</p>
+                  {{ end }}
 
-                {{ if $card.url }}
-                  <div class="mt-5 flex items-center justify-start">
-                    {{ partial "components/buttons/buttons.html" (dict
-                        "text" $card.linkText
-                        "url" ($card.url)
-                        "variant" "secondary"
-                        "showArrow" false
-                    ) }}
-                  </div>
-                {{ end }}
+                  {{ if $card.url }}
+                    <div class="mt-5 flex items-center justify-start">
+                      {{ partial "components/buttons/buttons.html" (dict
+                          "text" $card.linkText
+                          "url" ($card.url)
+                          "variant" "secondary"
+                          "showArrow" false
+                      ) }}
+                    </div>
+                  {{ end }}
+                </div>
 
                 {{ if and $card.image (eq $imagePosition "bottom") }}
                   <div class="@container flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
