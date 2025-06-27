@@ -2,32 +2,37 @@
 {{/*
 Usage:
 {{< latest-posts
+  theme="light"
   heading="Featured Articles"
   description="Check out our most recent blog posts"
   limit=3
   type="blog"
-  baseHeight=540
+  baseHeight=556
 >}}
 */}}
+{{ $theme := .Get "theme" | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
 {{ $limit := .Get "limit" | default 3 }}
 {{ $type := .Get "type" | default "blog" }}
-{{ $baseHeight := .Get "baseHeight" | default 540 }}
 
-<section class="py-24 sm:py-32 px-4">
-    <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
-        <div class="mx-auto mb-[4.25rem] max-w-2xl text-center">
-            <h2 class="text-balance mb-2 text-4xl font-semibold tracking-tight sm:text-5xl">{{ $heading }}</h2>
-            {{ if $description }}
-                <p class="mt-2 text-lg/8 text-gray-600">{{ $description | safeHTML }}</p>
-            {{ end }}
-        </div>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {{ range first $limit (where site.RegularPages "Type" $type) }}
-                {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" $baseHeight) }}
-            {{ end }}
+<section class="{{ $darkClass }} my-32">
+    <div class="section-bg-light dark:section-bg-dark relative">
+        <div class="wrapper mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
+            <div class="mx-auto mb-[4.25rem] max-w-2xl text-center">
+                <h2 class="text-balance text-4xl font-semibold text-heading tracking-tight sm:text-5xl">{{ $heading }}</h2>
+                {{ if $description }}
+                    <p class="mt-2 text-lg/8 text-body">{{ $description | safeHTML }}</p>
+                {{ end }}
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-16">
+                {{ range first $limit (where site.RegularPages "Type" $type) }}
+                    {{ partial "components/cards/post_card_with_image.html" (dict "page" . ) }}
+                {{ end }}
+            </div>
         </div>
     </div>
 </section>

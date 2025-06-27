@@ -269,12 +269,12 @@
         {{ if $labels }}
         <div class="mb-6 flex flex-wrap gap-2">
             {{ range $labels }}
-            {{ partial "components/label/label.html" (dict 
-                "text" .text
-                "bgColor" .bgColor
-                "textColor" .textColor
-                "size" "text-sm"
-            ) }}
+            {{ $bgColor := .bgColor | default "bg-gray-100" }}
+            {{ $textColor := .textColor | default "text-gray-500" }}
+            
+            <span class="inline-flex items-center rounded-md {{ $bgColor }} {{ $textColor }} px-2 py-0.5 text-xs font-semibold cursor-pointer">
+                {{ .text }}
+            </span>
             {{ end }}
         </div>
         {{ end }}

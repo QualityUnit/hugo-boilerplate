@@ -9,20 +9,18 @@
     {{ if lt $i $maxTags }}
     <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/">
     {{ partial "components/label/label.html" (dict
-    "text" $tag
-    "bgColor" "bg-amber-100"
-    "textColor" "text-amber-800"
-    "icon" "tag" ) }}
+        "text" $tag
+        "badgeClass" "badge-base badge-orange badge-with-border"
+        "icon" "tag" ) }}
     </a>
     {{ end }}
     {{ end }}
     {{ if gt $tagsCount $maxTags }}
     <a href="{{ print "/tags/" | relLangURL }}">
     {{ partial "components/label/label.html" (dict
-    "text" (printf "+%d more" (sub $tagsCount $maxTags))
-    "bgColor" "bg-amber-100"
-    "textColor" "text-amber-800"
-    "icon" "" ) }}
+        "text" (printf "+%d more" (sub $tagsCount $maxTags))
+        "badgeClass" "badge-base badge-orange badge-with-border"
+        "icon" "" ) }}
     </a>
     {{ end }}
 </div>
