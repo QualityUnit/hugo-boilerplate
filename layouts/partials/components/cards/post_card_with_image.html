@@ -57,7 +57,7 @@
 
 {{/* Section & Label */}}
 {{ $section := $page.Section }}
-{{ $labelBySection := partial "components/label/label.html" (dict "text" (humanize $section) "badgeClass" "badge-teal-with-border") }}
+{{ $labelBySection := partial "components/label/label.html" (dict "text" (humanize $section) "badgeClass" "badge-base badge-teal badge-with-border") }}
 
 <article class="group relative rounded-2xl flex flex-col surface-secondary shadow-lg border surface-border overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-x-5 hover:-translate-y-5 {{ $cardClasses }}">
   {{ if and $image $showImages }}
@@ -104,12 +104,12 @@
         <div class="flex flex-wrap gap-1">
           {{ range first 2 $page.Params.tags }}
             <a href="{{ print "/tags/" (. | urlize) | relLangURL }}/">
-              {{ partial "components/label/label.html" (dict "text" . "badgeClass" "badge-gray-with-border") }}
+              {{ partial "components/label/label.html" (dict "text" . "badgeClass" "badge-base badge-gray badge-with-border") }}
             </a>
           {{ end }}
           {{ if gt (len $page.Params.tags) 2 }}
             <a href="{{ "/tags/" | relLangURL }}">
-              {{ partial "components/label/label.html" (dict "text" (printf "+%d" (sub (len $page.Params.tags) 2)) "badgeClass" "badge-gray-with-border") }}
+              {{ partial "components/label/label.html" (dict "text" (printf "+%d" (sub (len $page.Params.tags) 2)) "badgeClass" "badge-base badge-gray badge-with-border") }}
             </a>
           {{ end }}
         </div>
