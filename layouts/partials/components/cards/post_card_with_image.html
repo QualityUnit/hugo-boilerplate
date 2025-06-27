@@ -28,7 +28,7 @@
 
 {{/* Configuration */}}
 {{ $defaultCardHeight := "34.75rem" }} {{/* 556px */}}
-{{ $cardHeight := .cardHeight | default $defaultCardHeight }}
+{{ $cardHeight := $defaultCardHeight }}
 {{ if .cardHeight }}
   {{ $cardHeight = printf "%.4frem" (div (float .cardHeight) 16) }}
 {{ end }}

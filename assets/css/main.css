@@ -291,102 +291,6 @@
     /* Rose flat badge – light rose background, rose text */
   }
 
-  .badge-amber-with-border {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-amber-100 dark:bg-amber-500/20 border border-amber-500/20 dark:border-amber-500/20 text-amber-700 dark:text-amber-400 leading-4 tracking-[0.216px];
-    /* Amber badge with border – light amber background, amber text */
-  }
-
-  .badge-slate-with-border {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-slate-100 dark:bg-slate-400/20 border border-slate-500/20 dark:border-slate-400/20 text-slate-700 dark:text-slate-400 leading-4 tracking-[0.216px];
-    /* Slate badge with border – light slate background, slate text */
-  }
-
-  /* FLAT BADGES WITHOUT BORDERS */
-  .badge-gray {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-gray-100 dark:bg-gray-400/20 text-gray-500 dark:text-gray-400 leading-4 tracking-[0.216px];
-    /* Gray flat badge – light gray background, gray text */
-  }
-
-  .badge-red {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-red-100 dark:bg-red-300/20 text-red-700 dark:text-red-300 leading-4 tracking-[0.216px];
-    /* Red flat badge – light red background, red text */
-  }
-
-  .badge-yellow {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-500 leading-4 tracking-[0.216px];
-    /* Yellow flat badge – light yellow background, yellow text */
-  }
-
-  .badge-green {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 leading-4 tracking-[0.216px];
-    /* Green flat badge – light green background, green text */
-  }
-
-  .badge-blue {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 leading-4 tracking-[0.216px];
-    /* Blue flat badge – light blue background, blue text */
-  }
-
-  .badge-purple {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 leading-4 tracking-[0.216px];
-    /* Purple flat badge – light purple background, purple text */
-  }
-
-  .badge-indigo {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 leading-4 tracking-[0.216px];
-    /* Indigo flat badge – light indigo background, indigo text */
-  }
-
-  .badge-pink {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-pink-100 dark:bg-pink-500/20 text-pink-700 dark:text-pink-400 leading-4 tracking-[0.216px];
-    /* Pink flat badge – light pink background, pink text */
-  }
-
-  .badge-orange {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 leading-4 tracking-[0.216px];
-    /* Orange flat badge – light orange background, orange text */
-  }
-
-  .badge-teal {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-teal-100 dark:bg-teal-500/20 text-teal-700 dark:text-teal-400 leading-4 tracking-[0.216px];
-    /* Teal flat badge – light teal background, teal text */
-  }
-
-  .badge-cyan {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 leading-4 tracking-[0.216px];
-    /* Cyan flat badge – light cyan background, cyan text */
-  }
-
-  .badge-lime {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-lime-100 dark:bg-lime-500/20 text-lime-700 dark:text-lime-400 leading-4 tracking-[0.216px];
-    /* Lime flat badge – light lime background, lime text */
-  }
-
-  .badge-emerald {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 leading-4 tracking-[0.216px];
-    /* Emerald flat badge – light emerald background, emerald text */
-  }
-
-  .badge-sky {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-400 leading-4 tracking-[0.216px];
-    /* Sky flat badge – light sky background, sky text */
-  }
-
-  .badge-violet {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400 leading-4 tracking-[0.216px];
-    /* Violet flat badge – light violet background, violet text */
-  }
-
-  .badge-fuchsia {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-fuchsia-100 dark:bg-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-400 leading-4 tracking-[0.216px];
-    /* Fuchsia flat badge – light fuchsia background, fuchsia text */
-  }
-
-  .badge-rose {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 leading-4 tracking-[0.216px];
-    /* Rose flat badge – light rose background, rose text */
-  }
-
   .badge-amber {
     @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 leading-4 tracking-[0.216px];
     /* Amber flat badge – light amber background, amber text */
@@ -395,6 +299,16 @@
   .badge-slate {
     @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-slate-100 dark:bg-slate-400/20 text-slate-700 dark:text-slate-400 leading-4 tracking-[0.216px];
     /* Slate flat badge – light slate background, slate text */
+  }
+
+  .badge-amber-with-border {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-amber-100 dark:bg-amber-500/20 border border-amber-500/20 dark:border-amber-500/20 text-amber-700 dark:text-amber-400 leading-4 tracking-[0.216px];
+    /* Amber badge with border – light amber background, amber text */
+  }
+
+  .badge-slate-with-border {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md bg-slate-100 dark:bg-slate-400/20 border border-slate-500/20 dark:border-slate-400/20 text-slate-700 dark:text-slate-400 leading-4 tracking-[0.216px];
+    /* Slate badge with border – light slate background, slate text */
   }
 
    /* Eliminate focus outline for iframes */
