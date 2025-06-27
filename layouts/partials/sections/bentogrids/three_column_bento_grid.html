@@ -79,12 +79,12 @@
       {{ if $description }}
         <p class="mt-6 mx-auto max-w-2xl text-center text-lg/9 text-body">{{ $description }}</p>
       {{ end }}
-      <div class="mt-20 grid gap-16 lg:grid-cols-3">
+      <div class="mt-20 grid gap-8 sm:gap-16 md:grid-cols-3">
         {{ range $index, $card := $cards }}
         {{ $imagePosition := $card.imagePosition | default "top" }}
-        <div class="relative group transition-transform duration-300 ease-in-out hover:transform hover:-translate-y-1 hover:shadow-lg">
-          <div class="absolute inset-px rounded-lg surface-primary"></div>
-              <div class="p-8 relative flex flex-col overflow-hidden rounded-2xl border surface-secondary surface-border shadow-lg">
+        <div class="relative group transition-transform duration-300 ease-in-out hover:transform hover:-translate-y-1">
+          <div class="absolute inset-px rounded-2xl border surface-secondary surface-border shadow-lg"></div>
+              <div class="p-8 relative flex flex-col overflow-hidden">
                 {{ if and $card.image (eq $imagePosition "top") }}
                   <div class="@container flex items-center justify-center">
                     {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")) }}
@@ -118,7 +118,7 @@
                   <div class="pb-6"></div> <!-- Empty space at bottom if no link and no image -->
                 {{ end }}
               </div>
-            <div class="pointer-events-none absolute inset-px rounded-lg ring-1 shadow-sm ring-black/5 {{ if $card.url }}group-hover:ring-product-underlite{{ end }} transition-all"></div>
+            <div class="pointer-events-none absolute inset-px {{ if $card.url }}group-hover:ring-product-underlite{{ end }} transition-all"></div>
           </div>
         {{ end }}
       </div>
