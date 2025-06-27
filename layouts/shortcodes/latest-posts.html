@@ -7,7 +7,7 @@ Usage:
   description="Check out our most recent blog posts"
   limit=3
   type="blog"
-  baseHeight=540
+  baseHeight=556
 >}}
 */}}
 {{ $theme := .Get "theme" | default "light" }}
@@ -17,7 +17,7 @@ Usage:
 {{ $description := .Get "description" | default "" }}
 {{ $limit := .Get "limit" | default 3 }}
 {{ $type := .Get "type" | default "blog" }}
-{{ $baseHeight := .Get "baseHeight" | default 540 }}
+{{ $baseHeight := .Get "baseHeight" | default 556 }}
 
 <section class="{{ $darkClass }} my-32">
     <div class="section-bg-light dark:section-bg-dark relative">

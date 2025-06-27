@@ -10,8 +10,7 @@
     <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/">
     {{ partial "components/label/label.html" (dict
     "text" $tag
-    "bgColor" "bg-amber-100"
-    "textColor" "text-amber-800"
+    "badgeClass" "badge-orange-with-border"
     "icon" "tag" ) }}
     </a>
     {{ end }}
@@ -20,8 +19,7 @@
     <a href="{{ print "/tags/" | relLangURL }}">
     {{ partial "components/label/label.html" (dict
     "text" (printf "+%d more" (sub $tagsCount $maxTags))
-    "bgColor" "bg-amber-100"
-    "textColor" "text-amber-800"
+    "badgeClass" "badge-orange-with-border"
     "icon" "" ) }}
     </a>
     {{ end }}
