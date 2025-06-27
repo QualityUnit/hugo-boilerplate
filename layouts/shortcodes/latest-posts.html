@@ -17,7 +17,6 @@ Usage:
 {{ $description := .Get "description" | default "" }}
 {{ $limit := .Get "limit" | default 3 }}
 {{ $type := .Get "type" | default "blog" }}
-{{ $baseHeight := .Get "baseHeight" | default 556 }}
 
 <section class="{{ $darkClass }} my-32">
     <div class="section-bg-light dark:section-bg-dark relative">
@@ -31,7 +30,7 @@ Usage:
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-16">
                 {{ range first $limit (where site.RegularPages "Type" $type) }}
-                    {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" $baseHeight) }}
+                    {{ partial "components/cards/post_card_with_image.html" (dict "page" . ) }}
                 {{ end }}
             </div>
         </div>
