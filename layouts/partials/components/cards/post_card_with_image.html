@@ -73,9 +73,9 @@
     "rounded" "rounded-[4.3125rem]"
 ) }}
 
-<article class="group relative rounded-lg flex flex-col overflow-hidden" style="height: {{ $cardHeight }}px;">
+<article class="group relative rounded-xl flex flex-col overflow-hidden" style="height: {{ $cardHeight }}px;">
     {{ if and $image $showImages }}
-    <div class="flex-none flex items-center justify-center mb-8 overflow-hidden border border-opacity/black-10% rounded-lg min-h-[16.875rem]"
+    <div class="flex-none flex items-center justify-center mb-8 overflow-hidden border border-opacity/black-10% rounded-xl min-h-[16.875rem]"
         style="height: {{ $imageSectionHeight }}px; background-color: {{ $imageBgColor }};">
         <a href="{{ $permalink }}" class="w-full h-full flex items-center justify-center">
             {{ partial "components/media/lazyimg.html" (dict

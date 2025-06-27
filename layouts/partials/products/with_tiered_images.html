@@ -205,7 +205,7 @@
               </fieldset>
             </div>
 
-            <button type="submit" class="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden">Add to cart</button>
+            <button type="submit" class="mt-8 flex w-full items-center justify-center rounded-xl border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden">Add to cart</button>
           </form>
 
           <!-- Product details -->
@@ -237,7 +237,7 @@
 
             <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
               {{ range $policy := $product.policies }}
-                <div class="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
+                <div class="rounded-xl border border-gray-200 bg-gray-50 p-6 text-center">
                   <dt>
                     {{ partial "components/media/icon.html" (dict "icon" $policy.icon) }}
                     <span class="mt-4 text-sm font-medium text-gray-900">{{ $policy.title }}</span>

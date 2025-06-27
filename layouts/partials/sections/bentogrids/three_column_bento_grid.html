@@ -67,11 +67,11 @@
       {{ range $index, $card := $cards }}
         {{ $imagePosition := $card.imagePosition | default "top" }}
         <div class="relative group transition-transform duration-300 ease-in-out hover:transform hover:-translate-y-1 hover:shadow-lg">
-          <div class="absolute inset-px rounded-lg bg-white"></div>
+          <div class="absolute inset-px rounded-xl bg-white"></div>
           {{ if $card.url }}
           <a href="{{ $card.url }}" class="relative flex flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] h-full group">
           {{ else }}
-          <div class="relative flex flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
+          <div class="relative flex flex-col overflow-hidden rounded-xl-[calc(var(--radius-lg)+1px)]">
           {{ end }}
             {{ if and $card.image (eq $imagePosition "top") }}
             <div class="@container flex items-center justify-center px-8 pt-8 sm:px-10 sm:pt-10">

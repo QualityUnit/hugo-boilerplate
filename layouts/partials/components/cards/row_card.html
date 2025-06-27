@@ -43,7 +43,7 @@ This component expects a page context (.) that has the following properties:
 
 {{ $permalink := .url }}
 
-<article class="group relative rounded-lg flex w-full overflow-hidden border border-opacity/black-10%" style="min-height: {{ $cardHeight }}px;">
+<article class="group relative rounded-xl flex w-full overflow-hidden border border-opacity/black-10%" style="min-height: {{ $cardHeight }}px;">
     {{ if $image }}
     <div class="flex-none overflow-hidden" style="width: {{ $imageWidth }}px;">
         <a href="{{ $permalink }}" class="h-full w-full flex items-center justify-center">
@@ -71,7 +71,7 @@ This component expects a page context (.) that has the following properties:
         </a>
         {{ if .code }}
             {{ with .code }}
-            <pre class="mt-4 bg-black text-white text-xs rounded p-4 overflow-x-auto whitespace-pre-wrap break-words" style="white-space: pre-wrap; word-break: break-word;">
+            <pre class="mt-4 bg-black text-white text-xs rounded-xl p-4 overflow-x-auto whitespace-pre-wrap break-words" style="white-space: pre-wrap; word-break: break-word;">
                 <code>{{ . }}</code>
             </pre>
             {{ end }}

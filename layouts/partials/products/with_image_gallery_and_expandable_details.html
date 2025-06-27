@@ -61,7 +61,7 @@
             {{ range $index, $image := $product.images }}
                 <button id="tabs-1-tab-{{ add $index 1 }}" class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium text-gray-900 uppercase hover:bg-gray-50 focus:ring-3 focus:ring-indigo-500/50 focus:ring-offset-4 focus:outline-hidden product-thumbnail-btn" aria-controls="tabs-1-panel-{{ add $index 1 }}" role="tab" type="button" data-index="{{ $index }}">
                   <span class="sr-only">{{ $image.alt }}</span>
-                  <span class="absolute inset-0 overflow-hidden rounded-md">
+                  <span class="absolute inset-0 overflow-hidden rounded-xl">
                     {{ partial "components/media/lazyimg.html" (dict 
                       "src" $image.url
                       "alt" $image.alt
@@ -170,7 +170,7 @@
           {{ end }}
 
           <div class="mt-10 flex">
-            <a href="{{ .buttonUrl | default "#" }}" class="flex max-w-xs flex-1 items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 focus:outline-hidden sm:w-full">
+            <a href="{{ .buttonUrl | default "#" }}" class="flex max-w-xs flex-1 items-center justify-center rounded-xl border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 focus:outline-hidden sm:w-full">
               {{ .buttonText | default "Buy now" }}
             </a>
 

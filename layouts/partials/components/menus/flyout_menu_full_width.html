@@ -124,10 +124,10 @@
 
   <!-- Flyout menu content, hidden by default -->
   <div id="{{ $menuId }}" class="fixed left-1/2 z-10 mt-5 w-screen max-w-screen-xl -translate-x-1/2 opacity-0 translate-y-1 transition-all duration-200 ease-in hidden">
-    <div class="w-full flex-auto overflow-hidden rounded-3xl bg-white text-sm/6 ring-1 shadow-lg ring-gray-900/5">
+    <div class="w-full flex-auto overflow-hidden rounded-xl bg-white text-sm/6 ring-1 shadow-lg ring-gray-900/5">
       <div class="mx-auto grid max-w-7xl grid-cols-1 gap-2 p-4 py-6 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-4 sm:py-8 lg:grid-cols-4 lg:gap-4 lg:px-6 xl:gap-6">
         {{ range $menuItems }}
-        <div class="group relative flex gap-4 rounded-lg p-3 text-sm/6 hover:bg-gray-50 sm:flex-col sm:p-4">
+        <div class="group relative flex gap-4 rounded-xl p-3 text-sm/6 hover:bg-gray-50 sm:flex-col sm:p-4">
           <div class="mt-1 flex size-10 flex-none items-center justify-center rounded-lg {{ $iconBgColor }} group-hover:bg-white">
             {{ partial "components/media/icon.html" (dict "icon" .icon) }}
           </div>

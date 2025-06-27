@@ -88,8 +88,8 @@
 
     <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3 lg:gap-x-8">
       {{ range $products }}
-      <div class="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
-        <div class="aspect-w-4 aspect-h-5 sm:overflow-hidden sm:rounded-lg lg:aspect-w-3 lg:aspect-h-4">
+      <div class="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white">
+        <div class="aspect-w-4 aspect-h-5 sm:overflow-hidden sm:rounded-xl lg:aspect-w-3 lg:aspect-h-4">
           {{ partial "components/media/lazyimg.html" (dict 
             "src" .imageUrl 
             "alt" .imageAlt

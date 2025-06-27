@@ -65,7 +65,7 @@
 <!-- Cookie Settings Modal (hidden by default) -->
 <div id="cookie-settings-modal" class="fixed inset-0 z-50 hidden">
   <div class="absolute inset-0 bg-black bg-opacity-50" data-cookie-settings-close></div>
-  <div class="relative mx-auto max-w-xl p-4 sm:p-6 bg-white rounded-lg shadow-xl mt-20">
+  <div class="relative mx-auto max-w-xl p-4 sm:p-6 bg-white rounded-xl shadow-xl mt-20">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-bold">{{ i18n "cookie_settings_title" }}</h2>
       <button type="button" class="text-gray-400 hover:text-gray-500" data-cookie-settings-close>
@@ -84,7 +84,7 @@
             <p class="text-sm text-gray-500">{{ i18n "cookie_settings_necessary_description" }}</p>
           </div>
           <div class="ml-3 flex h-5 items-center">
-            <input id="necessary-cookies" name="necessary-cookies" type="checkbox" checked disabled class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+            <input id="necessary-cookies" name="necessary-cookies" type="checkbox" checked disabled class="h-4 w-4 rounded-xl border-gray-300 text-indigo-600 focus:ring-indigo-600">
           </div>
         </div>
       </div>
@@ -96,17 +96,17 @@
             <p class="text-sm text-gray-500">{{ i18n "cookie_settings_analytics_description" }}</p>
           </div>
           <div class="ml-3 flex h-5 items-center">
-            <input id="analytics-cookies" name="analytics-cookies" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+            <input id="analytics-cookies" name="analytics-cookies" type="checkbox" class="h-4 w-4 rounded-xl border-gray-300 text-indigo-600 focus:ring-indigo-600">
           </div>
         </div>
       </div>
     </div>
     
     <div class="mt-6 flex justify-end gap-x-3">
-      <button type="button" class="px-3 py-2 text-sm font-semibold rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" data-cookie-settings-close>
+      <button type="button" class="px-3 py-2 text-sm font-semibold rounded-xl bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" data-cookie-settings-close>
         {{ i18n "cookie_settings_cancel" }}
       </button>
-      <button type="button" class="px-3 py-2 text-sm font-semibold rounded-md bg-indigo-600 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" data-cookie-settings-save>
+      <button type="button" class="px-3 py-2 text-sm font-semibold rounded-xl bg-indigo-600 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" data-cookie-settings-save>
         {{ i18n "cookie_settings_save" }}
       </button>
     </div>
