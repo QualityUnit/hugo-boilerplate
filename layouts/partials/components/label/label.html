@@ -3,46 +3,50 @@
 @description: A flexible label/badge component using predefined badge classes from main.css
 @params:
   - text: Text content for the label (required)
-  - badgeClass: Badge class from main.css (default: "badge-gray-with-border")
-    Available options:
-    - badge-gray-with-border (default)
-    - badge-red-with-border
-    - badge-yellow-with-border
-    - badge-green-with-border
-    - badge-blue-with-border
-    - badge-purple-with-border
-    - badge-indigo-with-border
-    - badge-pink-with-border
-    - badge-orange-with-border
-    - badge-teal-with-border
-    - badge-cyan-with-border
-    - badge-lime-with-border
-    - badge-emerald-with-border
-    - badge-sky-with-border
-    - badge-violet-with-border
-    - badge-fuchsia-with-border
-    - badge-rose-with-border
-    - badge-amber-with-border
-    - badge-slate-with-border
-    - badge-gray (flat without border)
-    - badge-red (flat without border)
-    - badge-yellow (flat without border)
-    - badge-green (flat without border)
-    - badge-blue (flat without border)
-    - badge-purple (flat without border)
-    - badge-indigo (flat without border)
-    - badge-pink (flat without border)
-    - badge-orange (flat without border)
-    - badge-teal (flat without border)
-    - badge-cyan (flat without border)
-    - badge-lime (flat without border)
-    - badge-emerald (flat without border)
-    - badge-sky (flat without border)
-    - badge-violet (flat without border)
-    - badge-fuchsia (flat without border)
-    - badge-rose (flat without border)
-    - badge-amber (flat without border)
-    - badge-slate (flat without border)
+  - badgeClass: Badge class combination from main.css (default: "badge-base badge-gray badge-with-border")
+    Available badge combinations:
+    
+    WITH BORDER (combine badge-base + color + badge-with-border):
+    - badge-base badge-gray badge-with-border (default)
+    - badge-base badge-red badge-with-border
+    - badge-base badge-yellow badge-with-border
+    - badge-base badge-green badge-with-border
+    - badge-base badge-blue badge-with-border
+    - badge-base badge-purple badge-with-border
+    - badge-base badge-indigo badge-with-border
+    - badge-base badge-pink badge-with-border
+    - badge-base badge-orange badge-with-border
+    - badge-base badge-teal badge-with-border
+    - badge-base badge-cyan badge-with-border
+    - badge-base badge-lime badge-with-border
+    - badge-base badge-emerald badge-with-border
+    - badge-base badge-sky badge-with-border
+    - badge-base badge-violet badge-with-border
+    - badge-base badge-fuchsia badge-with-border
+    - badge-base badge-rose badge-with-border
+    - badge-base badge-amber badge-with-border
+    - badge-base badge-slate badge-with-border
+    
+    WITHOUT BORDER (combine badge-base + color only):
+    - badge-base badge-gray
+    - badge-base badge-red
+    - badge-base badge-yellow
+    - badge-base badge-green
+    - badge-base badge-blue
+    - badge-base badge-purple
+    - badge-base badge-indigo
+    - badge-base badge-pink
+    - badge-base badge-orange
+    - badge-base badge-teal
+    - badge-base badge-cyan
+    - badge-base badge-lime
+    - badge-base badge-emerald
+    - badge-base badge-sky
+    - badge-base badge-violet
+    - badge-base badge-fuchsia
+    - badge-base badge-rose
+    - badge-base badge-amber
+    - badge-base badge-slate
   - icon: Icon name to display before text (optional)
   - iconClass: Classes for the icon (default: "mr-1.5 h-2 w-2")
   - classes: Additional CSS classes to add (optional)
@@ -51,19 +55,19 @@
 @example:
   {{ partial "components/label/label.html" (dict 
       "text" "New Feature" 
-      "badgeClass" "badge-blue-with-border"
+      "badgeClass" "badge-base badge-blue badge-with-border"
   ) }}
 
   {{ partial "components/label/label.html" (dict 
       "text" "Premium" 
-      "badgeClass" "badge-yellow-with-border"
+      "badgeClass" "badge-base badge-yellow badge-with-border"
       "icon" "star"
       "url" "/tags/premium/"
   ) }}
 
   {{ partial "components/label/label.html" (dict 
       "text" "AI Tools" 
-      "badgeClass" "badge-green-with-border"
+      "badgeClass" "badge-base badge-green badge-with-border"
       "url" "/tags/ai-tools/"
       "target" "_blank"
   ) }}
@@ -71,7 +75,7 @@
 
 {{/* Set default values if not provided */}}
 {{ $text := .text | default "Badge" }}
-{{ $badgeClass := .badgeClass | default "badge-gray-with-border" }}
+{{ $badgeClass := .badgeClass | default "badge-base badge-gray badge-with-border" }}
 {{ $icon := .icon | default "" }}
 {{ $iconClass := .iconClass | default "mr-1.5 h-2 w-2" }}
 {{ $classes := .classes | default "" }}
