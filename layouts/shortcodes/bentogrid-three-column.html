@@ -4,9 +4,8 @@
   Usage:
   {{< bentogrid-three-column 
       tagline="Build faster" 
-      heading="Everything you need for your next project" 
-      backgroundColor="gray-50"
-      taglineColor="primary"
+      heading="Everything you need for your next project"
+      description="Explore our features and components to streamline your development process."
   >}}
     [
       {
@@ -50,8 +49,7 @@
   Parameters:
   - tagline: Small text displayed above the main heading (optional, default: empty)
   - heading: Main heading text (optional, default: empty)
-  - backgroundColor: Background color class without the "bg-" prefix (default: "gray-50")
-  - taglineColor: Color class for the tagline without the "text-" prefix (default: "primary")
+  - description: Short description text (optional, default: empty)
   
   Inner Content (optional JSON array):
   - Array of card objects with the following properties:
@@ -66,10 +64,12 @@
   If inner content is not provided, default cards will be used.
 */}}
 
+{{ $theme := .Get "theme" | default "light" }}
 {{ $tagline := .Get "tagline" | default "" }}
 {{ $heading := .Get "heading" | default "" }}
-{{ $backgroundColor := .Get "backgroundColor" | default "gray-50" }}
-{{ $taglineColor := .Get "taglineColor" | default "primary" }}
+{{ $description := .Get "description" | default "" }}
+
+{{/* Parse inner content as JSON if provided */}}
 
 {{ $cards := (slice) }}
 {{ with .Inner }}
@@ -79,9 +79,9 @@
 {{ end }}
 
 {{ partial "sections/bentogrids/three_column_bento_grid.html" (dict 
+  "theme" $theme
   "tagline" $tagline
   "heading" $heading
-  "backgroundColor" $backgroundColor
-  "taglineColor" $taglineColor
+  "description" $description
   "cards" $cards
 ) }}
