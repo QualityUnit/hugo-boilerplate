@@ -46,7 +46,64 @@
     /* Subtle/secondary text – slightly muted for less emphasis */
   }
 
-   /* 🔘 BUTTONS */
+  .text-placeholder {
+    @apply text-gray-400 dark:text-gray-500;
+    /* Placeholder text – light gray in light mode, slightly darker in dark mode */
+  }
+
+  /* PRODUCT CONTENT STYLES */
+  .product-primary {
+    @apply text-primary dark:text-primary-500;
+    /* Primary product text – primary color in light mode, primary-500 in dark mode */
+  }
+
+  .product-text {
+    @apply text-primary dark:text-primary-300;
+    /* Product text – primary color in light mode, lighter primary-300 in dark mode */
+  }
+
+  .product-surface {
+    @apply bg-primary-500 dark:bg-primary-500 bg-opacity-20;
+    /* Product surface – light primary background in light mode, dark primary in dark mode */
+  }
+
+  .product-border {
+    @apply border-primary-500 dark:border-primary-400;
+    /* Product border – primary color in light mode, lighter primary-400 in dark mode */
+  }
+
+  .product-icon {
+    @apply text-primary dark:text-primary-500;
+    /* Product icon – primary color in light mode, primary-500 in dark mode */
+  }
+
+  .product-underlight {
+    @apply bg-primary-300 dark:bg-primary-900;
+    /* Product underlight – light primary background in light mode, dark primary in dark mode */
+  }
+
+  /* SURFACE STYLES */
+  .surface-primary {
+    @apply bg-white dark:bg-gray-900;
+    /* Primary surface background – white in light mode, dark gray in dark mode */
+  }
+
+  .surface-secondary {
+    @apply bg-gray-50 dark:bg-gray-400/10;
+    /* Secondary surface background – light gray in light mode, very light gray in dark mode */
+  }
+
+  .surface-border {
+    @apply border-gray-300 dark:border-gray-600;
+    /* Surface border – light gray in light mode, darker gray in dark mode */
+  }
+
+  .surface-divider {
+    @apply border-t border-gray-200 dark:border-gray-700;
+    /* Surface divider – light gray top border in light mode, darker gray in dark mode */
+  }
+
+  /* 🔘 BUTTONS */
 
   /* Common button transition */
   .btn-transition {
@@ -114,9 +171,15 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /* Icons - fill for light and dark mode */
-  .icon-color {
-    @apply text-primary dark:text-primary-500;
+  /* ICONS STYLES */
+  .icon-primary {
+    @apply text-white dark:text-white;
+    /* Primary icon color – white in both light and dark mode */
+  }
+
+  .icon-secondary {
+    @apply text-gray-400 dark:text-gray-500;
+    /* Secondary icon color – light gray in light mode, slightly darker in dark mode */
   }
 
   /* BADGES */
