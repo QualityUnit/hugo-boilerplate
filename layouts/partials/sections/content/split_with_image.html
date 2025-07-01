@@ -145,13 +145,13 @@ Design Tokens:
         {{ if $numbered_features }}
           <ol class="mt-10 max-w-full space-y-3 text-lg/7 text-body lg:max-w-full">
             {{ range $index, $feature := $numbered_features }}
-              <div class="relative pl-9">
+              <li class="relative pl-9">
                 <span class="inline text-heading font-bold">
                   <span class="absolute left-1 top-2 w-5 h-5 text-[10px] flex justify-center items-center text-white rounded-full bg-primary">{{ add $index 1 }}</span>
                   {{ .title }}.
                 </span>
                 <span class="inline">{{ .description }}</span>
-              </div>
+              </li>
             {{ end }}
           </ol>
         {{ end }}
