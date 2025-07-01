@@ -73,7 +73,7 @@
           {{ range $features }}
           <div class="relative pl-0">
             {{ if .icon }}
-              {{ partial "components/media/icon.html" (dict "icon" .icon "class" "w-7 h-7 icon-color mb-6 p-1 rounded-lg flex-shrink-0") }}
+              {{ partial "components/media/icon.html" (dict "icon" .icon "class" "w-7 h-7 product-icon mb-6 p-1 rounded-lg flex-shrink-0") }}
             {{ end }}
             <dt class="font-semibold text-lg text-heading flex items-center">
               <span>{{ .title }}</span>

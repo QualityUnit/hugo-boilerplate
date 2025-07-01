@@ -1,66 +1,358 @@
-{{- /*
-  Usage in markdown:
-  {{< content-split-with-image 
-    eyebrow="Innovative Solutions" 
-    heading="Transform Your Workflow" 
-    markdownContent="Discover how our tools can help you streamline your processes and achieve better results." 
-    image="https://example.com/image.jpg" 
-    imageAlt="Descriptive alt text for the image" 
-    bgColor="bg-gray-100" 
-    eyebrowColor="text-primary"
-    headingColor="text-black" 
-    descriptionColor="text-gray-600" 
-    contentColor="text-gray-800" 
-    imageBgColor="bg-white" 
-  >}}
-  
-  Parameters:
-  1. eyebrow: Small text displayed above the main heading
-  2. heading: Main heading text
-  3. description: Description text below the main heading
-  4. image: URL of the image to display
-  5. imageAlt: Alt text for the image
-  6. bgColor: Background color class for the section
-  7. eyebrowColor: Text color class for the eyebrow text
-  8. headingColor: Text color class for the main heading
-  9. descriptionColor: Text color class for the description text
-  10. contentColor: Text color class for the main content
-  11. imageBgColor: Background color class for the image container
-  12. features: Optional array of feature objects to display in the content section
-*/ -}}
+{{/*
+    Shortcode: content-split-with-image
+    Purpose: Combines visual elements with textual content and structured data (features, stats, quote).
 
-{{/* Split with Image Content Shortcode */}}
+    Features:
+    - Supports mixed content: markdown/HTML + JSON data block
+    - Uses START_JSON_BLOCK/END_JSON_BLOCK markers to separate JSON from content (markdown/HTML)
+    - JSON markers are removed from final rendered content
+    - Robust JSON parsing with error handling and fallback mechanisms
+    - Graceful degradation when JSON is malformed or missing
+
+    Parameters:
+    - heading: Main title for the section
+    - eyebrow: Small text above heading (default: "")
+    - description: Text below heading (default: "")
+    - layout: "image-left" or "image-right" (default: "image-left")
+    - image: Image path (default: "")
+    - imageAlt: Alt text for image (default: "")
+    - link: CTA link URL (default: "")
+    - linkText: CTA button text (default (i18n "learnMore"))
+    - linkTarget: Link target "_self" or "_blank" (default: "_self")
+    - buttonStyle: "primary" or "secondary" (default: "primary")
+    - bgColor: Background color class (default: "bg-white")
+    - eyebrowColor: Eyebrow text color (default: "text-primary")
+    - headingColor: Heading color (default: "text-gray-900")
+    - descriptionColor: Description color (default: "text-gray-700")
+    - contentColor: Content text color (default: "text-gray-700")
+    - imageBgColor: Image container background (default: "bg-gray-50")
+    - contentAsHTML: Render content as HTML instead of markdown (default: false)
+    - features: JSON string or "features" to use page params
+    - stats: JSON string or "stats" to use page params
+    - quote: JSON string or "quote" to use page params
+
+    USAGE EXAMPLES:
+
+    1. CONTENT ONLY (markdown/HTML content):
+    {{< content-split-with-image
+        eyebrow="Automation Platform"
+        heading="Transform Your Workflow"
+        description="Discover the power of automation"
+        image="/images/workflow-automation.jpg"
+        imageAlt="Workflow automation dashboard"
+        layout="image-left"
+        link="/get-started"
+        linkText="Start Free Trial"
+        buttonStyle="primary"
+        eyebrowColor="text-purple-600"
+        headingColor="text-gray-900"
+        descriptionColor="text-gray-600"
+    >}}
+     ## Test markdown and HTML content
+    Test **bold text**, *italic text*, and [links](https://example.com).
+    Test list:
+    - Item 1
+    - Item 2
+    - Item 3
+    <p class="text-gray-600 mt-4">This is a paragraph with <strong>bold</strong> and <em>italic</em> text.</p>
+    {{< /content-split-with-image >}}
+
+    2. JSON DATA ONLY (structured data blocks):
+    {{< content-split-with-image
+        heading="By the Numbers"
+        image="/images/statistics.jpg"
+        imageAlt="Platform statistics"
+        layout="image-right"
+    >}}
+    {
+      "features": [
+        {
+          "icon": "star-solid",
+          "title": "Automatic Detection",
+          "description": "Automatically finds and extracts JSON blocks from content."
+        },
+        {
+          "icon": "cog-solid",
+          "title": "Flexible Configuration",
+          "description": "Supports various layout options and styling configurations."
+        }
+      ],
+      "stats": [
+        { "number": "10M+", "label": "API Calls Daily" },
+        { "number": "99.9%", "label": "Uptime SLA" },
+        { "number": "500+", "label": "Enterprise Clients" },
+        { "number": "24/7", "label": "Expert Support" }
+      ],
+      "quote": {
+        "text": "Switching to this platform increased our team productivity by 300%. The ROI was evident within the first month.",
+        "author": "Michael Chen",
+        "role": "VP of Engineering",
+        "company": "TechCorp",
+        "avatar": "/images/avatars/michael-chen.jpg"
+      }
+    }
+    {{< /content-split-with-image >}}
+
+    3. COMBINED (JSON data + content):
+    {{< content-split-with-image
+        heading="Complete AI Solution"
+        description="Everything you need in one platform"
+        eyebrow="All-in-One Platform"
+        image="/images/ai-platform.jpg"
+        imageAlt="AI platform interface"
+        layout="image-left"
+        link="/demo"
+        linkText="Book a Demo"
+        linkTarget="_blank"
+    >}}
+    START_JSON_BLOCK
+    {
+      "features": [
+        {
+          "icon": "star-solid",
+          "title": "Automatic Detection",
+          "description": "Automatically finds and extracts JSON blocks from content."
+        },
+        {
+          "icon": "cog-solid",
+          "title": "Flexible Configuration",
+          "description": "Supports various layout options and styling configurations."
+        }
+      ],
+      "stats": [
+        { "number": "95%", "label": "Accuracy Rate" },
+        { "number": "< 100ms", "label": "Response Time" }
+      ],
+      "quote": {
+        "text": "The AI capabilities exceeded our expectations. Implementation was seamless.",
+        "author": "Dr. Sarah Martinez",
+        "role": "Data Science Lead",
+        "company": "InnovateLab",
+        "avatar": "/images/avatars/sarah-martinez.jpg"
+      }
+    }
+    END_JSON_BLOCK
+
+    ## Test markdown and HTML content
+    Test **bold text**, *italic text*, and [links](https://example.com).
+    Test list:
+    - Item 1
+    - Item 2
+    - Item 3
+    <p class="text-gray-600 mt-4">This is a paragraph with <strong>bold</strong> and <em>italic</em> text.</p>
+    {{< /content-split-with-image >}}
+
+    DATA STRUCTURE DETAILS:
+
+    Features List:
+    {
+      "features": [
+        {
+          "icon": "icon-name",        // Icon identifier (from /internal/design-system/#icons)
+          "title": "Feature Title",   // Feature name
+          "description": "Details"    // Feature description
+        }
+      ]
+    }
+
+    Stats List:
+    {
+      "stats": [
+        {
+          "number": "99%",           // Statistic value
+          "label": "Success Rate"    // Statistic label
+        }
+      ]
+    }
+
+    Quote Object:
+    {
+      "quote": {
+        "text": "Quote content here",     // Quote text (required)
+        "author": "Author Name",      // Author name (required)
+        "role": "Job Title",          // Author's job title (optional)
+        "company": "Company Name",    // Author's company (optional)
+        "avatar": "/path/to/avatar.jpg" // Author's avatar image (optional)
+      }
+    }
+
+    NOTES:
+    - If you don't need certain data blocks (features, stats, quote), simply omit them
+    - JSON blocks are completely optional - you can use just markdown/HTML content
+    - Content can be pure markdown, pure HTML, or mixed
+*/}}
+
+{{ $currentPage := .Page }}
+
+{{/* Shortcode parameters */}}
 {{ $eyebrow := .Get "eyebrow" | default "" }}
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
-{{ $featuresParam := .Get "features" }}
-{{ $features := slice }}
-{{ if $featuresParam }}
-  {{ if eq $featuresParam "features" }}
-    {{ $features = .Page.Params.features }}
-  {{ else }}
-    {{ $features = $featuresParam }}
-  {{ end }}
-{{ end }}
+{{ $layout := .Get "layout" | default "image-left" }}
 {{ $image := .Get "image" | default "" }}
 {{ $imageAlt := .Get "imageAlt" | default "" }}
+{{ $link := .Get "link" | default "" }}
+{{ $linkText := .Get "linkText" | default (i18n "learnMore") | default "Learn more" }}
+{{ $linkTarget := .Get "linkTarget" | default "_self" }}
+{{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
 {{ $bgColor := .Get "bgColor" | default "bg-white" }}
 {{ $eyebrowColor := .Get "eyebrowColor" | default "text-primary" }}
 {{ $headingColor := .Get "headingColor" | default "text-gray-900" }}
 {{ $descriptionColor := .Get "descriptionColor" | default "text-gray-700" }}
 {{ $contentColor := .Get "contentColor" | default "text-gray-700" }}
-{{ $imageBgColor := .Get "imageBgColor" | default "bg-gray-50" }}
+{{ $contentAsHTML := .Get "contentAsHTML" | default false }}
 
-{{/* 
-  Note: For this shortcode, we're using the default paragraphs from the partial.
-  In a real-world implementation, you might want to allow passing in custom content
-  through a structured data file or inner content.
-*/}}
+{{/* Initialize data */}}
+{{ $features := slice }}
+{{ $stats := slice }}
+{{ $quote := dict }}
+{{ $markdownContent := "" }}
+{{ $innerData := dict }}
 
-{{ partial "sections/content/split_with_image.html" (dict 
+{{/* Get inner content */}}
+{{ $rawInnerContent := "" }}
+{{ with .Inner }}
+    {{ $rawInnerContent = string . }}
+{{ end }}
+{{ $rawInnerContent = trim $rawInnerContent " \n\r\t" }}
+
+{{/* Parse JSON block with START_JSON_BLOCK/END_JSON_BLOCK markers */}}
+{{ $jsonStartMarker := "START_JSON_BLOCK" }}
+{{ $jsonEndMarker := "END_JSON_BLOCK" }}
+
+{{ if and (in $rawInnerContent $jsonStartMarker) (in $rawInnerContent $jsonEndMarker) }}
+    {{ $parts := split $rawInnerContent $jsonStartMarker }}
+    {{ if gt (len $parts) 1 }}
+        {{ $beforeJson := index $parts 0 }}
+        {{ $afterStartMarker := index $parts 1 }}
+
+        {{ $jsonParts := split $afterStartMarker $jsonEndMarker }}
+        {{ if gt (len $jsonParts) 1 }}
+            {{ $potentialJSON := index $jsonParts 0 }}
+            {{ $afterJson := index $jsonParts 1 }}
+
+            {{/* Parse JSON if present with error handling */}}
+            {{ $potentialJSON = trim $potentialJSON " \n\r\t" }}
+            {{ if $potentialJSON }}
+              {{ $parseResult := dict }}
+              {{ if $potentialJSON }}
+                {{ $jsonString := trim $potentialJSON " \n\r\t" }}
+                {{ if $jsonString }}
+                  {{ $unmarshalResult := dict }}
+                  {{ $errorOccurred := false }}
+                  {{/* Attempt to unmarshal JSON with error handling */}}
+                  {{ $unmarshalResult = unmarshal $jsonString }}
+                  {{ if not $unmarshalResult }}
+                    {{ warnf "JSON unmarshal returned empty result in inner-content-json-block. JSON content (first 200 chars): %s. Using empty fallback." (substr $jsonString 0 200) }}
+                    {{ $unmarshalResult = dict }}
+                  {{ end }}
+                  {{ $parseResult = $unmarshalResult }}
+                {{ end }}
+              {{ end }}
+              
+              {{ if or $parseResult.features $parseResult.stats $parseResult.quote $parseResult.markdownContent $parseResult.htmlContent $parseResult.contentAsHTML }}
+                {{ $innerData = $parseResult }}
+              {{ else }}
+                {{ warnf "JSON block found but contains no recognized data structures (features, stats, quote, markdownContent, htmlContent, contentAsHTML). Content: %s" (substr $potentialJSON 0 200) }}
+              {{ end }}
+            {{ end }}
+
+            {{/* Reconstruct markdown content (exclude JSON block) */}}
+            {{ $markdownContent = printf "%s%s" (trim $beforeJson " \n\r\t") (trim $afterJson " \n\r\t") }}
+        {{ else }}
+            {{ $markdownContent = $rawInnerContent }}
+        {{ end }}
+    {{ else }}
+        {{ $markdownContent = $rawInnerContent }}
+    {{ end }}
+{{ else }}
+    {{ $markdownContent = $rawInnerContent }}
+{{ end }}
+
+
+{{/* Data consolidation: inner JSON > shortcode params > page params */}}
+{{ $features = $innerData.features | default $features }}
+{{ $stats = $innerData.stats | default $stats }}
+{{ $quote = $innerData.quote | default $quote }}
+
+{{/* Override with shortcode parameters */}}
+{{ with .Get "features" }}
+  {{ if eq . "features" }}
+    {{ $features = $currentPage.Params.features | default $features }}
+  {{ else }}
+    {{ $jsonString := trim . " \n\r\t" }}
+    {{ if $jsonString }}
+      {{ $unmarshalResult := dict }}
+      {{ $unmarshalResult = unmarshal $jsonString }}
+      {{ if $unmarshalResult }}
+        {{ $features = $unmarshalResult }}
+      {{ else }}
+        {{ warnf "Failed to parse features JSON from shortcode parameter. JSON content (first 200 chars): %s. Using fallback." (substr $jsonString 0 200) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ with .Get "stats" }}
+  {{ if eq . "stats" }}
+    {{ $stats = $currentPage.Params.stats | default $stats }}
+  {{ else }}
+    {{ $jsonString := trim . " \n\r\t" }}
+    {{ if $jsonString }}
+      {{ $unmarshalResult := dict }}
+      {{ $unmarshalResult = unmarshal $jsonString }}
+      {{ if $unmarshalResult }}
+        {{ $stats = $unmarshalResult }}
+      {{ else }}
+        {{ warnf "Failed to parse stats JSON from shortcode parameter. JSON content (first 200 chars): %s. Using fallback." (substr $jsonString 0 200) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ with .Get "quote" }}
+  {{ if eq . "quote" }}
+    {{ $quote = $currentPage.Params.quote | default $quote }}
+  {{ else }}
+    {{ $jsonString := trim . " \n\r\t" }}
+    {{ if $jsonString }}
+      {{ $unmarshalResult := dict }}
+      {{ $unmarshalResult = unmarshal $jsonString }}
+      {{ if $unmarshalResult }}
+        {{ $quote = $unmarshalResult }}
+      {{ else }}
+        {{ warnf "Failed to parse quote JSON from shortcode parameter. JSON content (first 200 chars): %s. Using fallback." (substr $jsonString 0 200) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{/* Handle additional content from JSON */}}
+{{ if $innerData.markdownContent }}
+  {{ $markdownContent = printf "%s\n\n%s" $markdownContent $innerData.markdownContent }}
+{{ else if $innerData.htmlContent }}
+  {{ $htmlContent := $innerData.htmlContent }}
+  {{ if reflect.IsSlice $htmlContent }}
+    {{ $htmlContent = delimit $htmlContent "" }}
+  {{ end }}
+  {{ $markdownContent = printf "%s\n\n%s" $markdownContent $htmlContent }}
+  {{ $contentAsHTML = true }}
+{{ end }}
+
+{{ if $innerData.contentAsHTML }}
+  {{ $contentAsHTML = $innerData.contentAsHTML }}
+{{ end }}
+
+{{/* Render partial */}}
+{{ partial "sections/content/split_with_image.html" (dict
   "eyebrow" $eyebrow
   "heading" $heading
   "description" $description
+  "layout" $layout
+  "link" $link
+  "linkText" $linkText
+  "linkTarget" $linkTarget
+  "buttonStyle" $buttonStyle
   "image" $image
   "imageAlt" $imageAlt
   "bgColor" $bgColor
@@ -68,7 +360,9 @@
   "headingColor" $headingColor
   "descriptionColor" $descriptionColor
   "contentColor" $contentColor
-  "imageBgColor" $imageBgColor
-  "markdownContent" (.Inner )
+  "markdownContent" $markdownContent
+  "contentAsHTML" $contentAsHTML
   "features" $features
+  "stats" $stats
+  "quote" $quote
 ) }}

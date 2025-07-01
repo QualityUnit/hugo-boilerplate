@@ -1,60 +1,116 @@
 {{/*
 @component: Label
-@description: A flexible label/badge component with customizable text, colors, and styles
+@description: A flexible label/badge component using predefined badge classes from main.css
 @params:
   - text: Text content for the label (required)
-  - bgColor: Background color class (default: "bg-gray-100")
-  - textColor: Text color class (default: "text-gray-500")
-  - borderColor: Border color class (default: none)
-  - rounded: Rounded corners style (default: "rounded-md")
-  - size: Size variant (default: "text-xs")
-  - padding: Padding classes (default: "px-2.5 py-1.5")
-  - fontWeight: Font weight class (default: "font-semibold")
+  - badgeClass: Badge class combination from main.css (default: "badge-base badge-gray badge-with-border")
+    Available badge combinations:
+    
+    WITH BORDER (combine badge-base + color + badge-with-border):
+    - badge-base badge-gray badge-with-border (default)
+    - badge-base badge-red badge-with-border
+    - badge-base badge-yellow badge-with-border
+    - badge-base badge-green badge-with-border
+    - badge-base badge-blue badge-with-border
+    - badge-base badge-purple badge-with-border
+    - badge-base badge-indigo badge-with-border
+    - badge-base badge-pink badge-with-border
+    - badge-base badge-orange badge-with-border
+    - badge-base badge-teal badge-with-border
+    - badge-base badge-cyan badge-with-border
+    - badge-base badge-lime badge-with-border
+    - badge-base badge-emerald badge-with-border
+    - badge-base badge-sky badge-with-border
+    - badge-base badge-violet badge-with-border
+    - badge-base badge-fuchsia badge-with-border
+    - badge-base badge-rose badge-with-border
+    - badge-base badge-amber badge-with-border
+    - badge-base badge-slate badge-with-border
+    
+    WITHOUT BORDER (combine badge-base + color only):
+    - badge-base badge-gray
+    - badge-base badge-red
+    - badge-base badge-yellow
+    - badge-base badge-green
+    - badge-base badge-blue
+    - badge-base badge-purple
+    - badge-base badge-indigo
+    - badge-base badge-pink
+    - badge-base badge-orange
+    - badge-base badge-teal
+    - badge-base badge-cyan
+    - badge-base badge-lime
+    - badge-base badge-emerald
+    - badge-base badge-sky
+    - badge-base badge-violet
+    - badge-base badge-fuchsia
+    - badge-base badge-rose
+    - badge-base badge-amber
+    - badge-base badge-slate
   - icon: Icon name to display before text (optional)
   - iconClass: Classes for the icon (default: "mr-1.5 h-2 w-2")
   - classes: Additional CSS classes to add (optional)
+  - url: URL to make the label clickable as a link (optional)
+  - target: Link target attribute (default: "_self", can be "_blank" for new window)
 @example:
   {{ partial "components/label/label.html" (dict 
       "text" "New Feature" 
-      "bgColor" "bg-blue-100" 
-      "textColor" "text-blue-700"
+      "badgeClass" "badge-base badge-blue badge-with-border"
   ) }}
 
   {{ partial "components/label/label.html" (dict 
       "text" "Premium" 
-      "bgColor" "bg-amber-100" 
-      "textColor" "text-amber-800"
+      "badgeClass" "badge-base badge-yellow badge-with-border"
       "icon" "star"
+      "url" "/tags/premium/"
+  ) }}
+
+  {{ partial "components/label/label.html" (dict 
+      "text" "AI Tools" 
+      "badgeClass" "badge-base badge-green badge-with-border"
+      "url" "/tags/ai-tools/"
+      "target" "_blank"
   ) }}
 */}}
 
 {{/* Set default values if not provided */}}
 {{ $text := .text | default "Badge" }}
-{{ $bgColor := .bgColor | default "bg-gray-100" }}
-{{ $textColor := .textColor | default "text-gray-500" }}
-{{ $borderColor := .borderColor | default "" }}
-{{ $rounded := .rounded | default "rounded-xl" }}
-{{ $size := .size | default "text-xs" }}
-{{ $padding := .padding | default "px-2 py-0.5" }}
-{{ $fontWeight := .fontWeight | default "font-semibold" }}
+{{ $badgeClass := .badgeClass | default "badge-base badge-gray badge-with-border" }}
 {{ $icon := .icon | default "" }}
 {{ $iconClass := .iconClass | default "mr-1.5 h-2 w-2" }}
 {{ $classes := .classes | default "" }}
+{{ $url := .url | default "" }}
+{{ $target := .target | default "_self" }}
 
-{{/* Border classes */}}
-{{ $border := "" }}
-{{ if $borderColor }}
-  {{ $border = printf "border %s" $borderColor }}
+{{/* Prepare link styling classes */}}
+{{ $linkClasses := "" }}
+{{ if $url }}
+  {{ $linkClasses = "hover:opacity-80 transition-opacity duration-200 cursor-pointer" }}
 {{ end }}
 
-<span class="inline-flex items-center {{ $rounded }} {{ $bgColor }} {{ $textColor }} {{ $padding }} {{ $size }} {{ $fontWeight }} {{ $border }} {{ $classes }} [&_a]:no-underline [&_a]:text-white [&_a:hover]:text-white [&_a:focus]:text-white [&_a]:font-semibold [&_a]:px-1">
-  {{/* Icon rendering if specified */}}
-  {{ if $icon }}
-    {{ $iconPath := printf "themes/boilerplate/layouts/partials/icons/%s.html" $icon }}
-    {{ if fileExists $iconPath }}
-      {{ partial (printf "icons/%s" $icon) $iconClass }}
+{{/* Render the label with conditional link wrapper */}}
+{{ if $url }}
+  <a href="{{ $url }}" target="{{ $target }}" class="{{ $badgeClass }} {{ $classes }} {{ $linkClasses }} no-underline">
+    {{/* Icon rendering if specified */}}
+    {{ if $icon }}
+      {{ $iconPath := printf "themes/boilerplate/layouts/partials/icons/%s.html" $icon }}
+      {{ if fileExists $iconPath }}
+        {{ partial (printf "icons/%s" $icon) $iconClass }}
+      {{ end }}
     {{ end }}
-  {{ end }}
-  {{/* Label text content */}}
-  {{ $text }}
-</span>
+    {{/* Label text content */}}
+    {{ $text }}
+  </a>
+{{ else }}
+  <span class="{{ $badgeClass }} {{ $classes }} cursor-pointer [&_a]:no-underline [&_a]:text-inherit [&_a:hover]:text-inherit [&_a:focus]:text-inherit [&_a]:font-semibold">
+    {{/* Icon rendering if specified */}}
+    {{ if $icon }}
+      {{ $iconPath := printf "themes/boilerplate/layouts/partials/icons/%s.html" $icon }}
+      {{ if fileExists $iconPath }}
+        {{ partial (printf "icons/%s" $icon) $iconClass }}
+      {{ end }}
+    {{ end }}
+    {{/* Label text content */}}
+    {{ $text }}
+  </span>
+{{ end }}

@@ -2,10 +2,10 @@
 @section: Three Column Bento Grid
 @description: A visually appealing layout featuring multiple content cards of varying sizes arranged in a three-column grid pattern, ideal for showcasing features or product highlights.
 @params:
+  - theme: "light" or "dark" (default: "light") — applies dark mode styles if set to "dark"
   - tagline: Short text displayed above the main heading (optional, default: empty)
   - heading: Main section heading (optional, default: empty)
-  - taglineColor: Color class for the tagline (optional, default: "primary")
-  - backgroundColor: Background color class for the section (optional, default: "gray-50")
+  - description: Short description text below the heading (optional, default: empty)
   - cards: Array of card objects with content (supports unlimited cards)
     - title: Card title text (optional)
     - description: Card description text (optional)
@@ -16,9 +16,9 @@
     - linkText: Text to display as a link at the bottom of the card (optional)
 @example:
   {{ partial "sections/bentogrids/three_column_bento_grid.html" (dict 
+      "theme" "light"
       "tagline" "Features" 
       "heading" "Everything you need to build your application"
-      "backgroundColor" "white"
       "cards" (slice
           (dict
               "title" "Responsive Design" 
@@ -50,74 +50,80 @@
 {{/* Three Column Bento Grid Section */}}
 {{ $tagline := .tagline | default "" }}
 {{ $heading := .heading | default "" }}
-{{ $taglineColor := .taglineColor | default "primary" }}
-{{ $backgroundColor := .backgroundColor | default "gray-50" }}
+{{ $description := .description | default "" }}
+
+{{/* Parse inner content as JSON if provided */}}
+{{ $cards := (slice) }}
+{{ with .Inner }}
+  {{ if . }}
+    {{ $cards = . | unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{/* Theme setup */}}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
 
 {{ $cards := .cards | default (slice) }}
 
-<div class="bg-{{ $backgroundColor }} py-24 sm:py-32">
-  <div class="wrapper">
-    {{ if $tagline }}
-    <h2 class="text-center text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</h2>
-    {{ end }}
-    {{ if $heading }}
-    <p class="mt-2 text-center text-4xl font-semibold tracking-tight text-balance text-gray-950 sm:text-5xl">{{ $heading }}</p>
-    {{ end }}
-    <div class="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3">
-      {{ range $index, $card := $cards }}
-        {{ $imagePosition := $card.imagePosition | default "top" }}
-        <div class="relative group transition-transform duration-300 ease-in-out hover:transform hover:-translate-y-1 hover:shadow-lg">
-          <div class="absolute inset-px rounded-xl bg-white"></div>
-          {{ if $card.url }}
-          <a href="{{ $card.url }}" class="relative flex flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] h-full group">
-          {{ else }}
-          <div class="relative flex flex-col overflow-hidden rounded-xl-[calc(var(--radius-lg)+1px)]">
-          {{ end }}
-            {{ if and $card.image (eq $imagePosition "top") }}
-            <div class="@container flex items-center justify-center px-8 pt-8 sm:px-10 sm:pt-10">
-              {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "maxWidth" 300 ) }}
-            </div>
-            {{ end }}
-            
-            {{ if or $card.title $card.description }}
-            <div class="px-8 pt-8 pb-6 sm:px-10 sm:pt-10 sm:pb-6">
-              {{ if $card.title }}
-              <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center {{ if $card.url }}group-hover:text-{{ $taglineColor }}{{ end }}">{{ $card.title }}</p>
-              {{ end }}
-              {{ if $card.description }}
-              <p class="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">{{ $card.description }}</p>
-              {{ end }}
-            </div>
-            {{ end }}
-
-            {{ if and $card.image (eq $imagePosition "bottom") }}
-            <div class="@container flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
-              {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "maxWidth" 300 ) }}
-            </div>
-            {{ end }}
-            
-            {{ if $card.linkText }}
-            <div class="px-8 pb-8 pt-4 sm:px-10 sm:pb-8 mt-auto">
-              <div class="flex items-center justify-start">
-                <span class="text-{{ $taglineColor }} font-medium text-sm flex items-center group-hover:underline">
-                  {{ $card.linkText }}
-                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                  </svg>
-                </span>
-              </div>
-            </div>
-            {{ else if not $card.image }}
-            <div class="pb-6"></div> <!-- Empty space at bottom if no link and no image -->
-            {{ end }}
-          {{ if $card.url }}
-          </a>
-          {{ else }}
-          </div>
-          {{ end }}
-          <div class="pointer-events-none absolute inset-px rounded-lg ring-1 shadow-sm ring-black/5 {{ if $card.url }}group-hover:ring-{{ $taglineColor }}/50{{ end }} transition-all"></div>
-        </div>
+<div class="{{ $darkClass }}">
+  <div class="section-bg-light dark:section-bg-dark py-24 sm:py-32">
+    <div class="wrapper">
+      {{ if $tagline }}
+        <h2 class="text-center text-base/7 font-semibold text-product-primary">{{ $tagline }}</h2>
       {{ end }}
+      {{ if $heading }}
+        <p class="{{ if $tagline }}mt-2{{ end }} text-center text-4xl font-semibold tracking-tight text-balance text-heading sm:text-5xl">{{ $heading }}</p>
+      {{ end }}
+      {{ if $description }}
+        <p class="mt-6 mx-auto max-w-2xl text-center text-lg/9 text-body">{{ $description }}</p>
+      {{ end }}
+      <div class="mt-20 grid gap-8 lg:gap-16 md:grid-cols-3">
+        {{ range $index, $card := $cards }}
+        {{ $imagePosition := $card.imagePosition | default "top" }}
+        <div class="relative group transition-transform duration-300 ease-in-out hover:transform hover:-translate-y-1">
+          <div class="absolute inset-px rounded-2xl border surface-secondary surface-border shadow-lg"></div>
+              <div class="relative flex flex-col overflow-hidden">
+                {{ if and $card.image (eq $imagePosition "top") }}
+                  <div class="flex items-center justify-center">
+                    {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")) }}
+                  </div>
+                {{ end }}
+                
+                <div class="p-4 lg:p-8">
+                  {{ if $card.title }}
+                    <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center {{ if $card.url }}group-hover:text-product-primary{{ end }}">{{ $card.title }}</p>
+                  {{ end }}
+
+                  {{ if $card.description }}
+                    <p class="max-w-lg text-sm/8 text-body max-md:text-center">{{ $card.description }}</p>
+                  {{ end }}
+
+                  {{ if $card.url }}
+                    <div class="mt-5 flex items-center justify-center md:justify-start">
+                      {{ partial "components/buttons/buttons.html" (dict
+                          "text" $card.linkText
+                          "url" ($card.url)
+                          "variant" "secondary"
+                          "showArrow" false
+                      ) }}
+                    </div>
+                  {{ end }}
+                </div>
+
+                {{ if and $card.image (eq $imagePosition "bottom") }}
+                  <div class="flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
+                    {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") ) }}
+                  </div>
+                {{ else if not $card.image }}
+                  <div class="pb-6"></div> <!-- Empty space at bottom if no link and no image -->
+                {{ end }}
+              </div>
+            <div class="pointer-events-none absolute inset-px {{ if $card.url }}group-hover:ring-product-underlite{{ end }} transition-all"></div>
+          </div>
+        {{ end }}
+      </div>
     </div>
   </div>
 </div>
