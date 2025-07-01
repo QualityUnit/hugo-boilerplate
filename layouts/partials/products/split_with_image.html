@@ -120,7 +120,7 @@
               <div class="mt-1 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {{ range $index, $size := $product.sizes }}
                   <!-- Active: "ring-2 ring-indigo-500" -->
-                  <div aria-label="{{ $size.name }}" aria-description="{{ $size.description }}" class="relative block cursor-pointer rounded-lg border border-gray-300 p-4 focus:outline-hidden">
+                  <div aria-label="{{ $size.name }}" aria-description="{{ $size.description }}" class="relative block cursor-pointer rounded-xl border border-gray-300 p-4 focus:outline-hidden">
                     <input type="radio" name="size-choice" value="{{ $size.name }}" class="sr-only" {{ if eq $index 0 }}checked{{ end }}>
                     <p class="text-base font-medium text-gray-900">{{ $size.name }}</p>
                     <p class="mt-1 text-sm text-gray-500">{{ $size.description }}</p>
@@ -128,7 +128,7 @@
                       Active: "border", Not Active: "border-2"
                       Checked: "border-indigo-500", Not Checked: "border-transparent"
                     -->
-                    <div class="pointer-events-none absolute -inset-px rounded-lg border-2" aria-hidden="true"></div>
+                    <div class="pointer-events-none absolute -inset-px rounded-xl border-2" aria-hidden="true"></div>
                   </div>
                 {{ end }}
               </div>
@@ -143,7 +143,7 @@
             </a>
           </div>
           <div class="mt-10">
-            <button type="submit" class="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 focus:outline-hidden">Add to bag</button>
+            <button type="submit" class="flex w-full items-center justify-center rounded-xl border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 focus:outline-hidden">Add to bag</button>
           </div>
           <div class="mt-6 text-center">
             <a href="#" class="group inline-flex text-base font-medium">

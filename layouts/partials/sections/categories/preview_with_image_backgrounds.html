@@ -75,7 +75,7 @@
 
     <div class="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-6 lg:gap-8">
       {{ range $categories }}
-        <div class="group relative aspect-2/1 overflow-hidden rounded-lg">
+        <div class="group relative aspect-2/1 overflow-hidden rounded-xl">
           {{ partial "components/media/lazyimg.html" (dict 
             "src" .imageUrl
             "alt" .imageAlt

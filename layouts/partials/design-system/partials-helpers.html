@@ -2,16 +2,16 @@
 <div class="space-y-8">
   
   <!-- Introduction -->
-  <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-lg border border-teal-200">
+  <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl border border-teal-200">
     <h2 class="text-2xl font-bold text-teal-900 mb-3">🔧 Helpers & Utilities Reference</h2>
     <p class="text-teal-800 mb-4">Helper functions and utility partials that provide common functionality across your site. These are typically used internally by other partials or for specific technical requirements.</p>
-    <div class="bg-teal-100 p-3 rounded border border-teal-300">
+    <div class="bg-teal-100 p-3 rounded-xl border border-teal-300">
       <p class="text-sm text-teal-800"><strong>💡 Tip:</strong> Helpers are usually called by other partials but can be used directly when you need specific functionality like language handling or content relationships.</p>
     </div>
   </div>
 
   <!-- Helper Functions -->
-  <div class="bg-background-alt p-6 rounded-lg">
+  <div class="bg-background-alt p-6 rounded-xl">
     <h3 class="text-xl font-semibold mb-4">Helper Functions</h3>
     
     <div class="space-y-6">
@@ -20,7 +20,7 @@
         <h4 class="text-lg font-medium mb-3">Get Language URL</h4>
         <p class="text-text-light mb-4">Generates correct URLs for specific languages, handling translation URLs and fallbacks.</p>
         
-        <div class="bg-background p-4 rounded border mb-4">
+        <div class="bg-background p-4 rounded-xl border mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
           <pre class="text-sm overflow-x-auto"><code>{{`{{ $url := partial "helpers/get-language-url.html" (dict 
   "code" "en" 
@@ -33,17 +33,17 @@
 <a href="{{ $url }}">{{ $langData.name }}</a>`}}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded border">
+        <div class="bg-gray-50 p-4 rounded-xl border">
           <h5 class="font-medium mb-3">Example Output:</h5>
           <div class="space-y-2">
-            <div class="p-3 bg-white rounded border">
+            <div class="p-3 bg-white rounded-xl border">
               <code class="text-sm">
                 <!-- For English: --> <br>
                 {{ partial "helpers/get-language-url.html" (dict "code" "en") }}
                 <!-- Returns: /en/current-page/ -->
               </code>
             </div>
-            <div class="p-3 bg-white rounded border">
+            <div class="p-3 bg-white rounded-xl border">
               <code class="text-sm">
                 <!-- For Spanish: --> <br>
                 {{ partial "helpers/get-language-url.html" (dict "code" "es") }}
@@ -63,7 +63,7 @@
         <h4 class="text-lg font-medium mb-3">Get Country Code</h4>
         <p class="text-text-light mb-4">Converts language codes to country codes for flag displays and regional settings.</p>
         
-        <div class="bg-background p-4 rounded border mb-4">
+        <div class="bg-background p-4 rounded-xl border mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
           <pre class="text-sm overflow-x-auto"><code>{{`{{ $countryCode := partial "helpers/get-country-code.html" (dict 
   "langCode" "en"
@@ -75,28 +75,28 @@
      class="w-5 h-5">`}}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded border">
+        <div class="bg-gray-50 p-4 rounded-xl border">
           <h5 class="font-medium mb-3">Example Conversions:</h5>
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-2">
-              <div class="p-2 bg-white rounded border text-sm">
+              <div class="p-2 bg-white rounded-xl border text-sm">
                 <strong>en</strong> → US
               </div>
-              <div class="p-2 bg-white rounded border text-sm">
+              <div class="p-2 bg-white rounded-xl border text-sm">
                 <strong>es</strong> → ES
               </div>
-              <div class="p-2 bg-white rounded border text-sm">
+              <div class="p-2 bg-white rounded-xl border text-sm">
                 <strong>fr</strong> → FR
               </div>
             </div>
             <div class="space-y-2">
-              <div class="p-2 bg-white rounded border text-sm">
+              <div class="p-2 bg-white rounded-xl border text-sm">
                 <strong>de</strong> → DE
               </div>
-              <div class="p-2 bg-white rounded border text-sm">
+              <div class="p-2 bg-white rounded-xl border text-sm">
                 <strong>pt</strong> → PT
               </div>
-              <div class="p-2 bg-white rounded border text-sm">
+              <div class="p-2 bg-white rounded-xl border text-sm">
                 <strong>zh</strong> → CN
               </div>
             </div>
@@ -113,7 +113,7 @@
         <h4 class="text-lg font-medium mb-3">Generate Hreflang Links</h4>
         <p class="text-text-light mb-4">Generates hreflang link tags for SEO and international site versions.</p>
         
-        <div class="bg-background p-4 rounded border mb-4">
+        <div class="bg-background p-4 rounded-xl border mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
           <pre class="text-sm overflow-x-auto"><code>{{`<!-- In head section -->
 {{ partial "helpers/generate-hreflang-links.html" (dict 
@@ -125,9 +125,9 @@
 <!-- Generates multiple link rel="alternate" tags -->`}}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded border">
+        <div class="bg-gray-50 p-4 rounded-xl border">
           <h5 class="font-medium mb-3">Generated Output:</h5>
-          <div class="p-3 bg-white rounded border">
+          <div class="p-3 bg-white rounded-xl border">
             <code class="text-sm text-gray-600">
               &lt;link rel="alternate" hreflang="en" href="https://example.com/en/page/" /&gt;<br>
               &lt;link rel="alternate" hreflang="es" href="https://example.com/es/page/" /&gt;<br>
@@ -145,7 +145,7 @@
   </div>
 
   <!-- Utility Partials -->
-  <div class="bg-background-alt p-6 rounded-lg">
+  <div class="bg-background-alt p-6 rounded-xl">
     <h3 class="text-xl font-semibold mb-4">Utility Partials</h3>
     
     <div class="space-y-6">
@@ -154,7 +154,7 @@
         <h4 class="text-lg font-medium mb-3">Related Content</h4>
         <p class="text-text-light mb-4">Generates related content suggestions based on tags, categories, or custom relationships.</p>
         
-        <div class="bg-background p-4 rounded border mb-4">
+        <div class="bg-background p-4 rounded-xl border mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
           <pre class="text-sm overflow-x-auto"><code>{{`{{ partial "related_content.html" (dict
   "currentPage" $currentPage
@@ -168,25 +168,25 @@
 ) }}`}}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded border">
+        <div class="bg-gray-50 p-4 rounded-xl border">
           <h5 class="font-medium mb-3">Live Example:</h5>
-          <div class="border rounded-lg overflow-hidden bg-white p-6">
+          <div class="border rounded-xl overflow-hidden bg-white p-6">
             <h5 class="text-lg font-semibold mb-4">Related Articles</h5>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="border rounded-lg p-4">
-                <div class="w-full h-32 bg-gray-200 rounded mb-3"></div>
+              <div class="border rounded-xl p-4">
+                <div class="w-full h-32 bg-gray-200 rounded-xl mb-3"></div>
                 <h6 class="font-medium mb-2">Getting Started with AI Workflows</h6>
                 <p class="text-sm text-gray-600 mb-2">Learn the basics of building your first automation workflow...</p>
                 <span class="text-xs text-gray-500">Mar 15, 2024</span>
               </div>
-              <div class="border rounded-lg p-4">
-                <div class="w-full h-32 bg-gray-200 rounded mb-3"></div>
+              <div class="border rounded-xl p-4">
+                <div class="w-full h-32 bg-gray-200 rounded-xl mb-3"></div>
                 <h6 class="font-medium mb-2">Advanced Integration Patterns</h6>
                 <p class="text-sm text-gray-600 mb-2">Discover powerful integration techniques for complex workflows...</p>
                 <span class="text-xs text-gray-500">Mar 12, 2024</span>
               </div>
-              <div class="border rounded-lg p-4">
-                <div class="w-full h-32 bg-gray-200 rounded mb-3"></div>
+              <div class="border rounded-xl p-4">
+                <div class="w-full h-32 bg-gray-200 rounded-xl mb-3"></div>
                 <h6 class="font-medium mb-2">Optimizing Performance</h6>
                 <p class="text-sm text-gray-600 mb-2">Tips and tricks for making your workflows run faster...</p>
                 <span class="text-xs text-gray-500">Mar 10, 2024</span>
@@ -204,7 +204,7 @@
         <h4 class="text-lg font-medium mb-3">Link Building</h4>
         <p class="text-text-light mb-4">Intelligent link generation for internal linking and SEO optimization.</p>
         
-        <div class="bg-background p-4 rounded border mb-4">
+        <div class="bg-background p-4 rounded-xl border mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
           <pre class="text-sm overflow-x-auto"><code>{{`{{ partial "utils/linkbuilding.html" (dict 
   "content" $content
@@ -222,7 +222,7 @@
   </div>
 
   <!-- Head Utilities -->
-  <div class="bg-background-alt p-6 rounded-lg">
+  <div class="bg-background-alt p-6 rounded-xl">
     <h3 class="text-xl font-semibold mb-4">Head Utilities</h3>
     
     <div class="space-y-6">
@@ -231,7 +231,7 @@
         <h4 class="text-lg font-medium mb-3">CSS Management</h4>
         <p class="text-text-light mb-4">Manages CSS includes, minification, and optimization for performance.</p>
         
-        <div class="bg-background p-4 rounded border mb-4">
+        <div class="bg-background p-4 rounded-xl border mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
           <pre class="text-sm overflow-x-auto"><code>{{`<!-- In head.html -->
 {{ partial "head/css.html" (dict 
@@ -244,7 +244,7 @@
 ) }}`}}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded border">
+        <div class="bg-gray-50 p-4 rounded-xl border">
           <h5 class="font-medium mb-3">Features:</h5>
           <ul class="text-sm space-y-1">
             <li>• Automatic CSS minification in production</li>
@@ -264,7 +264,7 @@
         <h4 class="text-lg font-medium mb-3">JavaScript Management</h4>
         <p class="text-text-light mb-4">Handles JavaScript loading, bundling, and optimization strategies.</p>
         
-        <div class="bg-background p-4 rounded border mb-4">
+        <div class="bg-background p-4 rounded-xl border mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
           <pre class="text-sm overflow-x-auto"><code>{{`<!-- Before closing body tag -->
 {{ partial "head/js.html" (dict 
@@ -277,7 +277,7 @@
 ) }}`}}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded border">
+        <div class="bg-gray-50 p-4 rounded-xl border">
           <h5 class="font-medium mb-3">Features:</h5>
           <ul class="text-sm space-y-1">
             <li>• Automatic script bundling and minification</li>
@@ -297,7 +297,7 @@
         <h4 class="text-lg font-medium mb-3">CSS Variables</h4>
         <p class="text-text-light mb-4">Generates CSS custom properties for theme customization and design tokens.</p>
         
-        <div class="bg-background p-4 rounded border mb-4">
+        <div class="bg-background p-4 rounded-xl border mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
           <pre class="text-sm overflow-x-auto"><code>{{`{{ partial "head/variables.html" (dict 
   "theme" $theme
@@ -309,9 +309,9 @@
 ) }}`}}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded border">
+        <div class="bg-gray-50 p-4 rounded-xl border">
           <h5 class="font-medium mb-3">Generated Variables:</h5>
-          <div class="p-3 bg-white rounded border">
+          <div class="p-3 bg-white rounded-xl border">
             <code class="text-sm text-gray-600">
               :root {<br>
               &nbsp;&nbsp;--color-primary: #3b82f6;<br>
@@ -332,7 +332,7 @@
   </div>
 
   <!-- Social Meta -->
-  <div class="bg-background-alt p-6 rounded-lg">
+  <div class="bg-background-alt p-6 rounded-xl">
     <h3 class="text-xl font-semibold mb-4">Social Meta Tags</h3>
     
     <div class="space-y-6">
@@ -341,7 +341,7 @@
         <h4 class="text-lg font-medium mb-3">Social Meta Tags</h4>
         <p class="text-text-light mb-4">Generates Open Graph, Twitter Card, and other social media meta tags for better sharing.</p>
         
-        <div class="bg-background p-4 rounded border mb-4">
+        <div class="bg-background p-4 rounded-xl border mb-4">
           <h5 class="font-medium mb-2">Usage:</h5>
           <pre class="text-sm overflow-x-auto"><code>{{`<!-- In head.html -->
 {{ partial "social-meta.html" (dict 
@@ -357,9 +357,9 @@
 ) }}`}}</code></pre>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded border">
+        <div class="bg-gray-50 p-4 rounded-xl border">
           <h5 class="font-medium mb-3">Generated Meta Tags:</h5>
-          <div class="p-3 bg-white rounded border">
+          <div class="p-3 bg-white rounded-xl border">
             <code class="text-sm text-gray-600">
               &lt;meta property="og:title" content="Page Title" /&gt;<br>
               &lt;meta property="og:description" content="Page description..." /&gt;<br>
@@ -379,7 +379,7 @@
   </div>
 
   <!-- Helper Guidelines -->
-  <div class="bg-teal-50 p-6 rounded-lg border border-teal-200">
+  <div class="bg-teal-50 p-6 rounded-xl border border-teal-200">
     <h3 class="text-lg font-semibold text-teal-900 mb-2">📋 Helper & Utility Guidelines</h3>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
@@ -404,7 +404,7 @@
       </div>
     </div>
     
-    <div class="mt-4 p-3 bg-yellow-100 rounded border border-yellow-300">
+    <div class="mt-4 p-3 bg-yellow-100 rounded-xl border border-yellow-300">
       <p class="text-sm text-yellow-800"><strong>⚠️ Technical Note:</strong> Most helpers are called automatically by the theme, but you can use them directly for custom functionality. Always test helpers in your development environment before deploying.</p>
     </div>
   </div>

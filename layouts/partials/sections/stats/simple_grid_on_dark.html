@@ -99,7 +99,7 @@
         <p class="mt-4 text-lg/8 {{ $descriptionColor }}">{{ $description }}</p>
       </div>
       {{ end }}
-      <dl class="mt-16 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-4">
+      <dl class="mt-16 grid grid-cols-1 gap-0.5 overflow-hidden rounded-xl text-center sm:grid-cols-2 lg:grid-cols-4">
         {{ range $stat := $stats }}
         <div class="flex flex-col {{ $statBgColor }} {{ $statPadding }}">
           <dt class="text-sm/6 font-semibold {{ $labelColor }}">{{ $stat.label }}</dt>

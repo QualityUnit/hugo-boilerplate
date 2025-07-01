@@ -139,7 +139,7 @@
       <a href="{{ $ctaUrl }}" class="rounded-md {{ $ctaBgColor }} px-3 py-2 text-sm font-semibold {{ $ctaTextColor }} shadow-xs {{ $ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $ctaText }}</a>
     </div>
     <div class="flex lg:hidden">
-      <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white" aria-expanded="false" aria-controls="{{ $mobileMenuId }}">
+      <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-xl p-2.5 text-white" aria-expanded="false" aria-controls="{{ $mobileMenuId }}">
         <span class="sr-only">Open main menu</span>
         <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -163,7 +163,7 @@
           ) }}
         </a>
         <a href="{{ $ctaUrl }}" class="ml-auto rounded-md {{ $ctaBgColor }} px-3 py-2 text-sm font-semibold {{ $ctaTextColor }} shadow-xs {{ $ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $ctaText }}</a>
-        <button type="button" class="-m-2.5 rounded-md p-2.5 text-white close-mobile-menu">
+        <button type="button" class="-m-2.5 rounded-xl p-2.5 text-white close-mobile-menu">
           <span class="sr-only">Close menu</span>
           <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -174,7 +174,7 @@
         <div class="-my-6 divide-y divide-gray-700">
           <div class="space-y-2 py-6">
             {{- range $menuItems -}}
-              <a href="{{ .url }}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-gray-800 hover:text-white">{{ .title }}</a>
+              <a href="{{ .url }}" class="-mx-3 block rounded-xl px-3 py-2 text-base/7 font-semibold text-white hover:bg-gray-800 hover:text-white">{{ .title }}</a>
             {{- end -}}
           </div>
           <div class="py-6">

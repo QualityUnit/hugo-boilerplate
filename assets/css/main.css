@@ -132,7 +132,7 @@
   
   /* Secondary button – no background, just primary-colored text on light background */
   .btn-secondary {
-    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-lg shadow-sm bg-white border-gray-300 text-gray-900 hover:bg-gray-400/5 btn-transition;
+    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-sm bg-white border-gray-300 text-gray-900 hover:bg-gray-400/5 btn-transition;
   }
 
   /* Secondary button for alternate light backgrounds – uses primary text for visibility */
