@@ -1,19 +1,26 @@
-{{/* 
-  Features partial with intro and tabs
+{{/* Features partial with intro and tabs
   
   Parameters:
   - backgroundColor: Background color class (default: "bg-white")
   - heading: Main heading text (default: "")
-  - description: Description text below the main heading (default: "")
+  - description: Description content below the main heading. Can be:
+    * Simple string: Treated as plain text.
+    * Array of objects: For complex mixed content. Each object can have:
+      - type: "code" | "list" | "heading" | "horizontalRule" | "text"
+      - content: Content based on type (string for text and code, array for list)
+      - language: For code blocks to specify language for syntax highlighting
+      - For type "list": "items" (array of strings or objects with text) and "listType" ("ordered" | "unordered", default: "unordered")
+      - For type "heading": "level" (1-6, default: 2)
   - page: Page context for linkbuilding (required)
   - verticalAlign: Controls the vertical alignment of content and image ("center" or "top", default: "top")
+  - widthContainer: Controls the width of the container ("wide" or "narrow", default: "wide")
   - activeTab: ID of the tab that should be active by default (default: first tab)
   - tabs: Array of tab objects with the following structure:
     - id: Unique ID for the tab
     - title: Tab title
     - content: Tab content object with:
       - title: Content title
-      - description: Content description
+      - description: Enhanced description (same format as main description)
       - imageUrl: URL to content image
       - imageAlt: Alt text for content image
 */}}
@@ -23,6 +30,7 @@
 {{ $description := .description | default "" }}
 {{ $page := .page }}
 {{ $verticalAlign := .verticalAlign | default "top" }}
+{{ $widthContainer := .widthContainer | default "wide" }}
 {{ $uniqueID := printf "features-tabs-%d" (now.UnixNano) }}
 {{ $activeTab := .activeTab }}
 
@@ -37,12 +45,104 @@
   {{ end }}
 {{ end }}
 
+{{/* Helper function to render enhanced description */}}
+{{ define "renderDescription" }}
+  {{ $desc := .description }}
+  {{ $page := .page }}
+
+  {{/* If description is a slice, iterate through blocks. Otherwise, treat as a single string. */}}
+  {{ if reflect.IsSlice $desc }}
+    {{ range $index, $block := $desc }}
+      {{ if gt $index 0 }}
+        <div class="mt-4"> {{/* Use mt-4 for spacing between blocks within description */}}
+      {{ else }}
+        <div>
+      {{ end }}
+        {{ template "renderContentBlock" (dict "block" $block "page" $page) }}
+      </div>
+    {{ end }}
+  {{ else }}
+    {{/* Treat as a simple string. No markdownify. */}}
+    <div>{{ partial "utils/linkbuilding" (dict "content" $desc "page" $page) | safeHTML }}</div>
+  {{ end }}
+{{ end }}
+
+{{/* Helper function to render a single content block */}}
+{{ define "renderContentBlock" }}
+  {{ $block := .block }}
+  {{ $page := .page }}
+  
+  {{ if reflect.IsMap $block }}
+    {{ $type := $block.type | default "text" }} {{/* Default to text for simplicity */}}
+    {{ $content := $block.content }}
+    
+    {{ if eq $type "html" }}
+      {{ $content }}
+    {{ else if eq $type "code" }}
+      <div class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        {{ $language := $block.language | default "auto" }}
+        <pre><code class="language-{{ $language }}">{{ $content }}</code></pre>
+      </div>
+    {{ else if eq $type "list" }}
+      {{ $listType := $block.listType | default "unordered" }}
+      {{ $items := $block.items }}
+      
+      {{ if eq $listType "ordered" }}
+        <ol class="list-decimal list-inside space-y-2">
+          {{ range $items }}
+            <li>
+              {{ if reflect.IsMap . }}
+                {{ if .html }}{{ .html | safeHTML }}{{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}{{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
+              {{ else }}
+                {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+              {{ end }}
+            </li>
+          {{ end }}
+        </ol>
+      {{ else }} {{/* Default to unordered */}}
+        <ul class="list-disc list-inside space-y-2">
+          {{ range $items }}
+            <li>
+              {{ if reflect.IsMap . }}
+                {{ if .html }}{{ .html | safeHTML }}{{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}{{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
+              {{ else }}
+                {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+              {{ end }}
+            </li>
+          {{ end }}
+        </ul>
+      {{ end }}
+    {{ else if eq $type "heading" }}
+      {{ $level := $block.level | default 2 }} {{/* Default to H2 */}}
+      {{ if eq $level 1 }}<h1 class="text-4xl font-bold">{{ $content }}</h1>
+      {{ else if eq $level 2 }}<h2 class="text-3xl font-bold">{{ $content }}</h2>
+      {{ else if eq $level 3 }}<h3 class="text-2xl font-bold">{{ $content }}</h3>
+      {{ else if eq $level 4 }}<h4 class="text-xl font-bold">{{ $content }}</h4>
+      {{ else if eq $level 5 }}<h5 class="text-lg font-bold">{{ $content }}</h5>
+      {{ else if eq $level 6 }}<h6 class="text-base font-bold">{{ $content }}</h6>
+      {{ else }}<h2 class="text-3xl font-bold">{{ $content }}</h2> {{/* Fallback */}}
+      {{ end }}
+    {{ else if eq $type "horizontalRule" }}
+      <hr class="my-6 border-t border-gray-200" />
+    {{ else if eq $type "markdown" }}
+      {{/* Markdown type is treated as plain text */}}
+      <div>{{ $content }}</div>
+    {{ else }} {{/* Default text type (no explicit type, or "text") */}}
+      <div>{{ partial "utils/linkbuilding" (dict "content" $content "page" $page) | safeHTML }}</div>
+    {{ end }}
+  {{ else }} {{/* If it's just a simple string (not wrapped in a map), treat as plain text */}}
+    <div>{{ partial "utils/linkbuilding" (dict "content" $block "page" $page) | safeHTML }}</div>
+  {{ end }}
+{{ end }}
+
 <div class="{{ $backgroundColor }}">
-  <section aria-labelledby="{{ $uniqueID }}-heading" class="mx-auto max-w-7xl py-32 sm:px-2 lg:px-8">
+  <section aria-labelledby="{{ $uniqueID }}-heading" class="mx-auto {{ if eq $widthContainer "narrow" }}max-w-5xl{{ else }}max-w-7xl{{ end }} py-32 sm:px-2 lg:px-8">
     <div class="mx-auto max-w-2xl px-4 lg:max-w-none lg:px-0">
       <div class="w-full text-center">
         <h2 id="{{ $uniqueID }}-heading" class="text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">{{ $heading }}</h2>
-        <p class="mt-4 text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+        <div class="mt-4 text-gray-500">
+          {{ template "renderDescription" (dict "description" $description "page" $page) }}
+        </div>
       </div>
 
       <div class="mt-4">
@@ -70,11 +170,17 @@
             aria-labelledby="{{ $uniqueID }}-tab-{{ $tab.id }}" 
             role="tabpanel" 
             tabindex="0">
-            {{ if or $tab.content.title $tab.content.description }}
+            {{ if or ($tab.content.title) ($tab.content.description) }}
             <div class="flex flex-col-reverse lg:grid lg:grid-cols-12 lg:gap-x-8 {{ if eq $verticalAlign "center" }}lg:items-center{{ end }}">
               <div class="mt-6 lg:col-span-6 lg:mt-0">
                 {{if $tab.content.title }}<h3 class="text-3xl font-medium text-gray-900">{{ $tab.content.title }}</h3>{{ end }}
-                {{if $tab.content.description }}<p class="mt-2 text-md text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $tab.content.description "page" $page) | safeHTML }}</p>{{ end }}
+                {{if $tab.content.description }}
+                <div class="mt-2 text-md text-gray-500">
+                  {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
+                </div>
+                {{ end }}
+                
+                {{/* No markdown content rendering */}}
               </div>
               {{ if $tab.content.imageUrl }}
               <div class="lg:col-span-6">
@@ -89,12 +195,16 @@
             </div>
             {{ else }}
             <div class="w-full">
+              {{ if $tab.content.imageUrl }}
               {{ partial "components/media/lazyimg.html" (dict 
                 "src" $tab.content.imageUrl
                 "alt" $tab.content.imageAlt
                 "class" "aspect-2/1 w-full rounded-lg bg-gray-100 object-cover sm:aspect-5/2"
                 "maxWidth" 3000
               ) }}
+              {{ end }}
+              
+              {{/* No markdown content rendering when no title/description */}}
             </div>
             {{ end }}
           </div>

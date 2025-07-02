@@ -1,52 +1,92 @@
 {{- /*
   Usage in markdown:
+  
+  IMPORTANT: This component supports a maximum of three tabs.
+  
   {{< features-with-intro-and-tabs 
-    backgroundColor="bg-white"
-    heading="Technical Specifications" 
-    description="The Organize modular system offers endless options for arranging your favorite and most used items."
-    activeTab="design"
-    verticalAlign="center"
+    backgroundColor="bg-gray-50"
+    heading="Testing Simple Text Capabilities" 
+    description="This is demonstration information. Now multiple lines of text can be used here."
+    activeTab="enhanced-mixed"
+    verticalAlign="top"
+    widthContainer="wide"
   >}}
     [
       {
-        "id": "design",
-        "title": "Design",
+        "id": "simple-text",
+        "title": "Simple Text",
         "content": {
-          "title": "Adaptive and modular",
-          "description": "The Organize base set allows you to configure and evolve your setup as your items and habits change. The included trays and optional add-ons are easily rearranged to achieve that perfect setup.",
-          "imageUrl": "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-feature-06-detail-01.jpg",
-          "imageAlt": "Maple organizer base with slots, supporting white polycarbonate trays of various sizes."
+          "title": "Basic Text Content",
+          "description": "This tab shows simple text content.\nNow you can write text freely, with line breaks.\nNo HTML or Markdown in these fields.",
+          "imageUrl": "/images/placeholder-image.jpg",
+          "imageAlt": "Simple text example"
         }
       },
       {
-        "id": "material",
-        "title": "Material",
+        "id": "enhanced-mixed",
+        "title": "Mixed Content",
         "content": {
-          "title": "Natural wood options",
-          "description": "Organize has options for rich walnut and bright maple base materials. Accent your desk with a contrasting material, or match similar woods for a calm and cohesive look. Every base is hand sanded and finished.",
-          "imageUrl": "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-feature-06-detail-02.jpg",
-          "imageAlt": "Walnut organizer base with pen, sticky note, phone, and bin trays, next to modular drink coaster attachment."
+          "title": "Enhanced Content Example",
+          "description": [
+            {
+              "type": "heading",
+              "level": 2,
+              "content": "Powerful Combination of Headings"
+            },
+            {
+              "type": "text",
+              "content": "This tab demonstrates mixing different content types in tab descriptions.\nHere is just simple text."
+            },
+            {
+              "type": "list",
+              "listType": "unordered",
+              "items": [
+                "Easy integration with existing systems",
+                "Powerful automation capabilities",
+                {"text": "Advanced AI-based functions"},
+                {"text": "24/7 customer support"},
+                "Enterprise-grade security"
+              ]
+            },
+            {
+              "type": "horizontalRule"
+            },
+            {
+              "type": "code",
+              "content": "const mixedContent = { status: \"active\", types: [\"text\", \"list\", \"code\"] }; // Single line code"
+            }
+          ],
+          "imageUrl": "/images/placeholder-image.jpg",
+          "imageAlt": "Mixed content example"
         }
-      }
+      },
+      {
+        "id": "code-examples",
+        "title": "Code Examples",
+        "content": {
+          "title": "Developer Integration",
+          "description": [
+            {
+              "type": "text",
+              "content": "Complete code examples for various programming languages and use cases."
+            },
+            {
+              "type": "code",
+              "language": "python",
+              "content": "# Creating a workflow using Python SDK\nimport flowhunt\nfrom flowhunt import Workflow, Agent\n\n# Initialize client\nclient = flowhunt.Client(api_key=\"your-api-key\")\n\n# Create new workflow\nworkflow = client.workflows.create(\n    name=\"AI Content Assistant\",\n    description=\"Multi-agent content creation system\"\n)\n\n# Add agents\nresearcher = Agent(role=\"researcher\", model=\"gpt-4-turbo\")\nwriter = Agent(role=\"writer\", model=\"claude-3-opus\")\nworkflow.add_agents([researcher, writer])\n\nprint(f\"Workflow created: {workflow.id}\")"
+            },
+            {
+              "type": "code",
+              "language": "bash",
+              "content": "# Install and initialize project\nnpm install -g @flowhunt/cli\npip install flowhunt-python\n\n# Create new project\nflowhunt init ai-assistant-project\ncd ai-assistant-project\n\n# Run in development mode\nflowhunt dev --watch --verbose"
+            }
+          ],
+          "imageUrl": "/images/placeholder-image.jpg",
+          "imageAlt": "Code examples and developer tools"
+        }
+      },
     ]
   {{< /features-with-intro-and-tabs >}}
-  
-  Parameters:
-  - backgroundColor: Background color class (default: "bg-white")
-  - heading: Main heading text (default: "Technical Specifications")
-  - description: Description text below the main heading
-  - activeTab: ID of the tab that should be active by default (default: first tab)
-  - verticalAlign: Controls the vertical alignment of content and image ("center" or "top", default: "top")
-  
-  Inner Content:
-  JSON array of tab objects with the following structure:
-  - id: Unique ID for the tab
-  - title: Tab title display text
-  - content: Object containing tab content with:
-    - title: Content section title
-    - description: Content section description
-    - imageUrl: URL for the tab's image
-    - imageAlt: Alt text for the image
 */ -}}
 
 {{ $backgroundColor := .Get "backgroundColor" | default "bg-white" }}
@@ -54,14 +94,26 @@
 {{ $description := .Get "description" | default "" }}
 {{ $activeTab := .Get "activeTab" | default "" }}
 {{ $verticalAlign := .Get "verticalAlign" | default "top" }}
+{{ $widthContainer := .Get "widthContainer" | default "wide" }}
 
-{{ $defaultTabs := slice }}
+{{/* Initialize data */}}
+{{ $tabs := slice }}
 
-{{ $tabs := $defaultTabs }}
+{{/* Get inner content */}}
+{{ $rawInnerContent := "" }}
 {{ with .Inner }}
-  {{ if . }}
-    {{ $tabs = . | unmarshal }}
-  {{ end }}
+    {{ $rawInnerContent = trim (string .) " \n\r\t" }}
+{{ end }}
+
+{{/* Parse JSON array of tabs */}}
+{{ if $rawInnerContent }}
+    {{ $tabs = $rawInnerContent | unmarshal }}
+    
+    {{/* Limit to maximum 3 tabs */}}
+    {{ if gt (len $tabs) 3 }}
+        {{ $tabs = first 3 $tabs }}
+        {{ warnf "features-with-intro-and-tabs shortcode: More than 3 tabs provided. Only the first 3 will be used." }}
+    {{ end }}
 {{ end }}
 
 {{ partial "sections/features/with_intro_and_tabs.html" (dict 
@@ -70,6 +122,7 @@
   "description" $description
   "activeTab" $activeTab
   "verticalAlign" $verticalAlign
+  "widthContainer" $widthContainer
   "tabs" $tabs
   "page" $.Page
 ) }}
