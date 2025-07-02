@@ -1,19 +1,26 @@
 {{/* Features partial with intro and tabs
   
   Parameters:
-  - backgroundColor: Background color class (default: "bg-white")
+  - eyebrow: Small text displayed above the heading (default: "")
   - heading: Main heading text (default: "")
   - description: Description content below the main heading. Can be:
     * Simple string: Treated as plain text.
     * Array of objects: For complex mixed content. Each object can have:
-      - type: "code" | "list" | "heading" | "horizontalRule" | "text"
+      - type: "code" | "list" | "heading" | "text"
       - content: Content based on type (string for text and code, array for list)
       - language: For code blocks to specify language for syntax highlighting
-      - For type "list": "items" (array of strings or objects with text) and "listType" ("ordered" | "unordered", default: "unordered")
+      - For type "list": "items" (array of strings or objects with text) and "listType" ("numbers" | "circles" | "checks", default: "checks")
+        * For hierarchical lists, use objects with "text" and "items" (for nested items)
+        * For "numbers" list type: First level shows numbered circles with primary color, nested items use bullet points
+        * For "circles" list type: First level uses chevron icons, nested items use bullet points
+        * For "checks" list type: First level uses blue checkmark icons, nested items use bullet points
+        * For "numbers" type, you can specify a custom number via the "number" property
+        * Icons are loaded using the lazyimg partial and should point to SVG files
       - For type "heading": "level" (1-6, default: 2)
   - page: Page context for linkbuilding (required)
-  - verticalAlign: Controls the vertical alignment of content and image ("center" or "top", default: "top")
-  - widthContainer: Controls the width of the container ("wide" or "narrow", default: "wide")
+  - widthContainer: Controls the width and layout of the container:
+    * "wide" (default): wrapper width with two-column layout (text left, image right)
+    * "narrow": wrapper-narrow width with one-column layout (image on top, text below)
   - activeTab: ID of the tab that should be active by default (default: first tab)
   - tabs: Array of tab objects with the following structure:
     - id: Unique ID for the tab
@@ -25,11 +32,10 @@
       - imageAlt: Alt text for content image
 */}}
 
-{{ $backgroundColor := .backgroundColor | default "bg-white" }}
+{{ $eyebrow := .eyebrow | default "" }}
 {{ $heading := .heading | default "" }}
 {{ $description := .description | default "" }}
 {{ $page := .page }}
-{{ $verticalAlign := .verticalAlign | default "top" }}
 {{ $widthContainer := .widthContainer | default "wide" }}
 {{ $uniqueID := printf "features-tabs-%d" (now.UnixNano) }}
 {{ $activeTab := .activeTab }}
@@ -54,7 +60,7 @@
   {{ if reflect.IsSlice $desc }}
     {{ range $index, $block := $desc }}
       {{ if gt $index 0 }}
-        <div class="mt-4"> {{/* Use mt-4 for spacing between blocks within description */}}
+        <div class="mt-8"> {{/* Use mt-4 for spacing between blocks within description */}}
       {{ else }}
         <div>
       {{ end }}
@@ -79,51 +85,131 @@
     {{ if eq $type "html" }}
       {{ $content }}
     {{ else if eq $type "code" }}
-      <div class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+      <div class="bg-gray-900 text-white p-5 rounded-lg">
         {{ $language := $block.language | default "auto" }}
-        <pre><code class="language-{{ $language }}">{{ $content }}</code></pre>
+        <pre class="whitespace-pre-wrap break-words">
+          <code class="language-{{ $language }}">{{ $content }}</code>
+        </pre>
       </div>
     {{ else if eq $type "list" }}
-      {{ $listType := $block.listType | default "unordered" }}
+      {{ $listType := $block.listType | default "checks" }}
       {{ $items := $block.items }}
       
-      {{ if eq $listType "ordered" }}
-        <ol class="list-decimal list-inside space-y-2">
+      {{ if eq $listType "checks" }}
+        <ul class="space-y-8 my-8">
           {{ range $items }}
-            <li>
-              {{ if reflect.IsMap . }}
-                {{ if .html }}{{ .html | safeHTML }}{{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}{{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
-              {{ else }}
-                {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
-              {{ end }}
+            <li class="flex">
+              <span class="flex-shrink-0 flex mt-2 mr-3">
+                {{ partial "icons/check-circle-solid" "w-5 h-5 product-icon" }}
+              </span>
+              <div>
+                {{ if reflect.IsMap . }}
+                  {{ if .html }}{{ .html | safeHTML }}
+                  {{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}
+                  {{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
+                  
+                  {{ if .items }}
+                    <ul class="list-disc list-inside space-y-2 ml-0 mt-2">
+                      {{ range .items }}
+                        <li>
+                          {{ if reflect.IsMap . }}
+                            {{ if .html }}{{ .html | safeHTML }}{{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}{{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
+                          {{ else }}
+                            {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+                          {{ end }}
+                        </li>
+                      {{ end }}
+                    </ul>
+                  {{ end }}
+                {{ else }}
+                  {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+                {{ end }}
+              </div>
             </li>
           {{ end }}
-        </ol>
-      {{ else }} {{/* Default to unordered */}}
-        <ul class="list-disc list-inside space-y-2">
+        </ul>
+      {{ else if eq $listType "numbers" }}
+        <ul class="space-y-4">
           {{ range $items }}
-            <li>
-              {{ if reflect.IsMap . }}
-                {{ if .html }}{{ .html | safeHTML }}{{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}{{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
-              {{ else }}
-                {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
-              {{ end }}
+            <li class="flex">
+              <span class="flex-shrink-0 flex items-center justify-center rounded-full bg-primary text-white h-5 w-5 mt-2 mr-3">
+                {{ with .number }}
+                  {{ . }}
+                {{ else }}
+                 <span class="list-disc list-inside"> </span>
+                {{ end }}
+              </span>
+
+              <div>
+                {{ if reflect.IsMap . }}
+                  {{ if .html }}{{ .html | safeHTML }}
+                  {{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}
+                  {{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
+                  
+                  {{ if .items }}
+                    <ul class="list-disc list-inside space-y-2 ml-0 mt-2">
+                      {{ range .items }}
+                        <li>
+                          {{ if reflect.IsMap . }}
+                            {{ if .html }}{{ .html | safeHTML }}{{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}{{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
+                          {{ else }}
+                            {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+                          {{ end }}
+                        </li>
+                      {{ end }}
+                    </ul>
+                  {{ end }}
+                {{ else }}
+                  {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+                {{ end }}
+              </div>
+            </li>
+          {{ end }}
+        </ul>
+      {{ else }} {{/* Default to circles with chevron for first level */}}
+        <ul class="space-y-4">
+          {{ range $items }}
+            <li class="flex">
+              <span class="flex-shrink-0 flex justify-center mr-3 product-icon">
+                {{ partial "components/media/lazyimg.html" (dict 
+                  "src" "/images/icons/chevron-right.svg"
+                  "alt" "Chevron icon"
+                  "class" "h-5 w-5"
+                ) }}
+              </span>
+              <div>
+                {{ if reflect.IsMap . }}
+                  {{ if .html }}{{ .html | safeHTML }}
+                  {{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}
+                  {{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
+                  
+                  {{ if .items }}
+                    <ul class="list-disc list-inside space-y-2 ml-0 mt-2">
+                      {{ range .items }}
+                        <li>
+                          {{ if reflect.IsMap . }}
+                            {{ if .html }}{{ .html | safeHTML }}{{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}{{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
+                          {{ else }}
+                            {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+                          {{ end }}
+                        </li>
+                      {{ end }}
+                    </ul>
+                  {{ end }}
+                {{ else }}
+                  {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+                {{ end }}
+              </div>
             </li>
           {{ end }}
         </ul>
       {{ end }}
     {{ else if eq $type "heading" }}
-      {{ $level := $block.level | default 2 }} {{/* Default to H2 */}}
-      {{ if eq $level 1 }}<h1 class="text-4xl font-bold">{{ $content }}</h1>
-      {{ else if eq $level 2 }}<h2 class="text-3xl font-bold">{{ $content }}</h2>
-      {{ else if eq $level 3 }}<h3 class="text-2xl font-bold">{{ $content }}</h3>
-      {{ else if eq $level 4 }}<h4 class="text-xl font-bold">{{ $content }}</h4>
-      {{ else if eq $level 5 }}<h5 class="text-lg font-bold">{{ $content }}</h5>
-      {{ else if eq $level 6 }}<h6 class="text-base font-bold">{{ $content }}</h6>
-      {{ else }}<h2 class="text-3xl font-bold">{{ $content }}</h2> {{/* Fallback */}}
-      {{ end }}
-    {{ else if eq $type "horizontalRule" }}
-      <hr class="my-6 border-t border-gray-200" />
+      {{ $level := int ($block.level | default 2) }}
+      {{ $tag := printf "h%d" $level }}
+      {{ $sizeMap := dict "1" "text-4xl" "2" "text-3xl" "3" "text-2xl" "4" "text-xl" "5" "text-lg" "6" "text-base" }}
+      {{ $textSize := index $sizeMap (printf "%d" $level) }}
+      {{ printf "<%s class=\"font-bold %s\">%s</%s>" $tag $textSize $content $tag | safeHTML }}
     {{ else if eq $type "markdown" }}
       {{/* Markdown type is treated as plain text */}}
       <div>{{ $content }}</div>
@@ -135,23 +221,25 @@
   {{ end }}
 {{ end }}
 
-<div class="{{ $backgroundColor }}">
-  <section aria-labelledby="{{ $uniqueID }}-heading" class="mx-auto {{ if eq $widthContainer "narrow" }}max-w-5xl{{ else }}max-w-7xl{{ end }} py-32 sm:px-2 lg:px-8">
-    <div class="mx-auto max-w-2xl px-4 lg:max-w-none lg:px-0">
-      <div class="w-full text-center">
-        <h2 id="{{ $uniqueID }}-heading" class="text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">{{ $heading }}</h2>
-        <div class="mt-4 text-gray-500">
+<section aria-labelledby="{{ $uniqueID }}-heading" class="mx-auto {{ if eq $widthContainer "narrow" }}wrapper-narrow{{ else }}wrapper{{ end }} py-32 sm:px-2 lg:px-8">
+    <div class="max-w-none rounded-xl">
+      <div class="w-full pt-16 pl-8 pr-8 pb-8">
+        {{ if $eyebrow }}
+          <p class="text-base/6 font-semibold product-text">{{ $eyebrow }}</p>
+        {{ end }}
+        <h2 id="{{ $uniqueID }}-heading" class="mt-2.5 text-3xl font-bold tracking-tight text-heading sm:text-5xl">{{ $heading }}</h2>
+        <div class="mt-[1.625rem] text-tertiary">
           {{ template "renderDescription" (dict "description" $description "page" $page) }}
         </div>
       </div>
 
-      <div class="mt-4">
-        <div class="-mx-4 flex overflow-x-auto sm:mx-0">
-          <div class="flex-auto border-b border-gray-200 px-4 sm:px-0">
-            <div class="-mb-px flex justify-center space-x-10" aria-orientation="horizontal" role="tablist">
+      <div class="w-full mx-auto">
+        <div class="flex overflow-x-auto w-full">
+          <div class="flex-auto border-b surface-border w-full">
+            <div class="flex px-8 w-full" aria-orientation="horizontal" role="tablist">
               {{ range $index, $tab := $tabs }}
                 <button id="{{ $uniqueID }}-tab-{{ $tab.id }}" 
-                  class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}border-primary text-primary{{ else }}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{{ end }} py-6 text-base font-medium whitespace-nowrap" 
+                  class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}product-border product-primary{{ else }}border-transparent text-tertiary hover:product-border hover:product-primary{{ end }} py-8 px-6 text-base font-semibold tracking-[-0.32px] whitespace-nowrap" 
                   aria-controls="{{ $uniqueID }}-panel-{{ $tab.id }}" 
                   role="tab" 
                   type="button"
@@ -166,53 +254,72 @@
 
         {{ range $index, $tab := $tabs }}
           <div id="{{ $uniqueID }}-panel-{{ $tab.id }}" 
-            class="text-lg space-y-16 pt-10 lg:pt-16 {{ if ne $tab.id $defaultActiveTabId }}hidden{{ end }}" 
+            class="p-8 pb-32 {{ if ne $tab.id $defaultActiveTabId }}hidden{{ end }}" 
             aria-labelledby="{{ $uniqueID }}-tab-{{ $tab.id }}" 
             role="tabpanel" 
             tabindex="0">
             {{ if or ($tab.content.title) ($tab.content.description) }}
-            <div class="flex flex-col-reverse lg:grid lg:grid-cols-12 lg:gap-x-8 {{ if eq $verticalAlign "center" }}lg:items-center{{ end }}">
-              <div class="mt-6 lg:col-span-6 lg:mt-0">
-                {{if $tab.content.title }}<h3 class="text-3xl font-medium text-gray-900">{{ $tab.content.title }}</h3>{{ end }}
-                {{if $tab.content.description }}
-                <div class="mt-2 text-md text-gray-500">
-                  {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
+              {{ if eq $widthContainer "narrow" }}
+                <div class="flex flex-col w-full">
+                  {{ if $tab.content.imageUrl }}
+                    <div class="flex items-center justify-center my-8">
+                      {{ partial "components/media/lazyimg.html" (dict 
+                        "src" $tab.content.imageUrl
+                        "alt" $tab.content.imageAlt
+                        "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
+                      ) }}
+                    </div>
+                  {{ end }}
+                  <div>
+                      {{if $tab.content.title }}
+                        <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
+                      {{ end }}
+                      {{if $tab.content.description }}
+                        <div class="mt-2 text-base/9 text-tertiary">
+                          {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
+                        </div>
+                      {{ end }}
+                  </div>
                 </div>
-                {{ end }}
-                
-                {{/* No markdown content rendering */}}
-              </div>
-              {{ if $tab.content.imageUrl }}
-              <div class="lg:col-span-6">
-                {{ partial "components/media/lazyimg.html" (dict 
-                  "src" $tab.content.imageUrl
-                  "alt" $tab.content.imageAlt
-                  "class" "aspect-2/1 w-full rounded-lg bg-gray-100 object-cover sm:aspect-5/2"
-                  "maxWidth" 800
-                ) }}
-              </div>
+              {{ else }} {{/* Default to wide with two columns */}}
+                <div class="flex flex-col-reverse lg:grid lg:grid-cols-12 lg:gap-x-8 lg:items-center">
+                  <div class="lg:col-span-6">
+                    {{if $tab.content.title }}
+                      <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
+                    {{ end }}
+                    {{if $tab.content.description }}
+                      <div class="mt-2 text-base/9 text-tertiary">
+                        {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
+                      </div>
+                    {{ end }}
+                  </div>
+                  {{ if $tab.content.imageUrl }}
+                    <div class="lg:col-span-6">
+                      {{ partial "components/media/lazyimg.html" (dict 
+                        "src" $tab.content.imageUrl
+                        "alt" $tab.content.imageAlt
+                        "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
+                      ) }}
+                    </div>
+                  {{ end }}
+                </div>
               {{ end }}
-            </div>
             {{ else }}
-            <div class="w-full">
-              {{ if $tab.content.imageUrl }}
-              {{ partial "components/media/lazyimg.html" (dict 
-                "src" $tab.content.imageUrl
-                "alt" $tab.content.imageAlt
-                "class" "aspect-2/1 w-full rounded-lg bg-gray-100 object-cover sm:aspect-5/2"
-                "maxWidth" 3000
-              ) }}
-              {{ end }}
-              
-              {{/* No markdown content rendering when no title/description */}}
-            </div>
+              <div class="w-full">
+                {{ if $tab.content.imageUrl }}
+                  {{ partial "components/media/lazyimg.html" (dict 
+                    "src" $tab.content.imageUrl
+                    "alt" $tab.content.imageAlt
+                    "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
+                  ) }}
+                  {{ end }}
+              </div>
             {{ end }}
           </div>
         {{ end }}
       </div>
     </div>
   </section>
-</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -233,13 +340,13 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Update tab button styles
       document.querySelectorAll(`[data-tabs-group="${tabsGroup}"]`).forEach(btn => {
-        btn.classList.remove('border-primary', 'text-primary');
-        btn.classList.add('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
+        btn.classList.remove('product-border', 'product-primary');
+        btn.classList.add('border-transparent', 'text-tertiary', 'hover:product-border', 'hover:product-primary');
       });
       
       // Style the active tab
-      this.classList.remove('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
-      this.classList.add('border-primary', 'text-primary');
+      this.classList.remove('border-transparent', 'text-tertiary', 'hover:product-border', 'hover:product-primary');
+      this.classList.add('product-border', 'product-primary');
     });
   });
 });

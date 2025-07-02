@@ -3,13 +3,13 @@
   
   IMPORTANT: This component supports a maximum of three tabs.
   
-  {{< features-with-intro-and-tabs 
-    backgroundColor="bg-gray-50"
+  {{< features-with-intro-and-tabs
+    eyebrow="Optional Eyebrow Text"  // Small text displayed above the heading (default: "")
     heading="Testing Simple Text Capabilities" 
     description="This is demonstration information. Now multiple lines of text can be used here."
     activeTab="enhanced-mixed"
-    verticalAlign="top"
-    widthContainer="wide"
+    // verticalAlign parameter is no longer used
+    widthContainer="wide"  // Controls layout width: "wide" (max-w-7xl, two columns with text left/image right) or "narrow" (900px, one column with image on top and text below)
   >}}
     [
       {
@@ -39,8 +39,13 @@
             },
             {
               "type": "list",
-              "listType": "unordered",
+              "listType": "checks",  // Options: "numbers" | "circles" | "checks", default: "checks"
               "items": [
+                // For hierarchical lists, use objects with "text" and "items" (for nested items)
+                // For "numbers" list type: First level shows numbered circles with primary color, nested items use bullet points
+                // For "circles" list type: First level uses chevron icons, nested items use bullet points 
+                // For "checks" list type: First level uses blue checkmark icons, nested items use bullet points
+                // For "numbers" type, you can specify a custom number via the "number" property
                 "Easy integration with existing systems",
                 "Powerful automation capabilities",
                 {"text": "Advanced AI-based functions"},
@@ -48,9 +53,7 @@
                 "Enterprise-grade security"
               ]
             },
-            {
-              "type": "horizontalRule"
-            },
+
             {
               "type": "code",
               "content": "const mixedContent = { status: \"active\", types: [\"text\", \"list\", \"code\"] }; // Single line code"
@@ -89,11 +92,11 @@
   {{< /features-with-intro-and-tabs >}}
 */ -}}
 
-{{ $backgroundColor := .Get "backgroundColor" | default "bg-white" }}
+{{ $eyebrow := .Get "eyebrow" | default "" }}
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
 {{ $activeTab := .Get "activeTab" | default "" }}
-{{ $verticalAlign := .Get "verticalAlign" | default "top" }}
+{{/* verticalAlign parameter is no longer used */}}
 {{ $widthContainer := .Get "widthContainer" | default "wide" }}
 
 {{/* Initialize data */}}
@@ -117,11 +120,10 @@
 {{ end }}
 
 {{ partial "sections/features/with_intro_and_tabs.html" (dict 
-  "backgroundColor" $backgroundColor
+  "eyebrow" $eyebrow
   "heading" $heading
   "description" $description
   "activeTab" $activeTab
-  "verticalAlign" $verticalAlign
   "widthContainer" $widthContainer
   "tabs" $tabs
   "page" $.Page
