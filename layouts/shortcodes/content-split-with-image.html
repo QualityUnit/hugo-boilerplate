@@ -53,7 +53,7 @@
     <p class="text-gray-600 mt-4">This is a paragraph with <strong>bold</strong> and <em>italic</em> text.</p>
     {{< /content-split-with-image >}}
 
-    2. JSON DATA ONLY (structured data blocks):
+    2. JSON DATA ONLY (structured data blocks - no markers needed):
     {{< content-split-with-image
         heading="By the Numbers"
         image="/images/statistics.jpg"
@@ -103,7 +103,7 @@
     }
     {{< /content-split-with-image >}}
 
-    3. COMBINED (JSON data + content):
+    3. COMBINED (JSON data + markdown/HTML content - markers required):
     {{< content-split-with-image
         heading="Complete AI Solution"
         description="Everything you need in one platform"
@@ -207,9 +207,11 @@
     }
 
     NOTES:
+    - Use START_JSON_BLOCK/END_JSON_BLOCK markers ONLY when mixing JSON with markdown/HTML content
+    - For pure JSON content (no markdown/HTML), markers are not needed - just use the JSON directly
+    - For pure markdown/HTML content (no JSON), markers are not needed
     - If you don't need certain data blocks (features, numbered_features, stats, quote), simply omit them
-    - JSON blocks are completely optional - you can use just markdown/HTML content
-    - Content can be pure markdown, pure HTML, or mixed
+    - Content can be pure markdown, pure HTML, pure JSON, or mixed
     - numbered_features work the same as features but display numbers (1, 2, 3...) instead of icons
 */}}
 
@@ -245,11 +247,14 @@
 {{ end }}
 {{ $rawInnerContent = trim $rawInnerContent " \n\r\t" }}
 
-{{/* Parse JSON block with START_JSON_BLOCK/END_JSON_BLOCK markers */}}
+{{/* Parse content - detect if it's pure JSON or mixed content with markers */}}
 {{ $jsonStartMarker := "START_JSON_BLOCK" }}
 {{ $jsonEndMarker := "END_JSON_BLOCK" }}
 
-{{ if and (in $rawInnerContent $jsonStartMarker) (in $rawInnerContent $jsonEndMarker) }}
+{{ $hasJsonMarkers := and (in $rawInnerContent $jsonStartMarker) (in $rawInnerContent $jsonEndMarker) }}
+
+{{ if $hasJsonMarkers }}
+    {{/* Mixed content: markdown/HTML + JSON with markers */}}
     {{ $parts := split $rawInnerContent $jsonStartMarker }}
     {{ if gt (len $parts) 1 }}
         {{ $beforeJson := index $parts 0 }}
@@ -264,25 +269,18 @@
             {{ $potentialJSON = trim $potentialJSON " \n\r\t" }}
             {{ if $potentialJSON }}
               {{ $parseResult := dict }}
-              {{ if $potentialJSON }}
-                {{ $jsonString := trim $potentialJSON " \n\r\t" }}
-                {{ if $jsonString }}
-                  {{ $unmarshalResult := dict }}
-                  {{ $errorOccurred := false }}
-                  {{/* Attempt to unmarshal JSON with error handling */}}
-                  {{ $unmarshalResult = unmarshal $jsonString }}
-                  {{ if not $unmarshalResult }}
-                    {{ warnf "JSON unmarshal returned empty result in inner-content-json-block. JSON content (first 200 chars): %s. Using empty fallback." (substr $jsonString 0 200) }}
-                    {{ $unmarshalResult = dict }}
-                  {{ end }}
+              {{ $jsonString := trim $potentialJSON " \n\r\t" }}
+              {{ if $jsonString }}
+                {{ $unmarshalResult := unmarshal $jsonString }}
+                {{ if $unmarshalResult }}
                   {{ $parseResult = $unmarshalResult }}
+                {{ else }}
+                  {{ warnf "Failed to parse JSON block. JSON content (first 200 chars): %s. Using empty fallback." (substr $jsonString 0 200) }}
                 {{ end }}
               {{ end }}
               
-              {{ if or $parseResult.features $parseResult.numbered_features $parseResult.stats $parseResult.quote $parseResult.markdownContent $parseResult.htmlContent $parseResult.contentAsHTML }}
+              {{ if or $parseResult.features $parseResult.numbered_features $parseResult.stats $parseResult.quote }}
                 {{ $innerData = $parseResult }}
-              {{ else }}
-                {{ warnf "JSON block found but contains no recognized data structures (features, numbered_features, stats, quote, markdownContent, htmlContent, contentAsHTML). Content: %s" (substr $potentialJSON 0 200) }}
               {{ end }}
             {{ end }}
 
@@ -295,7 +293,21 @@
         {{ $markdownContent = $rawInnerContent }}
     {{ end }}
 {{ else }}
-    {{ $markdownContent = $rawInnerContent }}
+    {{/* Check if content is pure JSON (no markers) */}}
+    {{ $trimmedContent := trim $rawInnerContent " \n\r\t" }}
+    {{ if and $trimmedContent (hasPrefix $trimmedContent "{") (hasSuffix $trimmedContent "}") }}
+        {{/* Pure JSON content */}}
+        {{ $unmarshalResult := unmarshal $trimmedContent }}
+        {{ if $unmarshalResult }}
+            {{ $innerData = $unmarshalResult }}
+        {{ else }}
+            {{ warnf "Failed to parse pure JSON content. Content (first 200 chars): %s. Treating as markdown." (substr $trimmedContent 0 200) }}
+            {{ $markdownContent = $rawInnerContent }}
+        {{ end }}
+    {{ else }}
+        {{/* Pure markdown/HTML content */}}
+        {{ $markdownContent = $rawInnerContent }}
+    {{ end }}
 {{ end }}
 
 

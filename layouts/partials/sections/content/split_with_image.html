@@ -80,7 +80,9 @@ Design Tokens:
             {{ partial "components/media/lazyimg.html" (dict
               "src" $image
               "alt" $imageAlt
-              "class" (printf "w-full max-w-[%s] max-h-[%s] object-cover rounded-lg hover:opacity-90 transition-opacity duration-200" $imageMaxWidth $imageMaxHeight)
+              "class" (printf "max-w-[%s] max-h-[%s] object-cover rounded-lg hover:opacity-90 transition-opacity duration-200" $imageMaxWidth $imageMaxHeight)
+              "width" $imageMaxWidth
+              "height" $imageMaxHeight
             ) }}
         {{ if $link }}
           </a>
