@@ -21,8 +21,6 @@
     - linkText: CTA button text (default (i18n "learnMore"))
     - linkTarget: Link target "_self" or "_blank" (default: "_self")
     - buttonStyle: "primary" or "secondary" (default: "primary")
-    - contentColor: Content text color (default: "text-gray-700")
-    - imageBgColor: Image container background (default: "bg-gray-50")
     - contentAsHTML: Render content as HTML instead of markdown (default: false)
     - features: JSON string or "features" to use page params
     - numbered_features: JSON string or "numbered_features" to use page params (features with numbers instead of icons)
@@ -229,7 +227,6 @@
 {{ $linkTarget := .Get "linkTarget" | default "_self" }}
 {{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
 {{ $theme := .Get "theme" | default "light" }}
-{{ $contentColor := .Get "contentColor" | default "text-gray-700" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
 
 {{/* Initialize data */}}
@@ -415,7 +412,6 @@
   "buttonStyle" $buttonStyle
   "image" $image
   "imageAlt" $imageAlt
-  "contentColor" $contentColor
   "markdownContent" $markdownContent
   "contentAsHTML" $contentAsHTML
   "features" $features
