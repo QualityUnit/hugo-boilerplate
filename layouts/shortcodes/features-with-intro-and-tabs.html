@@ -42,12 +42,9 @@
               "items": [
                 "Easy integration with existing systems",
                 "Powerful automation capabilities",
-                {"text": "Advanced AI-based functions"},
-                {"text": "24/7 customer support"},
                 "Enterprise-grade security"
               ]
             },
-
             {
               "type": "code",
               "content": "const mixedContent = { status: \"active\", types: [\"text\", \"list\", \"code\"] };"
@@ -69,12 +66,6 @@
             },
             {
               "type": "code",
-              "language": "python",
-              "content": "# Creating a workflow using Python SDK\nimport flowhunt\nfrom flowhunt import Workflow, Agent\n\n# Initialize client\nclient = flowhunt.Client(api_key=\"your-api-key\")\n\n# Create new workflow\nworkflow = client.workflows.create(\n    name=\"AI Content Assistant\",\n    description=\"Multi-agent content creation system\"\n)\n\n# Add agents\nresearcher = Agent(role=\"researcher\", model=\"gpt-4-turbo\")\nwriter = Agent(role=\"writer\", model=\"claude-3-opus\")\nworkflow.add_agents([researcher, writer])\n\nprint(f\"Workflow created: {workflow.id}\")"
-            },
-            {
-              "type": "code",
-              "language": "bash",
               "content": "# Install and initialize project\nnpm install -g @flowhunt/cli\npip install flowhunt-python\n\n# Create new project\nflowhunt init ai-assistant-project\ncd ai-assistant-project\n\n# Run in development mode\nflowhunt dev --watch --verbose"
             }
           ],
@@ -86,23 +77,20 @@
   {{< /features-with-intro-and-tabs >}}
 */ -}}
 
+{{/* Parameters */}}
+{{ $theme := .Get "theme" | default "light" }}
 {{ $eyebrow := .Get "eyebrow" | default "" }}
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
 {{ $activeTab := .Get "activeTab" | default "" }}
-{{/* verticalAlign parameter is no longer used */}}
 {{ $widthContainer := .Get "widthContainer" | default "wide" }}
-
-{{/* Initialize data */}}
 {{ $tabs := slice }}
 
-{{/* Get inner content */}}
 {{ $rawInnerContent := "" }}
 {{ with .Inner }}
     {{ $rawInnerContent = trim (string .) " \n\r\t" }}
 {{ end }}
 
-{{/* Parse JSON array of tabs */}}
 {{ if $rawInnerContent }}
     {{ $tabs = $rawInnerContent | unmarshal }}
     
@@ -113,7 +101,8 @@
     {{ end }}
 {{ end }}
 
-{{ partial "sections/features/with_intro_and_tabs.html" (dict 
+{{ partial "sections/features/with_intro_and_tabs.html" (dict
+  "theme" $theme
   "eyebrow" $eyebrow
   "heading" $heading
   "description" $description

@@ -6,17 +6,15 @@
   - description: Description content below the main heading. Can be:
     * Simple string: Treated as plain text.
     * Array of objects: For complex mixed content. Each object can have:
-      - type: "code" | "list" | "heading" | "text"
+      - type: "code" | "list" | "heading" | "text" | "markdown" | "html""
       - content: Content based on type (string for text and code, array for list)
-      - language: For code blocks to specify language for syntax highlighting
-      - For type "list": "items" (array of strings or objects with text) and "listType" ("numbers" | "circles" | "checks", default: "checks")
+      - For type "list": "items" (array of strings or objects with text) and "listType" ("numbers" | "checks", default: "checks")
         * For hierarchical lists, use objects with "text" and "items" (for nested items)
         * For "numbers" list type: First level shows numbered circles with primary color, nested items use bullet points
-        * For "circles" list type: First level uses chevron icons, nested items use bullet points
         * For "checks" list type: First level uses blue checkmark icons, nested items use bullet points
-        * For "numbers" type, you can specify a custom number via the "number" property
-        * Icons are loaded using the lazyimg partial and should point to SVG files
       - For type "heading": "level" (1-6, default: 2)
+      - For type "markdown": Renders Markdown content
+      - For type "html": Renders raw HTML content
   - page: Page context for linkbuilding (required)
   - widthContainer: Controls the width and layout of the container:
     * "wide" (default): wrapper width with two-column layout (text left, image right)
@@ -32,14 +30,18 @@
       - imageAlt: Alt text for content image
 */}}
 
+{{/* --- Params --- */}}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+
 {{ $eyebrow := .eyebrow | default "" }}
 {{ $heading := .heading | default "" }}
 {{ $description := .description | default "" }}
 {{ $page := .page }}
 {{ $widthContainer := .widthContainer | default "wide" }}
-{{ $uniqueID := printf "features-tabs-%d" (now.UnixNano) }}
+{{ $uniqueID := printf "features-tabs-%s" (.heading | urlize | default (now.Format "150405")) }}
 {{ $activeTab := .activeTab }}
-
 {{ $tabs := .tabs | default (slice) }}
 
 {{ $defaultActiveTabId := "" }}
@@ -47,19 +49,95 @@
   {{ $defaultActiveTabId = cond (ne $activeTab "") $activeTab (index $tabs 0).id }}
 {{ end }}
 
-{{/* Helper function to render enhanced description */}}
+{{/* --- renderListItems --- */}}
+{{ define "renderListItems" }}
+  {{ $items := .items }}
+  {{ $page := .page }}
+  <ul class="list-disc list-inside space-y-2 ml-0 mt-2">
+    {{ range $items }}
+      <li>
+        {{ if reflect.IsMap . }}
+          {{ if .html }}
+            {{ .html | safeHTML }}
+          {{ else if .text }}
+            {{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}
+          {{ else }}
+            {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+          {{ end }}
+        {{ else }}
+          {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+        {{ end }}
+      </li>
+    {{ end }}
+  </ul>
+{{ end }}
+
+{{/* --- renderContentBlock --- */}}
+{{ define "renderContentBlock" }}
+  {{ $block := .block }}
+  {{ $page := .page }}
+  {{ $type := cond (reflect.IsMap $block) ($block.type | default "text") "text" }}
+  {{ $content := cond (reflect.IsMap $block) $block.content $block }}
+  {{ $listType := cond (reflect.IsMap $block) ($block.listType | default "checks") "checks" }}
+  {{ $items := cond (reflect.IsMap $block) $block.items (slice) }}
+
+  {{ if eq $type "html" }}
+    {{ $content }}
+  {{ else if eq $type "code" }}
+    <div class="bg-gray-900 text-white p-5 rounded-lg">
+      <code class="p-0 m-0 whitespace-pre-wrap break-words">{{ $content }}</code>
+    </div>
+  {{ else if eq $type "list" }}
+    <ul class="{{ if eq $listType "checks" }}space-y-8 my-8{{ else }}space-y-4 my-8{{ end }}">
+      {{ range $items }}
+        <li class="flex">
+          <span class="flex-shrink-0 flex mt-2 mr-3 {{ if eq $listType "numbers" }}items-center justify-center rounded-full bg-primary icon-primary text-[10px] h-5 w-5{{ else if eq $listType "checks" }}product-icon{{ else }}justify-center product-icon{{ end }}">
+            {{ if eq $listType "checks" }}
+              {{ partial "icons/check-circle-solid" "w-5 h-5 product-icon" }}
+            {{ else if eq $listType "numbers" }}
+              {{ with .number }}{{ . }}{{ else }}<span class="list-disc list-inside"> </span>{{ end }}
+            {{ else }}
+              <img src="/images/icons/chevron-right.svg" alt="Chevron icon" class="h-5 w-5" loading="lazy" />
+            {{ end }}
+          </span>
+          <div>
+            {{ $item := . }}
+            {{ if reflect.IsMap $item }}
+              {{ if $item.html }}
+                {{ $item.html | safeHTML }}
+              {{ else if $item.text }}
+                {{ partial "utils/linkbuilding" (dict "content" $item.text "page" $page) | safeHTML }}
+              {{ else }}
+                {{ partial "utils/linkbuilding" (dict "content" $item "page" $page) | safeHTML }}
+              {{ end }}
+              {{ if $item.items }}
+                {{ template "renderListItems" (dict "items" $item.items "page" $page) }}
+              {{ end }}
+            {{ else }}
+              {{ partial "utils/linkbuilding" (dict "content" $item "page" $page) | safeHTML }}
+            {{ end }}
+          </div>
+        </li>
+      {{ end }}
+    </ul>
+  {{ else if eq $type "heading" }}
+    {{ $level := int ($block.level | default 2) }}
+    {{ $tag := printf "h%d" $level }}
+    {{ $sizeMap := dict "1" "text-4xl" "2" "text-3xl" "3" "text-2xl" "4" "text-xl" "5" "text-lg" "6" "text-base" }}
+    {{ $textSize := index $sizeMap (printf "%d" $level) }}
+    {{ printf "<%s class=\"font-bold %s\">%s</%s>" $tag $textSize $content $tag | safeHTML }}
+  {{ else }}
+    <div>{{ partial "utils/linkbuilding" (dict "content" $content "page" $page) | safeHTML }}</div>
+  {{ end }}
+{{ end }}
+
+{{/* --- renderDescription --- */}}
 {{ define "renderDescription" }}
   {{ $desc := .description }}
   {{ $page := .page }}
-
-  {{/* If description is a slice, iterate through blocks. Otherwise, treat as a single string. */}}
   {{ if reflect.IsSlice $desc }}
     {{ range $index, $block := $desc }}
-      {{ if gt $index 0 }}
-        <div class="mt-8">
-      {{ else }}
-        <div>
-      {{ end }}
+      <div class="{{ if gt $index 0 }}mt-8{{ end }}">
         {{ template "renderContentBlock" (dict "block" $block "page" $page) }}
       </div>
     {{ end }}
@@ -68,254 +146,112 @@
   {{ end }}
 {{ end }}
 
-{{/* Helper function to render a single content block */}}
-{{ define "renderContentBlock" }}
-  {{ $block := .block }}
-  {{ $page := .page }}
-  
-  {{ if reflect.IsMap $block }}
-    {{ $type := $block.type | default "text" }}
-    {{ $content := $block.content }}
-    
-    {{ if eq $type "html" }}
-      {{ $content }}
-    {{ else if eq $type "code" }}
-      <div class="bg-gray-900 text-white p-5 rounded-lg">
-        {{ $language := $block.language | default "auto" }}
-        <pre class="whitespace-pre-wrap break-words">
-          <code class="language-{{ $language }}">{{ $content }}</code>
-        </pre>
-      </div>
-    {{ else if eq $type "list" }}
-      {{ $listType := $block.listType | default "checks" }}
-      {{ $items := $block.items }}
-      
-      {{ if eq $listType "checks" }}
-        <ul class="space-y-8 my-8">
-          {{ range $items }}
-            <li class="flex">
-              <span class="flex-shrink-0 flex mt-2 mr-3">
-                {{ partial "icons/check-circle-solid" "w-5 h-5 product-icon" }}
-              </span>
-              <div>
-                {{ if reflect.IsMap . }}
-                  {{ if .html }}{{ .html | safeHTML }}
-                  {{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}
-                  {{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
-                  
-                  {{ if .items }}
-                    <ul class="list-disc list-inside space-y-2 ml-0 mt-2">
-                      {{ range .items }}
-                        <li>
-                          {{ if reflect.IsMap . }}
-                            {{ if .html }}{{ .html | safeHTML }}{{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}{{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
-                          {{ else }}
-                            {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
-                          {{ end }}
-                        </li>
-                      {{ end }}
-                    </ul>
-                  {{ end }}
-                {{ else }}
-                  {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
-                {{ end }}
-              </div>
-            </li>
+{{/* --- FINAL RENDER --- */}}
+<section aria-labelledby="{{ $uniqueID }}-heading" class="{{ $darkClass }}">
+  <div class="section-bg-light dark:section-bg-dark py-32">
+    <div class="mx-auto {{ if eq $widthContainer "narrow" }}wrapper-narrow{{ else }}wrapper{{ end }} surface-secondary rounded-xl sm:px-2 lg:px-8">
+      <div class="max-w-none">
+        <div class="w-full pt-16 pb-8">
+          {{ if $eyebrow }}
+            <p class="text-base/6 font-semibold product-text">{{ $eyebrow }}</p>
           {{ end }}
-        </ul>
-      {{ else if eq $listType "numbers" }}
-        <ul class="space-y-4">
-          {{ range $items }}
-            <li class="flex">
-              <span class="flex-shrink-0 flex items-center justify-center rounded-full bg-primary text-white h-5 w-5 mt-2 mr-3">
-                {{ with .number }}
-                  {{ . }}
-                {{ else }}
-                 <span class="list-disc list-inside"> </span>
-                {{ end }}
-              </span>
-
-              <div>
-                {{ if reflect.IsMap . }}
-                  {{ if .html }}{{ .html | safeHTML }}
-                  {{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}
-                  {{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
-                  
-                  {{ if .items }}
-                    <ul class="list-disc list-inside space-y-2 ml-0 mt-2">
-                      {{ range .items }}
-                        <li>
-                          {{ if reflect.IsMap . }}
-                            {{ if .html }}{{ .html | safeHTML }}{{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}{{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
-                          {{ else }}
-                            {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
-                          {{ end }}
-                        </li>
-                      {{ end }}
-                    </ul>
-                  {{ end }}
-                {{ else }}
-                  {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
-                {{ end }}
-              </div>
-            </li>
-          {{ end }}
-        </ul>
-      {{ else }}
-        <ul class="space-y-4">
-          {{ range $items }}
-            <li class="flex">
-              <span class="flex-shrink-0 flex justify-center mr-3 product-icon">
-                {{ partial "components/media/lazyimg.html" (dict 
-                  "src" "/images/icons/chevron-right.svg"
-                  "alt" "Chevron icon"
-                  "class" "h-5 w-5"
-                ) }}
-              </span>
-              <div>
-                {{ if reflect.IsMap . }}
-                  {{ if .html }}{{ .html | safeHTML }}
-                  {{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}
-                  {{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
-                  
-                  {{ if .items }}
-                    <ul class="list-disc list-inside space-y-2 ml-0 mt-2">
-                      {{ range .items }}
-                        <li>
-                          {{ if reflect.IsMap . }}
-                            {{ if .html }}{{ .html | safeHTML }}{{ else if .text }}{{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}{{ else }}{{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}{{ end }}
-                          {{ else }}
-                            {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
-                          {{ end }}
-                        </li>
-                      {{ end }}
-                    </ul>
-                  {{ end }}
-                {{ else }}
-                  {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
-                {{ end }}
-              </div>
-            </li>
-          {{ end }}
-        </ul>
-      {{ end }}
-    {{ else if eq $type "heading" }}
-      {{ $level := int ($block.level | default 2) }}
-      {{ $tag := printf "h%d" $level }}
-      {{ $sizeMap := dict "1" "text-4xl" "2" "text-3xl" "3" "text-2xl" "4" "text-xl" "5" "text-lg" "6" "text-base" }}
-      {{ $textSize := index $sizeMap (printf "%d" $level) }}
-      {{ printf "<%s class=\"font-bold %s\">%s</%s>" $tag $textSize $content $tag | safeHTML }}
-    {{ else if eq $type "markdown" }}
-      <div>{{ $content }}</div>
-    {{ else }}
-      <div>{{ partial "utils/linkbuilding" (dict "content" $content "page" $page) | safeHTML }}</div>
-    {{ end }}
-  {{ else }}
-    <div>{{ partial "utils/linkbuilding" (dict "content" $block "page" $page) | safeHTML }}</div>
-  {{ end }}
-{{ end }}
-
-<section aria-labelledby="{{ $uniqueID }}-heading" class="mx-auto {{ if eq $widthContainer "narrow" }}wrapper-narrow{{ else }}wrapper{{ end }} py-32 sm:px-2 lg:px-8">
-    <div class="max-w-none rounded-xl">
-      <div class="w-full pt-16 pl-8 pr-8 pb-8">
-        {{ if $eyebrow }}
-          <p class="text-base/6 font-semibold product-text">{{ $eyebrow }}</p>
-        {{ end }}
-        <h2 id="{{ $uniqueID }}-heading" class="mt-2.5 text-3xl font-bold tracking-tight text-heading sm:text-5xl">{{ $heading }}</h2>
-        <div class="mt-[1.625rem] text-tertiary">
-          {{ template "renderDescription" (dict "description" $description "page" $page) }}
-        </div>
-      </div>
-
-      <div class="w-full mx-auto">
-        <div class="flex overflow-x-auto w-full">
-          <div class="flex-auto border-b surface-border w-full">
-            <div class="flex px-8 w-full" aria-orientation="horizontal" role="tablist">
-              {{ range $index, $tab := $tabs }}
-                <button id="{{ $uniqueID }}-tab-{{ $tab.id }}" 
-                  class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}product-border product-primary{{ else }}border-transparent text-tertiary hover:product-border hover:product-primary{{ end }} py-8 px-6 text-base font-semibold tracking-[-0.32px] whitespace-nowrap" 
-                  aria-controls="{{ $uniqueID }}-panel-{{ $tab.id }}" 
-                  role="tab" 
-                  type="button"
-                  data-tab-id="{{ $tab.id }}"
-                  data-tabs-group="{{ $uniqueID }}">
-                  {{ $tab.title }}
-                </button>
-              {{ end }}
-            </div>
+          <h2 id="{{ $uniqueID }}-heading" class="mt-2.5 text-3xl font-bold tracking-tight text-heading sm:text-5xl">{{ $heading }}</h2>
+          <div class="mt-[1.625rem] text-muted">
+            {{ template "renderDescription" (dict "description" $description "page" $page) }}
           </div>
         </div>
 
-        {{ range $index, $tab := $tabs }}
-          <div id="{{ $uniqueID }}-panel-{{ $tab.id }}" 
-            class="p-8 pb-32 {{ if ne $tab.id $defaultActiveTabId }}hidden{{ end }}" 
-            aria-labelledby="{{ $uniqueID }}-tab-{{ $tab.id }}" 
-            role="tabpanel" 
-            data-tabs-group="{{ $uniqueID }}"
-            data-panel-id="{{ $tab.id }}"
-            tabindex="0">
-            {{ if or ($tab.content.title) ($tab.content.description) }}
-              {{ if eq $widthContainer "narrow" }}
-                <div class="flex flex-col w-full">
-                  {{ if $tab.content.imageUrl }}
-                    <div class="flex items-center justify-center my-8">
-                      {{ partial "components/media/lazyimg.html" (dict 
-                        "src" $tab.content.imageUrl
-                        "alt" $tab.content.imageAlt
-                        "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
-                      ) }}
-                    </div>
-                  {{ end }}
-                  <div>
-                      {{if $tab.content.title }}
+        <div class="w-full mx-auto">
+          <div class="flex overflow-x-auto w-full -mx-[2rem]">
+            <div class="flex-auto border-b surface-border w-full">
+              <div class="flex px-8 w-full" aria-orientation="horizontal" role="tablist">
+                {{ range $index, $tab := $tabs }}
+                  <button id="{{ $uniqueID }}-tab-{{ $tab.id }}" 
+                    class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}product-border product-primary{{ else }}border-transparent text-muted hover:product-border hover:product-primary{{ end }} py-8 px-6 text-base font-semibold tracking-[-0.32px] whitespace-nowrap" 
+                    aria-controls="{{ $uniqueID }}-panel-{{ $tab.id }}" 
+                    role="tab" 
+                    type="button"
+                    data-tab-id="{{ $tab.id }}"
+                    data-tabs-group="{{ $uniqueID }}">
+                    {{ $tab.title }}
+                  </button>
+                {{ end }}
+              </div>
+            </div>
+          </div>
+
+          {{ range $index, $tab := $tabs }}
+            <div id="{{ $uniqueID }}-panel-{{ $tab.id }}" 
+              class="pt-8 pb-32 {{ if ne $tab.id $defaultActiveTabId }}hidden{{ end }}" 
+              aria-labelledby="{{ $uniqueID }}-tab-{{ $tab.id }}" 
+              role="tabpanel" 
+              data-tabs-group="{{ $uniqueID }}"
+              data-panel-id="{{ $tab.id }}"
+              tabindex="0">
+              {{ if or ($tab.content.title) ($tab.content.description) }}
+                {{ if eq $widthContainer "narrow" }}
+                  <div class="flex flex-col w-full">
+                    {{ if $tab.content.imageUrl }}
+                      <div class="flex items-center justify-center my-8">
+                        {{ partial "components/media/lazyimg.html" (dict 
+                          "src" $tab.content.imageUrl
+                          "alt" $tab.content.imageAlt
+                          "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
+                        ) }}
+                      </div>
+                    {{ end }}
+                    <div>
+                      {{ if $tab.content.title }}
                         <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
                       {{ end }}
-                      {{if $tab.content.description }}
-                        <div class="mt-2 text-base/9 text-tertiary">
+                      {{ if $tab.content.description }}
+                        <div class="mt-2 text-base/9 text-muted">
                           {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
                         </div>
                       {{ end }}
+                    </div>
                   </div>
-                </div>
-              {{ else }}
-                <div class="flex flex-col-reverse lg:grid lg:grid-cols-12 lg:gap-x-8 lg:items-center">
-                  <div class="lg:col-span-6">
-                    {{if $tab.content.title }}
-                      <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
-                    {{ end }}
-                    {{if $tab.content.description }}
-                      <div class="mt-2 text-base/9 text-tertiary">
-                        {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
+                {{ else }}
+                  <div class="flex flex-col-reverse lg:grid lg:grid-cols-12 lg:gap-x-8 lg:items-center">
+                    <div class="lg:col-span-6">
+                      {{ if $tab.content.title }}
+                        <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
+                      {{ end }}
+                      {{ if $tab.content.description }}
+                        <div class="mt-2 text-base/9 text-muted">
+                          {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
+                        </div>
+                      {{ end }}
+                    </div>
+                    {{ if $tab.content.imageUrl }}
+                      <div class="lg:col-span-6 my-8 md:my-0">
+                        {{ partial "components/media/lazyimg.html" (dict 
+                          "src" $tab.content.imageUrl
+                          "alt" $tab.content.imageAlt
+                          "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
+                        ) }}
                       </div>
                     {{ end }}
                   </div>
+                {{ end }}
+              {{ else }}
+                <div class="w-full">
                   {{ if $tab.content.imageUrl }}
-                    <div class="lg:col-span-6 my-8 md:my-0">
-                      {{ partial "components/media/lazyimg.html" (dict 
-                        "src" $tab.content.imageUrl
-                        "alt" $tab.content.imageAlt
-                        "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
-                      ) }}
-                    </div>
+                    {{ partial "components/media/lazyimg.html" (dict 
+                      "src" $tab.content.imageUrl
+                      "alt" $tab.content.imageAlt
+                      "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
+                    ) }}
                   {{ end }}
                 </div>
               {{ end }}
-            {{ else }}
-              <div class="w-full">
-                {{ if $tab.content.imageUrl }}
-                  {{ partial "components/media/lazyimg.html" (dict 
-                    "src" $tab.content.imageUrl
-                    "alt" $tab.content.imageAlt
-                    "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
-                  ) }}
-                  {{ end }}
-              </div>
-            {{ end }}
-          </div>
-        {{ end }}
+            </div>
+          {{ end }}
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -337,11 +273,11 @@ document.addEventListener('DOMContentLoaded', function() {
       // Update tab button styles
       document.querySelectorAll(`button[data-tabs-group="${tabsGroup}"]`).forEach(btn => {
         btn.classList.remove('product-border', 'product-primary');
-        btn.classList.add('border-transparent', 'text-tertiary', 'hover:product-border', 'hover:product-primary');
+        btn.classList.add('border-transparent', 'text-muted', 'hover:product-border', 'hover:product-primary');
       });
       
       // Style the active tab
-      this.classList.remove('border-transparent', 'text-tertiary', 'hover:product-border', 'hover:product-primary');
+      this.classList.remove('border-transparent', 'text-muted', 'hover:product-border', 'hover:product-primary');
       this.classList.add('product-border', 'product-primary');
     });
   });
