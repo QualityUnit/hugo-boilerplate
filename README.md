@@ -7,7 +7,7 @@ This theme includes Tailwind CSS integration, comprehensive SEO features, respon
 ## Projects running this theme
 - [AiMingle](https://www.aimingle.cz/) - https://github.com/QualityUnit/aimingle-hugo
 - [FlowHunt](https://www.flowhunt.io/) - https://github.com/QualityUnit/flowhunt-hugo
-- [Post Affiliate Pro](https://www.postaffiliatepro.com/) - https://github.com/QualityUnit/postaffiliatepro-hugo
+- [Post Affiliate Pro](https://main.d1jnujto7ausyo.amplifyapp.com/) - https://github.com/QualityUnit/postaffiliatepro-hugo
 - [UrlsLab](https://www.urlslab.com/) - https://github.com/QualityUnit/urlslab-hugo
 - [PhotomaticAI](https://www.photomaticai.com/) - https://github.com/QualityUnit/photomaticai-hugo/
 - [Wachman](https://www.wachman.eu) - https://github.com/vzeman/wachman
