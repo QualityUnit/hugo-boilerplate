@@ -57,10 +57,6 @@ Design Tokens:
 {{ $quote := .quote }}
 
 {{/* Design tokens and configurable dimensions */}}
-{{ $imageContainerMaxWidth := "608px" }}
-{{ $imageContainerMaxHeight := "560px" }}
-{{ $imageMaxWidth := "484px" }}
-{{ $imageMaxHeight := "522px" }}
 {{ $sectionPaddingY := "py-24 lg:py-32" }}
 {{ $imageContainerPaddingY := "py-6" }}
 {{ $contentPaddingY := "py-4" }}
@@ -72,16 +68,14 @@ Design Tokens:
 <div class="split-with-image-section {{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
-      <div class="relative {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[{{ $imageContainerMaxWidth }}] max-h-[{{ $imageContainerMaxHeight }}]">
+      <div class="relative {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
         {{ if $link }}
           <a href="{{ $link }}" target="{{ $linkTarget }}" class="block w-full">
         {{ end }}
             {{ partial "components/media/lazyimg.html" (dict
               "src" $image
               "alt" $imageAlt
-              "class" (printf "max-w-[%s] max-h-[%s] object-cover rounded-lg hover:opacity-90 transition-opacity duration-200" $imageMaxWidth $imageMaxHeight)
-              "width" $imageMaxWidth
-              "height" $imageMaxHeight
+              "class" "w-[30.25rem] h-[32.625rem] object-cover rounded-lg hover:opacity-90 transition-opacity duration-200"
             ) }}
         {{ if $link }}
           </a>
