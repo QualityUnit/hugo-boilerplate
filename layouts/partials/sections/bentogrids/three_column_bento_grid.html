@@ -81,46 +81,45 @@
       {{ end }}
       <div class="mt-20 grid gap-8 lg:gap-16 md:grid-cols-3">
         {{ range $index, $card := $cards }}
-        {{ $imagePosition := $card.imagePosition | default "top" }}
-        <div class="relative group transition-transform duration-300 ease-in-out hover:transform hover:-translate-y-1">
-          <div class="absolute inset-px rounded-2xl border surface-secondary surface-border shadow-lg"></div>
-              <div class="relative flex flex-col overflow-hidden">
-                {{ if and $card.image (eq $imagePosition "top") }}
-                  <div class="flex items-center justify-center">
-                    {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")) }}
-                  </div>
-                {{ end }}
-                
-                <div class="p-4 lg:p-8">
-                  {{ if $card.title }}
-                    <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center {{ if $card.url }}group-hover:text-product-primary{{ end }}">{{ $card.title }}</p>
-                  {{ end }}
-
-                  {{ if $card.description }}
-                    <p class="max-w-lg text-sm/8 text-body max-md:text-center">{{ $card.description }}</p>
-                  {{ end }}
-
-                  {{ if $card.url }}
-                    <div class="mt-5 flex items-center justify-center md:justify-start">
-                      {{ partial "components/buttons/buttons.html" (dict
-                          "text" $card.linkText
-                          "url" ($card.url)
-                          "variant" "secondary"
-                          "showArrow" false
-                      ) }}
-                    </div>
-                  {{ end }}
+          {{ $imagePosition := $card.imagePosition | default "top" }}
+          <div class="relative">
+            <div class="absolute inset-px rounded-2xl border surface-secondary surface-border shadow-lg"></div>
+            <div class="relative flex flex-col overflow-hidden">
+              {{ if and $card.image (eq $imagePosition "top") }}
+                <div class="flex items-center justify-center">
+                  {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")) }}
                 </div>
+              {{ end }}
+              
+              <div class="p-4 lg:p-8">
+                {{ if $card.title }}
+                  <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center {{ if $card.url }}group-hover:text-product-primary{{ end }}">{{ $card.title }}</p>
+                {{ end }}
 
-                {{ if and $card.image (eq $imagePosition "bottom") }}
-                  <div class="flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
-                    {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") ) }}
+                {{ if $card.description }}
+                  <p class="max-w-lg text-sm/8 text-body max-md:text-center">{{ $card.description }}</p>
+                {{ end }}
+
+                {{ if $card.url }}
+                  <div class="mt-5 flex items-center justify-center md:justify-start">
+                    {{ partial "components/buttons/buttons.html" (dict
+                        "text" $card.linkText
+                        "url" ($card.url)
+                        "variant" "secondary"
+                        "showArrow" false
+                    ) }}
                   </div>
-                {{ else if not $card.image }}
-                  <div class="pb-6"></div> <!-- Empty space at bottom if no link and no image -->
                 {{ end }}
               </div>
-            <div class="pointer-events-none absolute inset-px {{ if $card.url }}group-hover:ring-product-underlite{{ end }} transition-all"></div>
+
+              {{ if and $card.image (eq $imagePosition "bottom") }}
+                <div class="flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
+                  {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") ) }}
+                </div>
+              {{ else if not $card.image }}
+                <div class="pb-6"></div> <!-- Empty space at bottom if no link and no image -->
+              {{ end }}
+            </div>
           </div>
         {{ end }}
       </div>
