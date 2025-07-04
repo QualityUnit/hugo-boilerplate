@@ -71,7 +71,7 @@
   <div class="section-bg-light dark:section-bg-dark py-24 sm:py-32">
     <div class="wrapper">
       {{ if $tagline }}
-        <h2 class="text-center text-base/7 font-semibold text-product-primary">{{ $tagline }}</h2>
+        <h2 class="text-center text-base/7 font-semibold product-text">{{ $tagline }}</h2>
       {{ end }}
       {{ if $heading }}
         <p class="{{ if $tagline }}mt-2{{ end }} text-center text-4xl font-semibold tracking-tight text-balance text-heading sm:text-5xl">{{ $heading }}</p>
@@ -93,7 +93,7 @@
                 
                 <div class="p-4 lg:p-8">
                   {{ if $card.title }}
-                    <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center {{ if $card.url }}group-hover:text-product-primary{{ end }}">{{ $card.title }}</p>
+                    <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center {{ if $card.url }}group-hover:product-text{{ end }}">{{ $card.title }}</p>
                   {{ end }}
 
                   {{ if $card.description }}
