@@ -1,0 +1,8 @@
+{{ $lists := slice }}
+{{ with .Inner }}
+    {{ if . }}
+        {{ $lists = . | unmarshal }}
+    {{ end }}
+{{ end }}
+
+{{ partial "components/lists/with_icon.html" (dict "lists" $lists) }}
