@@ -38,7 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Edellinen"
 tag_pagination_next: "Seuraava"
 tag_other_tags: "Muut Tunnisteet"
-
+tag_show_less: "Näytä vähemmän"
 # Cookie consent translations
 cookie_consent_title: "Evästeiden Suostumus"
 cookie_consent_message: "Käytämme evästeitä parantaaksemme selauskokemustasi ja analysoidaksemme liikennettämme."

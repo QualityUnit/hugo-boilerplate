@@ -38,6 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Précédent"
 tag_pagination_next: "Suivant"
 tag_other_tags: "Autres Étiquettes"
+tag_show_less: "Afficher moins"
 
 # Cookie consent translations
 cookie_consent_title: "Consentement aux Cookies"

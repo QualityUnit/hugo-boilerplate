@@ -14,7 +14,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Vorige"
 tag_pagination_next: "Volgende"
 tag_other_tags: "Ander Etikette"
-
+tag_show_less: "Wys minder"
 # Cookie consent translations
 cookie_consent_title: "Koekie Toestemming"
 cookie_consent_message: "Ons gebruik koekies om jou blaai-ervaring te verbeter en ons verkeer te analiseer."

@@ -14,7 +14,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Trước"
 tag_pagination_next: "Tiếp"
 tag_other_tags: "Thẻ Khác"
-
+tag_show_less: "Hiển thị ít hơn"
 # Cookie consent translations
 cookie_consent_title: "Đồng Ý Cookie"
 cookie_consent_message: "Chúng tôi sử dụng cookie để cải thiện trải nghiệm duyệt web của bạn và phân tích lưu lượng truy cập của mình."

@@ -38,6 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Vorige"
 tag_pagination_next: "Volgende"
 tag_other_tags: "Andere Tags"
+tag_show_less: "Toon minder"
 
 # Cookie consent translations
 cookie_consent_title: "Cookie Toestemming"

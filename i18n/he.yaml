@@ -38,7 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "הקודם"
 tag_pagination_next: "הבא"
 tag_other_tags: "תגיות אחרות"
-
+tag_show_less: "הצג פחות"
 # Cookie consent translations
 cookie_consent_title: "אישור עוגיות"
 cookie_consent_message: "אנו משתמשים בעוגיות כדי לשפר את חוויית הגלישה שלך ולנתח את התנועה שלנו."

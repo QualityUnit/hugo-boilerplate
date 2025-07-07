@@ -39,7 +39,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Vorherige"
 tag_pagination_next: "Nächste"
 tag_other_tags: "Weitere Schlagwörter"
-
+tag_show_less: "Weniger anzeigen"
 # Cookie consent translations
 cookie_consent_title: "Cookie-Zustimmung"
 cookie_consent_message: "Wir verwenden Cookies, um Ihr Surferlebnis zu verbessern und unseren Datenverkehr zu analysieren."

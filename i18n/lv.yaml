@@ -38,7 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Iepriekšējais"
 tag_pagination_next: "Nākamais"
 tag_other_tags: "Citi Tagi"
-
+tag_show_less: "Rādīt mazāk"
 # Cookie consent translations
 cookie_consent_title: "Sīkdatņu Piekrišana"
 cookie_consent_message: "Mēs izmantojam sīkdatnes, lai uzlabotu jūsu pārlūkošanas pieredzi un analizētu mūsu trafiku."

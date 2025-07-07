@@ -38,7 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Fyrri"
 tag_pagination_next: "Næsta"
 tag_other_tags: "Önnur Tags"
-
+tag_show_less: "Sýna minna"
 # Cookie consent translations
 cookie_consent_title: "Vafraköku Samþykki"
 cookie_consent_message: "Við notum kökur til að bæta vafraupplifun þína og greina umferð okkar."

@@ -14,7 +14,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "முந்தையது"
 tag_pagination_next: "அடுத்தது"
 tag_other_tags: "மற்ற குறிச்சொற்கள்"
-
+tag_show_less: "குறைவாக காட்டு"
 # Cookie consent translations
 cookie_consent_title: "குக்கி ஒப்புதல்"
 cookie_consent_message: "உங்கள் உலாவல் அனுபவத்தை மேம்படுத்தவும், எங்கள் போக்குவரத்தை பகுப்பாய்வு செய்யவும் நாங்கள் குக்கிகளை பயன்படுத்துகிறோம்."

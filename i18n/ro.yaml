@@ -38,7 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Anterior"
 tag_pagination_next: "Următor"
 tag_other_tags: "Alte etichete"
-
+tag_show_less: "Afișează mai puțin"
 # Cookie consent translations
 cookie_consent_title: "Consimțământ Cookie"
 cookie_consent_message: "Folosim cookie-uri pentru a vă îmbunătăți experiența de navigare și a analiza traficul nostru."

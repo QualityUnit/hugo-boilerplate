@@ -13,8 +13,7 @@
         <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/" class="tag-visible">
             {{ partial "components/label/label.html" (dict
                 "text" $tag
-                "badgeClass" "badge-base badge-orange badge-with-border"
-                "icon" "tag" ) 
+                "badgeClass" "badge-base badge-gray badge-with-border" ) 
             }}
         </a>
     {{ end }}
@@ -26,8 +25,7 @@
         <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/" class="tag-hidden hidden">
             {{ partial "components/label/label.html" (dict
                 "text" $tag
-                "badgeClass" "badge-base badge-orange badge-with-border"
-                "icon" "tag" ) 
+                "badgeClass" "badge-base badge-gray badge-with-border" ) 
             }}
         </a>
     {{ end }}
@@ -35,19 +33,17 @@
     
     <!-- Show more/less buttons -->
     {{ if gt $tagsCount $maxTags }}
-        <button type="button" class="show-more-btn cursor-pointer" data-container="{{ $containerId }}">
-            {{ partial "components/label/label.html" (dict
-                "text" (printf "+%d more" (sub $tagsCount $maxTags))
-                "badgeClass" "badge-base badge-orange badge-with-border"
-                "icon" "" ) 
-            }}
+        <button type="button" class="show-more-btn text-body font-semibold text-xs tracking-[0.216px] cursor-pointer" data-container="{{ $containerId }}">
+            <div class="flex items-center gap-1">
+                <span>{{ (printf "+%d more" (sub $tagsCount $maxTags)) }}</span>
+                {{ partial "icons/chevron-down" "size-5 text-body" }}
+            </div>
         </button>
-        <button type="button" class="show-less-btn cursor-pointer hidden" data-container="{{ $containerId }}">
-            {{ partial "components/label/label.html" (dict
-                "text" "show less"
-                "badgeClass" "badge-base badge-orange badge-with-border"
-                "icon" "" ) 
-            }}
+        <button type="button" class="show-less-btn text-body font-semibold text-xs tracking-[0.216px] cursor-pointer hidden" data-container="{{ $containerId }}">
+            <div class="flex items-center gap-1">
+                <span>{{ i18n "tag_show_less" }}</span>
+                {{ partial "icons/chevron-up" "size-5 text-body" }}
+            </div>
         </button>
     {{ end }}
 </div>

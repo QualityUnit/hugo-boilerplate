@@ -38,7 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Sebelumnya"
 tag_pagination_next: "Seterusnya"
 tag_other_tags: "Tag Lain"
-
+tag_show_less: "Tunjukkan kurang"
 # Cookie consent translations
 cookie_consent_title: "Kebenaran Kuki"
 cookie_consent_message: "Kami menggunakan kuki untuk meningkatkan pengalaman melayari anda dan menganalisis trafik kami."

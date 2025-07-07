@@ -38,6 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Предыдущая"
 tag_pagination_next: "Следующая"
 tag_other_tags: "Другие теги"
+tag_show_less: "Показать меньше"
 
 # Cookie consent translations
 cookie_consent_title: "Согласие на использование файлов cookie"

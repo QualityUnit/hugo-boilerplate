@@ -14,6 +14,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "E mëparshme"
 tag_pagination_next: "Tjetër"
 tag_other_tags: "Etiketa të Tjera"
+tag_show_less: "Shfaq më pak"
 
 # Përkthime për pëlqimin e cookies
 cookie_consent_title: "Pëlqimi për Cookie"

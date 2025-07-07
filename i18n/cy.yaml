@@ -14,6 +14,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Blaenorol"
 tag_pagination_next: "Nesaf"
 tag_other_tags: "Tagiau Eraill"
+tag_show_less: "Dangos llai"
 
 # Cyfieithiadau Cydsyniad Cwcis
 cookie_consent_title: "Caniatâd Cwci"

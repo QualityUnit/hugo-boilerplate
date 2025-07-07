@@ -38,7 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "السابق"
 tag_pagination_next: "التالي"
 tag_other_tags: "علامات أخرى"
-
+tag_show_less: "إظهار أقل"
 # Cookie consent translations
 cookie_consent_title: "الموافقة على ملفات تعريف الارتباط"
 cookie_consent_message: "نستخدم ملفات تعريف الارتباط لتعزيز تجربة التصفح وتحليل حركة المرور لدينا."

@@ -15,6 +15,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Preċedenti"
 tag_pagination_next: "Li jmiss"
 tag_other_tags: "Tags Oħra"
+tag_show_less: "Uri inqas"
 
 # Traduzzjonijiet tal-kunsens tal-cookies
 cookie_consent_title: "Kunsens tal-Cookie"

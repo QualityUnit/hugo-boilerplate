@@ -14,6 +14,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Iliyotangulia"
 tag_pagination_next: "Inayofuata"
 tag_other_tags: "Vitambulisho Vingine"
+tag_show_less: "Onyesha kidogo"
 
 # Tafsiri za idhini ya kuki
 cookie_consent_title: "Idhini ya Kuki"

@@ -38,6 +38,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Predchádzajúca"
 tag_pagination_next: "Nasledujúca"
 tag_other_tags: "Iné tagy"
+tag_show_less: "Zobraziť menej"
 
 # Cookie consent translations
 cookie_consent_title: "Súhlas s cookies"
