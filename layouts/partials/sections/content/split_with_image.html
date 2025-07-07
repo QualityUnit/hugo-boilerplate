@@ -61,13 +61,11 @@ Design Tokens:
 {{ $imageContainerPaddingY := "py-6" }}
 {{ $contentPaddingY := "py-4" }}
 {{ $contentLeftPadding := "lg:pl-20" }}
-{{ $contentMarginSpacing := "lg:mr-0 lg:ml-8" }}
-{{ $contentMarginSpacingReverse := "lg:pl-0 lg:ml-0 lg:mr-8" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
 
 <div class="split-with-image-section section-bg-light {{ $sectionPaddingY }}">
-  <div class="wrapper lg:flex lg:justify-between lg:items-stretch{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
+  <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
       <div class="relative {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[{{ $imageContainerMaxWidth }}] max-h-[{{ $imageContainerMaxHeight }}]">
         {{ if $link }}
@@ -84,12 +82,12 @@ Design Tokens:
       </div>
     </div>
     <div class="lg:flex lg:w-1/2 lg:items-center">
-      <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ if eq $layout "image-right" }}{{ $contentMarginSpacingReverse }}{{ else }}{{ $contentLeftPadding }} {{ $contentMarginSpacing }}{{ end }}">
+      <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ if eq $layout "image-right" }}lg:pl-0{{ else }}{{ $contentLeftPadding }} {{ end }}">
         {{ if $eyebrow }}
           <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ $eyebrow }}</p>
         {{ end }}
         {{ if $heading}}
-          <h2 class="mt-3 text-4xl font-semibold {{ $headingTracking }} leading-none text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
+          <h2 class="mt-3 mb-0 text-4xl font-semibold {{ $headingTracking }} leading-none text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
         {{ end }}
         {{ if $description }}
           <p class="mt-6 text-lg/7 {{ $descriptionColor }}">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
