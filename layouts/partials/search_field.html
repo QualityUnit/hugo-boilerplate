@@ -3,7 +3,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<div class="relative w-full max-w-sm">
+<div class="relative w-full max-w-sm mt-12">
     <div class="relative flex items-center">
         <input type="text" id="popup-search-input" class="w-full px-9 py-1.5 text-sm border surface-border rounded-md surface-primary placeholder:text-placeholder focus:outline-none focus:ring-2" placeholder="{{ i18n "search_placeholder" }}" aria-label="{{ i18n "search_placeholder" }}">
         <button type="button" class="absolute left-1.5" aria-label="{{ i18n "search_submit_aria" }}">
@@ -28,13 +28,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Translation strings
     const searchTranslations = {
-        searchNotAvailable: {{ i18n "search_not_available" | jsonify }},
-        searchInitializing: {{ i18n "search_initializing" | jsonify }},
-        searchErrorLoading: {{ i18n "search_error_loading" | jsonify }},
-        searchErrorPerforming: {{ i18n "search_error_performing" | jsonify }},
-        searchNoResults: {{ i18n "search_no_results" | jsonify }},
-        searchNoContentPreview: {{ i18n "search_no_content_preview" | jsonify }},
-        searchUntitled: {{ i18n "search_untitled" | jsonify }}
+        searchNotAvailable: {{ i18n "search_not_available" | jsonify | safeJS }},
+        searchInitializing: {{ i18n "search_initializing" | jsonify | safeJS }},
+        searchErrorLoading: {{ i18n "search_error_loading" | jsonify | safeJS }},
+        searchErrorPerforming: {{ i18n "search_error_performing" | jsonify | safeJS }},
+        searchNoResults: {{ i18n "search_no_results" | jsonify | safeJS }},
+        searchNoContentPreview: {{ i18n "search_no_content_preview" | jsonify | safeJS }},
+        searchUntitled: {{ i18n "search_untitled" | jsonify | safeJS }}
     };
 
     // Make sure the required libraries are available
@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn('Mark.js is not loaded. Highlighting will be disabled.');
     }
 
+    // DOM Elements
     const searchInput = document.getElementById('popup-search-input');
     const searchResultsPopup = document.getElementById('search-results-popup');
     const searchResults = document.getElementById('popup-search-results');
@@ -54,13 +55,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const viewAllLink = document.getElementById('view-all-results');
     const clearButton = document.getElementById('clear-search');
 
+    // Global variables
     let fuseInstance = null;
     let debounceTimer;
     let searchData = null;
+    let isSearchInitialized = false;
+
+    // --- Event Listeners ---
 
     // Close popup when clicking outside
     document.addEventListener('click', function(event) {
-        if (!event.target.closest('.relative')) {
+        if (!searchInput.contains(event.target) && !searchResultsPopup.contains(event.target)) {
             searchResultsPopup.classList.add('hidden');
         }
     });
@@ -85,9 +90,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize search only when user interacts with the search input
     searchInput.addEventListener('focus', initializeSearch);
 
+    // Handle input changes
     searchInput.addEventListener('input', function() {
         toggleClearButton();
         clearTimeout(debounceTimer);
+
         const query = this.value.trim();
 
         if (query.length < 2) {
@@ -98,63 +105,75 @@ document.addEventListener('DOMContentLoaded', function() {
         debounceTimer = setTimeout(() => performSearch(query), 300);
     });
 
+    // --- Search Functions ---
+
+    /**
+     * Initializes the search mechanism (Fuse.js) by loading the index.
+     * Loads data only once.
+     */
     function initializeSearch() {
-        // Check if Fuse is available
         if (typeof Fuse === 'undefined') {
-            searchResults.innerHTML = '<p>' + searchTranslations.searchNotAvailable + '</p>';
+            searchResults.innerHTML = `<p>${searchTranslations.searchNotAvailable}</p>`;
             searchResultsPopup.classList.remove('hidden');
             return;
         }
 
-        // Only load data if it hasn't been loaded yet
-        if (searchData === null) {
-            if (fuseInstance === null) {
-                loadingIndicator.classList.remove('hidden');
-                searchResultsPopup.classList.remove('hidden');
-                searchResults.innerHTML = '';
-
-                fetch('/index.json')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (!data || data.length === 0) {
-                            console.error('Search index is empty');
-                            throw new Error('Search index is empty');
-                        }
-
-                        searchData = data;
-                        fuseInstance = new Fuse(data, {
-                            keys: ['title', 'content', 'tags'],
-                            includeScore: true,
-                            includeMatches: true,
-                            minMatchCharLength: 2,
-                            threshold: 0.4
-                        });
-
-                        // If there's text in the search box already, perform search
-                        const query = searchInput.value.trim();
-                        if (query.length >= 2) {
-                            performSearch(query);
-                        } else {
-                            loadingIndicator.classList.add('hidden');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Search Error:', error);
-                        loadingIndicator.classList.add('hidden');
-                        searchResults.innerHTML = '<p>' + searchTranslations.searchErrorLoading + '</p>';
-                    });
-            }
+        if (isSearchInitialized) {
+            return;
         }
+
+        loadingIndicator.classList.remove('hidden');
+        searchResultsPopup.classList.remove('hidden');
+        searchResults.innerHTML = `<p>${searchTranslations.searchInitializing}</p>`;
+
+        fetch('/index.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data || !Array.isArray(data) || data.length === 0) {
+                    console.error('Search index is empty or invalid:', data);
+                    throw new Error('Search index is empty or invalid');
+                }
+
+                searchData = data;
+                fuseInstance = new Fuse(data, {
+                    keys: ['title', 'content', 'tags'],
+                    includeScore: true,
+                    includeMatches: true,
+                    minMatchCharLength: 2,
+                    threshold: 0.4
+                });
+
+                isSearchInitialized = true;
+                loadingIndicator.classList.add('hidden');
+
+                const query = searchInput.value.trim();
+                if (query.length >= 2) {
+                    performSearch(query);
+                } else {
+                    searchResultsPopup.classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Search Initialization Error:', error);
+                loadingIndicator.classList.add('hidden');
+                searchResults.innerHTML = `<p>${searchTranslations.searchErrorLoading}</p>`;
+                searchResultsPopup.classList.remove('hidden');
+                isSearchInitialized = false;
+            });
     }
 
+    /**
+     * Performs a search for the given query and displays the results.
+     * @param {string} query - The search query.
+     */
     function performSearch(query) {
         if (!fuseInstance) {
-            searchResults.innerHTML = '<p>' + searchTranslations.searchInitializing + '</p>';
+            searchResults.innerHTML = `<p>${searchTranslations.searchInitializing}</p>`;
             return;
         }
 
@@ -163,34 +182,38 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingIndicator.classList.add('hidden');
             searchResultsPopup.classList.remove('hidden');
 
-            // Update "View all" link with the current search query
             viewAllLink.href = `/search?q=${encodeURIComponent(query)}`;
 
             if (results.length > 0) {
-                // Show only the first 5 results in the popup
                 const displayResults = results.slice(0, 5);
                 let html = '';
 
                 displayResults.forEach(({ item, matches }, index) => {
                     let snippet = searchTranslations.searchNoContentPreview;
 
-                    // Check if content exists before trying to access it
-                    if (item && item.content && typeof item.content === 'string' && item.content.trim() !== '') {
-                        snippet = item.content.substring(0, 80) + '...';
+                    if (item && typeof item.content === 'string' && item.content.trim().length > 0) {
+                        snippet = item.content.substring(0, Math.min(item.content.length, 80)) + '...';
 
                         if (matches && Array.isArray(matches)) {
                             const contentMatch = matches.find(m => m && m.key === 'content' && Array.isArray(m.indices) && m.indices.length > 0);
 
                             if (contentMatch && contentMatch.indices && contentMatch.indices.length > 0) {
-                                const start = Math.max(0, contentMatch.indices[0][0] - 20);
-                                const end = Math.min(item.content.length, contentMatch.indices[0][1] + 20);
-                                snippet = '...' + item.content.substring(start, end) + '...';
+                                const [matchStart, matchEnd] = contentMatch.indices[0];
+                                const contextLength = 40;
+
+                                const start = Math.max(0, matchStart - contextLength);
+                                const end = Math.min(item.content.length, matchEnd + contextLength);
+
+                                snippet = (start > 0 ? '...' : '') +
+                                          item.content.substring(start, end) +
+                                          (end < item.content.length ? '...' : '');
                             }
                         }
                     }
 
                     const title = item.title || searchTranslations.searchUntitled;
                     const permalink = item.permalink || '#';
+
                     const isLast = index === displayResults.length - 1;
                     const borderClass = isLast ? '' : 'border-b border-gray-200 dark:border-gray-600';
 
@@ -206,18 +229,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 searchResults.innerHTML = html;
                 viewAllSection.classList.toggle('hidden', results.length <= 5);
 
-                // Highlight the search query in the results
-                if (typeof Mark !== 'undefined') {
-                    const mark = new Mark(searchResults);
-                    mark.mark(query);
+                if (typeof Mark !== 'undefined' && searchResults.children.length > 0) {
+                    const markInstance = new Mark(searchResults);
+                    markInstance.mark(query);
                 }
             } else {
-                searchResults.innerHTML = '<p>' + searchTranslations.searchNoResults + '</p>';
+                searchResults.innerHTML = `<p>${searchTranslations.searchNoResults}</p>`;
                 viewAllSection.classList.add('hidden');
             }
         } catch (error) {
             console.error('Search execution error:', error);
-            searchResults.innerHTML = '<p>' + searchTranslations.searchErrorPerforming + '</p>';
+            searchResults.innerHTML = `<p>${searchTranslations.searchErrorPerforming}</p>`;
+            searchResultsPopup.classList.remove('hidden');
         }
     }
 });

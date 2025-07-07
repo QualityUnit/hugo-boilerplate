@@ -3,14 +3,12 @@
 
 {{ $partialParams := dict
   "title" .Title
-  "description" (partial "utils/linkbuilding" (dict "content" (printf (i18n "tag_browse_content") .Title) "page" .))
-  "eyebrow" (i18n "tag_eyebrow")
 }}
 
 <!-- Tag Posts List -->
-<div class="surface-primary py-12">
+<div class="surface-primary py-16">
   <div class="wrapper px-6 lg:px-8">
-    {{ partial "hero_default.html" (dict "Params" $partialParams "Title" .Title "Page" .) }}
+    <h1 class="text-7xl font-semibold tracking-tight text-heading">{{ .Title }}</h1>
 
     {{ partial "search_field.html" . }}
 
