@@ -1,7 +1,7 @@
-{{ $lists := .lists }}
+{{ $listItems := .lists }}
 
 <dl class="mt-10 max-w-full space-y-8 text-lg/7 text-body lg:max-w-full">
-    {{ range $index, $item := $lists }}
+    {{ range $index, $item := $listItems }}
     <div class="relative pl-9">
         <dt class="inline font-bold text-heading">
             {{ if $item.icon }}
