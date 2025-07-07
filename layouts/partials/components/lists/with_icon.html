@@ -1,0 +1,21 @@
+{{ $lists := .lists }}
+
+<dl class="mt-10 max-w-full space-y-8 text-lg/7 text-body lg:max-w-full">
+    {{ range $index, $item := $lists }}
+    <div class="relative pl-9">
+        <dt class="inline font-bold text-heading">
+            {{ if $item.icon }}
+                <span class="absolute left-1 top-1 size-5 text-primary">
+                    {{ if $item.icon }}
+                        {{ partial "components/media/icon.html" (dict "icon" $item.icon "class" "h-5 w-5") }}
+                    {{ else }}
+                        {{ partial "components/media/icon.html" (dict "icon" "check-circle-solid" "class" "h-5 w-5") }}
+                    {{ end }}
+                </span>
+            {{ end }}
+            {{ $item.title }}.
+        </dt>
+        <dd class="inline pl-0">{{ $item.description }}</dd>
+    </div>
+    {{ end }}
+</dl>
