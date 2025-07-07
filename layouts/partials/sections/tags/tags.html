@@ -1,27 +1,80 @@
 {{ $tags := .tags | default (slice) }}
 
 {{ if $tags }}
-<div class="pt-4 pb-4 gap-3 px-2 flex flex-wrap">
+{{ $containerId := .containerId | default "default" }}
+<div class="pt-4 pb-4 gap-3 px-2 flex flex-wrap" id="tags-container-{{ $containerId }}">
 
     {{ $maxTags := .maxTags | default 4 }}
     {{ $tagsCount := len $tags }}
+    
+    <!-- Always visible tags -->
     {{ range $i, $tag := $tags }}
     {{ if lt $i $maxTags }}
-    <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/">
-    {{ partial "components/label/label.html" (dict
-        "text" $tag
-        "badgeClass" "badge-base badge-orange badge-with-border"
-        "icon" "tag" ) }}
-    </a>
+        <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/" class="tag-visible">
+            {{ partial "components/label/label.html" (dict
+                "text" $tag
+                "badgeClass" "badge-base badge-orange badge-with-border"
+                "icon" "tag" ) 
+            }}
+        </a>
     {{ end }}
     {{ end }}
+    
+    <!-- Hidden tags (initially hidden) -->
+    {{ range $i, $tag := $tags }}
+    {{ if ge $i $maxTags }}
+        <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/" class="tag-hidden hidden">
+            {{ partial "components/label/label.html" (dict
+                "text" $tag
+                "badgeClass" "badge-base badge-orange badge-with-border"
+                "icon" "tag" ) 
+            }}
+        </a>
+    {{ end }}
+    {{ end }}
+    
+    <!-- Show more/less buttons -->
     {{ if gt $tagsCount $maxTags }}
-    <a href="{{ print "/tags/" | relLangURL }}">
-    {{ partial "components/label/label.html" (dict
-        "text" (printf "+%d more" (sub $tagsCount $maxTags))
-        "badgeClass" "badge-base badge-orange badge-with-border"
-        "icon" "" ) }}
-    </a>
+        <button type="button" class="show-more-btn cursor-pointer" data-container="{{ $containerId }}">
+            {{ partial "components/label/label.html" (dict
+                "text" (printf "+%d more" (sub $tagsCount $maxTags))
+                "badgeClass" "badge-base badge-orange badge-with-border"
+                "icon" "" ) 
+            }}
+        </button>
+        <button type="button" class="show-less-btn cursor-pointer hidden" data-container="{{ $containerId }}">
+            {{ partial "components/label/label.html" (dict
+                "text" "show less"
+                "badgeClass" "badge-base badge-orange badge-with-border"
+                "icon" "" ) 
+            }}
+        </button>
     {{ end }}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to all show more/less buttons
+    document.querySelectorAll('.show-more-btn, .show-less-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const containerId = this.getAttribute('data-container');
+            toggleTags(containerId);
+        });
+    });
+});
+
+function toggleTags(containerId) {
+    const container = document.getElementById('tags-container-' + containerId);
+    const hiddenTags = container.querySelectorAll('.tag-hidden');
+    const showMoreBtn = container.querySelector('.show-more-btn');
+    const showLessBtn = container.querySelector('.show-less-btn');
+    
+    hiddenTags.forEach(function(tag) {
+        tag.classList.toggle('hidden');
+    });
+    
+    showMoreBtn.classList.toggle('hidden');
+    showLessBtn.classList.toggle('hidden');
+}
+</script>
 {{ end }}
