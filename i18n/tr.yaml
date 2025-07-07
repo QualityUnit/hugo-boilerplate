@@ -5,6 +5,21 @@ glossary_subtitle: "Kapsamlı terimler ve tanımlar listesi"
 glossary_title: "Sözlük"
 home_title: "Ana Sayfa"
 
+# Search translations
+search_placeholder: "Ara..."
+search_submit_aria: "Aramayı gönder"
+search_clear_aria: "Aramayı temizle"
+search_clear_title: "Aramayı temizle"
+search_loading: "Yükleniyor..."
+search_view_all_results: "Tüm sonuçları görüntüle"
+search_no_results: "Sonuç bulunamadı."
+search_error_loading: "Arama sonuçları yüklenirken hata oluştu."
+search_error_performing: "Arama gerçekleştirilirken hata oluştu."
+search_not_available: "Arama işlevi kullanılamıyor. Lütfen daha sonra tekrar deneyin."
+search_initializing: "Arama hala başlatılıyor. Lütfen tekrar deneyin."
+search_no_content_preview: "İçerik önizlemesi mevcut değil"
+search_untitled: "Başlıksız"
+
 # Glossary translations
 glossary_eyebrow: "Sözlük"
 

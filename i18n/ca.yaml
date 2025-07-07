@@ -5,6 +5,21 @@ glossary_subtitle: "Una llista completa de termes i definicions"
 glossary_title: "Glossari"
 home_title: "Inici"
 
+# Search translations
+search_placeholder: "Cercar..."
+search_submit_aria: "Enviar cerca"
+search_clear_aria: "Esborrar cerca"
+search_clear_title: "Esborrar cerca"
+search_loading: "Carregant..."
+search_view_all_results: "Veure tots els resultats"
+search_no_results: "No s'han trobat resultats."
+search_error_loading: "Error en carregar els resultats de cerca."
+search_error_performing: "Error en realitzar la cerca."
+search_not_available: "La funcionalitat de cerca no està disponible. Torneu a provar més tard."
+search_initializing: "La cerca encara s'està inicialitzant. Torneu a provar."
+search_no_content_preview: "No hi ha previsualització de contingut disponible"
+search_untitled: "Sense títol"
+
 # Glossary translations
 glossary_eyebrow: "Glossari"
 

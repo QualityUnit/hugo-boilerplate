@@ -1,9 +1,24 @@
 # English translations
-frequently_asked_questions: "Pogosto zastavljena vprašanja"
+frequently_asked_questions: "Pogosta vprašanja"
 language_selector_title: "Razpoložljivi jeziki"
-glossary_subtitle: "Obsežen seznam izrazov in definicij"
-glossary_title: "Glosar"
+glossary_subtitle: "Izčrpen seznam izrazov in definicij"
+glossary_title: "Slovar"
 home_title: "Domov"
+
+# Search translations
+search_placeholder: "Iskanje..."
+search_submit_aria: "Pošlji iskanje"
+search_clear_aria: "Počisti iskanje"
+search_clear_title: "Počisti iskanje"
+search_loading: "Nalaganje..."
+search_view_all_results: "Prikaži vse rezultate"
+search_no_results: "Ni najdenih rezultatov."
+search_error_loading: "Napaka pri nalaganju rezultatov iskanja."
+search_error_performing: "Napaka pri izvajanju iskanja."
+search_not_available: "Funkcija iskanja ni na voljo. Poskusite znova pozneje."
+search_initializing: "Iskanje se še vedno inicializira. Poskusite znova."
+search_no_content_preview: "Predogled vsebine ni na voljo"
+search_untitled: "Brez naslova"
 
 # Glossary translations
 glossary_eyebrow: "Glosar"

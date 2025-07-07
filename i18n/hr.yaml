@@ -5,6 +5,21 @@ glossary_subtitle: "Sveobuhvatan popis pojmova i definicija"
 glossary_title: "Rječnik"
 home_title: "Početna"
 
+# Search translations
+search_placeholder: "Pretraži..."
+search_submit_aria: "Pošalji pretragu"
+search_clear_aria: "Obriši pretragu"
+search_clear_title: "Obriši pretragu"
+search_loading: "Učitava..."
+search_view_all_results: "Prikaži sve rezultate"
+search_no_results: "Nema pronađenih rezultata."
+search_error_loading: "Greška pri učitavanju rezultata pretrage."
+search_error_performing: "Greška pri izvršavanju pretrage."
+search_not_available: "Funkcija pretrage nije dostupna. Pokušajte kasnije."
+search_initializing: "Pretraga se još uvijek pokreće. Pokušajte ponovno."
+search_no_content_preview: "Nema dostupnog prikaza sadržaja"
+search_untitled: "Bez naslova"
+
 # Glossary translations
 glossary_eyebrow: "Rječnik"
 

@@ -5,6 +5,21 @@ glossary_subtitle: "Μία εκτενής λίστα όρων και ορισμ�
 glossary_title: "Γλωσσάριο"
 home_title: "Αρχική"
 
+# Search translations
+search_placeholder: "Αναζήτηση..."
+search_submit_aria: "Υποβολή αναζήτησης"
+search_clear_aria: "Καθαρισμός αναζήτησης"
+search_clear_title: "Καθαρισμός αναζήτησης"
+search_loading: "Φόρτωση..."
+search_view_all_results: "Προβολή όλων των αποτελεσμάτων"
+search_no_results: "Δεν βρέθηκαν αποτελέσματα."
+search_error_loading: "Σφάλμα φόρτωσης αποτελεσμάτων αναζήτησης."
+search_error_performing: "Σφάλμα εκτέλεσης αναζήτησης."
+search_not_available: "Η λειτουργία αναζήτησης δεν είναι διαθέσιμη. Δοκιμάστε ξανά αργότερα."
+search_initializing: "Η αναζήτηση εξακολουθεί να αρχικοποιείται. Δοκιμάστε ξανά."
+search_no_content_preview: "Δεν υπάρχει διαθέσιμη προεπισκόπηση περιεχομένου"
+search_untitled: "Χωρίς τίτλο"
+
 # Glossary translations
 glossary_eyebrow: "Γλωσσάριο"
 

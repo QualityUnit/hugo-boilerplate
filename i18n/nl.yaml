@@ -5,6 +5,21 @@ glossary_subtitle: "Een uitgebreide lijst van termen en definities"
 glossary_title: "Woordenlijst"
 home_title: "Home"
 
+# Search translations
+search_placeholder: "Zoeken..."
+search_submit_aria: "Zoekopdracht verzenden"
+search_clear_aria: "Zoekopdracht wissen"
+search_clear_title: "Zoekopdracht wissen"
+search_loading: "Laden..."
+search_view_all_results: "Alle resultaten bekijken"
+search_no_results: "Geen resultaten gevonden."
+search_error_loading: "Fout bij het laden van zoekresultaten."
+search_error_performing: "Fout bij het uitvoeren van de zoekopdracht."
+search_not_available: "Zoekfunctionaliteit is niet beschikbaar. Probeer het later opnieuw."
+search_initializing: "Zoekopdracht wordt nog geïnitialiseerd. Probeer het opnieuw."
+search_no_content_preview: "Geen inhoudsvoorbeeld beschikbaar"
+search_untitled: "Zonder titel"
+
 # Glossary translations
 glossary_eyebrow: "Woordenlijst"
 

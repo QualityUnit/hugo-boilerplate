@@ -4,6 +4,21 @@ language_selector_title: "دستیاب زبانیں"
 glossary_subtitle: "اصطلاحات اور تعریفات کی جامع فہرست"
 glossary_title: "اصطلاحات"
 
+# تلاش کے تراجم
+search_placeholder: "تلاش کریں..."
+search_submit_aria: "تلاش بھیجیں"
+search_clear_aria: "تلاش صاف کریں"
+search_clear_title: "تلاش صاف کریں"
+search_loading: "لوڈ ہو رہا ہے..."
+search_view_all_results: "تمام نتائج دیکھیں"
+search_no_results: "کوئی نتائج نہیں ملے۔"
+search_error_loading: "تلاش کے نتائج لوڈ کرنے میں خرابی۔"
+search_error_performing: "تلاش کرنے میں خرابی۔"
+search_not_available: "تلاش کی سہولت دستیاب نہیں ہے۔ بعد میں کوشش کریں۔"
+search_initializing: "تلاش ابھی شروع ہو رہی ہے۔ دوبارہ کوشش کریں۔"
+search_no_content_preview: "مواد کا پیش نظارہ دستیاب نہیں"
+search_untitled: "بے عنوان"
+
 # ٹیگز صفحہ کے تراجم
 tags_title: "ٹیگز"
 tag_eyebrow: "ٹیگ"

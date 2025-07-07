@@ -5,6 +5,21 @@ glossary_subtitle: "En omfattande lista över termer och definitioner"
 glossary_title: "Ordlista"
 home_title: "Hem"
 
+# Search translations
+search_placeholder: "Sök..."
+search_submit_aria: "Skicka sökning"
+search_clear_aria: "Rensa sökning"
+search_clear_title: "Rensa sökning"
+search_loading: "Laddar..."
+search_view_all_results: "Visa alla resultat"
+search_no_results: "Inga resultat hittades."
+search_error_loading: "Fel vid laddning av sökresultat."
+search_error_performing: "Fel vid utförande av sökning."
+search_not_available: "Sökfunktionen är inte tillgänglig. Försök igen senare."
+search_initializing: "Sökningen initialiseras fortfarande. Försök igen."
+search_no_content_preview: "Ingen förhandsvisning av innehåll tillgänglig"
+search_untitled: "Utan titel"
+
 # Glossary translations
 glossary_eyebrow: "Ordlista"
 

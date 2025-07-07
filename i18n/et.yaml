@@ -5,6 +5,21 @@ glossary_subtitle: "Põhjalik terminite ja definitsioonide loend"
 glossary_title: "Sõnastik"
 home_title: "Avaleht"
 
+# Search translations
+search_placeholder: "Otsi..."
+search_submit_aria: "Esita otsing"
+search_clear_aria: "Tühista otsing"
+search_clear_title: "Tühista otsing"
+search_loading: "Laadimine..."
+search_view_all_results: "Vaata kõiki tulemusi"
+search_no_results: "Tulemusi ei leitud."
+search_error_loading: "Viga otsingutulemuste laadimisel."
+search_error_performing: "Viga otsingu sooritamisel."
+search_not_available: "Otsingu funktsioon ei ole saadaval. Proovige hiljem uuesti."
+search_initializing: "Otsing alles käivitub. Proovige uuesti."
+search_no_content_preview: "Sisu eelvaade ei ole saadaval"
+search_untitled: "Pealkirjata"
+
 # Glossary translations
 glossary_eyebrow: "Sõnastik"
 

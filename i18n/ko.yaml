@@ -5,6 +5,21 @@ glossary_subtitle: "용어 및 정의의 종합 목록"
 glossary_title: "용어집"
 home_title: "홈"
 
+# Search translations
+search_placeholder: "검색..."
+search_submit_aria: "검색 제출"
+search_clear_aria: "검색 지우기"
+search_clear_title: "검색 지우기"
+search_loading: "로딩 중..."
+search_view_all_results: "모든 결과 보기"
+search_no_results: "결과를 찾을 수 없습니다."
+search_error_loading: "검색 결과 로딩 오류."
+search_error_performing: "검색 실행 오류."
+search_not_available: "검색 기능을 사용할 수 없습니다. 나중에 다시 시도하세요."
+search_initializing: "검색이 아직 초기화 중입니다. 다시 시도하세요."
+search_no_content_preview: "콘텐츠 미리보기 없음"
+search_untitled: "제목 없음"
+
 # Glossary translations
 glossary_eyebrow: "용어집"
 

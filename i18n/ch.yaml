@@ -1,4 +1,3 @@
-
 # Schwizerdütschi Übersetzigä
 frequently_asked_questions: "Häufig gstellt Frogä"
 language_selector_title: "Verfügbari Sprachä"
@@ -74,3 +73,18 @@ courses.session: "Sitzig"
 courses.you_will_learn: "Das lernsch:"
 courses.or: "oder"
 courses.format: "Format"
+
+# Search translations
+search_placeholder: "Sueche..."
+search_submit_aria: "Sueche abschickä"
+search_clear_aria: "Sueche löschä"
+search_clear_title: "Sueche löschä"
+search_loading: "Ladet..."
+search_view_all_results: "Alli Resultat aazeigä"
+search_no_results: "Kei Resultat gfundä."
+search_error_loading: "Fähler bim Ladä vo dä Sueche-Resultat."
+search_error_performing: "Fähler bim Durefüere vo dä Sueche."
+search_not_available: "Sueche-Funktion isch nid verfügbar. Probier spöter wieder."
+search_initializing: "Sueche wird no initialisiert. Probier nomol."
+search_no_content_preview: "Kei Inhalt-Vorschau verfügbar"
+search_untitled: "Ohni Titel"

@@ -5,6 +5,21 @@ glossary_subtitle: "รายการคำศัพท์และคำนิ
 glossary_title: "อภิธานศัพท์"
 home_title: "หน้าหลัก"
 
+# Search translations
+search_placeholder: "ค้นหา..."
+search_submit_aria: "ส่งการค้นหา"
+search_clear_aria: "ล้างการค้นหา"
+search_clear_title: "ล้างการค้นหา"
+search_loading: "กำลังโหลด..."
+search_view_all_results: "ดูผลลัพธ์ทั้งหมด"
+search_no_results: "ไม่พบผลลัพธ์"
+search_error_loading: "เกิดข้อผิดพลาดในการโหลดผลการค้นหา"
+search_error_performing: "เกิดข้อผิดพลาดในการค้นหา"
+search_not_available: "ฟังก์ชันการค้นหาไม่พร้อมใช้งาน โปรดลองอีกครั้งในภายหลัง"
+search_initializing: "การค้นหายังคงกำลังเริ่มต้น โปรดลองอีกครั้ง"
+search_no_content_preview: "ไม่มีการแสดงตัวอย่างเนื้อหา"
+search_untitled: "ไม่มีชื่อเรื่อง"
+
 # Glossary translations
 glossary_eyebrow: "อภิธานศัพท์"
 

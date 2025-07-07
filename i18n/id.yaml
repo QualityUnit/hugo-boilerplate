@@ -5,6 +5,21 @@ glossary_subtitle: "Daftar lengkap istilah dan definisi"
 glossary_title: "Glosarium"
 home_title: "Beranda"
 
+# Search translations
+search_placeholder: "Cari..."
+search_submit_aria: "Kirim pencarian"
+search_clear_aria: "Hapus pencarian"
+search_clear_title: "Hapus pencarian"
+search_loading: "Memuat..."
+search_view_all_results: "Lihat semua hasil"
+search_no_results: "Tidak ada hasil yang ditemukan."
+search_error_loading: "Kesalahan memuat hasil pencarian."
+search_error_performing: "Kesalahan melakukan pencarian."
+search_not_available: "Fungsi pencarian tidak tersedia. Coba lagi nanti."
+search_initializing: "Pencarian masih menginisialisasi. Coba lagi."
+search_no_content_preview: "Tidak ada pratinjau konten yang tersedia"
+search_untitled: "Tanpa judul"
+
 # Glossary translations
 glossary_eyebrow: "Glosarium"
 
