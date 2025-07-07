@@ -87,7 +87,7 @@ Design Tokens:
           <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ $eyebrow }}</p>
         {{ end }}
         {{ if $heading}}
-          <h2 class="mt-3 text-4xl font-semibold {{ $headingTracking }} leading-none text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
+          <h2 class="mt-3 mb-0 text-4xl font-semibold {{ $headingTracking }} leading-none text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
         {{ end }}
         {{ if $description }}
           <p class="mt-6 text-lg/7 {{ $descriptionColor }}">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
