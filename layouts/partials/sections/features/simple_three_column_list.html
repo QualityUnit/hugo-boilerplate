@@ -1,0 +1,77 @@
+{{/*
+@section: Simple Three Column List Features with Icons
+@description: A clean three-column grid layout showcasing features with icons, titles, and descriptions in a definition list format.
+@params:
+  - eyebrow: Text displayed above the heading (optional)
+  - heading: Main section heading (optional)
+  - description: Section description text (optional)
+  - theme: "light" (default) or "dark" — add class="dark" for section
+  - features: Array of feature objects (required)
+    - icon: SVG path for the icon (as HTML string)
+    - title: Feature title
+    - description: Feature description text
+  - page: Page context for linkbuilding function (required)
+@example:
+  {{ partial "sections/features/simple_three_column_list.html" (dict
+      "eyebrow" "FEATURES"
+      "heading" "Key Features"
+      "description" "Our platform offers powerful features to streamline your workflow."
+      "features" (slice
+          (dict
+              "icon" "map"
+              "title" "Easy Integration"
+              "description" "Seamlessly integrate with your existing tools and workflows with our simple API"
+          )
+          (dict
+              "icon" "chart-bar"
+              "title" "Built-in Analytics"
+              "description" "Get real-time insights with comprehensive dashboards and reporting tools"
+          )
+      )
+      "page" .
+  ) }}
+@note: The feature icons use Heroicons paths - provide just the path contents for the icon parameter.
+*/}}
+
+{{/* Feature Section with Three Column List Layout and Icons */}}
+{{ $eyebrow := .eyebrow | default "" }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $features := .features | default (slice) }}
+{{ $page := .page }}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+
+<div class="{{ $theme }}">
+  <div class="section-bg-light dark:section-bg-dark my-16">
+    <div class="wrapper">
+      <div class="max-w-2xl">
+        {{ if $eyebrow }}
+          <p class="text-base/7 font-semibold product-primary">{{ $eyebrow }}</p>
+        {{ end }}
+        {{ if $heading }}
+          <h2 class="text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
+        {{ end }}
+        {{ if $description }}
+          <p class="mt-6 text-lg/9 text-body">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+        {{ end }}
+      </div>
+      <dl class="mx-auto mt-16 grid grid-cols-1 gap-x-8 gap-y-16 text-lg text-body tracking-[-0.36px] sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+        {{ range $features }}
+          <div class="relative pl-9">
+            <dt class="inline font-semibold text-heading">
+              {{ if .icon }}
+                <span class="absolute left-1 top-1 size-5 product-icon">
+                  {{ partial "components/media/icon.html" (dict "icon" .icon) }}
+                </span>
+              {{ end }}
+              {{ .title }}.
+            </dt>
+            <dd class="inline">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</dd>
+          </div>
+        {{ end }}
+      </dl>
+    </div>
+  </div>
+</div>

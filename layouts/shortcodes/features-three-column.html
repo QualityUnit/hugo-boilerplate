@@ -2,22 +2,24 @@
   Features Three Column with Large Icons Shortcode
   
   Named Parameters:
-  - eyebrow: Optional text displayed above the heading (new!)
+  - eyebrow: Optional text displayed above the heading
   - heading: Main heading text (default: "Stay on top of customer support")
   - description: Description text below the main heading
+  - view: Layout type - "grid" (default) for three-column grid or "list" for definition list layout
   
   Inner Content (optional JSON array):
   - Array of feature objects with the following structure:
     - icon: SVG path element for the feature icon
     - title: Feature title
     - description: Feature description
-    - link: Object with text and url properties for the "Learn more" link (optional)
+    - link: Object with text and url properties for the "Learn more" link (optional, only used in grid view)
   
-  Example usage with custom features:
+  Example usage with custom features (grid view):
   {{< features-three-column 
       eyebrow="FEATURES"
       heading="Our Key Features"
       description="Discover the powerful features that make our product stand out from the competition."
+      view="grid"
   >}}
     [
       {
@@ -41,6 +43,27 @@
     ]
   {{< /features-three-column >}}
   
+  Example usage with list view:
+  {{< features-three-column 
+      eyebrow="FEATURES"
+      heading="Our Key Features"
+      description="Discover the powerful features that make our product stand out."
+      view="list"
+  >}}
+    [
+      {
+        "icon": "lock-closed",
+        "title": "Real-time Updates",
+        "description": "Get instant notifications and updates as they happen, ensuring you never miss important information"
+      },
+      {
+        "icon": "lock-closed",
+        "title": "Advanced Security",
+        "description": "Enterprise-grade security features to keep your data protected and give you peace of mind"
+      }
+    ]
+  {{< /features-three-column >}}
+  
   If no inner content is provided, default features will be used.
 */}}
 
@@ -48,6 +71,7 @@
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
 {{ $theme := .Get "theme" | default "light" }}
+{{ $view := .Get "view" | default "grid" }}
 
 {{ $defaultFeatures := slice }}
 
@@ -58,11 +82,22 @@
   {{ end }}
 {{ end }}
 
-{{ partial "sections/features/simple_three_column_with_large_icons.html" (dict 
-  "eyebrow" $eyebrow
-  "heading" $heading
-  "description" $description
-  "theme" $theme
-  "features" $features
-  "page" $.Page
-) }}
+{{ if eq $view "list" }}
+  {{ partial "sections/features/simple_three_column_list.html" (dict 
+    "eyebrow" $eyebrow
+    "heading" $heading
+    "description" $description
+    "theme" $theme
+    "features" $features
+    "page" $.Page
+  ) }}
+{{ else }}
+  {{ partial "sections/features/simple_three_column_with_large_icons.html" (dict 
+    "eyebrow" $eyebrow
+    "heading" $heading
+    "description" $description
+    "theme" $theme
+    "features" $features
+    "page" $.Page
+  ) }}
+{{ end }}
