@@ -8,11 +8,11 @@
 <!-- Tag Posts List -->
 <div class="surface-primary py-16">
   <div class="wrapper px-6 lg:px-8">
-    <h1 class="text-7xl font-semibold tracking-tight text-heading">{{ .Title }}</h1>
+    <h1 class="text-5xl sm:text-7xl font-semibold tracking-tight text-heading">{{ .Title }}</h1>
 
     {{ partial "search_field.html" . }}
 
-    {{ $paginator := .Paginate .Pages 3 }}
+    {{ $paginator := .Paginate .Pages 100 }}
       
     {{ if eq $paginator.TotalPages 0 }}
       <div class="text-center py-12">
@@ -35,29 +35,90 @@
 </div>
 
 <!-- Related Tags Section -->
-<div class="bg-gray-50 py-12">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
-    <div class="mx-auto max-w-2xl lg:max-w-4xl">
-      <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ i18n "tag_other_tags" }}</h2>
-      <div class="mt-6 flex flex-wrap gap-3">
-        {{ $currentTag := .Title }}
-        {{ $tags := $.Site.Taxonomies.tags }}
-        {{ $relatedTags := slice }}
+<div class="surface-secondary pt-12 pb-16">
+  <div class="wrapper">
+    <h2 class="text-lg font-semibold tracking-tight text-heading">{{ i18n "tag_other_tags" }}</h2>
+    <div class="mt-6">
+      {{ $currentTag := .Title }}
+      {{ $tags := $.Site.Taxonomies.tags }}
+      {{ $relatedTags := slice }}
+      
+      {{ range $name, $taxonomy := $tags }}
+        {{ if ne $name $currentTag }}
+          {{ $relatedTags = $relatedTags | append (dict "name" $name "count" (len $taxonomy.Pages)) }}
+        {{ end }}
+      {{ end }}
+      
+      {{ $maxTags := 37 }}
+      {{ $sortedTags := first 100 (sort $relatedTags "count" "desc") }}
+      {{ $tagsCount := len $sortedTags }}
+      {{ $containerId := "related-tags" }}
+      
+      <!-- Tags Container -->
+      <div class="flex flex-wrap gap-3" id="tags-container-{{ $containerId }}">
         
-        {{ range $name, $taxonomy := $tags }}
-          {{ if ne $name $currentTag }}
-            {{ $relatedTags = $relatedTags | append (dict "name" $name "count" (len $taxonomy.Pages)) }}
+        <!-- Always visible tags -->
+        {{ range $i, $tag := $sortedTags }}
+          {{ if lt $i $maxTags }}
+            <a href="{{ "/tags/" | relLangURL }}{{ .name | urlize }}/" class="tag-visible">
+              {{ partial "components/label/label.html" (dict "text" .name "badgeClass" "badge-base badge-gray badge-with-border") }}
+            </a>
           {{ end }}
         {{ end }}
         
-        {{ range first 100 (sort $relatedTags "count" "desc") }}
-          <a href="{{ "/tags/" | relLangURL }}{{ .name | urlize }}/" class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-800 hover:bg-gray-200">
-            {{ .name }} <span class="ml-1.5 text-xs text-gray-500">({{ .count }})</span>
-          </a>
+        <!-- Hidden tags (initially hidden) -->
+        {{ range $i, $tag := $sortedTags }}
+          {{ if ge $i $maxTags }}
+            <a href="{{ "/tags/" | relLangURL }}{{ .name | urlize }}/" class="tag-hidden hidden">
+              {{ partial "components/label/label.html" (dict "text" .name "badgeClass" "badge-base badge-gray badge-with-border") }}
+            </a>
+          {{ end }}
+        {{ end }}
+        
+        <!-- Show more/less buttons -->
+        {{ if gt $tagsCount $maxTags }}
+          <button type="button" class="show-more-btn text-body font-semibold text-xs tracking-[0.216px] cursor-pointer" data-container="{{ $containerId }}">
+            <div class="flex items-center gap-1">
+              <span>{{ (printf "+%d more" (sub $tagsCount $maxTags)) }}</span>
+              {{ partial "icons/chevron-down" "size-5 text-body" }}
+            </div>
+          </button>
+          <button type="button" class="show-less-btn text-body font-semibold text-xs tracking-[0.216px] cursor-pointer hidden" data-container="{{ $containerId }}">
+            <div class="flex items-center gap-1">
+              <span>{{ i18n "tag_show_less" }}</span>
+              {{ partial "icons/chevron-up" "size-5 text-body" }}
+            </div>
+          </button>
         {{ end }}
       </div>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to all show more/less buttons
+    document.querySelectorAll('.show-more-btn, .show-less-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const containerId = this.getAttribute('data-container');
+            toggleTags(containerId);
+        });
+    });
+});
+
+function toggleTags(containerId) {
+    const container = document.getElementById('tags-container-' + containerId);
+    const hiddenTags = container.querySelectorAll('.tag-hidden');
+    const showMoreBtn = container.querySelector('.show-more-btn');
+    const showLessBtn = container.querySelector('.show-less-btn');
+    
+    hiddenTags.forEach(function(tag) {
+        tag.classList.toggle('hidden');
+    });
+    
+    showMoreBtn.classList.toggle('hidden');
+    showLessBtn.classList.toggle('hidden');
+}
+</script>
 
 {{ end }}
