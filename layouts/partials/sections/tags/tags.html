@@ -48,29 +48,9 @@
     {{ end }}
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Add event listeners to all show more/less buttons
-    document.querySelectorAll('.show-more-btn, .show-less-btn').forEach(function(button) {
-        button.addEventListener('click', function() {
-            const containerId = this.getAttribute('data-container');
-            toggleTags(containerId);
-        });
-    });
-});
+{{ if gt $tagsCount $maxTags }}
+{{ $tagToggleJS := resources.Get "js/tag-toggle.js" | js.Build }}
+<script src="{{ $tagToggleJS.RelPermalink }}" defer></script>
+{{ end }}
 
-function toggleTags(containerId) {
-    const container = document.getElementById('tags-container-' + containerId);
-    const hiddenTags = container.querySelectorAll('.tag-hidden');
-    const showMoreBtn = container.querySelector('.show-more-btn');
-    const showLessBtn = container.querySelector('.show-less-btn');
-    
-    hiddenTags.forEach(function(tag) {
-        tag.classList.toggle('hidden');
-    });
-    
-    showMoreBtn.classList.toggle('hidden');
-    showLessBtn.classList.toggle('hidden');
-}
-</script>
 {{ end }}
