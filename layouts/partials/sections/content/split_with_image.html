@@ -3,12 +3,14 @@ split_with_image partial
 Responsive two-column layout with image and rich content.
 
 Parameters:
+- theme: "light" | "dark" | "alternate" (default: "light")
 - layout: "image-left" | "image-right" (default: "image-left")
-- image, imageAlt, imageBgColor: Image settings
+- image, imageAlt: Image settings
 - eyebrow, heading, description: Text content
 - link, linkText, buttonStyle: CTA button
 - markdownContent, contentAsHTML: Main content
 - features: [{icon, title, description}]
+- numbered_features: [{title, description}] (features with numbers instead of icons)
 - stats: [{number, label}]
 - quote: {text, author, role, company, avatar}
 - Color classes: *Color parameters for styling
@@ -32,49 +34,46 @@ Design Tokens:
 - Typography tracking and sizing follow brand guidelines
 */}}
 
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $isAlternate := eq $theme "alternate" }}
+
+{{/* Section parameters */}}
 {{ $layout := .layout | default "image-left" }}
 {{ $image := .image }}
 {{ $imageAlt := .imageAlt }}
 {{ $eyebrow := .eyebrow }}
-{{ $eyebrowColor := .eyebrowColor | default "text-primary" }}
 {{ $heading := .heading }}
-{{ $headingColor := .headingColor | default "text-heading" }}
 {{ $description := .description }}
-{{ $descriptionColor := .descriptionColor | default "text-gray-700" }}
 {{ $link := .link }}
 {{ $linkText := .linkText }}
 {{ $linkTarget := .linkTarget | default "_self" }}
 {{ $buttonStyle := .buttonStyle | default "primary" }}
-{{ $contentColor := .contentColor | default "text-gray-700" }}
 {{ $markdownContent := .markdownContent }}
 {{ $contentAsHTML := .contentAsHTML | default false }}
 {{ $features := .features | default (slice) }}
+{{ $numbered_features := .numbered_features | default (slice) }}
 {{ $stats := .stats | default (slice) }}
 {{ $quote := .quote }}
 
 {{/* Design tokens and configurable dimensions */}}
-{{ $imageContainerMaxWidth := "608px" }}
-{{ $imageContainerMaxHeight := "560px" }}
-{{ $imageMaxWidth := "484px" }}
-{{ $imageMaxHeight := "522px" }}
 {{ $sectionPaddingY := "py-24 lg:py-32" }}
 {{ $imageContainerPaddingY := "py-6" }}
 {{ $contentPaddingY := "py-4" }}
 {{ $contentLeftPadding := "lg:pl-20" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
-
-<div class="split-with-image-section section-bg-light {{ $sectionPaddingY }}">
-  <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
+<div class="split-with-image-section  gap-x-8 {{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
+  <div class="wrapper lg:flex lg:justify-between lg:items-stretch{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
-      <div class="relative {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[{{ $imageContainerMaxWidth }}] max-h-[{{ $imageContainerMaxHeight }}]">
+      <div class="relative {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
         {{ if $link }}
           <a href="{{ $link }}" target="{{ $linkTarget }}" class="block w-full">
         {{ end }}
             {{ partial "components/media/lazyimg.html" (dict
               "src" $image
               "alt" $imageAlt
-              "class" (printf "w-full max-w-[%s] max-h-[%s] object-cover rounded-lg hover:opacity-90 transition-opacity duration-200" $imageMaxWidth $imageMaxHeight)
+              "class" "w-[30.25rem] h-[32.625rem] object-cover rounded-lg hover:opacity-90 transition-opacity duration-200"
             ) }}
         {{ if $link }}
           </a>
@@ -84,13 +83,13 @@ Design Tokens:
     <div class="lg:flex lg:w-1/2 lg:items-center">
       <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ if eq $layout "image-right" }}lg:pl-0{{ else }}{{ $contentLeftPadding }} {{ end }}">
         {{ if $eyebrow }}
-          <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ $eyebrow }}</p>
+          <p class="text-base/7 font-semibold product-text">{{ $eyebrow }}</p>
         {{ end }}
         {{ if $heading}}
-          <h2 class="mt-3 mb-0 text-4xl font-semibold {{ $headingTracking }} leading-none text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
+          <h2 class="mt-3  mb-0 text-4xl font-semibold {{ $headingTracking }}  text-heading leading-none text-pretty sm:text-5xl">{{ $heading }}</h2>
         {{ end }}
         {{ if $description }}
-          <p class="mt-6 text-lg/7 {{ $descriptionColor }}">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
+          <p class="mt-6 text-lg/7 text-body">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
         {{ end }}
 
         {{/* Button */}}
@@ -106,7 +105,7 @@ Design Tokens:
         {{ end }}
 
         {{/* Main content */}}
-        <div class="mt-10 max-w-full {{ $contentColor }} lg:max-w-full">
+        <div class="mt-10 max-w-full text-body lg:max-w-full">
           {{ if $markdownContent }}
             {{ if $contentAsHTML }}
                 {{ $markdownContent | safeHTML }}
@@ -133,6 +132,21 @@ Design Tokens:
           </div>
           {{ end }}
         </dl>
+        {{ end }}
+
+        {{/* Numbered Features */}}
+        {{ if $numbered_features }}
+          <ol class="mt-10 max-w-full space-y-3 text-lg/7 text-body lg:max-w-full">
+            {{ range $index, $feature := $numbered_features }}
+              <li class="relative pl-9">
+                <span class="inline text-heading font-bold">
+                  <span class="absolute left-1 top-2 w-5 h-5 text-[10px] flex justify-center items-center text-white rounded-full bg-primary">{{ add $index 1 }}</span>
+                  {{ .title }}.
+                </span>
+                <span class="inline">{{ .description }}</span>
+              </li>
+            {{ end }}
+          </ol>
         {{ end }}
 
         {{/* Stats */}}

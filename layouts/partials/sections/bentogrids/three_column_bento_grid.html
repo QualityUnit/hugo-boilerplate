@@ -71,7 +71,7 @@
   <div class="section-bg-light dark:section-bg-dark py-24 sm:py-32">
     <div class="wrapper">
       {{ if $tagline }}
-        <h2 class="text-center text-base/7 font-semibold text-product-primary">{{ $tagline }}</h2>
+        <h2 class="text-center text-base/7 font-semibold product-text">{{ $tagline }}</h2>
       {{ end }}
       {{ if $heading }}
         <p class="{{ if $tagline }}mt-2{{ end }} text-center text-4xl font-semibold tracking-tight text-balance text-heading sm:text-5xl">{{ $heading }}</p>
@@ -81,20 +81,20 @@
       {{ end }}
       <div class="mt-20 grid gap-8 lg:gap-16 md:grid-cols-3">
         {{ range $index, $card := $cards }}
-          {{ $imagePosition := $card.imagePosition | default "top" }}
-          <div class="relative">
-            <div class="absolute inset-px rounded-2xl border surface-secondary surface-border shadow-lg"></div>
-            <div class="relative flex flex-col overflow-hidden">
-              {{ if and $card.image (eq $imagePosition "top") }}
-                <div class="flex items-center justify-center">
-                  {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")) }}
-                </div>
-              {{ end }}
-              
-              <div class="p-4 lg:p-8">
-                {{ if $card.title }}
-                  <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center {{ if $card.url }}group-hover:text-product-primary{{ end }}">{{ $card.title }}</p>
+        {{ $imagePosition := $card.imagePosition | default "top" }}
+        <div class="relative group transition-transform duration-300 ease-in-out hover:transform hover:-translate-y-1">
+          <div class="absolute inset-px rounded-2xl border surface-secondary surface-border shadow-lg"></div>
+              <div class="relative flex flex-col overflow-hidden">
+                {{ if and $card.image (eq $imagePosition "top") }}
+                  <div class="flex items-center justify-center">
+                    {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")) }}
+                  </div>
                 {{ end }}
+                
+                <div class="p-4 lg:p-8">
+                  {{ if $card.title }}
+                    <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center {{ if $card.url }}group-hover:product-text{{ end }}">{{ $card.title }}</p>
+                  {{ end }}
 
                 {{ if $card.description }}
                   <p class="max-w-lg text-sm/8 text-body max-md:text-center">{{ $card.description }}</p>
