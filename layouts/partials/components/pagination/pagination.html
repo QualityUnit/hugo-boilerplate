@@ -1,6 +1,6 @@
 {{ $paginator := . }}
 
-<div class="wrapper flex items-center justify-between px-0 my-8">
+<div class="wrapper flex items-center justify-between px-0 mt-12 mb-8">
     <!-- Mobile pagination: Show only Previous/Next buttons -->
     <div class="flex flex-1 justify-between sm:hidden">
         <!-- Previous button (mobile) -->
@@ -51,7 +51,7 @@
                 <!-- Previous page arrow -->
                 {{ if $paginator.HasPrev }}
                     <a href="{{ $paginator.Prev.URL }}" 
-                       class="relative inline-flex items-center rounded-l-xl px-2 py-2 ring-1 ring-inset hover:surface-secondary focus:z-20 focus:outline-offset-0">
+                       class="relative inline-flex items-center rounded-l-xl px-2 py-2 ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">
                         <span class="sr-only">{{ i18n "pagination_previous" }}</span>
                         {{ partial "icons/chevron-left" "w-5 h-5" }}
                     </a>
@@ -68,7 +68,7 @@
                     {{ if eq .PageNumber $currentPageNumber }}
                         <!-- Current page (highlighted) -->
                         <span aria-current="page" 
-                              class="relative z-10 inline-flex items-center product-primary px-4 py-2 text-sm font-semibold icon-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-primary">
+                              class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">
                             {{ .PageNumber }}
                         </span>
                     {{ else }}
@@ -83,7 +83,7 @@
                 <!-- Next page arrow -->
                 {{ if $paginator.HasNext }}
                     <a href="{{ $paginator.Next.URL }}" 
-                       class="relative inline-flex items-center rounded-r-xl px-2 py-2ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">
+                       class="relative inline-flex items-center rounded-r-xl px-2 py-2 ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">
                         <span class="sr-only">{{ i18n "pagination_next" }}</span>
                         {{ partial "icons/chevron-right" "w-5 h-5" }}
                     </a>

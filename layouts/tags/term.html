@@ -20,7 +20,7 @@
         <p class="mt-2 text-sm text-muted">{{ i18n "tag_try_browsing" }}</p>
       </div>
     {{ else }}
-      <div class="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="mt-8 grid gap-16 sm:grid-cols-2 lg:grid-cols-3">
         {{ range $paginator.Pages }}
           {{ partial "components/cards/post_card_with_image.html" (dict "page" . ) }}
         {{ end }}
