@@ -151,36 +151,36 @@ Design Tokens:
 
         {{/* Stats */}}
         {{ if $stats }}
-        <dl class="mt-10 grid max-w-full grid-cols-1 gap-8 sm:grid-cols-2">
-          {{ range $stats }}
-          <div class="flex flex-col gap-y-3 border-l border-gray-900/10 pl-6">
-            <dt class="text-sm/6 text-body">{{ .label }}</dt>
-            <dd class="order-first text-3xl font-semibold tracking-tight text-heading">{{ .number }}</dd>
-          </div>
-          {{ end }}
-        </dl>
+          <dl class="mt-10 grid max-w-full grid-cols-1 gap-8 sm:grid-cols-2">
+            {{ range $stats }}
+            <div class="flex flex-col gap-y-3 border-l border-gray-900/10 pl-6">
+              <dt class="text-sm/6 text-body">{{ .label }}</dt>
+              <dd class="order-first text-3xl font-semibold tracking-tight text-heading">{{ .number }}</dd>
+            </div>
+            {{ end }}
+          </dl>
         {{ end }}
 
         {{/* Quote */}}
         {{ if $quote }}
-        <div class="lg:max-w-full">
-          <figure class="mt-10 border-l border-gray-200 pl-8 text-body">
-            <blockquote class="text-base/7">
-              <p>"{{ $quote.text }}"</p>
-            </blockquote>
-            <figcaption class="mt-6 flex gap-x-4 text-sm/6">
-              {{ if $quote.avatar }}
-              <img src="{{ $quote.avatar }}" alt="{{ $quote.author }}" class="size-6 flex-none rounded-full" />
-              {{ end }}
-              <div>
-                <span class="font-semibold text-heading">{{ $quote.author }}</span>
-                {{ if $quote.role }} – {{ $quote.role }}{{ end }}{{ if $quote.company }}, {{ $quote.company }}{{ end }}
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-      {{ end }}
+          <div class="lg:max-w-full">
+            <figure class="mt-10 border-l border-gray-200 pl-8 text-body">
+              <blockquote class="text-base/7">
+                <p>"{{ $quote.text }}"</p>
+              </blockquote>
+              <figcaption class="mt-6 flex gap-x-4 text-sm/6">
+                {{ if $quote.avatar }}
+                <img src="{{ $quote.avatar }}" alt="{{ $quote.author }}" class="size-6 flex-none rounded-full" />
+                {{ end }}
+                <div>
+                  <span class="font-semibold text-heading">{{ $quote.author }}</span>
+                  {{ if $quote.role }} – {{ $quote.role }}{{ end }}{{ if $quote.company }}, {{ $quote.company }}{{ end }}
+                </div>
+              </figcaption>
+            </figure>
+          </div>
+        {{ end }}
+      </div>
     </div>
-  </div>
   </div>
 </div>
