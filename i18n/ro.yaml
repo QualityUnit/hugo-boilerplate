@@ -5,6 +5,21 @@ glossary_subtitle: "O listă cuprinzătoare de termeni și definiții"
 glossary_title: "Glosar"
 home_title: "Acasă"
 
+# Search translations
+search_placeholder: "Căutare..."
+search_submit_aria: "Trimite căutarea"
+search_clear_aria: "Șterge căutarea"
+search_clear_title: "Șterge căutarea"
+search_loading: "Se încarcă..."
+search_view_all_results: "Vezi toate rezultatele"
+search_no_results: "Nu s-au găsit rezultate."
+search_error_loading: "Eroare la încărcarea rezultatelor căutării."
+search_error_performing: "Eroare la efectuarea căutării."
+search_not_available: "Funcționalitatea de căutare nu este disponibilă. Încercați din nou mai târziu."
+search_initializing: "Căutarea se inițializează încă. Încercați din nou."
+search_no_content_preview: "Nu este disponibilă nicio previzualizare a conținutului"
+search_untitled: "Fără titlu"
+
 # Glossary translations
 glossary_eyebrow: "Glosar"
 
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Anterior"
 tag_pagination_next: "Următor"
 tag_other_tags: "Alte etichete"
-
+tag_show_less: "Afișează mai puțin"
 # Cookie consent translations
 cookie_consent_title: "Consimțământ Cookie"
 cookie_consent_message: "Folosim cookie-uri pentru a vă îmbunătăți experiența de navigare și a analiza traficul nostru."

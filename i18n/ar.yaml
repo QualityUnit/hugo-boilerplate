@@ -5,6 +5,21 @@ glossary_subtitle: "قائمة شاملة بالمصطلحات والتعريف�
 glossary_title: "المصطلحات"
 home_title: "الرئيسية"
 
+# Search translations
+search_placeholder: "البحث..."
+search_submit_aria: "إرسال البحث"
+search_clear_aria: "مسح البحث"
+search_clear_title: "مسح البحث"
+search_loading: "جاري التحميل..."
+search_view_all_results: "عرض جميع النتائج"
+search_no_results: "لم يتم العثور على نتائج."
+search_error_loading: "خطأ في تحميل نتائج البحث."
+search_error_performing: "خطأ في تنفيذ البحث."
+search_not_available: "وظيفة البحث غير متوفرة. حاول مرة أخرى لاحقاً."
+search_initializing: "البحث ما زال يتم تهيئته. حاول مرة أخرى."
+search_no_content_preview: "لا يوجد معاينة للمحتوى متاحة"
+search_untitled: "بدون عنوان"
+
 # Glossary translations
 glossary_eyebrow: "المصطلحات"
 
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "السابق"
 tag_pagination_next: "التالي"
 tag_other_tags: "علامات أخرى"
-
+tag_show_less: "إظهار أقل"
 # Cookie consent translations
 cookie_consent_title: "الموافقة على ملفات تعريف الارتباط"
 cookie_consent_message: "نستخدم ملفات تعريف الارتباط لتعزيز تجربة التصفح وتحليل حركة المرور لدينا."

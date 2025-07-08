@@ -5,6 +5,21 @@ glossary_subtitle: "Подробный список терминов и опре
 glossary_title: "Глоссарий"
 home_title: "Главная"
 
+# Search translations
+search_placeholder: "Поиск..."
+search_submit_aria: "Отправить поиск"
+search_clear_aria: "Очистить поиск"
+search_clear_title: "Очистить поиск"
+search_loading: "Загрузка..."
+search_view_all_results: "Показать все результаты"
+search_no_results: "Результатов не найдено."
+search_error_loading: "Ошибка загрузки результатов поиска."
+search_error_performing: "Ошибка выполнения поиска."
+search_not_available: "Функция поиска недоступна. Попробуйте позже."
+search_initializing: "Поиск инициализируется. Попробуйте снова."
+search_no_content_preview: "Предварительный просмотр содержимого недоступен"
+search_untitled: "Без названия"
+
 # Glossary translations
 glossary_eyebrow: "Глоссарий"
 
@@ -38,6 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Предыдущая"
 tag_pagination_next: "Следующая"
 tag_other_tags: "Другие теги"
+tag_show_less: "Показать меньше"
 
 # Cookie consent translations
 cookie_consent_title: "Согласие на использование файлов cookie"

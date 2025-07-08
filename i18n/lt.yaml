@@ -1,9 +1,24 @@
 # English translations
-frequently_asked_questions: "Dažniausiai užduodami klausimai"
+frequently_asked_questions: "Dažnai užduodami klausimai"
 language_selector_title: "Galimos kalbos"
 glossary_subtitle: "Išsamus terminų ir apibrėžimų sąrašas"
-glossary_title: "Žodynėlis"
+glossary_title: "Žodynas"
 home_title: "Pagrindinis"
+
+# Search translations
+search_placeholder: "Ieškoti..."
+search_submit_aria: "Pateikti paiešką"
+search_clear_aria: "Išvalyti paiešką"
+search_clear_title: "Išvalyti paiešką"
+search_loading: "Kraunama..."
+search_view_all_results: "Peržiūrėti visus rezultatus"
+search_no_results: "Rezultatų nerasta."
+search_error_loading: "Klaida įkeliant paieškos rezultatus."
+search_error_performing: "Klaida atliekant paiešką."
+search_not_available: "Paieškos funkcija nepasiekiama. Bandykite vėliau."
+search_initializing: "Paieška vis dar inicijuojama. Bandykite dar kartą."
+search_no_content_preview: "Turinio peržiūra nepasiekiama"
+search_untitled: "Be pavadinimo"
 
 # Glossary translations
 glossary_eyebrow: "Žodynėlis"
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Ankstesnis"
 tag_pagination_next: "Kitas"
 tag_other_tags: "Kitos žymos"
-
+tag_show_less: "Rodyti mažiau"
 # Cookie consent translations
 cookie_consent_title: "Slapukų sutikimas"
 cookie_consent_message: "Naudojame slapukus naršymo patirčiai pagerinti ir analizuoti mūsų srautą."

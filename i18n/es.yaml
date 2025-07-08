@@ -5,6 +5,21 @@ glossary_subtitle: "Una lista completa de términos y definiciones"
 glossary_title: "Glosario"
 home_title: "Inicio"
 
+# Search translations
+search_placeholder: "Buscar..."
+search_submit_aria: "Enviar búsqueda"
+search_clear_aria: "Limpiar búsqueda"
+search_clear_title: "Limpiar búsqueda"
+search_loading: "Cargando..."
+search_view_all_results: "Ver todos los resultados"
+search_no_results: "No se encontraron resultados."
+search_error_loading: "Error al cargar los resultados de búsqueda."
+search_error_performing: "Error al realizar la búsqueda."
+search_not_available: "La funcionalidad de búsqueda no está disponible. Inténtalo de nuevo más tarde."
+search_initializing: "La búsqueda aún se está inicializando. Inténtalo de nuevo."
+search_no_content_preview: "No hay vista previa de contenido disponible"
+search_untitled: "Sin título"
+
 # Glossary translations
 glossary_eyebrow: "Glosario"
 
@@ -38,6 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Anterior"
 tag_pagination_next: "Siguiente"
 tag_other_tags: "Otras Etiquetas"
+tag_show_less: "Mostrar menos"
 
 # Cookie consent translations
 cookie_consent_title: "Consentimiento de Cookies"

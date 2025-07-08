@@ -1,27 +1,57 @@
 {{ $tags := .tags | default (slice) }}
 
 {{ if $tags }}
-<div class="pt-4 pb-4 gap-3 px-2 flex flex-wrap">
+{{ $containerId := .containerId | default "default" }}
+{{ $align := .align | default "start" }} <!-- Options: start, center, end -->
+<div class="pt-4 pb-4 gap-3 flex flex-wrap justify-{{ $align }}" id="tags-container-{{ $containerId }}">
 
     {{ $maxTags := .maxTags | default 4 }}
     {{ $tagsCount := len $tags }}
+    
+    <!-- Always visible tags -->
     {{ range $i, $tag := $tags }}
     {{ if lt $i $maxTags }}
-    <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/">
-    {{ partial "components/label/label.html" (dict
-        "text" $tag
-        "badgeClass" "badge-base badge-orange badge-with-border"
-        "icon" "tag" ) }}
-    </a>
+        <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/" class="tag-visible">
+            {{ partial "components/label/label.html" (dict
+                "text" $tag
+                "badgeClass" "badge-base badge-gray badge-with-border" ) 
+            }}
+        </a>
     {{ end }}
     {{ end }}
+    
+    <!-- Hidden tags (initially hidden) -->
+    {{ range $i, $tag := $tags }}
+    {{ if ge $i $maxTags }}
+        <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/" class="tag-hidden hidden">
+            {{ partial "components/label/label.html" (dict
+                "text" $tag
+                "badgeClass" "badge-base badge-gray badge-with-border" ) 
+            }}
+        </a>
+    {{ end }}
+    {{ end }}
+    
+    <!-- Show more/less buttons -->
     {{ if gt $tagsCount $maxTags }}
-    <a href="{{ print "/tags/" | relLangURL }}">
-    {{ partial "components/label/label.html" (dict
-        "text" (printf "+%d more" (sub $tagsCount $maxTags))
-        "badgeClass" "badge-base badge-orange badge-with-border"
-        "icon" "" ) }}
-    </a>
+        <button type="button" class="show-more-btn text-body font-semibold text-xs tracking-[0.216px] cursor-pointer" data-container="{{ $containerId }}">
+            <div class="flex items-center gap-1">
+                <span>{{ (printf "+%d more" (sub $tagsCount $maxTags)) }}</span>
+                {{ partial "icons/chevron-down" "size-5 text-body" }}
+            </div>
+        </button>
+        <button type="button" class="show-less-btn text-body font-semibold text-xs tracking-[0.216px] cursor-pointer hidden" data-container="{{ $containerId }}">
+            <div class="flex items-center gap-1">
+                <span>{{ i18n "tag_show_less" }}</span>
+                {{ partial "icons/chevron-up" "size-5 text-body" }}
+            </div>
+        </button>
     {{ end }}
 </div>
+
+{{ if gt $tagsCount $maxTags }}
+{{ $tagToggleJS := resources.Get "js/tag-toggle.js" | js.Build }}
+<script src="{{ $tagToggleJS.RelPermalink }}" defer></script>
+{{ end }}
+
 {{ end }}

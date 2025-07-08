@@ -63,8 +63,8 @@ Design Tokens:
 {{ $contentLeftPadding := "lg:pl-20" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
-<div class="split-with-image-section  gap-x-8 {{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
-  <div class="wrapper lg:flex lg:justify-between lg:items-stretch{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
+<div class="split-with-image-section {{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
+  <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
       <div class="relative {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
         {{ if $link }}
@@ -151,35 +151,36 @@ Design Tokens:
 
         {{/* Stats */}}
         {{ if $stats }}
-        <dl class="mt-10 grid max-w-full grid-cols-1 gap-8 sm:grid-cols-2">
-          {{ range $stats }}
-          <div class="flex flex-col gap-y-3 border-l border-gray-900/10 pl-6">
-            <dt class="text-sm/6 text-body">{{ .label }}</dt>
-            <dd class="order-first text-3xl font-semibold tracking-tight text-heading">{{ .number }}</dd>
-          </div>
-          {{ end }}
-        </dl>
+          <dl class="mt-10 grid max-w-full grid-cols-1 gap-8 sm:grid-cols-2">
+            {{ range $stats }}
+            <div class="flex flex-col gap-y-3 border-l border-gray-900/10 pl-6">
+              <dt class="text-sm/6 text-body">{{ .label }}</dt>
+              <dd class="order-first text-3xl font-semibold tracking-tight text-heading">{{ .number }}</dd>
+            </div>
+            {{ end }}
+          </dl>
         {{ end }}
 
         {{/* Quote */}}
         {{ if $quote }}
-        <div class="lg:max-w-full">
-          <figure class="mt-10 border-l border-gray-200 pl-8 text-body">
-            <blockquote class="text-base/7">
-              <p>"{{ $quote.text }}"</p>
-            </blockquote>
-            <figcaption class="mt-6 flex gap-x-4 text-sm/6">
-              {{ if $quote.avatar }}
-              <img src="{{ $quote.avatar }}" alt="{{ $quote.author }}" class="size-6 flex-none rounded-full" />
-              {{ end }}
-              <div>
-                <span class="font-semibold text-heading">{{ $quote.author }}</span>
-                {{ if $quote.role }} – {{ $quote.role }}{{ end }}{{ if $quote.company }}, {{ $quote.company }}{{ end }}
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-      {{ end }}
+          <div class="lg:max-w-full">
+            <figure class="mt-10 border-l border-gray-200 pl-8 text-body">
+              <blockquote class="text-base/7">
+                <p>"{{ $quote.text }}"</p>
+              </blockquote>
+              <figcaption class="mt-6 flex gap-x-4 text-sm/6">
+                {{ if $quote.avatar }}
+                <img src="{{ $quote.avatar }}" alt="{{ $quote.author }}" class="size-6 flex-none rounded-full" />
+                {{ end }}
+                <div>
+                  <span class="font-semibold text-heading">{{ $quote.author }}</span>
+                  {{ if $quote.role }} – {{ $quote.role }}{{ end }}{{ if $quote.company }}, {{ $quote.company }}{{ end }}
+                </div>
+              </figcaption>
+            </figure>
+          </div>
+        {{ end }}
+      </div>
     </div>
   </div>
 </div>

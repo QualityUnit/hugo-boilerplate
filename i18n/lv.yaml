@@ -1,9 +1,24 @@
 # English translations
-frequently_asked_questions: "Bieži Uzdotie Jautājumi"
-language_selector_title: "Pieejamās Valodas"
+frequently_asked_questions: "Biežāk uzdotie jautājumi"
+language_selector_title: "Pieejamās valodas"
 glossary_subtitle: "Visaptverošs terminu un definīciju saraksts"
 glossary_title: "Glosārijs"
 home_title: "Sākums"
+
+# Search translations
+search_placeholder: "Meklēt..."
+search_submit_aria: "Iesniegt meklēšanu"
+search_clear_aria: "Notīrīt meklēšanu"
+search_clear_title: "Notīrīt meklēšanu"
+search_loading: "Ielādē..."
+search_view_all_results: "Skatīt visus rezultātus"
+search_no_results: "Rezultāti nav atrasti."
+search_error_loading: "Kļūda, ielādējot meklēšanas rezultātus."
+search_error_performing: "Kļūda, veicot meklēšanu."
+search_not_available: "Meklēšanas funkcionalitāte nav pieejama. Mēģiniet vēlāk."
+search_initializing: "Meklēšana vēl tiek inicializēta. Mēģiniet vēlreiz."
+search_no_content_preview: "Nav pieejams satura priekšskatījums"
+search_untitled: "Bez nosaukuma"
 
 # Glossary translations
 glossary_eyebrow: "Glosārijs"
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Iepriekšējais"
 tag_pagination_next: "Nākamais"
 tag_other_tags: "Citi Tagi"
-
+tag_show_less: "Rādīt mazāk"
 # Cookie consent translations
 cookie_consent_title: "Sīkdatņu Piekrišana"
 cookie_consent_message: "Mēs izmantojam sīkdatnes, lai uzlabotu jūsu pārlūkošanas pieredzi un analizētu mūsu trafiku."
