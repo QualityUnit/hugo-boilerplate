@@ -5,6 +5,21 @@ glossary_subtitle: "En omfattende liste over udtryk og definitioner"
 glossary_title: "Ordliste"
 home_title: "Hjem"
 
+# Search translations
+search_placeholder: "Søg..."
+search_submit_aria: "Send søgning"
+search_clear_aria: "Ryd søgning"
+search_clear_title: "Ryd søgning"
+search_loading: "Indlæser..."
+search_view_all_results: "Vis alle resultater"
+search_no_results: "Ingen resultater fundet."
+search_error_loading: "Fejl ved indlæsning af søgeresultater."
+search_error_performing: "Fejl ved udførelse af søgning."
+search_not_available: "Søgefunktionaliteten er ikke tilgængelig. Prøv igen senere."
+search_initializing: "Søgningen initialiseres stadig. Prøv igen."
+search_no_content_preview: "Ingen indholdsforhandsvising tilgængelig"
+search_untitled: "Uden titel"
+
 # Glossary translations
 glossary_eyebrow: "Ordliste"
 
@@ -38,6 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Forrige"
 tag_pagination_next: "Næste"
 tag_other_tags: "Andre Emneord"
+tag_show_less: "Vis mindre"
 
 # Cookie consent translations
 cookie_consent_title: "Cookie Samtykke"

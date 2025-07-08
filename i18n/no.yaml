@@ -5,6 +5,21 @@ glossary_subtitle: "En omfattende liste over termer og definisjoner"
 glossary_title: "Ordliste"
 home_title: "Hjem"
 
+# Search translations
+search_placeholder: "Søk..."
+search_submit_aria: "Send søk"
+search_clear_aria: "Tøm søk"
+search_clear_title: "Tøm søk"
+search_loading: "Laster..."
+search_view_all_results: "Vis alle resultater"
+search_no_results: "Ingen resultater funnet."
+search_error_loading: "Feil ved lasting av søkeresultater."
+search_error_performing: "Feil ved utføring av søk."
+search_not_available: "Søkefunksjonaliteten er ikke tilgjengelig. Prøv igjen senere."
+search_initializing: "Søket initialiseres fortsatt. Prøv igjen."
+search_no_content_preview: "Ingen innholdsforhåndsvisning tilgjengelig"
+search_untitled: "Uten tittel"
+
 # Glossary translations
 glossary_eyebrow: "Ordliste"
 
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Forrige"
 tag_pagination_next: "Neste"
 tag_other_tags: "Andre tags"
-
+tag_show_less: "Vis mindre"
 # Cookie consent translations
 cookie_consent_title: "Informasjonskapselsamtykke"
 cookie_consent_message: "Vi bruker informasjonskapsler for å forbedre din surfeopplevelse og analysere vår trafikk."

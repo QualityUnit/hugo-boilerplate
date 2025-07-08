@@ -5,6 +5,21 @@ glossary_subtitle: "רשימה מקיפה של מונחים והגדרות"
 glossary_title: "מילון מונחים"
 home_title: "בית"
 
+# Search translations
+search_placeholder: "חיפוש..."
+search_submit_aria: "שלח חיפוש"
+search_clear_aria: "נקה חיפוש"
+search_clear_title: "נקה חיפוש"
+search_loading: "טוען..."
+search_view_all_results: "הצג את כל התוצאות"
+search_no_results: "לא נמצאו תוצאות."
+search_error_loading: "שגיאה בטעינת תוצאות חיפוש."
+search_error_performing: "שגיאה בביצוע חיפוש."
+search_not_available: "פונקציית החיפוש אינה זמינה. נסה שוב מאוחר יותר."
+search_initializing: "החיפוש עדיין מאתחל. נסה שוב."
+search_no_content_preview: "אין תצוגה מקדימה של תוכן זמינה"
+search_untitled: "ללא כותרת"
+
 # Glossary translations
 glossary_eyebrow: "מילון מונחים"
 
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "הקודם"
 tag_pagination_next: "הבא"
 tag_other_tags: "תגיות אחרות"
-
+tag_show_less: "הצג פחות"
 # Cookie consent translations
 cookie_consent_title: "אישור עוגיות"
 cookie_consent_message: "אנו משתמשים בעוגיות כדי לשפר את חוויית הגלישה שלך ולנתח את התנועה שלנו."

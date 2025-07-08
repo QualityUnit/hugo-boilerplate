@@ -5,6 +5,21 @@ glossary_subtitle: "Изчерпателен списък на термини и
 glossary_title: "Речник"
 home_title: "Начало"
 
+# Search translations
+search_placeholder: "Търсене..."
+search_submit_aria: "Изпрати търсене"
+search_clear_aria: "Изчисти търсене"
+search_clear_title: "Изчисти търсене"
+search_loading: "Зарежда се..."
+search_view_all_results: "Вижте всички резултати"
+search_no_results: "Не са намерени резултати."
+search_error_loading: "Грешка при зареждане на резултатите от търсенето."
+search_error_performing: "Грешка при извършване на търсене."
+search_not_available: "Функцията за търсене не е налична. Опитайте отново по-късно."
+search_initializing: "Търсенето все още се инициализира. Опитайте отново."
+search_no_content_preview: "Няма наличен преглед на съдържанието"
+search_untitled: "Без заглавие"
+
 # Glossary translations
 glossary_eyebrow: "Речник"
 no_terms_available: "Няма налични термини"
@@ -39,7 +54,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Предишна"
 tag_pagination_next: "Следваща"
 tag_other_tags: "Други етикети"
-
+tag_show_less: "Показвай по-малко"
 # Cookie consent translations
 cookie_consent_title: "Съгласие за бисквитки"
 cookie_consent_message: "Използваме бисквитки, за да подобрим вашето сърфиране и да анализираме нашия трафик."

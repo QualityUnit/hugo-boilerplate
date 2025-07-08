@@ -4,6 +4,21 @@ language_selector_title: "Ngôn Ngữ Khả Dụng"
 glossary_subtitle: "Danh sách đầy đủ các thuật ngữ và định nghĩa"
 glossary_title: "Thuật Ngữ"
 
+# Search translations
+search_placeholder: "Tìm kiếm..."
+search_submit_aria: "Gửi tìm kiếm"
+search_clear_aria: "Xóa tìm kiếm"
+search_clear_title: "Xóa tìm kiếm"
+search_loading: "Đang tải..."
+search_view_all_results: "Xem tất cả kết quả"
+search_no_results: "Không tìm thấy kết quả."
+search_error_loading: "Lỗi tải kết quả tìm kiếm."
+search_error_performing: "Lỗi thực hiện tìm kiếm."
+search_not_available: "Chức năng tìm kiếm không khả dụng. Vui lòng thử lại sau."
+search_initializing: "Tìm kiếm vẫn đang khởi tạo. Vui lòng thử lại."
+search_no_content_preview: "Không có xem trước nội dung khả dụng"
+search_untitled: "Không có tiêu đề"
+
 # Tags page translations
 tags_title: "Thẻ"
 tag_eyebrow: "Thẻ"
@@ -14,7 +29,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Trước"
 tag_pagination_next: "Tiếp"
 tag_other_tags: "Thẻ Khác"
-
+tag_show_less: "Hiển thị ít hơn"
 # Cookie consent translations
 cookie_consent_title: "Đồng Ý Cookie"
 cookie_consent_message: "Chúng tôi sử dụng cookie để cải thiện trải nghiệm duyệt web của bạn và phân tích lưu lượng truy cập của mình."

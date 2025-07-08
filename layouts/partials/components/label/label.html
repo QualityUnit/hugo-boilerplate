@@ -47,8 +47,6 @@
     - badge-base badge-rose
     - badge-base badge-amber
     - badge-base badge-slate
-  - icon: Icon name to display before text (optional)
-  - iconClass: Classes for the icon (default: "mr-1.5 h-2 w-2")
   - classes: Additional CSS classes to add (optional)
   - url: URL to make the label clickable as a link (optional)
   - target: Link target attribute (default: "_self", can be "_blank" for new window)
@@ -61,7 +59,6 @@
   {{ partial "components/label/label.html" (dict 
       "text" "Premium" 
       "badgeClass" "badge-base badge-yellow badge-with-border"
-      "icon" "star"
       "url" "/tags/premium/"
   ) }}
 
@@ -76,8 +73,6 @@
 {{/* Set default values if not provided */}}
 {{ $text := .text | default "Badge" }}
 {{ $badgeClass := .badgeClass | default "badge-base badge-gray badge-with-border" }}
-{{ $icon := .icon | default "" }}
-{{ $iconClass := .iconClass | default "mr-1.5 h-2 w-2" }}
 {{ $classes := .classes | default "" }}
 {{ $url := .url | default "" }}
 {{ $target := .target | default "_self" }}
@@ -91,26 +86,10 @@
 {{/* Render the label with conditional link wrapper */}}
 {{ if $url }}
   <a href="{{ $url }}" target="{{ $target }}" class="{{ $badgeClass }} {{ $classes }} {{ $linkClasses }} no-underline">
-    {{/* Icon rendering if specified */}}
-    {{ if $icon }}
-      {{ $iconPath := printf "themes/boilerplate/layouts/partials/icons/%s.html" $icon }}
-      {{ if fileExists $iconPath }}
-        {{ partial (printf "icons/%s" $icon) $iconClass }}
-      {{ end }}
-    {{ end }}
-    {{/* Label text content */}}
     {{ $text }}
   </a>
 {{ else }}
-  <span class="{{ $badgeClass }} {{ $classes }} cursor-pointer [&_a]:no-underline [&_a]:text-inherit [&_a:hover]:text-inherit [&_a:focus]:text-inherit [&_a]:font-semibold">
-    {{/* Icon rendering if specified */}}
-    {{ if $icon }}
-      {{ $iconPath := printf "themes/boilerplate/layouts/partials/icons/%s.html" $icon }}
-      {{ if fileExists $iconPath }}
-        {{ partial (printf "icons/%s" $icon) $iconClass }}
-      {{ end }}
-    {{ end }}
-    {{/* Label text content */}}
+  <span class="{{ $badgeClass }} {{ $classes }}">
     {{ $text }}
   </span>
 {{ end }}

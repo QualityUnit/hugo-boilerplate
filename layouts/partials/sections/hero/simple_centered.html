@@ -106,7 +106,7 @@
             {{ end }}
 
             {{ if $tags }}
-                {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 ) }}
+                {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 "align" "center") }}
             {{ end }}
 
             {{ $primaryCTA := $cta.primary | default dict }}

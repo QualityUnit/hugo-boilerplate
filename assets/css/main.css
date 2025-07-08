@@ -61,6 +61,11 @@
     @apply text-primary dark:text-primary-500;
     /* Primary product text – primary color in light mode, primary-500 in dark mode */
   }
+  
+  .product-bg-primary {
+    @apply bg-primary dark:bg-primary-500;
+    /* Primary product background – primary color in light mode, primary-500 in dark mode */
+  }
 
   .product-bg-primary {
     @apply bg-primary dark:bg-primary-500;

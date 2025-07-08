@@ -5,6 +5,21 @@ glossary_subtitle: "Kattava lista termeistä ja määritelmistä"
 glossary_title: "Sanasto"
 home_title: "Etusivu"
 
+# Search translations
+search_placeholder: "Haku..."
+search_submit_aria: "Lähetä haku"
+search_clear_aria: "Tyhjennä haku"
+search_clear_title: "Tyhjennä haku"
+search_loading: "Ladataan..."
+search_view_all_results: "Näytä kaikki tulokset"
+search_no_results: "Tuloksia ei löytynyt."
+search_error_loading: "Virhe hakutulosten lataamisessa."
+search_error_performing: "Virhe haun suorittamisessa."
+search_not_available: "Hakutoiminto ei ole käytettävissä. Yritä myöhemmin uudelleen."
+search_initializing: "Haku on vielä alustamassa. Yritä uudelleen."
+search_no_content_preview: "Sisällön esikatselua ei ole saatavilla"
+search_untitled: "Ei otsikkoa"
+
 # Glossary translations
 glossary_eyebrow: "Sanasto"
 
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Edellinen"
 tag_pagination_next: "Seuraava"
 tag_other_tags: "Muut Tunnisteet"
-
+tag_show_less: "Näytä vähemmän"
 # Cookie consent translations
 cookie_consent_title: "Evästeiden Suostumus"
 cookie_consent_message: "Käytämme evästeitä parantaaksemme selauskokemustasi ja analysoidaksemme liikennettämme."

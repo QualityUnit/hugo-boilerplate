@@ -5,6 +5,21 @@ glossary_subtitle: "Всебічний список термінів та виз
 glossary_title: "Глосарій"
 home_title: "Головна"
 
+# Search translations
+search_placeholder: "Пошук..."
+search_submit_aria: "Надіслати пошук"
+search_clear_aria: "Очистити пошук"
+search_clear_title: "Очистити пошук"
+search_loading: "Завантаження..."
+search_view_all_results: "Переглянути всі результати"
+search_no_results: "Результатів не знайдено."
+search_error_loading: "Помилка завантаження результатів пошуку."
+search_error_performing: "Помилка виконання пошуку."
+search_not_available: "Функція пошуку недоступна. Спробуйте пізніше."
+search_initializing: "Пошук все ще ініціалізується. Спробуйте знову."
+search_no_content_preview: "Попередній перегляд вмісту недоступний"
+search_untitled: "Без назви"
+
 # Glossary translations
 glossary_eyebrow: "Глосарій"
 
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Попередня"
 tag_pagination_next: "Наступна"
 tag_other_tags: "Інші тегі"
-
+tag_show_less: "Показати менше"
 # Cookie consent translations
 cookie_consent_title: "Згода на використання файлів cookie"
 cookie_consent_message: "Ми використовуємо файли cookie для покращення вашого перегляду та аналізу нашого трафіку."
