@@ -59,14 +59,14 @@
       </div>
       <dl class="mx-auto mt-16 grid grid-cols-1 gap-x-8 gap-y-16 text-lg text-body tracking-[-0.36px] sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3">
         {{ range $features }}
-          <div class="relative pl-9">
+          <div role="group" class="relative pl-9">
             <dt class="inline font-semibold text-heading">
               {{ if .icon }}
                 <span class="absolute left-1 top-1 size-5 product-icon">
                   {{ partial "components/media/icon.html" (dict "icon" .icon) }}
                 </span>
               {{ end }}
-              {{ .title }}.
+              {{ .title }}
             </dt>
             <dd class="inline">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</dd>
           </div>
