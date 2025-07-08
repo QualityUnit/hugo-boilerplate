@@ -2,7 +2,8 @@
 
 {{ if $tags }}
 {{ $containerId := .containerId | default "default" }}
-<div class="pt-4 pb-4 gap-3 px-2 flex flex-wrap" id="tags-container-{{ $containerId }}">
+{{ $align := .align | default "start" }} <!-- Options: start, center, end -->
+<div class="pt-4 pb-4 gap-3 flex flex-wrap justify-{{ $align }}" id="tags-container-{{ $containerId }}">
 
     {{ $maxTags := .maxTags | default 4 }}
     {{ $tagsCount := len $tags }}

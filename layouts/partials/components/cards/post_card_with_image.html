@@ -90,17 +90,17 @@
     </div>
 
     {{/* Tags */}}
+    {{ if $page.Params.tags }}
     <div class="mt-auto pt-6 flex items-center justify-between">
-      {{ if $page.Params.tags }}
-        <div class="flex flex-wrap gap-1">
-          {{ range first 2 $page.Params.tags }}
-            {{ partial "components/label/label.html" (dict "text" . "badgeClass" "badge-base badge-gray badge-with-border") }}
-          {{ end }}
-          {{ if gt (len $page.Params.tags) 2 }}
-            {{ partial "components/label/label.html" (dict "text" (printf "+%d" (sub (len $page.Params.tags) 2)) "badgeClass" "badge-base badge-gray badge-with-border") }}
-          {{ end }}
-        </div>
-      {{ end }}
+      <div class="flex flex-wrap gap-1">
+        {{ range first 2 $page.Params.tags }}
+          {{ partial "components/label/label.html" (dict "text" . "badgeClass" "badge-base badge-gray badge-with-border") }}
+        {{ end }}
+        {{ if gt (len $page.Params.tags) 2 }}
+          {{ partial "components/label/label.html" (dict "text" (printf "+%d" (sub (len $page.Params.tags) 2)) "badgeClass" "badge-base badge-gray badge-with-border") }}
+        {{ end }}
+      </div>
     </div>
+    {{ end }}
   </div>
 </article>
