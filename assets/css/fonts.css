@@ -1,18 +1,9 @@
-/* Inter font - Variable Font implementation with full Slovak character support */
+/* Inter font - Variable Font implementation */
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 100 900; /* supports all weights from 100-900 */
-  src: url('/fonts/inter/Inter-VariableFont_opsz,wght.ttf') format('truetype-variations');
+  src: url('/fonts/inter/Inter-VariableFont_opsz,wght.woff2') format('woff2-variations');
   font-display: swap;
-  unicode-range: U+0000-00FF, U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-@font-face {
-  font-family: 'Inter';
-  font-style: italic;
-  font-weight: 100 900; /* supports all weights from 100-900 */
-  src: url('/fonts/inter/Inter-Italic-VariableFont_opsz,wght.ttf') format('truetype-variations');
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
