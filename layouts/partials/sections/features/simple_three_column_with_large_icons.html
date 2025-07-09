@@ -55,7 +55,7 @@
 {{ $darkClass := cond $isDark "dark" "" }}
 {{ $iconStyle := .iconStyle | default "plain" }}
 
-{{ $iconClass := "w-7 h-7 flex-shrink-0 product-icon" }}
+{{ $iconClass := "w-7 h-7 p-1 rounded-lg flex-shrink-0 product-icon" }}
 {{ $iconWrapperClass := "" }}
 {{ if eq $iconStyle "filled" }}
 {{ $iconClass = "size-6 flex-shrink-0 icon-primary" }}
