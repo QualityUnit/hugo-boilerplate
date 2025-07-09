@@ -53,6 +53,14 @@
 {{ $theme := .theme | default "light" }}
 {{ $isDark := eq $theme "dark" }}
 {{ $darkClass := cond $isDark "dark" "" }}
+{{ $iconStyle := .iconStyle | default "plain" }}
+
+{{ $iconClass := "w-7 h-7 flex-shrink-0 product-icon" }}
+{{ $iconWrapperClass := "" }}
+{{ if eq $iconStyle "filled" }}
+{{ $iconClass = "size-6 flex-shrink-0 icon-primary" }}
+  {{ $iconWrapperClass = "size-10 p-2 product-bg-primary rounded-lg flex items-center justify-center" }}
+{{ end }}
 
 <div class="{{ $theme }}">
   <div class="section-bg-light dark:section-bg-dark {{ if $isDark }}py-32{{ else }}py-12{{ end }}">
@@ -73,7 +81,13 @@
           {{ range $features }}
           <div class="relative pl-0">
             {{ if .icon }}
-              {{ partial "components/media/icon.html" (dict "icon" .icon "class" "w-7 h-7 product-icon mb-6 p-1 rounded-lg flex-shrink-0") }}
+              {{ if eq $iconStyle "filled" }}
+                <div class="{{ $iconWrapperClass }} mb-6 flex-shrink-0">
+                  {{ partial "components/media/icon.html" (dict "icon" .icon "class" (printf "%s icon-primary" $iconClass)) }}
+                </div>
+              {{ else }}
+                {{ partial "components/media/icon.html" (dict "icon" .icon "class" (printf "%s mb-6 flex-shrink-0" $iconClass)) }}
+              {{ end }}
             {{ end }}
             <dt class="font-semibold text-lg text-heading flex items-center">
               <span>{{ .title }}</span>

@@ -5,6 +5,8 @@
   - eyebrow: Optional text displayed above the heading (new!)
   - heading: Main heading text (default: "Stay on top of customer support")
   - description: Description text below the main heading
+  - theme: Color theme for the section (default: "light")
+  - iconStyle: Icon background style - "plain" (default) for no background, "filled" for background
   
   Inner Content (optional JSON array):
   - Array of feature objects with the following structure:
@@ -18,6 +20,7 @@
       eyebrow="FEATURES"
       heading="Our Key Features"
       description="Discover the powerful features that make our product stand out from the competition."
+      iconStyle="filled"
   >}}
     [
       {
@@ -48,6 +51,7 @@
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
 {{ $theme := .Get "theme" | default "light" }}
+{{ $iconStyle := .Get "iconStyle" | default "plain" }}
 
 {{ $defaultFeatures := slice }}
 
@@ -63,6 +67,7 @@
   "heading" $heading
   "description" $description
   "theme" $theme
+  "iconStyle" $iconStyle
   "features" $features
   "page" $.Page
 ) }}
