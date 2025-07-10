@@ -154,8 +154,8 @@
           {{ if $eyebrow }}
             <p class="text-base/6 font-semibold product-text">{{ $eyebrow }}</p>
           {{ end }}
-          <h2 id="{{ $uniqueID }}-heading" class="mt-2.5 text-3xl font-bold tracking-tight text-heading sm:text-5xl">{{ $heading }}</h2>
-          <div class="mt-[1.625rem] text-muted">
+          <h2 id="{{ $uniqueID }}-heading" class="mt-2.5 text-3xl font-semibold tracking-[-2.832px] text-heading sm:text-5xl">{{ $heading }}</h2>
+          <div class="mt-6 text-lg text-body">
             {{ template "renderDescription" (dict "description" $description "page" $page) }}
           </div>
         </div>
@@ -166,7 +166,7 @@
               <div class="flex px-8 w-full" aria-orientation="horizontal" role="tablist">
                 {{ range $index, $tab := $tabs }}
                   <button id="{{ $uniqueID }}-tab-{{ $tab.id }}" 
-                    class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}product-border product-primary{{ else }}border-transparent text-muted hover:product-border hover:product-primary{{ end }} py-8 px-6 text-base font-semibold tracking-[-0.32px] whitespace-nowrap" 
+                    class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}product-border product-primary{{ else }}border-transparent text-muted hover:product-border hover:product-primary{{ end }} p-6 text-base font-semibold tracking-[-0.32px] whitespace-nowrap" 
                     aria-controls="{{ $uniqueID }}-panel-{{ $tab.id }}" 
                     role="tab" 
                     type="button"
