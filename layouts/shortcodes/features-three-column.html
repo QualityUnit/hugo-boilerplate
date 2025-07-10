@@ -2,6 +2,7 @@
   Features Three Column with Large Icons Shortcode
   
   Named Parameters:
+  - theme: "light" (default) or "dark", "alternate" for section theme
   - eyebrow: Optional text displayed above the heading
   - heading: Main heading text (default: "Stay on top of customer support")
   - description: Description text below the main heading
@@ -16,6 +17,7 @@
   
   Example usage with custom features (grid view):
   {{< features-three-column 
+      theme="light"
       eyebrow="FEATURES"
       heading="Our Key Features"
       description="Discover the powerful features that make our product stand out from the competition."
@@ -45,6 +47,7 @@
   
   Example usage with list view:
   {{< features-three-column 
+      theme="light"
       eyebrow="FEATURES"
       heading="Our Key Features"
       description="Discover the powerful features that make our product stand out."

@@ -39,12 +39,13 @@
 {{ $description := .description | default "" }}
 {{ $features := .features | default (slice) }}
 {{ $page := .page }}
+
 {{ $theme := .theme | default "light" }}
 {{ $isDark := eq $theme "dark" }}
-{{ $darkClass := cond $isDark "dark" "" }}
+{{ $isAlternate := eq $theme "alternate" }}
 
 <div class="{{ $theme }}">
-  <div class="section-bg-light dark:section-bg-dark my-16">
+  <div class="{{ if $isDark }}section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} py-16">
     <div class="wrapper">
       <div class="max-w-2xl">
         {{ if $eyebrow }}
