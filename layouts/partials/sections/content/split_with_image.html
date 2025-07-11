@@ -1,5 +1,4 @@
 {{/*
-split_with_image partial
 Responsive two-column layout with image and rich content.
 
 Parameters:
@@ -15,6 +14,12 @@ Parameters:
 - quote: {text, author, role, company, avatar}
 - sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
 - Color classes: *Color parameters for styling
+
+Header section parameters:
+- headerEyebrow, headerHeading, headerDescription: Header section content
+- showHeader: Force header to render even without content
+- headerAlignment: "left" (default), "center", or "right" for header text alignment
+- headerPadding: Padding classes for the header section (default: "pb-24 lg:pb-32")
 
 Custom Color Classes Documentation:
 - text-heading: Primary heading text color (typically dark for contrast)
@@ -58,6 +63,14 @@ Design Tokens:
 {{ $stats := .stats | default (slice) }}
 {{ $quote := .quote }}
 
+{{/* Header parameters */}}
+{{ $headerEyebrow := .headerEyebrow | default "" }}
+{{ $headerHeading := .headerHeading | default "" }}
+{{ $headerDescription := .headerDescription | default "" }}
+{{ $showHeader := .showHeader | default false }}
+{{ $headerAlignment := .headerAlignment | default "left" }}
+{{ $headerPadding := .headerPadding | default "pb-24 lg:pb-32" }}
+
 {{/* Design tokens and configurable dimensions */}}
 {{ $sectionPaddingY := .sectionPaddingY | default "py-24 lg:py-32" }}
 {{ $imageContainerPaddingY := "py-6" }}
@@ -65,7 +78,18 @@ Design Tokens:
 {{ $contentLeftPadding := "lg:pl-20" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
+
 <div class="split-with-image-section {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
+  {{/* Render header if header parameters are provided */}}
+  {{ if or $headerHeading $headerEyebrow $headerDescription $showHeader }}
+    {{ partial "layout/headers/simple_with_eyebrow_base.html" (dict 
+      "eyebrow" $headerEyebrow
+      "heading" $headerHeading 
+      "description" $headerDescription
+      "alignment" $headerAlignment
+      "padding" $headerPadding
+    ) }}
+  {{ end }}
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
       <div class="relative {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
