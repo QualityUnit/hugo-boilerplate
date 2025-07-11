@@ -1,0 +1,68 @@
+{{/*
+@component: Icon Card
+@description: Displays a component card with icon, title, description and button. Designed for component listings.
+@params:
+- icon: Icon name/class, SVG file path, or inline SVG code
+- title: Card title
+- description: Card description text
+- buttonText: Text for the button (optional, default: "Learn More")
+- buttonLink: URL for the button link
+- cardClass: Additional CSS classes for the card container (optional)
+- iconColor: Color class for the icon (optional, default: text-primary)
+- iconBackground: Background class for the icon (optional)
+@example:
+{{ partial "components/cards/icon_card.html" (dict 
+    "icon" "/images/icons/code.svg" 
+    "title" "Code Generator" 
+    "description" "Generate clean, efficient code automatically"
+    "buttonText" "Try Now"
+    "buttonLink" "/tools/code-generator"
+) }}
+@note: Supports Font Awesome icons, SVG file paths (uses lazysvg), and inline SVG code.
+*/}}
+
+{{ $icon := .icon }}
+{{ $title := .title }}
+{{ $description := .description }}
+{{ $buttonText := .buttonText | default "" }}
+{{ $buttonLink := .buttonLink }}
+{{ $cardClass := .cardClass | default "" }}
+{{ $iconColor := .iconColor | default "product-icon" }}
+{{ $iconBackground := .iconBackground | default "" }}
+{{ $iconAlt := .iconAlt }}
+
+<div class="surface-secondary surface-border rounded-xl p-8 {{ $cardClass }}">
+    {{ if $icon }}
+        <div class="mb-4">
+            <div class="w-10 h-10 flex items-center justify-center">
+                {{ partial "components/media/lazysvg.html" (dict
+                    "src" $icon
+                    "alt" $iconAlt
+                    "class" (printf "flex-shrink-0 %s" $iconColor)
+                ) }}
+            </div>
+        </div>
+    {{ end }}
+
+    {{ if $title }}
+        <h3 class="mt-2 text-lg font-semibold heading">
+            {{ $title }}
+        </h3>
+    {{ end }}
+
+    {{ if $description }}
+        <p class="mt-1 text-body text-base line-clamp-3">
+            {{ $description }}
+        </p>
+    {{ end }}
+    
+    {{ if $buttonLink }}
+        <div class="mt-5">
+            {{ partial "components/buttons/buttons.html" (dict
+                "text" $buttonText
+                "url" $buttonLink
+                "variant" "secondary"
+            ) }}
+        </div>
+    {{ end }}
+</div>
