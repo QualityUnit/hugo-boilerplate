@@ -11,6 +11,7 @@
 
     Parameters:
     - theme: "light" | "dark" | "alternate" (default: "light")
+    - backgroundColor: Custom background using Tailwind CSS classes (default: "")
     - heading: Main title for the section
     - eyebrow: Small text above heading (default: "")
     - description: Text below heading (default: "")
@@ -26,12 +27,14 @@
     - numbered_features: JSON string or "numbered_features" to use page params (features with numbers instead of icons)
     - stats: JSON string or "stats" to use page params
     - quote: JSON string or "quote" to use page params
+    - sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
 
     USAGE EXAMPLES:
 
     1. CONTENT ONLY (markdown/HTML content):
     {{< content-split-with-image
         theme="light"
+        backgroundColor="bg-gray-50"
         eyebrow="Automation Platform"
         heading="Transform Your Workflow"
         description="Discover the power of automation"
@@ -54,6 +57,7 @@
     2. JSON DATA ONLY (structured data blocks - no markers needed):
     {{< content-split-with-image
         heading="By the Numbers"
+        backgroundColor="bg-gradient-to-br from-blue-50 to-indigo-100"
         image="/images/statistics.jpg"
         imageAlt="Platform statistics"
         layout="image-right"
@@ -227,7 +231,9 @@
 {{ $linkTarget := .Get "linkTarget" | default "_self" }}
 {{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
 {{ $theme := .Get "theme" | default "light" }}
+{{ $backgroundColor := .Get "backgroundColor" | default "" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
+{{ $sectionPaddingY := .Get "sectionPaddingY" | default "py-24 lg:py-32" }}
 
 {{/* Initialize data */}}
 {{ $features := slice }}
@@ -402,6 +408,7 @@
 {{/* Render partial */}}
 {{ partial "sections/content/split_with_image.html" (dict
   "theme" $theme
+  "backgroundColor" $backgroundColor
   "eyebrow" $eyebrow
   "heading" $heading
   "description" $description
@@ -418,4 +425,5 @@
   "numbered_features" $numbered_features
   "stats" $stats
   "quote" $quote
+  "sectionPaddingY" $sectionPaddingY
 ) }}
