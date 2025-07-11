@@ -11,6 +11,7 @@
 
     Parameters:
     - theme: "light" | "dark" | "alternate" (default: "light")
+    - backgroundColor: Custom background using Tailwind CSS classes (default: "")
     - heading: Main title for the section
     - eyebrow: Small text above heading (default: "")
     - description: Text below heading (default: "")
@@ -72,6 +73,7 @@
     2. CONTENT ONLY (markdown/HTML content):
     {{< content-split-with-image
         theme="light"
+        backgroundColor="bg-gray-50"
         eyebrow="Automation Platform"
         heading="Transform Your Workflow"
         description="Discover the power of automation"
@@ -94,6 +96,7 @@
     3. JSON DATA ONLY (structured data blocks - no markers needed):
     {{< content-split-with-image
         heading="By the Numbers"
+        backgroundColor="bg-gradient-to-br from-blue-50 to-indigo-100"
         image="/images/statistics.jpg"
         imageAlt="Platform statistics"
         layout="image-right"
@@ -267,6 +270,7 @@
 {{ $linkTarget := .Get "linkTarget" | default "_self" }}
 {{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
 {{ $theme := .Get "theme" | default "light" }}
+{{ $backgroundColor := .Get "backgroundColor" | default "" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
 
 {{/* Header parameters */}}
@@ -450,6 +454,7 @@
 {{/* Render partial */}}
 {{ partial "sections/content/split_with_image.html" (dict
   "theme" $theme
+  "backgroundColor" $backgroundColor
   "eyebrow" $eyebrow
   "heading" $heading
   "description" $description

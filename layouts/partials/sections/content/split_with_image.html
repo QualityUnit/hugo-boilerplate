@@ -42,6 +42,7 @@ Design Tokens:
 */}}
 
 {{ $theme := .theme | default "light" }}
+{{ $backgroundColor := .backgroundColor | default "" }}
 {{ $isDark := eq $theme "dark" }}
 {{ $isAlternate := eq $theme "alternate" }}
 
@@ -79,7 +80,7 @@ Design Tokens:
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
 
-<div class="split-with-image-section {{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
+<div class="split-with-image-section {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   {{/* Render header if header parameters are provided */}}
   {{ if or $headerHeading $headerEyebrow $headerDescription $showHeader }}
     {{ partial "layout/headers/simple_with_eyebrow_base.html" (dict 
