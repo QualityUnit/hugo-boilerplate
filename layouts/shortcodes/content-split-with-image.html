@@ -11,6 +11,7 @@
 
     Parameters:
     - theme: "light" | "dark" | "alternate" (default: "light")
+    - backgroundColor: Custom background using Tailwind CSS classes (default: "")
     - heading: Main title for the section
     - eyebrow: Small text above heading (default: "")
     - description: Text below heading (default: "")
@@ -22,16 +23,59 @@
     - linkTarget: Link target "_self" or "_blank" (default: "_self")
     - buttonStyle: "primary" or "secondary" (default: "primary")
     - contentAsHTML: Render content as HTML instead of markdown (default: false)
+    - alignment: "left" (default), "center", or "right" for text alignment
     - features: JSON string or "features" to use page params
     - numbered_features: JSON string or "numbered_features" to use page params (features with numbers instead of icons)
     - stats: JSON string or "stats" to use page params
     - quote: JSON string or "quote" to use page params
+    - sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
+
+
+    Header Parameters (optional - header only renders if at least one is provided):
+    - headerEyebrow: Small text above header heading (default: "")
+    - headerHeading: Main header title (default: "")
+    - headerDescription: Text below header heading (default: "")
+    - showHeader: Force header to render even without content (default: false)
+    - headerAlignment: "left" (default), "center", or "right" for header text alignment
+    - headerPadding: Padding classes for the header section (default: "pb-24 lg:pb-32")
+    
+    Note: Header is rendered inside the main partial using 'simple_with_eyebrow_base' partial
 
     USAGE EXAMPLES:
 
-    1. CONTENT ONLY (markdown/HTML content):
+    1. WITH HEADER + CONTENT (header + markdown/HTML content):
+    {{< content-split-with-image
+        headerEyebrow="AI-Powered Workflows"
+        headerHeading="Welcome to Our Platform"
+        headerDescription="Everything you need to know about getting started with our service."
+        showHeader="true"
+        headerAlignment="left"
+        headerPadding="pb-16 lg:pb-24"
+        theme="light"
+        eyebrow="Automation Platform"
+        heading="Transform Your Workflow"
+        description="Discover the power of automation"
+        image="/images/workflow-automation.jpg"
+        imageAlt="Workflow automation dashboard"
+        layout="image-left"
+        alignment="center"
+        link="/get-started"
+        linkText="Start Free Trial"
+        buttonStyle="primary"
+    >}}
+     ## Test markdown and HTML content
+    Test **bold text**, *italic text*, and [links](https://example.com).
+    Test list:
+    - Item 1
+    - Item 2
+    - Item 3
+    <p class="text-gray-600 mt-4">This is a paragraph with <strong>bold</strong> and <em>italic</em> text.</p>
+    {{< /content-split-with-image >}}
+
+    2. CONTENT ONLY (markdown/HTML content):
     {{< content-split-with-image
         theme="light"
+        backgroundColor="bg-gray-50"
         eyebrow="Automation Platform"
         heading="Transform Your Workflow"
         description="Discover the power of automation"
@@ -51,9 +95,10 @@
     <p class="text-gray-600 mt-4">This is a paragraph with <strong>bold</strong> and <em>italic</em> text.</p>
     {{< /content-split-with-image >}}
 
-    2. JSON DATA ONLY (structured data blocks - no markers needed):
+    3. JSON DATA ONLY (structured data blocks - no markers needed):
     {{< content-split-with-image
         heading="By the Numbers"
+        backgroundColor="bg-gradient-to-br from-blue-50 to-indigo-100"
         image="/images/statistics.jpg"
         imageAlt="Platform statistics"
         layout="image-right"
@@ -101,7 +146,7 @@
     }
     {{< /content-split-with-image >}}
 
-    3. COMBINED (JSON data + markdown/HTML content - markers required):
+    4. COMBINED (JSON data + markdown/HTML content - markers required):
     {{< content-split-with-image
         heading="Complete AI Solution"
         description="Everything you need in one platform"
@@ -227,7 +272,17 @@
 {{ $linkTarget := .Get "linkTarget" | default "_self" }}
 {{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
 {{ $theme := .Get "theme" | default "light" }}
+{{ $backgroundColor := .Get "backgroundColor" | default "" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
+{{ $sectionPaddingY := .Get "sectionPaddingY" | default "py-24 lg:py-32" }}
+
+{{/* Header parameters */}}
+{{ $headerEyebrow := .Get "headerEyebrow" | default "" }}
+{{ $headerHeading := .Get "headerHeading" | default "" }}
+{{ $headerDescription := .Get "headerDescription" | default "" }}
+{{ $showHeader := .Get "showHeader" | default false }}
+{{ $headerAlignment := .Get "headerAlignment" | default "left" }}
+{{ $headerPadding := .Get "headerPadding" | default "pb-24 lg:pb-32" }}
 
 {{/* Initialize data */}}
 {{ $features := slice }}
@@ -402,6 +457,7 @@
 {{/* Render partial */}}
 {{ partial "sections/content/split_with_image.html" (dict
   "theme" $theme
+  "backgroundColor" $backgroundColor
   "eyebrow" $eyebrow
   "heading" $heading
   "description" $description
@@ -418,4 +474,11 @@
   "numbered_features" $numbered_features
   "stats" $stats
   "quote" $quote
+  "sectionPaddingY" $sectionPaddingY
+  "headerEyebrow" $headerEyebrow
+  "headerHeading" $headerHeading
+  "headerDescription" $headerDescription
+  "showHeader" $showHeader
+  "headerAlignment" $headerAlignment
+  "headerPadding" $headerPadding
 ) }}

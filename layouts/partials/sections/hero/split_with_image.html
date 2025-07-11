@@ -23,6 +23,7 @@
     - deleteSpeed: Deleting speed in ms (default: 50)
     - pause: Pause duration in ms (default: 2000)
     - color: Color class for animated text (default: "text-indigo-600")
+  - yPadding: Custom y-padding value (optional, default: "sm:py-0 lg:py-24")
 @example:
   {{ partial "sections/hero/split_with_image.html" (dict 
       "logo" "/images/logo.svg"
@@ -67,7 +68,8 @@
 {{ end }}
 
   <div class="relative bg-white">
-    <div class="wrapper sm:py-0 lg:py-24">
+    {{ $yPadding := .yPadding | default "sm:py-0 lg:py-24" }}
+<div class="wrapper {{ $yPadding }}">
       <div class="lg:grid lg:grid-cols-12">
         <div class="lg:col-span-7 xl:col-span-6">
           {{ partial "sections/hero/split_left_side_helper.html" .}}
