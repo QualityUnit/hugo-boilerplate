@@ -20,6 +20,7 @@ Example usage of Split Hero with Image Shortcode:
   "typewriterDeleteSpeed"="60"
   "typewriterPause"="2500"
   "typewriterColor"="text-blue-600"
+  "yPadding"="py-8 md:py-16 lg:py-24"
 >}}
 
 Parameters:
@@ -42,6 +43,7 @@ Parameters:
 - typewriterDeleteSpeed: Deleting speed in milliseconds (default: 50)
 - typewriterPause: Pause duration between word cycles in milliseconds (default: 2000)
 - typewriterColor: Tailwind CSS color class for animated text (default: "text-indigo-600")
+- yPadding: Custom y-padding value using Tailwind classes (default: "sm:py-0 lg:py-24")
 */}}
 
 {{/* Split Hero with Image Shortcode */}}
@@ -66,6 +68,9 @@ Parameters:
 {{ $typewriterDeleteSpeed := .Get "typewriterDeleteSpeed" | default 50 }}
 {{ $typewriterPause := .Get "typewriterPause" | default 2000 }}
 {{ $typewriterColor := .Get "typewriterColor" | default "text-indigo-600" }}
+
+{{/* Custom y-padding */}}
+{{ $yPadding := .Get "yPadding" | default "sm:py-0 lg:py-24" }}
 
 {{ $announcement := dict 
   "enabled" (eq $announcementEnabled "true")
@@ -106,4 +111,5 @@ Parameters:
   "cta" $cta
   "image" $image
   "typewriter" $typewriter
+  "yPadding" $yPadding
 ) }}
