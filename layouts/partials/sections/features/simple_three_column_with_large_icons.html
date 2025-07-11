@@ -54,6 +54,9 @@
 {{ $isDark := eq $theme "dark" }}
 {{ $darkClass := cond $isDark "dark" "" }}
 
+{{ $iconClass := "w-7 h-7 p-1 rounded-lg flex-shrink-0 product-icon" }}
+{{ $iconWrapperClass := "size-10 p-2 product-bg-primary rounded-lg flex items-center justify-center" }}
+
 <div class="{{ $theme }}">
   <div class="section-bg-light dark:section-bg-dark {{ if $isDark }}py-32{{ else }}py-12{{ end }}">
     <div class="wrapper">
@@ -75,7 +78,9 @@
           {{ range $features }}
           <div class="relative pl-0">
             {{ if .icon }}
-              {{ partial "components/media/icon.html" (dict "icon" .icon "class" "w-7 h-7 product-icon mb-6 p-1 rounded-lg flex-shrink-0") }}
+              <div class="{{ $iconWrapperClass }} mb-6 flex-shrink-0">
+                {{ partial "components/media/icon.html" (dict "icon" .icon "class" (printf "%s icon-primary" $iconClass)) }}
+              </div>
             {{ end }}
             <dt class="font-semibold text-lg text-heading flex items-center">
               <span>{{ .title }}</span>
