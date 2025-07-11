@@ -26,6 +26,7 @@
     - numbered_features: JSON string or "numbered_features" to use page params (features with numbers instead of icons)
     - stats: JSON string or "stats" to use page params
     - quote: JSON string or "quote" to use page params
+    - sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
 
     USAGE EXAMPLES:
 
@@ -228,6 +229,7 @@
 {{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
 {{ $theme := .Get "theme" | default "light" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
+{{ $sectionPaddingY := .Get "sectionPaddingY" | default "py-24 lg:py-32" }}
 
 {{/* Initialize data */}}
 {{ $features := slice }}
@@ -418,4 +420,5 @@
   "numbered_features" $numbered_features
   "stats" $stats
   "quote" $quote
+  "sectionPaddingY" $sectionPaddingY
 ) }}
