@@ -1,9 +1,4 @@
 {{/*
-split_with- headerEyebrow, headerHeading, headerDescription: Header section content
-- showHeader: Force header to render even without content
-- alignment: "left" (default), "center", or "right" for header text alignment
-- headerPadding: Padding classes for the header section (default: "pb-24 lg:pb-32")
-
 Responsive two-column layout with image and rich content.
 
 Parameters:
@@ -17,10 +12,12 @@ Parameters:
 - numbered_features: [{title, description}] (features with numbers instead of icons)
 - stats: [{number, label}]
 - quote: {text, author, role, company, avatar}
+
+Header section parameters:
 - headerEyebrow, headerHeading, headerDescription: Header section content
 - showHeader: Force header to render even without content
 - headerAlignment: "left" (default), "center", or "right" for header text alignment
-- Color classes: *Color parameters for styling
+- headerPadding: Padding classes for the header section (default: "pb-24 lg:pb-32")
 
 Custom Color Classes Documentation:
 - text-heading: Primary heading text color (typically dark for contrast)
