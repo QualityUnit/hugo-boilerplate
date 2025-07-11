@@ -2,8 +2,22 @@
 @shortcode: courses-content
 @description: Shortcode for displaying course content, pricing options, features, and promotional banners
 @params:
+  - theme: Theme for the section, can be "light" or "dark" (optional, default: "light") - currently not implemented
   - title: Main section title (optional, defaults to page title)
   - description: Section description text (optional, defaults to page description)
+  - comment: Comment text for internal use (optional)
+  - iconClass: CSS classes for icons (optional)
+  - titleClass: CSS classes for the title (optional)
+  - descriptionClass: CSS classes for the description (optional)
+  - badgeClass: CSS classes for badges (optional)
+  - pricingContainerClass: CSS classes for the pricing container (optional)
+  - sessionCardClass: CSS classes for each session card (optional)
+  - sessionHeaderClass: CSS classes for the session header (optional)
+  - sessionNumberClass: CSS classes for the session number (optional)
+  - sessionTitleClass: CSS classes for the session title (optional)
+  - sessionContentClass: CSS classes for the session content (optional)
+  - sessionListClass: CSS classes for the session list (optional)
+  - sessionFeaturesEnabled: Boolean to enable/disable session features (optional, default: true)
   - ctaText: Text for the call-to-action button (optional)
   - ctaUrl: URL for the call-to-action button (optional)
   - bannerTextTop: Text for the top banner, supports HTML (optional)
@@ -14,28 +28,35 @@
   - bannerBackgroundColor: Background color for banner (optional)
   - gradientFromColor: Tailwind CSS gradient from-color for banner background (optional)
   - gradientToColor: Tailwind CSS gradient to-color for banner background (optional)
-  - sectionClass: CSS classes for the main section (optional)
-  - bgColor: Background color class (optional)
   - padding: Padding classes (optional)
+  
+  Legacy parameters (for backward compatibility):
+  - session1: Legacy session configuration (optional, use JSON content instead)
+  - session2: Legacy session configuration (optional, use JSON content instead)
+  - labels: Legacy labels configuration (optional, use JSON content instead)
+  - icons: Legacy icons configuration (optional, use JSON content instead)
+  - sessions: Legacy sessions configuration (optional, use JSON content instead)
+  - courseFeatures: Legacy features configuration (optional, use "features" in JSON content instead)
+  - sessionFeatures: Legacy features configuration (optional, use "features" in JSON content instead)
+  - course_data: Internal parameter for JSON parsing (not for external use)
 
   Course data should be provided as JSON content between shortcode tags:
   {
     "icons": Array of icon objects with image path and alt text,
     "sessions": Array of session objects with pricing information,
-    "labels": Array of label objects with promotional text, bgColor (optional), textColor (optional),
+    "labels": Array of label objects with promotional text, badgeClass (optional), textColor (optional),
     "features": Array of feature objects with title and items array
   }
 
 @example:
   {{< courses-content 
-    title="Microsoft Copilot Training Course"
-    description="Ensuring teams get the most value from the integrated Microsoft Copilot is crucial any company using Microsoft products. Our mentored learning sessions help teams work smarter and use integrated generative AI tools to enhance everyday workflows."
-    ctaText="Book Now"
-    ctaUrl="/booking/"
-    bannerTextTop="Showcase Your Expertise"
-    bannerTextBottom="With Our Certificate!"
-    comment="Main AI training course details"
-    sectionClass="mx-auto max-w-7xl mb-0"
+      title="Microsoft Copilot Training Course"
+      description="Ensuring teams get the most value from the integrated Microsoft Copilot is crucial any company using Microsoft products. Our mentored learning sessions help teams work smarter and use integrated generative AI tools to enhance everyday workflows."
+      ctaText="Book Now"
+      ctaUrl="/booking/"
+      bannerTextTop="Showcase Your Expertise"
+      bannerTextBottom="With Our Certificate!"
+      comment="Main AI training course details"
     >}}
     {
     "icons": [
@@ -43,28 +64,29 @@
     ],
     "sessions": [
         {
-        "title": "2 x 2.5 hour",
-        "subtitle": "online sessions",
-        "count": "2",
-        "countLabel": "sessions in bundle",
-        "smallGroupTitle": "1-6 people:",
-        "smallGroupPrice": "€900",
-        "largeGroupTitle": "7-12 people:",
-        "largeGroupPrice": "€1100"
+          "title": "2 x 2.5 hour",
+          "subtitle": "online sessions",
+          "count": "2",
+          "countLabel": "sessions in bundle",
+          "smallGroupTitle": "1-6 people:",
+          "smallGroupPrice": "€900",
+          "largeGroupTitle": "7-12 people:",
+          "largeGroupPrice": "€1100"
         },
         {
-        "title": "5 x 1 hour",
-        "subtitle": "online sessions",
-        "count": "5",
-        "countLabel": "sessions in bundle",
-        "smallGroupTitle": "1-6 people:",
-        "smallGroupPrice": "€1000",
-        "largeGroupTitle": "7-12 people:",
-        "largeGroupPrice": "€1200"
+          "title": "5 x 1 hour",
+          "subtitle": "online sessions",
+          "count": "5",
+          "countLabel": "sessions in bundle",
+          "smallGroupTitle": "1-6 people:",
+          "smallGroupPrice": "€1000",
+          "largeGroupTitle": "7-12 people:",
+          "largeGroupPrice": "€1200"
         }
     ],
     "labels": [
-        {"text": "10% Discount for further bookings over 5 sessions", "bgColor": "bg-green-600", "textColor": "text-white"}
+        {"text": "10% Discount for further bookings over 5 sessions", badgeClass: "badge-base", textColor: "text-white bg-green-500"},
+        {"text": "Free FlowHunt trial", badgeClass: "badge-base", textColor: "text-white bg-yellow-400"}
     ],
     "features": [
         {
@@ -88,64 +110,64 @@
     {{< /courses-content >}}
 */}}
 
+{{/* Shortcode for courses content section */}}
+{{ $theme := .Get "theme" | default "light" }}
+
 {{/* Content variables */}}
 {{ $title := .Get "title" | default .Page.Title }}
 {{ $description := .Get "description" | default .Page.Params.description }}
-{{ $ctaText := .Get "ctaText" | default nil }}
-{{ $ctaUrl := .Get "ctaUrl" | default nil }}
-{{ $comment := .Get "comment" | default "" }}
+{{ $ctaText := .Get "ctaText" }}
+{{ $ctaUrl := .Get "ctaUrl" }}
+{{ $comment := .Get "comment" }}
 
 {{/* Layout & styling options */}}
-{{ $sectionClass := .Get "sectionClass" | default nil }}
-{{ $bgColor := .Get "bgColor" | default nil }}
-{{ $padding := .Get "padding" | default nil }}
-{{ $iconClass := .Get "iconClass" | default nil }}
-{{ $titleColor := .Get "titleColor" | default nil }}
-{{ $titleClass := .Get "titleClass" | default nil }}
-{{ $descriptionColor := .Get "descriptionColor" | default nil }}
-{{ $descriptionClass := .Get "descriptionClass" | default nil }}
+{{ $padding := .Get "padding" }}
+{{ $iconClass := .Get "iconClass" }}
+{{ $titleClass := .Get "titleClass" }}
+{{ $descriptionClass := .Get "descriptionClass" }}
+{{ $badgeClass := .Get "badgeClass" }}
 
 {{/* Session styling options */}}
-{{ $pricingContainerClass := .Get "pricingContainerClass" | default nil }}
-{{ $sessionCardClass := .Get "sessionCardClass" | default nil }}
-{{ $sessionHeaderClass := .Get "sessionHeaderClass" | default nil }}
-{{ $sessionNumberClass := .Get "sessionNumberClass" | default nil }}
-{{ $sessionTitleClass := .Get "sessionTitleClass" | default nil }}
-{{ $sessionContentClass := .Get "sessionContentClass" | default nil }}
-{{ $sessionListClass := .Get "sessionListClass" | default nil }}
+{{ $pricingContainerClass := .Get "pricingContainerClass" }}
+{{ $sessionCardClass := .Get "sessionCardClass" }}
+{{ $sessionHeaderClass := .Get "sessionHeaderClass" }}
+{{ $sessionNumberClass := .Get "sessionNumberClass" }}
+{{ $sessionTitleClass := .Get "sessionTitleClass" }}
+{{ $sessionContentClass := .Get "sessionContentClass" }}
+{{ $sessionListClass := .Get "sessionListClass" }}
 {{ $sessionFeaturesEnabled := .Get "sessionFeaturesEnabled" | default true }}
 
 {{/* Banner configuration - HTML is supported in text */}}
-{{ $bannerTextTop := .Get "bannerTextTop" | default nil }}
-{{ $bannerTextBottom := .Get "bannerTextBottom" | default nil }}
-{{ $bannerImage := .Get "bannerImage" | default nil }}
-{{ $bannerImageAlt := .Get "bannerImageAlt" | default nil }}
-{{ $bannerTextColor := .Get "bannerTextColor" | default nil }}
-{{ $bannerBackgroundColor := .Get "bannerBackgroundColor" | default nil }}
-{{ $gradientFromColor := .Get "gradientFromColor" | default nil }}
-{{ $gradientToColor := .Get "gradientToColor" | default nil }}
+{{ $bannerTextTop := .Get "bannerTextTop" }}
+{{ $bannerTextBottom := .Get "bannerTextBottom" }}
+{{ $bannerImage := .Get "bannerImage" }}
+{{ $bannerImageAlt := .Get "bannerImageAlt" }}
+{{ $bannerTextColor := .Get "bannerTextColor" }}
+{{ $bannerBackgroundColor := .Get "bannerBackgroundColor" }}
+{{ $gradientFromColor := .Get "gradientFromColor" }}
+{{ $gradientToColor := .Get "gradientToColor" }}
 
-{{/* Legacy session configuration */}}
-{{ $session1 := .Get "session1" | default nil }}
-{{ $session2 := .Get "session2" | default nil }}
-{{ $labels := .Get "labels" | default nil }}
+{{/* Legacy session configuration (for backward compatibility) */}}
+{{ $session1 := .Get "session1" }}
+{{ $session2 := .Get "session2" }}
 
 {{/* Parse course data from inner content */}}
-{{ $course_data := .Get "course_data" | default dict }}
+{{ $course_data := dict }}
 {{ with .Inner }}
   {{ if . }}
     {{ $course_data = . | unmarshal }}
   {{ end }}
 {{ end }}
 
-{{/* Get data from parsed content */}}
-{{ $icons := cond (isset $course_data "icons") (index $course_data "icons") (.Get "icons") | default nil }}
-{{ $sessions := cond (isset $course_data "sessions") (index $course_data "sessions") (.Get "sessions") | default nil }}
-{{ $labels := cond (isset $course_data "labels") (index $course_data "labels") $labels | default nil }}
-{{ $features := cond (isset $course_data "features") (index $course_data "features") (or (.Get "courseFeatures") (.Get "sessionFeatures")) | default nil }}
+{{/* Get data from parsed content with fallbacks to legacy parameters */}}
+{{ $icons := index $course_data "icons" | default (.Get "icons") }}
+{{ $sessions := index $course_data "sessions" | default (.Get "sessions") }}
+{{ $labels := index $course_data "labels" | default (.Get "labels") }}
+{{ $features := index $course_data "features" | default (or (.Get "courseFeatures") (.Get "sessionFeatures")) }}
 
 {{/* Render the courses content section using the partial */}}
-{{ partial "sections/courses/courses-content.html" (dict 
+{{ partial "sections/courses/courses-content.html" (dict
+    "theme" $theme
     "title" $title
     "description" $description
     "icons" $icons
@@ -157,13 +179,9 @@
     "bannerTextTop" $bannerTextTop
     "bannerTextBottom" $bannerTextBottom
     "comment" $comment
-    "sectionClass" $sectionClass
-    "bgColor" $bgColor
     "padding" $padding
     "iconClass" $iconClass
-    "titleColor" $titleColor
     "titleClass" $titleClass
-    "descriptionColor" $descriptionColor
     "descriptionClass" $descriptionClass
     "pricingContainerClass" $pricingContainerClass
     "sessionCardClass" $sessionCardClass
@@ -181,4 +199,5 @@
     "gradientToColor" $gradientToColor
     "session1" $session1
     "session2" $session2
+    "badgeClass" $badgeClass
 ) }}
