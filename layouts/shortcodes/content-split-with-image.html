@@ -28,7 +28,9 @@
     - numbered_features: JSON string or "numbered_features" to use page params (features with numbers instead of icons)
     - stats: JSON string or "stats" to use page params
     - quote: JSON string or "quote" to use page params
-    
+    - sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
+
+
     Header Parameters (optional - header only renders if at least one is provided):
     - headerEyebrow: Small text above header heading (default: "")
     - headerHeading: Main header title (default: "")
@@ -272,6 +274,7 @@
 {{ $theme := .Get "theme" | default "light" }}
 {{ $backgroundColor := .Get "backgroundColor" | default "" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
+{{ $sectionPaddingY := .Get "sectionPaddingY" | default "py-24 lg:py-32" }}
 
 {{/* Header parameters */}}
 {{ $headerEyebrow := .Get "headerEyebrow" | default "" }}
@@ -471,6 +474,7 @@
   "numbered_features" $numbered_features
   "stats" $stats
   "quote" $quote
+  "sectionPaddingY" $sectionPaddingY
   "headerEyebrow" $headerEyebrow
   "headerHeading" $headerHeading
   "headerDescription" $headerDescription
