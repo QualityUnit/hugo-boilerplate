@@ -102,3 +102,6 @@ courses.you_will_learn: "学ぶ内容："
 courses.or: "または"
 
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "見る"

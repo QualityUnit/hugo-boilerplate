@@ -96,6 +96,9 @@ no_posts_found: "ไม่พบโพสต์"
 minutes_read: "นาทีอ่าน"
 get_started: "เริ่มต้น"
 courses.session: "เซสชั่น"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.you_will_learn: "คุณจะได้เรียนรู้:"
+courses.or: "หรือ"
+courses.format: "รูปแบบ"
+
+# Icon card translations
+icon.card.btn: "ดู"

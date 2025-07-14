@@ -102,3 +102,6 @@ courses.you_will_learn: "Je zult leren:"
 courses.or: "of"
 
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Bekijk"

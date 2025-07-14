@@ -100,4 +100,7 @@ get_started: "شروع کنید"
 courses.session: "جلسه"
 courses.you_will_learn: "شما خواهید آموخت:"
 courses.or: "یا"
-courses.format: "Format"
+courses.format: "فرمت"
+
+# Icon card translations
+icon.card.btn: "مشاهده"

@@ -99,3 +99,6 @@ courses.session: "Sitzung"
 courses.you_will_learn: "Das werden Sie lernen:"
 courses.or: "oder"
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Sehen"

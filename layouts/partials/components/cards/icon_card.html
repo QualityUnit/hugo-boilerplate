@@ -15,8 +15,7 @@
     "icon" "/images/icons/code.svg" 
     "title" "Code Generator" 
     "description" "Generate clean, efficient code automatically"
-    "buttonText" "Try Now"
-    "buttonLink" "/tools/code-generator"
+    "url" "/tools/code-generator"
 ) }}
 @note: Supports Font Awesome icons, SVG file paths (uses lazysvg), and inline SVG code.
 */}}
@@ -24,28 +23,30 @@
 {{ $icon := .icon }}
 {{ $title := .title }}
 {{ $description := .description }}
-{{ $buttonText := .buttonText | default "" }}
-{{ $buttonLink := .buttonLink }}
+{{ $buttonText := printf "%s %s" (i18n "icon.card.btn") $title }}
+{{ $buttonLink := .url }}
 {{ $cardClass := .cardClass | default "" }}
-{{ $iconColor := .iconColor | default "product-icon" }}
-{{ $iconBackground := .iconBackground | default "" }}
+{{ $iconBackground := .iconBackground | default "bg-red-900" }}
 {{ $iconAlt := .iconAlt }}
 
 <div class="surface-secondary surface-border rounded-xl p-8 {{ $cardClass }}">
+    {{/* Hidden div to ensure Tailwind includes icon background colors in the build */}}
+    <div class="hidden bg-red-900 bg-green-500 bg-yellow-500 bg-orange-500 bg-blue-600 bg-indigo-600 bg-pink-700 bg-teal-400 bg-yellow-900 bg-blue-900 bg-purple-600 bg-gray-600"></div>
+    
     {{ if $icon }}
         <div class="mb-4">
-            <div class="w-10 h-10 flex items-center justify-center">
+            <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ $iconBackground}}">
                 {{ partial "components/media/lazysvg.html" (dict
                     "src" $icon
                     "alt" $iconAlt
-                    "class" (printf "flex-shrink-0 %s" $iconColor)
+                    "class" "w-5 h-5 icon-primary flex-shrink-0"
                 ) }}
             </div>
         </div>
     {{ end }}
 
     {{ if $title }}
-        <h3 class="mt-2 text-lg font-semibold heading">
+        <h3 class="mt-2 text-lg font-semibold text-heading">
             {{ $title }}
         </h3>
     {{ end }}

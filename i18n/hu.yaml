@@ -100,4 +100,7 @@ courses.session: "Alkalom"
 courses.you_will_learn: "Amit tanulni fog:"
 courses.or: "vagy"
 
-courses.format: "Format"
+courses.format: "Formátum"
+
+# Icon card translations
+icon.card.btn: "Megtekintés"

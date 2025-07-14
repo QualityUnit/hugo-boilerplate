@@ -97,6 +97,9 @@ no_posts_found: "Julkaisuja ei löytynyt"
 minutes_read: "min lukuaika"
 get_started: "Aloita"
 courses.session: "Session"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.you_will_learn: "Opit:"
+courses.or: "tai"
+courses.format: "Muoto"
+
+# Icon card translations
+icon.card.btn: "Katso"

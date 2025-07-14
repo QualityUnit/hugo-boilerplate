@@ -100,4 +100,7 @@ courses.session: "Lekce"
 courses.you_will_learn: "Naučíte se:"
 courses.or: "nebo"
 
-courses.format: "Format"
+courses.format: "Formát"
+
+# Icon card translations
+icon.card.btn: "Zobrazit"
