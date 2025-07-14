@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
       typingSpeed: parseInt(element.dataset.typewriterSpeed) || 100,
       deletingSpeed: parseInt(element.dataset.typewriterDeleteSpeed) || 50,
       pauseDuration: parseInt(element.dataset.typewriterPause) || 2000,
-      color: element.dataset.typewriterColor || 'text-indigo-600',
+      color: element.dataset.typewriterColor || 'text-primary',
       wordAlternatives: wordAlternatives
     };
     
