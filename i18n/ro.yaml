@@ -97,6 +97,9 @@ no_posts_found: "Nu s-au găsit postări"
 minutes_read: "min citire"
 get_started: "Începe"
 courses.session: "Session"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
+courses.you_will_learn: "Vei învăța:"
+courses.or: "sau"
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Vezi"

@@ -71,9 +71,12 @@ no_posts_found: "No posts found"
 minutes_read: "min read"
 get_started: "Get started"
 courses.session: "Seancë"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.you_will_learn: "Do të mësoni:"
+courses.or: "ose"
+courses.format: "Formati"
+
+# Icon card translations
+icon.card.btn: "Shiko"
 
 # Përkthimet për kërkimin
 search_placeholder: "Kërko..."

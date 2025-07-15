@@ -68,10 +68,13 @@ read_more_post: "Read more"
 no_posts_found: "No posts found"
 minutes_read: "min read"
 get_started: "Get started"
-courses.session: "Session"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.session: "அமர்வு"
+courses.you_will_learn: "நீங்கள் கற்றுக்கொள்வீர்கள்:"
+courses.or: "அல்லது"
+courses.format: "வடிவம்"
+
+# Icon card translations
+icon.card.btn: "பார்க்க"
 
 # Search translations
 search_placeholder: "தேடுக..."

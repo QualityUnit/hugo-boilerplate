@@ -74,6 +74,9 @@ courses.you_will_learn: "Das lernsch:"
 courses.or: "oder"
 courses.format: "Format"
 
+# Icon card translations
+icon.card.btn: "Lueg"
+
 # Search translations
 search_placeholder: "Sueche..."
 search_submit_aria: "Sueche abschickä"

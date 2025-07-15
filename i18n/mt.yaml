@@ -70,10 +70,13 @@ read_more_post: "Read more"
 no_posts_found: "No posts found"
 minutes_read: "min read"
 get_started: "Get started"
-courses.session: "Session"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
+courses.session: "Sessjoni"
+courses.you_will_learn: "Inti se titgħallem:"
+courses.or: "jew"
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Ara"
 
 # Search translations
 search_placeholder: "Fittex..."

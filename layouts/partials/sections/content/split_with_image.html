@@ -92,14 +92,14 @@ Design Tokens:
   {{ end }}
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
-      <div class="relative {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
+      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
         {{ if $link }}
-          <a href="{{ $link }}" target="{{ $linkTarget }}" class="block w-full">
+          <a href="{{ $link }}" target="{{ $linkTarget }}" class="block w-full flex items-center justify-center">
         {{ end }}
             {{ partial "components/media/lazyimg.html" (dict
               "src" $image
               "alt" $imageAlt
-              "class" "w-[30.25rem] h-[32.625rem] object-cover rounded-lg hover:opacity-90 transition-opacity duration-200"
+              "class" "object-contain rounded-lg"
             ) }}
         {{ if $link }}
           </a>

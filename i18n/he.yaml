@@ -97,6 +97,9 @@ no_posts_found: "לא נמצאו פוסטים"
 minutes_read: "דק' קריאה"
 get_started: "התחל"
 courses.session: "Session"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.you_will_learn: "תלמד:"
+courses.or: "או"
+courses.format: "פורמט"
+
+# Icon card translations
+icon.card.btn: "ראה"

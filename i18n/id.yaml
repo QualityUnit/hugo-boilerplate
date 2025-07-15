@@ -97,6 +97,9 @@ no_posts_found: "Tidak ada postingan yang ditemukan"
 minutes_read: "menit baca"
 get_started: "Mulai"
 courses.session: "Sesi"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
+courses.you_will_learn: "Anda akan belajar:"
+courses.or: "atau"
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Lihat"

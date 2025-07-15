@@ -102,3 +102,6 @@ courses.you_will_learn: "Вы узнаете:"
 courses.or: "или"
 
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Смотреть"

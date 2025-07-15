@@ -73,7 +73,10 @@ get_started: "Dechrau"
 courses.session: "Sesiwn"
 courses.you_will_learn: "Byddwch yn dysgu:"
 courses.or: "neu"
-courses.format: "Format"
+courses.format: "Fformat"
+
+# Icon card translations
+icon.card.btn: "Gweld"
 
 # Search translations
 search_placeholder: "Chwilio..."

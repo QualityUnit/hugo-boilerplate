@@ -75,6 +75,9 @@ courses.you_will_learn: "Ikasiko duzu:"
 courses.or: "edo"
 courses.format: "Format"
 
+# Icon card translations
+icon.card.btn: "Ikusi"
+
 # Search translations
 search_placeholder: "Bilatu..."
 search_submit_aria: "Bilaketa bidali"

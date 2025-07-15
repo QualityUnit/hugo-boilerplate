@@ -98,4 +98,7 @@ get_started: "শুরু করুন"
 courses.session: "সেশন"
 courses.you_will_learn: "আপনি শিখবেন:"
 courses.or: "অথবা"
-courses.format: "Format"
+courses.format: "ফরম্যাট"
+
+# Icon card translations
+icon.card.btn: "দেখুন"
