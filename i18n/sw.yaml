@@ -69,10 +69,10 @@ read_more_post: "Soma zaidi"
 no_posts_found: "Hakuna machapisho yaliyopatikana"
 minutes_read: "dakika kusoma"
 get_started: "Anza"
-courses.session: "Kipindi"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.session: "Kikao"
+courses.you_will_learn: "Utafundisha:"
+courses.or: "au"
+courses.format: "Umbizo"
 
 # Tafsiri za Kiswahili
 search_placeholder: "Tafuta..."
@@ -88,3 +88,6 @@ search_not_available: "Kipengele cha utafutaji hakipo. Jaribu tena baadaye."
 search_initializing: "Utafutaji bado unaanza. Jaribu tena."
 search_no_content_preview: "Hakuna muhtasari wa maudhui unaopatikana"
 search_untitled: "Bila kichwa"
+
+# Icon card translations
+icon.card.btn: "Tazama"

@@ -96,7 +96,10 @@ read_more_post: "Read more"
 no_posts_found: "No posts found"
 minutes_read: "min read"
 get_started: "Get started"
-courses.session: "Session"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
+courses.session: "Sesi"
+courses.you_will_learn: "Anda akan belajar:"
+courses.or: "atau"
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Lihat"

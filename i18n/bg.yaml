@@ -99,4 +99,7 @@ get_started: "Започни"
 courses.session: "Сесия"
 courses.you_will_learn: "Ще научите:"
 courses.or: "или"
-courses.format: "Format"
+courses.format: "Формат"
+
+# Icon card translations
+icon.card.btn: "Виж"

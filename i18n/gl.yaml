@@ -71,10 +71,13 @@ read_more_post: "Read more"
 no_posts_found: "No posts found"
 minutes_read: "min read"
 get_started: "Get started"
-courses.session: "Session"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.session: "Sesión"
+courses.you_will_learn: "Aprenderás:"
+courses.or: "ou"
+courses.format: "Formato"
+
+# Icon card translations
+icon.card.btn: "Ver"
 
 # Search translations
 search_placeholder: "Buscar..."

@@ -102,3 +102,6 @@ courses.you_will_learn: "학습 내용:"
 courses.or: "또는"
 
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "보기"

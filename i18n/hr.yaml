@@ -97,6 +97,9 @@ no_posts_found: "Nema pronađenih objava"
 minutes_read: "min čitanja"
 get_started: "Počni"
 courses.session: "Session"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
+courses.you_will_learn: "Naučit ćete:"
+courses.or: "ili"
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Pogledaj"

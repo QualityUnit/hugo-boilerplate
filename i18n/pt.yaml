@@ -102,3 +102,6 @@ courses.you_will_learn: "Você aprenderá:"
 courses.or: "ou"
 
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Ver"

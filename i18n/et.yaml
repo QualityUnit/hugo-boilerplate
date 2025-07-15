@@ -97,6 +97,9 @@ no_posts_found: "Postitusi ei leitud"
 minutes_read: "min lugemist"
 get_started: "Alusta"
 courses.session: "Sessioon"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.you_will_learn: "Sa õpid:"
+courses.or: "või"
+courses.format: "Formaat"
+
+# Icon card translations
+icon.card.btn: "Vaata"

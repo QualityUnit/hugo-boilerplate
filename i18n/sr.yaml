@@ -90,3 +90,6 @@ search_not_available: "Funkcija pretrage nije dostupna. Pokušajte kasnije."
 search_initializing: "Pretraga se još uvek pokреće. Pokušajte ponovo."
 search_no_content_preview: "Pregled sadržaja nije dostupan"
 search_untitled: "Bez naslova"
+
+# Icon card translations
+icon.card.btn: "Pogledaj"

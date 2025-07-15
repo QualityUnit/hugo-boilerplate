@@ -85,6 +85,9 @@ no_posts_found: "Không tìm thấy bài viết"
 minutes_read: "phút đọc"
 get_started: "Bắt đầu"
 courses.session: "Phiên"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.you_will_learn: "Bạn sẽ học:"
+courses.or: "hoặc"
+courses.format: "Định dạng"
+
+# Icon card translations
+icon.card.btn: "Xem"

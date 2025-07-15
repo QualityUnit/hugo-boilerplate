@@ -97,6 +97,9 @@ no_posts_found: "Ieraksti nav atrasti"
 minutes_read: "min lasīšana"
 get_started: "Sākt"
 courses.session: "Sesija"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.you_will_learn: "Jūs uzzināsiet:"
+courses.or: "vai"
+courses.format: "Formāts"
+
+# Icon card translations
+icon.card.btn: "Skatīt"

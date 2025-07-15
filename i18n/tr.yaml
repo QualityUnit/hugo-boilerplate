@@ -101,3 +101,6 @@ courses.you_will_learn: "Öğrenecekleriniz:"
 courses.or: "veya"
 
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Gör"

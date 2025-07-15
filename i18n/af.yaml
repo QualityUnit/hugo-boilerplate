@@ -87,3 +87,6 @@ courses.session: "Sessie"
 courses.you_will_learn: "Jy sal leer:"
 courses.or: "of"
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Sien"
