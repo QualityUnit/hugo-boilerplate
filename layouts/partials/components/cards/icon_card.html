@@ -26,13 +26,15 @@
 {{ $buttonText := printf "%s %s" (i18n "icon.card.btn") $title }}
 {{ $buttonLink := .url }}
 {{ $cardClass := .cardClass | default "" }}
-{{ $iconBackground := .iconBackground | default "bg-red-900" }}
+{{ $iconCategory := .iconBackgroundCategory }}
+{{ $iconColors := site.Data.components.iconColors }}
+{{ $iconBackground := "bg-red-900" }}
+{{ if and $iconCategory (ne $iconCategory "") (index $iconColors $iconCategory) }}
+  {{ $iconBackground = index $iconColors $iconCategory }}
+{{ end }}
 {{ $iconAlt := .iconAlt }}
 
 <div class="surface-secondary surface-border rounded-xl p-8 {{ $cardClass }}">
-    {{/* Hidden div to ensure Tailwind includes icon background colors in the build */}}
-    <div class="hidden bg-red-900 bg-green-500 bg-yellow-500 bg-orange-500 bg-blue-600 bg-indigo-600 bg-pink-700 bg-teal-400 bg-yellow-900 bg-blue-900 bg-purple-600 bg-gray-600"></div>
-    
     {{ if $icon }}
         <div class="mb-4">
             <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ $iconBackground}}">
@@ -66,4 +68,33 @@
             ) }}
         </div>
     {{ end }}
+</div>
+
+{{/* Hidden div to ensure Tailwind includes icon background colors in the build */}}
+<div class="hidden">
+    <div class="bg-indigo-600"></div>
+    <div class="bg-pink-700"></div>
+    <div class="bg-teal-400"></div>
+    <div class="bg-pink-500"></div>
+    <div class="bg-purple-600"></div>
+    <div class="bg-blue-600"></div>
+    <div class="bg-orange-500"></div>
+    <div class="bg-orange-600"></div>
+    <div class="bg-orange-400"></div>
+    <div class="bg-green-500"></div>
+    <div class="bg-red-600"></div>
+    <div class="bg-blue-800"></div>
+    <div class="bg-yellow-500"></div>
+    <div class="bg-teal-600"></div>
+    <div class="bg-red-900"></div>
+    <div class="bg-green-700"></div>
+    <div class="bg-[#f59e0b]"></div>
+    <div class="bg-[#021049]"></div>
+    <div class="bg-[#b28b5d]"></div>
+    <div class="bg-[#611f69]"></div>
+    <div class="bg-[#95bf47]"></div>
+    <div class="bg-[#2684fc]"></div>
+    <div class="bg-[#00ac47]"></div>
+    <div class="bg-[#0066da]"></div>
+    <div class="bg-[#00749c]"></div>
 </div>
