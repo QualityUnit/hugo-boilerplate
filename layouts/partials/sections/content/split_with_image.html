@@ -146,7 +146,7 @@ Design Tokens:
         <dl class="mt-10 max-w-full space-y-8 text-lg/7 text-body lg:max-w-full">
           {{ range $features }}
           <div class="relative pl-9">
-            <dt class="inline font-bold text-heading">
+            <dt class="inline {{ if .description }}font-bold{{ end }} text-heading">
               {{ if .icon }}
                 <span class="absolute left-1 top-1 size-5 text-primary">
                   {{ partial "components/media/icon.html" (dict "icon" .icon) }}
@@ -154,7 +154,9 @@ Design Tokens:
               {{ end }}
               {{ .title }}.
             </dt>
-            <dd class="inline">{{ .description }}</dd>
+            {{ if .description }}
+              <dd class="inline">{{ .description }}</dd>
+            {{ end }}
           </div>
           {{ end }}
         </dl>
