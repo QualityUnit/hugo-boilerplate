@@ -52,45 +52,6 @@
 {{/* Testimonials */}}
 {{ $testimonials := .testimonials | default slice }}
 
-{{/* Default testimonials if none provided */}}
-{{ if eq (len $testimonials) 0 }}
-  {{ $testimonials = slice 
-    (dict 
-      "quote" "Integer id nunc sit semper purus. Bibendum at lacus ut arcu blandit montes vitae auctor libero. Hac condimentum dignissim nibh vulputate ut nunc. Amet nibh orci mi venenatis blandit vel et proin. Non hendrerit in vel ac diam."
-      "personImage" "https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=1024&h=1024&q=80"
-      "personName" "Brenna Goyette"
-      "personHandle" "@brennagoyette"
-      "companyLogo" "https://tailwindcss.com/plus-assets/img/logos/savvycal-logo-gray-900.svg"
-      "companyLogoAlt" "SavvyCal"
-      "featured" true
-    )
-    (dict 
-      "quote" "Laborum quis quam. Dolorum et ut quod quia. Voluptas numquam delectus nihil. Aut enim doloremque et ipsam."
-      "personImage" "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-      "personName" "Leslie Alexander"
-      "personHandle" "@lesliealexander"
-    )
-    (dict 
-      "quote" "Aut reprehenderit voluptatem eum asperiores beatae id. Iure molestiae ipsam ut officia rem nulla blanditiis."
-      "personImage" "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-      "personName" "Lindsay Walton"
-      "personHandle" "@lindsaywalton"
-    )
-    (dict 
-      "quote" "Voluptas quos itaque ipsam in voluptatem est. Iste eos blanditiis repudiandae. Earum deserunt enim molestiae ipsum perferendis recusandae saepe corrupti."
-      "personImage" "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-      "personName" "Tom Cook"
-      "personHandle" "@tomcook"
-    )
-    (dict 
-      "quote" "Molestias ea earum quos nostrum doloremque sed. Quaerat quasi aut velit incidunt excepturi rerum voluptatem minus harum."
-      "personImage" "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-      "personName" "Leonard Krasner"
-      "personHandle" "@leonardkrasner"
-    )
-  }}
-{{ end }}
-
 <section class="relative mx-auto max-w-7xl isolate py-24 sm:py-32" itemscope itemtype="https://schema.org/Review" aria-label="Customer testimonials section">
   <div class="absolute inset-x-0 top-1/2 -z-10 -translate-y-1/2 transform-gpu overflow-hidden opacity-20 blur-3xl" aria-hidden="true">
     <div class="ml-[max(50%,38rem)] aspect-[1313/771] w-[82.0625rem] bg-gradient-to-tr from-primary-400 to-primary-700" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
@@ -125,8 +86,15 @@
                     <p>"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-{{ $index }}">
-                    {{ if $testimonial.personImage }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                    {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
+                    {{ else }}
+                      <div class="size-10 flex-none rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                        {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                      </div>
                     {{ end }}
                     <div class="flex-auto">
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -134,9 +102,6 @@
                       </cite>
                       <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
-                    {{ if $testimonial.companyLogo }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s company logo" $testimonial.companyLogoAlt) "class" "h-10 w-auto flex-none") }}
-                    {{ end }}
                   </footer>
                 </article>
               {{ else }}
@@ -146,8 +111,15 @@
                     <p>"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-{{ $index }}">
-                    {{ if $testimonial.personImage }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                    {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
+                    {{ else }}
+                      <div class="size-10 rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                        {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                      </div>
                     {{ end }}
                     <div>
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -170,8 +142,15 @@
                     <p>"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-tablet-{{ $index }}">
-                    {{ if $testimonial.personImage }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                    {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
+                    {{ else }}
+                      <div class="size-10 flex-none rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                        {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                      </div>
                     {{ end }}
                     <div class="flex-auto">
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -179,9 +158,6 @@
                       </cite>
                       <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
-                    {{ if $testimonial.companyLogo }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s company logo" $testimonial.companyLogoAlt) "class" "h-10 w-auto flex-none") }}
-                    {{ end }}
                   </footer>
                 </article>
               {{ else }}
@@ -191,8 +167,15 @@
                     <p>"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-tablet-{{ $index }}">
-                    {{ if $testimonial.personImage }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                    {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
+                    {{ else }}
+                      <div class="size-10 rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                        {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                      </div>
                     {{ end }}
                     <div>
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -215,8 +198,15 @@
                     <p>"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col1-desktop-{{ $index }}">
-                    {{ if $testimonial.personImage }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                    {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
+                    {{ else }}
+                      <div class="size-10 flex-none rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                        {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                      </div>
                     {{ end }}
                     <div class="flex-auto">
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -224,9 +214,6 @@
                       </cite>
                       <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
-                    {{ if $testimonial.companyLogo }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s company logo" $testimonial.companyLogoAlt) "class" "h-10 w-auto flex-none") }}
-                    {{ end }}
                   </footer>
                 </article>
               {{ else }}
@@ -236,8 +223,15 @@
                     <p>"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col1-desktop-{{ $index }}">
-                    {{ if $testimonial.personImage }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                    {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
+                    {{ else }}
+                      <div class="size-10 rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                        {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                      </div>
                     {{ end }}
                     <div>
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -269,8 +263,15 @@
                     <p>"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-tablet-{{ $index }}">
-                    {{ if $testimonial.personImage }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                    {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
+                    {{ else }}
+                      <div class="size-10 flex-none rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                        {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                      </div>
                     {{ end }}
                     <div class="flex-auto">
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -278,9 +279,6 @@
                       </cite>
                       <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
-                    {{ if $testimonial.companyLogo }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s company logo" $testimonial.companyLogoAlt) "class" "h-10 w-auto flex-none") }}
-                    {{ end }}
                   </footer>
                 </article>
               {{ else }}
@@ -290,8 +288,15 @@
                     <p>"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col2-tablet-{{ $index }}">
-                    {{ if $testimonial.personImage }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                    {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
+                    {{ else }}
+                      <div class="size-10 rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                        {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                      </div>
                     {{ end }}
                     <div>
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -314,8 +319,15 @@
                     <p>"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-desktop-{{ $index }}">
-                    {{ if $testimonial.personImage }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                    {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
+                    {{ else }}
+                      <div class="size-10 flex-none rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                        {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                      </div>
                     {{ end }}
                     <div class="flex-auto">
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -323,9 +335,6 @@
                       </cite>
                       <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
-                    {{ if $testimonial.companyLogo }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s company logo" $testimonial.companyLogoAlt) "class" "h-10 w-auto flex-none") }}
-                    {{ end }}
                   </footer>
                 </article>
               {{ else }}
@@ -335,8 +344,15 @@
                     <p>"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col2-desktop-{{ $index }}">
-                    {{ if $testimonial.personImage }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                    {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
+                    {{ else }}
+                      <div class="size-10 rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                        {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                      </div>
                     {{ end }}
                     <div>
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -364,8 +380,15 @@
                   <p>"{{ $testimonial.quote }}"</p>
                 </blockquote>
                 <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col3-{{ $index }}">
-                  {{ if $testimonial.personImage }}
-                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                  {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                  {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                  {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
+                  {{ else }}
+                    <div class="size-10 flex-none rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                      {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                    </div>
                   {{ end }}
                   <div class="flex-auto">
                     <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -373,9 +396,6 @@
                     </cite>
                     <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                   </div>
-                  {{ if $testimonial.companyLogo }}
-                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s company logo" $testimonial.companyLogoAlt) "class" "h-10 w-auto flex-none") }}
-                  {{ end }}
                 </footer>
               </article>
             {{ else }}
@@ -385,8 +405,15 @@
                   <p>"{{ $testimonial.quote }}"</p>
                 </blockquote>
                 <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col3-{{ $index }}">
-                  {{ if $testimonial.personImage }}
-                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-10 rounded-full bg-gray-50") }}
+                  {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
+                  {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                  {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
+                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
+                  {{ else }}
+                    <div class="size-10 rounded-full bg-gray-100 flex items-center justify-center" title="{{ printf "Avatar for %s" $testimonial.personName }}">
+                      {{ partial "icons/user-circle-solid.html" (dict "class" "w-6 h-6 text-gray-400") }}
+                    </div>
                   {{ end }}
                   <div>
                     <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">

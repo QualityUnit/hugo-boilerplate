@@ -5,6 +5,30 @@
     heading="Main heading" 
     showHeading="true" 
   >}}
+  [
+    {
+      "quote": "This product transformed our workflow completely.",
+      "personImage": "/images/testimonials/jane-doe.jpg",
+      "personName": "Jane Doe",
+      "personHandle": "@janedoe",
+      "companyLogo": "/images/logos/acme-inc.svg",
+      "companyLogoAlt": "Acme Inc",
+      "featured": true
+    },
+    {
+      "quote": "Amazing support team!",
+      "personName": "John Smith",
+      "personHandle": "CTO at TechCorp",
+      "companyLogo": "/images/logos/techcorp.svg",
+      "companyLogoAlt": "TechCorp"
+    }
+  ]
+  {{< /testimonial-grid >}}
+
+  Image Logic (priority order):
+  1. personImage (if exists) → shows as avatar
+  2. companyLogo (if personImage missing) → shows as avatar fallback
+  3. default icon (if both missing) → shows placeholder
 */ -}}
 
 {{ $headingTag := (.Get "headingTag") | default "" }}
@@ -14,7 +38,17 @@
 {{/* 
   Note: This shortcode uses a fixed design with primary colors and consistent styling.
   All color and styling parameters have been removed for a unified design system approach.
-  For custom testimonials, pass them as JSON in the shortcode content.
+  
+  Testimonial Data Structure:
+  - quote: Testimonial text (required)
+  - personImage: URL to person's avatar (optional, priority 1)
+  - personName: Name of the person (required)
+  - personHandle: Social handle or job title (optional)
+  - companyLogo: URL to company logo (optional, priority 2 fallback)
+  - companyLogoAlt: Alt text for company logo (optional)
+  - featured: Boolean for featured styling (optional, default: false)
+  
+  For custom testimonials, pass them as JSON array in the shortcode content.
 */}}
 
 
