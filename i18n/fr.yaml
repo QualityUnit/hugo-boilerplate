@@ -98,8 +98,8 @@ no_posts_found: "Aucun article trouvé"
 minutes_read: "min de lecture"
 get_started: "Commencer"
 courses.session: "Séance"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
+courses.you_will_learn: "Vous apprendrez :"
+courses.or: "ou"
 courses.format: "Format"
 
 # Icon card translations

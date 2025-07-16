@@ -100,7 +100,7 @@ get_started: "Comenzar"
 courses.session: "Sesión"
 courses.you_will_learn: "Aprenderás:"
 courses.or: "o"
-courses.format: "Format"
+courses.format: "Formato"
 
 # Icon card translations
 icon.card.btn: "Ver"

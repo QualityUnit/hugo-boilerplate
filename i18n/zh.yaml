@@ -101,7 +101,7 @@ courses.session: "课程"
 courses.you_will_learn: "您将学习："
 courses.or: "或"
 
-courses.format: "Format"
+courses.format: "格式"
 
 # Icon card translations
 icon.card.btn: "查看"

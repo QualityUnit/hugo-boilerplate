@@ -99,7 +99,7 @@ get_started: "Mulai"
 courses.session: "Sesi"
 courses.you_will_learn: "Anda akan belajar:"
 courses.or: "atau"
-courses.format: "Format"
+courses.format: "Format Kursus"
 
 # Icon card translations
 icon.card.btn: "Lihat"
