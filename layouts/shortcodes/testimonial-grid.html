@@ -3,36 +3,52 @@
   {{< testimonial-grid 
     headingTag="Heading tag text" 
     heading="Main heading" 
-    bgColor="bg-white" 
-    padding="pt-24 pb-32 sm:pt-32" 
-    cardBgColor="bg-white" 
-    cardRingColor="ring-gray-900/5" 
-    cardShadow="shadow-lg" 
-    headingTagColor="text-indigo-600" 
-    headingColor="text-gray-900" 
-    gradientFrom="#ff80b5" 
-    gradientTo="#9089fc" 
     showHeading="true" 
   >}}
+  [
+    {
+      "quote": "This product transformed our workflow completely.",
+      "personImage": "/images/testimonials/jane-doe.jpg",
+      "personName": "Jane Doe",
+      "personHandle": "@janedoe",
+      "companyLogo": "/images/logos/acme-inc.svg",
+      "companyLogoAlt": "Acme Inc",
+      "featured": true
+    },
+    {
+      "quote": "Amazing support team!",
+      "personName": "John Smith",
+      "personHandle": "CTO at TechCorp",
+      "companyLogo": "/images/logos/techcorp.svg",
+      "companyLogoAlt": "TechCorp"
+    }
+  ]
+  {{< /testimonial-grid >}}
+
+  Image Logic (priority order):
+  1. personImage (if exists) → shows as avatar
+  2. companyLogo (if personImage missing) → shows as avatar fallback
+  3. default icon (if both missing) → shows placeholder
 */ -}}
 
 {{ $headingTag := (.Get "headingTag") | default "" }}
 {{ $heading := (.Get "heading") | default "" }}
-{{ $bgColor := (.Get "bgColor") | default "bg-white" }}
-{{ $padding := (.Get "padding") | default "pt-24 pb-32 sm:pt-32" }}
-{{ $cardBgColor := (.Get "cardBgColor") | default "bg-white" }}
-{{ $cardRingColor := (.Get "cardRingColor") | default "ring-gray-900/5" }}
-{{ $cardShadow := (.Get "cardShadow") | default "shadow-lg" }}
-{{ $headingTagColor := (.Get "headingTagColor") | default "text-indigo-600" }}
-{{ $headingColor := (.Get "headingColor") | default "text-gray-900" }}
-{{ $gradientFrom := (.Get "gradientFrom") | default "#ff80b5" }}
-{{ $gradientTo := (.Get "gradientTo") | default "#9089fc" }}
 {{ $showHeading := (.Get "showHeading") | default "true" }}
 
 {{/* 
-  Note: For this shortcode, we're using the default testimonials from the partial.
-  In a real-world implementation, you might want to allow passing in custom testimonials
-  through a structured data file.
+  Note: This shortcode uses a fixed design with primary colors and consistent styling.
+  All color and styling parameters have been removed for a unified design system approach.
+  
+  Testimonial Data Structure:
+  - quote: Testimonial text (required)
+  - personImage: URL to person's avatar (optional, priority 1)
+  - personName: Name of the person (required)
+  - personHandle: Social handle or job title (optional)
+  - companyLogo: URL to company logo (optional, priority 2 fallback)
+  - companyLogoAlt: Alt text for company logo (optional)
+  - featured: Boolean for featured styling (optional, default: false)
+  
+  For custom testimonials, pass them as JSON array in the shortcode content.
 */}}
 
 
@@ -46,15 +62,6 @@
 {{ partial "sections/testimonials/grid.html" (dict 
   "headingTag" $headingTag
   "heading" $heading
-  "bgColor" $bgColor
-  "padding" $padding
-  "cardBgColor" $cardBgColor
-  "cardRingColor" $cardRingColor
-  "cardShadow" $cardShadow
-  "headingTagColor" $headingTagColor
-  "headingColor" $headingColor
-  "gradientFrom" $gradientFrom
-  "gradientTo" $gradientTo
   "showHeading" (eq $showHeading "true")
   "testimonials" $testimonials
 ) }}
