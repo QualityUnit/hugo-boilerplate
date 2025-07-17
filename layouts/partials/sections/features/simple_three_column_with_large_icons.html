@@ -52,13 +52,14 @@
 {{ $page := .page }}
 {{ $theme := .theme | default "light" }}
 {{ $isDark := eq $theme "dark" }}
+{{ $isAlternate := eq $theme "alternate" }}
 {{ $darkClass := cond $isDark "dark" "" }}
 
 {{ $iconClass := "w-7 h-7 p-1 rounded-lg flex-shrink-0 product-icon" }}
 {{ $iconWrapperClass := "size-10 p-2 product-bg-primary rounded-lg flex items-center justify-center" }}
 
 <div class="{{ $theme }}">
-  <div class="section-bg-light dark:section-bg-dark {{ if $isDark }}py-32{{ else }}py-12{{ end }}">
+  <div class="{{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ if $isDark }}py-32{{ else }}py-12{{ end }}">
     <div class="wrapper">
       {{ if or $eyebrow $heading $description }}
         <div class="max-w-2xl">
