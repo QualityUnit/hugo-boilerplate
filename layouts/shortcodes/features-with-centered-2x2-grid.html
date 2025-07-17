@@ -23,11 +23,11 @@
 */}}
 
 {{ $backgroundColor := .Get "backgroundColor" | default "bg-white" }}
-{{ $tagline := .Get "tagline" | default "Deploy faster" }}
-{{ $taglineColor := .Get "taglineColor" | default "indigo-600" }}
-{{ $heading := .Get "heading" | default "Everything you need to deploy your app" }}
-{{ $description := .Get "description" | default "Quis tellus eget adipiscing convallis sit sit eget aliquet quis. Suspendisse eget egestas a elementum pulvinar et feugiat blandit at. In mi viverra elit nunc." }}
-{{ $iconBgColor := .Get "iconBgColor" | default "indigo-600" }}
+{{ $tagline := .Get "tagline" | default "" }}
+{{ $taglineColor := .Get "taglineColor" | default "text-primary" }}
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $iconBgColor := .Get "iconBgColor" | default "text-primary" }}
 
 {{ $feature1Icon := .Get "feature1Icon" | default "/images/icons/document.svg" }}
 {{ $feature2Icon := .Get "feature2Icon" | default "/images/icons/list.svg" }}
@@ -38,54 +38,54 @@
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto max-w-2xl lg:text-center">
       <h2 class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</h2>
-      <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl lg:text-balance">{{ $heading }}</p>
-      <p class="mt-6 text-lg/8 text-gray-600">{{ $description }}</p>
+      <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl lg:text-balance">{{ $heading }}</p>
+      <p class="mt-6 text-lg/8 text-body">{{ $description }}</p>
     </div>
-    <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
+    <div class="mx-auto mt-16 sm:mt-20 lg:mt-24">
       <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
         
         <!-- Feature 1 -->
         <div class="relative pl-16">
-          <dt class="text-base/7 font-semibold text-gray-900">
+          <dt class="text-base/7 font-semibold text-heading">
             <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-{{ $iconBgColor }}">
               <img src="{{ $feature1Icon }}" class="size-6 text-white" alt="{{ .Get "feature1Title" }} icon">
             </div>
             {{ .Get "feature1Title" }}
           </dt>
-          <dd class="mt-2 text-base/7 text-gray-600">{{ .Get "feature1Description" }}</dd>
+          <dd class="mt-2 text-base/7 text-body">{{ .Get "feature1Description" }}</dd>
         </div>
         
         <!-- Feature 2 -->
         <div class="relative pl-16">
-          <dt class="text-base/7 font-semibold text-gray-900">
+          <dt class="text-base/7 font-semibold text-heading">
             <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-{{ $iconBgColor }}">
               <img src="{{ $feature2Icon }}" class="size-6 text-white" alt="{{ .Get "feature2Title" }} icon">
             </div>
             {{ .Get "feature2Title" }}
           </dt>
-          <dd class="mt-2 text-base/7 text-gray-600">{{ .Get "feature2Description" }}</dd>
+          <dd class="mt-2 text-base/7 text-body">{{ .Get "feature2Description" }}</dd>
         </div>
         
         <!-- Feature 3 -->
         <div class="relative pl-16">
-          <dt class="text-base/7 font-semibold text-gray-900">
+          <dt class="text-base/7 font-semibold text-heading">
             <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-{{ $iconBgColor }}">
               <img src="{{ $feature3Icon }}" class="size-6 text-white" alt="{{ .Get "feature3Title" }} icon">
             </div>
             {{ .Get "feature3Title" }}
           </dt>
-          <dd class="mt-2 text-base/7 text-gray-600">{{ .Get "feature3Description" }}</dd>
+          <dd class="mt-2 text-base/7 text-body">{{ .Get "feature3Description" }}</dd>
         </div>
         
         <!-- Feature 4 -->
         <div class="relative pl-16">
-          <dt class="text-base/7 font-semibold text-gray-900">
+          <dt class="text-base/7 font-semibold text-heading">
             <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-{{ $iconBgColor }}">
               <img src="{{ $feature4Icon }}" class="size-6 text-white" alt="{{ .Get "feature4Title" }} icon">
             </div>
             {{ .Get "feature4Title" }}
           </dt>
-          <dd class="mt-2 text-base/7 text-gray-600">{{ .Get "feature4Description" }}</dd>
+          <dd class="mt-2 text-base/7 text-body">{{ .Get "feature4Description" }}</dd>
         </div>
         
       </dl>
