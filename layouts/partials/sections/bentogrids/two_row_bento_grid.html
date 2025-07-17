@@ -89,7 +89,7 @@
 {{ $description := .description | default "" }}
 {{ $linkText := .linkText | default "" }}
 {{ $linkUrl := .linkUrl | default "" }}
-{{ $taglineColor := .taglineColor | default "blue-500" }}
+{{ $taglineColor := .taglineColor | default "primary" }}
 {{ $backgroundColor := .backgroundColor | default "gray-50" }}
 
 {{/* Default cards if none provided */}}
@@ -103,11 +103,11 @@
     {{ end }}
 
     {{ if $heading }}
-      <p class="max-w-lg text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl">{{ $heading }}</p>
+      <p class="max-w-lg text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</p>
     {{ end }}
 
     {{ if $description }}
-      <p class="mt-1 text-lg/8 text-gray-600">{{ partial "utils/linkbuilding" (dict "content" $description "page" .Page) | safeHTML }}</p>
+      <p class="mt-1 text-lg/8 text-body">{{ partial "utils/linkbuilding" (dict "content" $description "page" .Page) | safeHTML }}</p>
     {{ end }}
 
     {{ if $linkUrl }}
@@ -150,7 +150,7 @@
         {{ $url := $card.url | default "" }}
         {{ $cardImageClasses := $card.cardImageClasses | default "h-80 object-cover object-left" }}
         {{ $backgroundColorImage := $card.backgroundColorImage | default "bg-gray-200" }}
-        <div class="relative {{ $colSpan }} shadow-lg {{ $borderRadius }}">
+        <div class="relative {{ $colSpan }} {{ $borderRadius }}">
           <div class="absolute inset-px {{ $borderRadius }} bg-white"></div>
           {{ if $url }}
             {{ $cardImageClasses = $card.cardImageClasses | default "h-80 object-cover object-left transition-transform group-hover:scale-105" }}
@@ -188,8 +188,8 @@
               {{ if or $card.category $card.title $card.description }}
               <div class="p-10 pt-8 flex flex-col gap-y-2">
                 <h3 class="font-semibold text-base text-{{ $card.categoryColor }}">{{ $card.category }}</h3>
-                <p class="font-semibold text-lg text-gray-900">{{ $card.title }}</p>
-                <p class="text-sm/8 text-gray-600">{{ $card.description }}</p>
+                <p class="font-semibold text-lg text-heading">{{ $card.title }}</p>
+                <p class="text-sm/8 text-body">{{ $card.description }}</p>
               </div>
               {{ end }}
             </div>
