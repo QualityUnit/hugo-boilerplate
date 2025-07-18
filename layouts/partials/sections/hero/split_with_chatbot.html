@@ -1,69 +1,64 @@
 {{/*
-@section: Split Hero with Chatbot
-@description: A split hero section with text content on the left and an embedded chatbot on the right, with optional CTA buttons.
-@params:
-  - eyebrow: Small text above the heading (optional)
-  - heading: Main section heading (optional)
-  - description: Description below the heading (optional)
-  - cta: Object with CTA buttons information (optional)
-    - primary: Primary CTA button (text, url)
-    - secondary: Secondary CTA button (text, url)
-  - chatbotId: ID of the chatbot to embed (required)
-  - workspaceId: Workspace ID for the chatbot (required)
-  - typewriter: Object with typewriter effect configuration (optional)
-    - enabled: Boolean to enable/disable the effect (default: false)
-    - words: Number of words to animate (default: 1)
-    - speed: Typing speed in ms (default: 100)
-    - deleteSpeed: Deleting speed in ms (default: 50)
-    - pause: Pause duration in ms (default: 2000)
-    - color: Color class for animated text (default: "text-indigo-600")
-@example:
-  {{ partial "sections/hero/split_with_chatbot.html" (dict 
-      "eyebrow" "AI-Powered Solution"
-      "heading" "Chat with our AI Assistant" 
-      "description" "Get instant answers and personalized assistance from our intelligent chatbot."
-      "cta" (dict 
-          "primary" (dict "text" "Get started" "url" "/signup") 
-          "secondary" (dict "text" "Learn more" "url" "/features")
-      )
-      "chatbotId" "your-chatbot-id"
-      "workspaceId" "your-workspace-id"
-      "typewriter" (dict
-          "enabled" true
-          "words" 1
-          "speed" 80
-          "deleteSpeed" 40
-          "pause" 1500
-          "color" "text-purple-600"
-      )
-  ) }}
+Responsive hero section with split layout - content left, chatbot right.
+
+Parameters:
+- theme: "light" | "dark" | "alternate" (default: "light")
+- chatbotId: ID of the chatbot to embed (required)
+- workspaceId: Workspace ID for the chatbot (required)
+- eyebrow, heading, description: Text content
+- cta: Call-to-action buttons
+  - primary: Primary button (text, url)
+  - secondary: Secondary button (text, url)
+- tags: Array of tags (optional), will create tag links to /tags/[tag-name]/
+- categories: Array of categories (optional), will create category links to /categories/[category-name]
+- typewriter: Object with typewriter effect configuration (optional)
+  - enabled: Boolean to enable/disable the effect (default: false)
+  - words: Number of words to animate (default: 1)
+  - speed: Typing speed in ms (default: 100)
+  - deleteSpeed: Deleting speed in ms (default: 50)
+  - pause: Pause duration in ms (default: 2000)
+  - color: Color class for animated text (default: "text-indigo-600")
+  - wordAlternatives: Comma separated words to alternate with
+- sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-12 lg:py-16")
+- backgroundColor: Custom background color class
+
+Design Tokens:
+- Chatbot dimensions are configurable via variables for easy maintenance
+- Spacing values use consistent design system tokens
+- Typography tracking and sizing follow brand guidelines
+- Chatbot is always positioned on the right side
 */}}
+{{ $sectionPaddingY := .sectionPaddingY | default "py-12 lg:py-16" }}
 
-{{ $cta := .cta | default "" }}
-
-<section class="bg-white py-24 px-6">
-  <div class="wrapper grid grid-cols-1 md:grid-cols-2 gap-8">
-    <div>
-        {{ partial "sections/hero/split_left_side_helper.html" .}}
-    </div>
-    <div class="w-full relative overflow-hidden">
+<div class="split-with-chatbot-hero {{ if .backgroundColor }}{{ .backgroundColor }}{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
+  <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
+    <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
+      <div class="relative rounded-lg py-6 flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
         <!-- Chatbot Integration -->
-{{ if .chatbotId }}
-<script id="fh-chatbot-script-{{ .chatbotId }}">
-var currentScript = document.currentScript || document.getElementById('fh-chatbot-script-{{ .chatbotId }}');
-var script = document.createElement('script');
-script.async = true;
-script.src = 'https://app.flowhunt.io/api/chatbot/{{ .chatbotId }}?workspace_id={{ .workspaceId }}';
-script.onload = function() {  // Initialize the chatbot and get the manager instance
-  {{ $chatbotVar := replace .chatbotId "-" "_" }}
-  {{ printf "window.FHChatbot_%s.setConfig({\"embedded\": true,\"maxWindowHeight\": \"500px\"});" $chatbotVar | safeJS }}
-  {{ printf "window.FHChatbot_%s.init(function(chatbotManager) {});" $chatbotVar | safeJS }}
-};
-if (currentScript && currentScript.parentNode) {
-  currentScript.parentNode.insertBefore(script, currentScript.nextSibling);
-}
-</script>
-{{ end }}
+        {{ if .chatbotId }}
+        <div class="w-full h-full overflow-hidden">
+          <script id="fh-chatbot-script-{{ .chatbotId }}">
+          var currentScript = document.currentScript || document.getElementById('fh-chatbot-script-{{ .chatbotId }}');
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://app.flowhunt.io/api/chatbot/{{ .chatbotId }}?workspace_id={{ .workspaceId }}';
+          script.onload = function() {  // Initialize the chatbot and get the manager instance
+            {{ $chatbotVar := replace .chatbotId "-" "_" }}
+            {{ printf "window.FHChatbot_%s.setConfig({\"embedded\": true,\"maxWindowHeight\": \"500px\"});" $chatbotVar | safeJS }}
+            {{ printf "window.FHChatbot_%s.init(function(chatbotManager) {});" $chatbotVar | safeJS }}
+          };
+          if (currentScript && currentScript.parentNode) {
+            currentScript.parentNode.insertBefore(script, currentScript.nextSibling);
+          }
+          </script>
+        </div>
+        {{ end }}
+      </div>
+    </div>
+    <div class="lg:flex lg:w-1/2 lg:items-center">
+      <div class="py-4 lg:w-full lg:flex-none lg:pr-20">
+        {{ partial "sections/hero/split_left_side_helper.html" . }}
+      </div>
     </div>
   </div>
-</section>
+</div>
