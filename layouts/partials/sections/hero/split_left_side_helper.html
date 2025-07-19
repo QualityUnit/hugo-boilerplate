@@ -31,12 +31,13 @@
         {{ $eyebrowColor := .eyebrowColor | default "text-primary" }}
         <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ .eyebrow }}</p>
     {{ end }}
-    {{ if $heading }}<h1 class="mt-6 text-5xl font-semibold tracking-tight text-pretty text-gray-900 sm:mt-10 sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>{{ end }}
+    {{ if $heading }}<h1 class="mt-6 text-5xl font-semibold tracking-[-2.832px] text-heading leading-none text-pretty sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>{{ end }}
     {{ if $description }}
-    <p class="mt-8 text-lg text-pretty text-gray-500 sm:text-xl/8">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
+    <p class="mt-8 text-lg/7 text-body sm:text-xl/8">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
     {{ end }}
 
     <!-- Tags and Categories -->
+    {{ if or $categories $tags }}
     <div class="mt-6 flex flex-col gap-4">
         {{ if $categories }}
         <div class="flex flex-wrap gap-2">
@@ -52,12 +53,13 @@
             {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 ) }}
         {{ end }}
     </div>
+    {{ end }}
 
     {{ if $cta }}
         {{ $showPrimaryCta := and (isset $cta "primary") (isset $cta.primary "url") (isset $cta.primary "text") (ne $cta.primary.url "") (ne $cta.primary.text "") }}
         {{ $showSecondaryCta := and (isset $cta "secondary") (isset $cta.secondary "url") (isset $cta.secondary "text") (ne $cta.secondary.url "") (ne $cta.secondary.text "") }}
         {{ if or $showPrimaryCta $showSecondaryCta }}
-            <div class="my-10 flex items-center gap-x-6">
+            <div class="mt-10 flex items-center gap-x-6">
                 {{ if $showPrimaryCta }}
                     {{ partial "components/buttons/buttons.html" (dict
                         "text" $cta.primary.text

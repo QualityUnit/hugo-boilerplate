@@ -1,88 +1,163 @@
 {{/*
-@section: Split Hero with Image
-@description: A responsive hero section split into two columns - one with text content and CTAs, the other with a featured image.
-@params:
-  - logo: URL to logo image (optional)
-  - announcement: Announcement object (optional)
-    - enabled: Whether to show the announcement (default: false)
-    - text: Announcement text (default: "Anim aute id magna aliqua ad ad non deserunt sunt.")
-    - linkText: Link text for the announcement (default: "Read more")
-    - linkUrl: URL for the announcement link (default: "#")
-  - heading: Main heading text (default: "Data to enrich your business")
-  - description: Description text (default: "Anim aute id magna aliqua ad ad non deserunt sunt...")
-  - cta: Call-to-action buttons (optional)
-    - primary: Primary button (text, url)
-    - secondary: Secondary button (text, url)
-  - tags: Array of tags (optional), will create tag links to /tags/[tag-name]/
-  - categories: Array of categories (optional), will create category links to /categories/[category-name]
-  - image: Image URL string or object with url and alt properties (optional)
-  - typewriter: Object with typewriter effect configuration (optional)
-    - enabled: Boolean to enable/disable the effect (default: false)
-    - words: Number of words to animate (default: 1)
-    - speed: Typing speed in ms (default: 100)
-    - deleteSpeed: Deleting speed in ms (default: 50)
-    - pause: Pause duration in ms (default: 2000)
-    - color: Color class for animated text (default: "text-indigo-600")
-  - yPadding: Custom y-padding value (optional, default: "sm:py-0 lg:py-24")
-@example:
-  {{ partial "sections/hero/split_with_image.html" (dict 
-      "logo" "/images/logo.svg"
-      "announcement" (dict 
-          "enabled" true 
-          "text" "Just launched!" 
-          "linkText" "Read the announcement" 
-          "linkUrl" "/blog/announcement"
-      )
-      "heading" "Powerful analytics for your business"
-      "description" "Get insights from your data with our powerful analytics platform. Make better decisions and grow your business."
-      "cta" (dict 
-          "primary" (dict "text" "Get started" "url" "/signup") 
-          "secondary" (dict "text" ((i18n "learnMore") | default "Learn more") "url" "/features")
-      )
-      "tags" (slice "Analytics" "Data" "Business")
-      "categories" (slice "Product")
-      "image" (dict "url" "/images/hero.jpg" "alt" "Dashboard analytics screenshot")
-      "typewriter" (dict
-          "enabled" true
-          "words" 2
-          "speed" 150
-          "deleteSpeed" 75
-          "pause" 3000
-          "color" "text-blue-600"
-      )
-  ) }}
+Responsive hero section with split layout - content left, image right.
+
+Parameters:
+- theme: "light" | "dark" | "alternate" (default: "light")
+- image, imageAlt: Image settings
+- eyebrow, heading, description: Text content
+- cta: Call-to-action buttons
+  - primary: Primary button (text, url)
+  - secondary: Secondary button (text, url)
+- tags: Array of tags (optional), will create tag links to /tags/[tag-name]/
+- categories: Array of categories (optional), will create category links to /categories/[category-name]
+- typewriter: Object with typewriter effect configuration (optional)
+  - enabled: Boolean to enable/disable the effect (default: false)
+  - words: Number of words to animate (default: 1)
+  - speed: Typing speed in ms (default: 100)
+  - deleteSpeed: Deleting speed in ms (default: 50)
+  - pause: Pause duration in ms (default: 2000)
+  - color: Color class for animated text (default: "text-indigo-600")
+  - wordAlternatives: Comma separated words to alternate with
+- sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
+- backgroundColor: Custom background color class
+
+Custom Color Classes Documentation:
+- text-heading: Primary heading text color (typically dark for contrast)
+- text-primary: Brand primary color for accents and CTAs
+- text-body: Standard body text color (readable gray)
+- text-gray-700: Tailwind gray-700 for secondary text
+- section-bg-light: Light background for sections
+
+Usage Guidelines:
+- Use text-heading for main headings and emphasized text elements
+- Use text-primary for brand accents, links, and call-to-action elements
+- Use text-body for regular paragraph text and descriptions
+- Ensure color contrast meets accessibility standards (WCAG AA)
+
+Design Tokens:
+- Image dimensions are configurable via variables for easy maintenance
+- Spacing values use consistent design system tokens
+- Typography tracking and sizing follow brand guidelines
+- Image is always positioned on the right side
 */}}
 
-{{ $imageClass := .imageClass | default "w-full object-cover h-full max-h-full" }}
+{{ $theme := .theme | default "light" }}
+{{ $backgroundColor := .backgroundColor | default "" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $isAlternate := eq $theme "alternate" }}
+
+{{/* Section parameters */}}
+{{ $image := .image }}
+{{ $imageAlt := .imageAlt }}
+{{ $eyebrow := .eyebrow }}
+{{ $heading := .heading }}
+{{ $description := .description }}
+{{ $cta := .cta }}
+{{ $tags := .tags | default (slice) }}
+{{ $categories := .categories | default (slice) }}
+{{ $typewriter := .typewriter | default dict }}
+
+{{/* Typewriter configuration with defaults */}}
+{{ $typewriter := merge (dict "enabled" false) $typewriter }}
+{{ $typewriter := merge (dict "words" 1) $typewriter }}
+{{ $typewriter := merge (dict "speed" 100) $typewriter }}
+{{ $typewriter := merge (dict "deleteSpeed" 50) $typewriter }}
+{{ $typewriter := merge (dict "pause" 2000) $typewriter }}
+{{ $typewriter := merge (dict "color" "text-indigo-600") $typewriter }}
+{{ $typewriter := merge (dict "wordAlternatives" "") $typewriter }}
+
+{{/* Design tokens and configurable dimensions */}}
+{{ $sectionPaddingY := .sectionPaddingY | default "py-12 lg:py-16" }}
+{{ $imageContainerPaddingY := "py-6" }}
+{{ $contentPaddingY := "py-4" }}
+{{ $contentLeftPadding := "lg:pr-20" }}
+{{ $headingTracking := "tracking-[-2.832px]" }}
+
+{{/* Image processing */}}
 {{ $imageSrc := "" }}
-{{ $imageAlt := .heading | default .Title }}
-{{ if .image }}
-  {{ if reflect.IsMap .image }}
-    {{ $imageSrc = .image.url }}
-    {{ $imageAlt = .image.alt | default $imageAlt }}
+{{ $finalImageAlt := $heading | default .Title | default "Hero image" }}
+{{ if $image }}
+  {{ if reflect.IsMap $image }}
+    {{ $imageSrc = $image.url }}
+    {{ $finalImageAlt = $image.alt | default $finalImageAlt }}
   {{ else }}
-    {{ $imageSrc = .image }}
+    {{ $imageSrc = $image }}
   {{ end }}
 {{ else }}
   {{ $imageSrc = "https://images.unsplash.com/photo-1487017159836-4e23ece2e4cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2102&q=80" }}
 {{ end }}
 
-  <div class="relative bg-white">
-    {{ $yPadding := .yPadding | default "sm:py-0 lg:py-24" }}
-<div class="wrapper {{ $yPadding }}">
-      <div class="lg:grid lg:grid-cols-12">
-        <div class="lg:col-span-7 xl:col-span-6">
-          {{ partial "sections/hero/split_left_side_helper.html" .}}
-        </div>
-        <div class="relative lg:col-span-5 lg:-mr-8 xl:col-span-6 xl:mr-0 h-full flex items-center justify-center overflow-hidden">
-            {{ partial "components/media/lazyimg.html" (dict
-              "src" $imageSrc
-              "alt" $imageAlt
-              "class" "w-full object-contain h-auto max-h-[600px]"
-              "maxWidth" 800
-            ) }}
-        </div>
+{{ if $imageAlt }}
+  {{ $finalImageAlt = $imageAlt }}
+{{ end }}
+
+<div class="split-with-image-hero {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
+  <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
+    <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
+      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
+        {{ partial "components/media/lazyimg.html" (dict
+          "src" $imageSrc
+          "alt" $finalImageAlt
+          "class" "object-contain rounded-lg"
+        ) }}
       </div>
+    </div>
+    <div class="lg:flex lg:w-1/2 lg:items-center">
+      <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ $contentLeftPadding }}">
+        {{ if $eyebrow }}
+          <p class="text-base/7 font-semibold text-primary">{{ $eyebrow }}</p>
+        {{ end }}
+        {{ if $heading }}
+          <h1 class="mt-6 text-5xl font-semibold {{ $headingTracking }} text-heading leading-none text-pretty sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>
+        {{ end }}
+        {{ if $description }}
+          <p class="mt-8 text-lg/7 text-body sm:text-xl/8">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
+        {{ end }}
+
+        {{/* Tags and Categories */}}
+        {{ if or $categories $tags }}
+        <div class="mt-6 flex flex-col gap-4">
+          {{ if $categories }}
+          <div class="flex flex-wrap gap-2">
+            {{ range $categories }}
+            <a href="{{ print "/categories/" (. | urlize) | relLangURL }}/" class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark hover:bg-indigo-100">
+            {{ . }}
+            </a>
+            {{ end }}
+          </div>
+          {{ end }}
+
+          {{ if $tags }}
+            {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 ) }}
+          {{ end }}
+        </div>
+        {{ end }}
+
+        {{/* CTA Buttons */}}
+        {{ if $cta }}
+          {{ $showPrimaryCta := and (isset $cta "primary") (isset $cta.primary "url") (isset $cta.primary "text") (ne $cta.primary.url "") (ne $cta.primary.text "") }}
+          {{ $showSecondaryCta := and (isset $cta "secondary") (isset $cta.secondary "url") (isset $cta.secondary "text") (ne $cta.secondary.url "") (ne $cta.secondary.text "") }}
+          {{ if or $showPrimaryCta $showSecondaryCta }}
+          <div class="mt-10 flex items-center gap-x-6">
+            {{ if $showPrimaryCta }}
+              {{ partial "components/buttons/buttons.html" (dict
+                "text" $cta.primary.text
+                "url" $cta.primary.url
+                "variant" "primary"
+              ) }}
+            {{ end }}
+            {{ if $showSecondaryCta }}
+              {{ partial "components/buttons/buttons.html" (dict
+                "text" $cta.secondary.text
+                "url" $cta.secondary.url
+                "variant" "text"
+              ) }}
+            {{ end }}
+          </div>
+          {{ end }}
+        {{ end }}
+      </div>
+    </div>
   </div>
 </div>
 
