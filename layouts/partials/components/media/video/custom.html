@@ -1,0 +1,56 @@
+{{/*
+@component: Custom Video Player
+@description: Component for custom (HTML5) videos with lazy loading and playback controls.
+@params:
+  - src: Video URL (required)
+  - title: Video title for accessibility (required)
+  - alt: Alternative text for accessibility (optional, defaults to title)
+  - class: Additional CSS classes (optional)
+  - width: Video width (optional, default: "100%")
+  - height: Video height (optional, default: "auto")
+  - id: Optional ID attribute (optional)
+  - autoplay: Enable autoplay (optional, default: false)
+  - loop: Enable loop (optional, default: false)
+  - muted: Enable muted (optional, default: false)
+  - controls: Show video controls (optional, default: true)
+  - poster: Poster image URL (optional)
+@note: This partial should be called through the main video.html partial, not directly.
+*/}}
+
+{{ $src := .src }}
+{{ $title := .title | default "Video" }}
+{{ $alt := .alt | default $title }}
+{{ $class := .class | default "" }}
+{{ $width := .width | default "100%" }}
+{{ $height := .height | default "auto" }}
+{{ $id := .id }}
+{{ $autoplay := .autoplay | default false }}
+{{ $loop := .loop | default false }}
+{{ $muted := .muted | default false }}
+{{ $controls := .controls | default true }}
+{{ $poster := .poster }}
+
+<div 
+  class="video-wrapper relative w-full overflow-hidden rounded-lg shadow-md {{ with $class }}{{ . }}{{ end }}" 
+  data-video-provider="custom"
+  {{ with $id }}id="{{ . }}"{{ end }}
+>
+  <div class="video-aspect-ratio">
+    <video 
+      {{ if $autoplay }}autoplay{{ end }}
+      {{ if $loop }}loop{{ end }}
+      {{ if $muted }}muted{{ end }}
+      {{ if $controls }}controls{{ end }}
+      {{ with $poster }}poster="{{ . }}"{{ end }}
+      preload="metadata"
+      class="w-full h-full custom-video-player"
+      title="{{ $title }}"
+      aria-label="{{ $alt }}"
+      data-video-src="{{ $src }}"
+      data-video-lightbox="true"
+    >
+      <source src="{{ $src }}" type="{{ if in $src ".mp4" }}video/mp4{{ else if in $src ".webm" }}video/webm{{ else if in $src ".ogg" }}video/ogg{{ else }}video/mp4{{ end }}">
+      <p>Your browser doesn't support HTML5 video. <a href="{{ $src }}">Download the video</a> instead.</p>
+    </video>
+  </div>
+</div>

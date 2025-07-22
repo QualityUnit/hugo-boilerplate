@@ -1,46 +1,55 @@
 {{/*
-Responsive hero section with split layout - content left, YouTube video right.
+Responsive hero section with YouTube video - content left, video right.
 
 Parameters:
-- theme: "light" | "dark" | "alternate" (default: "light")
 - videoID: YouTube video ID (required)
-- videoTitle: Title for the video (optional)
-- image, imageAlt: Image settings (fallback thumbnail)
+- videoTitle: Title for the video (optional, defaults to page heading)
 - eyebrow, heading, description: Text content
 - cta: Call-to-action buttons
   - primary: Primary button (text, url)
   - secondary: Secondary button (text, url)
 - tags: Array of tags (optional), will create tag links to /tags/[tag-name]/
-- categories: Array of categories (optional), will create category links to /categories/[category-name]
+- categories: Array of categories (optional)
 - typewriter: Object with typewriter effect configuration (optional)
-  - enabled: Boolean to enable/disable the effect (default: false)
-  - words: Number of words to animate (default: 1)
-  - speed: Typing speed in ms (default: 100)
-  - deleteSpeed: Deleting speed in ms (default: 50)
-  - pause: Pause duration in ms (default: 2000)
-  - color: Color class for animated text (default: "text-indigo-600")
-  - wordAlternatives: Comma separated words to alternate with
-- sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
+- sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-12 lg:py-16")
 - backgroundColor: Custom background color class
 
-Design Tokens:
-- Video dimensions are configurable via variables for easy maintenance
-- Spacing values use consistent design system tokens
-- Typography tracking and sizing follow brand guidelines
-- Video is always positioned on the right side
+@note: This partial is specifically for YouTube videos only. It supports two parameter formats:
+1. Direct: .videoID parameter
+2. Nested: .video.videoID parameter (used in some frontmatter configurations)
 */}}
-{{ $videoID := .videoID }}
-{{ $videoTitle := .videoTitle }}
+
+{{ $video := .video }} {{/* Support for nested video object format */}}
+{{ $videoID := "" }}
+{{ $videoTitle := "" }}
+
+{{/* Support multiple parameter formats and check for youtubeVideoID for backward compatibility */}}
+{{ if $video }}
+  {{ $videoID = $video.videoID }}
+  {{ $videoTitle = $video.title }}
+{{ else if .videoID }}
+  {{ $videoID = .videoID }}
+  {{ $videoTitle = .videoTitle | default .heading }}
+{{ else if .youtubeVideoID }}
+  {{ $videoID = .youtubeVideoID }}
+  {{ $videoTitle = .youtubeTitle | default .heading }}
+{{ end }}
+
 {{ $sectionPaddingY := .sectionPaddingY | default "py-12 lg:py-16" }}
 
+<!-- Only render if we have a valid video ID -->
+{{ if $videoID }}
 <div class="split-with-video-hero {{ if .backgroundColor }}{{ .backgroundColor }}{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
       <div class="relative rounded-lg py-6 flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
-        {{ partial "components/media/youtubevideo.html" (dict
-          "videoID" $videoID
-          "title" $videoTitle
+        {{ partial "components/media/video.html" (dict
+          "videoID" $videoID 
+          "title" ($videoTitle | default "YouTube Video")
           "class" "rounded-xl shadow-lg w-full h-auto"
+          "provider" "youtube"
+          "autoplay" true
+          "gdprCompliant" true
         ) }}
       </div>
     </div>
@@ -51,3 +60,4 @@ Design Tokens:
     </div>
   </div>
 </div>
+{{ end }}

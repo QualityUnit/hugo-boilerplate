@@ -1,0 +1,152 @@
+{{/*
+@component: Video Resources Loader
+@description: Helper component that dynamically loads video-related CSS and JS resources only when needed.
+@params:
+  - provider: Video provider type (required, values: "youtube", "custom", "all")
+@note: This partial should be called through the main video.html partial, not directly.
+*/}}
+
+{{ $provider := .provider | default "all" }}
+
+<!-- Load universal video handler resources first -->
+<script>
+  // Dynamically load video resources CSS and JS only when needed
+  (function() {
+    // Load CSS first
+    if (!window.videoLightboxCSSLoaded) {
+      var cssLink = document.createElement('link');
+      cssLink.rel = 'stylesheet';
+      cssLink.href = '/css/video-lightbox.css{{ with partialCached "helpers/build-timestamp.html" . }}?v={{ . }}{{ end }}';
+      document.head.appendChild(cssLink);
+      window.videoLightboxCSSLoaded = true;
+    }
+    
+    // Load lightbox JS first
+    function loadLightbox(callback) {
+      if (!window.videoLightboxLoaded && !window.videoLightboxLoading) {
+        window.videoLightboxLoading = true;
+        
+        var script = document.createElement('script');
+        script.src = '/js/video-lightbox.js{{ with partialCached "helpers/build-timestamp.html" . }}?v={{ . }}{{ end }}';
+        script.onload = function() {
+          window.videoLightboxLoaded = true;
+          window.videoLightboxLoading = false;
+          
+          // Initialize global lightbox
+          if (typeof window.initVideoLightbox === 'function') {
+            window.initVideoLightbox();
+          }
+          
+          if (typeof callback === 'function') {
+            callback();
+          }
+        };
+        script.onerror = function() {
+          window.videoLightboxLoading = false;
+          console.error('Failed to load video lightbox script');
+          if (typeof callback === 'function') {
+            callback();
+          }
+        };
+        document.head.appendChild(script);
+      } else if (window.videoLightboxLoaded && typeof callback === 'function') {
+        // Script already loaded, call callback directly
+        callback();
+      } else if (window.videoLightboxLoading && typeof callback === 'function') {
+        // Wait for the existing loading to complete
+        var checkInterval = setInterval(function() {
+          if (window.videoLightboxLoaded) {
+            clearInterval(checkInterval);
+            callback();
+          } else if (!window.videoLightboxLoading) {
+            // Loading failed
+            clearInterval(checkInterval);
+            callback();
+          }
+        }, 100);
+      }
+    }
+    
+    // Then load universal handler, but only after lightbox
+    function loadHandler() {
+      if (!window.videoHandlerLoaded && !window.videoHandlerLoading) {
+        window.videoHandlerLoading = true;
+        
+        var script = document.createElement('script');
+        script.src = '/js/video-handler.js{{ with partialCached "helpers/build-timestamp.html" . }}?v={{ . }}{{ end }}';
+        script.onload = function() {
+          window.videoHandlerLoaded = true;
+          window.videoHandlerLoading = false;
+          
+          // Initialize handlers
+          if (window.flowhuntMedia && window.flowhuntMedia.video) {
+            window.flowhuntMedia.video.init();
+          }
+        };
+        script.onerror = function() {
+          window.videoHandlerLoading = false;
+          console.error('Failed to load video handler script');
+        };
+        document.head.appendChild(script);
+      }
+    }
+    
+    // Start the loading chain
+    loadLightbox(loadHandler);
+  })();
+</script>
+
+<!-- Load provider-specific resources -->
+{{ if or (eq $provider "youtube") (eq $provider "all") }}
+<script>
+  // Dynamically load YouTube video CSS and JS only when needed
+  (function() {
+    // Load CSS first
+    if (!window.youtubeVideoCSSLoaded) {
+      var cssLink = document.createElement('link');
+      cssLink.rel = 'stylesheet';
+      cssLink.href = '/css/youtube-video.css{{ with partialCached "helpers/build-timestamp.html" . }}?v={{ . }}{{ end }}';
+      document.head.appendChild(cssLink);
+      window.youtubeVideoCSSLoaded = true;
+    }
+    
+    // Then load JS
+    if (!window.youtubeVideoLoaded && !window.youtubeVideoLoading) {
+      window.youtubeVideoLoading = true;
+      
+      var script = document.createElement('script');
+      script.src = '/js/youtube-video.js{{ with partialCached "helpers/build-timestamp.html" . }}?v={{ . }}{{ end }}';
+      script.onload = function() {
+        window.youtubeVideoLoaded = true;
+        window.youtubeVideoLoading = false;
+      };
+      script.onerror = function() {
+        window.youtubeVideoLoading = false;
+        console.error('Failed to load YouTube video script');
+      };
+      document.head.appendChild(script);
+    }
+  })();
+
+  // Only keep the onload handler for thumbnail optimization
+  function findBestThumbnail(img) {
+    // Wait for script to load if it's still loading
+    function waitForScript() {
+      if (window.findBestThumbnail && typeof window.findBestThumbnail === 'function') {
+        window.findBestThumbnail(img);
+      } else if (!window.youtubeVideoLoading) {
+        // Script failed to load, provide fallback
+        console.warn('YouTube video script not loaded, using fallback');
+        // Try to set a default thumbnail
+        if (img && img.dataset && img.dataset.src) {
+          img.src = img.dataset.src;
+        }
+      } else {
+        // Still loading, check again in 100ms
+        setTimeout(waitForScript, 100);
+      }
+    }
+    waitForScript();
+  }
+</script>
+{{ end }}

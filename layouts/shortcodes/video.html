@@ -1,0 +1,71 @@
+{{/*
+@shortcode: video
+@description: Unified shortcode for displaying videos from various sources with optimized loading and GDPR compliance.
+@params:
+  - src: Video URL or ID (REQUIRED, can be first positional parameter) - YouTube URL, video file URL
+    Examples: 
+      - "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+      - "https://youtu.be/dQw4w9WgXcQ"
+      - "https://example.com/video.mp4"
+  - videoID: Direct YouTube video ID (REQUIRED if src not provided)
+    Example: "dQw4w9WgXcQ"
+  - provider: Video provider (optional, auto-detected, values: "youtube", "custom")
+  - title: Video title for accessibility (REQUIRED)
+  - alt: Alternative text for accessibility (optional, defaults to title)
+  - class: Additional CSS classes (optional)
+    Example: "my-8 rounded-xl shadow-lg"
+  - width: Video width (optional, default: "100%")
+  - height: Video height (optional, default: "auto")
+  - id: Optional ID attribute (optional, auto-generated if not provided)
+  - autoplay: Enable autoplay (optional, "true" or "false", default: "false")
+  - loop: Enable loop (optional, "true" or "false", default: "false")
+  - muted: Enable muted (optional, "true" or "false", default: "false")
+  - controls: Show video controls (optional, "true" or "false", default depends on provider)
+  - poster: Poster image URL for HTML5 video (optional, for custom videos only)
+  - gdprCompliant: Whether to use privacy-enhanced mode for YouTube (optional, "true" or "false", default: "true")
+@examples:
+  <!-- YouTube video -->
+  {{< video src="https://www.youtube.com/watch?v=dQw4w9WgXcQ" title="Rick Astley - Never Gonna Give You Up" class="my-8 rounded-xl shadow-lg" >}}
+  
+  <!-- YouTube video with direct videoID -->
+  {{< video videoID="dQw4w9WgXcQ" provider="youtube" title="Rick Astley - Never Gonna Give You Up" >}}
+  
+  <!-- Custom video with controls -->
+  {{< video src="https://example.com/video.mp4" provider="custom" title="Demo Video" controls="true" poster="/images/thumbnail.jpg" >}}
+*/}}
+
+{{ $src := .Get 0 | default (.Get "src") }}
+{{ $videoID := .Get "videoID" }}
+{{ $provider := .Get "provider" }}
+{{ $title := .Get "title" | default "Video" }}
+{{ $alt := .Get "alt" | default $title }}
+{{ $class := .Get "class" | default "" }}
+{{ $width := .Get "width" }}
+{{ $height := .Get "height" }}
+{{ $id := .Get "id" }}
+{{ $autoplay := eq (.Get "autoplay") "true" }}
+{{ $loop := eq (.Get "loop") "true" }}
+{{ $muted := eq (.Get "muted") "true" }}
+{{ $controls := eq (.Get "controls") "true" }}
+{{ $poster := .Get "poster" }}
+{{ $gdprCompliant := cond (eq (.Get "gdprCompliant") "false") false true }}
+
+{{ if or $src $videoID }}
+  {{ partial "components/media/video.html" (dict 
+      "src" $src
+      "videoID" $videoID
+      "provider" $provider
+      "title" $title
+      "alt" $alt
+      "class" $class
+      "width" $width
+      "height" $height
+      "id" $id
+      "autoplay" $autoplay
+      "loop" $loop
+      "muted" $muted
+      "controls" $controls
+      "poster" $poster
+      "gdprCompliant" $gdprCompliant
+  ) }}
+{{ end }}
