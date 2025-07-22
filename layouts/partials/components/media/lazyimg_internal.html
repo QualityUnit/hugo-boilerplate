@@ -337,14 +337,10 @@
         {{ end }}
         alt="{{ $alt }}"
         class="{{ $imgClassFallback }}"{{ if $id }}
-        id="{{ $id }}"{{ end }}{{ if $width }}
-        width="{{ $width }}"{{ end }}{{ if $height }}
-        height="{{ $height }}"{{ end }}
+        id="{{ $id }}"{{ end }}
+        {{ if $width }}width="{{ $width }}"{{ end }}
+        {{ if $height }}height="{{ $height }}"{{ end }}
         {{ if not $noLazy }}loading="lazy"{{ end }}
-        decoding="async"
-        data-original-src="{{ $src }}"
-      >
-        loading="lazy"
         decoding="async"
         data-original-src="{{ $src }}"
       >
