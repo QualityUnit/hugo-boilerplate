@@ -121,21 +121,18 @@ document.addEventListener('DOMContentLoaded', function() {
           if (picture) {
             const sources = picture.querySelectorAll('source[data-srcset]');
 
-            // Process all source elements first
-            Promise.all(Array.from(sources).map(function(source) {
-              return new Promise(function(resolve) {
-                // Use requestAnimationFrame for better performance
-                requestAnimationFrame(function() {
-                  source.srcset = source.dataset.srcset;
-                  source.removeAttribute('data-srcset');
-                  // Short timeout to ensure browser processes the source
-                  setTimeout(resolve, 10);
-                });
-              });
-            })).then(function() {
-              // Only after all sources are processed, set the img src
-              image.src = image.dataset.src;
-              image.removeAttribute('data-src');
+                // Process all source elements first
+                Promise.all(Array.from(sources).map(function(source) {
+                  return new Promise(function(resolve) {
+                    source.srcset = source.dataset.srcset;
+                    source.removeAttribute('data-srcset');
+                    // Resolve immediately as modern browsers can handle this efficiently
+                    resolve();
+                  });
+                })).then(function() {
+                  // Only after all sources are processed, set the img src
+                  image.src = image.dataset.src;
+                  image.removeAttribute('data-src');
 
               // Add loaded class when image is loaded
               image.onload = function() {
@@ -204,13 +201,10 @@ document.addEventListener('DOMContentLoaded', function() {
                   // Process all source elements first
                   Promise.all(Array.from(sources).map(function(source) {
                     return new Promise(function(resolve) {
-                      // Use requestAnimationFrame for better performance
-                      requestAnimationFrame(function() {
-                        source.srcset = source.dataset.srcset;
-                        source.removeAttribute('data-srcset');
-                        // Short timeout to ensure browser processes the source
-                        setTimeout(resolve, 10);
-                      });
+                      source.srcset = source.dataset.srcset;
+                      source.removeAttribute('data-srcset');
+                      // Resolve immediately as modern browsers can handle this efficiently
+                      resolve();
                     });
                   })).then(function() {
                     // Only after all sources are processed, set the img src
