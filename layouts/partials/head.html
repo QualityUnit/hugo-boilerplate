@@ -12,7 +12,11 @@
 {{ ( partialCached "helpers/generate-hreflang-links.html" (dict "currentPage" . "defaultLang" "en") .Permalink ) | safeHTML }}
 {{ partial "social-meta.html" . | safeHTML }}
 {{ partialCached "head/variables.html" . }}
-<link rel="stylesheet" href="/css/main.css?v={{ partialCached "helpers/build-timestamp.html" . }}" crossorigin="anonymous">
+<!-- Preload fonts early -->
+<link rel="preload" href="/fonts/inter/Inter-VariableFont_opsz,wght.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<!-- Non-blocking CSS loading pattern -->
+<link rel="preload" href="/css/main.css?v={{ partialCached "helpers/build-timestamp.html" . }}" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous">
+<noscript><link rel="stylesheet" href="/css/main.css?v={{ partialCached "helpers/build-timestamp.html" . }}" crossorigin="anonymous"></noscript>
 <!-- Critical theme JS - loaded early with defer -->
 <script src="/js/main.js?v={{ partialCached "helpers/build-timestamp.html" . }}" defer></script>
 {{ partialCached "utils/analytics/google-analytics-consent.html" . }}
