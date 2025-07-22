@@ -36,10 +36,6 @@
   z-index: 1;
 }
 
-.lazy-video-thumbnail:hover .lazy-video-thumb-img {
-  transform: scale(1.05);
-}
-
 .lazy-video-play-button {
   position: absolute;
   top: 50%;
