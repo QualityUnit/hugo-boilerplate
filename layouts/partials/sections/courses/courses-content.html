@@ -173,15 +173,15 @@
                         <!-- Single Session Layout -->
                         <div class="mb-6">
                             <!-- Session Details - Top Block -->
-                            <div class="bg-gray-200 dark:bg-gray-500 px-5 py-2.5 rounded-xl mb-8 grid grid-cols-2">
+                            <div class="bg-gray-200 dark:bg-gray-500 px-5 py-2.5 rounded-xl mb-5 grid grid-cols-2">
                                 <div class="pr-5">
                                     <div class="text-sm text-heading">{{ i18n "courses.format" }}:</div>
                                     <div class="text-base text-heading font-bold">{{ index $sessions 0 "title" }}</div>
                                     <div class="text-heading text-sm">{{ index $sessions 0 "subtitle" }}</div>
                                 </div>
                                 <div class="mt-5 pl-6">
-                                    <div class="text-sm font-bold text-heading">{{ i18n "courses.additional_material" | default "Additional material" }}</div>
-                                    <div class="text-base text-heading">{{ i18n "courses.hints_tips_ebook" | default "Hints & Tips ebook" }}</div>
+                                    <div class="text-base text-heading font-bold">{{ i18n "courses.additional_material" | default "Additional material" }}</div>
+                                    <div class="text-heading text-sm">{{ i18n "courses.hints_tips_ebook" | default "Hints & Tips ebook" }}</div>
                                 </div>
                             </div>
                             
@@ -295,7 +295,7 @@
                 {{ range $index, $feature := $sessionFeatures }}
                     <div class="rounded-xl p-8 border border-gray-200 shadow-lg overflow-hidden">
                         <div class="text-sm text-heading mb-2">{{ i18n "courses.session" }} {{ add $index 1 }}:</div>
-                        <h3 class="text-base text-heading font-semibold mt-0 mb-8">{{ $feature.title }}</h3>
+                        <h3 class="text-base text-heading font-semibold mt-0 mb-5">{{ $feature.title }}</h3>
                         <p class="text-sm text-heading mb-4">{{ i18n "courses.you_will_learn" }}</p>
                         <ul role="list" class="space-y-3 gap-y-1.5 not-prose">
                             {{ range $feature.items }}
