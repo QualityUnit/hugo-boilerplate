@@ -5,6 +5,21 @@ glossary_subtitle: "Põhjalik terminite ja definitsioonide loend"
 glossary_title: "Sõnastik"
 home_title: "Avaleht"
 
+# Search translations
+search_placeholder: "Otsi..."
+search_submit_aria: "Esita otsing"
+search_clear_aria: "Tühista otsing"
+search_clear_title: "Tühista otsing"
+search_loading: "Laadimine..."
+search_view_all_results: "Vaata kõiki tulemusi"
+search_no_results: "Tulemusi ei leitud."
+search_error_loading: "Viga otsingutulemuste laadimisel."
+search_error_performing: "Viga otsingu sooritamisel."
+search_not_available: "Otsingu funktsioon ei ole saadaval. Proovige hiljem uuesti."
+search_initializing: "Otsing alles käivitub. Proovige uuesti."
+search_no_content_preview: "Sisu eelvaade ei ole saadaval"
+search_untitled: "Pealkirjata"
+
 # Glossary translations
 glossary_eyebrow: "Sõnastik"
 
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Eelmine"
 tag_pagination_next: "Järgmine"
 tag_other_tags: "Muud Sildid"
-
+tag_show_less: "Näita vähem"
 # Cookie consent translations
 cookie_consent_title: "Küpsiste Nõusolek"
 cookie_consent_message: "Kasutame küpsiseid teie sirvimiskogemuse parandamiseks ja liikluse analüüsimiseks."
@@ -82,6 +97,9 @@ no_posts_found: "Postitusi ei leitud"
 minutes_read: "min lugemist"
 get_started: "Alusta"
 courses.session: "Sessioon"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.you_will_learn: "Sa õpid:"
+courses.or: "või"
+courses.format: "Formaat"
+
+# Icon card translations
+icon.card.btn: "Vaata"

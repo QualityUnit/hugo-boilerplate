@@ -5,6 +5,21 @@ glossary_subtitle: "Kompleksowa lista terminów i definicji"
 glossary_title: "Słownik"
 home_title: "Strona główna"
 
+# Search translations
+search_placeholder: "Szukaj..."
+search_submit_aria: "Wyślij wyszukiwanie"
+search_clear_aria: "Wyczyść wyszukiwanie"
+search_clear_title: "Wyczyść wyszukiwanie"
+search_loading: "Ładowanie..."
+search_view_all_results: "Zobacz wszystkie wyniki"
+search_no_results: "Nie znaleziono wyników."
+search_error_loading: "Błąd podczas ładowania wyników wyszukiwania."
+search_error_performing: "Błąd podczas wykonywania wyszukiwania."
+search_not_available: "Funkcja wyszukiwania jest niedostępna. Spróbuj ponownie później."
+search_initializing: "Wyszukiwanie jest nadal inicjalizowane. Spróbuj ponownie."
+search_no_content_preview: "Brak podglądu treści"
+search_untitled: "Bez tytułu"
+
 # Glossary translations
 glossary_eyebrow: "Słownik"
 
@@ -38,6 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Poprzednia"
 tag_pagination_next: "Następna"
 tag_other_tags: "Inne Tagi"
+tag_show_less: "Pokaż mniej"
 
 # Cookie consent translations
 cookie_consent_title: "Zgoda na Pliki Cookie"
@@ -81,6 +97,9 @@ no_posts_found: "Nie znaleziono postów"
 minutes_read: "min czytania"
 get_started: "Zacznij"
 courses.session: "Sesja"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
+courses.you_will_learn: "Nauczysz się:"
+courses.or: "lub"
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Zobacz"

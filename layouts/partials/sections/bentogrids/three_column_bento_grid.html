@@ -71,7 +71,7 @@
   <div class="section-bg-light dark:section-bg-dark py-24 sm:py-32">
     <div class="wrapper">
       {{ if $tagline }}
-        <h2 class="text-center text-base/7 font-semibold text-product-primary">{{ $tagline }}</h2>
+        <h2 class="text-center text-base/7 font-semibold product-text">{{ $tagline }}</h2>
       {{ end }}
       {{ if $heading }}
         <p class="{{ if $tagline }}mt-2{{ end }} text-center text-4xl font-semibold tracking-tight text-balance text-heading sm:text-5xl">{{ $heading }}</p>
@@ -93,34 +93,33 @@
                 
                 <div class="p-4 lg:p-8">
                   {{ if $card.title }}
-                    <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center {{ if $card.url }}group-hover:text-product-primary{{ end }}">{{ $card.title }}</p>
+                    <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center {{ if $card.url }}group-hover:product-text{{ end }}">{{ $card.title }}</p>
                   {{ end }}
 
-                  {{ if $card.description }}
-                    <p class="max-w-lg text-sm/8 text-body max-md:text-center">{{ $card.description }}</p>
-                  {{ end }}
+                {{ if $card.description }}
+                  <p class="max-w-lg text-sm/8 text-body max-md:text-center">{{ $card.description }}</p>
+                {{ end }}
 
-                  {{ if $card.url }}
-                    <div class="mt-5 flex items-center justify-center md:justify-start">
-                      {{ partial "components/buttons/buttons.html" (dict
-                          "text" $card.linkText
-                          "url" ($card.url)
-                          "variant" "secondary"
-                          "showArrow" false
-                      ) }}
-                    </div>
-                  {{ end }}
-                </div>
-
-                {{ if and $card.image (eq $imagePosition "bottom") }}
-                  <div class="flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
-                    {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") ) }}
+                {{ if $card.url }}
+                  <div class="mt-5 flex items-center justify-center md:justify-start">
+                    {{ partial "components/buttons/buttons.html" (dict
+                        "text" $card.linkText
+                        "url" ($card.url)
+                        "variant" "secondary"
+                        "showArrow" false
+                    ) }}
                   </div>
-                {{ else if not $card.image }}
-                  <div class="pb-6"></div> <!-- Empty space at bottom if no link and no image -->
                 {{ end }}
               </div>
-            <div class="pointer-events-none absolute inset-px {{ if $card.url }}group-hover:ring-product-underlite{{ end }} transition-all"></div>
+
+              {{ if and $card.image (eq $imagePosition "bottom") }}
+                <div class="flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
+                  {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") ) }}
+                </div>
+              {{ else if not $card.image }}
+                <div class="pb-6"></div> <!-- Empty space at bottom if no link and no image -->
+              {{ end }}
+            </div>
           </div>
         {{ end }}
       </div>

@@ -5,6 +5,21 @@ glossary_subtitle: "Uma lista abrangente de termos e definições"
 glossary_title: "Glossário"
 home_title: "Início"
 
+# Search translations
+search_placeholder: "Pesquisar..."
+search_submit_aria: "Enviar pesquisa"
+search_clear_aria: "Limpar pesquisa"
+search_clear_title: "Limpar pesquisa"
+search_loading: "Carregando..."
+search_view_all_results: "Ver todos os resultados"
+search_no_results: "Nenhum resultado encontrado."
+search_error_loading: "Erro ao carregar resultados da pesquisa."
+search_error_performing: "Erro ao realizar pesquisa."
+search_not_available: "A funcionalidade de pesquisa não está disponível. Tente novamente mais tarde."
+search_initializing: "A pesquisa ainda está sendo inicializada. Tente novamente."
+search_no_content_preview: "Nenhuma visualização de conteúdo disponível"
+search_untitled: "Sem título"
+
 # Glossary translations
 glossary_eyebrow: "Glossário"
 
@@ -38,6 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Anterior"
 tag_pagination_next: "Próximo"
 tag_other_tags: "Outras Tags"
+tag_show_less: "Mostrar menos"
 
 # Cookie consent translations
 cookie_consent_title: "Consentimento de Cookies"
@@ -85,4 +101,7 @@ courses.session: "Sessão"
 courses.you_will_learn: "Você aprenderá:"
 courses.or: "ou"
 
-courses.format: "Format"
+courses.format: "Formato"
+
+# Icon card translations
+icon.card.btn: "Ver"

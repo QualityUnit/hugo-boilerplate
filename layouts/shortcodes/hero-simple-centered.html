@@ -23,6 +23,7 @@
     typewriterDeleteSpeed="50"
     typewriterPause="2000"
     typewriterColor="text-indigo-600"
+    imgBgClass="custom-background-class"
   >}}
   
   Parameters:
@@ -48,6 +49,7 @@
   - typewriterPause: Pause duration between word cycles in milliseconds (default: 2000)
   - typewriterColor: Tailwind CSS color class for animated text (default: "text-indigo-600")
   - typewriterWordAlternatives: Comma-separated list of alternative words for typewriter effect (optional)
+  - imgBgClass: Background class for image container (default: "bg-[linear-gradient(205deg,_theme(colors.primary.100)_66.27%,_theme(colors.primary.300)_99.99%)]")
 */ -}}
 
 {{/* Simple Centered Hero Shortcode */}}
@@ -73,8 +75,9 @@
 {{ $typewriterSpeed := .Get "typewriterSpeed" | default 100 }}
 {{ $typewriterDeleteSpeed := .Get "typewriterDeleteSpeed" | default 50 }}
 {{ $typewriterPause := .Get "typewriterPause" | default 2000 }}
-{{ $typewriterColor := .Get "typewriterColor" | default "text-indigo-600" }}
+{{ $typewriterColor := .Get "typewriterColor" | default "text-primary" }}
 {{ $typewriterWordAlternatives := .Get "typewriterWordAlternatives" | default "" }}
+{{ $imgBgClass := .Get "imgBgClass" | default "" }}
 
 {{ $announcement := dict }}
 {{ if and (eq $announcementEnabled "true") $announcementText }}
@@ -115,4 +118,5 @@
   "image" $image
   "typewriter" $typewriter
   "theme" $theme
+  "imgBgClass" $imgBgClass
 ) }}

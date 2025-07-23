@@ -1,17 +1,25 @@
 {{/*
-split_with_image partial
 Responsive two-column layout with image and rich content.
 
 Parameters:
+- theme: "light" | "dark" | "alternate" (default: "light")
 - layout: "image-left" | "image-right" (default: "image-left")
-- image, imageAlt, imageBgColor: Image settings
+- image, imageAlt: Image settings
 - eyebrow, heading, description: Text content
 - link, linkText, buttonStyle: CTA button
 - markdownContent, contentAsHTML: Main content
 - features: [{icon, title, description}]
+- numbered_features: [{title, description}] (features with numbers instead of icons)
 - stats: [{number, label}]
 - quote: {text, author, role, company, avatar}
+- sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
 - Color classes: *Color parameters for styling
+
+Header section parameters:
+- headerEyebrow, headerHeading, headerDescription: Header section content
+- showHeader: Force header to render even without content
+- headerAlignment: "left" (default), "center", or "right" for header text alignment
+- headerPadding: Padding classes for the header section (default: "pb-24 lg:pb-32")
 
 Custom Color Classes Documentation:
 - text-heading: Primary heading text color (typically dark for contrast)
@@ -32,51 +40,66 @@ Design Tokens:
 - Typography tracking and sizing follow brand guidelines
 */}}
 
+{{ $theme := .theme | default "light" }}
+{{ $backgroundColor := .backgroundColor | default "" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $isAlternate := eq $theme "alternate" }}
+
+{{/* Section parameters */}}
 {{ $layout := .layout | default "image-left" }}
 {{ $image := .image }}
 {{ $imageAlt := .imageAlt }}
 {{ $eyebrow := .eyebrow }}
-{{ $eyebrowColor := .eyebrowColor | default "text-primary" }}
 {{ $heading := .heading }}
-{{ $headingColor := .headingColor | default "text-heading" }}
 {{ $description := .description }}
-{{ $descriptionColor := .descriptionColor | default "text-gray-700" }}
 {{ $link := .link }}
 {{ $linkText := .linkText }}
 {{ $linkTarget := .linkTarget | default "_self" }}
 {{ $buttonStyle := .buttonStyle | default "primary" }}
-{{ $contentColor := .contentColor | default "text-gray-700" }}
 {{ $markdownContent := .markdownContent }}
 {{ $contentAsHTML := .contentAsHTML | default false }}
 {{ $features := .features | default (slice) }}
+{{ $numbered_features := .numbered_features | default (slice) }}
 {{ $stats := .stats | default (slice) }}
 {{ $quote := .quote }}
 
+{{/* Header parameters */}}
+{{ $headerEyebrow := .headerEyebrow | default "" }}
+{{ $headerHeading := .headerHeading | default "" }}
+{{ $headerDescription := .headerDescription | default "" }}
+{{ $showHeader := .showHeader | default false }}
+{{ $headerAlignment := .headerAlignment | default "left" }}
+{{ $headerPadding := .headerPadding | default "pb-24 lg:pb-32" }}
+
 {{/* Design tokens and configurable dimensions */}}
-{{ $imageContainerMaxWidth := "608px" }}
-{{ $imageContainerMaxHeight := "560px" }}
-{{ $imageMaxWidth := "484px" }}
-{{ $imageMaxHeight := "522px" }}
-{{ $sectionPaddingY := "py-24 lg:py-32" }}
+{{ $sectionPaddingY := .sectionPaddingY | default "py-24 lg:py-32" }}
 {{ $imageContainerPaddingY := "py-6" }}
 {{ $contentPaddingY := "py-4" }}
 {{ $contentLeftPadding := "lg:pl-20" }}
-{{ $contentMarginSpacing := "lg:mr-0 lg:ml-8" }}
-{{ $contentMarginSpacingReverse := "lg:pl-0 lg:ml-0 lg:mr-8" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
 
-<div class="split-with-image-section section-bg-light {{ $sectionPaddingY }}">
-  <div class="wrapper lg:flex lg:justify-between lg:items-stretch{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
+<div class="split-with-image-section {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
+  {{/* Render header if header parameters are provided */}}
+  {{ if or $headerHeading $headerEyebrow $headerDescription $showHeader }}
+    {{ partial "layout/headers/simple_with_eyebrow_base.html" (dict 
+      "eyebrow" $headerEyebrow
+      "heading" $headerHeading 
+      "description" $headerDescription
+      "alignment" $headerAlignment
+      "padding" $headerPadding
+    ) }}
+  {{ end }}
+  <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
-      <div class="relative {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[{{ $imageContainerMaxWidth }}] max-h-[{{ $imageContainerMaxHeight }}]">
+      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
         {{ if $link }}
-          <a href="{{ $link }}" target="{{ $linkTarget }}" class="block w-full">
+          <a href="{{ $link }}" target="{{ $linkTarget }}" class="block w-full flex items-center justify-center">
         {{ end }}
             {{ partial "components/media/lazyimg.html" (dict
               "src" $image
               "alt" $imageAlt
-              "class" (printf "w-full max-w-[%s] max-h-[%s] object-cover rounded-lg hover:opacity-90 transition-opacity duration-200" $imageMaxWidth $imageMaxHeight)
+              "class" "object-contain rounded-lg"
             ) }}
         {{ if $link }}
           </a>
@@ -84,15 +107,15 @@ Design Tokens:
       </div>
     </div>
     <div class="lg:flex lg:w-1/2 lg:items-center">
-      <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ if eq $layout "image-right" }}{{ $contentMarginSpacingReverse }}{{ else }}{{ $contentLeftPadding }} {{ $contentMarginSpacing }}{{ end }}">
+      <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ if eq $layout "image-right" }}lg:pl-0{{ else }}{{ $contentLeftPadding }} {{ end }}">
         {{ if $eyebrow }}
-          <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ $eyebrow }}</p>
+          <p class="text-base/7 font-semibold product-text">{{ $eyebrow }}</p>
         {{ end }}
         {{ if $heading}}
-          <h2 class="mt-3 text-4xl font-semibold {{ $headingTracking }} leading-none text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
+          <h2 class="mt-3  mb-0 text-4xl font-semibold {{ $headingTracking }}  text-heading leading-none text-pretty sm:text-5xl">{{ $heading }}</h2>
         {{ end }}
         {{ if $description }}
-          <p class="mt-6 text-lg/7 {{ $descriptionColor }}">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
+          <p class="mt-6 text-lg/7 text-body">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
         {{ end }}
 
         {{/* Button */}}
@@ -108,7 +131,7 @@ Design Tokens:
         {{ end }}
 
         {{/* Main content */}}
-        <div class="mt-10 max-w-full {{ $contentColor }} lg:max-w-full">
+        <div class="mt-10 max-w-full text-body lg:max-w-full">
           {{ if $markdownContent }}
             {{ if $contentAsHTML }}
                 {{ $markdownContent | safeHTML }}
@@ -123,7 +146,7 @@ Design Tokens:
         <dl class="mt-10 max-w-full space-y-8 text-lg/7 text-body lg:max-w-full">
           {{ range $features }}
           <div class="relative pl-9">
-            <dt class="inline font-bold text-heading">
+            <dt class="inline {{ if .description }}font-bold{{ end }} text-heading">
               {{ if .icon }}
                 <span class="absolute left-1 top-1 size-5 text-primary">
                   {{ partial "components/media/icon.html" (dict "icon" .icon) }}
@@ -131,43 +154,61 @@ Design Tokens:
               {{ end }}
               {{ .title }}.
             </dt>
-            <dd class="inline">{{ .description }}</dd>
+            {{ if .description }}
+              <dd class="inline">{{ .description }}</dd>
+            {{ end }}
           </div>
           {{ end }}
         </dl>
+        {{ end }}
+
+        {{/* Numbered Features */}}
+        {{ if $numbered_features }}
+          <ol class="mt-10 max-w-full space-y-3 text-lg/7 text-body lg:max-w-full">
+            {{ range $index, $feature := $numbered_features }}
+              <li class="relative pl-9">
+                <span class="inline text-heading font-bold">
+                  <span class="absolute left-1 top-2 w-5 h-5 text-[10px] flex justify-center items-center text-white rounded-full bg-primary">{{ add $index 1 }}</span>
+                  {{ .title }}.
+                </span>
+                <span class="inline">{{ .description }}</span>
+              </li>
+            {{ end }}
+          </ol>
         {{ end }}
 
         {{/* Stats */}}
         {{ if $stats }}
-        <dl class="mt-10 grid max-w-full grid-cols-1 gap-8 sm:grid-cols-2">
-          {{ range $stats }}
-          <div class="flex flex-col gap-y-3 border-l border-gray-900/10 pl-6">
-            <dt class="text-sm/6 text-body">{{ .label }}</dt>
-            <dd class="order-first text-3xl font-semibold tracking-tight text-heading">{{ .number }}</dd>
-          </div>
-          {{ end }}
-        </dl>
+          <dl class="mt-10 grid max-w-full grid-cols-1 gap-8 sm:grid-cols-2">
+            {{ range $stats }}
+            <div class="flex flex-col gap-y-3 border-l border-gray-900/10 pl-6">
+              <dt class="text-sm/6 text-body">{{ .label }}</dt>
+              <dd class="order-first text-3xl font-semibold tracking-tight text-heading">{{ .number }}</dd>
+            </div>
+            {{ end }}
+          </dl>
         {{ end }}
 
         {{/* Quote */}}
         {{ if $quote }}
-        <div class="lg:max-w-full">
-          <figure class="mt-10 border-l border-gray-200 pl-8 text-body">
-            <blockquote class="text-base/7">
-              <p>"{{ $quote.text }}"</p>
-            </blockquote>
-            <figcaption class="mt-6 flex gap-x-4 text-sm/6">
-              {{ if $quote.avatar }}
-              <img src="{{ $quote.avatar }}" alt="{{ $quote.author }}" class="size-6 flex-none rounded-full" />
-              {{ end }}
-              <div>
-                <span class="font-semibold text-heading">{{ $quote.author }}</span>
-                {{ if $quote.role }} – {{ $quote.role }}{{ end }}{{ if $quote.company }}, {{ $quote.company }}{{ end }}
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-      {{ end }}
+          <div class="lg:max-w-full">
+            <figure class="mt-10 border-l border-gray-200 pl-8 text-body">
+              <blockquote class="text-base/7">
+                <p>"{{ $quote.text }}"</p>
+              </blockquote>
+              <figcaption class="mt-6 flex gap-x-4 text-sm/6">
+                {{ if $quote.avatar }}
+                <img src="{{ $quote.avatar }}" alt="{{ $quote.author }}" class="size-6 flex-none rounded-full" />
+                {{ end }}
+                <div>
+                  <span class="font-semibold text-heading">{{ $quote.author }}</span>
+                  {{ if $quote.role }} – {{ $quote.role }}{{ end }}{{ if $quote.company }}, {{ $quote.company }}{{ end }}
+                </div>
+              </figcaption>
+            </figure>
+          </div>
+        {{ end }}
+      </div>
     </div>
   </div>
 </div>

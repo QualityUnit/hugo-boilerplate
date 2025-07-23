@@ -52,28 +52,36 @@
 {{ $page := .page }}
 {{ $theme := .theme | default "light" }}
 {{ $isDark := eq $theme "dark" }}
+{{ $isAlternate := eq $theme "alternate" }}
 {{ $darkClass := cond $isDark "dark" "" }}
 
+{{ $iconClass := "w-7 h-7 p-1 rounded-lg flex-shrink-0 product-icon" }}
+{{ $iconWrapperClass := "size-10 p-2 product-bg-primary rounded-lg flex items-center justify-center" }}
+
 <div class="{{ $theme }}">
-  <div class="section-bg-light dark:section-bg-dark {{ if $isDark }}py-32{{ else }}py-12{{ end }}">
+  <div class="{{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ if $isDark }}py-32{{ else }}py-12{{ end }}">
     <div class="wrapper">
-      <div class="max-w-2xl">
-        {{ if $eyebrow }}
-        <p class="text-base font-semibold leading-7 {{ $eyebrowColor }}">{{ $eyebrow }}</p>
-        {{ end }}
-        {{ if $heading }}
-        <h2 class="text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
-        {{ end }}
-        {{ if $description }}
-        <p class="mt-6 text-lg/9 text-body">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
-        {{ end }}
-      </div>
-      <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+      {{ if or $eyebrow $heading $description }}
+        <div class="max-w-2xl">
+          {{ if $eyebrow }}
+            <p class="text-base font-semibold leading-7 {{ $eyebrowColor }}">{{ $eyebrow }}</p>
+          {{ end }}
+          {{ if $heading }}
+            <h2 class="text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
+          {{ end }}
+          {{ if $description }}
+            <p class="mt-6 text-lg/9 text-body">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+          {{ end }}
+        </div>
+      {{ end }}
+      <div class="mx-auto {{ if or $eyebrow $heading $description }}mt-16{{ else }}mt-0{{ end }} max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
         <dl class="grid max-w-xl grid-cols-1 gap-x-16 gap-y-24 lg:max-w-none lg:grid-cols-3">
           {{ range $features }}
           <div class="relative pl-0">
             {{ if .icon }}
-              {{ partial "components/media/icon.html" (dict "icon" .icon "class" "w-7 h-7 product-icon mb-6 p-1 rounded-lg flex-shrink-0") }}
+              <div class="{{ $iconWrapperClass }} mb-6 flex-shrink-0">
+                {{ partial "components/media/icon.html" (dict "icon" .icon "class" (printf "%s icon-primary" $iconClass)) }}
+              </div>
             {{ end }}
             <dt class="font-semibold text-lg text-heading flex items-center">
               <span>{{ .title }}</span>

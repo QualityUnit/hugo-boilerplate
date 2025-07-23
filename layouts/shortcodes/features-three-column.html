@@ -2,9 +2,11 @@
   Features Three Column with Large Icons Shortcode
   
   Named Parameters:
-  - eyebrow: Optional text displayed above the heading (new!)
+  - theme: "light" (default) or "dark", "alternate" for section theme
+  - eyebrow: Optional text displayed above the heading
   - heading: Main heading text (default: "Stay on top of customer support")
   - description: Description text below the main heading
+  - theme: Color theme for the section (default: "light")
   
   Inner Content (optional JSON array):
   - Array of feature objects with the following structure:
@@ -15,6 +17,7 @@
   
   Example usage with custom features:
   {{< features-three-column 
+      theme="light"
       eyebrow="FEATURES"
       heading="Our Key Features"
       description="Discover the powerful features that make our product stand out from the competition."
@@ -59,10 +62,10 @@
 {{ end }}
 
 {{ partial "sections/features/simple_three_column_with_large_icons.html" (dict 
-  "eyebrow" $eyebrow
-  "heading" $heading
-  "description" $description
-  "theme" $theme
-  "features" $features
-  "page" $.Page
+    "eyebrow" $eyebrow
+    "heading" $heading
+    "description" $description
+    "theme" $theme
+    "features" $features
+    "page" $.Page
 ) }}

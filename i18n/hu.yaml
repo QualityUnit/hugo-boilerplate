@@ -5,6 +5,21 @@ glossary_subtitle: "Átfogó lista szakmai kifejezésekkel és meghatározásokk
 glossary_title: "Szószedet"
 home_title: "Főoldal"
 
+# Search translations
+search_placeholder: "Keresés..."
+search_submit_aria: "Keresés elküldése"
+search_clear_aria: "Keresés törlése"
+search_clear_title: "Keresés törlése"
+search_loading: "Betöltés..."
+search_view_all_results: "Minden eredmény megtekintése"
+search_no_results: "Nem találhatók eredmények."
+search_error_loading: "Hiba a keresési eredmények betöltésekor."
+search_error_performing: "Hiba a keresés végrehajtásakor."
+search_not_available: "A keresési funkció nem elérhető. Próbálja később."
+search_initializing: "A keresés még inicializálódik. Próbálja újra."
+search_no_content_preview: "Nincs elérhető tartalom előnézet"
+search_untitled: "Cím nélkül"
+
 # Glossary translations
 glossary_eyebrow: "Szószedet"
 
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Előző"
 tag_pagination_next: "Következő"
 tag_other_tags: "Egyéb Címkék"
-
+tag_show_less: "Kevesebb megjelenítése"
 # Cookie consent translations
 cookie_consent_title: "Sütik Hozzájárulás"
 cookie_consent_message: "A sütiket használjuk, hogy javítsuk a böngészési élményt és elemezzük a forgalmunkat."
@@ -85,4 +100,7 @@ courses.session: "Alkalom"
 courses.you_will_learn: "Amit tanulni fog:"
 courses.or: "vagy"
 
-courses.format: "Format"
+courses.format: "Formátum"
+
+# Icon card translations
+icon.card.btn: "Megtekintés"

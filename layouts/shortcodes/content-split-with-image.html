@@ -10,6 +10,8 @@
     - Graceful degradation when JSON is malformed or missing
 
     Parameters:
+    - theme: "light" | "dark" | "alternate" (default: "light")
+    - backgroundColor: Custom background using Tailwind CSS classes (default: "")
     - heading: Main title for the section
     - eyebrow: Small text above heading (default: "")
     - description: Text below heading (default: "")
@@ -20,33 +22,46 @@
     - linkText: CTA button text (default (i18n "learnMore"))
     - linkTarget: Link target "_self" or "_blank" (default: "_self")
     - buttonStyle: "primary" or "secondary" (default: "primary")
-    - bgColor: Background color class (default: "bg-white")
-    - eyebrowColor: Eyebrow text color (default: "text-primary")
-    - headingColor: Heading color (default: "text-gray-900")
-    - descriptionColor: Description color (default: "text-gray-700")
-    - contentColor: Content text color (default: "text-gray-700")
-    - imageBgColor: Image container background (default: "bg-gray-50")
     - contentAsHTML: Render content as HTML instead of markdown (default: false)
+    - alignment: "left" (default), "center", or "right" for text alignment
     - features: JSON string or "features" to use page params
+    - numbered_features: JSON string or "numbered_features" to use page params (features with numbers instead of icons)
     - stats: JSON string or "stats" to use page params
     - quote: JSON string or "quote" to use page params
+    - sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
+
+
+    Header Parameters (optional - header only renders if at least one is provided):
+    - headerEyebrow: Small text above header heading (default: "")
+    - headerHeading: Main header title (default: "")
+    - headerDescription: Text below header heading (default: "")
+    - showHeader: Force header to render even without content (default: false)
+    - headerAlignment: "left" (default), "center", or "right" for header text alignment
+    - headerPadding: Padding classes for the header section (default: "pb-24 lg:pb-32")
+    
+    Note: Header is rendered inside the main partial using 'simple_with_eyebrow_base' partial
 
     USAGE EXAMPLES:
 
-    1. CONTENT ONLY (markdown/HTML content):
+    1. WITH HEADER + CONTENT (header + markdown/HTML content):
     {{< content-split-with-image
+        headerEyebrow="AI-Powered Workflows"
+        headerHeading="Welcome to Our Platform"
+        headerDescription="Everything you need to know about getting started with our service."
+        showHeader="true"
+        headerAlignment="left"
+        headerPadding="pb-16 lg:pb-24"
+        theme="light"
         eyebrow="Automation Platform"
         heading="Transform Your Workflow"
         description="Discover the power of automation"
         image="/images/workflow-automation.jpg"
         imageAlt="Workflow automation dashboard"
         layout="image-left"
+        alignment="center"
         link="/get-started"
         linkText="Start Free Trial"
         buttonStyle="primary"
-        eyebrowColor="text-purple-600"
-        headingColor="text-gray-900"
-        descriptionColor="text-gray-600"
     >}}
      ## Test markdown and HTML content
     Test **bold text**, *italic text*, and [links](https://example.com).
@@ -57,9 +72,33 @@
     <p class="text-gray-600 mt-4">This is a paragraph with <strong>bold</strong> and <em>italic</em> text.</p>
     {{< /content-split-with-image >}}
 
-    2. JSON DATA ONLY (structured data blocks):
+    2. CONTENT ONLY (markdown/HTML content):
+    {{< content-split-with-image
+        theme="light"
+        backgroundColor="bg-gray-50"
+        eyebrow="Automation Platform"
+        heading="Transform Your Workflow"
+        description="Discover the power of automation"
+        image="/images/workflow-automation.jpg"
+        imageAlt="Workflow automation dashboard"
+        layout="image-left"
+        link="/get-started"
+        linkText="Start Free Trial"
+        buttonStyle="primary"
+    >}}
+     ## Test markdown and HTML content
+    Test **bold text**, *italic text*, and [links](https://example.com).
+    Test list:
+    - Item 1
+    - Item 2
+    - Item 3
+    <p class="text-gray-600 mt-4">This is a paragraph with <strong>bold</strong> and <em>italic</em> text.</p>
+    {{< /content-split-with-image >}}
+
+    3. JSON DATA ONLY (structured data blocks - no markers needed):
     {{< content-split-with-image
         heading="By the Numbers"
+        backgroundColor="bg-gradient-to-br from-blue-50 to-indigo-100"
         image="/images/statistics.jpg"
         imageAlt="Platform statistics"
         layout="image-right"
@@ -75,6 +114,20 @@
           "icon": "cog-solid",
           "title": "Flexible Configuration",
           "description": "Supports various layout options and styling configurations."
+        }
+      ],
+      "numbered_features": [
+        {
+          "title": "Setup Your Account",
+          "description": "Create your account and configure your preferences in just a few minutes."
+        },
+        {
+          "title": "Connect Your Data",
+          "description": "Integrate with your existing tools and import your data seamlessly."
+        },
+        {
+          "title": "Start Automating",
+          "description": "Begin creating workflows and watch your productivity soar."
         }
       ],
       "stats": [
@@ -93,7 +146,7 @@
     }
     {{< /content-split-with-image >}}
 
-    3. COMBINED (JSON data + content):
+    4. COMBINED (JSON data + markdown/HTML content - markers required):
     {{< content-split-with-image
         heading="Complete AI Solution"
         description="Everything you need in one platform"
@@ -117,6 +170,16 @@
           "icon": "cog-solid",
           "title": "Flexible Configuration",
           "description": "Supports various layout options and styling configurations."
+        }
+      ],
+      "numbered_features": [
+        {
+          "title": "Initial Setup",
+          "description": "Quick and easy setup process to get you started."
+        },
+        {
+          "title": "Data Integration",
+          "description": "Connect your existing data sources seamlessly."
         }
       ],
       "stats": [
@@ -155,6 +218,16 @@
       ]
     }
 
+    Numbered Features List:
+    {
+      "numbered_features": [
+        {
+          "title": "Feature Title",   // Feature name (required)
+          "description": "Details"    // Feature description (required)
+        }
+      ]
+    }
+
     Stats List:
     {
       "stats": [
@@ -177,9 +250,12 @@
     }
 
     NOTES:
-    - If you don't need certain data blocks (features, stats, quote), simply omit them
-    - JSON blocks are completely optional - you can use just markdown/HTML content
-    - Content can be pure markdown, pure HTML, or mixed
+    - Use START_JSON_BLOCK/END_JSON_BLOCK markers ONLY when mixing JSON with markdown/HTML content
+    - For pure JSON content (no markdown/HTML), markers are not needed - just use the JSON directly
+    - For pure markdown/HTML content (no JSON), markers are not needed
+    - If you don't need certain data blocks (features, numbered_features, stats, quote), simply omit them
+    - Content can be pure markdown, pure HTML, pure JSON, or mixed
+    - numbered_features work the same as features but display numbers (1, 2, 3...) instead of icons
 */}}
 
 {{ $currentPage := .Page }}
@@ -195,15 +271,22 @@
 {{ $linkText := .Get "linkText" | default (i18n "learnMore") | default "Learn more" }}
 {{ $linkTarget := .Get "linkTarget" | default "_self" }}
 {{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
-{{ $bgColor := .Get "bgColor" | default "bg-white" }}
-{{ $eyebrowColor := .Get "eyebrowColor" | default "text-primary" }}
-{{ $headingColor := .Get "headingColor" | default "text-gray-900" }}
-{{ $descriptionColor := .Get "descriptionColor" | default "text-gray-700" }}
-{{ $contentColor := .Get "contentColor" | default "text-gray-700" }}
+{{ $theme := .Get "theme" | default "light" }}
+{{ $backgroundColor := .Get "backgroundColor" | default "" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
+{{ $sectionPaddingY := .Get "sectionPaddingY" | default "py-24 lg:py-32" }}
+
+{{/* Header parameters */}}
+{{ $headerEyebrow := .Get "headerEyebrow" | default "" }}
+{{ $headerHeading := .Get "headerHeading" | default "" }}
+{{ $headerDescription := .Get "headerDescription" | default "" }}
+{{ $showHeader := .Get "showHeader" | default false }}
+{{ $headerAlignment := .Get "headerAlignment" | default "left" }}
+{{ $headerPadding := .Get "headerPadding" | default "pb-24 lg:pb-32" }}
 
 {{/* Initialize data */}}
 {{ $features := slice }}
+{{ $numbered_features := slice }}
 {{ $stats := slice }}
 {{ $quote := dict }}
 {{ $markdownContent := "" }}
@@ -216,11 +299,14 @@
 {{ end }}
 {{ $rawInnerContent = trim $rawInnerContent " \n\r\t" }}
 
-{{/* Parse JSON block with START_JSON_BLOCK/END_JSON_BLOCK markers */}}
+{{/* Parse content - detect if it's pure JSON or mixed content with markers */}}
 {{ $jsonStartMarker := "START_JSON_BLOCK" }}
 {{ $jsonEndMarker := "END_JSON_BLOCK" }}
 
-{{ if and (in $rawInnerContent $jsonStartMarker) (in $rawInnerContent $jsonEndMarker) }}
+{{ $hasJsonMarkers := and (in $rawInnerContent $jsonStartMarker) (in $rawInnerContent $jsonEndMarker) }}
+
+{{ if $hasJsonMarkers }}
+    {{/* Mixed content: markdown/HTML + JSON with markers */}}
     {{ $parts := split $rawInnerContent $jsonStartMarker }}
     {{ if gt (len $parts) 1 }}
         {{ $beforeJson := index $parts 0 }}
@@ -235,25 +321,18 @@
             {{ $potentialJSON = trim $potentialJSON " \n\r\t" }}
             {{ if $potentialJSON }}
               {{ $parseResult := dict }}
-              {{ if $potentialJSON }}
-                {{ $jsonString := trim $potentialJSON " \n\r\t" }}
-                {{ if $jsonString }}
-                  {{ $unmarshalResult := dict }}
-                  {{ $errorOccurred := false }}
-                  {{/* Attempt to unmarshal JSON with error handling */}}
-                  {{ $unmarshalResult = unmarshal $jsonString }}
-                  {{ if not $unmarshalResult }}
-                    {{ warnf "JSON unmarshal returned empty result in inner-content-json-block. JSON content (first 200 chars): %s. Using empty fallback." (substr $jsonString 0 200) }}
-                    {{ $unmarshalResult = dict }}
-                  {{ end }}
+              {{ $jsonString := trim $potentialJSON " \n\r\t" }}
+              {{ if $jsonString }}
+                {{ $unmarshalResult := unmarshal $jsonString }}
+                {{ if $unmarshalResult }}
                   {{ $parseResult = $unmarshalResult }}
+                {{ else }}
+                  {{ warnf "Failed to parse JSON block. JSON content (first 200 chars): %s. Using empty fallback." (substr $jsonString 0 200) }}
                 {{ end }}
               {{ end }}
               
-              {{ if or $parseResult.features $parseResult.stats $parseResult.quote $parseResult.markdownContent $parseResult.htmlContent $parseResult.contentAsHTML }}
+              {{ if or $parseResult.features $parseResult.numbered_features $parseResult.stats $parseResult.quote }}
                 {{ $innerData = $parseResult }}
-              {{ else }}
-                {{ warnf "JSON block found but contains no recognized data structures (features, stats, quote, markdownContent, htmlContent, contentAsHTML). Content: %s" (substr $potentialJSON 0 200) }}
               {{ end }}
             {{ end }}
 
@@ -266,12 +345,27 @@
         {{ $markdownContent = $rawInnerContent }}
     {{ end }}
 {{ else }}
-    {{ $markdownContent = $rawInnerContent }}
+    {{/* Check if content is pure JSON (no markers) */}}
+    {{ $trimmedContent := trim $rawInnerContent " \n\r\t" }}
+    {{ if and $trimmedContent (hasPrefix $trimmedContent "{") (hasSuffix $trimmedContent "}") }}
+        {{/* Pure JSON content */}}
+        {{ $unmarshalResult := unmarshal $trimmedContent }}
+        {{ if $unmarshalResult }}
+            {{ $innerData = $unmarshalResult }}
+        {{ else }}
+            {{ warnf "Failed to parse pure JSON content. Content (first 200 chars): %s. Treating as markdown." (substr $trimmedContent 0 200) }}
+            {{ $markdownContent = $rawInnerContent }}
+        {{ end }}
+    {{ else }}
+        {{/* Pure markdown/HTML content */}}
+        {{ $markdownContent = $rawInnerContent }}
+    {{ end }}
 {{ end }}
 
 
 {{/* Data consolidation: inner JSON > shortcode params > page params */}}
 {{ $features = $innerData.features | default $features }}
+{{ $numbered_features = $innerData.numbered_features | default $numbered_features }}
 {{ $stats = $innerData.stats | default $stats }}
 {{ $quote = $innerData.quote | default $quote }}
 
@@ -288,6 +382,23 @@
         {{ $features = $unmarshalResult }}
       {{ else }}
         {{ warnf "Failed to parse features JSON from shortcode parameter. JSON content (first 200 chars): %s. Using fallback." (substr $jsonString 0 200) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ with .Get "numbered_features" }}
+  {{ if eq . "numbered_features" }}
+    {{ $numbered_features = $currentPage.Params.numbered_features | default $numbered_features }}
+  {{ else }}
+    {{ $jsonString := trim . " \n\r\t" }}
+    {{ if $jsonString }}
+      {{ $unmarshalResult := dict }}
+      {{ $unmarshalResult = unmarshal $jsonString }}
+      {{ if $unmarshalResult }}
+        {{ $numbered_features = $unmarshalResult }}
+      {{ else }}
+        {{ warnf "Failed to parse numbered_features JSON from shortcode parameter. JSON content (first 200 chars): %s. Using fallback." (substr $jsonString 0 200) }}
       {{ end }}
     {{ end }}
   {{ end }}
@@ -345,6 +456,8 @@
 
 {{/* Render partial */}}
 {{ partial "sections/content/split_with_image.html" (dict
+  "theme" $theme
+  "backgroundColor" $backgroundColor
   "eyebrow" $eyebrow
   "heading" $heading
   "description" $description
@@ -355,14 +468,17 @@
   "buttonStyle" $buttonStyle
   "image" $image
   "imageAlt" $imageAlt
-  "bgColor" $bgColor
-  "eyebrowColor" $eyebrowColor
-  "headingColor" $headingColor
-  "descriptionColor" $descriptionColor
-  "contentColor" $contentColor
   "markdownContent" $markdownContent
   "contentAsHTML" $contentAsHTML
   "features" $features
+  "numbered_features" $numbered_features
   "stats" $stats
   "quote" $quote
+  "sectionPaddingY" $sectionPaddingY
+  "headerEyebrow" $headerEyebrow
+  "headerHeading" $headerHeading
+  "headerDescription" $headerDescription
+  "showHeader" $showHeader
+  "headerAlignment" $headerAlignment
+  "headerPadding" $headerPadding
 ) }}

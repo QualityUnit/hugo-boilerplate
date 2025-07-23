@@ -1,6 +1,8 @@
 {{/*
 @component: Post Card with Image
 @description: Displays a blog post card with featured image, title, description, date, section, tags, author, and reading time.
+              The entire card is clickable via an absolute positioned overlay link. Tags are rendered as non-clickable
+              spans to avoid nested anchor tags, which would be invalid HTML.
 @params:
   This component expects a page context (.) that has the following properties:
   - Title: The title of the post
@@ -10,7 +12,7 @@
   - ReadingTime: Estimated reading time in minutes
   - RelPermalink: URL to the post
   - Section: The content section (e.g., "blog")
-  - Params.tags: Array of post tags (optional)
+  - Params.tags: Array of post tags (rendered as non-clickable spans to avoid nested anchor issues)
   - Params.author: Post author name (optional)
   - Params.price (optional): Price of the product (if applicable) in EUR
   - showImages: Whether to display images (optional, default: true)
@@ -55,22 +57,29 @@
 {{ $date := $page.Date.Format "Jan 2, 2006" }}
 {{ $permalink := $page.RelPermalink }}
 
-{{/* Section & Label */}}
-{{ $section := $page.Section }}
-{{ $labelBySection := partial "components/label/label.html" (dict "text" (humanize $section) "badgeClass" "badge-base badge-teal badge-with-border") }}
+{{/* Show date & reading time section */}}
+{{ $showDateReadingTime := .showDateReadingTime | default true }}
 
-<article class="group relative rounded-2xl flex flex-col surface-secondary shadow-lg border surface-border overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-x-2 hover:-translate-y-2 {{ $cardClasses }}">
+<article class="group relative rounded-2xl flex flex-col surface-secondary shadow-lg border surface-border overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-1 {{ $cardClasses }}">
+  <a href="{{ $permalink }}" class="absolute inset-0 z-10" aria-label="Read more: {{ $page.Title }}">
+    <span class="sr-only">{{ $page.Title }}</span>
+  </a>
   {{ if and $image $showImages }}
     <div class="{{ $imageClasses }}">
-      <a href="{{ $permalink }}" class="w-full h-full flex items-center justify-center">
-        {{ partial "components/media/lazyimg.html" (dict "src" $image "alt" $page.Title "class" "w-full h-full object-cover" "classPicture" "w-full h-full object-cover" "loading" "lazy" "decoding" "async") }}
-      </a>
+      {{ partial "components/media/lazyimg.html" (dict "src" $image "alt" $page.Title "class" "w-full h-full object-cover" "classPicture" "w-full h-full object-cover" "loading" "lazy" "decoding" "async") }}
     </div>
   {{ end }}
 
   <div class="flex flex-col flex-grow p-8">
-    {{/* Date, Reading Time, Section */}}
-    <div class="flex items-center gap-4">
+    {{/* Title & Description */}}
+    <h3 class="mt-2.5 text-lg/6 font-semibold text-heading group-hover:text-muted transition-colors duration-300">
+      {{ $page.Title }}
+    </h3>
+    <p class="mt-5 text-sm leading-6 text-body font-normal line-clamp-3 flex-grow overflow-hidden">{{ $description }}</p>
+    
+    {{/* Date, Reading Time */}}
+    {{ if $showDateReadingTime }}
+    <div class="flex items-center gap-4 my-2.5 pt-2">
       <span class="flex items-center text-xs font-normal text-body">
         {{ if $page.Date }}
           <time datetime="{{ $date }}">{{ $date }}</time>
@@ -82,38 +91,21 @@
           {{ printf "%d %s" $page.ReadingTime (i18n "minutes_read") }}
         {{ end }}
       </span>
-      <a href="{{ print "/" $section "/" | relLangURL }}">
-        {{ $labelBySection }}
-      </a>
     </div>
-
-    {{/* Title & Description */}}
-    <h3 class="mt-2.5 text-lg/6 font-semibold text-heading">
-      <a href="{{ $permalink }}" class="focus:outline-none line-clamp-2">
-        <span class="inset-0" aria-hidden="true"></span>
-        {{ $page.Title }}
-      </a>
-    </h3>
-    <a href="{{ $permalink }}" class="flex mt-5 pb-2.5 flex-grow">
-      <p class="text-sm leading-6 text-body font-normal line-clamp-3 flex-grow overflow-hidden">{{ $description }}</p>
-    </a>
+    {{ end }}
 
     {{/* Tags */}}
+    {{ if $page.Params.tags }}
     <div class="mt-auto pt-6 flex items-center justify-between">
-      {{ if $page.Params.tags }}
-        <div class="flex flex-wrap gap-1">
-          {{ range first 2 $page.Params.tags }}
-            <a href="{{ print "/tags/" (. | urlize) | relLangURL }}/">
-              {{ partial "components/label/label.html" (dict "text" . "badgeClass" "badge-base badge-gray badge-with-border") }}
-            </a>
-          {{ end }}
-          {{ if gt (len $page.Params.tags) 2 }}
-            <a href="{{ "/tags/" | relLangURL }}">
-              {{ partial "components/label/label.html" (dict "text" (printf "+%d" (sub (len $page.Params.tags) 2)) "badgeClass" "badge-base badge-gray badge-with-border") }}
-            </a>
-          {{ end }}
-        </div>
-      {{ end }}
+      <div class="flex flex-wrap gap-1">
+        {{ range first 2 $page.Params.tags }}
+          {{ partial "components/label/label.html" (dict "text" . "badgeClass" "badge-base badge-gray badge-with-border") }}
+        {{ end }}
+        {{ if gt (len $page.Params.tags) 2 }}
+          {{ partial "components/label/label.html" (dict "text" (printf "+%d" (sub (len $page.Params.tags) 2)) "badgeClass" "badge-base badge-gray badge-with-border") }}
+        {{ end }}
+      </div>
     </div>
+    {{ end }}
   </div>
 </article>

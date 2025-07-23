@@ -1,9 +1,24 @@
 # Μεταφράσεις στα ελληνικά
 frequently_asked_questions: "Συχνές Ερωτήσεις"
 language_selector_title: "Διαθέσιμες Γλώσσες"
-glossary_subtitle: "Μία εκτενής λίστα όρων και ορισμών"
+glossary_subtitle: "Μία εκτενή λίστα όρων και ορισμών"
 glossary_title: "Γλωσσάριο"
 home_title: "Αρχική"
+
+# Search translations
+search_placeholder: "Αναζήτηση..."
+search_submit_aria: "Υποβολή αναζήτησης"
+search_clear_aria: "Καθαρισμός αναζήτησης"
+search_clear_title: "Καθαρισμός αναζήτησης"
+search_loading: "Φόρτωση..."
+search_view_all_results: "Προβολή όλων των αποτελεσμάτων"
+search_no_results: "Δεν βρέθηκαν αποτελέσματα."
+search_error_loading: "Σφάλμα φόρτωσης αποτελεσμάτων αναζήτησης."
+search_error_performing: "Σφάλμα εκτέλεσης αναζήτησης."
+search_not_available: "Η λειτουργία αναζήτησης δεν είναι διαθέσιμη. Δοκιμάστε ξανά αργότερα."
+search_initializing: "Η αναζήτηση εξακολουθεί να αρχικοποιείται. Δοκιμάστε ξανά."
+search_no_content_preview: "Δεν υπάρχει διαθέσιμη προεπισκόπηση περιεχομένου"
+search_untitled: "Χωρίς τίτλο"
 
 # Glossary translations
 glossary_eyebrow: "Γλωσσάριο"
@@ -38,6 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Προηγούμενη"
 tag_pagination_next: "Επόμενη"
 tag_other_tags: "Άλλες Ετικέτες"
+tag_show_less: "Εμφάνιση λιγότερων"
 
 # Μεταφράσεις για τη συγκατάθεση cookies
 cookie_consent_title: "Συγκατάθεση για Cookies"
@@ -85,4 +101,7 @@ courses.session: "Συνεδρία"
 courses.you_will_learn: "Θα μάθετε:"
 courses.or: "ή"
 
-courses.format: "Format"
+courses.format: "Μορφή"
+
+# Icon card translations
+icon.card.btn: "Δες"

@@ -1,127 +1,100 @@
 {{ define "main" }}
 {{ partial "breadcrumbs_default.html" . }}
 
-{{ $partialParams := dict
-"title" .Title
-"description" (partial "utils/linkbuilding" (dict "content" (printf (i18n "tag_browse_content") .Title) "page" .))
-"eyebrow" (i18n "tag_eyebrow")
-}}
-
-{{ partial "hero_default.html" (dict "Params" $partialParams "Title" .Title "Page" .) }}
-
-{{ partial "search_field.html" . }}
-
 <!-- Tag Posts List -->
-<div class="bg-white py-12">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
-    <div class="mx-auto">
-      {{ $paginator := .Paginate .Pages 100 }}
+<div class="surface-primary py-16">
+  <div class="wrapper px-6 lg:px-8">
+    <h1 class="text-5xl sm:text-7xl font-semibold tracking-tight text-heading">{{ .Title }}</h1>
+
+    {{ partial "search_field.html" . }}
+
+    {{ $paginator := .Paginate .Pages 100 }}
       
-      {{ if eq $paginator.TotalPages 0 }}
-        <div class="text-center py-12">
-          <h3 class="text-lg font-medium text-gray-900">{{ i18n "tag_no_content_found" }}</h3>
-          <p class="mt-2 text-sm text-gray-500">{{ i18n "tag_try_browsing" }}</p>
-        </div>
-      {{ else }}
-        <div class="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {{ range $paginator.Pages }}
-            {{ partial "components/cards/post_card.html" . }}
-          {{ end }}
-        </div>
-        
-        <!-- Pagination -->
-        {{ if gt $paginator.TotalPages 1 }}
-          <div class="mt-12 flex items-center justify-between border-t border-gray-200 pt-6">
-            <div class="flex flex-1 justify-between sm:hidden">
-              {{ if $paginator.HasPrev }}
-                <a href="{{ $paginator.Prev.URL }}" class="relative inline-flex items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ i18n "tag_pagination_previous" }}</a>
-              {{ else }}
-                <span class="relative inline-flex items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-500">{{ i18n "tag_pagination_previous" }}</span>
-              {{ end }}
-              
-              {{ if $paginator.HasNext }}
-                <a href="{{ $paginator.Next.URL }}" class="relative ml-3 inline-flex items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ i18n "tag_pagination_next" }}</a>
-              {{ else }}
-                <span class="relative ml-3 inline-flex items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-500">{{ i18n "tag_pagination_next" }}</span>
-              {{ end }}
-            </div>
-            
-            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-              <div>
-                <nav class="isolate inline-flex -space-x-px rounded-xl shadow-sm" aria-label="Pagination">
-                  {{ if $paginator.HasPrev }}
-                    <a href="{{ $paginator.Prev.URL }}" class="relative inline-flex items-center rounded-l-xl px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                      <span class="sr-only">{{ i18n "tag_pagination_previous" }}</span>
-                      <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
-                      </svg>
-                    </a>
-                  {{ else }}
-                    <span class="relative inline-flex items-center rounded-l-xl px-2 py-2 text-gray-300 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
-                      <span class="sr-only">{{ i18n "tag_pagination_previous" }}</span>
-                      <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
-                      </svg>
-                    </span>
-                  {{ end }}
-                  
-                  {{ range $paginator.Pagers }}
-                    {{ if eq . $paginator }}
-                      <span aria-current="page" class="relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ .PageNumber }}</span>
-                    {{ else }}
-                      <a href="{{ .URL }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">{{ .PageNumber }}</a>
-                    {{ end }}
-                  {{ end }}
-                  
-                  {{ if $paginator.HasNext }}
-                    <a href="{{ $paginator.Next.URL }}" class="relative inline-flex items-center rounded-r-xl px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                      <span class="sr-only">{{ i18n "tag_pagination_next" }}</span>
-                      <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
-                      </svg>
-                    </a>
-                  {{ else }}
-                    <span class="relative inline-flex items-center rounded-r-xl px-2 py-2 text-gray-300 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
-                      <span class="sr-only">{{ i18n "tag_pagination_next" }}</span>
-                      <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
-                      </svg>
-                    </span>
-                  {{ end }}
-                </nav>
-              </div>
-            </div>
-          </div>
+    {{ if eq $paginator.TotalPages 0 }}
+      <div class="text-center py-12">
+        <h3 class="text-lg font-medium text-heading">{{ i18n "tag_no_content_found" }}</h3>
+        <p class="mt-2 text-sm text-muted">{{ i18n "tag_try_browsing" }}</p>
+      </div>
+    {{ else }}
+      <div class="mt-8 grid gap-16 sm:grid-cols-2 lg:grid-cols-3">
+        {{ range $paginator.Pages }}
+          {{ partial "components/cards/post_card_with_image.html" (dict "page" . ) }}
         {{ end }}
+      </div>
+      
+      <!-- Pagination -->
+      {{ if gt $paginator.TotalPages 1 }}
+        {{partial "components/pagination/pagination.html" $paginator }}
       {{ end }}
-    </div>
+    {{ end }}
   </div>
 </div>
 
 <!-- Related Tags Section -->
-<div class="bg-gray-50 py-12">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
-    <div class="mx-auto max-w-2xl lg:max-w-4xl">
-      <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ i18n "tag_other_tags" }}</h2>
-      <div class="mt-6 flex flex-wrap gap-3">
-        {{ $currentTag := .Title }}
-        {{ $tags := $.Site.Taxonomies.tags }}
-        {{ $relatedTags := slice }}
+<div class="surface-secondary pt-12 pb-16">
+  <div class="wrapper">
+    <h2 class="text-lg font-semibold tracking-tight text-heading">{{ i18n "tag_other_tags" }}</h2>
+    <div class="mt-6">
+      {{ $currentTag := .Title }}
+      {{ $tags := $.Site.Taxonomies.tags }}
+      {{ $relatedTags := slice }}
+      
+      {{ range $name, $taxonomy := $tags }}
+        {{ if ne $name $currentTag }}
+          {{ $relatedTags = $relatedTags | append (dict "name" $name "count" (len $taxonomy.Pages)) }}
+        {{ end }}
+      {{ end }}
+      
+      {{ $maxTags := 37 }}
+      {{ $sortedTags := first 100 (sort $relatedTags "count" "desc") }}
+      {{ $tagsCount := len $sortedTags }}
+      {{ $containerId := "related-tags" }}
+      
+      <!-- Tags Container -->
+      <div class="flex flex-wrap gap-3" id="tags-container-{{ $containerId }}">
         
-        {{ range $name, $taxonomy := $tags }}
-          {{ if ne $name $currentTag }}
-            {{ $relatedTags = $relatedTags | append (dict "name" $name "count" (len $taxonomy.Pages)) }}
+        <!-- Always visible tags -->
+        {{ range $i, $tag := $sortedTags }}
+          {{ if lt $i $maxTags }}
+            <a href="{{ "/tags/" | relLangURL }}{{ .name | urlize }}/" class="tag-visible">
+              {{ partial "components/label/label.html" (dict "text" .name "badgeClass" "badge-base badge-gray badge-with-border") }}
+            </a>
           {{ end }}
         {{ end }}
         
-        {{ range first 100 (sort $relatedTags "count" "desc") }}
-          <a href="{{ "/tags/" | relLangURL }}{{ .name | urlize }}/" class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-800 hover:bg-gray-200">
-            {{ .name }} <span class="ml-1.5 text-xs text-gray-500">({{ .count }})</span>
-          </a>
+        <!-- Hidden tags (initially hidden) -->
+        {{ range $i, $tag := $sortedTags }}
+          {{ if ge $i $maxTags }}
+            <a href="{{ "/tags/" | relLangURL }}{{ .name | urlize }}/" class="tag-hidden hidden">
+              {{ partial "components/label/label.html" (dict "text" .name "badgeClass" "badge-base badge-gray badge-with-border") }}
+            </a>
+          {{ end }}
+        {{ end }}
+        
+        <!-- Show more/less buttons -->
+        {{ if gt $tagsCount $maxTags }}
+          <button type="button" class="show-more-btn text-body font-semibold text-xs tracking-[0.216px] cursor-pointer" data-container="{{ $containerId }}">
+            <div class="flex items-center gap-1">
+              <span>{{ (printf "+%d more" (sub $tagsCount $maxTags)) }}</span>
+              {{ partial "icons/chevron-down" "size-5 text-body" }}
+            </div>
+          </button>
+          <button type="button" class="show-less-btn text-body font-semibold text-xs tracking-[0.216px] cursor-pointer hidden" data-container="{{ $containerId }}">
+            <div class="flex items-center gap-1">
+              <span>{{ i18n "tag_show_less" }}</span>
+              {{ partial "icons/chevron-up" "size-5 text-body" }}
+            </div>
+          </button>
         {{ end }}
       </div>
     </div>
   </div>
 </div>
+
+<!-- Load tag toggle script only if needed -->
+{{ if gt $tagsCount $maxTags }}
+{{ $tagToggleJS := resources.Get "js/tag-toggle.js" | js.Build }}
+<script src="{{ $tagToggleJS.RelPermalink }}" defer></script>
+{{ end }}
 
 {{ end }}

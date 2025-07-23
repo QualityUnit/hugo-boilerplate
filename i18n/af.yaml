@@ -4,6 +4,21 @@ language_selector_title: "Beskikbare Tale"
 glossary_subtitle: "'n Omvattende lys van terme en definisies"
 glossary_title: "Woordelys"
 
+# Search translations
+search_placeholder: "Soek..."
+search_submit_aria: "Stuur soektog"
+search_clear_aria: "Maak soektog skoon"
+search_clear_title: "Maak soektog skoon"
+search_loading: "Laai..."
+search_view_all_results: "Bekyk alle resultate"
+search_no_results: "Geen resultate gevind nie."
+search_error_loading: "Fout met laai van soekresultate."
+search_error_performing: "Fout met uitvoer van soektog."
+search_not_available: "Soekfunksionaliteit is nie beskikbaar nie. Probeer later weer."
+search_initializing: "Soektog word nog geïnitialiseer. Probeer weer."
+search_no_content_preview: "Geen inhoud voorskou beskikbaar"
+search_untitled: "Sonder titel"
+
 # Tags page translations
 tags_title: "Etikette"
 tag_eyebrow: "Etiket"
@@ -14,7 +29,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Vorige"
 tag_pagination_next: "Volgende"
 tag_other_tags: "Ander Etikette"
-
+tag_show_less: "Wys minder"
 # Cookie consent translations
 cookie_consent_title: "Koekie Toestemming"
 cookie_consent_message: "Ons gebruik koekies om jou blaai-ervaring te verbeter en ons verkeer te analiseer."
@@ -72,3 +87,6 @@ courses.session: "Sessie"
 courses.you_will_learn: "Jy sal leer:"
 courses.or: "of"
 courses.format: "Format"
+
+# Icon card translations
+icon.card.btn: "Sien"

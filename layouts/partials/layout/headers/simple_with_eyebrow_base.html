@@ -1,0 +1,57 @@
+{{/*
+@component: Simple Header with Eyebrow
+@description: A simple header with an optional eyebrow text above the main heading and description text, aligned to the left.
+@params:
+  - eyebrow: Eyebrow text (optional, default: "Get the help you need")
+  - heading: Main heading text (optional, default: "Support center")
+  - description: Description text (optional, default: provided placeholder text)
+  - padding: Padding classes for the section (optional, default: "py-24 lg:py-32")
+  - maxWidth: Max width class for the content container (optional, default: "max-w-2xl")
+  - alignment: "left" (default), "center", or "right" for text alignment
+@example:
+  {{ partial "layout/headers/simple_with_eyebrow_base.html" (dict 
+      "eyebrow" "AI-Powered Workflows"
+      "heading" "Welcome to Our Platform" 
+      "description" "Everything you need to know about getting started with our service."
+      "alignment" "center"
+  ) }}
+@note: This component extends the basic simple header with an optional eyebrow text that helps establish hierarchy and improve scannability. The content is left-aligned for a more traditional layout.
+*/}}
+
+{{/* Eyebrow */}}
+{{ $eyebrow := .eyebrow | default "" }}
+
+{{/* Heading */}}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+
+{{/* Section padding */}}
+{{ $sectionPadding := .padding | default "pb-24 lg:pb-32" }}
+
+{{/* Max width */}}
+{{ $maxWidth := .maxWidth | default "max-w-2xl" }}
+
+{{/* Alignment */}}
+{{ $alignment := .alignment | default "left" }}
+{{ $alignmentClass := "" }}
+{{ if eq $alignment "center" }}
+  {{ $alignmentClass = "text-center mx-auto" }}
+{{ else if eq $alignment "right" }}
+  {{ $alignmentClass = "text-right ml-auto" }}
+{{ else }}
+  {{ $alignmentClass = "text-left lg:mx-0" }}
+{{ end }}
+
+<div class="{{ $sectionPadding }}">
+  <div class="wrapper px-6 lg:px-8">
+    <div class="{{ $maxWidth }} {{ $alignmentClass }}">
+      {{ if $eyebrow }}
+        <p class="text-base font-semibold product-text">{{ $eyebrow }}</p>
+      {{ end }}
+      <h2 class="{{ if $eyebrow }}mt-2.5{{ end }} text-5xl font-semibold tracking-tighter text-heading">{{ $heading }}</h2>
+      {{ if $description }}
+        <p class="mt-6 text-lg text-pretty text-body sm:text-xl/8">{{ $description }}</p>
+      {{ end }}
+    </div>
+  </div>
+</div>

@@ -49,6 +49,12 @@
     "tags" $tags
     "typewriter" $typewriter
     ) }}
+{{ else if eq .Params.heroVariant "simple_base" }}
+    {{ partial "sections/hero/simple_base.html" (dict
+    "heading" $title
+    "description" (markdownify $shortDescription)
+    "padding" (.Params.heroPadding | default "py-24 sm:py-32")
+    ) }}
 {{ else }}
     {{ partial "sections/hero/simple_centered.html" (dict
     "heading" $title

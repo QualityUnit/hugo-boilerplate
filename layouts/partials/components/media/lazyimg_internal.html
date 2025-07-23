@@ -9,6 +9,7 @@
   - width: Image width (optional)
   - height: Image height (optional)
   - maxWidth: Maximum image width for loading (optional)
+  - noLazy: Set to true to disable lazy loading (for hero images, above-the-fold content) (optional)
 @example:
   {{ partial "components/media/lazyimg.html" (dict
       "src" "/images/blog/featured-image.jpg"
@@ -27,20 +28,26 @@
 {{ $width := .width | default "" }}
 {{ $height := .height | default "" }}
 {{ $maxWidth := .maxWidth | default 3000 }}
+{{ $noLazy := .noLazy | default false }}
 
 {{ if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") }}
   <!-- SVGs: skip <picture> and srcset logic, just use <img> with lazy loading -->
   {{ $imgClassSvg := "lazy-image" }}
   {{ if $class }}{{ $imgClassSvg = printf "%s %s" $imgClassSvg $class }}{{ end }}
   <img
+    {{ if $noLazy }}
+    src="{{ $src }}"
+    class="{{ $imgClassSvg }} loaded"
+    {{ else }}
     src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" {{/* Placeholder for linters */}}
     class="{{ $imgClassSvg }}"
     data-src="{{ $src }}"
+    {{ end }}
     alt="{{ $alt }}"{{ if $id }}
     id="{{ $id }}"{{ end }}{{ if $width }}
     width="{{ $width }}"{{ end }}{{ if $height }}
     height="{{ $height }}"{{ end }}
-    loading="lazy"
+    {{ if not $noLazy }}loading="lazy"{{ end }}
     decoding="async"
     data-original-src="{{ $src }}"
   >
@@ -292,6 +299,7 @@
 
     {{ $pictureFinalClass := "lazy-picture" }}
     {{ if $classPicture }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass $classPicture }}{{ end }}
+    {{ if $noLazy }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass "loaded" }}{{ end }}
     <picture
       class="{{ $pictureFinalClass }}"{{ if $maxWidth }}
       data-maxWidth="{{ $maxWidth }}"{{ end }}
@@ -299,27 +307,40 @@
       {{ if and $webpSrcset (ne $fileExt ".webp") }}
       <source
         type="image/webp"
+        {{ if $noLazy }}
+        srcset="{{ $webpSrcset }}"
+        {{ else }}
         data-srcset="{{ $webpSrcset }}"
+        {{ end }}
         sizes="{{ $sizesAttr }}"
         data-original-src="{{ $src }}"
       >
       {{ end }}
       <source
         type="{{ $mimeType }}"
+        {{ if $noLazy }}
+        srcset="{{ $origSrcset }}"
+        {{ else }}
         data-srcset="{{ $origSrcset }}"
+        {{ end }}
         sizes="{{ $sizesAttr }}"
         data-original-src="{{ $src }}"
       >
       {{ $imgClassFallback := "lazy-image" }}
       {{ if $class }}{{ $imgClassFallback = printf "%s %s" $imgClassFallback $class }}{{ end }}
+      {{ if $noLazy }}{{ $imgClassFallback = printf "%s %s" $imgClassFallback "loaded" }}{{ end }}
       <img
+        {{ if $noLazy }}
+        src="{{ $fallbackSrc }}"
+        {{ else }}
         data-src="{{ $fallbackSrc }}"
+        {{ end }}
         alt="{{ $alt }}"
         class="{{ $imgClassFallback }}"{{ if $id }}
-        id="{{ $id }}"{{ end }}{{ if $width }}
-        width="{{ $width }}"{{ end }}{{ if $height }}
-        height="{{ $height }}"{{ end }}
-        loading="lazy"
+        id="{{ $id }}"{{ end }}
+        {{ if $width }}width="{{ $width }}"{{ end }}
+        {{ if $height }}height="{{ $height }}"{{ end }}
+        {{ if not $noLazy }}loading="lazy"{{ end }}
         decoding="async"
         data-original-src="{{ $src }}"
       >

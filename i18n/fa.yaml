@@ -5,6 +5,21 @@ glossary_subtitle: "فهرستی جامع از اصطلاحات و تعاریف"
 glossary_title: "فرهنگ لغات"
 home_title: "خانه"
 
+# Search translations
+search_placeholder: "جستجو..."
+search_submit_aria: "ارسال جستجو"
+search_clear_aria: "پاک کردن جستجو"
+search_clear_title: "پاک کردن جستجو"
+search_loading: "در حال بارگذاری..."
+search_view_all_results: "مشاهده همه نتایج"
+search_no_results: "نتیجه‌ای یافت نشد."
+search_error_loading: "خطا در بارگذاری نتایج جستجو."
+search_error_performing: "خطا در انجام جستجو."
+search_not_available: "قابلیت جستجو در دسترس نیست. لطفاً بعداً تلاش کنید."
+search_initializing: "جستجو هنوز در حال راه‌اندازی است. لطفاً دوباره تلاش کنید."
+search_no_content_preview: "پیش‌نمایش محتوا در دسترس نیست"
+search_untitled: "بدون عنوان"
+
 # Glossary translations
 glossary_eyebrow: "فرهنگ لغات"
 
@@ -38,6 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "قبلی"
 tag_pagination_next: "بعدی"
 tag_other_tags: "برچسب‌های دیگر"
+tag_show_less: "نمایش کمتر"
 
 # ترجمه‌های رضایت‌نامه کوکی
 cookie_consent_title: "رضایت‌نامه کوکی"
@@ -70,9 +86,9 @@ faq_description: "پاسخ‌هایی برای سوالات رایج در مور
 no_terms_available: "هیچ اصطلاحی موجود نیست"
 pricing_monthly_label: "ماهانه"
 pricing_yearly_label: "سالانه"
-wantMore: "Want more?"
-learnMore: "Learn more"
-pricing_tagline: "Pricing"
+wantMore: "بیشتر می‌خواهید؟"
+learnMore: "بیشتر بدانید"
+pricing_tagline: "قیمت‌گذاری"
 pricing_title: "قیمت‌گذاری که با شما رشد می‌کند"
 pricing_description: "طرحی مقرون به صرفه انتخاب کنید که شامل بهترین ویژگی‌ها برای درگیر کردن مخاطبان، ایجاد وفاداری مشتری و افزایش فروش باشد."
 pricing_comparison_title: "مقایسه طرح‌ها"
@@ -84,4 +100,7 @@ get_started: "شروع کنید"
 courses.session: "جلسه"
 courses.you_will_learn: "شما خواهید آموخت:"
 courses.or: "یا"
-courses.format: "Format"
+courses.format: "فرمت"
+
+# Icon card translations
+icon.card.btn: "مشاهده"

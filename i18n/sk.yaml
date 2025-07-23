@@ -5,6 +5,21 @@ glossary_subtitle: "Komplexný zoznam pojmov a definícií"
 glossary_title: "Glosár"
 home_title: "Domov"
 
+# Search translations
+search_placeholder: "Vyhľadať..."
+search_submit_aria: "Odoslať vyhľadávanie"
+search_clear_aria: "Vymazať vyhľadávanie"
+search_clear_title: "Vymazať vyhľadávanie"
+search_loading: "Načítava sa..."
+search_view_all_results: "Zobraziť všetky výsledky"
+search_no_results: "Nenašli sa žiadne výsledky."
+search_error_loading: "Chyba pri načítavaní výsledkov vyhľadávania."
+search_error_performing: "Chyba pri vykonávaní vyhľadávania."
+search_not_available: "Funkcia vyhľadávania nie je dostupná. Skúste to neskôr."
+search_initializing: "Vyhľadávanie sa stále inicializuje. Skúste to znovu."
+search_no_content_preview: "Žiadny náhľad obsahu nie je dostupný"
+search_untitled: "Bez názvu"
+
 # Glossary translations
 glossary_eyebrow: "Glosár"
 
@@ -38,6 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Predchádzajúca"
 tag_pagination_next: "Nasledujúca"
 tag_other_tags: "Iné tagy"
+tag_show_less: "Zobraziť menej"
 
 # Cookie consent translations
 cookie_consent_title: "Súhlas s cookies"
@@ -81,7 +97,10 @@ read_more_post: "Čítať viac"
 no_posts_found: "Nenašli sa žiadne príspevky"
 minutes_read: "min čítania"
 get_started: "Začať"
-courses.session: "Session"
-courses.you_will_learn: "You will learn:"
-courses.or: "or"
-courses.format: "Format"
+courses.session: "Relácia"
+courses.you_will_learn: "Naučíte sa:"
+courses.or: "alebo"
+courses.format: "Formát"
+
+# Icon card translations
+icon.card.btn: "Pozrieť"

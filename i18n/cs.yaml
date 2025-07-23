@@ -5,6 +5,21 @@ glossary_subtitle: "Komplexní seznam termínů a definic"
 glossary_title: "Slovník"
 home_title: "Domů"
 
+# Search translations
+search_placeholder: "Hledat..."
+search_submit_aria: "Odeslat vyhledávání"
+search_clear_aria: "Vymazat vyhledávání"
+search_clear_title: "Vymazat vyhledávání"
+search_loading: "Načítá se..."
+search_view_all_results: "Zobrazit všechny výsledky"
+search_no_results: "Nenalezeny žádné výsledky."
+search_error_loading: "Chyba při načítání výsledků vyhledávání."
+search_error_performing: "Chyba při provádění vyhledávání."
+search_not_available: "Funkce vyhledávání není dostupná. Zkuste to později."
+search_initializing: "Vyhledávání se stále inicializuje. Zkuste to znovu."
+search_no_content_preview: "Náhled obsahu není k dispozici"
+search_untitled: "Bez názvu"
+
 # Glossary translations
 glossary_eyebrow: "Slovník"
 
@@ -38,7 +53,7 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Předchozí"
 tag_pagination_next: "Další"
 tag_other_tags: "Další štítky"
-
+tag_show_less: "Zobrazit méně"
 # Cookie consent translations
 cookie_consent_title: "Souhlas s cookies"
 cookie_consent_message: "Používáme cookies ke zlepšení vašeho prohlížení a analýze naší návštěvnosti."
@@ -85,4 +100,7 @@ courses.session: "Lekce"
 courses.you_will_learn: "Naučíte se:"
 courses.or: "nebo"
 
-courses.format: "Format"
+courses.format: "Formát"
+
+# Icon card translations
+icon.card.btn: "Zobrazit"
