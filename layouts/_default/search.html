@@ -2,16 +2,24 @@
 {{ partial "breadcrumbs_default.html" . }}
 {{ partial "hero_default.html" . }}
 
-<div class="bg-white dark:bg-gray-900">
+<div class="bg-white dark:bg-gray-900 mt-6">
     <div class="wrapper">
-        <div class="mx-auto max-w-none prose prose-lg prose-a:underline hover:prose-a:text-primary prose-img:rounded-xl">
+        <div class="mx-auto max-w-none prose prose-lg prose-a:underline hover:prose-a:text-primary">
 
-            <div class="search-container">
-                <input type="search" name="q" id="search-query" placeholder="Search..." autocomplete="off">
+            <div class="search-container py-6 gap-x-2 relative flex w-80">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                   {{ partial "icons/magnifying-glass" "w-4 h-4 text-muted" }}
+                </span>
+                <input type="search" name="q" id="search-query" autocomplete="off"
+                    class="hide-search-clear px-9 py-1.5 w-80 border border-gray-600 dark:border-gray-700 rounded-md focus:outline-none focus:ring-0 focus:ring-transparent focus:border-gray-400 transition" />
+                <button type="button" id="clear-search" aria-label="{{ i18n "search_clear_aria" }}"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-0">
+                    {{ partial "icons/x-mark" "w-4 h-4 text-muted" }}
+                </button>
             </div>
 
             <div id="search-results"></div>
-            <div class="search-loading">Loading...</div>
+            <div class="search-loading">{{ i18n "search_loading" }}</div>
 
             <script id="search-result-template" type="text/x-js-template">
                 <div id="summary-${key}">
@@ -25,136 +33,172 @@
                 </div>
             </script>
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js" integrity="sha512-Nqw1tH3mpavka9cQCc5zWWEZNfIPdOYyQFjlV1NvflEtQ0/XI6ZQ+H/D3YgJdqSUJlMLAPRj/oXlaHCFbFCjoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            <script defer src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js" integrity="sha512-Nqw1tH3mpavka9cQCc5zWWEZNfIPdOYyQFjlV1NvflEtQ0/XI6ZQ+H/D3YgJdqSUJlMLAPRj/oXlaHCFbFCjoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            <script defer src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('search-query');
-        const searchResults = document.getElementById('search-results');
-        const loadingIndicator = document.querySelector('.search-loading');
-        const resultTemplate = document.getElementById('search-result-template').innerHTML;
-        let searchIndex = null;
-        let fuse = null;
-        let debounceTimer;
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const searchInput = document.getElementById('search-query');
+                    const searchResults = document.getElementById('search-results');
+                    const loadingIndicator = document.querySelector('.search-loading');
+                    const resultTemplate = document.getElementById('search-result-template').innerHTML;
+                    const clearBtn = document.getElementById('clear-search');
+                    let searchIndex = null;
+                    let fuse = null;
+                    let debounceTimer;
 
-        // Initialize with URL parameters if present
-        const searchQuery = new URLSearchParams(window.location.search).get('q');
-        if (searchQuery) {
-            searchInput.value = searchQuery;
-        }
+                    // Initialize with URL parameters if present
+                    const searchQuery = new URLSearchParams(window.location.search).get('q');
+                    if (searchQuery) {
+                        searchInput.value = searchQuery;
+                    }
 
-        // Update URL without reloading the page
-        function updateURL(query) {
-            const url = new URL(window.location);
-            if (query && query.trim() !== '') {
-                url.searchParams.set('q', query);
-            } else {
-                url.searchParams.delete('q');
-            }
-            window.history.replaceState({}, '', url);
-        }
+                    // Show/hide clear button
+                    function toggleClearBtn() {
+                        clearBtn.style.display = searchInput.value ? 'block' : 'none';
+                    }
+                    searchInput.addEventListener('input', toggleClearBtn);
+                    toggleClearBtn();
 
-        // Perform search and display results
-        function performSearch(query) {
-            if (!query || query.trim() === '') {
-                searchResults.innerHTML = '';
-                updateURL('');
-                return;
-            }
+                    // Clear input on button click
+                    clearBtn.addEventListener('click', function() {
+                        searchInput.value = '';
+                        //searchInput.focus();
+                        toggleClearBtn();
+                        searchResults.innerHTML = '';
+                        updateURL('');
+                    });
 
-            updateURL(query);
-
-            if (!fuse) {
-                loadingIndicator.style.display = 'block';
-                return; // Wait for index to load
-            }
-
-            const results = fuse.search(query);
-
-            if (results.length > 0) {
-                let html = '';
-                results.forEach(({ item, matches, refIndex }) => {
-                    let snippet = '';
-
-                    // Check if content exists before trying to access it
-                    if (item.content) {
-                        snippet = item.content.substring(0, 150) + '...';
-                        const contentMatch = matches?.find(m => m.key === 'content' && m.indices.length > 0);
-
-                        if (contentMatch) {
-                            const start = Math.max(0, contentMatch.indices[0][0] - 30);
-                            const end = Math.min(item.content.length, contentMatch.indices[0][1] + 30);
-                            snippet = '...' + item.content.substring(start, end) + '...';
+                    // Update URL without reloading the page
+                    function updateURL(query) {
+                        const url = new URL(window.location);
+                        if (query && query.trim() !== '') {
+                            url.searchParams.set('q', query);
+                        } else {
+                            url.searchParams.delete('q');
                         }
-                    } else {
-                        snippet = '...';
+                        window.history.replaceState({}, '', url);
                     }
 
-                    let resultHTML = resultTemplate
-                        .replace(/\${key}/g, refIndex)
-                        .replace(/\${link}/g, item.permalink)
-                        .replace(/\${title}/g, item.title)
-                        .replace(/\${snippet}/g, snippet);
+                    // Perform search and display results
+                    function performSearch(query) {
+                        if (!query || query.trim() === '') {
+                            searchResults.innerHTML = '';
+                            updateURL('');
+                            return;
+                        }
 
-                    if (item.tags && item.tags.length > 0) {
-                        resultHTML = resultHTML
-                            .replace('${ isset tags }', '')
-                            .replace('${ end }', '')
-                            .replace('${tags}', item.tags.join(', '));
-                    } else {
-                        resultHTML = resultHTML.replace(/\${ isset tags }[\s\S]*\${ end }/g, '');
+                        updateURL(query);
+
+                        if (!fuse) {
+                            loadingIndicator.style.display = 'block';
+                            return; // Wait for index to load
+                        }
+
+                        const results = fuse.search(query);
+
+                        if (results.length > 0) {
+                            let html = '';
+                            results.forEach(({ item, matches, refIndex }) => {
+                                let snippet = '';
+
+                                // Check if content exists before trying to access it
+                                if (item.content) {
+                                    snippet = item.content.substring(0, 150) + '...';
+                                    const contentMatch = matches?.find(m => m.key === 'content' && m.indices.length > 0);
+
+                                    if (contentMatch) {
+                                        const start = Math.max(0, contentMatch.indices[0][0] - 30);
+                                        const end = Math.min(item.content.length, contentMatch.indices[0][1] + 30);
+                                        snippet = '...' + item.content.substring(start, end) + '...';
+                                    }
+                                } else {
+                                    snippet = '...';
+                                }
+
+                                let resultHTML = resultTemplate
+                                    .replace(/\${key}/g, refIndex)
+                                    .replace(/\${link}/g, item.permalink)
+                                    .replace(/\${title}/g, item.title)
+                                    .replace(/\${snippet}/g, snippet);
+
+                                if (item.tags && item.tags.length > 0) {
+                                    resultHTML = resultHTML
+                                        .replace('${ isset tags }', '')
+                                        .replace('${ end }', '')
+                                        .replace('${tags}', item.tags.join(', '));
+                                } else {
+                                    resultHTML = resultHTML.replace(/\${ isset tags }[\s\S]*\${ end }/g, '');
+                                }
+                                html += resultHTML;
+                            });
+                            searchResults.innerHTML = html;
+
+                            const mark = new Mark(searchResults);
+                            mark.mark(query);
+                        } else {
+                            searchResults.innerHTML = `
+                              <div class="surface-divider"></div>
+                              <div class="w-96 pt-6 not-prose">
+                                <div class="flex gap-1 text-base text-heading">
+                                  <span>{{ i18n "search_no_results_for" }}:</span>
+                                  <span class="font-bold">${query}</span>
+                                </div>
+                                <div class="surface-divider mt-3"></div>
+                                <div class="py-3">
+                                  <div class="text-sm text-body font-semibold">{{ i18n "search_suggestions" }}</div>
+                                  <ul class="mt-1 text-sm/7 text-muted">
+                                    <li>{{ i18n "search_suggestion_spell" }}</li>
+                                    <li>{{ i18n "search_suggestion_broaden" }}</li>
+                                    <li>{{ i18n "search_suggestion_terms" }}</li>
+                                  </ul>
+                                </div>
+                                <div class="surface-divider mt-3"></div>
+                                <a href="/contact/" class="py-3 text-sm text-primary">{{ i18n "search_chat_link" }}</a>
+                              </div>
+                            `;
+                        }
                     }
-                    html += resultHTML;
+
+                    // Debounce function to prevent too many searches while typing
+                    function debounce(func, delay) {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(func, delay);
+                    }
+
+                    // Load search index
+                    loadingIndicator.style.display = 'block';
+                    fetch('/index.json')
+                        .then(response => response.json())
+                        .then(data => {
+                            searchIndex = data;
+                            fuse = new Fuse(data, {
+                                keys: ['title', 'content', 'tags'],
+                                includeScore: true,
+                                includeMatches: true,
+                                minMatchCharLength: 2,
+                                threshold: 0.4,
+                            });
+
+                            loadingIndicator.style.display = 'none';
+
+                            // If there's an initial query from URL, perform search
+                            if (searchInput.value) {
+                                performSearch(searchInput.value);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading search index:', error);
+                            loadingIndicator.style.display = 'none';
+                            searchResults.innerHTML = '<p>Error loading search index. Please try again later.</p>';
+                        });
+
+                    // Listen for input changes
+                    searchInput.addEventListener('input', function() {
+                        debounce(() => performSearch(this.value), 300);
+                    });
                 });
-                searchResults.innerHTML = html;
-
-                const mark = new Mark(searchResults);
-                mark.mark(query);
-            } else {
-                searchResults.innerHTML = '<p>No results found.</p>';
-            }
-        }
-
-        // Debounce function to prevent too many searches while typing
-        function debounce(func, delay) {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(func, delay);
-        }
-
-        // Load search index
-        loadingIndicator.style.display = 'block';
-        fetch('/index.json')
-            .then(response => response.json())
-            .then(data => {
-                searchIndex = data;
-                fuse = new Fuse(data, {
-                    keys: ['title', 'content', 'tags'],
-                    includeScore: true,
-                    includeMatches: true,
-                    minMatchCharLength: 2,
-                    threshold: 0.4,
-                });
-
-                loadingIndicator.style.display = 'none';
-
-                // If there's an initial query from URL, perform search
-                if (searchInput.value) {
-                    performSearch(searchInput.value);
-                }
-            })
-            .catch(error => {
-                console.error('Error loading search index:', error);
-                loadingIndicator.style.display = 'none';
-                searchResults.innerHTML = '<p>Error loading search index. Please try again later.</p>';
-            });
-
-        // Listen for input changes
-        searchInput.addEventListener('input', function() {
-            debounce(() => performSearch(this.value), 300);
-        });
-    });
-</script>
+            </script>
         </div>
     </div>
 </div>
