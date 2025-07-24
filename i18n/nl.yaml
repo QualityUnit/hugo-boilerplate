@@ -20,6 +20,13 @@ search_initializing: "Zoekopdracht wordt nog geïnitialiseerd. Probeer het opnie
 search_no_content_preview: "Geen inhoudsvoorbeeld beschikbaar"
 search_untitled: "Zonder titel"
 
+search_no_results_for: "Geen resultaten gevonden voor"
+search_suggestions: "Suggesties:"
+search_suggestion_spell: "Zorg ervoor dat alle woorden correct gespeld zijn."
+search_suggestion_broaden: "Breid je zoekwoorden uit."
+search_suggestion_terms: "Probeer andere termen of bekijk andere categorieën."
+search_chat_link: "Of chat met ons →"
+
 # Glossary translations
 glossary_eyebrow: "Woordenlijst"
 

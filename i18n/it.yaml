@@ -20,6 +20,13 @@ search_initializing: "La ricerca è ancora in fase di inizializzazione. Riprova.
 search_no_content_preview: "Nessuna anteprima del contenuto disponibile"
 search_untitled: "Senza titolo"
 
+search_no_results_for: "Nessun risultato trovato per"
+search_suggestions: "Suggerimenti:"
+search_suggestion_spell: "Assicurati che tutte le parole siano scritte correttamente."
+search_suggestion_broaden: "Amplia le tue parole chiave."
+search_suggestion_terms: "Prova con termini diversi o esplora altre categorie."
+search_chat_link: "Oppure chatta con noi →"
+
 # Glossary translations
 glossary_eyebrow: "Glossario"
 

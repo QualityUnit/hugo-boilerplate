@@ -20,6 +20,13 @@ search_initializing: "Iskanje se še vedno inicializira. Poskusite znova."
 search_no_content_preview: "Predogled vsebine ni na voljo"
 search_untitled: "Brez naslova"
 
+search_no_results_for: "Ni najdenih rezultatov za"
+search_suggestions: "Predlogi:"
+search_suggestion_spell: "Preverite, ali so vse besede pravilno napisane."
+search_suggestion_broaden: "Razširite svoje ključne besede."
+search_suggestion_terms: "Poskusite z drugimi izrazi ali raziščite druge kategorije."
+search_chat_link: "Ali klepetajte z nami →"
+
 # Glossary translations
 glossary_eyebrow: "Glosar"
 

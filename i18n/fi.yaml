@@ -20,6 +20,13 @@ search_initializing: "Haku on vielä alustamassa. Yritä uudelleen."
 search_no_content_preview: "Sisällön esikatselua ei ole saatavilla"
 search_untitled: "Ei otsikkoa"
 
+search_no_results_for: "Ei tuloksia haulle"
+search_suggestions: "Ehdotuksia:"
+search_suggestion_spell: "Varmista, että kaikki sanat on kirjoitettu oikein."
+search_suggestion_broaden: "Laajenna hakusanojasi."
+search_suggestion_terms: "Kokeile muita termejä tai selaa muita kategorioita."
+search_chat_link: "Tai keskustele kanssamme →"
+
 # Glossary translations
 glossary_eyebrow: "Sanasto"
 

@@ -20,6 +20,13 @@ search_initializing: "Paieška vis dar inicijuojama. Bandykite dar kartą."
 search_no_content_preview: "Turinio peržiūra nepasiekiama"
 search_untitled: "Be pavadinimo"
 
+search_no_results_for: "Rezultatų nerasta pagal"
+search_suggestions: "Pasiūlymai:"
+search_suggestion_spell: "Įsitikinkite, kad visi žodžiai parašyti teisingai."
+search_suggestion_broaden: "Išplėskite savo raktažodžius."
+search_suggestion_terms: "Pabandykite kitus terminus arba peržiūrėkite kitas kategorijas."
+search_chat_link: "Arba susisiekite su mumis pokalbyje →"
+
 # Glossary translations
 glossary_eyebrow: "Žodynėlis"
 

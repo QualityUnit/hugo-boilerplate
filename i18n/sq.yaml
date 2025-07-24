@@ -92,3 +92,10 @@ search_not_available: "Funksioni i kërkimit nuk është i disponueshëm. Provon
 search_initializing: "Kërkimi ende po inicializohet. Provoni përsëri."
 search_no_content_preview: "Nuk ka pamje paraprake të përmbajtjes"
 search_untitled: "Pa titull"
+
+search_no_results_for: "Nuk u gjetën rezultate për"
+search_suggestions: "Sugjerime:"
+search_suggestion_spell: "Sigurohuni që të gjitha fjalët janë shkruar saktë."
+search_suggestion_broaden: "Zgjero fjalët kyçe."
+search_suggestion_terms: "Provoni terma të ndryshëm ose eksploroni kategori të tjera."
+search_chat_link: "Ose bisedoni me ne →"

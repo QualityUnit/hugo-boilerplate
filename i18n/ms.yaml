@@ -20,6 +20,13 @@ search_initializing: "Carian masih memulakan. Cuba lagi."
 search_no_content_preview: "Tiada pratonton kandungan tersedia"
 search_untitled: "Tanpa tajuk"
 
+search_no_results_for: "Tiada keputusan dijumpai untuk"
+search_suggestions: "Cadangan:"
+search_suggestion_spell: "Pastikan semua perkataan dieja dengan betul."
+search_suggestion_broaden: "Luaskan kata kunci anda."
+search_suggestion_terms: "Cuba gunakan istilah lain atau terokai kategori lain."
+search_chat_link: "Atau berbual dengan kami →"
+
 # Glossary translations
 glossary_eyebrow: "Glosari"
 

@@ -19,6 +19,13 @@ search_initializing: "Tìm kiếm vẫn đang khởi tạo. Vui lòng thử lạ
 search_no_content_preview: "Không có xem trước nội dung khả dụng"
 search_untitled: "Không có tiêu đề"
 
+search_no_results_for: "Không tìm thấy kết quả cho"
+search_suggestions: "Gợi ý:"
+search_suggestion_spell: "Đảm bảo tất cả các từ đều được viết đúng chính tả."
+search_suggestion_broaden: "Mở rộng từ khóa của bạn."
+search_suggestion_terms: "Thử các thuật ngữ khác hoặc khám phá các danh mục khác."
+search_chat_link: "Hoặc trò chuyện với chúng tôi →"
+
 # Tags page translations
 tags_title: "Thẻ"
 tag_eyebrow: "Thẻ"

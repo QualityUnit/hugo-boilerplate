@@ -92,3 +92,10 @@ search_not_available: "Nid yw swyddogaeth chwilio ar gael. Rhowch gynnig arall a
 search_initializing: "Mae'r chwiliad yn dal i gychwyn. Rhowch gynnig arall arni."
 search_no_content_preview: "Dim rhagolwg cynnwys ar gael"
 search_untitled: "Heb deitl"
+
+search_no_results_for: "Dim canlyniadau wedi'u canfod ar gyfer"
+search_suggestions: "Awgrymiadau:"
+search_suggestion_spell: "Gwnewch yn siŵr bod pob gair wedi'i sillafu'n gywir."
+search_suggestion_broaden: "Ehangwch eich geiriau allweddol."
+search_suggestion_terms: "Ceisiwch dermau eraill neu archwiliwch gategorïau eraill."
+search_chat_link: "Neu sgwrsio gyda ni →"

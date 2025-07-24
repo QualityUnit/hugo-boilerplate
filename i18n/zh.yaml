@@ -20,6 +20,13 @@ search_initializing: "搜索仍在初始化中。请重试。"
 search_no_content_preview: "无内容预览可用"
 search_untitled: "无标题"
 
+search_no_results_for: "未找到有关"
+search_suggestions: "建议："
+search_suggestion_spell: "请确保所有单词拼写正确。"
+search_suggestion_broaden: "请扩大您的关键词。"
+search_suggestion_terms: "尝试使用不同的词语或浏览其他类别。"
+search_chat_link: "或与我们聊天 →"
+
 # Glossary translations
 glossary_eyebrow: "术语表"
 

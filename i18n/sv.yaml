@@ -20,6 +20,13 @@ search_initializing: "Sökningen initialiseras fortfarande. Försök igen."
 search_no_content_preview: "Ingen förhandsvisning av innehåll tillgänglig"
 search_untitled: "Utan titel"
 
+search_no_results_for: "Inga resultat hittades för"
+search_suggestions: "Förslag:"
+search_suggestion_spell: "Se till att alla ord är rätt stavade."
+search_suggestion_broaden: "Bredda dina sökord."
+search_suggestion_terms: "Prova andra termer eller utforska andra kategorier."
+search_chat_link: "Eller chatta med oss →"
+
 # Glossary translations
 glossary_eyebrow: "Ordlista"
 

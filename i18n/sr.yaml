@@ -87,9 +87,16 @@ search_no_results: "Nisu pronađeni rezultati."
 search_error_loading: "Greška pri učitavanju rezultata pretrage."
 search_error_performing: "Greška pri izvršavanju pretrage."
 search_not_available: "Funkcija pretrage nije dostupna. Pokušajte kasnije."
-search_initializing: "Pretraga se još uvek pokреće. Pokušajte ponovo."
+search_initializing: "Pretraga se još uvek pokreće. Pokušajte ponovo."
 search_no_content_preview: "Pregled sadržaja nije dostupan"
 search_untitled: "Bez naslova"
+
+search_no_results_for: "Није пронађен резултат за"
+search_suggestions: "Предлози:"
+search_suggestion_spell: "Уверите се да су све речи правилно написане."
+search_suggestion_broaden: "Проширите своје кључне речи."
+search_suggestion_terms: "Пробајте друге термине или истражите друге категорије."
+search_chat_link: "Или ћаскајте са нама →"
 
 # Icon card translations
 icon.card.btn: "Pogledaj"

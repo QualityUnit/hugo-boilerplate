@@ -20,6 +20,13 @@ search_initializing: "Meklēšana vēl tiek inicializēta. Mēģiniet vēlreiz."
 search_no_content_preview: "Nav pieejams satura priekšskatījums"
 search_untitled: "Bez nosaukuma"
 
+search_no_results_for: "Netika atrasti rezultāti priekš"
+search_suggestions: "Ieteikumi:"
+search_suggestion_spell: "Pārliecinieties, ka visi vārdi ir pareizi uzrakstīti."
+search_suggestion_broaden: "Paplašiniet savus atslēgvārdus."
+search_suggestion_terms: "Mēģiniet citus terminus vai apskatiet citas kategorijas."
+search_chat_link: "Vai arī sazinieties ar mums čatā →"
+
 # Glossary translations
 glossary_eyebrow: "Glosārijs"
 

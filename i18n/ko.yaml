@@ -20,6 +20,13 @@ search_initializing: "검색이 아직 초기화 중입니다. 다시 시도하�
 search_no_content_preview: "콘텐츠 미리보기 없음"
 search_untitled: "제목 없음"
 
+search_no_results_for: "다음에 대한 결과가 없습니다"
+search_suggestions: "제안:"
+search_suggestion_spell: "모든 단어가 올바르게 입력되었는지 확인하세요."
+search_suggestion_broaden: "키워드를 확장해 보세요."
+search_suggestion_terms: "다른 용어나 카테고리를 시도해 보세요."
+search_chat_link: "또는 저희와 채팅하세요 →"
+
 # Glossary translations
 glossary_eyebrow: "용어집"
 

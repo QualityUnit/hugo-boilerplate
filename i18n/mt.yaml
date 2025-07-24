@@ -92,3 +92,10 @@ search_not_available: "Il-funzjoni tat-tiftix mhix disponibbli. Erġa' pprova ak
 search_initializing: "It-tiftix għadu qed jinbeda. Erġa' pprova."
 search_no_content_preview: "L-ebda preview tal-kontenut disponibbli"
 search_untitled: "Mingħajr titlu"
+
+search_no_results_for: "Ma nstab l-ebda riżultat għal"
+search_suggestions: "Suġġerimenti:"
+search_suggestion_spell: "Kun żgur li l-kliem kollu huwa miktub sewwa."
+search_suggestion_broaden: "Wessa' l-kliem ewlieni tiegħek."
+search_suggestion_terms: "Ipprova termini differenti jew esplora kategoriji oħra."
+search_chat_link: "Jew ċċettja magħna →"

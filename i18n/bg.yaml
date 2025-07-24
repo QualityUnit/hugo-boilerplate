@@ -20,6 +20,13 @@ search_initializing: "Търсенето все още се инициализи
 search_no_content_preview: "Няма наличен преглед на съдържанието"
 search_untitled: "Без заглавие"
 
+search_no_results_for: "Няма намерени резултати за"
+search_suggestions: "Предложения:"
+search_suggestion_spell: "Уверете се, че всички думи са изписани правилно."
+search_suggestion_broaden: "Разширете ключовите си думи."
+search_suggestion_terms: "Опитайте с други термини или разгледайте други категории."
+search_chat_link: "Или чатете с нас →"
+
 # Glossary translations
 glossary_eyebrow: "Речник"
 no_terms_available: "Няма налични термини"

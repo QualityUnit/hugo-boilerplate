@@ -20,6 +20,13 @@ search_initializing: "Η αναζήτηση εξακολουθεί να αρχι
 search_no_content_preview: "Δεν υπάρχει διαθέσιμη προεπισκόπηση περιεχομένου"
 search_untitled: "Χωρίς τίτλο"
 
+search_no_results_for: "Δεν βρέθηκαν αποτελέσματα για"
+search_suggestions: "Προτάσεις:"
+search_suggestion_spell: "Βεβαιωθείτε ότι όλες οι λέξεις είναι σωστά γραμμένες."
+search_suggestion_broaden: "Διευρύνετε τις λέξεις-κλειδιά σας."
+search_suggestion_terms: "Δοκιμάστε διαφορετικούς όρους ή εξερευνήστε άλλες κατηγορίες."
+search_chat_link: "Ή συνομιλήστε μαζί μας →"
+
 # Glossary translations
 glossary_eyebrow: "Γλωσσάριο"
 

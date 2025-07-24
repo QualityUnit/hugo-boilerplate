@@ -20,6 +20,13 @@ search_initializing: "החיפוש עדיין מאתחל. נסה שוב."
 search_no_content_preview: "אין תצוגה מקדימה של תוכן זמינה"
 search_untitled: "ללא כותרת"
 
+search_no_results_for: "לא נמצאו תוצאות עבור"
+search_suggestions: "הצעות:"
+search_suggestion_spell: "ודאו שכל המילים כתובות נכון."
+search_suggestion_broaden: "הרחיבו את מילות המפתח שלכם."
+search_suggestion_terms: "נסו מונחים שונים או חפשו בקטגוריות אחרות."
+search_chat_link: "או דברו איתנו בצ'אט →"
+
 # Glossary translations
 glossary_eyebrow: "מילון מונחים"
 

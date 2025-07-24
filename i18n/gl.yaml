@@ -93,3 +93,10 @@ search_not_available: "A funcionalidade de busca non está dispoñible. Téntao 
 search_initializing: "A busca aínda se está inicializando. Téntao de novo."
 search_no_content_preview: "Non hai vista previa de contido dispoñible"
 search_untitled: "Sen título"
+
+search_no_results_for: "Non se atoparon resultados para"
+search_suggestions: "Suxestións:"
+search_suggestion_spell: "Asegúrate de que todas as palabras están correctamente escritas."
+search_suggestion_broaden: "Amplía as túas palabras clave."
+search_suggestion_terms: "Proba con outros termos ou explora outras categorías."
+search_chat_link: "Ou chámanos ao chat →"

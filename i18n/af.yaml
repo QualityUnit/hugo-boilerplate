@@ -90,3 +90,10 @@ courses.format: "Format"
 
 # Icon card translations
 icon.card.btn: "Sien"
+
+search_no_results_for: "Geen resultate gevind vir"
+search_suggestions: "Voorstelle:"
+search_suggestion_spell: "Maak seker dat alle woorde korrek gespel is."
+search_suggestion_broaden: "Verbred jou sleutelwoorde."
+search_suggestion_terms: "Probeer ander terme of blaai deur ander kategorieë."
+search_chat_link: "Of gesels met ons →"

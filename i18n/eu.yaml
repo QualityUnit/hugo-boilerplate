@@ -92,3 +92,10 @@ search_not_available: "Bilaketa-funtzioa ez dago erabilgarri. Saiatu berriro ber
 search_initializing: "Bilaketa oraindik abiarazten ari da. Saiatu berriro."
 search_no_content_preview: "Ez dago eduki-aurrebista erabilgarririk"
 search_untitled: "Izenbururik gabe"
+
+search_no_results_for: "Ez da emaitzarik aurkitu honentzat"
+search_suggestions: "Iradokizunak:"
+search_suggestion_spell: "Ziurtatu hitz guztiak ondo idatzita daudela."
+search_suggestion_broaden: "Zabaldu zure gako-hitzak."
+search_suggestion_terms: "Saiatu beste termino batzuk edo arakatu beste kategoriak."
+search_chat_link: "Edo hitz egin gurekin →"

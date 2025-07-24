@@ -102,3 +102,10 @@ courses.format: "ফরম্যাট"
 
 # Icon card translations
 icon.card.btn: "দেখুন"
+
+search_no_results_for: "এর জন্য কোনো ফলাফল পাওয়া যায়নি"
+search_suggestions: "পরামর্শসমূহ:"
+search_suggestion_spell: "সব শব্দ সঠিকভাবে লেখা হয়েছে কিনা নিশ্চিত করুন।"
+search_suggestion_broaden: "আপনার কীওয়ার্ডগুলো বিস্তৃত করুন।"
+search_suggestion_terms: "ভিন্ন শব্দ ব্যবহার করুন বা অন্যান্য বিভাগ দেখুন।"
+search_chat_link: "অথবা আমাদের সাথে চ্যাট করুন →"

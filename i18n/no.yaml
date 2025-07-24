@@ -20,6 +20,13 @@ search_initializing: "Søket initialiseres fortsatt. Prøv igjen."
 search_no_content_preview: "Ingen innholdsforhåndsvisning tilgjengelig"
 search_untitled: "Uten tittel"
 
+search_no_results_for: "Ingen resultater funnet for"
+search_suggestions: "Forslag:"
+search_suggestion_spell: "Sørg for at alle ord er stavet riktig."
+search_suggestion_broaden: "Utvid søkeordene dine."
+search_suggestion_terms: "Prøv andre termer eller utforsk andre kategorier."
+search_chat_link: "Eller chat med oss →"
+
 # Glossary translations
 glossary_eyebrow: "Ordliste"
 

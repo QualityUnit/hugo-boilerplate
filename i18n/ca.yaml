@@ -20,6 +20,13 @@ search_initializing: "La cerca encara s'està inicialitzant. Torneu a provar."
 search_no_content_preview: "No hi ha previsualització de contingut disponible"
 search_untitled: "Sense títol"
 
+search_no_results_for: "No s'han trobat resultats per a"
+search_suggestions: "Suggeriments:"
+search_suggestion_spell: "Assegureu-vos que totes les paraules estan ben escrites."
+search_suggestion_broaden: "Amplieu les vostres paraules clau."
+search_suggestion_terms: "Proveu amb altres termes o exploreu altres categories."
+search_chat_link: "O xateja amb nosaltres →"
+
 # Glossary translations
 glossary_eyebrow: "Glossari"
 

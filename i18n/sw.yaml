@@ -88,6 +88,12 @@ search_not_available: "Kipengele cha utafutaji hakipo. Jaribu tena baadaye."
 search_initializing: "Utafutaji bado unaanza. Jaribu tena."
 search_no_content_preview: "Hakuna muhtasari wa maudhui unaopatikana"
 search_untitled: "Bila kichwa"
+search_no_results_for: "Hakuna matokeo yaliyopatikana kwa"
+search_suggestions: "Mapendekezo:"
+search_suggestion_spell: "Hakikisha maneno yote yameandikwa kwa usahihi."
+search_suggestion_broaden: "Panua maneno yako muhimu."
+search_suggestion_terms: "Jaribu maneno mengine au chunguza kategoria nyingine."
+search_chat_link: "Au zungumza nasi →"
 
 # Icon card translations
 icon.card.btn: "Tazama"

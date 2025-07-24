@@ -20,6 +20,13 @@ search_initializing: "البحث ما زال يتم تهيئته. حاول مر�
 search_no_content_preview: "لا يوجد معاينة للمحتوى متاحة"
 search_untitled: "بدون عنوان"
 
+search_no_results_for: "لم يتم العثور على نتائج لـ"
+search_suggestions: "اقتراحات:"
+search_suggestion_spell: "تأكد من كتابة جميع الكلمات بشكل صحيح."
+search_suggestion_broaden: "وسّع كلماتك الرئيسية."
+search_suggestion_terms: "جرّب استخدام مصطلحات مختلفة أو استكشف فئات أخرى."
+search_chat_link: "أو تحدث معنا →"
+
 # Glossary translations
 glossary_eyebrow: "المصطلحات"
 

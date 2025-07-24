@@ -20,6 +20,13 @@ search_initializing: "A keresés még inicializálódik. Próbálja újra."
 search_no_content_preview: "Nincs elérhető tartalom előnézet"
 search_untitled: "Cím nélkül"
 
+search_no_results_for: "Nincs találat erre:"
+search_suggestions: "Javaslatok:"
+search_suggestion_spell: "Győződjön meg róla, hogy minden szó helyesen van írva."
+search_suggestion_broaden: "Bővítse a kulcsszavait."
+search_suggestion_terms: "Próbáljon ki más kifejezéseket vagy böngésszen más kategóriákat."
+search_chat_link: "Vagy beszéljen velünk →"
+
 # Glossary translations
 glossary_eyebrow: "Szószedet"
 

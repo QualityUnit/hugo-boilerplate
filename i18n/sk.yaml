@@ -20,6 +20,13 @@ search_initializing: "Vyhľadávanie sa stále inicializuje. Skúste to znovu."
 search_no_content_preview: "Žiadny náhľad obsahu nie je dostupný"
 search_untitled: "Bez názvu"
 
+search_no_results_for: "Nenašli sa žiadne výsledky pre"
+search_suggestions: "Návrhy:"
+search_suggestion_spell: "Uistite sa, že všetky slová sú správne napísané."
+search_suggestion_broaden: "Rozšírte svoje kľúčové slová."
+search_suggestion_terms: "Skúste použiť iné výrazy alebo preskúmajte ďalšie kategórie."
+search_chat_link: "Alebo nám napíšte do chatu →"
+
 # Glossary translations
 glossary_eyebrow: "Glosár"
 

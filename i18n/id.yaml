@@ -20,6 +20,13 @@ search_initializing: "Pencarian masih menginisialisasi. Coba lagi."
 search_no_content_preview: "Tidak ada pratinjau konten yang tersedia"
 search_untitled: "Tanpa judul"
 
+search_no_results_for: "Tidak ditemukan hasil untuk"
+search_suggestions: "Saran:"
+search_suggestion_spell: "Pastikan semua kata sudah dieja dengan benar."
+search_suggestion_broaden: "Perluas kata kunci Anda."
+search_suggestion_terms: "Coba gunakan istilah lain atau jelajahi kategori lain."
+search_chat_link: "Atau chat dengan kami →"
+
 # Glossary translations
 glossary_eyebrow: "Glosarium"
 

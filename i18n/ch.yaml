@@ -91,3 +91,10 @@ search_not_available: "Sueche-Funktion isch nid verfügbar. Probier spöter wied
 search_initializing: "Sueche wird no initialisiert. Probier nomol."
 search_no_content_preview: "Kei Inhalt-Vorschau verfügbar"
 search_untitled: "Ohni Titel"
+
+search_no_results_for: "Kei Resultat gfunde für"
+search_suggestions: "Vorschläg:"
+search_suggestion_spell: "Lueg, dass alli Wört richtig gschribe sind."
+search_suggestion_broaden: "Erweitere dini Suechbegrif."
+search_suggestion_terms: "Versuech anderi Begrif oder lueg in andere Kategorie."
+search_chat_link: "Oder schriebe mit üs →"

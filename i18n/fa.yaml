@@ -20,6 +20,13 @@ search_initializing: "جستجو هنوز در حال راه‌اندازی اس
 search_no_content_preview: "پیش‌نمایش محتوا در دسترس نیست"
 search_untitled: "بدون عنوان"
 
+search_no_results_for: "نتیجه‌ای برای یافت نشد"
+search_suggestions: "پیشنهادها:"
+search_suggestion_spell: "مطمئن شوید که همه کلمات به درستی نوشته شده‌اند."
+search_suggestion_broaden: "کلمات کلیدی خود را گسترش دهید."
+search_suggestion_terms: "سعی کنید از واژه‌های دیگر استفاده کنید یا دسته‌بندی‌های دیگر را بررسی کنید."
+search_chat_link: "یا با ما گفتگو کنید →"
+
 # Glossary translations
 glossary_eyebrow: "فرهنگ لغات"
 
