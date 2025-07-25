@@ -4,7 +4,7 @@
 
 <div class="bg-white dark:bg-gray-900 mt-6">
     <div class="wrapper">
-        <div class="mx-auto max-w-none prose prose-lg prose-a:underline hover:prose-a:text-primary">
+        <div class="mx-auto max-w-none prose prose-lg hover:prose-a:text-primary">
 
             <div class="search-container py-6 gap-x-2 relative flex w-80">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -18,19 +18,42 @@
                 </button>
             </div>
 
+
             <div id="search-results"></div>
+            <div id="search-pagination" class="flex gap-2 my-3 max-w-3xl"></div>
             <div class="search-loading">{{ i18n "search_loading" }}</div>
 
             <script id="search-result-template" type="text/x-js-template">
-                <div id="summary-${key}">
-                    <h3><a href="${link}">${title}</a></h3>
-                    <p>${snippet}</p>
-                    <p>
-                        <small>
-                            ${ isset tags }Tags: ${tags}<br>${ end }
-                        </small>
-                    </p>
-                </div>
+                <article id="summary-${key}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-sm hover:shadow-md transition-shadow max-w-3xl h-full flex flex-col">
+                    <div class="flex items-center justify-between gap-x-4">
+                        <h3 class="text-lg font-semibold text-heading group-hover:text-primary">
+                            <a href="${link}" class="hover:text-primary focus:outline-none">
+                            <span class="absolute inset-0" aria-hidden="true"></span>
+                            ${title}
+                            </a>
+                        </h3>
+                        ${ isset date }
+                            <!-- Date and ReadingTime -->
+                            <div class="flex items-center text-body text-xs mb-3">
+                                <time datetime="${date}">${date}</time>
+                                ${ isset readingTime }
+                                    <span class="mx-2">•</span>
+                                    <span>${readingTime} min read</span>
+                                ${ end }
+                            </div>
+                        ${ end }
+                    </div>
+
+                    <!-- Description -->
+                    <p class="mt-5 text-sm/6 text-muted line-clamp-3 flex-grow">${snippet}</p>
+
+                    <!-- Tags -->
+                    ${ isset tags }
+                        <div class="mt-6 flex flex-wrap gap-2">
+                            ${tags}
+                        </div>
+                    ${ end }
+                </article>
             </script>
 
             <script defer src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js" integrity="sha512-Nqw1tH3mpavka9cQCc5zWWEZNfIPdOYyQFjlV1NvflEtQ0/XI6ZQ+H/D3YgJdqSUJlMLAPRj/oXlaHCFbFCjoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -81,9 +104,70 @@
                     }
 
                     // Perform search and display results
-                    function performSearch(query) {
+                    function renderPagination(total, page, perPage) {
+                        const pagination = document.getElementById('search-pagination');
+                        if (total <= perPage) {
+                            pagination.innerHTML = '';
+                            return;
+                        }
+                        const totalPages = Math.ceil(total / perPage);
+                        const startItem = (page - 1) * perPage + 1;
+                        const endItem = Math.min(page * perPage, total);
+                        // Mobile: only Prev/Next
+                        // SVG chevron icons
+                        const chevronLeft = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
+                        const chevronRight = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>`;
+
+                        let html = `<div class="flex flex-1 justify-between sm:hidden">
+                            ${page > 1
+                                ? `<button data-page="${page - 1}" class="relative inline-flex items-center rounded-md surface-border surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">${chevronLeft} Prev</button>`
+                                : `<span class="relative inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">${chevronLeft} Prev</span>`}
+                            ${page < totalPages
+                                ? `<button data-page="${page + 1}" class="relative ml-3 inline-flex items-center rounded-md surface-border surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">Next ${chevronRight}</button>`
+                                : `<span class="relative ml-3 inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">Next ${chevronRight}</span>`}
+                        </div>`;
+                        // Desktop: full pagination
+                        html += `<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full">
+                            <div>
+                                <p class="text-sm text-body">
+                                    Showing <span class="font-semibold">${startItem}</span> to <span class="font-semibold">${endItem}</span> of <span class="font-semibold">${total}</span> results
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="isolate inline-flex -space-x-px rounded-md" aria-label="Pagination">
+                                    ${page > 1
+                                        ? `<button data-page="${page - 1}" class="relative inline-flex items-center rounded-l-xl px-2 py-2 ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0"><span class="sr-only">Previous</span>${chevronLeft}</button>`
+                                        : `<span class="relative inline-flex items-center rounded-l-xl px-2 py-2 ring-1 ring-inset ring-gray-300 cursor-not-allowed"><span class="sr-only">Previous</span>${chevronLeft}</span>`}
+                                    ${Array.from({length: totalPages}, (_, i) => {
+                                        const n = i + 1;
+                                        if (n === page) {
+                                            return `<span aria-current="page" class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">${n}</span>`;
+                                        } else {
+                                            return `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
+                                        }
+                                    }).join('')}
+                                    ${page < totalPages
+                                        ? `<button data-page="${page + 1}" class="relative inline-flex items-center rounded-r-xl px-2 py-2 ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0"><span class="sr-only">Next</span>${chevronRight}</button>`
+                                        : `<span class="relative inline-flex items-center rounded-r-xl px-2 py-2 ring-1 ring-inset ring-gray-300 cursor-not-allowed"><span class="sr-only">Next</span>${chevronRight}</span>`}
+                                </nav>
+                            </div>
+                        </div>`;
+                        pagination.innerHTML = html;
+                        // Add event listeners
+                        Array.from(pagination.querySelectorAll('button[data-page]')).forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                performSearch(lastQuery, parseInt(this.getAttribute('data-page')));
+                            });
+                        });
+                    }
+
+                    let lastQuery = '';
+                    function performSearch(query, page = 1) {
+                        lastQuery = query;
+                        const perPage = 30;
                         if (!query || query.trim() === '') {
                             searchResults.innerHTML = '';
+                            document.getElementById('search-pagination').innerHTML = '';
                             updateURL('');
                             return;
                         }
@@ -96,37 +180,73 @@
                         }
 
                         const results = fuse.search(query);
+                        const total = results.length;
+                        const start = (page - 1) * perPage;
+                        const end = start + perPage;
+                        const pagedResults = results.slice(start, end);
 
-                        if (results.length > 0) {
-                            let html = '';
-                            results.forEach(({ item, matches, refIndex }) => {
+                        renderPagination(total, page, perPage);
+
+                        if (pagedResults.length > 0) {
+                            let html = '<div class="surface-divider my-3"></div>';
+                            pagedResults.forEach(({ item, matches, refIndex }) => {
                                 let snippet = '';
 
-                                // Check if content exists before trying to access it
-                                if (item.content) {
-                                    snippet = item.content.substring(0, 150) + '...';
-                                    const contentMatch = matches?.find(m => m.key === 'content' && m.indices.length > 0);
+                                console.log(item);
 
-                                    if (contentMatch) {
-                                        const start = Math.max(0, contentMatch.indices[0][0] - 30);
-                                        const end = Math.min(item.content.length, contentMatch.indices[0][1] + 30);
-                                        snippet = '...' + item.content.substring(start, end) + '...';
-                                    }
-                                } else {
-                                    snippet = '...';
-                                }
+
+                                let description = (item.content != null ? item.content : (item.summary != null ? item.summary : ''));
+                                snippet = description;
+
+
+                                let safeTitle = item.title != null ? item.title : '';
+                                let safePermalink = item.permalink != null ? item.permalink : '#';
+                                let safeDate = item.date != null ? item.date : '';
+                                let safeReadingTime = item.readingTime != null ? item.readingTime : '';
 
                                 let resultHTML = resultTemplate
                                     .replace(/\${key}/g, refIndex)
-                                    .replace(/\${link}/g, item.permalink)
-                                    .replace(/\${title}/g, item.title)
-                                    .replace(/\${snippet}/g, snippet);
+                                    .replace(/\${link}/g, safePermalink)
+                                    .replace(/\${title}/g, safeTitle)
+                                    .replace(/\${snippet}/g, snippet)
+                                    .replace(/\${date}/g, safeDate);
 
-                                if (item.tags && item.tags.length > 0) {
+                                // Remove date block if no date, else insert value and clean up
+
+                                if (!safeDate) {
+                                    resultHTML = resultHTML.replace(/\${ isset date }[\s\S]*?\${ end }/g, '');
+                                } else {
+                                    resultHTML = resultHTML.replace(/\${ isset date }|\${ end }/g, '');
+                                }
+
+                                if (!safeReadingTime) {
+                                    resultHTML = resultHTML.replace(/\${ isset readingTime }[\s\S]*?\${ end }/g, '');
+                                } else {
+                                    resultHTML = resultHTML.replace(/\${ isset readingTime }|\${ end }/g, '').replace(/\${readingTime}/g, safeReadingTime);
+                                }
+
+                                // Remove any remaining ${ end } (if present)
+                                resultHTML = resultHTML.replace(/\${ end }/g, '');
+
+                                if (Array.isArray(item.tags) && item.tags.length > 0) {
+                                    let tagsHtml = '';
+                                    const maxTags = 3;
+                                    const tagBaseUrl = '/tags/';
+                                    const tagClass = 'inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 hover:bg-gray-200';
+                                    const shownTags = item.tags.slice(0, maxTags);
+                                    shownTags.forEach(tag => {
+                                        if (tag != null) {
+                                            const url = tagBaseUrl + encodeURIComponent(String(tag).toLowerCase().replace(/\s+/g, '-')) + '/';
+                                            tagsHtml += `<a href="${url}" class="${tagClass}">${tag}</a>\n`;
+                                        }
+                                    });
+                                    if (item.tags.length > maxTags) {
+                                        tagsHtml += `<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">+${item.tags.length - maxTags}</span>`;
+                                    }
                                     resultHTML = resultHTML
                                         .replace('${ isset tags }', '')
                                         .replace('${ end }', '')
-                                        .replace('${tags}', item.tags.join(', '));
+                                        .replace('${tags}', tagsHtml);
                                 } else {
                                     resultHTML = resultHTML.replace(/\${ isset tags }[\s\S]*\${ end }/g, '');
                                 }
@@ -157,6 +277,7 @@
                                 <a href="/contact/" class="py-3 text-sm text-primary">{{ i18n "search_chat_link" }}</a>
                               </div>
                             `;
+                            document.getElementById('search-pagination').innerHTML = '';
                         }
                     }
 
