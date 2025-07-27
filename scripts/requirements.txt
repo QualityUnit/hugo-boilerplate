@@ -10,4 +10,4 @@ tqdm
 python-dotenv
 requests
 toml
-flowhunt
+flowhunt~=3.0
