@@ -10,4 +10,4 @@ tqdm
 python-dotenv
 requests
 toml
-git+https://github.com/qualityunit/flowhunt-python-sdk.git
+flowhunt

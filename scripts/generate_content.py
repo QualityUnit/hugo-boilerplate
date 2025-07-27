@@ -56,7 +56,7 @@ if not api_key:
 def get_workspace_id():
     """Get the workspace ID from FlowHunt API"""
     api_client = initialize_api_client()
-    api_instance = flowhunt.AuthApi(api_client)
+    api_instance = flowhunt.WebAuthApi(api_client)
 
     try:
         api_response = api_instance.get_user()
