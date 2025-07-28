@@ -6,8 +6,6 @@
   <div class="wrapper px-6 lg:px-8">
     <h1 class="text-5xl sm:text-7xl font-semibold tracking-tight text-heading">{{ .Title }}</h1>
 
-    {{ partial "search_field.html" . }}
-
     {{ $paginator := .Paginate .Pages 100 }}
       
     {{ if eq $paginator.TotalPages 0 }}
