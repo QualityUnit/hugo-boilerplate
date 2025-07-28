@@ -9,8 +9,8 @@
     {{ end }}
     {{ $glossaryTerms := where .Site.RegularPages "Section" "glossary" }}
     <div id="alphabetNav" class="w-full bg-white sticky top-20 md:top-[5.25rem] z-[45] transition-all duration-300">
-      <div class="wrapper px-8">
-        <div class="grid grid-cols-1 sm:hidden">
+      <div class="wrapper px-8 ">
+        <div class="grid grid-cols-2 lg:hidden">
           <select class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pl-3 pr-8 text-base " id="alphabetSelect">
             {{ range $letters }}
               <option value="{{ . }}" {{ if eq . $activeLetter }}selected{{ end }}>{{ . }}</option>
@@ -18,8 +18,8 @@
           </select>
         </div>
 
-        <div class="hidden sm:block">
-          <nav class="flex space-x-2 flex-wrap gap-4 py-6">
+        <div class="hidden lg:block">
+          <nav class="flex flex-wrap gap-2 py-6 justify-between">
             {{ range $letters }}
               {{ $letter := . }}
               {{ $hasTerms := false }}
@@ -39,7 +39,7 @@
                 {{ end }}
               {{ end }}
               <a href="#{{ $letter }}"
-                 class="rounded-md px-3 py-2 text-sm font-medium
+                 class="rounded-md px-2 py-2 text-sm font-medium
                  {{ if eq $letter $activeLetter }}bg-indigo-100 text-primary aria-current='page'
                  {{ else if $hasTerms }}text-muted hover:text-primary hover:bg-indigo-100
                  {{ else }}text-muted opacity-30 pointer-events-none{{ end }}">
@@ -173,7 +173,19 @@
             e.preventDefault();
             const letter = targetTab.getAttribute('href').replace('#', '');
             setActiveTab(letter);
-            document.getElementById(letter)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            const section = document.getElementById(letter);
+            if (section) {
+              const header = document.querySelector('header');
+              const alphabetNav = document.getElementById('alphabetNav');
+              const extraSpace = -16; // px navyše pod headerom a abecedou
+              const offset = (header?.offsetHeight || 0) + (alphabetNav?.offsetHeight || 0) - extraSpace;
+              const sectionTop = section.getBoundingClientRect().top + window.pageYOffset;
+              window.scrollTo({
+                top: sectionTop - offset,
+                left: 0,
+                behavior: 'smooth'
+              });
+            }
           }
         });
       }
