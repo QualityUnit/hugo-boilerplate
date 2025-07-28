@@ -17,6 +17,7 @@ search_error_loading: "Eroare la încărcarea rezultatelor căutării."
 search_error_performing: "Eroare la efectuarea căutării."
 search_not_available: "Funcționalitatea de căutare nu este disponibilă. Încercați din nou mai târziu."
 search_initializing: "Căutarea se inițializează încă. Încercați din nou."
+search_no_results_description: "Încercați să modificați căutarea - ceva extraordinar ar putea fi la doar câteva cuvinte distanță."
 search_no_content_preview: "Nu este disponibilă nicio previzualizare a conținutului"
 search_untitled: "Fără titlu"
 

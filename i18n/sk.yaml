@@ -17,6 +17,7 @@ search_error_loading: "Chyba pri načítavaní výsledkov vyhľadávania."
 search_error_performing: "Chyba pri vykonávaní vyhľadávania."
 search_not_available: "Funkcia vyhľadávania nie je dostupná. Skúste to neskôr."
 search_initializing: "Vyhľadávanie sa stále inicializuje. Skúste to znovu."
+search_no_results_description: "Skúste zmeniť svoje vyhľadávanie - niečo úžasné môže byť len pár slov od vás."
 search_no_content_preview: "Žiadny náhľad obsahu nie je dostupný"
 search_untitled: "Bez názvu"
 

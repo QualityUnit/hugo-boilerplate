@@ -17,6 +17,7 @@ search_error_loading: "Feil ved lasting av søkeresultater."
 search_error_performing: "Feil ved utføring av søk."
 search_not_available: "Søkefunksjonaliteten er ikke tilgjengelig. Prøv igjen senere."
 search_initializing: "Søket initialiseres fortsatt. Prøv igjen."
+search_no_results_description: "Prøv å endre søket ditt - noe fantastisk kan være bare noen få ord unna."
 search_no_content_preview: "Ingen innholdsforhåndsvisning tilgjengelig"
 search_untitled: "Uten tittel"
 

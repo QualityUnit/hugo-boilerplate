@@ -17,6 +17,7 @@ search_error_loading: "Viga otsingutulemuste laadimisel."
 search_error_performing: "Viga otsingu sooritamisel."
 search_not_available: "Otsingu funktsioon ei ole saadaval. Proovige hiljem uuesti."
 search_initializing: "Otsing alles käivitub. Proovige uuesti."
+search_no_results_description: "Proovige muuta oma otsingut - midagi suurepärast võib olla vaid mõne sõna kaugusel."
 search_no_content_preview: "Sisu eelvaade ei ole saadaval"
 search_untitled: "Pealkirjata"
 

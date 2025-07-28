@@ -17,6 +17,7 @@ search_error_loading: "Virhe hakutulosten lataamisessa."
 search_error_performing: "Virhe haun suorittamisessa."
 search_not_available: "Hakutoiminto ei ole käytettävissä. Yritä myöhemmin uudelleen."
 search_initializing: "Haku on vielä alustamassa. Yritä uudelleen."
+search_no_results_description: "Yritä muuttaa hakua - jotain mahtavaa voi olla vain muutaman sanan päässä."
 search_no_content_preview: "Sisällön esikatselua ei ole saatavilla"
 search_untitled: "Ei otsikkoa"
 

@@ -17,6 +17,7 @@ search_error_loading: "Errore nel caricamento dei risultati di ricerca."
 search_error_performing: "Errore nell'esecuzione della ricerca."
 search_not_available: "La funzionalità di ricerca non è disponibile. Riprova più tardi."
 search_initializing: "La ricerca è ancora in fase di inizializzazione. Riprova."
+search_no_results_description: "Prova a modificare la tua ricerca - qualcosa di straordinario potrebbe essere a solo poche parole di distanza."
 search_no_content_preview: "Nessuna anteprima del contenuto disponibile"
 search_untitled: "Senza titolo"
 

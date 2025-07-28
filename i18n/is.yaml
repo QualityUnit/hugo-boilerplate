@@ -99,6 +99,7 @@ search_error_loading: "Villa við að hlaða leitarniðurstöðum."
 search_error_performing: "Villa við framkvæmd leitar."
 search_not_available: "Leitaraðgerð er ekki tiltæk. Vinsamlegast reyndu aftur síðar."
 search_initializing: "Leit er enn að ræsast. Vinsamlegast reyndu aftur."
+search_no_results_description: "Reyndu að breyta leit þinni - eitthvað frábært gæti verið aðeins nokkrum orðum í burtu."
 search_no_content_preview: "Engin forskoðun efnis tiltæk"
 search_untitled: "Án titils"
 

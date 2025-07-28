@@ -17,6 +17,7 @@ search_error_loading: "שגיאה בטעינת תוצאות חיפוש."
 search_error_performing: "שגיאה בביצוע חיפוש."
 search_not_available: "פונקציית החיפוש אינה זמינה. נסה שוב מאוחר יותר."
 search_initializing: "החיפוש עדיין מאתחל. נסה שוב."
+search_no_results_description: "נסה לשנות את החיפוש שלך - משהו מדהים עשוי להיות במרחק של כמה מילים בלבד."
 search_no_content_preview: "אין תצוגה מקדימה של תוכן זמינה"
 search_untitled: "ללא כותרת"
 

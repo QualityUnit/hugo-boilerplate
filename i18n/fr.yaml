@@ -17,6 +17,7 @@ search_error_loading: "Erreur lors du chargement des résultats de recherche."
 search_error_performing: "Erreur lors de l'exécution de la recherche."
 search_not_available: "La fonctionnalité de recherche n'est pas disponible. Veuillez réessayer plus tard."
 search_initializing: "La recherche est encore en cours d'initialisation. Veuillez réessayer."
+search_no_results_description: "Essayez de modifier votre recherche - quelque chose d'incroyable pourrait être à seulement quelques mots."
 search_no_content_preview: "Aucun aperçu de contenu disponible"
 search_untitled: "Sans titre"
 

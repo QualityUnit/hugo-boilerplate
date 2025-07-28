@@ -17,6 +17,7 @@ search_error_loading: "خطا در بارگذاری نتایج جستجو."
 search_error_performing: "خطا در انجام جستجو."
 search_not_available: "قابلیت جستجو در دسترس نیست. لطفاً بعداً تلاش کنید."
 search_initializing: "جستجو هنوز در حال راه‌اندازی است. لطفاً دوباره تلاش کنید."
+search_no_results_description: "تلاش کنید جستجوی خود را تغییر دهید - ممکن است چیزی فوق‌العاده فقط چند کلمه فاصله داشته باشد."
 search_no_content_preview: "پیش‌نمایش محتوا در دسترس نیست"
 search_untitled: "بدون عنوان"
 

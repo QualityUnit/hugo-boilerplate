@@ -17,6 +17,7 @@ search_error_loading: "เกิดข้อผิดพลาดในการ
 search_error_performing: "เกิดข้อผิดพลาดในการค้นหา"
 search_not_available: "ฟังก์ชันการค้นหาไม่พร้อมใช้งาน โปรดลองอีกครั้งในภายหลัง"
 search_initializing: "การค้นหายังคงกำลังเริ่มต้น โปรดลองอีกครั้ง"
+search_no_results_description: "ลองเปลี่ยนการค้นหาของคุณ - บางสิ่งที่ยอดเยี่ยมอาจอยู่ห่างออกไปเพียงไม่กี่คำ"
 search_no_content_preview: "ไม่มีการแสดงตัวอย่างเนื้อหา"
 search_untitled: "ไม่มีชื่อเรื่อง"
 

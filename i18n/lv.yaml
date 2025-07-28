@@ -17,6 +17,7 @@ search_error_loading: "Kļūda, ielādējot meklēšanas rezultātus."
 search_error_performing: "Kļūda, veicot meklēšanu."
 search_not_available: "Meklēšanas funkcionalitāte nav pieejama. Mēģiniet vēlāk."
 search_initializing: "Meklēšana vēl tiek inicializēta. Mēģiniet vēlreiz."
+search_no_results_description: "Mēģiniet mainīt savu meklēšanu - kaut kas lielisks var būt tikai dažas vārdu attālumā."
 search_no_content_preview: "Nav pieejams satura priekšskatījums"
 search_untitled: "Bez nosaukuma"
 

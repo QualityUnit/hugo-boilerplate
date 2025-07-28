@@ -17,6 +17,7 @@ search_error_loading: "خطأ في تحميل نتائج البحث."
 search_error_performing: "خطأ في تنفيذ البحث."
 search_not_available: "وظيفة البحث غير متوفرة. حاول مرة أخرى لاحقاً."
 search_initializing: "البحث ما زال يتم تهيئته. حاول مرة أخرى."
+search_no_results_description: "جرّب استخدام مصطلحات مختلفة أو استكشف فئات أخرى."
 search_no_content_preview: "لا يوجد معاينة للمحتوى متاحة"
 search_untitled: "بدون عنوان"
 

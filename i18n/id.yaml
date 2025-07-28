@@ -17,6 +17,7 @@ search_error_loading: "Kesalahan memuat hasil pencarian."
 search_error_performing: "Kesalahan melakukan pencarian."
 search_not_available: "Fungsi pencarian tidak tersedia. Coba lagi nanti."
 search_initializing: "Pencarian masih menginisialisasi. Coba lagi."
+search_no_results_description: "Coba ubah pencarian Anda - sesuatu yang luar biasa mungkin hanya beberapa kata lagi."
 search_no_content_preview: "Tidak ada pratinjau konten yang tersedia"
 search_untitled: "Tanpa judul"
 

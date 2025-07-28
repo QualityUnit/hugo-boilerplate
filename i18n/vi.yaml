@@ -16,6 +16,7 @@ search_error_loading: "Lỗi tải kết quả tìm kiếm."
 search_error_performing: "Lỗi thực hiện tìm kiếm."
 search_not_available: "Chức năng tìm kiếm không khả dụng. Vui lòng thử lại sau."
 search_initializing: "Tìm kiếm vẫn đang khởi tạo. Vui lòng thử lại."
+search_no_results_description: "Hãy thử thay đổi tìm kiếm của bạn - có thể có điều gì đó tuyệt vời chỉ cách bạn vài từ."
 search_no_content_preview: "Không có xem trước nội dung khả dụng"
 search_untitled: "Không có tiêu đề"
 

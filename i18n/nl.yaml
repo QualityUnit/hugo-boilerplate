@@ -17,6 +17,7 @@ search_error_loading: "Fout bij het laden van zoekresultaten."
 search_error_performing: "Fout bij het uitvoeren van de zoekopdracht."
 search_not_available: "Zoekfunctionaliteit is niet beschikbaar. Probeer het later opnieuw."
 search_initializing: "Zoekopdracht wordt nog geïnitialiseerd. Probeer het opnieuw."
+search_no_results_description: "Probeer je zoekopdracht te wijzigen - iets geweldigs kan slechts een paar woorden verwijderd zijn."
 search_no_content_preview: "Geen inhoudsvoorbeeld beschikbaar"
 search_untitled: "Zonder titel"
 

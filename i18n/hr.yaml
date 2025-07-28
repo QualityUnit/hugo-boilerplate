@@ -17,6 +17,7 @@ search_error_loading: "Greška pri učitavanju rezultata pretrage."
 search_error_performing: "Greška pri izvršavanju pretrage."
 search_not_available: "Funkcija pretrage nije dostupna. Pokušajte kasnije."
 search_initializing: "Pretraga se još uvijek pokreće. Pokušajte ponovno."
+search_no_results_description: "Pokušajte promijeniti svoju pretragu - nešto izvrsno može biti samo nekoliko riječi daleko."
 search_no_content_preview: "Nema dostupnog prikaza sadržaja"
 search_untitled: "Bez naslova"
 

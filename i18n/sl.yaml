@@ -17,6 +17,7 @@ search_error_loading: "Napaka pri nalaganju rezultatov iskanja."
 search_error_performing: "Napaka pri izvajanju iskanja."
 search_not_available: "Funkcija iskanja ni na voljo. Poskusite znova pozneje."
 search_initializing: "Iskanje se še vedno inicializira. Poskusite znova."
+search_no_results_description: "Poskusite spremeniti svoje iskanje - nekaj izjemnega je morda le nekaj besed stran."
 search_no_content_preview: "Predogled vsebine ni na voljo"
 search_untitled: "Brez naslova"
 

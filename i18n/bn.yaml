@@ -17,6 +17,7 @@ search_error_loading: "অনুসন্ধান ফলাফল লোড ক
 search_error_performing: "অনুসন্ধান করতে ত্রুটি।"
 search_not_available: "অনুসন্ধান কার্যকারিতা উপলভ্য নেই। পরে আবার চেষ্টা করুন।"
 search_initializing: "অনুসন্ধান এখনও শুরু হচ্ছে। আবার চেষ্টা করুন।"
+search_no_results_description: "আপনার অনুসন্ধানটি পরিবর্তন করে দেখুন – অসাধারণ কিছু হয়তো মাত্র কয়েকটি শব্দ দূরে।"
 search_no_content_preview: "কোন বিষয়বস্তু পূর্বরূপ উপলভ্য নেই"
 search_untitled: "শিরোনামহীন"
 

@@ -90,6 +90,7 @@ search_error_loading: "Gwall wrth lwytho canlyniadau chwilio."
 search_error_performing: "Gwall wrth berfformio chwiliad."
 search_not_available: "Nid yw swyddogaeth chwilio ar gael. Rhowch gynnig arall arni'n hwyrach."
 search_initializing: "Mae'r chwiliad yn dal i gychwyn. Rhowch gynnig arall arni."
+search_no_results_description: "Ceisiwch newid eich chwiliad - efallai bod rhywbeth gwych dim ond ychydig o eiriau i ffwrdd."
 search_no_content_preview: "Dim rhagolwg cynnwys ar gael"
 search_untitled: "Heb deitl"
 

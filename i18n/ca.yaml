@@ -17,6 +17,7 @@ search_error_loading: "Error en carregar els resultats de cerca."
 search_error_performing: "Error en realitzar la cerca."
 search_not_available: "La funcionalitat de cerca no està disponible. Torneu a provar més tard."
 search_initializing: "La cerca encara s'està inicialitzant. Torneu a provar."
+search_no_results_description: "Proveu de canviar la vostra cerca - potser alguna cosa fantàstica està a només unes paraules de distància."
 search_no_content_preview: "No hi ha previsualització de contingut disponible"
 search_untitled: "Sense títol"
 

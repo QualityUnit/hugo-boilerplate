@@ -18,6 +18,7 @@ search_error_loading: "検索結果の読み込みエラー。"
 search_error_performing: "検索実行エラー。"
 search_not_available: "検索機能は利用できません。後でもう一度お試しください。"
 search_initializing: "検索を初期化中です。もう一度お試しください。"
+search_no_results_description: "検索を変更してみてください - 素晴らしいものが数語の距離にあるかもしれません。"
 search_no_content_preview: "コンテンツプレビューは利用できません"
 search_untitled: "タイトルなし"
 

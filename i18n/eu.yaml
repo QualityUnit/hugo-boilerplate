@@ -90,6 +90,7 @@ search_error_loading: "Errorea bilaketa-emaitzak kargatzean."
 search_error_performing: "Errorea bilaketa egitean."
 search_not_available: "Bilaketa-funtzioa ez dago erabilgarri. Saiatu berriro beranduago."
 search_initializing: "Bilaketa oraindik abiarazten ari da. Saiatu berriro."
+search_no_results_description: "Saiatu zure bilaketa aldatzen - zerbait bikaina hitz gutxi batzuetara egon daiteke."
 search_no_content_preview: "Ez dago eduki-aurrebista erabilgarririk"
 search_untitled: "Izenbururik gabe"
 

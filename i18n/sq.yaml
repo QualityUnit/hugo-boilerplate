@@ -90,6 +90,7 @@ search_error_loading: "Gabim në ngarkimin e rezultateve të kërkimit."
 search_error_performing: "Gabim në kryerjen e kërkimit."
 search_not_available: "Funksioni i kërkimit nuk është i disponueshëm. Provoni më vonë."
 search_initializing: "Kërkimi ende po inicializohet. Provoni përsëri."
+search_no_results_description: "Provo të ndryshosh kërkimin tënd - diçka e mrekullueshme mund të jetë vetëm disa fjalë larg."
 search_no_content_preview: "Nuk ka pamje paraprake të përmbajtjes"
 search_untitled: "Pa titull"
 

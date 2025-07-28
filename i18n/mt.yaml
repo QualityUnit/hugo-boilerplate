@@ -90,6 +90,7 @@ search_error_loading: "Żball fil-loading tar-riżultati tat-tiftix."
 search_error_performing: "Żball fit-twettiq tat-tiftix."
 search_not_available: "Il-funzjoni tat-tiftix mhix disponibbli. Erġa' pprova aktar tard."
 search_initializing: "It-tiftix għadu qed jinbeda. Erġa' pprova."
+search_no_results_description: "Ipprova bidla fit-tiftix tiegħek - xi ħaġa straordinarja tista' tkun biss ftit kliem 'il bogħod."
 search_no_content_preview: "L-ebda preview tal-kontenut disponibbli"
 search_untitled: "Mingħajr titlu"
 

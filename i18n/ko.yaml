@@ -17,6 +17,7 @@ search_error_loading: "검색 결과 로딩 오류."
 search_error_performing: "검색 실행 오류."
 search_not_available: "검색 기능을 사용할 수 없습니다. 나중에 다시 시도하세요."
 search_initializing: "검색이 아직 초기화 중입니다. 다시 시도하세요."
+search_no_results_description: "검색을 변경해 보세요 - 멋진 것이 몇 단어 거리에 있을 수 있습니다."
 search_no_content_preview: "콘텐츠 미리보기 없음"
 search_untitled: "제목 없음"
 

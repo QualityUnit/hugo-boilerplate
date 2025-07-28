@@ -17,6 +17,7 @@ search_error_loading: "Fel vid laddning av sökresultat."
 search_error_performing: "Fel vid utförande av sökning."
 search_not_available: "Sökfunktionen är inte tillgänglig. Försök igen senare."
 search_initializing: "Sökningen initialiseras fortfarande. Försök igen."
+search_no_results_description: "Försök att ändra din sökning - något fantastiskt kan vara bara några ord bort."
 search_no_content_preview: "Ingen förhandsvisning av innehåll tillgänglig"
 search_untitled: "Utan titel"
 

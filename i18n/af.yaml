@@ -16,6 +16,7 @@ search_error_loading: "Fout met laai van soekresultate."
 search_error_performing: "Fout met uitvoer van soektog."
 search_not_available: "Soekfunksionaliteit is nie beskikbaar nie. Probeer later weer."
 search_initializing: "Soektog word nog geïnitialiseer. Probeer weer."
+search_no_results_description: "Probeer ander sleutelwoorde of blaai deur ons kategorieë."
 search_no_content_preview: "Geen inhoud voorskou beskikbaar"
 search_untitled: "Sonder titel"
 

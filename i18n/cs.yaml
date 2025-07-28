@@ -17,6 +17,7 @@ search_error_loading: "Chyba při načítání výsledků vyhledávání."
 search_error_performing: "Chyba při provádění vyhledávání."
 search_not_available: "Funkce vyhledávání není dostupná. Zkuste to později."
 search_initializing: "Vyhledávání se stále inicializuje. Zkuste to znovu."
+search_no_results_description: "Zkuste změnit své vyhledávání - něco skvělého může být jen pár slov daleko."
 search_no_content_preview: "Náhled obsahu není k dispozici"
 search_untitled: "Bez názvu"
 

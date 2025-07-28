@@ -17,6 +17,7 @@ search_error_loading: "Klaida įkeliant paieškos rezultatus."
 search_error_performing: "Klaida atliekant paiešką."
 search_not_available: "Paieškos funkcija nepasiekiama. Bandykite vėliau."
 search_initializing: "Paieška vis dar inicijuojama. Bandykite dar kartą."
+search_no_results_description: "Pabandykite pakeisti savo paiešką - kažkas nuostabaus gali būti tik kelių žodžių atstumu."
 search_no_content_preview: "Turinio peržiūra nepasiekiama"
 search_untitled: "Be pavadinimo"
 

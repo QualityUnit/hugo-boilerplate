@@ -17,6 +17,7 @@ search_error_loading: "Arama sonuçları yüklenirken hata oluştu."
 search_error_performing: "Arama gerçekleştirilirken hata oluştu."
 search_not_available: "Arama işlevi kullanılamıyor. Lütfen daha sonra tekrar deneyin."
 search_initializing: "Arama hala başlatılıyor. Lütfen tekrar deneyin."
+search_no_results_description: "Aramanızı değiştirin - harika bir şey belki de sadece birkaç kelime uzakta."
 search_no_content_preview: "İçerik önizlemesi mevcut değil"
 search_untitled: "Başlıksız"
 

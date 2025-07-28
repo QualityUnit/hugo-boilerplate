@@ -91,6 +91,7 @@ search_error_loading: "Erro ao cargar os resultados da busca."
 search_error_performing: "Erro ao realizar a busca."
 search_not_available: "A funcionalidade de busca non está dispoñible. Téntao de novo máis tarde."
 search_initializing: "A busca aínda se está inicializando. Téntao de novo."
+search_no_results_description: "Tenta cambiar a túa busca - algo incrible pode estar a só unhas palabras de distancia."
 search_no_content_preview: "Non hai vista previa de contido dispoñible"
 search_untitled: "Sen título"
 

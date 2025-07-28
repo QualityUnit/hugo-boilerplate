@@ -17,6 +17,7 @@ search_error_loading: "Ralat memuatkan keputusan carian."
 search_error_performing: "Ralat melakukan carian."
 search_not_available: "Fungsi carian tidak tersedia. Cuba lagi nanti."
 search_initializing: "Carian masih memulakan. Cuba lagi."
+search_no_results_description: "Cuba ubah carian anda - sesuatu yang hebat mungkin hanya beberapa perkataan sahaja."
 search_no_content_preview: "Tiada pratonton kandungan tersedia"
 search_untitled: "Tanpa tajuk"
 
