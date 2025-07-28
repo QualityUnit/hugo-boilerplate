@@ -1,6 +1,8 @@
 {{/*
 @component: Linkbuilding
-@description: Processes HTML content to add links based on keywords defined in data/linkbuilding/[lang].yaml.
+@description: Processes HTML content to add links based on keywords from two sources:
+  1. Manual keywords defined in data/linkbuilding/[lang].yaml
+  2. Automatic keywords generated from frontmatter 'keywords' attribute of all pages
 @params:
   a dict with:
     - content: The HTML content to process
@@ -8,9 +10,10 @@
 @example:
   {{ $processedContent := partial "utils/linkbuilding" (dict "content" .Content "page" .) }}
 
-@note: This utility enhances content by adding contextual links based on defined keywords. It prevents duplicate links and ensures proper HTML structure.
+@note: This utility enhances content by adding contextual links based on defined keywords. Manual keywords take precedence over automatic ones. It prevents duplicate links and ensures proper HTML structure.
 
 @configuration: Settings can be configured in config/_default/params.toml under [params.linkbuilding]:
+  enableAutoKeywords = false                  # Enable automatic keyword generation from frontmatter (default: false)
   maxSameKeywordReplacementsInPage = 5       # Maximum times the same keyword can be linked per page
   maxSameUrlReplacementsInPage = 3            # Maximum times the same URL can be linked per page
   maxKeywordUrlReplacementsInPage = 1         # Maximum times the same keyword-URL combination can be linked per page
@@ -37,6 +40,13 @@ keywords:
     priority: 1
     title: "We can develop and host your own MCP server"
 
+Automatic keywords are generated from page frontmatter:
+---
+title: "My Page Title"
+keywords: ["ABM Orchestration", "Account-Based Marketing", "personalized marketing"]
+---
+These keywords will automatically create links to the page they're defined on.
+
 */}}
 
 {{ $content := .content }}
@@ -44,6 +54,14 @@ keywords:
 
 {{/* Read linkbuilding settings from params.toml with fallback to defaults */}}
 {{ $linkbuildingParams := $page.Site.Params.linkbuilding | default dict }}
+{{/* Check if params are nested under params.params (common Hugo config issue) */}}
+{{ if not $linkbuildingParams.enableAutoKeywords }}
+  {{ if $page.Site.Params.params }}
+    {{ if $page.Site.Params.params.linkbuilding }}
+      {{ $linkbuildingParams = $page.Site.Params.params.linkbuilding }}
+    {{ end }}
+  {{ end }}
+{{ end }}
 {{ $maxSameKeywordReplacementsInPage := $linkbuildingParams.maxSameKeywordReplacementsInPage | default 50 }}
 {{ $maxSameUrlReplacementsInPage := $linkbuildingParams.maxSameUrlReplacementsInPage | default 3 }}
 {{ $maxKeywordUrlReplacementsInPage := $linkbuildingParams.maxKeywordUrlReplacementsInPage | default 1 }}
@@ -56,6 +74,85 @@ keywords:
 {{ $lang := $page.Lang | default "en" }}
 {{ $linkbuildingData := index $page.Site.Data.linkbuilding $lang }}
 {{ $keywords := $linkbuildingData.keywords | default slice }}
+
+{{/* Check if automatic keywords are enabled and we have Site access */}}
+{{ $enableAutoKeywords := $linkbuildingParams.enableAutoKeywords | default false }}
+{{ $maxAutoKeywords := $linkbuildingParams.maxAutoKeywords | default 10000 }}
+
+{{ $autoKeywords := slice }}
+{{ if and $enableAutoKeywords $page.Site }}
+  {{/* Use store to cache automatic keywords per language */}}
+  {{ $cacheKey := printf "linkbuilding_auto_%s" $lang }}
+  
+  {{/* Try to get from store first */}}
+  {{ $cached := false }}
+  {{ with $page.Site.GetPage "/" }}
+    {{ $cached = .Store.Get $cacheKey }}
+  {{ end }}
+  
+  {{ if $cached }}
+    {{ $autoKeywords = $cached }}
+  {{ else }}
+    {{/* Debug: Show all regular pages and their languages */}}
+    {{ $allPages := $page.Site.RegularPages }}
+
+    {{/* Collect automatic keywords from pages with keywords in frontmatter */}}
+    {{ $pagesWithLang := where $page.Site.RegularPages "Lang" $lang }}
+    {{ $uniqueKeywords := dict }}
+    {{ $pagesWithTooManyKeywords := 0 }}
+
+    {{ range $pagesWithLang }}
+      {{ $currentPage := . }}
+      {{ if .Params.keywords }}
+        {{ $pageUrl := $currentPage.RelPermalink }}
+        {{ $pageTitle := $currentPage.Title | default "" }}
+        {{ $keywordCount := len .Params.keywords }}
+        
+        {{/* Warn if page has more than 10 keywords */}}
+        {{ if gt $keywordCount 10 }}
+          {{ warnf "[Linkbuilding] WARNING: Page %s has %d keywords (max recommended: 10)" $pageUrl $keywordCount }}
+          {{ $pagesWithTooManyKeywords = add $pagesWithTooManyKeywords 1 }}
+        {{ end }}
+        
+        {{/* Take only first 10 keywords from each page */}}
+        {{ $pageKeywords := first 10 .Params.keywords }}
+        
+        {{ range $pageKeywords }}
+          {{ $keywordLower := lower . }}
+          {{/* Only add if not already processed */}}
+          {{ if not (index $uniqueKeywords $keywordLower) }}
+            {{ $autoKeywords = $autoKeywords | append (dict "keyword" . "url" $pageUrl "exact" false "priority" 0 "title" $pageTitle) }}
+            {{ $uniqueKeywords = merge $uniqueKeywords (dict $keywordLower true) }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+    
+    {{/* Summary of keyword collection */}}
+    {{ warnf "[Linkbuilding] Collected %d unique automatic keywords from %d pages (%d pages had >10 keywords)" (len $autoKeywords) (len $pagesWithLang) $pagesWithTooManyKeywords }}
+
+    {{/* Limit automatic keywords to configured maximum */}}
+    {{ if gt (len $autoKeywords) $maxAutoKeywords }}
+      {{ $autoKeywords = first $maxAutoKeywords $autoKeywords }}
+    {{ end }}
+    
+    {{/* Cache the result in the home page store */}}
+    {{ with $page.Site.GetPage "/" }}
+      {{ .Store.Set $cacheKey $autoKeywords }}
+    {{ end }}
+  {{ end }}
+
+{{ end }}
+
+{{/* Merge manual and automatic keywords */}}
+{{ $allKeywords := slice }}
+{{ range $keywords }}
+  {{ $allKeywords = $allKeywords | append . }}
+{{ end }}
+{{ range $autoKeywords }}
+  {{ $allKeywords = $allKeywords | append . }}
+{{ end }}
+
 
 {{/* Initialize page scratch for tracking link counts per page */}}
 {{ $pageKey := $page.RelPermalink | urlize }}
@@ -75,15 +172,50 @@ keywords:
 {{/* Get current page URL for comparison */}}
 {{ $currentPageURL := $page.RelPermalink }}
 
+{{/* Ensure all keywords have a priority field and sort them */}}
+{{ $normalizedKeywords := slice }}
+{{ range $allKeywords }}
+  {{ $keyword := . }}
+  {{/* Check if keyword is a dict/map before trying to access its fields */}}
+  {{ if reflect.IsMap $keyword }}
+    {{ if not (isset $keyword "priority") }}
+      {{ $keyword = merge $keyword (dict "priority" 0) }}
+    {{ end }}
+    {{ $normalizedKeywords = $normalizedKeywords | append $keyword }}
+  {{ end }}
+{{ end }}
+
 {{/* Sort keywords by priority (higher priority first) and then by length (longer first) */}}
-{{ $sortedKeywords := sort $keywords "priority" "desc" }}
+{{ $sortedKeywords := sort $normalizedKeywords "priority" "desc" }}
 
 {{/* Process content if we have keywords */}}
-{{ if $keywords }}
+{{ if $normalizedKeywords }}
   {{ $processedContent := $content }}
 
-  {{/* Process each keyword */}}
+  {{/* Need to preserve autoKeywords for debug check later */}}
+  {{ $autoKeywordsInContent := slice }}
+  {{ if and $enableAutoKeywords $page.Site }}
+    {{ range $normalizedKeywords }}
+      {{ if eq .priority 0 }}
+        {{ $autoKeywordsInContent = $autoKeywordsInContent | append . }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+
+  {{/* Convert content to lowercase for case-insensitive search */}}
+  {{ $contentLower := lower $processedContent }}
+  
+  {{/* Pre-filter keywords that exist in content */}}
+  {{ $keywordsInContent := slice }}
   {{ range $sortedKeywords }}
+    {{/* Quick check if keyword exists in content (case-insensitive) */}}
+    {{ if strings.Contains $contentLower (lower .keyword) }}
+      {{ $keywordsInContent = $keywordsInContent | append . }}
+    {{ end }}
+  {{ end }}
+
+  {{/* Process only keywords that exist in content */}}
+  {{ range $keywordsInContent }}
     {{ $keyword := .keyword }}
     {{ $url := .url }}
     {{ $exact := .exact | default false }}
@@ -119,7 +251,7 @@ keywords:
           {{ $regexPattern = printf `(?i)%s` $pattern }}
         {{ end }}
 
-        {{/* Check if keyword exists in content */}}
+        {{/* We already know keyword exists from pre-filtering, so check if it matches with word boundaries */}}
         {{ if findRE $regexPattern $processedContent 1 }}
 
           {{/* Check if it's not already inside a link - respect case sensitivity */}}
