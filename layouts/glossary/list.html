@@ -8,7 +8,7 @@
       {{ $activeLetter = substr . 0 1 | upper }}
     {{ end }}
     {{ $glossaryTerms := where .Site.RegularPages "Section" "glossary" }}
-    <div id="alphabetNav" class="w-full bg-white sticky top-20 md:top-[5.5rem] z-[45] transition-all duration-300">
+    <div id="alphabetNav" class="w-full bg-white sticky top-20 md:top-[5.25rem] z-[45] transition-all duration-300">
       <div class="wrapper px-8">
         <div class="grid grid-cols-1 sm:hidden">
           <select class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pl-3 pr-8 text-base " id="alphabetSelect">
@@ -143,15 +143,12 @@
         if (window.innerWidth >= 1024) {
           if (window.scrollY > scrollThreshold) {
             alphabetNav?.classList.add(...borderClasses);
-            header?.classList.remove(...borderClasses);
           } else {
             alphabetNav?.classList.remove(...borderClasses);
-            header?.classList.add(...borderClasses);
           }
         } else {
           // Remove border classes on mobile
           alphabetNav?.classList.remove(...borderClasses);
-          header?.classList.remove(...borderClasses);
         }
       }
 
