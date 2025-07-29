@@ -22,7 +22,7 @@
             <div id="search-results"></div>
             <div id="search-pagination" class="flex gap-2 my-3 max-w-3xl"></div>
             <div class="search-loading">{{ i18n "search_loading" }}</div>
-            <div id="min-read-translation" class="hidden">{{ i18n "minutes_read" }}</div>
+            <div id="min-read-translation" class="hidden">{{ i18n "minutes_read" }}</div> 
 
             <script id="search-result-template" type="text/x-js-template">
                 <article id="summary-${key}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-sm hover:shadow-md transition-shadow max-w-3xl h-full flex flex-col">
@@ -33,27 +33,12 @@
                             ${title}
                             </a>
                         </h3>
-                        ${ isset date }
-                            <!-- Date and ReadingTime -->
-                            <div class="flex items-center text-body text-xs mb-3">
-                                <time datetime="${date}">${date}</time>
-                                ${ isset readingTime }
-                                    <span class="mx-2">•</span>
-                                    <span>${readingTime}  ${minReadTranslated}</span>
-                                ${ end }
-                            </div>
-                        ${ end }
+                        <div class="date-reading-time-container flex items-center text-body text-xs mb-3"></div>
                     </div>
 
-                    <!-- Description -->
                     <p class="mt-5 text-sm/6 text-muted line-clamp-3 flex-grow">${snippet}</p>
 
-                    <!-- Tags -->
-                    ${ isset tags }
-                        <div class="mt-6 flex flex-wrap gap-2">
-                            ${tags}
-                        </div>
-                    ${ end }
+                    <div class="tags-container mt-6 flex flex-wrap gap-2"></div>
                 </article>
             </script>
 
@@ -197,40 +182,40 @@
 
                                 console.log(item);
 
-
                                 let description = (item.content != null ? item.content : (item.summary != null ? item.summary : ''));
                                 snippet = description;
-
 
                                 let safeTitle = item.title != null ? item.title : '';
                                 let safePermalink = item.permalink != null ? item.permalink : '#';
                                 let safeDate = item.date != null ? item.date : '';
                                 let safeReadingTime = item.readingTime != null ? item.readingTime : '';
 
-                                let resultHTML = resultTemplate
-                                    .replace(/\${key}/g, refIndex)
-                                    .replace(/\${link}/g, safePermalink)
-                                    .replace(/\${title}/g, safeTitle)
-                                    .replace(/\${snippet}/g, snippet)
-                                    .replace(/\${date}/g, safeDate)
-                                    .replace(/\${minReadTranslated}/g, minReadTranslatedText);
+                                let articleHtml = `
+                                    <article id="summary-${refIndex}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-sm hover:shadow-md transition-shadow max-w-3xl h-full flex flex-col">
+                                        <div class="flex items-center justify-between gap-x-4">
+                                            <h3 class="text-lg font-semibold text-heading group-hover:text-primary">
+                                                <a href="${safePermalink}" class="hover:text-primary focus:outline-none">
+                                                <span class="absolute inset-0" aria-hidden="true"></span>
+                                                ${safeTitle}
+                                                </a>
+                                            </h3>
+                                `;
 
-                                // Remove date block if no date, else insert value and clean up
+                                if (safeDate) {
+                                    articleHtml += `
+                                        <div class="flex items-center text-body text-xs mb-3">
+                                            <time datetime="${safeDate}">${safeDate}</time>
+                                    `;
 
-                                if (!safeDate) {
-                                    resultHTML = resultHTML.replace(/\${ isset date }[\s\S]*?\${ end }/g, '');
-                                } else {
-                                    resultHTML = resultHTML.replace(/\${ isset date }|\${ end }/g, '');
+                                    if (safeReadingTime && parseInt(safeReadingTime) > 0) {
+                                        articleHtml += `<span class="mx-2">•</span><span>${safeReadingTime} ${minReadTranslatedText}</span>`;
+                                    }
+                                    articleHtml += `</div>`;
                                 }
 
-                                if (!safeReadingTime) {
-                                    resultHTML = resultHTML.replace(/\${ isset readingTime }[\s\S]*?\${ end }/g, '');
-                                } else {
-                                    resultHTML = resultHTML.replace(/\${ isset readingTime }|\${ end }/g, '').replace(/\${readingTime}/g, safeReadingTime);
-                                }
-
-                                // Remove any remaining ${ end } (if present)
-                                resultHTML = resultHTML.replace(/\${ end }/g, '');
+                                articleHtml += `
+                                        </div> <p class="mt-5 text-sm/6 text-muted line-clamp-3 flex-grow">${snippet}</p>
+                                `;
 
                                 if (Array.isArray(item.tags) && item.tags.length > 0) {
                                     let tagsHtml = '';
@@ -247,14 +232,16 @@
                                     if (item.tags.length > maxTags) {
                                         tagsHtml += `<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">+${item.tags.length - maxTags}</span>`;
                                     }
-                                    resultHTML = resultHTML
-                                        .replace('${ isset tags }', '')
-                                        .replace('${ end }', '')
-                                        .replace('${tags}', tagsHtml);
-                                } else {
-                                    resultHTML = resultHTML.replace(/\${ isset tags }[\s\S]*\${ end }/g, '');
+                                    articleHtml += `
+                                        <div class="mt-6 flex flex-wrap gap-2">
+                                            ${tagsHtml}
+                                        </div>
+                                    `;
                                 }
-                                html += resultHTML;
+
+                                articleHtml += `</article>`;
+
+                                html += articleHtml;
                             });
                             searchResults.innerHTML = html;
 
