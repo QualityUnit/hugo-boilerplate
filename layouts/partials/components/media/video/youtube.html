@@ -10,7 +10,6 @@
   - height: Video height (optional, default: "auto")
   - id: Optional ID attribute (optional)
   - autoplay: Enable autoplay when opened in lightbox (optional, default: false)
-  - gdprCompliant: Whether to use privacy-enhanced mode (optional, default: true)
 @note: This partial should be called through the main video.html partial, not directly.
 */}}
 
@@ -22,10 +21,11 @@
 {{ $height := .height | default "auto" }}
 {{ $id := .id }}
 {{ $autoplay := .autoplay | default false }}
-{{ $gdprCompliant := .gdprCompliant | default true }}
 {{ $description := .description | default $title }}
 {{ $uploadDate := .uploadDate | default (now.Format "2006-01-02T15:04:05Z07:00") }}
 {{ $duration := .duration | default "PT0M0S" }}
+{{ $noLazy := .noLazy | default false }}
+{{ $loading := cond $noLazy "eager" "lazy" }}
 
 <!-- Schema.org VideoObject metadata for SEO -->
 <script type="application/ld+json">
@@ -50,7 +50,6 @@
   data-video-width="{{ $width }}"
   data-video-height="{{ $height }}"
   data-video-autoplay="{{ $autoplay }}"
-  data-video-gdpr-compliant="{{ $gdprCompliant }}"
   data-video-fallback-url="https://www.youtube.com/watch?v={{ $videoID }}"
   {{ with $id }}id="{{ . }}"{{ end }}
 >
@@ -61,7 +60,7 @@
       alt="Thumbnail for {{ $alt }}"
       class="lazy-video-thumb-img lazy-image absolute inset-0 w-full h-full object-cover transition-transform duration-300"
       data-video-id="{{ $videoID }}"
-      loading="lazy"
+      loading="{{ $loading }}"
       decoding="async"
       width="{{ $width }}"
       height="{{ $height }}"
@@ -73,22 +72,4 @@
       <path d="M8 5v14l11-7z"/>
     </svg>
   </div>
-  
-  {{ if $gdprCompliant }}
-  <!-- GDPR notice overlay (initially hidden) -->
-  <div class="gdpr-consent-overlay absolute inset-0 bg-gray-900 bg-opacity-90 flex-col items-center justify-center text-white p-4 z-20" style="display: none">
-    <div class="text-center max-w-md">
-      <h3 class="text-xl font-bold mb-2">Privacy Notice</h3>
-      <p class="mb-4">This content is hosted by YouTube. By clicking "Load Video", you consent to YouTube's privacy policy.</p>
-      <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <button class="gdpr-accept-btn bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-          Load Video
-        </button>
-        <button class="gdpr-decline-btn bg-transparent hover:bg-gray-700 text-white font-semibold py-2 px-4 border border-white hover:border-transparent rounded">
-          Don't Load
-        </button>
-      </div>
-    </div>
-  </div>
-  {{ end }}
 </div>

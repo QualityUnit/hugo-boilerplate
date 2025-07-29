@@ -16,7 +16,6 @@
   - muted: Enable muted (optional, default: false)
   - controls: Show video controls (optional, default: true for custom, false for YouTube)
   - poster: Poster image URL for HTML5 video (optional)
-  - gdprCompliant: Whether to use privacy-enhanced mode (optional, default: true)
 @example:
   {{ partial "components/media/video.html" (dict 
       "src" "https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
@@ -54,8 +53,8 @@
 {{ $muted := .muted | default false }}
 {{ $controls := .controls | default false }}
 {{ $poster := .poster }}
-{{ $gdprCompliant := .gdprCompliant | default true }}
 {{ $provider := .provider | default "" }}
+{{ $noLazy := .noLazy | default false }}
 
 <!-- First determine the provider if not explicitly set -->
 {{ if not $provider }}
@@ -93,7 +92,7 @@
       "height" $height
       "id" $id
       "autoplay" $autoplay
-      "gdprCompliant" $gdprCompliant
+      "noLazy" $noLazy
   ) }}
 {{ else if eq $provider "custom" }}
   <!-- Load video helper partial for resource management -->
