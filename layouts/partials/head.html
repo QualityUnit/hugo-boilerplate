@@ -12,6 +12,9 @@
 {{ ( partialCached "helpers/generate-hreflang-links.html" (dict "currentPage" . "defaultLang" "en") .Permalink ) | safeHTML }}
 {{ partial "social-meta.html" . | safeHTML }}
 {{ partialCached "head/variables.html" . }}
+<!-- Preload fonts early -->
+<link rel="preload" href="/fonts/inter/Inter-VariableFont_opsz,wght.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<!-- Classic CSS loading for immediate styling -->
 <link rel="stylesheet" href="/css/main.css?v={{ partialCached "helpers/build-timestamp.html" . }}" crossorigin="anonymous">
 <!-- Critical theme JS - loaded early with defer -->
 <script src="/js/main.js?v={{ partialCached "helpers/build-timestamp.html" . }}" defer></script>

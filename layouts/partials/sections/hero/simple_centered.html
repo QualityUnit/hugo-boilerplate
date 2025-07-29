@@ -24,6 +24,7 @@
     - deleteSpeed: Deleting speed in ms (default: 50)
     - pause: Pause duration in ms (default: 2000)
     - color: Color class for animated text (default: "text-indigo-600")
+  - imgBgClass: Background class for image container (default: "bg-[linear-gradient(205deg,_theme(colors.primary.100)_66.27%,_theme(colors.primary.300)_99.99%)]")
 @example:
   {{ partial "sections/hero/simple_centered.html" (dict
       "announcement" (dict
@@ -78,6 +79,8 @@
 {{ $typewriter := merge (dict "pause" 2000) $typewriter }}
 {{ $typewriter := merge (dict "color" "text-indigo-600") $typewriter }}
 {{ $typewriter := merge (dict "wordAlternatives" "") $typewriter }}{{/* comma separated words to alternate with */}}
+
+{{ $imgBgClass := .imgBgClass | default "bg-[linear-gradient(205deg,_theme(colors.primary.100)_66.27%,_theme(colors.primary.300)_99.99%)]" }}
 
 <div class="{{ $darkClass }}">
   <div class="section-bg-light dark:section-bg-dark">
@@ -138,11 +141,12 @@
 
           {{ if $image.src }}
             <div class="mt-16 flow-root sm:mt-[4.5rem]">
-              <div class="rounded-xl bg-[linear-gradient(205deg,_theme(colors.primary.100)_66.27%,_theme(colors.primary.300)_99.99%)]">
+              <div class="rounded-xl {{ $imgBgClass }}">
                 {{ partial "components/media/lazyimg.html" (dict
                   "src" $image.src
                   "alt" $image.alt
                   "class" "w-full mx-auto max-w-[1145px] h-auto object-cover"
+                  "noLazy" true
                 ) }}
               </div>
             </div>

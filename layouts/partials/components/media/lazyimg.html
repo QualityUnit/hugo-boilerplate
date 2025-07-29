@@ -9,11 +9,19 @@
   - width: Image width (optional)
   - height: Image height (optional)
   - maxWidth: Maximum image width for loading (optional)
+  - noLazy: Set to true to disable lazy loading (for hero images, above-the-fold content) (optional)
 @example:
   {{ partial "components/media/lazyimg.html" (dict 
       "src" "/images/example.jpg" 
       "alt" "Example image" 
       "class" "rounded-lg shadow-md"
+  ) }}
+  
+  {{ partial "components/media/lazyimg.html" (dict 
+      "src" "/images/hero-banner.jpg" 
+      "alt" "Hero banner" 
+      "class" "hero-image"
+      "noLazy" true
   ) }}
 */}}
 

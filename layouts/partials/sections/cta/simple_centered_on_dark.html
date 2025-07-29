@@ -7,17 +7,19 @@
   - primaryCta: Object with primary CTA button configuration (optional)
     - text: Button text
     - url: Button URL
+    - target: (optional) Link target attribute (e.g. "_blank", "_self"). If not set, no target is added.
   - secondaryCta: Object with secondary CTA button configuration (optional)
     - text: Button text
     - url: Button URL
+    - target: (optional) Link target attribute (e.g. "_blank", "_self"). If not set, no target is added.
   - gradientStartColor: Starting color for the background gradient (optional, default: "#7775D6")
   - gradientEndColor: Ending color for the background gradient (optional, default: "#E935C1")
 @example:
   {{ partial "sections/cta/simple_centered_on_dark.html" (dict
       "heading" "Transform your workflow today"
       "description" "Our intuitive platform helps teams collaborate more effectively and deliver better results."
-      "primaryCta" (dict "text" "Start free trial" "url" "/signup")
-      "secondaryCta" (dict "text" "Learn more" "url" "/features")
+      "primaryCta" (dict "text" "Start free trial" "url" "/signup" "target" "_blank")
+      "secondaryCta" (dict "text" "Learn more" "url" "/features" "target" "_self")
       "gradientStartColor" "#4F46E5"
       "gradientEndColor" "#7C3AED"
   ) }}
@@ -48,12 +50,14 @@
           "text" $primaryCta.text
           "url" $primaryCta.url
           "variant" "primary-alternate"
+          "target" $primaryCta.target
         ) }}
         {{ partial "components/buttons/buttons.html" (dict
           "text" $secondaryCta.text
           "url" $secondaryCta.url
           "variant" "secondary"
           "showArrow" true
+          "target" $secondaryCta.target
         ) }}
       </div>
     </div>

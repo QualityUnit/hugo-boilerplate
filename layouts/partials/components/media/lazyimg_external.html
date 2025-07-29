@@ -8,6 +8,7 @@
   - id: Image ID (optional)
   - width: Image width (optional)
   - height: Image height (optional)
+  - noLazy: Set to true to disable lazy loading (for hero images, above-the-fold content) (optional)
 @example:
   {{ partial "components/media/lazyimg_external.html" (dict 
       "src" "https://example.com/image.jpg" 
@@ -26,16 +27,22 @@
 {{ $id := .id | default "" }}
 {{ $width := .width | default "" }}
 {{ $height := .height | default "" }}
+{{ $noLazy := .noLazy | default false }}
 
 <img 
+  {{ if $noLazy }}
+  src="{{ $src }}"
+  class="lazy-image loaded {{ with $class }}{{ . }}{{ end }}"
+  {{ else }}
   src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 2'%3E%3C/svg%3E"
   data-src="{{ $src }}" 
-  alt="{{ $alt }}" 
   class="lazy-image {{ with $class }}{{ . }}{{ end }}"
+  {{ end }}
+  alt="{{ $alt }}" 
   {{ with $id }}id="{{ . }}"{{ end }}
   {{ with $width }}width="{{ . }}"{{ end }}
   {{ with $height }}height="{{ . }}"{{ end }}
-  loading="lazy"
+  {{ if not $noLazy }}loading="lazy"{{ end }}
   decoding="async"
   data-original-src="{{ $src }}"
 >

@@ -1,45 +1,57 @@
 {{ define "main" }}
-
-{{ partial "hero_default.html" . }}
-
-<div class="bg-white">
-  <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-
-    <!-- Alphabet navigation -->
-    <div class="mt-10 flex flex-wrap justify-center gap-2">
-      {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
-      {{ $glossaryTerms := where .Site.RegularPages "Section" "glossary" }}
-      
-      {{ range $letters }}
-        {{ $letter := . }}
-        {{ $hasTerms := false }}
-        {{ range $glossaryTerms }}
-          {{ $termCategory := .Params.category }}
-          {{ if not $termCategory }}
-            {{ $termName := .Params.term | default .Title }}
-            {{ $firstChar := substr $termName 0 1 | upper }}
-            {{ if in $letters $firstChar }}
-              {{ $termCategory = $firstChar }}
-            {{ else }}
-              {{ $termCategory = "0-9" }}
+  <div class="bg-white dark:bg-gray-900 py-24 lg:py-32">
+    {{ partial "breadcrumbs_default.html" . }}
+    {{ partial "hero_default.html" . }}
+    {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
+    {{ $activeLetter := "" }}
+    {{ with .Title }}
+      {{ $activeLetter = substr . 0 1 | upper }}
+    {{ end }}
+    {{ $glossaryTerms := where .Site.RegularPages "Section" "glossary" }}
+    <div id="alphabetNav" class="w-full bg-white sticky top-20 md:top-[5.25rem] z-[45] transition-all duration-300">
+      <div class="wrapper px-8 ">
+        <div class="grid grid-cols-2 lg:hidden">
+          <select class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pl-3 pr-8 text-base " id="alphabetSelect">
+            {{ range $letters }}
+              <option value="{{ . }}" {{ if eq . $activeLetter }}selected{{ end }}>{{ . }}</option>
             {{ end }}
-          {{ end }}
-          {{ if eq $termCategory $letter }}
-            {{ $hasTerms = true }}
-          {{ end }}
-        {{ end }}
-        
-        <a href="#{{ $letter }}" class="inline-flex items-center justify-center h-10 w-10 rounded-full {{ if $hasTerms }}bg-indigo-600 text-white hover:bg-indigo-700{{ else }}bg-gray-200 text-gray-400 cursor-not-allowed{{ end }}">
-          {{ $letter }}
-        </a>
-      {{ end }}
-    </div>
+          </select>
+        </div>
 
-    <!-- Terms grouped by letter -->
-    <div class="mt-16 space-y-16">
-      {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
-      {{ $glossaryTerms := where .Site.RegularPages "Section" "glossary" }}
-      
+        <div class="hidden lg:block">
+          <nav class="flex flex-wrap gap-2 py-6 justify-between">
+            {{ range $letters }}
+              {{ $letter := . }}
+              {{ $hasTerms := false }}
+              {{ range $glossaryTerms }}
+                {{ $termCategory := .Params.category }}
+                {{ if not $termCategory }}
+                  {{ $termName := .Params.term | default .Title }}
+                  {{ $firstChar := substr $termName 0 1 | upper }}
+                  {{ if in $letters $firstChar }}
+                    {{ $termCategory = $firstChar }}
+                  {{ else }}
+                    {{ $termCategory = "0-9" }}
+                  {{ end }}
+                {{ end }}
+                {{ if eq $termCategory $letter }}
+                  {{ $hasTerms = true }}
+                {{ end }}
+              {{ end }}
+              <a href="#{{ $letter }}"
+                 class="rounded-md px-2 py-2 text-sm font-medium
+                 {{ if eq $letter $activeLetter }}bg-indigo-100 text-primary aria-current='page'
+                 {{ else if $hasTerms }}text-muted hover:text-primary hover:bg-indigo-100
+                 {{ else }}text-muted opacity-30 pointer-events-none{{ end }}">
+                {{ $letter }}
+              </a>
+            {{ end }}
+          </nav>
+        </div>
+
+      </div>
+    </div>
+    <div class="wrapper mt-10">
       {{ range $letters }}
         {{ $letter := . }}
         {{ $termsInCategory := slice }}
@@ -58,35 +70,16 @@
             {{ $termsInCategory = $termsInCategory | append . }}
           {{ end }}
         {{ end }}
-                
         {{ if $termsInCategory }}
-          <div id="{{ $letter }}" class="scroll-mt-20">
-            <h2 class="text-3xl font-bold text-gray-900 border-b border-gray-200 pb-4">{{ $letter }}</h2>
-            <ul class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div id="{{ $letter }}" class="my-10">
+            <h2 class="text-5xl font-semibold text-heading">{{ $letter }}</h2>
+            <ul class="mt-8 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
               {{ range sort $termsInCategory "Title" }}
-                <li class="group relative rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
-                  <h3 class="text-lg font-semibold text-gray-900">
-                    <a href="{{ .RelPermalink }}" class="hover:text-indigo-600 focus:outline-none">
-                      <span class="absolute inset-0" aria-hidden="true"></span>
-                      {{ .Params.term | default .Title }}
-                    </a>
-                  </h3>
-                  <p class="mt-2 text-sm text-gray-500 line-clamp-3">{{ .Params.shortDescription }}</p>
-                  <div class="mt-4 flex flex-wrap gap-2">
-                    {{ with .Params.tags }}
-                      {{ range first 3 . }}
-                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-                          {{ . }}
-                        </span>
-                      {{ end }}
-                      {{ if gt (len .) 3 }}
-                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-                          +{{ sub (len .) 3 }}
-                        </span>
-                      {{ end }}
-                    {{ end }}
-                  </div>
-                </li>
+                {{ partial "components/cards/post_card_with_image.html" (
+                  dict "page" . "cardHeight" 252
+                  "showImages" false
+                  "showDateReadingTime" false
+                ) }}
               {{ end }}
             </ul>
           </div>
@@ -94,13 +87,128 @@
       {{ end }}
     </div>
   </div>
-</div>
 
-{{ if .Content }}
-  {{ partial "sections/content/centered.html" (dict 
-      "content" (partial "utils/linkbuilding" (dict "content" .Content "page" .) | safeHTML)
-      "bgColor" "bg-gray-50"
-      "page" .
-  ) }}
-{{ end }}
+  {{ if .Content }}
+    {{ partial "sections/content/centered.html" (dict
+        "content" (partial "utils/linkbuilding" (dict "content" .Content "page" .) | safeHTML)
+        "bgColor" "bg-gray-50"
+        "page" .
+    ) }}
+  {{ end }}
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const select = document.getElementById("alphabetSelect");
+      const tabsContainer = document.querySelector('#alphabetNav nav');
+      const sections = document.querySelectorAll('.wrapper > div[id]');
+      const alphabetNav = document.getElementById('alphabetNav');
+      const header = document.querySelector('header');
+
+      const activeClasses = ['bg-indigo-100', 'text-primary'];
+      const defaultClasses = ['text-body', 'hover:text-primary', 'hover:bg-indigo-100'];
+      const disabledClasses = ['text-gray-500', 'opacity-30', 'pointer-events-none']; 
+      const allDynamicClasses = [...activeClasses, ...defaultClasses, ...disabledClasses];
+
+      const scrollThreshold = 31.5 * 16;
+      const borderClasses = ['border-b', 'border-gray-300'];
+
+      function setActiveTab(letterToActivate) {
+        if (!tabsContainer) return;
+
+        const tabs = tabsContainer.querySelectorAll('a');
+        tabs.forEach(tab => {
+          const tabLetter = tab.getAttribute('href').replace('#', '');
+          tab.classList.remove(...allDynamicClasses);
+          tab.removeAttribute('aria-current');
+
+          const hasTermsForThisLetter = Array.from(sections).some(section => section.id === tabLetter);
+
+          if (tabLetter === letterToActivate) {
+            tab.classList.add(...activeClasses);
+            tab.setAttribute('aria-current', 'page');
+          } else if (hasTermsForThisLetter) {
+            tab.classList.add(...defaultClasses);
+          } else {
+            tab.classList.add(...disabledClasses);
+          }
+        });
+
+        if (select) {
+          select.value = letterToActivate;
+        }
+      }
+
+      function handleScroll() {
+        // Only apply border logic for desktop screens (sm: 640px and up)
+        if (window.innerWidth >= 1024) {
+          if (window.scrollY > scrollThreshold) {
+            alphabetNav?.classList.add(...borderClasses);
+          } else {
+            alphabetNav?.classList.remove(...borderClasses);
+          }
+        } else {
+          // Remove border classes on mobile
+          alphabetNav?.classList.remove(...borderClasses);
+        }
+      }
+
+      const initialActiveLetter = "{{ $activeLetter }}";
+      if (initialActiveLetter) {
+        setActiveTab(initialActiveLetter);
+        document.getElementById(initialActiveLetter)?.scrollIntoView({ behavior: "auto", block: "start" });
+      }
+
+      if (select) {
+        select.addEventListener("change", function() {
+          const sectionId = this.value;
+          document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+          setActiveTab(sectionId);
+        });
+      }
+
+      if (tabsContainer) {
+        tabsContainer.addEventListener('click', function(e) {
+          const targetTab = e.target.closest('a');
+          if (targetTab && !targetTab.classList.contains('pointer-events-none')) {
+            e.preventDefault();
+            const letter = targetTab.getAttribute('href').replace('#', '');
+            setActiveTab(letter);
+            const section = document.getElementById(letter);
+            if (section) {
+              const header = document.querySelector('header');
+              const alphabetNav = document.getElementById('alphabetNav');
+              const extraSpace = -16; // px navyše pod headerom a abecedou
+              const offset = (header?.offsetHeight || 0) + (alphabetNav?.offsetHeight || 0) - extraSpace;
+              const sectionTop = section.getBoundingClientRect().top + window.pageYOffset;
+              window.scrollTo({
+                top: sectionTop - offset,
+                left: 0,
+                behavior: 'smooth'
+              });
+            }
+          }
+        });
+      }
+
+      const observerOptions = {
+        root: null,
+        rootMargin: "-20% 0px -80% 0px",
+        threshold: 0
+      };
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActiveTab(entry.target.id);
+          }
+        });
+      }, observerOptions);
+
+      sections.forEach(section => observer.observe(section));
+
+      window.addEventListener('scroll', handleScroll);
+      handleScroll();
+    });
+  </script>
+  
 {{ end }}
