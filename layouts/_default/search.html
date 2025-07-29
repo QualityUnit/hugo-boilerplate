@@ -22,6 +22,7 @@
             <div id="search-results"></div>
             <div id="search-pagination" class="flex gap-2 my-3 max-w-3xl"></div>
             <div class="search-loading">{{ i18n "search_loading" }}</div>
+            <div id="min-read-translation" class="hidden">{{ i18n "minutes_read" }}</div>
 
             <script id="search-result-template" type="text/x-js-template">
                 <article id="summary-${key}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-sm hover:shadow-md transition-shadow max-w-3xl h-full flex flex-col">
@@ -38,7 +39,7 @@
                                 <time datetime="${date}">${date}</time>
                                 ${ isset readingTime }
                                     <span class="mx-2">•</span>
-                                    <span>${readingTime} min read</span>
+                                    <span>${readingTime}  ${minReadTranslated}</span>
                                 ${ end }
                             </div>
                         ${ end }
@@ -69,6 +70,8 @@
                     let searchIndex = null;
                     let fuse = null;
                     let debounceTimer;
+
+                    const minReadTranslatedText = document.getElementById('min-read-translation').textContent;
 
                     // Initialize with URL parameters if present
                     const searchQuery = new URLSearchParams(window.location.search).get('q');
@@ -209,7 +212,8 @@
                                     .replace(/\${link}/g, safePermalink)
                                     .replace(/\${title}/g, safeTitle)
                                     .replace(/\${snippet}/g, snippet)
-                                    .replace(/\${date}/g, safeDate);
+                                    .replace(/\${date}/g, safeDate)
+                                    .replace(/\${minReadTranslated}/g, minReadTranslatedText);
 
                                 // Remove date block if no date, else insert value and clean up
 
