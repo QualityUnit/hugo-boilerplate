@@ -88,7 +88,7 @@
       <code class="p-0 m-0 whitespace-pre-wrap break-words">{{ $content }}</code>
     </div>
   {{ else if eq $type "list" }}
-    <ul class="pl-0 {{ if eq $listType "checks" }}space-y-8 my-8{{ else }}space-y-4 mt-8{{ end }}">
+    <ul class="pl-0 space-y-4 {{ if eq $listType "checks" }}my-10{{ else }}mt-10{{ end }}">
       {{ range $index, $item := $items }}
         <li class="flex pl-0">
           <span class="flex-shrink-0 flex mt-2 mr-3 {{ if eq $listType "numbers" }}items-center justify-center rounded-full bg-primary icon-primary text-[10px] h-5 w-5{{ else if eq $listType "checks" }}product-icon{{ else }}justify-center product-icon{{ end }}">
