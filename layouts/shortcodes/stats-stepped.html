@@ -1,0 +1,58 @@
+{{/* Stepped Stats Shortcode */}}
+{{/*
+Usage Example:
+{{< stats-simple-grid 
+  title="Our Impact in Numbers"
+  description="We've helped businesses achieve outstanding results across key metrics."
+  container-bg="bg-gray-50"
+  container-padding="py-16 sm:py-24"
+  card-bg="bg-white"
+  card-padding="p-6"
+  title-color="text-blue-900"
+  description-color="text-gray-600"
+  show-heading="true"
+  columns="3"
+  sm-columns="1"
+>}}
+  [
+    {"value": "10M+", "label": "Customers"},
+    {"value": "99%", "label": "Satisfaction"},
+    {"value": "24/7", "label": "Support"},
+    {"value": "$50M", "label": "Revenue"}
+  ]
+{{< /stats-simple-grid >}}
+*/}}
+
+{{ $heading := .Get "title" }}
+{{ $description := .Get "description" }}
+{{ $bgColor := .Get "container-bg" | default "bg-white" }}
+{{ $padding := .Get "container-padding" | default "py-24 sm:py-32" }}
+{{ $statBgColor := .Get "card-bg" | default "bg-gray-400/5" }}
+{{ $statPadding := .Get "card-padding" | default "p-8" }}
+{{ $headingColor := .Get "title-color" | default "text-gray-900" }}
+{{ $descriptionColor := .Get "description-color" | default "text-gray-600" }}
+{{ $showHeading := .Get "show-heading" | default "true" }}
+{{ $columns := .Get "columns" | default "3" }}
+{{ $mobileColumns := .Get "mobile-columns" | default "1" }}
+
+{{ $stats := slice }}
+{{ with .Inner }}
+  {{ if . }}
+    {{ $stats = . | unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{ partial "sections/stats/simple_grid.html" (dict 
+  "heading" $heading
+  "description" $description
+  "bgColor" $bgColor
+  "padding" $padding
+  "statBgColor" $statBgColor
+  "statPadding" $statPadding
+  "headingColor" $headingColor
+  "descriptionColor" $descriptionColor
+  "showHeading" (eq $showHeading "true")
+  "columns" $columns
+  "mobileColumns" $mobileColumns
+  "stats" $stats
+) }}

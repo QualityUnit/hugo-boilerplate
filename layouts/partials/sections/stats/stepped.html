@@ -2,7 +2,6 @@
 @section: Stepped Stats
 @description: A dynamic statistics section featuring multiple stat cards with varied sizes, background colors, and alignments, creating a visually striking "stepped" layout.
 @params:
-  - bgColor: Background color class (optional, default: "bg-white")
   - padding: Padding classes (optional, default: "py-24 sm:py-32")
   - showHeading: Whether to display the heading section (optional, default: true)
   - heading: Main section heading (optional, default: "We approach work as a place to make the world better")
@@ -55,7 +54,6 @@
 */}}
 
 {{/* Configurable variables */}}
-{{ $bgColor := .bgColor | default "bg-white" }}
 {{ $padding := .padding | default "py-24 sm:py-32" }}
 
 {{/* Heading */}}
@@ -106,8 +104,8 @@
   }}
 {{ end }}
 
-<div class="{{ $bgColor }} {{ $padding }}">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+<div class="bg-white {{ $padding }}">
+  <div class="wrapper px-6 lg:px-8">
     {{ if $showHeading }}
     <div class="mx-auto max-w-2xl lg:mx-0">
       <h2 class="text-4xl font-semibold tracking-tight text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
