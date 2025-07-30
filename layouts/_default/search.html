@@ -6,12 +6,12 @@
     <div class="wrapper">
         <div class="mx-auto max-w-none prose prose-lg hover:prose-a:text-primary">
 
-            <div class="search-container py-6 gap-x-2 relative flex w-80">
+            <div class="search-container py-6 gap-x-2 relative flex w-full md:w-80">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                    {{ partial "icons/magnifying-glass" "w-4 h-4 text-muted" }}
                 </span>
                 <input type="search" name="q" id="search-query" autocomplete="off"
-                    class="hide-search-clear px-9 py-1.5 w-80 border border-gray-600 dark:border-gray-700 rounded-md focus:outline-none focus:ring-0 focus:ring-transparent focus:border-gray-400 transition" />
+                    class="hide-search-clear px-9 py-1.5 w-full border border-gray-600 dark:border-gray-700 rounded-md focus:outline-none focus:ring-0 focus:ring-transparent focus:border-gray-400 transition" />
                 <button type="button" id="clear-search" aria-label="{{ i18n "search_clear_aria" }}"
                     class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-0">
                     {{ partial "icons/x-mark" "w-4 h-4 text-muted" }}
@@ -26,14 +26,14 @@
 
             <script id="search-result-template" type="text/x-js-template">
                 <article id="summary-${key}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-[52rem] h-full flex flex-col">
-                    <div class="flex items-center justify-between items-center gap-x-4">
-                        <h3 class="text-lg font-semibold text-heading group-hover:text-primary w-3/4">
+                    <div class="flex items-center justify-between items-center flex-wrap md:flex-nowrap gap-x-4">
+                        <h3 class="text-lg font-semibold text-heading group-hover:text-primary w-full md:w-3/4">
                             <a href="${link}" class="hover:text-primary focus:outline-none">
                             <span class="absolute inset-0" aria-hidden="true"></span>
                             ${title}
                             </a>
                         </h3>
-                        <div class="date-reading-time-container flex items-center text-body text-xs mb-3"></div>
+                        <div class="date-reading-time-container flex items-center text-body text-xs mb-3 mt-3 md:mt-0 w-full md:w-1/4"></div>
                     </div>
 
                     <p class="mt-5 text-sm/6 text-muted line-clamp-3 flex-grow">${snippet}</p>
@@ -210,8 +210,8 @@
 
                                 let articleHtml = `
                                     <article id="summary-${refIndex}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-[52rem] h-full flex flex-col">
-                                        <div class="flex items-center justify-between gap-x-4 items-center">
-                                            <h3 class="text-lg font-semibold text-heading group-hover:text-primary w-3/4">
+                                        <div class="flex items-center justify-between gap-x-4 items-center flex-wrap md:flex-nowrap">
+                                            <h3 class="text-lg font-semibold text-heading group-hover:text-primary w-full md:w-3/4">
                                                 <a href="${safePermalink}" class="hover:text-primary focus:outline-none">
                                                 <span class="absolute inset-0" aria-hidden="true"></span>
                                                 ${safeTitle}
@@ -221,7 +221,7 @@
 
                                 if (safeDate) {
                                     articleHtml += `
-                                        <div class="flex items-center text-body text-xs mb-3">
+                                        <div class="flex items-center text-body text-xs mb-3 mt-3 md:mt-0 w-full md:w-1-4">
                                             <time datetime="${safeDate}">${safeDate}</time>
                                     `;
 
