@@ -20,14 +20,14 @@
 
 
             <div id="search-results"></div>
-            <div id="search-pagination" class="flex gap-2 my-3 max-w-3xl"></div>
+            <div id="search-pagination" class="flex gap-2 py-3 max-w-full"></div> 
             <div class="search-loading">{{ i18n "search_loading" }}</div>
             <div id="min-read-translation" class="hidden">{{ i18n "minutes_read" }}</div> 
 
             <script id="search-result-template" type="text/x-js-template">
-                <article id="summary-${key}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-sm hover:shadow-md transition-shadow max-w-3xl h-full flex flex-col">
-                    <div class="flex items-center justify-between gap-x-4">
-                        <h3 class="text-lg font-semibold text-heading group-hover:text-primary">
+                <article id="summary-${key}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-[52rem] h-full flex flex-col">
+                    <div class="flex items-center justify-between items-center gap-x-4">
+                        <h3 class="text-lg font-semibold text-heading group-hover:text-primary w-3/4">
                             <a href="${link}" class="hover:text-primary focus:outline-none">
                             <span class="absolute inset-0" aria-hidden="true"></span>
                             ${title}
@@ -41,9 +41,6 @@
                     <div class="tags-container mt-6 flex flex-wrap gap-2"></div>
                 </article>
             </script>
-
-            <script defer src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js" integrity="sha512-Nqw1tH3mpavka9cQCc5zWWEZNfIPdOYyQFjlV1NvflEtQ0/XI6ZQ+H/D3YgJdqSUJlMLAPRj/oXlaHCFbFCjoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-            <script defer src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
@@ -115,7 +112,7 @@
                                 : `<span class="relative ml-3 inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">Next ${chevronRight}</span>`}
                         </div>`;
                         // Desktop: full pagination
-                        html += `<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full">
+                        html += `<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full max-w-[52rem] not-prose">
                             <div>
                                 <p class="text-sm text-body">
                                     Showing <span class="font-semibold">${startItem}</span> to <span class="font-semibold">${endItem}</span> of <span class="font-semibold">${total}</span> results
@@ -128,10 +125,33 @@
                                         : `<span class="relative inline-flex items-center rounded-l-xl px-2 py-2 ring-1 ring-inset ring-gray-300 cursor-not-allowed"><span class="sr-only">Previous</span>${chevronLeft}</span>`}
                                     ${Array.from({length: totalPages}, (_, i) => {
                                         const n = i + 1;
-                                        if (n === page) {
-                                            return `<span aria-current="page" class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">${n}</span>`;
+                                        // Add logic to display a limited number of pages (e.g., current, prev 2, next 2, and ellipsis)
+                                        const maxVisiblePages = 7; // Максимальна кількість видимих кнопок пагінації, включаючи "..."
+                                        const halfVisible = Math.floor(maxVisiblePages / 2);
+
+                                        if (totalPages <= maxVisiblePages) {
+                                            // Відображати всі сторінки, якщо загальна кількість сторінок у межах ліміту
+                                            return n === page
+                                                ? `<span aria-current="page" class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">${n}</span>`
+                                                : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
                                         } else {
-                                            return `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
+                                            // Відображати еліпсис та обмежений діапазон сторінок
+                                            if (
+                                                n === 1 || // Завжди показуємо першу сторінку
+                                                n === totalPages || // Завжди показуємо останню сторінку
+                                                (n >= page - halfVisible && n <= page + halfVisible) // Показуємо сторінки навколо поточної
+                                            ) {
+                                                return n === page
+                                                    ? `<span aria-current="page" class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">${n}</span>`
+                                                    : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
+                                            } else if (
+                                                // Показуємо "..."
+                                                (n === page - halfVisible - 1 && page - halfVisible > 1) ||
+                                                (n === page + halfVisible + 1 && page + halfVisible < totalPages)
+                                            ) {
+                                                return `<span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300">...</span>`;
+                                            }
+                                            return ''; // Ховаємо інші сторінки
                                         }
                                     }).join('')}
                                     ${page < totalPages
@@ -152,7 +172,7 @@
                     let lastQuery = '';
                     function performSearch(query, page = 1) {
                         lastQuery = query;
-                        const perPage = 30;
+                        const perPage = 30; // Кількість результатів на сторінку
                         if (!query || query.trim() === '') {
                             searchResults.innerHTML = '';
                             document.getElementById('search-pagination').innerHTML = '';
@@ -164,7 +184,7 @@
 
                         if (!fuse) {
                             loadingIndicator.style.display = 'block';
-                            return; // Wait for index to load
+                            return; // Чекаємо завантаження індексу
                         }
 
                         const results = fuse.search(query);
@@ -180,8 +200,6 @@
                             pagedResults.forEach(({ item, matches, refIndex }) => {
                                 let snippet = '';
 
-                                console.log(item);
-
                                 let description = (item.content != null ? item.content : (item.summary != null ? item.summary : ''));
                                 snippet = description;
 
@@ -191,9 +209,9 @@
                                 let safeReadingTime = item.readingTime != null ? item.readingTime : '';
 
                                 let articleHtml = `
-                                    <article id="summary-${refIndex}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-sm hover:shadow-md transition-shadow max-w-3xl h-full flex flex-col">
-                                        <div class="flex items-center justify-between gap-x-4">
-                                            <h3 class="text-lg font-semibold text-heading group-hover:text-primary">
+                                    <article id="summary-${refIndex}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-[52rem] h-full flex flex-col">
+                                        <div class="flex items-center justify-between gap-x-4 items-center">
+                                            <h3 class="text-lg font-semibold text-heading group-hover:text-primary w-3/4">
                                                 <a href="${safePermalink}" class="hover:text-primary focus:outline-none">
                                                 <span class="absolute inset-0" aria-hidden="true"></span>
                                                 ${safeTitle}
@@ -208,7 +226,7 @@
                                     `;
 
                                     if (safeReadingTime && parseInt(safeReadingTime) > 0) {
-                                        articleHtml += `<span class="mx-2">•</span><span>${safeReadingTime} ${minReadTranslatedText}</span>`;
+                                        articleHtml += `<span class="mx-2 text-[7px]">•</span><span>${safeReadingTime} ${minReadTranslatedText}</span>`;
                                     }
                                     articleHtml += `</div>`;
                                 }
@@ -218,23 +236,25 @@
                                 `;
 
                                 if (Array.isArray(item.tags) && item.tags.length > 0) {
+                                   
                                     let tagsHtml = '';
                                     const maxTags = 3;
-                                    const tagBaseUrl = '/tags/';
-                                    const tagClass = 'inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 hover:bg-gray-200';
+                                    const tagBaseUrl = '/tags/'; // Це можна налаштувати, якщо теги мають інший базовий URL
+                                    const tagClass = 'badge-base badge-gray badge-with-border not-prose whitespace-nowrap [&_a]:no-underline [&_a]:!text-inherit [&_a]:px-0.5 [&_.link-building-link]:!no-underline [&_.link-building-link]:!text-inherit';
                                     const shownTags = item.tags.slice(0, maxTags);
                                     shownTags.forEach(tag => {
                                         if (tag != null) {
-                                            const url = tagBaseUrl + encodeURIComponent(String(tag).toLowerCase().replace(/\s+/g, '-')) + '/';
-                                            tagsHtml += `<a href="${url}" class="${tagClass}">${tag}</a>\n`;
+                                            tagsHtml += ` <span class="${tagClass}">${tag}</span>`;
                                         }
                                     });
                                     if (item.tags.length > maxTags) {
-                                        tagsHtml += `<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">+${item.tags.length - maxTags}</span>`;
+                                        tagsHtml += ` <span class="${tagClass}">+${item.tags.length - maxTags}</span>`;
                                     }
                                     articleHtml += `
                                         <div class="mt-6 flex flex-wrap gap-2">
-                                            ${tagsHtml}
+                                            <div class="flex flex-wrap gap-1">
+                                                ${tagsHtml}
+                                            </div>
                                         </div>
                                     `;
                                 }
@@ -244,9 +264,6 @@
                                 html += articleHtml;
                             });
                             searchResults.innerHTML = html;
-
-                            const mark = new Mark(searchResults);
-                            mark.mark(query);
                         } else {
                             searchResults.innerHTML = `
                               <div class="surface-divider"></div>
@@ -258,7 +275,7 @@
                                 <div class="surface-divider mt-3"></div>
                                 <div class="py-3">
                                   <div class="text-sm text-body font-semibold">{{ i18n "search_suggestions" }}</div>
-                                  <ul class="mt-1 text-sm/7 text-muted">
+                                  <ul class="mt-1 text-sm/7 text-muted list-disc list-inside">
                                     <li>{{ i18n "search_suggestion_spell" }}</li>
                                     <li>{{ i18n "search_suggestion_broaden" }}</li>
                                     <li>{{ i18n "search_suggestion_terms" }}</li>
