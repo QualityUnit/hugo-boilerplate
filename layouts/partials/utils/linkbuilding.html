@@ -99,7 +99,6 @@ These keywords will automatically create links to the page they're defined on.
     {{/* Collect automatic keywords from pages with keywords in frontmatter */}}
     {{ $pagesWithLang := where $page.Site.RegularPages "Lang" $lang }}
     {{ $uniqueKeywords := dict }}
-    {{ $pagesWithTooManyKeywords := 0 }}
 
     {{ range $pagesWithLang }}
       {{ $currentPage := . }}
@@ -108,13 +107,7 @@ These keywords will automatically create links to the page they're defined on.
         {{ $pageTitle := $currentPage.Title | default "" }}
         {{ $keywordCount := len .Params.keywords }}
         
-        {{/* Warn if page has more than 10 keywords */}}
-        {{ if gt $keywordCount 10 }}
-          {{ $pagesWithTooManyKeywords = add $pagesWithTooManyKeywords 1 }}
-        {{ end }}
-        
-        {{/* Take only first 10 keywords from each page */}}
-        {{ $pageKeywords := first 10 .Params.keywords }}
+        {{ $pageKeywords := first 3 .Params.keywords }}
         
         {{ range $pageKeywords }}
           {{ $keywordLower := lower . }}
@@ -126,9 +119,6 @@ These keywords will automatically create links to the page they're defined on.
         {{ end }}
       {{ end }}
     {{ end }}
-    
-    {{/* Summary of keyword collection */}}
-    {{ warnf "[Linkbuilding] Collected %d unique automatic keywords from %d pages (%d pages had >10 keywords)" (len $autoKeywords) (len $pagesWithLang) $pagesWithTooManyKeywords }}
 
     {{/* Limit automatic keywords to configured maximum */}}
     {{ if gt (len $autoKeywords) $maxAutoKeywords }}
