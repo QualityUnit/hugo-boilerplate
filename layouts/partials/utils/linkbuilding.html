@@ -110,7 +110,6 @@ These keywords will automatically create links to the page they're defined on.
         
         {{/* Warn if page has more than 10 keywords */}}
         {{ if gt $keywordCount 10 }}
-          {{ warnf "[Linkbuilding] WARNING: Page %s has %d keywords (max recommended: 10)" $pageUrl $keywordCount }}
           {{ $pagesWithTooManyKeywords = add $pagesWithTooManyKeywords 1 }}
         {{ end }}
         
