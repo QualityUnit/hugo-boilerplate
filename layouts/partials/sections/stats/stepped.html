@@ -5,9 +5,7 @@
   - padding: Padding classes (optional, default: "py-24 sm:py-32")
   - showHeading: Whether to display the heading section (optional, default: true)
   - heading: Main section heading (optional, default: "We approach work as a place to make the world better")
-  - headingColor: Heading color class (optional, default: "text-gray-900")
   - description: Section description text (optional, default: "Diam nunc lacus lacus aliquam turpis enim...")
-  - descriptionColor: Description color class (optional, default: "text-gray-600")
   - stats: Array of statistic objects (optional, includes defaults)
     - value: The statistic value to display
     - title: Title for the statistic
@@ -54,73 +52,33 @@
 */}}
 
 {{/* Configurable variables */}}
-{{ $padding := .padding | default "py-24 sm:py-32" }}
+{{ $padding := .padding | default "py-24" }}
 
 {{/* Heading */}}
 {{ $showHeading := .showHeading | default true }}
-{{ $heading := .heading | default "We approach work as a place to make the world better" }}
-{{ $headingColor := .headingColor | default "text-gray-900" }}
-{{ $description := .description | default "Diam nunc lacus lacus aliquam turpis enim. Eget hac velit est euismod lacus. Est non placerat nam arcu. Cras purus nibh cursus sit eu in id. Integer vel nibh." }}
-{{ $descriptionColor := .descriptionColor | default "text-gray-600" }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
 
 {{/* Stats */}}
 {{ $stats := .stats | default slice }}
 
-{{/* Default stats if none provided */}}
-{{ if eq (len $stats) 0 }}
-  {{ $stats = slice 
-    (dict 
-      "value" "250k"
-      "title" "Users on the platform"
-      "description" "Vel labore deleniti veniam consequuntur sunt nobis."
-      "bgColor" "bg-gray-50"
-      "valueColor" "text-gray-900"
-      "titleColor" "text-gray-900"
-      "descriptionColor" "text-gray-600"
-      "width" "lg:w-72"
-    )
-    (dict 
-      "value" "$8.9 billion"
-      "title" "We're proud that our customers have made over $8 billion in total revenue."
-      "description" "Eu duis porta aliquam ornare. Elementum eget magna egestas."
-      "bgColor" "bg-gray-900"
-      "valueColor" "text-white"
-      "titleColor" "text-white"
-      "descriptionColor" "text-gray-400"
-      "width" "lg:w-full lg:max-w-sm lg:flex-auto"
-      "gapY" "lg:gap-y-44"
-    )
-    (dict 
-      "value" "401,093"
-      "title" "Transactions this year"
-      "description" "Eu duis porta aliquam ornare. Elementum eget magna egestas. Eu duis porta aliquam ornare."
-      "bgColor" "bg-indigo-600"
-      "valueColor" "text-white"
-      "titleColor" "text-white"
-      "descriptionColor" "text-indigo-200"
-      "width" "lg:w-full lg:max-w-none lg:flex-auto"
-      "gapY" "lg:gap-y-28"
-    )
-  }}
-{{ end }}
-
 <div class="bg-white {{ $padding }}">
   <div class="wrapper px-6 lg:px-8">
     {{ if $showHeading }}
-    <div class="mx-auto max-w-2xl lg:mx-0">
-      <h2 class="text-4xl font-semibold tracking-tight text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
-      <p class="mt-6 text-base/7 {{ $descriptionColor }}">{{ $description }}</p>
-    </div>
+      <div class="mx-auto max-w-2xl lg:mx-0">
+        <h2 class="text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
+        <p class="mt-6 text-lg/7 text-body">{{ $description }}</p>
+      </div>
     {{ end }}
     <div class="mx-auto mt-16 flex max-w-2xl flex-col gap-8 lg:mx-0 lg:mt-20 lg:max-w-none lg:flex-row lg:items-end">
       {{ range $index, $stat := $stats }}
       {{ $width := $stat.width | default "lg:w-72 lg:max-w-none lg:flex-none" }}
       {{ $gapY := $stat.gapY | default "" }}
       {{ $bgColor := $stat.bgColor | default "bg-gray-50" }}
-      {{ $valueColor := $stat.valueColor | default "text-gray-900" }}
-      {{ $titleColor := $stat.titleColor | default "text-gray-900" }}
-      {{ $descriptionColor := $stat.descriptionColor | default "text-gray-600" }}
-      
+      {{ $valueColor := $stat.valueColor | default "text-heading" }}
+      {{ $titleColor := $stat.titleColor | default "text-heading" }}
+      {{ $descriptionColor := $stat.descriptionColor | default "text-body" }}
+
       {{ $smWidth := "" }}
       {{ if eq $index 0 }}
         {{ $smWidth = "sm:w-3/4 sm:max-w-md" }}
