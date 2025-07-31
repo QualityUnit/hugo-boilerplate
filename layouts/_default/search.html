@@ -166,6 +166,9 @@
                         Array.from(pagination.querySelectorAll('button[data-page]')).forEach(btn => {
                             btn.addEventListener('click', function() {
                                 performSearch(lastQuery, parseInt(this.getAttribute('data-page')));
+                                if (searchInput) {
+                                    searchInput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
                             });
                         });
                     }
