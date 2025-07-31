@@ -24,6 +24,7 @@
 {{ $readingTime := .ReadingTime }}
 {{ $permalink := .RelPermalink }}
 {{ $section := .Section }}
+{{ $minutesRead := i18n "minutes_read" }}
 
 <article class="group relative rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
   {{ if .Date }}
@@ -69,6 +70,6 @@
     {{ else }}
       <span class="mx-2">•</span>
     {{ end }}
-    <span>{{ $readingTime }} min read</span>
+    <span>{{ $readingTime }} {{ $minutesRead }}</span>
   </div>
 </article>
