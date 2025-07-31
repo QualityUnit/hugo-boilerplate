@@ -18,7 +18,7 @@
     {{ else }}
       <div class="mt-8 grid gap-16 sm:grid-cols-2 lg:grid-cols-3">
         {{ range $paginator.Pages }}
-          {{ partialCached "components/cards/post_card_with_image.html" (dict "page" . ) }}
+          {{ partial "components/cards/post_card_with_image.html" (dict "page" . ) }}
         {{ end }}
       </div>
       
