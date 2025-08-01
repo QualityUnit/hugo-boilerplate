@@ -34,6 +34,7 @@
 {{ $controls := ne (.Get "controls") "false" }}
 {{ $poster := .Get "poster" }}
 {{ $useLightbox := ne (.Get "useLightbox") "false" }}
+{{ $showPlayOverlay := ne (.Get "showPlayOverlay") "false" }}
 
 {{ if $src }}
   {{ partial "components/media/video.html" (dict 
@@ -50,5 +51,6 @@
       "controls" $controls
       "poster" $poster
       "useLightbox" $useLightbox
+      "showPlayOverlay" $showPlayOverlay
   ) }}
 {{ end }}

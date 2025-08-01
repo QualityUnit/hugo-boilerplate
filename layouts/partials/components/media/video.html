@@ -54,10 +54,11 @@
 {{ $loop := .loop | default false }}
 {{ $muted := .muted | default false }}
 {{ $controls := .controls | default false }}
+{{ $useLightbox := .useLightbox | default false }}
+{{ $controls := (and (not $useLightbox) (.controls | default true)) }}
 {{ $poster := .poster }}
 {{ $provider := .provider | default "" }}
 {{ $noLazy := .noLazy | default false }}
-{{ $useLightbox := .useLightbox | default false }}
 {{ $showPlayOverlay := .showPlayOverlay | default true }}
 
 <!-- First determine the provider if not explicitly set -->

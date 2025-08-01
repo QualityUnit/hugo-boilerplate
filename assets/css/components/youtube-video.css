@@ -8,12 +8,9 @@
 }
 
 .lazy-video-play-button:hover {
-  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
+  cursor: pointer;
 }
 
-.lazy-video-play-button svg {
-  filter: drop-shadow(0px 0px 3px rgba(0, 0, 0, 0.6));
-}
 
 /* Video aspect ratio containers */
 .video-aspect-ratio {
