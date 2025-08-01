@@ -47,7 +47,7 @@
       title="{{ $title }}"
       aria-label="{{ $alt }}"
       data-video-src="{{ $src }}"
-      data-video-lightbox="true"
+      data-video-lightbox="false"
     >
       <source src="{{ $src }}" type="{{ if in $src ".mp4" }}video/mp4{{ else if in $src ".webm" }}video/webm{{ else if in $src ".ogg" }}video/ogg{{ else }}video/mp4{{ end }}">
       <p>Your browser doesn't support HTML5 video. <a href="{{ $src }}">Download the video</a> instead.</p>

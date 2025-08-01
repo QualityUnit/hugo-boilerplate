@@ -48,7 +48,6 @@
 {{ $muted := eq (.Get "muted") "true" }}
 {{ $controls := eq (.Get "controls") "true" }}
 {{ $poster := .Get "poster" }}
-{{ $gdprCompliant := cond (eq (.Get "gdprCompliant") "false") false true }}
 
 {{ if or $src $videoID }}
   {{ partial "components/media/video.html" (dict 
@@ -66,6 +65,5 @@
       "muted" $muted
       "controls" $controls
       "poster" $poster
-      "gdprCompliant" $gdprCompliant
   ) }}
 {{ end }}
