@@ -10,6 +10,7 @@ search_placeholder: "অনুসন্ধান..."
 search_submit_aria: "অনুসন্ধান জমা দিন"
 search_clear_aria: "অনুসন্ধান সাফ করুন"
 search_clear_title: "অনুসন্ধান সাফ করুন"
+search_close: "অনুসন্ধান বন্ধ করুন"
 search_loading: "লোড হচ্ছে..."
 search_view_all_results: "সব ফলাফল দেখুন"
 search_no_results: "কোন ফলাফল পাওয়া যায়নি।"
@@ -17,6 +18,7 @@ search_error_loading: "অনুসন্ধান ফলাফল লোড ক
 search_error_performing: "অনুসন্ধান করতে ত্রুটি।"
 search_not_available: "অনুসন্ধান কার্যকারিতা উপলভ্য নেই। পরে আবার চেষ্টা করুন।"
 search_initializing: "অনুসন্ধান এখনও শুরু হচ্ছে। আবার চেষ্টা করুন।"
+search_no_results_description: "আপনার অনুসন্ধানটি পরিবর্তন করে দেখুন – অসাধারণ কিছু হয়তো মাত্র কয়েকটি শব্দ দূরে।"
 search_no_content_preview: "কোন বিষয়বস্তু পূর্বরূপ উপলভ্য নেই"
 search_untitled: "শিরোনামহীন"
 
@@ -102,3 +104,10 @@ courses.format: "ফরম্যাট"
 
 # Icon card translations
 icon.card.btn: "দেখুন"
+
+search_no_results_for: "এর জন্য কোনো ফলাফল পাওয়া যায়নি"
+search_suggestions: "পরামর্শসমূহ:"
+search_suggestion_spell: "সব শব্দ সঠিকভাবে লেখা হয়েছে কিনা নিশ্চিত করুন।"
+search_suggestion_broaden: "আপনার কীওয়ার্ডগুলো বিস্তৃত করুন।"
+search_suggestion_terms: "ভিন্ন শব্দ ব্যবহার করুন বা অন্যান্য বিভাগ দেখুন।"
+search_chat_link: "অথবা আমাদের সাথে চ্যাট করুন →"

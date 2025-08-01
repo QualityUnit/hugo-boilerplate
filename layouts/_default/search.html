@@ -2,159 +2,336 @@
 {{ partial "breadcrumbs_default.html" . }}
 {{ partial "hero_default.html" . }}
 
-<div class="bg-white dark:bg-gray-900">
+<div class="bg-white dark:bg-gray-900 mt-6">
     <div class="wrapper">
-        <div class="mx-auto max-w-none prose prose-lg prose-a:underline hover:prose-a:text-primary prose-img:rounded-xl">
+        <div class="mx-auto max-w-none prose prose-lg hover:prose-a:text-primary">
 
-            <div class="search-container">
-                <input type="search" name="q" id="search-query" placeholder="Search..." autocomplete="off">
+            <div class="search-container py-6 gap-x-2 relative flex w-full md:w-80">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                   {{ partial "icons/magnifying-glass" "w-4 h-4 text-muted" }}
+                </span>
+                <input type="search" name="q" id="search-query" autocomplete="off"
+                    class="hide-search-clear px-9 py-1.5 w-full border border-gray-600 dark:border-gray-700 rounded-md focus:outline-none focus:ring-0 focus:ring-transparent focus:border-gray-400 transition" />
+                <button type="button" id="clear-search" aria-label="{{ i18n "search_clear_aria" }}"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-0">
+                    {{ partial "icons/x-mark" "w-4 h-4 text-muted" }}
+                </button>
             </div>
 
+
             <div id="search-results"></div>
-            <div class="search-loading">Loading...</div>
+            <div id="search-pagination" class="flex gap-2 py-3 max-w-full"></div> 
+            <div class="search-loading">{{ i18n "search_loading" }}</div>
+            <div id="min-read-translation" class="hidden">{{ i18n "minutes_read" }}</div> 
 
             <script id="search-result-template" type="text/x-js-template">
-                <div id="summary-${key}">
-                    <h3><a href="${link}">${title}</a></h3>
-                    <p>${snippet}</p>
-                    <p>
-                        <small>
-                            ${ isset tags }Tags: ${tags}<br>${ end }
-                        </small>
-                    </p>
-                </div>
+                <article id="summary-${key}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-[52rem] h-full flex flex-col">
+                    <div class="flex items-center justify-between items-center flex-wrap md:flex-nowrap gap-x-4">
+                        <h3 class="text-lg/6 font-semibold text-heading group-hover:text-primary w-full md:w-3/4">
+                            <a href="${link}" class="hover:text-primary focus:outline-none">
+                            <span class="absolute inset-0" aria-hidden="true"></span>
+                            ${title}
+                            </a>
+                        </h3>
+                        <div class="date-reading-time-container flex items-center justify-end text-body text-xs mt-3 md:mt-0 w-full md:w-1/4"></div>
+                    </div>
+
+                    <p class="mt-5 text-sm/5 text-muted line-clamp-3 flex-grow">${snippet}</p>
+
+                    <div class="tags-container mt-6 flex flex-wrap gap-2"></div>
+                </article>
             </script>
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js" integrity="sha512-Nqw1tH3mpavka9cQCc5zWWEZNfIPdOYyQFjlV1NvflEtQ0/XI6ZQ+H/D3YgJdqSUJlMLAPRj/oXlaHCFbFCjoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const searchInput = document.getElementById('search-query');
+                    const searchResults = document.getElementById('search-results');
+                    const loadingIndicator = document.querySelector('.search-loading');
+                    const resultTemplate = document.getElementById('search-result-template').innerHTML;
+                    const clearBtn = document.getElementById('clear-search');
+                    let searchIndex = null;
+                    let fuse = null;
+                    let debounceTimer;
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('search-query');
-        const searchResults = document.getElementById('search-results');
-        const loadingIndicator = document.querySelector('.search-loading');
-        const resultTemplate = document.getElementById('search-result-template').innerHTML;
-        let searchIndex = null;
-        let fuse = null;
-        let debounceTimer;
+                    const minReadTranslatedText = document.getElementById('min-read-translation').textContent;
 
-        // Initialize with URL parameters if present
-        const searchQuery = new URLSearchParams(window.location.search).get('q');
-        if (searchQuery) {
-            searchInput.value = searchQuery;
-        }
+                    // Initialize with URL parameters if present
+                    const searchQuery = new URLSearchParams(window.location.search).get('q');
+                    if (searchQuery) {
+                        searchInput.value = searchQuery;
+                    }
 
-        // Update URL without reloading the page
-        function updateURL(query) {
-            const url = new URL(window.location);
-            if (query && query.trim() !== '') {
-                url.searchParams.set('q', query);
-            } else {
-                url.searchParams.delete('q');
-            }
-            window.history.replaceState({}, '', url);
-        }
+                    // Show/hide clear button
+                    function toggleClearBtn() {
+                        clearBtn.style.display = searchInput.value ? 'block' : 'none';
+                    }
+                    searchInput.addEventListener('input', toggleClearBtn);
+                    toggleClearBtn();
 
-        // Perform search and display results
-        function performSearch(query) {
-            if (!query || query.trim() === '') {
-                searchResults.innerHTML = '';
-                updateURL('');
-                return;
-            }
+                    // Clear input on button click
+                    clearBtn.addEventListener('click', function() {
+                        searchInput.value = '';
+                        //searchInput.focus();
+                        toggleClearBtn();
+                        searchResults.innerHTML = '';
+                        document.getElementById('search-pagination').innerHTML = '';
+                        updateURL('');
+                    });
 
-            updateURL(query);
-
-            if (!fuse) {
-                loadingIndicator.style.display = 'block';
-                return; // Wait for index to load
-            }
-
-            const results = fuse.search(query);
-
-            if (results.length > 0) {
-                let html = '';
-                results.forEach(({ item, matches, refIndex }) => {
-                    let snippet = '';
-
-                    // Check if content exists before trying to access it
-                    if (item.content) {
-                        snippet = item.content.substring(0, 150) + '...';
-                        const contentMatch = matches?.find(m => m.key === 'content' && m.indices.length > 0);
-
-                        if (contentMatch) {
-                            const start = Math.max(0, contentMatch.indices[0][0] - 30);
-                            const end = Math.min(item.content.length, contentMatch.indices[0][1] + 30);
-                            snippet = '...' + item.content.substring(start, end) + '...';
+                    // Update URL without reloading the page
+                    function updateURL(query) {
+                        const url = new URL(window.location);
+                        if (query && query.trim() !== '') {
+                            url.searchParams.set('q', query);
+                        } else {
+                            url.searchParams.delete('q');
                         }
-                    } else {
-                        snippet = '...';
+                        window.history.replaceState({}, '', url);
                     }
 
-                    let resultHTML = resultTemplate
-                        .replace(/\${key}/g, refIndex)
-                        .replace(/\${link}/g, item.permalink)
-                        .replace(/\${title}/g, item.title)
-                        .replace(/\${snippet}/g, snippet);
+                    // Perform search and display results
+                    function renderPagination(total, page, perPage) {
+                        const pagination = document.getElementById('search-pagination');
+                        if (total <= perPage) {
+                            pagination.innerHTML = '';
+                            return;
+                        }
+                        const totalPages = Math.ceil(total / perPage);
+                        const startItem = (page - 1) * perPage + 1;
+                        const endItem = Math.min(page * perPage, total);
+                        // Mobile: only Prev/Next
+                        // SVG chevron icons
+                        const chevronLeft = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
+                        const chevronRight = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>`;
 
-                    if (item.tags && item.tags.length > 0) {
-                        resultHTML = resultHTML
-                            .replace('${ isset tags }', '')
-                            .replace('${ end }', '')
-                            .replace('${tags}', item.tags.join(', '));
-                    } else {
-                        resultHTML = resultHTML.replace(/\${ isset tags }[\s\S]*\${ end }/g, '');
+                        let html = `<div class="flex flex-1 justify-between sm:hidden">
+                            ${page > 1
+                                ? `<button data-page="${page - 1}" class="relative inline-flex items-center rounded-md surface-border surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">${chevronLeft} Prev</button>`
+                                : `<span class="relative inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">${chevronLeft} Prev</span>`}
+                            ${page < totalPages
+                                ? `<button data-page="${page + 1}" class="relative ml-3 inline-flex items-center rounded-md surface-border surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">Next ${chevronRight}</button>`
+                                : `<span class="relative ml-3 inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">Next ${chevronRight}</span>`}
+                        </div>`;
+                        // Desktop: full pagination
+                        html += `<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full max-w-[52rem] not-prose">
+                            <div>
+                                <p class="text-sm text-body">
+                                    Showing <span class="font-semibold">${startItem}</span> to <span class="font-semibold">${endItem}</span> of <span class="font-semibold">${total}</span> results
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="isolate inline-flex -space-x-px rounded-md" aria-label="Pagination">
+                                    ${page > 1
+                                        ? `<button data-page="${page - 1}" class="relative inline-flex items-center rounded-l-xl px-2 py-2 ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0"><span class="sr-only">Previous</span>${chevronLeft}</button>`
+                                        : `<span class="relative inline-flex items-center rounded-l-xl px-2 py-2 ring-1 ring-inset ring-gray-300 cursor-not-allowed"><span class="sr-only">Previous</span>${chevronLeft}</span>`}
+                                    ${Array.from({length: totalPages}, (_, i) => {
+                                        const n = i + 1;
+                                        // Add logic to display a limited number of pages (e.g., current, prev 2, next 2, and ellipsis)
+                                        const maxVisiblePages = 7; // Максимальна кількість видимих кнопок пагінації, включаючи "..."
+                                        const halfVisible = Math.floor(maxVisiblePages / 2);
+
+                                        if (totalPages <= maxVisiblePages) {
+                                            // Відображати всі сторінки, якщо загальна кількість сторінок у межах ліміту
+                                            return n === page
+                                                ? `<span aria-current="page" class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">${n}</span>`
+                                                : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
+                                        } else {
+                                            // Відображати еліпсис та обмежений діапазон сторінок
+                                            if (
+                                                n === 1 || // Завжди показуємо першу сторінку
+                                                n === totalPages || // Завжди показуємо останню сторінку
+                                                (n >= page - halfVisible && n <= page + halfVisible) // Показуємо сторінки навколо поточної
+                                            ) {
+                                                return n === page
+                                                    ? `<span aria-current="page" class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">${n}</span>`
+                                                    : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
+                                            } else if (
+                                                // Показуємо "..."
+                                                (n === page - halfVisible - 1 && page - halfVisible > 1) ||
+                                                (n === page + halfVisible + 1 && page + halfVisible < totalPages)
+                                            ) {
+                                                return `<span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300">...</span>`;
+                                            }
+                                            return ''; // Ховаємо інші сторінки
+                                        }
+                                    }).join('')}
+                                    ${page < totalPages
+                                        ? `<button data-page="${page + 1}" class="relative inline-flex items-center rounded-r-xl px-2 py-2 ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0"><span class="sr-only">Next</span>${chevronRight}</button>`
+                                        : `<span class="relative inline-flex items-center rounded-r-xl px-2 py-2 ring-1 ring-inset ring-gray-300 cursor-not-allowed"><span class="sr-only">Next</span>${chevronRight}</span>`}
+                                </nav>
+                            </div>
+                        </div>`;
+                        pagination.innerHTML = html;
+                        // Add event listeners
+                        Array.from(pagination.querySelectorAll('button[data-page]')).forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                performSearch(lastQuery, parseInt(this.getAttribute('data-page')));
+                                if (searchInput) {
+                                    searchInput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                            });
+                        });
                     }
-                    html += resultHTML;
+
+                    let lastQuery = '';
+                    function performSearch(query, page = 1) {
+                        lastQuery = query;
+                        const perPage = 30; // Кількість результатів на сторінку
+                        if (!query || query.trim() === '') {
+                            searchResults.innerHTML = '';
+                            document.getElementById('search-pagination').innerHTML = '';
+                            updateURL('');
+                            return;
+                        }
+
+                        updateURL(query);
+
+                        if (!fuse) {
+                            loadingIndicator.style.display = 'block';
+                            return; // Чекаємо завантаження індексу
+                        }
+
+                        const results = fuse.search(query);
+                        const total = results.length;
+                        const start = (page - 1) * perPage;
+                        const end = start + perPage;
+                        const pagedResults = results.slice(start, end);
+
+                        renderPagination(total, page, perPage);
+
+                        if (pagedResults.length > 0) {
+                            let html = '<div class="surface-divider my-3"></div>';
+                            pagedResults.forEach(({ item, matches, refIndex }) => {
+                                let snippet = '';
+
+                                let description = (item.content != null ? item.content : (item.summary != null ? item.summary : ''));
+                                snippet = description;
+
+                                let safeTitle = item.title != null ? item.title : '';
+                                let safePermalink = item.permalink != null ? item.permalink : '#';
+                                let safeDate = item.date != null ? item.date : '';
+                                let safeReadingTime = item.readingTime != null ? item.readingTime : '';
+
+                                let articleHtml = `
+                                    <article id="summary-${refIndex}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-[52rem] h-full flex flex-col">
+                                        <div class="flex items-center justify-between gap-x-4 items-center flex-wrap md:flex-nowrap">
+                                            <h3 class="text-lg/6 font-semibold text-heading group-hover:text-primary w-full md:w-3/4">
+                                                <a href="${safePermalink}" class="hover:text-primary focus:outline-none">
+                                                <span class="absolute inset-0" aria-hidden="true"></span>
+                                                ${safeTitle}
+                                                </a>
+                                            </h3>
+                                `;
+
+                                if (safeDate) {
+                                    articleHtml += `
+                                        <div class="flex items-center justify-end text-body text-xs mt-3 md:mt-0 w-full md:w-1/4">
+                                            <time datetime="${safeDate}">${safeDate}</time>
+                                    `;
+
+                                    if (safeReadingTime && parseInt(safeReadingTime) > 0) {
+                                        articleHtml += `<span class="mx-2 text-[7px]">•</span><span>${safeReadingTime} ${minReadTranslatedText}</span>`;
+                                    }
+                                    articleHtml += `</div>`;
+                                }
+
+                                articleHtml += `
+                                        </div> <p class="mt-5 text-sm/5 text-muted line-clamp-3 flex-grow">${snippet}</p>
+                                `;
+
+                                if (Array.isArray(item.tags) && item.tags.length > 0) {
+                                   
+                                    let tagsHtml = '';
+                                    const maxTags = 3;
+                                    const tagBaseUrl = '/tags/'; // Це можна налаштувати, якщо теги мають інший базовий URL
+                                    const tagClass = 'badge-base badge-gray badge-with-border not-prose whitespace-nowrap [&_a]:no-underline [&_a]:!text-inherit [&_a]:px-0.5 [&_.link-building-link]:!no-underline [&_.link-building-link]:!text-inherit';
+                                    const shownTags = item.tags.slice(0, maxTags);
+                                    shownTags.forEach(tag => {
+                                        if (tag != null) {
+                                            tagsHtml += ` <span class="${tagClass}">${tag}</span>`;
+                                        }
+                                    });
+                                    if (item.tags.length > maxTags) {
+                                        tagsHtml += ` <span class="${tagClass}">+${item.tags.length - maxTags}</span>`;
+                                    }
+                                    articleHtml += `
+                                        <div class="mt-6 flex flex-wrap gap-2">
+                                            <div class="flex flex-wrap gap-1">
+                                                ${tagsHtml}
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+
+                                articleHtml += `</article>`;
+
+                                html += articleHtml;
+                            });
+                            searchResults.innerHTML = html;
+                        } else {
+                            searchResults.innerHTML = `
+                              <div class="surface-divider"></div>
+                              <div class="w-96 pt-6 not-prose">
+                                <div class="flex gap-1 text-base text-heading">
+                                  <span>{{ i18n "search_no_results_for" }}:</span>
+                                  <span class="font-bold">${query}</span>
+                                </div>
+                                <div class="surface-divider mt-3"></div>
+                                <div class="py-3">
+                                  <div class="text-sm text-body font-semibold">{{ i18n "search_suggestions" }}</div>
+                                  <ul class="mt-1 text-sm/7 text-muted list-disc list-inside">
+                                    <li>{{ i18n "search_suggestion_spell" }}</li>
+                                    <li>{{ i18n "search_suggestion_broaden" }}</li>
+                                    <li>{{ i18n "search_suggestion_terms" }}</li>
+                                  </ul>
+                                </div>
+                                <div class="surface-divider mt-3"></div>
+                                <a href="/contact/" class="py-3 text-sm text-primary">{{ i18n "search_chat_link" }}</a>
+                              </div>
+                            `;
+                            document.getElementById('search-pagination').innerHTML = '';
+                        }
+                    }
+
+                    // Debounce function to prevent too many searches while typing
+                    function debounce(func, delay) {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(func, delay);
+                    }
+
+                    // Load search index
+                    loadingIndicator.style.display = 'block';
+                    fetch('/index.json')
+                        .then(response => response.json())
+                        .then(data => {
+                            searchIndex = data;
+                            fuse = new Fuse(data, {
+                                keys: ['title', 'content', 'tags'],
+                                includeScore: true,
+                                includeMatches: true,
+                                minMatchCharLength: 2,
+                                threshold: 0.4,
+                            });
+
+                            loadingIndicator.style.display = 'none';
+
+                            // If there's an initial query from URL, perform search
+                            if (searchInput.value) {
+                                performSearch(searchInput.value);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading search index:', error);
+                            loadingIndicator.style.display = 'none';
+                            searchResults.innerHTML = '<p>Error loading search index. Please try again later.</p>';
+                        });
+
+                    // Listen for input changes
+                    searchInput.addEventListener('input', function() {
+                        debounce(() => performSearch(this.value), 300);
+                    });
                 });
-                searchResults.innerHTML = html;
-
-                const mark = new Mark(searchResults);
-                mark.mark(query);
-            } else {
-                searchResults.innerHTML = '<p>No results found.</p>';
-            }
-        }
-
-        // Debounce function to prevent too many searches while typing
-        function debounce(func, delay) {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(func, delay);
-        }
-
-        // Load search index
-        loadingIndicator.style.display = 'block';
-        fetch('/index.json')
-            .then(response => response.json())
-            .then(data => {
-                searchIndex = data;
-                fuse = new Fuse(data, {
-                    keys: ['title', 'content', 'tags'],
-                    includeScore: true,
-                    includeMatches: true,
-                    minMatchCharLength: 2,
-                    threshold: 0.4,
-                });
-
-                loadingIndicator.style.display = 'none';
-
-                // If there's an initial query from URL, perform search
-                if (searchInput.value) {
-                    performSearch(searchInput.value);
-                }
-            })
-            .catch(error => {
-                console.error('Error loading search index:', error);
-                loadingIndicator.style.display = 'none';
-                searchResults.innerHTML = '<p>Error loading search index. Please try again later.</p>';
-            });
-
-        // Listen for input changes
-        searchInput.addEventListener('input', function() {
-            debounce(() => performSearch(this.value), 300);
-        });
-    });
-</script>
+            </script>
         </div>
     </div>
 </div>
