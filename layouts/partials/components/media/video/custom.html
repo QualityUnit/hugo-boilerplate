@@ -14,6 +14,7 @@
   - muted: Enable muted (optional, default: false)
   - controls: Show video controls (optional, default: true)
   - poster: Poster image URL (optional)
+  - useLightbox: Enable lightbox functionality (optional, default: false)
 @note: This partial should be called through the main video.html partial, not directly.
 */}}
 
@@ -29,13 +30,18 @@
 {{ $muted := .muted | default false }}
 {{ $controls := .controls | default true }}
 {{ $poster := .poster }}
+{{ $useLightbox := .useLightbox | default true }}
+{{ $showPlayOverlay := .showPlayOverlay | default true }}
 
 <div 
   class="video-wrapper relative w-full overflow-hidden rounded-lg shadow-md {{ with $class }}{{ . }}{{ end }}" 
   data-video-provider="custom"
+  data-video-lightbox="{{ if $useLightbox }}true{{ else }}false{{ end }}"
+  data-video-title="{{ $title }}"
+  data-video-src="{{ $src }}"
   {{ with $id }}id="{{ . }}"{{ end }}
 >
-  <div class="video-aspect-ratio">
+  <div class="video-aspect-ratio relative">
     <video 
       {{ if $autoplay }}autoplay{{ end }}
       {{ if $loop }}loop{{ end }}
@@ -43,14 +49,21 @@
       {{ if $controls }}controls{{ end }}
       {{ with $poster }}poster="{{ . }}"{{ end }}
       preload="metadata"
-      class="w-full h-full custom-video-player"
+      class="w-full h-full custom-video-player {{ if $useLightbox }}lightbox-ready{{ end }}"
       title="{{ $title }}"
       aria-label="{{ $alt }}"
       data-video-src="{{ $src }}"
-      data-video-lightbox="false"
+      data-video-lightbox="{{ if $useLightbox }}true{{ else }}false{{ end }}"
     >
       <source src="{{ $src }}" type="{{ if in $src ".mp4" }}video/mp4{{ else if in $src ".webm" }}video/webm{{ else if in $src ".ogg" }}video/ogg{{ else }}video/mp4{{ end }}">
       <p>Your browser doesn't support HTML5 video. <a href="{{ $src }}">Download the video</a> instead.</p>
     </video>
+    {{ if $showPlayOverlay }}
+      <div class="video-play-overlay absolute inset-0 flex items-center justify-center pointer-events-none bg-gray-900 bg-opacity-50">
+        <div class="video-play-button w-32 h-32 p-8 flex items-center justify-center bg-blue-600 bg-opacity-90 rounded-full text-white">
+          {{ partial "icons/play-solid.html" (dict "class" "w-8 h-8") }}
+        </div>
+      </div>
+    {{ end }}
   </div>
 </div>

@@ -16,6 +16,8 @@
   - muted: Enable muted (optional, default: false)
   - controls: Show video controls (optional, default: true for custom, false for YouTube)
   - poster: Poster image URL for HTML5 video (optional)
+  - useLightbox: Use lightbox for custom videos (optional, default: false)
+  - showPlayOverlay: Show play button overlay on custom videos (optional, default: true)
 @example:
   {{ partial "components/media/video.html" (dict 
       "src" "https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
@@ -55,6 +57,8 @@
 {{ $poster := .poster }}
 {{ $provider := .provider | default "" }}
 {{ $noLazy := .noLazy | default false }}
+{{ $useLightbox := .useLightbox | default false }}
+{{ $showPlayOverlay := .showPlayOverlay | default true }}
 
 <!-- First determine the provider if not explicitly set -->
 {{ if not $provider }}
@@ -112,5 +116,7 @@
       "muted" $muted
       "controls" $controls
       "poster" $poster
+      "useLightbox" $useLightbox
+      "showPlayOverlay" $showPlayOverlay
   ) }}
 {{ end }}

@@ -1,6 +1,6 @@
 {{/*
 @shortcode: lazyvideo
-@description: Legacy shortcode for displaying videos. Now uses the unified video component.
+@description: Legacy shortcode for displaying videos. Now uses the unified video component with lightbox enabled by default.
 @params:
   - src: Video URL (required, can be first positional parameter)
   - title: Video title for accessibility (optional)
@@ -14,6 +14,7 @@
   - muted: Enable muted (optional, "true" or "false")
   - controls: Show video controls (optional, "true" or "false", default: "true")
   - poster: Poster image URL for HTML5 video (optional)
+  - useLightbox: Enable lightbox (optional, "true" or "false", default: "true", set to "false" to disable)
 @examples:
   {{< lazyvideo src="https://www.youtube.com/watch?v=dQw4w9WgXcQ" title="Demo Video" >}}
   {{< lazyvideo src="https://example.com/video.mp4" title="Demo Video" autoplay="true" loop="true" muted="true" >}}
@@ -32,6 +33,7 @@
 {{ $muted := eq (.Get "muted") "true" }}
 {{ $controls := ne (.Get "controls") "false" }}
 {{ $poster := .Get "poster" }}
+{{ $useLightbox := ne (.Get "useLightbox") "false" }}
 
 {{ if $src }}
   {{ partial "components/media/video.html" (dict 
@@ -47,5 +49,6 @@
       "muted" $muted
       "controls" $controls
       "poster" $poster
+      "useLightbox" $useLightbox
   ) }}
 {{ end }}

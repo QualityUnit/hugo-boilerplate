@@ -22,7 +22,7 @@
   - muted: Enable muted (optional, "true" or "false", default: "false")
   - controls: Show video controls (optional, "true" or "false", default depends on provider)
   - poster: Poster image URL for HTML5 video (optional, for custom videos only)
-  - gdprCompliant: Whether to use privacy-enhanced mode for YouTube (optional, "true" or "false", default: "true")
+  - useLightbox: Enable lightbox for custom videos (optional, "true" or "false", default: "true", set to "false" to disable)
 @examples:
   <!-- YouTube video -->
   {{< video src="https://www.youtube.com/watch?v=dQw4w9WgXcQ" title="Rick Astley - Never Gonna Give You Up" class="my-8 rounded-xl shadow-lg" >}}
@@ -32,11 +32,13 @@
   
   <!-- Custom video with controls -->
   {{< video src="https://example.com/video.mp4" provider="custom" title="Demo Video" controls="true" poster="/images/thumbnail.jpg" >}}
+  
+  <!-- Custom video with lightbox enabled -->
+  {{< video src="https://example.com/video.mp4" provider="custom" title="Demo Video with Lightbox" controls="true" useLightbox="true" >}}
 */}}
 
 {{ $src := .Get 0 | default (.Get "src") }}
 {{ $videoID := .Get "videoID" }}
-{{ $provider := .Get "provider" }}
 {{ $title := .Get "title" | default "Video" }}
 {{ $alt := .Get "alt" | default $title }}
 {{ $class := .Get "class" | default "" }}
@@ -48,6 +50,8 @@
 {{ $muted := eq (.Get "muted") "true" }}
 {{ $controls := eq (.Get "controls") "true" }}
 {{ $poster := .Get "poster" }}
+{{ $useLightbox := ne (.Get "useLightbox") "false" }}
+{{ $provider := "custom" }}
 
 {{ if or $src $videoID }}
   {{ partial "components/media/video.html" (dict 
@@ -65,5 +69,6 @@
       "muted" $muted
       "controls" $controls
       "poster" $poster
+      "useLightbox" $useLightbox
   ) }}
 {{ end }}

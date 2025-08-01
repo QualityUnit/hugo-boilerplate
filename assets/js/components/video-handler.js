@@ -19,8 +19,17 @@
         
         // Expose initialization for external use
         window.flowhuntMedia.video.init = function() {
-            // Check if we're using the unified video lightbox
-            if (window.flowhuntMedia && window.flowhuntMedia.videoLightbox) {
+            // Check for any custom videos with lightbox that need initialization
+            var customVideoContainers = document.querySelectorAll('[data-video-provider="custom"][data-video-lightbox="true"]');
+            var needsInit = customVideoContainers.length > 0;
+            
+            // Force initialization if we have custom videos with lightbox
+            if (needsInit) {
+                initVideoTriggers();
+                window.flowhuntMedia.video.handlersInitialized = true;
+            }
+            // Otherwise use standard initialization logic
+            else if (window.flowhuntMedia && window.flowhuntMedia.videoLightbox) {
                 // Only initialize video triggers if not already handled by video-lightbox.js
                 if (!window.videoTriggersInitialized) {
                     initVideoTriggers();
@@ -57,7 +66,39 @@
         // Custom videos with lightbox capability
         var customVideos = document.querySelectorAll('[data-video-provider="custom"] video[data-video-lightbox="true"]');
         customVideos.forEach(video => {
+            video.addEventListener('click', handleCustomVideoFullscreen);
+            // Keep double-click for backward compatibility
             video.addEventListener('dblclick', handleCustomVideoFullscreen);
+        });
+        
+        // Custom video containers with lightbox
+        var customVideoContainers = document.querySelectorAll('[data-video-provider="custom"][data-video-lightbox="true"]');
+        customVideoContainers.forEach(container => {
+            // Add click handler to video element
+            var video = container.querySelector('video');
+            if (video) {
+                video.addEventListener('click', function(e) {
+                    if (e.target === video) {
+                        handleCustomVideoFullscreen({ currentTarget: video });
+                    }
+                });
+                
+                // Keep double-click for backward compatibility
+                video.addEventListener('dblclick', function(e) {
+                    handleCustomVideoFullscreen({ currentTarget: video });
+                });
+            }
+            
+            // Add click to the container itself (as fallback)
+            container.addEventListener('click', function(e) {
+                // Only trigger if clicking on the container but not on the video controls
+                if (e.target === container) {
+                    var videoElement = container.querySelector('video');
+                    if (videoElement) {
+                        handleCustomVideoFullscreen({ currentTarget: videoElement });
+                    }
+                }
+            });
         });
     }
     
@@ -121,18 +162,86 @@
     }
     
     function handleCustomVideoFullscreen(e) {
-        var video = e.currentTarget;
-        var src = video.getAttribute('data-video-src');
-        var title = video.getAttribute('title') || 'Video';
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        
+        var video, container;
+        
+        if (e.currentTarget && e.currentTarget.tagName === 'VIDEO') {
+            video = e.currentTarget;
+            container = video.closest('[data-video-provider="custom"]');
+        } else if (e.currentTarget) {
+            container = e.currentTarget;
+            video = container.querySelector('video');
+        }
+        
+        if (!video && container) {
+            video = container.querySelector('video');
+        }
+        
+        if (!container && !video) {
+            console.error("Could not find video container or video element");
+            return;
+        }
+        
+        // Get video data - prioritize data attributes on container over video element
+        var src = '';
+        if (container) {
+            src = container.getAttribute('data-video-src') || '';
+        }
+        if (!src && video) {
+            src = video.getAttribute('data-video-src') || '';
+        }
+        if (!src && video && video.querySelector('source')) {
+            src = video.querySelector('source').src || '';
+        }
+                  
+        var title = '';
+        if (container) {
+            title = container.getAttribute('data-video-title') || '';
+        }
+        if (!title && video) {
+            title = video.getAttribute('title') || '';
+        }
+        if (!title) {
+            title = 'Video';
+        }
+                   
+        var poster = '';
+        if (video) {
+            poster = video.poster || '';
+        }
         
         // Open in lightbox
-        if (window.flowhuntMedia && window.flowhuntMedia.videoLightbox) {
-            window.flowhuntMedia.videoLightbox.open({
-                src: src,
-                title: title,
-                provider: 'custom',
-                autoplay: true
-            });
+        if (window.flowhuntMedia && window.flowhuntMedia.videoLightbox && src) {
+            try {
+                window.flowhuntMedia.videoLightbox.open({
+                    src: src,
+                    title: title,
+                    provider: 'custom',
+                    autoplay: true,
+                    poster: poster
+                });
+            } catch (error) {
+                console.error('Error opening video in lightbox:', error);
+                // Fallback if lightbox component throws an error
+                window.open(src, '_blank');
+            }
+        } else if (window.openVideoInLightbox && src) {
+            // Try legacy function
+            try {
+                window.openVideoInLightbox(src, title, 'custom', true, poster);
+            } catch (error) {
+                console.error('Error opening video in legacy lightbox:', error);
+                // Fallback if legacy lightbox component throws an error
+                window.open(src, '_blank');
+            }
+        } else if (src) {
+            // Fallback if lightbox component is not available
+            window.open(src, '_blank');
+        } else {
+            console.error('No source found for video');
         }
     }
     
@@ -265,7 +374,19 @@
         init: init,
         initTriggers: initVideoTriggers,
         hasGdprConsent: hasGdprConsent,
-        setGdprConsent: setGdprConsent
+        setGdprConsent: setGdprConsent,
+        // Add a manual trigger function
+        openCustomVideo: function(containerSelector) {
+            var container = document.querySelector(containerSelector);
+            if (container) {
+                var video = container.querySelector('video');
+                if (video) {
+                    handleCustomVideoFullscreen({ currentTarget: video });
+                    return true;
+                }
+            }
+            return false;
+        }
     };
     
     // Add error handling for YouTube videos
