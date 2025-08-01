@@ -1,6 +1,14 @@
-{{/* Lazy Loading YouTube Video Shortcode */}}
+{{/* YouTube Video Shortcode */}}
 {{/*
-Usage:
+@shortcode: youtubevideo
+@description: Shortcode for displaying YouTube videos. Uses the unified video component.
+@params:
+  - videoID: YouTube video ID (required)
+  - title: Video title for accessibility (optional, default: "YouTube Video")
+  - class: Additional CSS classes (optional)
+  - width: Video width (optional, default: "100%")
+  - height: Video height (optional, default: "auto")
+@usage:
 {{< youtubevideo 
   videoID="dQw4w9WgXcQ" 
   title="Never Gonna Give You Up - Rick Astley" 
@@ -8,6 +16,7 @@ Usage:
   width="640px" 
   height="360px" 
 >}}
+@note: This shortcode uses the unified video component internally.
 */}}
 {{ $videoID := .Get "videoID" }}
 {{ $title := default "YouTube Video" (.Get "title") }}
@@ -15,8 +24,9 @@ Usage:
 {{ $width := default "100%" (.Get "width") }}
 {{ $height := default "auto" (.Get "height") }}
 
-{{ partial "components/media/youtubevideo.html" (dict 
+{{ partial "components/media/video.html" (dict 
   "videoID" $videoID 
+  "provider" "youtube"
   "title" $title 
   "class" $class
   "width" $width

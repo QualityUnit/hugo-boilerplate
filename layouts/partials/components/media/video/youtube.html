@@ -1,0 +1,76 @@
+{{/*
+@component: YouTube Video Player
+@description: Specialized component for YouTube videos with optimized lazy-loading and thumbnail preview.
+@params:
+  - videoID: YouTube video ID (required)
+  - title: Video title for accessibility (required)
+  - alt: Alternative text for accessibility (optional, defaults to title)
+  - class: Additional CSS classes (optional)
+  - width: Video width (optional, default: "100%")
+  - height: Video height (optional, default: "auto")
+  - id: Optional ID attribute (optional)
+  - autoplay: Enable autoplay when opened in lightbox (optional, default: false)
+@note: This partial should be called through the main video.html partial, not directly.
+*/}}
+
+{{ $videoID := .videoID }}
+{{ $title := .title | default "YouTube Video" }}
+{{ $alt := .alt | default $title }}
+{{ $class := .class | default "" }}
+{{ $width := .width | default "100%" }}
+{{ $height := .height | default "auto" }}
+{{ $id := .id }}
+{{ $autoplay := .autoplay | default false }}
+{{ $description := .description | default $title }}
+{{ $uploadDate := .uploadDate | default (now.Format "2006-01-02T15:04:05Z07:00") }}
+{{ $duration := .duration | default "PT0M0S" }}
+{{ $noLazy := .noLazy | default false }}
+{{ $loading := cond $noLazy "eager" "lazy" }}
+
+<!-- Schema.org VideoObject metadata for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "name": {{ $title }},
+  "description": {{ $description }},
+  "thumbnailUrl": "https://img.youtube.com/vi/{{ $videoID }}/maxresdefault.jpg",
+  "uploadDate": {{ $uploadDate }},
+  "duration": {{ $duration }},
+  "contentUrl": "https://www.youtube.com/watch?v={{ $videoID }}",
+  "embedUrl": "https://www.youtube.com/embed/{{ $videoID }}"
+}
+</script>
+
+<div 
+  class="relative w-full overflow-hidden rounded-lg shadow-md {{ with $class }}{{ . }}{{ end }}"
+  data-video-id="{{ $videoID }}"
+  data-video-title="{{ $title }}"
+  data-video-provider="youtube"
+  data-video-width="{{ $width }}"
+  data-video-height="{{ $height }}"
+  data-video-autoplay="{{ $autoplay }}"
+  data-video-use-lightbox="true"
+  data-video-fallback-url="https://www.youtube.com/watch?v={{ $videoID }}"
+  {{ with $id }}id="{{ . }}"{{ end }}
+>
+  <div class="lazy-video-thumbnail relative w-full video-aspect-ratio overflow-hidden cursor-pointer" data-video-trigger="true">
+    <img 
+      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E"
+      data-src="https://img.youtube.com/vi/{{ $videoID }}/maxresdefault.jpg"
+      alt="Thumbnail for {{ $alt }}"
+      class="lazy-video-thumb-img lazy-image absolute inset-0 w-full h-full object-cover transition-transform duration-300"
+      data-video-id="{{ $videoID }}"
+      loading="{{ $loading }}"
+      decoding="async"
+      width="{{ $width }}"
+      height="{{ $height }}"
+      onload="this.onload=null; if(this.dataset.src === this.src) findBestThumbnail(this);"
+    />
+  </div>
+  <div class="lazy-video-play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-12 bg-red-600 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-red-700 hover:scale-110 z-10">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-white ml-1">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+  </div>
+</div>

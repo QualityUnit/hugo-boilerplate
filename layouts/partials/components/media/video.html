@@ -1,0 +1,123 @@
+{{/*
+@component: Universal Video Player
+@description: A unified interface for different video sources (YouTube, custom videos, etc.). Handles lazy loading, GDPR compliance, and optimized resource loading.
+@params:
+  - src: Video URL or ID (required if videoID not provided) - YouTube URL, video file URL
+  - videoID: Direct YouTube video ID (required if src not provided)
+  - provider: Video provider (optional, auto-detected, values: "youtube", "custom")
+  - title: Video title for accessibility (required)
+  - alt: Alternative text for accessibility (optional, defaults to title)
+  - class: Additional CSS classes (optional)
+  - width: Video width (optional, default: "100%")
+  - height: Video height (optional, default: "auto")
+  - id: Optional ID attribute (optional)
+  - autoplay: Enable autoplay (optional, default: false)
+  - loop: Enable loop (optional, default: false)
+  - muted: Enable muted (optional, default: false)
+  - controls: Show video controls (optional, default: true for custom, false for YouTube)
+  - poster: Poster image URL for HTML5 video (optional)
+  - useLightbox: Use lightbox for custom videos (optional, default: false)
+  - showPlayOverlay: Show play button overlay on custom videos (optional, default: true)
+@example:
+  {{ partial "components/media/video.html" (dict 
+      "src" "https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
+      "title" "Rick Astley - Never Gonna Give You Up" 
+      "class" "my-8 rounded-xl shadow-lg"
+  ) }}
+  
+  {{ partial "components/media/video.html" (dict 
+      "videoID" "dQw4w9WgXcQ"
+      "provider" "youtube"
+      "title" "Rick Astley - Never Gonna Give You Up" 
+      "class" "my-8 rounded-xl shadow-lg"
+  ) }}
+  
+  {{ partial "components/media/video.html" (dict 
+      "src" "https://example.com/video.mp4" 
+      "provider" "custom"
+      "title" "Demo Video" 
+      "class" "my-8 rounded-xl shadow-lg"
+      "controls" true
+  ) }}
+@note: Automatically detects video type (YouTube or custom) and loads appropriate resources only when needed
+*/}}
+
+{{ $src := .src }}
+{{ $videoID := .videoID }}
+{{ $title := .title | default "Video" }}
+{{ $alt := .alt | default $title }}
+{{ $class := .class | default "" }}
+{{ $width := .width | default "100%" }}
+{{ $height := .height | default "auto" }}
+{{ $id := .id | default (print "video-" (now.UnixNano)) }}
+{{ $autoplay := .autoplay | default false }}
+{{ $loop := .loop | default false }}
+{{ $muted := .muted | default false }}
+{{ $controls := .controls | default false }}
+{{ $useLightbox := .useLightbox | default false }}
+{{ $controls := (and (not $useLightbox) (.controls | default true)) }}
+{{ $poster := .poster }}
+{{ $provider := .provider | default "" }}
+{{ $noLazy := .noLazy | default false }}
+{{ $showPlayOverlay := .showPlayOverlay | default true }}
+
+<!-- First determine the provider if not explicitly set -->
+{{ if not $provider }}
+  {{ if or (hasPrefix ($src | default "") "https://www.youtube.com/") (hasPrefix ($src | default "") "https://youtu.be/") }}
+    {{ $provider = "youtube" }}
+  {{ else if $videoID }}
+    {{ $provider = "youtube" }}
+  {{ else }}
+    {{ $provider = "custom" }}
+  {{ end }}
+{{ end }}
+
+<!-- Call the appropriate partial based on provider -->
+{{ if eq $provider "youtube" }}
+  <!-- Extract YouTube ID if src is a URL -->
+  {{ if not $videoID }}
+    {{ $videoID = $src }}
+    {{ if hasPrefix $src "https://www.youtube.com/watch?v=" }}
+      {{ $videoID = replaceRE "^https://www.youtube.com/watch\\?v=([a-zA-Z0-9_-]+).*$" "$1" $src }}
+    {{ else if hasPrefix $src "https://youtu.be/" }}
+      {{ $videoID = replaceRE "^https://youtu.be/([a-zA-Z0-9_-]+).*$" "$1" $src }}
+    {{ end }}
+  {{ end }}
+  
+  <!-- Load video helper partial for resource management -->
+  {{ partial "components/media/helpers/load-resources.html" (dict "provider" "youtube") }}
+  
+  <!-- Render YouTube video -->
+  {{ partial "components/media/video/youtube.html" (dict 
+      "videoID" $videoID 
+      "title" $title
+      "alt" $alt
+      "class" $class
+      "width" $width
+      "height" $height
+      "id" $id
+      "autoplay" $autoplay
+      "noLazy" $noLazy
+  ) }}
+{{ else if eq $provider "custom" }}
+  <!-- Load video helper partial for resource management -->
+  {{ partial "components/media/helpers/load-resources.html" (dict "provider" "custom") }}
+  
+  <!-- Render custom video -->
+  {{ partial "components/media/video/custom.html" (dict 
+      "src" $src 
+      "title" $title
+      "alt" $alt
+      "class" $class
+      "width" $width
+      "height" $height
+      "id" $id
+      "autoplay" $autoplay
+      "loop" $loop
+      "muted" $muted
+      "controls" $controls
+      "poster" $poster
+      "useLightbox" $useLightbox
+      "showPlayOverlay" $showPlayOverlay
+  ) }}
+{{ end }}

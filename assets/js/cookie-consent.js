@@ -93,6 +93,11 @@ document.addEventListener('DOMContentLoaded', function() {
     CookieManager.set('cookie_consent_status', level, 365);
     updateAnalyticsConsent(level === 'all');
     console.log('Cookie consent set to:', level); // Pre debugovanie
+    
+    // If user accepts all cookies, set YouTube GDPR consent too
+    if (level === 'all' && window.flowhuntMedia && window.flowhuntMedia.video && typeof window.flowhuntMedia.video.setGdprConsent === 'function') {
+      window.flowhuntMedia.video.setGdprConsent(true);
+    }
   }
 
   function updateAnalyticsConsent(allowed) {

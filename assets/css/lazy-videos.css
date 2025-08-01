@@ -1,3 +1,8 @@
+/* Import video component styles */
+@import "./components/youtube-video.css";
+@import "./components/video-lightbox.css";
+@import "./components/custom-video.css";
+
 /* Lazy loading video styles */
 .lazy-video-container {
   position: relative;
@@ -34,10 +39,6 @@
   object-fit: cover;
   transition: transform 0.3s ease;
   z-index: 1;
-}
-
-.lazy-video-thumbnail:hover .lazy-video-thumb-img {
-  transform: scale(1.05);
 }
 
 .lazy-video-play-button {
