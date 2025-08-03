@@ -113,8 +113,21 @@ def process_image_url(url, out_dir, title, md_stem, idx=None):
         try:
             resp = requests.get(url, timeout=5)
             resp.raise_for_status()
+            
+            # Check if the response is actually an image
+            content_type = resp.headers.get('Content-Type', '')
+            if 'text/html' in content_type:
+                print(f"!!! ERROR: URL {url} returned HTML instead of an image")
+                return None
+            
+            # Additional check: verify the content starts with image magic bytes
+            content = resp.content
+            if content.startswith(b'<!DOCTYPE') or content.startswith(b'<html'):
+                print(f"!!! ERROR: URL {url} returned HTML content instead of an image")
+                return None
+            
             with open(out_path, 'wb') as imgf:
-                imgf.write(resp.content)
+                imgf.write(content)
         except Exception as e:
             print(f"!!! ERROR downloading image from {url}: {e}")
             return None
