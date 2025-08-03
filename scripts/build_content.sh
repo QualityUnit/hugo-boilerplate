@@ -80,67 +80,88 @@ done
 
 run_step() {
     step_name="$1"
+    echo -e "${YELLOW}[DEBUG] Starting step: $step_name at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
     case "$step_name" in
         sync_translations)
             echo -e "${BLUE}=== Step 0: Syncing Translation Keys ===${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/sync_translations.py${NC}"
             python "${SCRIPT_DIR}/sync_translations.py"
             echo -e "${GREEN}Translation key sync completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step sync_translations finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         validate_content)
             echo -e "${BLUE}=== Step 1: Validating Content Files ===${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: bash ${SCRIPT_DIR}/validate_content.sh --path ${HUGO_ROOT}/content${NC}"
             bash "${SCRIPT_DIR}/validate_content.sh" --path "${HUGO_ROOT}/content"
             if [ $? -ne 0 ]; then
                 echo -e "${YELLOW}Content file validation failed. Stopping further processing.${NC}"
                 exit 1
             fi
             echo -e "${GREEN}Content file validation completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step validate_content finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         offload_images)
             echo -e "${BLUE}=== Step 2: Offload Images from Replicate ===${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/offload_replicate_images.py${NC}"
             python "${SCRIPT_DIR}/offload_replicate_images.py"
             echo -e "${GREEN}Offloading images completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step offload_images finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         find_duplicate_images)
             echo -e "${BLUE}=== Step 2.5: Finding Duplicate Images ===${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/find_duplicate_images.py${NC}"
             python "${SCRIPT_DIR}/find_duplicate_images.py"
             echo -e "${GREEN}Duplicate image search completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step find_duplicate_images finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         translate)
             echo -e "${BLUE}=== Step 3: Translating Missing Content with FlowHunt API ===${NC}"
             echo -e "${YELLOW}Running FlowHunt translation script...${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translate_with_flowhunt.py --path ${HUGO_ROOT}/content${NC}"
             python "${SCRIPT_DIR}/translate_with_flowhunt.py" --path "${HUGO_ROOT}/content"
             echo -e "${GREEN}Translation of missing content completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step translate finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         sync_content_attributes)
-            echo -e "${BLUE}=== Step 3.5: Validating Content Files after translation ===${NC}"
+            echo -e "${BLUE}=== Step 3.5: Syncing Content Attributes ===${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/sync_content_attributes.py${NC}"
             python "${SCRIPT_DIR}/sync_content_attributes.py"
             echo -e "${GREEN}Content attributes sync completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step sync_content_attributes finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         validate_content_post)
             echo -e "${BLUE}=== Step 3.6: Validating Content Files after translation ===${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: bash ${SCRIPT_DIR}/validate_content.sh --path ${HUGO_ROOT}/content${NC}"
             bash "${SCRIPT_DIR}/validate_content.sh" --path "${HUGO_ROOT}/content"
             if [ $? -ne 0 ]; then
                 echo -e "${YELLOW}Content file validation failed. Stopping further processing.${NC}"
                 exit 1
             fi
             echo -e "${GREEN}Content file validation completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step validate_content_post finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_translation_urls)
             echo -e "${BLUE}=== Step 3.7: Generating Translation URLs Mapping ===${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translation-urls.py --hugo-root ${HUGO_ROOT}${NC}"
             python "${SCRIPT_DIR}/translation-urls.py" --hugo-root "${HUGO_ROOT}"
             echo -e "${GREEN}Translation URLs mapping completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step generate_translation_urls finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_related_content)
             echo -e "${BLUE}=== Step 4: Generating Related Content ===${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/generate_related_content.py --path ${HUGO_ROOT}/content --hugo-root ${HUGO_ROOT} --exclude-sections author${NC}"
             python "${SCRIPT_DIR}/generate_related_content.py" --path "${HUGO_ROOT}/content" --hugo-root "${HUGO_ROOT}" --exclude-sections "author"
             echo -e "${GREEN}Related content generation completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step generate_related_content finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         preprocess_images)
             echo -e "${BLUE}=== Step 5: Preprocessing Images ===${NC}"
             echo -e "${YELLOW}Running image preprocessing script...${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: source ${SCRIPT_DIR}/preprocess-images.sh && process_all_images${NC}"
             source "${SCRIPT_DIR}/preprocess-images.sh"
             process_all_images
             echo -e "${GREEN}Image preprocessing completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step preprocess_images finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         *)
             echo -e "${YELLOW}Unknown step: $step_name${NC}"
@@ -151,11 +172,18 @@ run_step() {
 # If no steps specified, run all steps
 if [ ${#STEPS_TO_RUN[@]} -eq 0 ]; then
     STEPS_TO_RUN=(sync_translations validate_content offload_images find_duplicate_images translate sync_content_attributes validate_content_post generate_translation_urls generate_related_content preprocess_images)
+    echo -e "${YELLOW}[DEBUG] No steps specified, running all steps: ${STEPS_TO_RUN[@]}${NC}"
+else
+    echo -e "${YELLOW}[DEBUG] Running specified steps: ${STEPS_TO_RUN[@]}${NC}"
 fi
 
+echo -e "${YELLOW}[DEBUG] Starting main processing loop at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
 for step in "${STEPS_TO_RUN[@]}"; do
+    echo -e "${YELLOW}[DEBUG] Preparing to run step: $step${NC}"
     run_step "$step"
+    echo -e "${YELLOW}[DEBUG] Completed step: $step${NC}"
 done
+echo -e "${YELLOW}[DEBUG] Main processing loop finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
 
 # Deactivate the virtual environment
 deactivate

@@ -335,25 +335,37 @@ def generate_yaml(related_content, hugo_root, output_dir, lang):
 
 def process_language(args, lang):
     """Process a single language."""
-    print(f"\nProcessing language: {lang}")
+    import time
+    print(f"\n[DEBUG] Processing language: {lang}")
+    print(f"[DEBUG] Process start time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Determine the content directory for this language
     content_dir = os.path.join(args.path, lang) if args.path else os.path.join(args.hugo_root, "content", lang)
+    print(f"[DEBUG] Language content directory: {content_dir}")
     
     # Process content files
+    print(f"[DEBUG] Collecting content files...")
     file_data = process_content_files(hugo_root=args.hugo_root, path=content_dir, exclude_sections=args.exclude_sections)
     
     if not file_data:
-        print(f"No content files found for language: {lang}")
+        print(f"[DEBUG] No content files found for language: {lang}")
         return
     
+    print(f"[DEBUG] Found {len(file_data)} content files for {lang}")
+    
     # Generate embeddings
+    print(f"[DEBUG] Generating embeddings (this may take a while)...")
+    print(f"[DEBUG] Loading model: {args.model}")
     embeddings = generate_embeddings(file_data, args.model)
+    print(f"[DEBUG] Embeddings generated for {len(embeddings)} files")
     
     # Find related content
+    print(f"[DEBUG] Finding related content...")
     related_content = find_related_content(file_data, embeddings)
+    print(f"[DEBUG] Related content found")
     
     # Convert defaultdict to regular dict for clean YAML output
+    print(f"[DEBUG] Converting data structure...")
     related_content_dict = convert_defaultdict_to_dict(related_content)
     
     # Generate YAML file
@@ -361,18 +373,29 @@ def process_language(args, lang):
     os.makedirs(yaml_dir, exist_ok=True)
     yaml_file = os.path.join(yaml_dir, f"{lang}.yaml")
     
-    print(f"Generating YAML file for language: {lang}")
+    print(f"[DEBUG] Generating YAML file for language: {lang}")
+    print(f"[DEBUG] YAML path: {yaml_file}")
     with open(yaml_file, "w") as f:
         yaml.dump(related_content_dict, f, default_flow_style=False)
     
-    print(f"YAML file generated: {yaml_file}")
+    print(f"[DEBUG] YAML file generated: {yaml_file}")
     
     # Clean up memory for this language
+    print(f"[DEBUG] Cleaning up memory...")
     gc.collect()
+    print(f"[DEBUG] Process end time for {lang}: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
 def main():
     """Main function to run the script."""
+    import time
+    print(f"\n[DEBUG] ========== RELATED CONTENT GENERATOR STARTING ===========")
+    print(f"[DEBUG] Start time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    
     args = parse_args()
+    
+    print(f"[DEBUG] Arguments:")
+    print(f"[DEBUG] - Hugo root: {args.hugo_root}")
+    print(f"[DEBUG] - Exclude sections: {args.exclude_sections}")
     
     # Find all language directories
     if args.path:
@@ -380,20 +403,29 @@ def main():
     else:
         content_dir = os.path.join(args.hugo_root, "content")
     
+    print(f"[DEBUG] Content directory: {content_dir}")
+    
     # Check if content directory exists
     if not os.path.exists(content_dir):
-        print(f"Content directory not found: {content_dir}")
+        print(f"[ERROR] Content directory not found: {content_dir}")
         return
     
     # Find all language directories
+    print(f"[DEBUG] Scanning for language directories...")
     languages = [d for d in os.listdir(content_dir) 
                 if os.path.isdir(os.path.join(content_dir, d)) and not d.startswith('_')]
     
-    print(f"Found languages: {', '.join(languages)}")
+    print(f"[DEBUG] Found {len(languages)} languages: {', '.join(languages)}")
     
     # Process each language
-    for lang in languages:
+    for idx, lang in enumerate(languages, 1):
+        print(f"\n[DEBUG] Processing language {idx}/{len(languages)}: {lang}")
+        print(f"[DEBUG] Time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
         process_language(args, lang)
+        print(f"[DEBUG] Completed language: {lang}")
+    
+    print(f"\n[DEBUG] ========== RELATED CONTENT GENERATOR FINISHED ===========")
+    print(f"[DEBUG] End time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Clean up global model resources at the end
     if '_model' in globals() and _model is not None:
