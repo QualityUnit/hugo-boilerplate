@@ -6,6 +6,7 @@
   - heading: Main section heading (optional, default: "Stay on top of customer support")
   - description: Section description text (optional, default: "Lorem ipsum dolor sit amet consect adipisicing elit...")
   - theme: "light" (default) or "dark" — add class="dark" for section
+  - maxWidthHeading: Maximum width for the heading (optional, default: "max-w-2xl")
   - features: Array of feature objects (optional, includes defaults)
     - icon: SVG path for the icon (as HTML string)
     - title: Feature title
@@ -17,7 +18,8 @@
       "eyebrow" "FEATURES"
       "heading" "Key Features"
       "description" "Our platform offers powerful features to streamline your workflow and boost productivity."
-      "bgColor" "bg-gray-50"
+      "theme" "light"
+      "maxWidthHeading" "max-w-2xl"
       "features" (slice
           (dict
               "icon" "map"
@@ -48,6 +50,7 @@
 {{ $eyebrowColor := .eyebrowColor | default "text-primary" }}
 {{ $heading := .heading | default "" }}
 {{ $description := .description | default "" }}
+{{ $maxWidthHeading := .maxWidthHeading | default "max-w-2xl" }}
 {{ $features := .features | default (slice) }}
 {{ $page := .page }}
 {{ $theme := .theme | default "light" }}
@@ -62,7 +65,7 @@
   <div class="{{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ if $isDark }}py-32{{ else }}py-12{{ end }}">
     <div class="wrapper">
       {{ if or $eyebrow $heading $description }}
-        <div class="max-w-2xl">
+        <div class="{{ $maxWidthHeading }}">
           {{ if $eyebrow }}
             <p class="text-base font-semibold leading-7 {{ $eyebrowColor }}">{{ $eyebrow }}</p>
           {{ end }}
