@@ -1,60 +1,63 @@
 {{/*
-@section: Split Hero with YouTube Video
-@description: A responsive hero section split into two columns - one with text content and CTAs, the other with an embedded YouTube video.
-@params:
-  - videoID: YouTube video ID (required)
-  - videoTitle: Title for the video (optional)
-  - logo: URL to logo image (optional)
-  - announcement: Announcement object (optional)
-    - enabled: Whether to show the announcement (default: false)
-    - text: Announcement text
-    - linkText: Link text for the announcement
-    - linkUrl: URL for the announcement link
-  - heading: Main heading text
-  - description: Description text
-  - cta: Call-to-action buttons (optional)
-    - primary: Primary button (text, url)
-    - secondary: Secondary button (text, url)
-  - typewriter: Object with typewriter effect configuration (optional)
-    - enabled: Boolean to enable/disable the effect (default: false)
-    - words: Number of words to animate (default: 1)
-    - speed: Typing speed in ms (default: 100)
-    - deleteSpeed: Deleting speed in ms (default: 50)
-    - pause: Pause duration in ms (default: 2000)
-    - color: Color class for animated text (default: "text-indigo-600")
-@example:
-  {{ partial "sections/hero/split_with_youtube_video.html" (dict 
-      "heading" "Watch our product in action"
-      "description" "See how our platform can transform your workflow with this detailed demonstration."
-      "videoID" "dQw4w9WgXcQ"
-      "videoTitle" "Product Demo Video"
-      "cta" (dict 
-          "primary" (dict "text" "Try it now" "url" "/signup") 
-          "secondary" (dict "text" "Learn more" "url" "/features")
-      )
-      "typewriter" (dict
-          "enabled" true
-          "words" 1
-          "speed" 100
-          "deleteSpeed" 50
-          "pause" 2000
-          "color" "text-red-600"
-      )
-  ) }}
+Responsive hero section with YouTube video - content left, video right.
+
+Parameters:
+- videoID: YouTube video ID (required)
+- videoTitle: Title for the video (optional, defaults to page heading)
+- eyebrow, heading, description: Text content
+- cta: Call-to-action buttons
+  - primary: Primary button (text, url)
+  - secondary: Secondary button (text, url)
+- tags: Array of tags (optional), will create tag links to /tags/[tag-name]/
+- categories: Array of categories (optional)
+- typewriter: Object with typewriter effect configuration (optional)
+- sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-12 lg:py-16")
+- backgroundColor: Custom background color class
+
+@note: This partial is specifically for YouTube videos only. It supports two parameter formats:
+1. Direct: .videoID parameter
+2. Nested: .video.videoID parameter (used in some frontmatter configurations)
 */}}
-<div class="relative bg-white">
-    <div class="wrapper sm:py-0 lg:py-24">
-        <div class="lg:grid lg:grid-cols-12">
-            <div class="lg:col-span-7 xl:col-span-6">
-                {{ partial "sections/hero/split_left_side_helper.html" .}}
-            </div>
-            <div class="relative lg:col-span-5 lg:-mr-8 xl:col-span-6 xl:mr-0 h-full flex items-center justify-center overflow-hidden">
-            {{ partial "components/media/youtubevideo.html" (dict
-            "videoID" .videoID
-            "title" .videoTitle
-            "class" "my-8 rounded-xl shadow-lg"
-            ) }}
-            </div>
-        </div>
+
+{{ $video := .video }} {{/* Support for nested video object format */}}
+{{ $videoID := "" }}
+{{ $videoTitle := "" }}
+
+{{/* Support multiple parameter formats and check for youtubeVideoID for backward compatibility */}}
+{{ if $video }}
+  {{ $videoID = $video.videoID }}
+  {{ $videoTitle = $video.title }}
+{{ else if .videoID }}
+  {{ $videoID = .videoID }}
+  {{ $videoTitle = .videoTitle | default .heading }}
+{{ else if .youtubeVideoID }}
+  {{ $videoID = .youtubeVideoID }}
+  {{ $videoTitle = .youtubeTitle | default .heading }}
+{{ end }}
+
+{{ $sectionPaddingY := .sectionPaddingY | default "py-12 lg:py-16" }}
+
+<!-- Only render if we have a valid video ID -->
+{{ if $videoID }}
+<div class="split-with-video-hero {{ if .backgroundColor }}{{ .backgroundColor }}{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
+  <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
+    <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
+      <div class="relative rounded-lg py-6 flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
+        {{ partial "components/media/video.html" (dict
+          "videoID" $videoID 
+          "title" ($videoTitle | default "YouTube Video")
+          "class" "rounded-xl shadow-lg w-full h-auto"
+          "provider" "youtube"
+          "autoplay" true
+          "noLazy" true
+        ) }}
+      </div>
     </div>
+    <div class="lg:flex lg:w-1/2 lg:items-center">
+      <div class="py-4 lg:w-full lg:flex-none lg:pr-20">
+        {{ partial "sections/hero/split_left_side_helper.html" . }}
+      </div>
+    </div>
+  </div>
 </div>
+{{ end }}
