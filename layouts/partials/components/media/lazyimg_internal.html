@@ -84,15 +84,33 @@
 
     <!-- Check file extension before using imageConfig -->
     {{ $fileExtLower := strings.ToLower (path.Ext $src) }}
+    {{ $supportedImageExts := slice ".jpg" ".avif" ".jpeg" ".png" ".gif" ".webp" ".bmp" ".tiff" ".tif" }}
     {{ if fileExists $originalImagePath }}
       {{ if eq $fileExtLower ".avif" }}
         <!-- Skip imageConfig for AVIF files as Hugo doesn't support them -->
         {{ $originalWidth = 1500 }} <!-- Default width for AVIF files -->
-      {{ else }}
-        <!-- Use imageConfig for supported formats -->
-        {{ with (imageConfig $originalImagePath) }}
-          {{ $originalWidth = .Width }}
+      {{ else if in $supportedImageExts $fileExtLower }}
+        <!-- Only try imageConfig for known supported image formats -->
+        {{ $imageConfig := 0 }}
+        {{ $configError := false }}
+        
+        <!-- Safely try to get image config -->
+        {{ range $i := slice 1 }}
+          {{ if not $configError }}
+            {{ with imageConfig $originalImagePath }}
+              {{ $originalWidth = .Width }}
+            {{ else }}
+              <!-- imageConfig failed, file might not be a valid image despite extension -->
+              {{ warnf "Failed to get image config for %s - file may be corrupted or not a valid image" $originalImagePath }}
+              {{ $configError = true }}
+              {{ $originalWidth = 800 }} <!-- Default width for failed images -->
+            {{ end }}
+          {{ end }}
         {{ end }}
+      {{ else }}
+        <!-- Unknown file extension, skip imageConfig -->
+        {{ warnf "Unsupported image extension %s for file %s" $fileExtLower $originalImagePath }}
+        {{ $originalWidth = 800 }} <!-- Default width for unsupported formats -->
       {{ end }}
     {{ end }}
 

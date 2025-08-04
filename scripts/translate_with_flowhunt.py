@@ -134,14 +134,14 @@ LANGUAGE_MAP = {
 def get_workspace_id():
     api_client = initialize_api_client()
     # Create an instance of the API class
-    api_instance = flowhunt.AuthApi(api_client)
+    api_instance = flowhunt.WebAuthApi(api_client)
 
     try:
         # Get User
         api_response = api_instance.get_user()
         return api_response.api_key_workspace_id
     except flowhunt.ApiException as e:
-        print("Exception when calling AuthApi->get_user: %s\n" % e)
+        print("Exception when calling WebAuthApi->get_user: %s\n" % e)
         return None
     
 
@@ -177,6 +177,7 @@ def initialize_api_client():
     return flowhunt.ApiClient(configuration)
 
 def invoke_flow_for_translation(api_instance, content, target_lang, flow_id, workspace_id):
+    print(f"[DEBUG] Invoking flow for {target_lang} translation...")
     """
     Invoke a FlowHunt flow to translate content to the target language
     
@@ -219,6 +220,7 @@ def invoke_flow_for_translation(api_instance, content, target_lang, flow_id, wor
         return None
 
 def check_flow_results(api_instance, process_id, flow_id, workspace_id):
+    # Note: This function is called frequently, so we'll skip detailed debug messages here to avoid spam
     """
     Check if a flow has completed and get the results
     
@@ -418,8 +420,14 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                         all_failed_tasks.append((file_path, target_lang, target_file))
                         print(f"Failed to translate {file_path} to {target_lang}")
             
+            # Print batch summary
+            if completed_in_batch > 0:
+                print(f"[DEBUG] Completed {completed_in_batch} tasks in this batch")
+            
             # Schedule new tasks to replace completed ones, maintaining max_scheduled_tasks
             tasks_to_schedule = min(completed_in_batch, len(remaining_tasks))
+            if tasks_to_schedule > 0:
+                print(f"[DEBUG] Scheduling {tasks_to_schedule} new tasks to replace completed ones")
             
             for i in range(tasks_to_schedule):
                 file_path, content, target_lang, target_file = remaining_tasks.pop(0)
@@ -442,7 +450,7 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
             
             # Print status update
             if pending_tasks:
-                print(f"Tasks in queue: {len(pending_tasks)} | "
+                print(f"[STATUS] Tasks in queue: {len(pending_tasks)} | "
                       f"Completed: {total_completed}/{len(translation_tasks)} | "
                       f"Remaining to schedule: {len(remaining_tasks)} | "
                       f"Just completed: {completed_in_batch} | "
@@ -453,19 +461,24 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
         processing_progress.close()
         
         # Print summary
-        print(f"\nTranslation Summary:")
-        print(f"Files translated successfully: {len(all_completed_tasks)}")
-        print(f"Files failed: {len(all_failed_tasks)}")
-        print(f"Total files processed: {len(all_completed_tasks) + len(all_failed_tasks)}")
+        print(f"\n[DEBUG] Translation Batch Summary:")
+        print(f"[DEBUG] Files translated successfully: {len(all_completed_tasks)}")
+        print(f"[DEBUG] Files failed: {len(all_failed_tasks)}")
+        print(f"[DEBUG] Total files processed: {len(all_completed_tasks) + len(all_failed_tasks)}")
     
     # Print overall summary
-    print("\nOverall Translation Summary:")
-    print(f"Files translated successfully: {len(all_completed_tasks)}")
-    print(f"Files failed: {len(all_failed_tasks)}")
-    print(f"Total files processed: {len(all_completed_tasks) + len(all_failed_tasks)}")
+    print("\n[DEBUG] Overall Translation Summary:")
+    print(f"[DEBUG] Files translated successfully: {len(all_completed_tasks)}")
+    print(f"[DEBUG] Files failed: {len(all_failed_tasks)}")
+    print(f"[DEBUG] Total files processed: {len(all_completed_tasks) + len(all_failed_tasks)}")
+    print(f"[DEBUG] Translation process completed at {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
 def main():
     """Main function to parse arguments and process files"""
+    print(f"\n[DEBUG] ========== TRANSLATION SCRIPT STARTING ===========")
+    print(f"[DEBUG] Start time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"[DEBUG] Script directory: {script_dir}")
+    print(f"[DEBUG] Hugo root: {hugo_root}")
     parser = argparse.ArgumentParser(
         description="Translate missing files from English to other languages using FlowHunt API",
         epilog="""
@@ -507,29 +520,42 @@ Examples:
     
     args = parser.parse_args()
     
+    print(f"[DEBUG] Parsed arguments:")
+    print(f"[DEBUG] - Path: {args.path}")
+    print(f"[DEBUG] - Check interval: {args.check_interval} seconds")
+    print(f"[DEBUG] - Max scheduled tasks: {args.max_scheduled_tasks}")
+    print(f"[DEBUG] - Flow ID: {args.flow_id}")
+    
     # Convert to Path object
     content_dir = Path(args.path)
 
+    print(f"[DEBUG] Getting workspace ID...")
     workspace_id = get_workspace_id()
     if not workspace_id:
-        print("Error: Unable to retrieve workspace ID. Please check your API key.")
+        print("[ERROR] Unable to retrieve workspace ID. Please check your API key.")
         sys.exit(1)
     else:
-        print(f"Using workspace ID: {workspace_id}")
+        print(f"[DEBUG] Using workspace ID: {workspace_id}")
     
     # Check if the content directory exists
+    print(f"[DEBUG] Checking content directory: {content_dir}")
     if not content_dir.exists() or not content_dir.is_dir():
-        print(f"Error: Content directory not found: {content_dir}")
+        print(f"[ERROR] Content directory not found: {content_dir}")
         sys.exit(1)
+    print(f"[DEBUG] Content directory exists")
     
     # Check if the English directory exists
     en_dir = content_dir / "en"
+    print(f"[DEBUG] Checking English directory: {en_dir}")
     if not en_dir.exists() or not en_dir.is_dir():
-        print(f"Error: English directory not found: {en_dir}")
+        print(f"[ERROR] English directory not found: {en_dir}")
         sys.exit(1)
+    print(f"[DEBUG] English directory exists")
     
     # Get target languages
+    print(f"[DEBUG] Getting target languages from content directory...")
     target_langs = get_target_languages(content_dir)
+    print(f"[DEBUG] Found {len(target_langs)} target languages: {', '.join(target_langs) if target_langs else 'None'}")
     
     if not target_langs:
         print("No target language directories found.")
@@ -541,15 +567,32 @@ Examples:
     print(f"Using FlowHunt flow ID: {args.flow_id}")
     
     # Find files that need translation
+    print(f"\n[DEBUG] ========== SCANNING FOR FILES TO TRANSLATE ===========")
     translation_tasks, files_already_exist = find_files_for_translation(content_dir, target_langs)
+    print(f"[DEBUG] ========== FILE SCAN COMPLETE ===========")
     
     print(f"Found {len(translation_tasks)} files that need translation")
     print(f"Files skipped (already exist): {files_already_exist}")
     
     # Process translations with max-scheduled-tasks parameter
+    print(f"\n[DEBUG] ========== STARTING TRANSLATION PROCESS ===========")
     process_translations(translation_tasks, args.flow_id, workspace_id, args.max_scheduled_tasks)
+    print(f"[DEBUG] ========== TRANSLATION PROCESS COMPLETE ===========")
     
-    print("\nTranslation completed!")
+    print("\n[DEBUG] Translation script completed!")
+    print(f"[DEBUG] End time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"[DEBUG] ========== SCRIPT FINISHED ===========")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n[DEBUG] Script interrupted by user (Ctrl+C)")
+        print(f"[DEBUG] Interrupted at: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n[ERROR] Unexpected error: {str(e)}")
+        print(f"[DEBUG] Error occurred at: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
