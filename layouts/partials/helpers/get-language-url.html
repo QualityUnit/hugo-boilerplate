@@ -37,23 +37,141 @@
     {{ $baseDomain = "" }}
   {{ end }}
   {{ $href = printf "%s%s" $baseDomain $langData.baseURL }}
+  
   {{ if $filePath }}
-    {{/* Use partialCached to load translation URLs only once per build */}}
-    {{ $allTranslationUrls := partialCached "helpers/load-translation-urls.html" . "translation-urls-v1" }}
-    {{ if $allTranslationUrls }}
-      {{ $translationData := index $allTranslationUrls $filePath }}
+    {{/* Determine folder from file path */}}
+    {{ $folder := "_root" }}
+    {{ $pathParts := split $filePath "/" }}
+    {{ if gt (len $pathParts) 1 }}
+      {{ $folder = index $pathParts 0 }}
+    {{ end }}
+    
+    {{/* Use partialCached to load folder-specific translation URLs */}}
+    {{ $folderTranslations := partialCached "helpers/load-translation-urls.html" (dict "folder" $folder) $folder }}
+    
+    {{ if $folderTranslations }}
+      {{ $translationData := index $folderTranslations $filePath }}
       {{ if $translationData }}
+        {{/* Check if this language has a different URL */}}
         {{ $translatedUrl := index $translationData $code }}
         {{ if $translatedUrl }}
-          {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $translatedUrl }}
+          {{/* Use the custom URL from the translation file */}}
+          {{/* URLs in translation file should already include language prefix */}}
+          {{ $href = printf "%s%s" $baseDomain $translatedUrl }}
         {{ else }}
-          {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $currentPage.RelPermalink }}
+          {{/* Language not in translation file, use English URL as base */}}
+          {{ $enUrl := index $translationData "en" }}
+          {{ if $enUrl }}
+            {{/* We have the English URL from translation data */}}
+            {{ if eq $code "en" }}
+              {{ $href = printf "%s%s" $baseDomain $enUrl }}
+            {{ else }}
+              {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $enUrl }}
+            {{ end }}
+          {{ else }}
+            {{/* No English URL in translation data, try to find English page */}}
+            {{ $enPage := site.GetPage (printf "/en/%s" (strings.TrimPrefix "/" $filePath)) }}
+            {{ if $enPage }}
+              {{/* Use English page's RelPermalink */}}
+              {{ $enPath := $enPage.RelPermalink }}
+              {{ if eq $code "en" }}
+                {{/* For English, use the path as-is */}}
+                {{ $href = printf "%s%s" $baseDomain $enPath }}
+              {{ else }}
+                {{/* For other languages, add language prefix to English path */}}
+                {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $enPath }}
+              {{ end }}
+            {{ else }}
+              {{/* Fallback: Strip current language prefix from RelPermalink */}}
+              {{ $cleanPath := $currentPage.RelPermalink }}
+              {{ $currentLangPrefix := printf "/%s/" $currentLangCode }}
+              {{ if hasPrefix $cleanPath $currentLangPrefix }}
+                {{ $cleanPath = strings.TrimPrefix $currentLangPrefix $cleanPath }}
+                {{ $cleanPath = printf "/%s" $cleanPath }}
+              {{ end }}
+              {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $cleanPath }}
+            {{ end }}
+          {{ end }}
         {{ end }}
       {{ else }}
-        {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $currentPage.RelPermalink }}
+        {{/* File not in translation data, construct URL using default pattern */}}
+        {{/* For files not in translation data, we assume standard URL structure */}}
+        {{ if $filePath }}
+          {{/* Derive URL from file path */}}
+          {{ $urlPath := $filePath }}
+          {{ if strings.HasSuffix $urlPath ".md" }}
+            {{ $urlPath = strings.TrimSuffix ".md" $urlPath }}
+          {{ end }}
+          {{ if strings.HasSuffix $urlPath "/_index" }}
+            {{ $urlPath = strings.TrimSuffix "/_index" $urlPath }}
+          {{ else if eq $urlPath "_index" }}
+            {{ $urlPath = "" }}
+          {{ end }}
+          
+          {{/* Construct the URL with language prefix */}}
+          {{ if eq $code "en" }}
+            {{ if $urlPath }}
+              {{ $href = printf "%s/%s/" $baseDomain $urlPath }}
+            {{ else }}
+              {{ $href = printf "%s/" $baseDomain }}
+            {{ end }}
+          {{ else }}
+            {{ if $urlPath }}
+              {{ $href = printf "%s%s/%s/" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $urlPath }}
+            {{ else }}
+              {{ $href = printf "%s%s/" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) }}
+            {{ end }}
+          {{ end }}
+        {{ end }}
       {{ end }}
     {{ else }}
-      {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $currentPage.RelPermalink }}
+      {{/* No translation data for this folder, construct URL using default pattern */}}
+      {{ if $filePath }}
+        {{/* Derive URL from file path */}}
+        {{ $urlPath := $filePath }}
+        {{ if strings.HasSuffix $urlPath ".md" }}
+          {{ $urlPath = strings.TrimSuffix ".md" $urlPath }}
+        {{ end }}
+        {{ if strings.HasSuffix $urlPath "/_index" }}
+          {{ $urlPath = strings.TrimSuffix "/_index" $urlPath }}
+        {{ else if eq $urlPath "_index" }}
+          {{ $urlPath = "" }}
+        {{ end }}
+        
+        {{/* Construct the URL with language prefix */}}
+        {{ if eq $code "en" }}
+          {{ if $urlPath }}
+            {{ $href = printf "%s/%s/" $baseDomain $urlPath }}
+          {{ else }}
+            {{ $href = printf "%s/" $baseDomain }}
+          {{ end }}
+        {{ else }}
+          {{ if $urlPath }}
+            {{ $href = printf "%s%s/%s/" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $urlPath }}
+          {{ else }}
+            {{ $href = printf "%s%s/" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ else }}
+    {{/* No file path, use current page URL structure */}}
+    {{ $cleanPath := $currentPage.RelPermalink }}
+    {{ $currentLangPrefix := printf "/%s/" $currentLangCode }}
+    {{ if hasPrefix $cleanPath $currentLangPrefix }}
+      {{ $cleanPath = strings.TrimPrefix $currentLangPrefix $cleanPath }}
+    {{ else if eq $currentLangCode "en" }}
+      {{/* English URLs don't have language prefix */}}
+    {{ else }}
+      {{/* Unexpected case, but handle it */}}
+      {{ $cleanPath = $currentPage.RelPermalink }}
+    {{ end }}
+    
+    {{/* Now construct URL for target language */}}
+    {{ if eq $code "en" }}
+      {{ $href = printf "%s%s" $baseDomain $cleanPath }}
+    {{ else }}
+      {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $cleanPath }}
     {{ end }}
   {{ end }}
 {{ else if $permalink }}

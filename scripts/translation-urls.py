@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Generate Translation URLs Map
+Generate Translation URLs Map - Split by Folder
 
-This script creates a mapping of English URLs to their translations in all other languages.
+This script creates a mapping of URLs that differ from English for each folder.
 It processes all content files in content/en/, identifies their URLs (either from frontmatter 
-or from file path), then finds corresponding files in other language directories and maps
-their URLs.
+or from file path), then finds corresponding files in other language directories and only
+stores URLs that differ from the English version.
 
 Usage:
     python translation-urls.py
 
 Output:
-    Creates /data/translation_urls.json with the mapping structure
+    Creates /data/translation_urls/[folder].json files with URLs that differ from English
 
 Requirements:
     pip install python-frontmatter
@@ -19,7 +19,7 @@ Requirements:
 
 import os
 import frontmatter
-from frontmatter import TOMLHandler # Add this import
+from frontmatter import TOMLHandler
 import json
 import argparse
 from pathlib import Path
@@ -27,21 +27,21 @@ from collections import defaultdict
 
 def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Generate translation URLs mapping")
+    parser = argparse.ArgumentParser(description="Generate translation URLs mapping split by folder")
     parser.add_argument("--hugo-root", type=str, 
                         default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")),
                         help="Hugo root directory (default: three levels up from script location)")
     parser.add_argument("--content-dir", type=str, default="content",
                         help="Content directory relative to Hugo root (default: content)")
-    parser.add_argument("--output-file", type=str, default="data/translation_urls.json",
-                        help="Output file relative to Hugo root (default: data/translation_urls.json)")
+    parser.add_argument("--output-dir", type=str, default="data/translation_urls",
+                        help="Output directory relative to Hugo root (default: data/translation_urls)")
     return parser.parse_args()
 
 def get_url_from_file(file_path, lang, relative_path):
     """Extract URL from a markdown file, either from frontmatter or derive from path."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
-            post = frontmatter.load(f, handler=TOMLHandler()) # Use TOMLHandler
+            post = frontmatter.load(f, handler=TOMLHandler())
 
         # Check if URL is defined in frontmatter
         if 'url' in post.metadata:
@@ -63,11 +63,22 @@ def get_url_from_file(file_path, lang, relative_path):
         elif url_path == '_index':
             url_path = ''  # Root index
         
-        # Ensure URL starts with /
-        if url_path and not url_path.startswith('/'):
-            url_path = '/' + url_path
-        elif not url_path:
-            url_path = '/'
+        # Add language prefix for non-English languages
+        if lang != 'en':
+            # Ensure URL starts with /
+            if url_path and not url_path.startswith('/'):
+                url_path = '/' + url_path
+            elif not url_path:
+                url_path = '/'
+            
+            # Add language prefix
+            url_path = f'/{lang}{url_path}'
+        else:
+            # For English, just ensure proper formatting
+            if url_path and not url_path.startswith('/'):
+                url_path = '/' + url_path
+            elif not url_path:
+                url_path = '/'
         
         # Ensure URL ends with /
         if not url_path.endswith('/'):
@@ -89,168 +100,143 @@ def get_all_languages(content_dir):
                 languages.append(item)
     return sorted(languages)
 
-def process_english_files(hugo_root, content_dir):
-    """Process all English content files and extract their URLs."""
-    en_dir = os.path.join(hugo_root, content_dir, 'en')
-    english_files = {}
-    
-    if not os.path.exists(en_dir):
-        print(f"English content directory not found: {en_dir}")
-        return english_files
-    
-    print(f"Processing English files in: {en_dir}")
-    
-    # Walk through all English content files
-    for root, dirs, files in os.walk(en_dir):
-        for file in files:
-            if file.endswith('.md'):
-                file_path = os.path.join(root, file)
-                
-                # Get relative path from en directory
-                relative_path = os.path.relpath(file_path, en_dir)
-                
-                # Get URL for this file
-                url = get_url_from_file(file_path, 'en', relative_path)
-                
-                if url:
-                    english_files[relative_path] = {
-                        'url': url,
-                        'file_path': file_path
-                    }
-    
-    print(f"Found {len(english_files)} English content files")
-    return english_files
+def get_folder_name(relative_path):
+    """Get the top-level folder name from a relative path."""
+    parts = relative_path.split(os.sep)
+    if len(parts) > 1:
+        return parts[0]
+    return "_root"  # Files in root directory
 
-def find_translation_urls(hugo_root, content_dir, english_files, languages):
-    """Find translation URLs for all English files."""
-    translation_map = {}
+def process_content_by_folder(hugo_root, content_dir):
+    """Process all content files and organize by folder."""
+    languages = get_all_languages(os.path.join(hugo_root, content_dir))
+    folders_data = defaultdict(lambda: defaultdict(dict))
     
-    for rel_path, en_data in english_files.items():
-        en_url = en_data['url']
-        translations = {}
-        
-        # Look for the same relative path in all language directories (including English)
-        for lang in languages:
-            lang_file_path = os.path.join(hugo_root, content_dir, lang, rel_path)
-            
-            if os.path.exists(lang_file_path):
-                # Get URL for this translation
-                translation_url = get_url_from_file(lang_file_path, lang, rel_path)
-                
-                if translation_url:
-                    translations[lang] = translation_url
-        
-        # Only add if there are translations with different URLs
-        # Check if all URLs are identical (can be computed)
-        unique_urls = set(translations.values())
-        
-        # Store all translations for now (we'll optimize later if needed)
-        # But mark which ones could be computed
-        translation_map[rel_path] = translations
+    print(f"Found languages: {', '.join(languages)}")
     
-    return translation_map
-
-def optimize_translation_map(translation_map):
-    """Optimize translation map by removing duplicate/computable URLs."""
-    optimized_map = {}
-    stats = {
-        'total_pages': len(translation_map),
-        'pages_with_all_same_url': 0,
-        'pages_with_unique_urls': 0,
-        'total_urls': 0,
-        'unique_urls_stored': 0
-    }
+    # First, collect all files for all languages
+    all_files = defaultdict(dict)  # relative_path -> {lang: url}
     
-    for rel_path, translations in translation_map.items():
-        if not translations:
+    for lang in languages:
+        lang_dir = os.path.join(hugo_root, content_dir, lang)
+        if not os.path.exists(lang_dir):
             continue
             
-        # Get all unique URLs for this page
-        unique_urls = set(translations.values())
-        stats['total_urls'] += len(translations)
-        
-        # If all languages use the same URL, we could potentially compute it
-        if len(unique_urls) == 1:
-            stats['pages_with_all_same_url'] += 1
-            # Still store it for now, but mark that it could be computed
-            optimized_map[rel_path] = translations
-            stats['unique_urls_stored'] += len(translations)
-        else:
-            stats['pages_with_unique_urls'] += 1
-            # Store all unique translations
-            optimized_map[rel_path] = translations
-            stats['unique_urls_stored'] += len(translations)
+        for root, dirs, files in os.walk(lang_dir):
+            for file in files:
+                if file.endswith('.md'):
+                    file_path = os.path.join(root, file)
+                    relative_path = os.path.relpath(file_path, lang_dir)
+                    
+                    url = get_url_from_file(file_path, lang, relative_path)
+                    if url:
+                        all_files[relative_path][lang] = url
     
-    return optimized_map, stats
+    # Now organize by folder and only store URLs different from English
+    for relative_path, lang_urls in all_files.items():
+        folder = get_folder_name(relative_path)
+        en_url = lang_urls.get('en', '')
+        
+        # Only store URLs that differ from English (comparing path structure, not language prefix)
+        different_urls = {}
+        for lang, url in lang_urls.items():
+            if lang != 'en':
+                # Strip language prefix for comparison
+                lang_prefix = f'/{lang}/'
+                if url.startswith(lang_prefix):
+                    # Remove language prefix
+                    url_without_prefix = url[len(lang_prefix)-1:]  # Keep the leading /
+                else:
+                    url_without_prefix = url
+                
+                # Compare the path structure, not the full URL with language prefix
+                if url_without_prefix != en_url:
+                    different_urls[lang] = url
+        
+        # Only add to folder data if there are different URLs
+        if different_urls:
+            # Include English URL as reference for proper fallback calculation
+            different_urls['en'] = en_url
+            folders_data[folder][relative_path] = different_urls
+    
+    return folders_data
 
-def generate_output_file(translation_map, hugo_root, json_file, stats=None):
-    """Generate JSON file with translation URL mapping."""
-    json_path = os.path.join(hugo_root, json_file)
+def generate_folder_files(folders_data, hugo_root, output_dir):
+    """Generate JSON files for each folder."""
+    output_path = os.path.join(hugo_root, output_dir)
     
     # Create output directory if it doesn't exist
-    os.makedirs(os.path.dirname(json_path), exist_ok=True)
+    os.makedirs(output_path, exist_ok=True)
     
-    # Sort by file path for consistent output
-    sorted_map = dict(sorted(translation_map.items()))
+    total_files = 0
+    total_size = 0
+    folder_stats = []
     
-    # Generate JSON file (more efficient for Hugo to parse)
-    print(f"Generating JSON file: {json_path}")
-    with open(json_path, 'w', encoding='utf-8') as f:
-        # Use separators to minimize file size
-        json.dump(sorted_map, f, separators=(',', ':'), ensure_ascii=False)
+    print(f"\nGenerating translation URL files by folder:")
+    print("=" * 60)
     
-    # Get file size
-    json_size = os.path.getsize(json_path)
+    for folder, files_data in sorted(folders_data.items()):
+        if not files_data:
+            continue
+            
+        # Generate JSON file for this folder
+        folder_file = os.path.join(output_path, f"{folder}.json")
+        
+        with open(folder_file, 'w', encoding='utf-8') as f:
+            json.dump(files_data, f, separators=(',', ':'), ensure_ascii=False)
+        
+        file_size = os.path.getsize(folder_file)
+        total_size += file_size
+        total_files += 1
+        
+        # Count unique URLs in this folder
+        unique_urls_count = sum(len(urls) for urls in files_data.values())
+        
+        folder_stats.append({
+            'folder': folder,
+            'files': len(files_data),
+            'unique_urls': unique_urls_count,
+            'size': file_size
+        })
+        
+        print(f"  📁 {folder}.json: {len(files_data)} files, {unique_urls_count} unique URLs ({file_size/1024:.1f} KB)")
     
-    print(f"\n📊 File generation complete:")
-    print(f"  JSON file: {json_path} ({json_size/1024:.1f} KB)")
-    print(f"  Total content files processed: {len(sorted_map)}")
+    print("=" * 60)
+    print(f"\n📊 Summary:")
+    print(f"  Total folders: {total_files}")
+    print(f"  Total size: {total_size/1024:.1f} KB")
+    print(f"  Average size per folder: {total_size/1024/max(total_files, 1):.1f} KB")
     
-    if stats:
-        print(f"\n🔍 Optimization statistics:")
-        print(f"  Total pages: {stats['total_pages']}")
-        print(f"  Pages with all same URL: {stats['pages_with_all_same_url']}")
-        print(f"  Pages with unique URLs: {stats['pages_with_unique_urls']}")
-        print(f"  Total URLs stored: {stats['unique_urls_stored']}")
+    # Show top 5 largest folders
+    if folder_stats:
+        print(f"\n🔝 Top 5 largest folders:")
+        sorted_stats = sorted(folder_stats, key=lambda x: x['size'], reverse=True)[:5]
+        for stat in sorted_stats:
+            print(f"  {stat['folder']}: {stat['size']/1024:.1f} KB ({stat['unique_urls']} unique URLs)")
     
-    # Print summary statistics
-    lang_stats = defaultdict(int)
-    for file_path, translations in sorted_map.items():
-        for lang in translations.keys():
-            lang_stats[lang] += 1
-    
-    print("\n🌐 Translation statistics by language:")
-    for lang, count in sorted(lang_stats.items()):
-        print(f"  {lang}: {count} files")
+    return total_files, total_size
 
 def main():
     """Main function."""
     args = parse_args()
     
-    # Set up paths
-    content_dir_path = os.path.join(args.hugo_root, args.content_dir)
+    print(f"Hugo root: {args.hugo_root}")
+    print(f"Processing content files and splitting by folder...")
     
-    # Get all available languages
-    languages = get_all_languages(content_dir_path)
-    print(f"Found languages: {', '.join(languages)}")
+    # Process content organized by folder
+    folders_data = process_content_by_folder(args.hugo_root, args.content_dir)
     
-    # Process English files
-    english_files = process_english_files(args.hugo_root, args.content_dir)
-    
-    if not english_files:
-        print("No English content files found")
+    if not folders_data:
+        print("No translation differences found!")
         return
     
-    # Find translations
-    print("Finding translation URLs...")
-    translation_map = find_translation_urls(args.hugo_root, args.content_dir, english_files, languages)
+    # Generate output files
+    total_files, total_size = generate_folder_files(folders_data, args.hugo_root, args.output_dir)
     
-    # Optimize the translation map
-    print("\nOptimizing translation map...")
-    optimized_map, stats = optimize_translation_map(translation_map)
-    
-    # Generate output file (JSON only)
-    generate_output_file(optimized_map, args.hugo_root, args.output_file, stats)
+    print(f"\n✅ Translation URL generation complete!")
+    print(f"   Generated {total_files} folder files")
+    print(f"   Only storing URLs that differ from English")
+    print(f"   This approach significantly reduces file sizes")
 
 if __name__ == "__main__":
     main()

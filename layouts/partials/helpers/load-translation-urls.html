@@ -1,12 +1,16 @@
 {{/*
 @helper: Load Translation URLs
-@description: Loads the translation URLs data file (called by partialCached)
-@returns: The entire translation_urls data
+@description: Loads translation URLs for a specific folder (called by partialCached)
+@params:
+  .folder (string): The folder name to load translation URLs for
+@returns: The translation URLs data for the specified folder
 */}}
 
-{{/* This partial is cached via partialCached, so it only runs once per build */}}
-{{ $translationData := site.Data.translation_urls }}
-{{ if not $translationData }}
-  {{ $translationData = site.Data.translation_urls_json }}
-{{ end }}
-{{ return $translationData }}
+{{ $folder := .folder }}
+{{ $translationData := dict }}
+
+{{/* Try to load folder-specific JSON file */}}
+{{ $folderData := index site.Data.translation_urls $folder }}
+
+{{/* Return the folder data or empty dict */}}
+{{ return $folderData | default (dict) }}
