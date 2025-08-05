@@ -1,0 +1,116 @@
+{{/*
+@section: Three Column Content
+@description: A visually appealing layout featuring multiple content cards of varying sizes arranged in a three-column grid pattern, ideal for showcasing features or product highlights.
+@params:
+  - theme: "light" or "dark" (default: "light") — applies dark mode styles if set to "dark"
+  - eyebrow: Short text displayed above the main heading (optional, default: empty)
+  - heading: Main section heading (optional, default: empty)
+  - description: Short description text below the heading (optional, default: empty)
+  - headerAlignment: Alignment of the header content, e.g., "left", "center", or "right" (optional, default: "left")
+  - headerPadding: Additional CSS classes for header padding (optional, default: "pb-24 lg:pb-32")
+  - wrapperPadding: Padding classes for the wrapper div (optional, default: "p-0")
+  - cards: Array of card objects with content (supports unlimited cards)
+    - title: Card title text (required)
+    - description: Card description text (required)
+    - image: URL to image (required)
+    - imageAlt: Alt text for the image (optional)
+@example:
+  {{ partial "sections/content/three_column_content.html" (dict 
+      "theme" "light"
+      "eyebrow" "Features" 
+      "heading" "Everything you need to build your application"
+      "showHeader" true
+      "headerAlignment" "left"
+      "headerPadding" "pb-24 lg:pb-32"
+      "cards" (slice
+          (dict
+              "title" "Responsive Design" 
+              "description" "Our platform automatically adapts to any device or screen size."
+              "image" "/images/features/responsive.png"
+              "imageAlt" "Responsive design illustration"
+          )
+          (dict
+              "title" "Analytics" 
+              "description" "Detailed insights into your user behavior and application performance."
+              "image" "/images/features/analytics.png"
+              "imageAlt" "Analytics dashboard"
+          )
+          (dict
+              "title" "Security" 
+              "description" "Enterprise-grade security with end-to-end encryption."
+              "image" "/images/features/security.png"
+              "imageAlt" "Security shield"
+          )
+      )
+  ) }}
+@note: This section uses a dynamic three-column layout to showcase features or product highlights. The layout automatically adapts to any number of cards provided.
+*/}}
+
+{{/* Header parameters */}}
+{{ $eyebrow := .eyebrow | default "" }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $headerAlignment := .headerAlignment | default "left" }}
+{{ $headerPadding := .headerPadding | default "pb-20" }}
+{{ $headerWrapperPadding := .headerWrapperPadding | default "p-0" }}
+{{ $headingMargin := .headingMargin | default "mt-2.5" }}
+{{ $descriptionMargin := .descriptionMargin | default "mt-6" }}
+
+{{/* Parse inner content as JSON if provided */}}
+{{ $cards := (slice) }}
+{{ with .Inner }}
+  {{ if . }}
+    {{ $cards = . | unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{/* Theme setup */}}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+
+{{ $cards := .cards | default (slice) }}
+
+<div class="{{ $darkClass }}">
+  <div class="section-bg-light dark:section-bg-dark py-24 sm:py-32">
+    <div class="wrapper">
+      {{/* Render header if header parameters are provided */}}
+        {{ if or $heading $eyebrow $description }}
+            {{ partial "layout/headers/simple_with_eyebrow_base.html" (dict 
+            "eyebrow" $eyebrow
+            "heading" $heading
+            "description" $description
+            "alignment" $headerAlignment
+            "padding" $headerPadding
+            "wrapperPadding" $headerWrapperPadding
+            "headingMargin" $headingMargin
+            "descriptionMargin" $descriptionMargin
+            ) }}
+        {{ end }}
+      <div class="mt-20 grid gap-8 lg:gap-16 md:grid-cols-3">
+        {{ range $index, $card := $cards }}
+          <div class="relative flex flex-col overflow-hidden">
+            <div class="flex items-center justify-centerl">
+                {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "class" "rounded-xl") }}
+            </div>
+            
+            <div class="pt-6">
+              {{ if $card.title }}
+                <p class="text-base/8 font-semibold tracking-tight text-heading">
+                  {{ $card.title }}
+                  {{ if $card.description }}
+                    <span class="max-w-lg text-sm/6 text-body">{{ $card.description }}</span>
+                  {{ end }}
+                </p>
+              {{ else }}
+                {{ if $card.description }}
+                  <span class="max-w-lg text-sm/6 text-body">{{ $card.description }}</span>
+                {{ end }}
+              {{ end }}
+            </div>
+          </div>          
+        {{ end }}
+      </div>
+    </div>
+  </div>
+</div>

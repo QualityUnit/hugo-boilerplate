@@ -1,0 +1,90 @@
+{{/* 
+  Three Column Content Shortcode
+
+  Usage:
+  {{< content-three-column
+      theme="light"
+      eyebrow="Build faster" 
+      heading="Everything you need for your next project"
+      description="Explore our features and components to streamline your development process."
+      headerAlignment="left"
+      headerPadding="pb-24 lg:pb-32"
+      headerWrapperPadding="p-0"
+      headingMargin="mt-3"
+      descriptionMargin="mt-6"
+
+  >}}
+    [
+      {
+        "title": "Responsive Design",
+        "description": "Our components are fully responsive and work on all devices, from mobile to desktop.",
+        "image": "/images/responsive-design.webp",
+        "imageAlt": "Responsive design illustration"
+      },
+      {
+        "title": "Performance",
+        "description": "Optimized for speed and efficiency to ensure your website loads quickly.",
+        "image": "/images/performance-metrics.webp",
+        "imageAlt": "Performance chart"
+      },
+      {
+        "title": "Security",
+        "description": "Built with security in mind to protect your data and your users' information.",
+        "image": "/images/security-shield.webp",
+        "imageAlt": "Security shield icon"
+      }
+    ]
+  {{< /content-three-column >}}
+  
+  Parameters:
+  - theme: Theme of the grid, either "light" or "dark" (optional, default: "light")
+  - eyebrow: Small text displayed above the main heading (optional, default: empty)
+  - heading: Main heading text (optional, default: empty)
+  - description: Short description text (optional, default: empty)
+  - headerAlignment: Alignment of the header content, e.g., "left", "center", or "right" (optional, default: "left")
+  - headerPadding: Additional CSS classes for header padding (optional, default: "pb-24 lg:pb-32")
+  - headerWrapperPadding: Padding classes for the wrapper div (optional, default: "p-0")
+  - headingMargin: Margin classes for the heading (optional, default: "mt-2.5")
+  - descriptionMargin: Margin classes for the description (optional, default: "mt-6")
+
+  Inner Content (optional JSON array):
+  - Array of card objects with the following properties:
+    - title: Card title
+    - description: Card description
+    - image: URL to the image for the card
+    - imageAlt: Alt text for the image
+
+  If inner content is not provided, default cards will be used.
+*/}}
+
+{{ $theme := .Get "theme" | default "light" }}
+{{ $eyebrow := .Get "eyebrow" | default "" }}
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $headerAlignment := .Get "headerAlignment" | default "left" }}
+{{ $headerPadding := .Get "headerPadding" | default "pb-0" }}
+{{ $headerWrapperPadding := .Get "headerWrapperPadding" | default "p-0" }}
+{{ $headingMargin := .Get "headingMargin" | default "mt-2.5" }}
+{{ $descriptionMargin := .Get "descriptionMargin" | default "mt-6" }}
+
+{{/* Parse inner content as JSON if provided */}}
+
+{{ $cards := (slice) }}
+{{ with .Inner }}
+  {{ if . }}
+    {{ $cards = . | unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{ partial "sections/content/three_columns_base.html" (dict 
+  "theme" $theme
+  "eyebrow" $eyebrow
+  "heading" $heading
+  "description" $description
+  "headerAlignment" $headerAlignment
+  "headerPadding" $headerPadding
+  "headerWrapperPadding" $headerWrapperPadding
+  "headingMargin" $headingMargin
+  "descriptionMargin" $descriptionMargin
+  "cards" $cards
+) }}
