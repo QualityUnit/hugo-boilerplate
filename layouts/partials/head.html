@@ -9,7 +9,6 @@
 {{ with .Permalink }}<link rel="canonical" href="{{ . }}">{{ end }}
 
 <!-- Generate hreflang alternate links -->
-{{ ( partialCached "helpers/generate-hreflang-links.html" (dict "currentPage" . "defaultLang" "en") .Permalink ) | safeHTML }}
 {{ partial "social-meta.html" . | safeHTML }}
 {{ partialCached "head/variables.html" . }}
 <!-- Preload fonts early -->
