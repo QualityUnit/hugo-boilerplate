@@ -11,16 +11,16 @@ Usage:
     python translation-urls.py
 
 Output:
-    Creates /data/translation_urls.yaml with the mapping structure
+    Creates /data/translation_urls.json with the mapping structure
 
 Requirements:
-    pip install pyyaml frontmatter
+    pip install python-frontmatter
 """
 
 import os
 import frontmatter
 from frontmatter import TOMLHandler # Add this import
-import yaml
+import json
 import argparse
 from pathlib import Path
 from collections import defaultdict
@@ -33,8 +33,8 @@ def parse_args():
                         help="Hugo root directory (default: three levels up from script location)")
     parser.add_argument("--content-dir", type=str, default="content",
                         help="Content directory relative to Hugo root (default: content)")
-    parser.add_argument("--output-file", type=str, default="data/translation_urls.yaml",
-                        help="Output file relative to Hugo root (default: data/translation_urls.yaml)")
+    parser.add_argument("--output-file", type=str, default="data/translation_urls.json",
+                        help="Output file relative to Hugo root (default: data/translation_urls.json)")
     return parser.parse_args()
 
 def get_url_from_file(file_path, lang, relative_path):
@@ -140,28 +140,78 @@ def find_translation_urls(hugo_root, content_dir, english_files, languages):
                 if translation_url:
                     translations[lang] = translation_url
         
-        # Add to map using file path as key (always include, even if only English exists)
+        # Only add if there are translations with different URLs
+        # Check if all URLs are identical (can be computed)
+        unique_urls = set(translations.values())
+        
+        # Store all translations for now (we'll optimize later if needed)
+        # But mark which ones could be computed
         translation_map[rel_path] = translations
     
     return translation_map
 
-def generate_yaml_output(translation_map, hugo_root, output_file):
-    """Generate YAML file with translation URL mapping."""
-    output_path = os.path.join(hugo_root, output_file)
+def optimize_translation_map(translation_map):
+    """Optimize translation map by removing duplicate/computable URLs."""
+    optimized_map = {}
+    stats = {
+        'total_pages': len(translation_map),
+        'pages_with_all_same_url': 0,
+        'pages_with_unique_urls': 0,
+        'total_urls': 0,
+        'unique_urls_stored': 0
+    }
+    
+    for rel_path, translations in translation_map.items():
+        if not translations:
+            continue
+            
+        # Get all unique URLs for this page
+        unique_urls = set(translations.values())
+        stats['total_urls'] += len(translations)
+        
+        # If all languages use the same URL, we could potentially compute it
+        if len(unique_urls) == 1:
+            stats['pages_with_all_same_url'] += 1
+            # Still store it for now, but mark that it could be computed
+            optimized_map[rel_path] = translations
+            stats['unique_urls_stored'] += len(translations)
+        else:
+            stats['pages_with_unique_urls'] += 1
+            # Store all unique translations
+            optimized_map[rel_path] = translations
+            stats['unique_urls_stored'] += len(translations)
+    
+    return optimized_map, stats
+
+def generate_output_file(translation_map, hugo_root, json_file, stats=None):
+    """Generate JSON file with translation URL mapping."""
+    json_path = os.path.join(hugo_root, json_file)
     
     # Create output directory if it doesn't exist
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    os.makedirs(os.path.dirname(json_path), exist_ok=True)
     
-    # Sort by English URL for consistent output
+    # Sort by file path for consistent output
     sorted_map = dict(sorted(translation_map.items()))
     
-    print(f"Generating YAML file: {output_path}")
+    # Generate JSON file (more efficient for Hugo to parse)
+    print(f"Generating JSON file: {json_path}")
+    with open(json_path, 'w', encoding='utf-8') as f:
+        # Use separators to minimize file size
+        json.dump(sorted_map, f, separators=(',', ':'), ensure_ascii=False)
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        yaml.dump(sorted_map, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+    # Get file size
+    json_size = os.path.getsize(json_path)
     
-    print(f"Translation URLs mapping generated: {output_path}")
-    print(f"Total content files processed: {len(sorted_map)}")
+    print(f"\n📊 File generation complete:")
+    print(f"  JSON file: {json_path} ({json_size/1024:.1f} KB)")
+    print(f"  Total content files processed: {len(sorted_map)}")
+    
+    if stats:
+        print(f"\n🔍 Optimization statistics:")
+        print(f"  Total pages: {stats['total_pages']}")
+        print(f"  Pages with all same URL: {stats['pages_with_all_same_url']}")
+        print(f"  Pages with unique URLs: {stats['pages_with_unique_urls']}")
+        print(f"  Total URLs stored: {stats['unique_urls_stored']}")
     
     # Print summary statistics
     lang_stats = defaultdict(int)
@@ -169,7 +219,7 @@ def generate_yaml_output(translation_map, hugo_root, output_file):
         for lang in translations.keys():
             lang_stats[lang] += 1
     
-    print("\nTranslation statistics:")
+    print("\n🌐 Translation statistics by language:")
     for lang, count in sorted(lang_stats.items()):
         print(f"  {lang}: {count} files")
 
@@ -195,8 +245,12 @@ def main():
     print("Finding translation URLs...")
     translation_map = find_translation_urls(args.hugo_root, args.content_dir, english_files, languages)
     
-    # Generate output
-    generate_yaml_output(translation_map, args.hugo_root, args.output_file)
+    # Optimize the translation map
+    print("\nOptimizing translation map...")
+    optimized_map, stats = optimize_translation_map(translation_map)
+    
+    # Generate output file (JSON only)
+    generate_output_file(optimized_map, args.hugo_root, args.output_file, stats)
 
 if __name__ == "__main__":
     main()

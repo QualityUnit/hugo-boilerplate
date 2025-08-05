@@ -1,0 +1,12 @@
+{{/*
+@helper: Load Translation URLs
+@description: Loads the translation URLs data file (called by partialCached)
+@returns: The entire translation_urls data
+*/}}
+
+{{/* This partial is cached via partialCached, so it only runs once per build */}}
+{{ $translationData := site.Data.translation_urls }}
+{{ if not $translationData }}
+  {{ $translationData = site.Data.translation_urls_json }}
+{{ end }}
+{{ return $translationData }}

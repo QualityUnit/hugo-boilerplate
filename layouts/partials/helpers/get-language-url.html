@@ -38,8 +38,10 @@
   {{ end }}
   {{ $href = printf "%s%s" $baseDomain $langData.baseURL }}
   {{ if $filePath }}
-    {{ if index site.Data.translation_urls }}
-      {{ $translationData := index site.Data "translation_urls" $filePath }}
+    {{/* Use partialCached to load translation URLs only once per build */}}
+    {{ $allTranslationUrls := partialCached "helpers/load-translation-urls.html" . "translation-urls-v1" }}
+    {{ if $allTranslationUrls }}
+      {{ $translationData := index $allTranslationUrls $filePath }}
       {{ if $translationData }}
         {{ $translatedUrl := index $translationData $code }}
         {{ if $translatedUrl }}
