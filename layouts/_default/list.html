@@ -8,7 +8,53 @@
   </div>
 {{ else }}
 
-  {{ $paginator := .Paginate .Pages.ByTitle 60 }}
+  {{/* Determine sorting method from page params */}}
+  {{ $sortBy := .Params.sortBy | default "title" }}
+  {{ $sortOrder := .Params.sortOrder | default "asc" }}
+  
+  {{/* For date sorting, default to desc (newest first) */}}
+  {{ if eq $sortBy "date" }}
+    {{ $sortOrder = .Params.sortOrder | default "desc" }}
+  {{ end }}
+  
+  {{/* Apply sorting based on parameters */}}
+  {{ $pages := .Pages }}
+  {{ if eq $sortBy "date" }}
+    {{ if eq $sortOrder "desc" }}
+      {{ $pages = .Pages.ByDate.Reverse }}
+    {{ else }}
+      {{ $pages = .Pages.ByDate }}
+    {{ end }}
+  {{ else if eq $sortBy "title" }}
+    {{ if eq $sortOrder "desc" }}
+      {{ $pages = .Pages.ByTitle.Reverse }}
+    {{ else }}
+      {{ $pages = .Pages.ByTitle }}
+    {{ end }}
+  {{ else if eq $sortBy "publishDate" }}
+    {{ if eq $sortOrder "desc" }}
+      {{ $pages = .Pages.ByPublishDate.Reverse }}
+    {{ else }}
+      {{ $pages = .Pages.ByPublishDate }}
+    {{ end }}
+  {{ else if eq $sortBy "lastmod" }}
+    {{ if eq $sortOrder "desc" }}
+      {{ $pages = .Pages.ByLastmod.Reverse }}
+    {{ else }}
+      {{ $pages = .Pages.ByLastmod }}
+    {{ end }}
+  {{ else if eq $sortBy "weight" }}
+    {{ if eq $sortOrder "desc" }}
+      {{ $pages = .Pages.ByWeight.Reverse }}
+    {{ else }}
+      {{ $pages = .Pages.ByWeight }}
+    {{ end }}
+  {{ else }}
+    {{/* Default to title sorting */}}
+    {{ $pages = .Pages.ByTitle }}
+  {{ end }}
+
+  {{ $paginator := .Paginate $pages 60 }}
 
   <div class="wrapper grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
     {{ range $paginator.Pages }}
