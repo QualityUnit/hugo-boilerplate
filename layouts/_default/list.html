@@ -29,9 +29,6 @@
     {{ $pages = .Pages.ByLastmod }}
   {{ else if eq $sortBy "weight" }}
     {{ $pages = .Pages.ByWeight }}
-  {{ else }}
-    {{/* Default to title sorting */}}
-    {{ $pages = .Pages.ByTitle }}
   {{ end }}
 
   {{ if eq $sortOrder "desc" }}
