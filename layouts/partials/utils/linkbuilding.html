@@ -21,6 +21,7 @@
   maxAutomaticLinksInPage = 50                # Maximum total automatic links per page
   maxAutomaticLinksInParagraph = 5           # Maximum automatic links per paragraph
   minParagraphLength = 30                     # Minimum paragraph length to process
+  maxAutoKeywordsPerPage = 3                  # Maximum number of keywords to use from each page's frontmatter (default: 3)
 
 Example structure of /data/linkbuilding/[lang].yaml:
 keywords:
@@ -78,6 +79,7 @@ These keywords will automatically create links to the page they're defined on.
 {{/* Check if automatic keywords are enabled and we have Site access */}}
 {{ $enableAutoKeywords := $linkbuildingParams.enableAutoKeywords | default false }}
 {{ $maxAutoKeywords := $linkbuildingParams.maxAutoKeywords | default 10000 }}
+{{ $maxAutoKeywordsPerPage := $linkbuildingParams.maxAutoKeywordsPerPage | default 3 }}
 
 {{ $autoKeywords := slice }}
 {{ if and $enableAutoKeywords $page.Site }}
@@ -107,7 +109,7 @@ These keywords will automatically create links to the page they're defined on.
         {{ $pageTitle := $currentPage.Title | default "" }}
         {{ $keywordCount := len .Params.keywords }}
         
-        {{ $pageKeywords := first 3 .Params.keywords }}
+        {{ $pageKeywords := first $maxAutoKeywordsPerPage .Params.keywords }}
         
         {{ range $pageKeywords }}
           {{ $keywordLower := lower . }}

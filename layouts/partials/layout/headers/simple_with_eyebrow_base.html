@@ -8,6 +8,9 @@
   - padding: Padding classes for the section (optional, default: "py-24 lg:py-32")
   - maxWidth: Max width class for the content container (optional, default: "max-w-2xl")
   - alignment: "left" (default), "center", or "right" for text alignment
+  - wrapperPadding: Padding classes for the wrapper div (optional, default: "px-6 lg:px-8")
+  - headingMargin: Margin classes for the heading (optional, default: "mt-2.5")
+  - descriptionMargin: Margin classes for the description (optional, default: "mt-6")
 @example:
   {{ partial "layout/headers/simple_with_eyebrow_base.html" (dict 
       "eyebrow" "AI-Powered Workflows"
@@ -25,8 +28,11 @@
 {{ $heading := .heading | default "" }}
 {{ $description := .description | default "" }}
 
-{{/* Section padding */}}
+{{/* Paddings */}}
 {{ $sectionPadding := .padding | default "pb-24 lg:pb-32" }}
+{{ $wrapperPadding := .wrapperPadding | default "px-6 lg:px-8" }}
+{{ $headingMargin := .headingMargin | default "mt-2.5" }}
+{{ $descriptionMargin := .descriptionMargin | default "mt-6" }}
 
 {{/* Max width */}}
 {{ $maxWidth := .maxWidth | default "max-w-2xl" }}
@@ -43,14 +49,14 @@
 {{ end }}
 
 <div class="{{ $sectionPadding }}">
-  <div class="wrapper px-6 lg:px-8">
+  <div class="wrapper {{ $wrapperPadding }}">
     <div class="{{ $maxWidth }} {{ $alignmentClass }}">
       {{ if $eyebrow }}
         <p class="text-base font-semibold product-text">{{ $eyebrow }}</p>
       {{ end }}
-      <h2 class="{{ if $eyebrow }}mt-2.5{{ end }} text-5xl font-semibold tracking-tighter text-heading">{{ $heading }}</h2>
+      <h2 class="{{ if $eyebrow }}{{ $headingMargin }}{{ end }} text-5xl font-semibold tracking-[-2.832px] text-heading">{{ $heading }}</h2>
       {{ if $description }}
-        <p class="mt-6 text-lg text-pretty text-body sm:text-xl/8">{{ $description }}</p>
+        <p class="{{ $descriptionMargin }} text-lg text-pretty text-body sm:text-xl/8">{{ $description }}</p>
       {{ end }}
     </div>
   </div>
