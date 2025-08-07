@@ -7,6 +7,7 @@ home_title: "Ana Sayfa"
 
 # Search translations
 search_placeholder: "Ara..."
+search_title: "Arama"
 search_submit_aria: "Aramayı gönder"
 search_clear_aria: "Aramayı temizle"
 search_clear_title: "Aramayı temizle"

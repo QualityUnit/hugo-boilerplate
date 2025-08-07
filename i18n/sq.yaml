@@ -80,6 +80,7 @@ icon.card.btn: "Shiko"
 
 # Përkthimet për kërkimin
 search_placeholder: "Kërko..."
+search_title: "Kërkimi"
 search_submit_aria: "Dërgo kërkimin"
 search_clear_aria: "Pastro kërkimin"
 search_clear_title: "Pastro kërkimin"

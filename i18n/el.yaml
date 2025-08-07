@@ -7,6 +7,7 @@ home_title: "Αρχική"
 
 # Search translations
 search_placeholder: "Αναζήτηση..."
+search_title: "Αναζήτηση"
 search_submit_aria: "Υποβολή αναζήτησης"
 search_clear_aria: "Καθαρισμός αναζήτησης"
 search_clear_title: "Καθαρισμός αναζήτησης"

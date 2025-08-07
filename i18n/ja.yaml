@@ -8,6 +8,7 @@ home_title: "ホーム"
 
 # Search translations
 search_placeholder: "検索..."
+search_title: "検索"
 search_submit_aria: "検索を送信"
 search_clear_aria: "検索をクリア"
 search_clear_title: "検索をクリア"

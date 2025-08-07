@@ -7,6 +7,7 @@ home_title: "בית"
 
 # Search translations
 search_placeholder: "חיפוש..."
+search_title: "חיפוש"
 search_submit_aria: "שלח חיפוש"
 search_clear_aria: "נקה חיפוש"
 search_clear_title: "נקה חיפוש"

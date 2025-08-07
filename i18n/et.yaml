@@ -7,6 +7,7 @@ home_title: "Avaleht"
 
 # Search translations
 search_placeholder: "Otsi..."
+search_title: "Otsing"
 search_submit_aria: "Esita otsing"
 search_clear_aria: "Tühista otsing"
 search_clear_title: "Tühista otsing"

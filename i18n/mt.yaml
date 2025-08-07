@@ -80,6 +80,7 @@ icon.card.btn: "Ara"
 
 # Search translations
 search_placeholder: "Fittex..."
+search_title: "Tiftix"
 search_submit_aria: "Ibgħat it-tiftix"
 search_clear_aria: "Ħassar it-tiftix"
 search_clear_title: "Ħassar it-tiftix"

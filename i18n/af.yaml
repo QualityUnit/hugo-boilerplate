@@ -6,6 +6,7 @@ glossary_title: "Woordelys"
 
 # Search translations
 search_placeholder: "Soek..."
+search_title: "Soek"
 search_submit_aria: "Stuur soektog"
 search_clear_aria: "Maak soektog skoon"
 search_clear_title: "Maak soektog skoon"

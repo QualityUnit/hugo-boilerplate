@@ -7,6 +7,7 @@ home_title: "خانه"
 
 # Search translations
 search_placeholder: "جستجو..."
+search_title: "جستجو"
 search_submit_aria: "ارسال جستجو"
 search_clear_aria: "پاک کردن جستجو"
 search_clear_title: "پاک کردن جستجو"

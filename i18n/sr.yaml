@@ -78,6 +78,7 @@ courses.format: "Формат"
 
 # Prevod za pretragu
 search_placeholder: "Pretražite..."
+search_title: "Pretraga"
 search_submit_aria: "Pošaljite pretragu"
 search_clear_aria: "Očistite pretragu"
 search_clear_title: "Očistite pretragu"

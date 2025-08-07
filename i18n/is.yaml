@@ -89,6 +89,7 @@ courses.format: "Snið"
 # Icon card translations
 icon.card.btn: "Sjá"
 search_placeholder: "Leita..."
+search_title: "Leit"
 search_submit_aria: "Senda leit"
 search_clear_aria: "Hreinsa leit"
 search_clear_title: "Hreinsa leit"

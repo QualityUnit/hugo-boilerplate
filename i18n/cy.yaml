@@ -80,6 +80,7 @@ icon.card.btn: "Gweld"
 
 # Search translations
 search_placeholder: "Chwilio..."
+search_title: "Chwilio"
 search_submit_aria: "Cyflwyno chwiliad"
 search_clear_aria: "Clirio chwiliad"
 search_clear_title: "Clirio chwiliad"

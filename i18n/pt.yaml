@@ -7,6 +7,7 @@ home_title: "Início"
 
 # Search translations
 search_placeholder: "Pesquisar..."
+search_title: "Pesquisa"
 search_submit_aria: "Enviar pesquisa"
 search_clear_aria: "Limpar pesquisa"
 search_clear_title: "Limpar pesquisa"

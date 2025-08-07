@@ -7,6 +7,7 @@ home_title: "Sākums"
 
 # Search translations
 search_placeholder: "Meklēt..."
+search_title: "Meklēšana"
 search_submit_aria: "Iesniegt meklēšanu"
 search_clear_aria: "Notīrīt meklēšanu"
 search_clear_title: "Notīrīt meklēšanu"

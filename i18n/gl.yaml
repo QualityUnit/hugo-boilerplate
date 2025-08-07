@@ -81,6 +81,7 @@ icon.card.btn: "Ver"
 
 # Search translations
 search_placeholder: "Buscar..."
+search_title: "Busca"
 search_submit_aria: "Enviar busca"
 search_clear_aria: "Limpar busca"
 search_clear_title: "Limpar busca"

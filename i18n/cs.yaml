@@ -7,6 +7,7 @@ home_title: "Domů"
 
 # Search translations
 search_placeholder: "Hledat..."
+search_title: "Hledání"
 search_submit_aria: "Odeslat vyhledávání"
 search_clear_aria: "Vymazat vyhledávání"
 search_clear_title: "Vymazat vyhledávání"

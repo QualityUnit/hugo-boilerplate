@@ -7,6 +7,7 @@ home_title: "Főoldal"
 
 # Search translations
 search_placeholder: "Keresés..."
+search_title: "Keresés"
 search_submit_aria: "Keresés elküldése"
 search_clear_aria: "Keresés törlése"
 search_clear_title: "Keresés törlése"

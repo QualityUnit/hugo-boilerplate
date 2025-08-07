@@ -7,6 +7,7 @@ home_title: "Home"
 
 # Search translations
 search_placeholder: "Search..."
+search_title: "Search"
 search_submit_aria: "Submit search"
 search_clear_aria: "Clear search"
 search_clear_title: "Clear search"

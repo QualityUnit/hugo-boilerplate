@@ -7,6 +7,7 @@ home_title: "Laman Utama"
 
 # Search translations
 search_placeholder: "Cari..."
+search_title: "Carian"
 search_submit_aria: "Hantar carian"
 search_clear_aria: "Kosongkan carian"
 search_clear_title: "Kosongkan carian"

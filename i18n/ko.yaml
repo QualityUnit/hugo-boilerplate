@@ -7,6 +7,7 @@ home_title: "홈"
 
 # Search translations
 search_placeholder: "검색..."
+search_title: "검색"
 search_submit_aria: "검색 제출"
 search_clear_aria: "검색 지우기"
 search_clear_title: "검색 지우기"

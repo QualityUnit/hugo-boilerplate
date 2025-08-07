@@ -7,6 +7,7 @@ home_title: "Beranda"
 
 # Search translations
 search_placeholder: "Cari..."
+search_title: "Pencarian"
 search_submit_aria: "Kirim pencarian"
 search_clear_aria: "Hapus pencarian"
 search_clear_title: "Hapus pencarian"

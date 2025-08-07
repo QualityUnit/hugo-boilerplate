@@ -7,6 +7,7 @@ home_title: "Acasă"
 
 # Search translations
 search_placeholder: "Căutare..."
+search_title: "Căutare"
 search_submit_aria: "Trimite căutarea"
 search_clear_aria: "Șterge căutarea"
 search_clear_title: "Șterge căutarea"

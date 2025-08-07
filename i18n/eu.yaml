@@ -80,6 +80,7 @@ icon.card.btn: "Ikusi"
 
 # Search translations
 search_placeholder: "Bilatu..."
+search_title: "Bilaketa"
 search_submit_aria: "Bilaketa bidali"
 search_clear_aria: "Bilaketa garbitu"
 search_clear_title: "Bilaketa garbitu"

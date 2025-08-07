@@ -77,6 +77,7 @@ courses.format: "प्रारूप"
 
 # Search translations
 search_placeholder: "खोजें..."
+search_title: "खोज"
 search_submit_aria: "खोज सबमिट करें"
 search_clear_aria: "खोज साफ़ करें"
 search_clear_title: "खोज साफ़ करें"

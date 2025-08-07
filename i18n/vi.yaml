@@ -6,6 +6,7 @@ glossary_title: "Thuật Ngữ"
 
 # Search translations
 search_placeholder: "Tìm kiếm..."
+search_title: "Tìm kiếm"
 search_submit_aria: "Gửi tìm kiếm"
 search_clear_aria: "Xóa tìm kiếm"
 search_clear_title: "Xóa tìm kiếm"

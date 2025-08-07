@@ -7,6 +7,7 @@ home_title: "Hem"
 
 # Search translations
 search_placeholder: "Sök..."
+search_title: "Sökning"
 search_submit_aria: "Skicka sökning"
 search_clear_aria: "Rensa sökning"
 search_clear_title: "Rensa sökning"
