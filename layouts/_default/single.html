@@ -6,9 +6,11 @@
 <!-- Main Content -->
 <div class="bg-white">
   <div class="wrapper">
-    <div class="mx-auto max-w-none prose prose-lg prose-img:rounded-xl">
-      {{ .Content | partial "utils/linkbuilding" (dict "content" .Content "page" .) | safeHTML }}
-    </div>
+    <div class="wrapper-content">
+      <div class="mx-auto max-w-none prose-custom">
+        {{ .Content | partial "utils/linkbuilding" (dict "content" .Content "page" .) | safeHTML }}
+      </div>
+  </div>
   </div>
 </div>
 

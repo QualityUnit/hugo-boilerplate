@@ -3,7 +3,6 @@
 @import "./lazy-images.css";
 @import "./lazy-videos.css";
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -182,6 +181,16 @@
   }
   .wrapper-narrow {
     @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .wrapper-content {
+    @apply max-w-4xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .wrapper .wrapper-content {
+    @apply px-0;
+  }
+  .wrapper-content .wrapper {
+    @apply px-0;
   }
 
   /* ICONS STYLES */
