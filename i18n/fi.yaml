@@ -7,9 +7,11 @@ home_title: "Etusivu"
 
 # Search translations
 search_placeholder: "Haku..."
+search_title: "Haku"
 search_submit_aria: "Lähetä haku"
 search_clear_aria: "Tyhjennä haku"
 search_clear_title: "Tyhjennä haku"
+search_clear_btn: "Tyhjennä"
 search_close: "Sulje haku"
 search_loading: "Ladataan..."
 search_view_all_results: "Näytä kaikki tulokset"

@@ -76,9 +76,11 @@ courses.format: "Umbizo"
 
 # Tafsiri za Kiswahili
 search_placeholder: "Tafuta..."
+search_title: "Utafutaji"
 search_submit_aria: "Tuma utafutaji"
 search_clear_aria: "Futa utafutaji"
 search_clear_title: "Futa utafutaji"
+search_clear_btn: "Futa"
 search_close: "Funga utafutaji"
 search_loading: "Inapakia..."
 search_view_all_results: "Ona matokeo yote"

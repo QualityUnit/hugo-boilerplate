@@ -7,9 +7,11 @@ home_title: "Domov"
 
 # Search translations
 search_placeholder: "Vyhľadať..."
+search_title: "Vyhľadávanie"
 search_submit_aria: "Odoslať vyhľadávanie"
 search_clear_aria: "Vymazať vyhľadávanie"
 search_clear_title: "Vymazať vyhľadávanie"
+search_clear_btn: "Vymazať"
 search_close: "Zavrieť vyhľadávanie"
 search_loading: "Načítava sa..."
 search_view_all_results: "Zobraziť všetky výsledky"

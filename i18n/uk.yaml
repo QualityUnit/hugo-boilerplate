@@ -7,9 +7,11 @@ home_title: "Головна"
 
 # Search translations
 search_placeholder: "Пошук..."
+search_title: "Пошук"
 search_submit_aria: "Надіслати пошук"
 search_clear_aria: "Очистити пошук"
 search_clear_title: "Очистити пошук"
+search_clear_btn: "Очистити"
 search_close: "Закрити пошук"
 search_loading: "Завантаження..."
 search_view_all_results: "Переглянути всі результати"

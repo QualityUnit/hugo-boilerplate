@@ -7,9 +7,11 @@ home_title: "Laman Utama"
 
 # Search translations
 search_placeholder: "Cari..."
+search_title: "Carian"
 search_submit_aria: "Hantar carian"
 search_clear_aria: "Kosongkan carian"
 search_clear_title: "Kosongkan carian"
+search_clear_btn: "Kosongkan"
 search_close: "Tutup carian"
 search_loading: "Memuatkan..."
 search_view_all_results: "Lihat semua keputusan"

@@ -7,9 +7,11 @@ home_title: "Strona główna"
 
 # Search translations
 search_placeholder: "Szukaj..."
+search_title: "Wyszukiwanie"
 search_submit_aria: "Wyślij wyszukiwanie"
 search_clear_aria: "Wyczyść wyszukiwanie"
 search_clear_title: "Wyczyść wyszukiwanie"
+search_clear_btn: "Wyczyść"
 search_close: "Zamknij wyszukiwanie"
 search_loading: "Ładowanie..."
 search_view_all_results: "Zobacz wszystkie wyniki"

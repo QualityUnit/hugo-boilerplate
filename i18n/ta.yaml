@@ -78,9 +78,11 @@ icon.card.btn: "பார்க்க"
 
 # Search translations
 search_placeholder: "தேடுக..."
+search_title: "தேடல்"
 search_submit_aria: "தேடலை அனுப்புக"
 search_clear_aria: "தேடலை அழிக்கவும்"
 search_clear_title: "தேடலை அழிக்கவும்"
+search_clear_btn: "அழிக்கவும்"
 search_close: "தேடலை மூடு"
 search_loading: "ஏற்றுகிறது..."
 search_view_all_results: "அனைத்து முடிவுகளையும் பார்க்கவும்"

@@ -7,9 +7,11 @@ home_title: "Hjem"
 
 # Search translations
 search_placeholder: "Søg..."
+search_title: "Søgning"
 search_submit_aria: "Send søgning"
 search_clear_aria: "Ryd søgning"
 search_clear_title: "Ryd søgning"
+search_clear_btn: "Ryd"
 search_close: "Luk søgning"
 search_loading: "Indlæser..."
 search_view_all_results: "Vis alle resultater"

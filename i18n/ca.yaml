@@ -7,9 +7,11 @@ home_title: "Inici"
 
 # Search translations
 search_placeholder: "Cercar..."
+search_title: "Cerca"
 search_submit_aria: "Enviar cerca"
 search_clear_aria: "Esborrar cerca"
 search_clear_title: "Esborrar cerca"
+search_clear_btn: "Esborrar"
 search_close: "Tancar cerca"
 search_loading: "Carregant..."
 search_view_all_results: "Veure tots els resultats"

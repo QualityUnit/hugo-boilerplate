@@ -7,9 +7,11 @@ home_title: "Domov"
 
 # Search translations
 search_placeholder: "Iskanje..."
+search_title: "Iskanje"
 search_submit_aria: "Pošlji iskanje"
 search_clear_aria: "Počisti iskanje"
 search_clear_title: "Počisti iskanje"
+search_clear_btn: "Počisti"
 search_close: "Zapri iskanje"
 search_loading: "Nalaganje..."
 search_view_all_results: "Prikaži vse rezultate"

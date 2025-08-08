@@ -7,9 +7,11 @@ home_title: "Početna"
 
 # Search translations
 search_placeholder: "Pretraži..."
+search_title: "Pretraga"
 search_submit_aria: "Pošalji pretragu"
 search_clear_aria: "Obriši pretragu"
 search_clear_title: "Obriši pretragu"
+search_clear_btn: "Obriši"
 search_close: "Zatvori pretragu"
 search_loading: "Učitava..."
 search_view_all_results: "Prikaži sve rezultate"

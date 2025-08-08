@@ -78,9 +78,11 @@ courses.format: "Формат"
 
 # Prevod za pretragu
 search_placeholder: "Pretražite..."
+search_title: "Pretraga"
 search_submit_aria: "Pošaljite pretragu"
 search_clear_aria: "Očistite pretragu"
 search_clear_title: "Očistite pretragu"
+search_clear_btn: "Očisti"
 search_close: "Zatvori pretragu"
 search_loading: "Učitava..."
 search_view_all_results: "Pogledajte sve rezultate"

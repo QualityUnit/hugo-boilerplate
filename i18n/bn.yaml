@@ -7,9 +7,11 @@ home_title: "হোম"
 
 # Search translations
 search_placeholder: "অনুসন্ধান..."
+search_title: "অনুসন্ধান"
 search_submit_aria: "অনুসন্ধান জমা দিন"
 search_clear_aria: "অনুসন্ধান সাফ করুন"
 search_clear_title: "অনুসন্ধান সাফ করুন"
+search_clear_btn: "সাফ করুন"
 search_close: "অনুসন্ধান বন্ধ করুন"
 search_loading: "লোড হচ্ছে..."
 search_view_all_results: "সব ফলাফল দেখুন"
