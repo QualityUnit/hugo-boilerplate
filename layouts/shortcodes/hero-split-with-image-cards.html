@@ -1,0 +1,65 @@
+{{/* Split Hero with Image Cards Shortcode */}}
+{{- /*
+
+    Usage in markdown:
+    {{< hero-split-with-image-cards
+    heading="Become an affiliate marketing superhero"
+    description="Get an affiliate program for affiliate management or affiliate network for managing merchants and affiliates."
+    >}}
+    [
+    {
+        "title": "Affiliate <span class=\"font-semibold\">Program</span>",
+        "description": "Create & manage your affiliate programs with the right tools and features for the job.",
+        "backgroundImage": "/images/landing-pages/affiliate-network-hero-bg.png",
+        "schemaImage": "/images/landing-pages/affiliate-network-hero-shema.png",
+        "cta": {
+        "text": "Select",
+        "url": "/affiliate-program/"
+        }
+    },
+    {
+        "title": "Affiliate <span class=\"font-semibold\">Network</span>", 
+        "description": "Track and direct extensive affiliate networks from one intuitive dashboard with the right equipment",
+        "backgroundImage": "/images/landing-pages/affiliate-network-hero-bg.png",
+        "schemaImage": "/images/landing-pages/affiliate-network-hero-shema.png",
+        "cta": {
+        "text": "Select",
+        "url": "/affiliate-network/"
+        }
+    }
+    ]
+    {{< /hero-split-with-image-cards >}}
+
+    Parameters:
+    - heading: Main heading text (optional)
+    - description: Description text below the heading (optional)
+    - sectionPaddingY: Custom vertical padding using Tailwind classes - default: "py-16 lg:py-24"
+
+    Cards (JSON content between opening/closing tags):
+    - title: Card title (can include HTML tags for styling, e.g., spans with classes)
+    - description: Card description
+    - backgroundImage: Background image URL for the card (optional)
+    - schemaImage: Schema image URL that appears first in the card (optional)
+    - imageAlt: Card image alt text (optional)
+    - cta: Call-to-action object with text and url
+*/ -}}
+
+{{ $heading := .Get "heading" }}
+{{ $description := .Get "description" }}
+{{ $sectionPaddingY := .Get "sectionPaddingY" | default "py-16 lg:py-24" }}
+
+{{/* Parse JSON content between shortcode tags */}}
+{{ $cardsJSON := .Inner | strings.TrimSpace }}
+{{ $cards := slice }}
+{{ if $cardsJSON }}
+  {{ with $cardsJSON | transform.Unmarshal }}
+    {{ $cards = . }}
+  {{ end }}
+{{ end }}
+
+{{ partial "sections/hero/split_with_image_cards.html" (dict
+  "heading" $heading
+  "description" $description
+  "cards" $cards
+  "sectionPaddingY" $sectionPaddingY
+) }}
