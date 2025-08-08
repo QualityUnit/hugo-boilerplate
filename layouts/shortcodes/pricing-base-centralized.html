@@ -1,0 +1,117 @@
+{{ $params := .Page.Params }}
+
+{{ $tagline := .Get "tagline" | default $params.tagline | default (.Get 0) | default (i18n "pricing_tagline") }}
+{{ $heading := .Get "heading" | default $params.heading | default (.Get 1) | default (i18n "pricing_heading") }}
+{{ $description := .Get "description" | default $params.description | default (.Get 2) | default (i18n "pricing_description") }}
+{{ $backgroundColor := .Get "backgroundColor" | default $params.backgroundColor | default (.Get 3) | default "white" }}
+{{ $taglineColor := .Get "taglineColor" | default $params.taglineColor | default (.Get 4) | default "indigo-600" }}
+{{ $headingColor := .Get "headingColor" | default $params.headingColor | default (.Get 5) | default "gray-900" }}
+{{ $descriptionColor := .Get "descriptionColor" | default $params.descriptionColor | default (.Get 6) | default "gray-600" }}
+{{ $checkIcon := .Get "checkIcon" | default $params.checkIcon | default "" }}
+{{ $columns := .Get "columns" | default $params.columns | default 4 }}
+{{ $priceBeforeText := .Get "priceBeforeText" | default $params.priceBeforeText | default "" }}
+{{ $darkTheme := .Get "darkTheme" | default $params.darkTheme | default false }}
+
+{{ $useDataFile := .Get "useDataFile" | default true }}
+{{ $dataFile := .Get "dataFile" | default "pricing" }}
+
+{{/* Determine which tiers to use */}}
+{{ $tiers := slice }}
+{{ if $useDataFile }}
+  {{/* Use centralized data file */}}
+  {{ $pricingData := index .Site.Data $dataFile }}
+  {{ if $pricingData }}
+    {{ $tiers = $pricingData.tiers }}
+  {{ else }}
+    {{ errorf "Centralized pricing data not found at data/%s.yaml. Please create the file or set useDataFile=false." $dataFile }}
+  {{ end }}
+{{ else }}
+  {{/* Fallback to page params for backward compatibility */}}
+  {{ $tiers = .Get "tiers" | default $params.tiers | default slice }}
+{{ end }}
+
+{{ if not $tiers }}
+  {{ errorf "No tiers provided for pricing section. Please define 'tiers' parameter or create centralized data file." }}
+{{ end }}
+
+{{ if eq $darkTheme true }}
+  {{ $backgroundColor = "bg-gray-900" }}
+  {{ $taglineColor = "text-white" }}
+  {{ $headingColor = "text-white" }}
+  {{ $descriptionColor = "text-gray-300" }}
+  {{ $checkIcon = "check-white" }}
+{{ end }}
+
+{{ partial "sections/pricing/base.html" (dict
+  "tagline" $tagline
+  "heading" $heading
+  "description" $description
+  "backgroundColor" $backgroundColor
+  "taglineColor" $taglineColor
+  "headingColor" $headingColor
+  "descriptionColor" $descriptionColor
+  "checkIcon" $checkIcon
+  "tiers" $tiers
+  "columns" $columns
+  "priceBeforeText" $priceBeforeText
+  "darkTheme" $darkTheme
+) }}
+
+{{/*
+  USAGE EXAMPLES:
+
+  1. Using centralized data (default behavior):
+  {{< pricing-base-centralized columns="4" >}}
+  
+  2. Using custom data file:
+  {{< pricing-base-centralized 
+    dataFile="custom-pricing" 
+    columns="3" 
+  >}}
+  
+  3. Backward compatibility mode (uses page params):
+  {{< pricing-base-centralized 
+    useDataFile=false
+    tagline="Our Plans"
+    heading="Simple pricing"
+  >}}
+  
+  4. Full customization with centralized data:
+  {{< pricing-base-centralized
+    tagline="Our Plans"
+    heading="Simple, transparent pricing"
+    description="Choose the plan that fits your needs."
+    backgroundColor="gray-50"
+    taglineColor="blue-600"
+    headingColor="gray-900"
+    descriptionColor="gray-600"
+    checkIcon="check"
+    columns="3"
+    dataFile="pricing"
+  >}}
+
+  CENTRALIZED DATA FILE FORMAT (data/pricing.yaml):
+  
+  tiers:
+    - name: "Pro"
+      price: "$129"
+      interval: "per month billed annually"
+      description: "Best for creating a simple affiliate program."
+      features:
+        - "1M tracking requests/month"
+        - "Unlimited Affiliates"
+        - "Advanced reporting"
+      popular: false
+      cta:
+        text: "Try for free"
+        url: "https://example.com/trial/"
+      # All color and styling properties...
+      
+    - name: "Ultimate"
+      price: "$249"
+      # ... other properties
+      popular: true
+      popularText: "Most popular"
+      
+    # ... more tiers
+*/}}

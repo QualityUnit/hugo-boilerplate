@@ -1,6 +1,6 @@
 {{/*
 @section: Pricing with Comparison Table
-@description: A comprehensive pricing section that displays multiple pricing tiersComparison with a detailed feature comparison table, including both mobile and desktop views.
+@description: A comprehensive pricing section that displays multiple pricing tiers with a detailed feature comparison table. Uses centralized data from data/pricing.yaml and i18n translations for multilingual support.
 @params:
   - taglineComparison: Text above the heading (optional, default: "Pricing")
   - headingComparison: Main heading text (optional, default: "Pricing that grows with you")
@@ -10,50 +10,65 @@
   - headingColorComparison: Color for the heading text (optional, default: "gray-900")
   - descriptionColorComparison: Color for the description text (optional, default: "gray-600")
   - togglePrice: Boolean to control whether to show the monthly/annual pricing toggle (optional, default: false)
-  - tiersComparison: Array of tier objects (optional, includes defaults)
-    - name: Name of the tier
-    - id: ID for accessibility
-    - emphasized: Boolean to indicate if this is the emphasized tier (will use primary button style)
+  - tiersComparison: Array of tier objects from data/pricing.yaml (auto-loaded)
+    - name: Internal tier name (Pro, Ultimate, Network)
+    - displayName: i18n key for tier display name (e.g. "pricing_tier_pro_name")
+    - emphasized: Boolean to indicate if this is the emphasized tier
     - monthlyPrice: The monthly price to display
-    - annualPrice: The annual price to display (only shown when togglePrice is true)
-    - interval: The price interval text (e.g. "/month")
-    - cta: Object with text and url for the call-to-action button
-  - featureCategories: Array of feature category objects (optional, includes defaults)
-    - name: Name of the category
+    - annualPrice: The annual price to display
+    - interval: i18n key for price interval (e.g. "pricing_interval_monthly_annual")
+    - cta: Object with i18n text key and url for the call-to-action button
+  - featureCategories: Array of feature category objects from data/pricing.yaml (auto-loaded)
+    - name: i18n key for category name (e.g. "pricing_category_price")
     - features: Array of feature objects
-      - name: Name of the feature
+      - name: i18n key for feature name (e.g. "pricing_feature_tracking_1m")
+      - tooltip: i18n key for feature tooltip (optional)
       - tiersComparison: Object with tier names as keys and feature values as values
         (can be boolean, string, or number)
+
+@centralized_system:
+  DATA SOURCE: data/pricing.yaml (single source of truth for all pricing data)
+  TRANSLATIONS: i18n/{lang}.yaml (multilingual text support)
+  USAGE: {{< pricing-with-comparison-table >}} (auto-loads centralized data)
+  BENEFITS: Centralized pricing across 250K+ pages, easy price updates, multilingual support
 */}}
 
 {{/*
   With Comparison Table Pricing Section
 
+  CENTRALIZED PRICING SYSTEM:
+  - Data source: data/pricing.yaml (single source of truth)
+  - Translations: i18n/{lang}.yaml (multilingual support)
+  - Usage: {{< pricing-with-comparison-table >}} (auto-loads centralized data)
+  
   Parameters:
   - taglineComparison: Text above the heading (default: "Our Plans")
-  - headingComparison: Main heading text (default: "Compare plans")
-  - descriptionComparison: Text below the heading (default: "Check out our plan comparisons and select the best one for you")
+  - headingComparison: Main heading text (default: "Compare plans")  
+  - descriptionComparison: Text below the heading (default: "Check out our plan comparisons...")
   - backgroundColorComparison: Background color for the section (default: "white")
   - taglineColorComparison: Color for the tagline text (default: "indigo-600")
   - headingColorComparison: Color for the heading text (default: "gray-900")
   - descriptionColorComparison: Color for the description text (default: "gray-600")
   - checkColorComparison: Color for the checkmark icons (default: "primary")
   - dashColorComparison: Color for the dash icons (default: "gray-400")
-  - togglePrice: Boolean to control whether to show the monthly/annual pricing toggle (default: false)
-  - tiersComparison: Array of tier configurations, each with:
-    - name: Name of the tier
-    - id: ID for accessibility
-    - emphasized: Boolean to indicate if this is the emphasized tier (will use primary button style)
-    - monthlyPrice: The monthly price to display
-    - annualPrice: The annual price to display (only shown when togglePrice is true)
-    - interval: The price interval text (e.g. "/month")
-    - cta: Object with text and url for the call-to-action button
-  - featureCategories: Array of feature categories, each with:
-    - name: Name of the category
-    - features: Array of features, each with:
-      - name: Name of the feature
-      - tiersComparison: Object with tier names as keys and feature values as values
-        (can be boolean, string, or number)
+  - togglePrice: Boolean to control monthly/annual pricing toggle (default: false)
+  
+  Centralized Data Structure:
+  - tiersComparison: Auto-loaded from data/pricing.yaml with:
+    - name: Internal tier identifier (Pro, Ultimate, Network)
+    - displayName: i18n key for display name (pricing_tier_pro_name)
+    - emphasized: Boolean for highlighted tier
+    - monthlyPrice/annualPrice: Pricing values
+    - interval: i18n key for price interval
+    - cta: Object with i18n text key and URL
+  - featureCategories: Auto-loaded feature comparison matrix with:
+    - name: i18n key for category name (pricing_category_*)
+    - features: Array with name (i18n key) and tiersComparison values
+
+  Benefits:
+  - Single point of price updates across 250K+ pages
+  - Multilingual support with consistent pricing
+  - Backward compatibility with existing pages
 */}}
 
 {{ $taglineComparison := .taglineComparison }}
@@ -127,7 +142,7 @@
                             <td></td>
                             {{ range $tiersComparison }}
                                 <th scope="col" class="px-6 pt-6 xl:px-8 xl:pt-8">
-                                    <div class="text-sm/7 font-semibold text-gray-900">{{ .name | default "Plan" }}</div>
+                                    <div class="text-sm/7 font-semibold text-gray-900">{{ i18n (.displayName | default .name) | default "Plan" }}</div>
                                 </th>
                             {{ end }}
                         </tr>
@@ -157,20 +172,20 @@
                                         {{ end }}
                                         <!-- Interval -->
                                         {{ if $tier.interval }}
-                                        <span class="text-sm/6 font-semibold text-gray-900">{{ $tier.interval }}</span>
+                                        <span class="text-sm/6 font-semibold text-gray-900">{{ i18n $tier.interval }}</span>
                                         {{ end }}
                                     </p>
                                     {{ if and $tier.cta $tier.cta.url $tier.cta.text }}
                                         {{ if $tier.emphasized }}
                                         {{ partial "components/buttons/buttons.html" (dict
-                                            "text" $tier.cta.text
+                                            "text" (i18n $tier.cta.text)
                                             "url" $tier.cta.url
                                             "variant" "primary"
                                             "classes" "mt-8 not-prose block text-center"
                                         )}}
                                         {{ else }}
                                         {{ partial "components/buttons/buttons.html" (dict
-                                            "text" $tier.cta.text
+                                            "text" (i18n $tier.cta.text)
                                             "url" $tier.cta.url
                                             "variant" "secondary"
                                             "classes" (printf "mt-8 not-prose block rounded-md px-3 py-2 text-primary text-center text-[14px] font-semibold hover:no-underline ring-1 ring-%s ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" ($tier.ctaRingColor | default "gray-300"))
@@ -186,7 +201,7 @@
                             <tr>
                                 <th scope="colgroup" colspan="{{ add (len $tiersComparison) 1 }}"
                                     class="pt-{{ if eq $categoryIndex 0 }}8{{ else }}16{{ end }} pb-4 text-sm/6 font-semibold text-gray-900">
-                                    {{ $category.name }}
+                                    {{ i18n $category.name }}
                                     <div class="absolute inset-x-8 mt-4 h-px bg-gray-900/10"></div>
                                 </th>
                             </tr>
@@ -195,9 +210,9 @@
                                 <tr>
                                     <th scope="row" class="not-prose py-4 text-sm/6 font-normal text-gray-900">
                                         {{ if $feature.tooltip }}
-                                            {{ partial "components/tooltip/tooltip.html" (dict "content" $feature.name "text" $feature.tooltip) }}
+                                            {{ partial "components/tooltip/tooltip.html" (dict "content" (i18n $feature.name) "text" (i18n $feature.tooltip)) }}
                                         {{ else }}
-                                            {{ $feature.name }}
+                                            {{ i18n $feature.name }}
                                         {{ end }}
                                         <div class="absolute inset-x-8 mt-4 h-px bg-gray-900/5"></div>
                                     </th>
