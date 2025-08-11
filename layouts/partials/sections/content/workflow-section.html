@@ -17,13 +17,12 @@ Parameters:
 {{ $heading := .heading }}
 {{ $description := .description }}
 {{ $cta := .cta }}
-{{ $imageAlt := .imageAlt }}
+{{ $imageAlt := .imageAlt | default $heading }}
 {{ $padding := .padding | default "py-16 lg:py-24" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
 {{/* Image processing */}}
 {{ $imageSrc := "" }}
-{{ $imageAlt := $imageAlt | default $heading }}
 {{ if $image }}
   {{ if reflect.IsMap $image }}
     {{ $imageSrc = $image.url }}
@@ -56,7 +55,7 @@ Parameters:
             {{ end }}
         </div>
     </div>
-    <div class="flex-col rounded-xl px-40 py-20 flex justify-center surface-secondary w-full overflow-hidden mx-auto">
+    <div class="flex-col rounded-xl p-8 sm:p-12 md:p-16 lg:p-20 xl:p-40 flex justify-center surface-secondary w-full overflow-hidden mx-auto">
         {{ partial "components/media/lazyimg.html" (dict
         "src" $imageSrc
         "alt" $imageAlt
