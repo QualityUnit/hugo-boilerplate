@@ -130,7 +130,7 @@
                             </div>
                         {{ end }}
                     {{ end }}
-                    <table class="w-full table-fixed border-separate border-spacing-x-8 text-left overflow-hidden">
+                    <table class="w-full table-fixed border-separate border-spacing-x-8 text-left">
                         <colgroup>
                             <col class="w-1/4">
                             {{ range $tiersComparison }}
@@ -228,7 +228,13 @@
                                             {{ else if eq $tierValue false }}
                                                 {{ partial "icons/minus" "mx-auto size-5 text-gray-400" }}
                                             {{ else if $tierValue }}
-                                                <div class="text-center text-sm/6 text-gray-500">{{ $tierValue }}</div>
+                                                <div class="text-center text-sm/6 text-gray-500">
+                                                    {{ if (hasPrefix $tierValue "pricing_") }}
+                                                        {{ i18n $tierValue | default $tierValue }}
+                                                    {{ else }}
+                                                        {{ $tierValue }}
+                                                    {{ end }}
+                                                </div>
                                             {{ end }}
                                         </td>
                                     {{ end }}
