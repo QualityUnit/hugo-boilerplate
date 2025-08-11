@@ -1,0 +1,68 @@
+{{/*
+Responsive section with split layout - content left, image right.
+
+Parameters:
+- heading: Main heading text
+- description: Description text
+- image: Image URL or image object with url and alt properties
+- imageAlt: Image alt text (optional)
+- cta: Call-to-action button object
+  - text: Button text
+  - url: Button URL
+- padding: Custom padding classes (optional, default: "py-12 lg:py-16")
+*/}}
+
+{{/* Section parameters */}}
+{{ $image := .image }}
+{{ $heading := .heading }}
+{{ $description := .description }}
+{{ $cta := .cta }}
+{{ $imageAlt := .imageAlt }}
+{{ $padding := .padding | default "py-16 lg:py-24" }}
+{{ $headingTracking := "tracking-[-2.832px]" }}
+
+{{/* Image processing */}}
+{{ $imageSrc := "" }}
+{{ $imageAlt := $imageAlt | default $heading }}
+{{ if $image }}
+  {{ if reflect.IsMap $image }}
+    {{ $imageSrc = $image.url }}
+    {{ $imageAlt = $image.alt | default $imageAlt }}
+  {{ else }}
+    {{ $imageSrc = $image }}
+  {{ end }}
+{{ end }}
+
+<div class="split-with-image-hero section-bg-light {{ $padding }}">
+  <div class="wrapper flex flex-wrap items-center text-center mx-auto gap-y-[4.5rem]">
+    <div class="flex-col w-full">
+        <div class="max-w-2xl mx-auto">
+            {{ if $heading }}
+            <h1 class="text-4xl font-semibold sm:text-5xl {{ $headingTracking }} text-heading leading-none text-pretty">{{ $heading }}</h1>
+            {{ end }}
+            {{ if $description }}
+            <p class="mt-9 text-lg/7 text-muted sm:text-xl/8">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
+            {{ end }}
+
+            {{/* CTA Buttons */}}
+            {{ if $cta }}
+            <div class="flex justify-center items-center mt-9">
+                {{ partial "components/buttons/buttons.html" (dict
+                    "text" $cta.text
+                    "url" $cta.url
+                    "classes" "bg-gray-900 text-white hover:bg-gray-800"
+                ) }}
+            </div>
+            {{ end }}
+        </div>
+    </div>
+    <div class="flex-col rounded-xl px-40 py-20 flex justify-center surface-secondary w-full overflow-hidden mx-auto">
+        {{ partial "components/media/lazyimg.html" (dict
+        "src" $imageSrc
+        "alt" $imageAlt
+        "class" "object-contain"
+        ) }}
+    </div>
+  </div>
+</div>
+
