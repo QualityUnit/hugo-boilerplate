@@ -15,14 +15,14 @@ Example:
       "title" "Affiliate Program"
       "description" "Create & manage your affiliate programs with the right tools and features for the job."
       "backgroundImage" "/images/landing-pages/affiliate-network-hero-bg.png"
-      "schemaImage" "/images/landing-pages/affiliate-network-hero-shema.png"
+      "schemaImage" "/images/landing-pages/affiliate-network-hero-schema.png"
       "cta" (dict "text" "Select" "url" "/affiliate-program/")
     )
     (dict
       "title" "Affiliate Network"
       "description" "Track and direct extensive affiliate networks from one intuitive dashboard with the right equipment"
       "backgroundImage" "/images/landing-pages/affiliate-network-hero-bg.png"
-      "schemaImage" "/images/landing-pages/affiliate-network-hero-shema.png"
+      "schemaImage" "/images/landing-pages/affiliate-network-hero-schema.png"
       "cta" (dict "text" "Select" "url" "/affiliate-network/")
     )
   )
@@ -62,10 +62,6 @@ Example:
                     {{ $cardImageAlt := .imageAlt | default .title }}
 
                     <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center" {{ with $cardBackgroundImage }}style="background-image: url('{{ . }}');"{{ end }}>
-                        {{ if $cardBackgroundImage }}
-                            <div class="absolute inset-0"></div>
-                        {{ end }}
-                        
                         <div class="relative z-10 flex flex-col h-full">
                             {{ with $cardSchemaImage }}
                                 <div class="pt-12 px-5 flex-shrink-0">
