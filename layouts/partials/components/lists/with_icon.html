@@ -1,6 +1,6 @@
 {{ $listItems := .lists }}
 {{ $margin := .margin | default "mt-10" }}
-{{ $columnsClass := .columnsClass | default "space-y-8" }}
+{{ $columnsClass := .columnsClass | default "" }}
 
 <dl class="{{ $margin }} max-w-full text-lg/7 text-body lg:max-w-full {{ $columnsClass }}">
     {{ range $index, $item := $listItems }}
