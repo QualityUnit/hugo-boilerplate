@@ -1,0 +1,128 @@
+{{ $params := .Page.Params }}
+{{ $taglineComparison := .Get "taglineComparison" | default $params.taglineComparison | default (.Get 0) | default nil }}
+{{ $headingComparison := .Get "headingComparison" | default $params.headingComparison | default (.Get 1) | default (i18n "pricing_comparison_title") }}
+{{ $descriptionComparison := .Get "descriptionComparison" | default $params.descriptionComparison | default (.Get 2) | default (i18n "pricing_comparison_description") }}
+{{ $backgroundColorComparison := .Get "backgroundColorComparison" | default $params.backgroundColor | default (.Get 3) | default "white" }}
+{{ $taglineColorComparison := .Get "taglineColorComparison" | default $params.taglineColorComparison | default (.Get 4) | default "indigo-600" }}
+{{ $headingColorComparison := .Get "headingColorComparison" | default $params.headingColorComparison | default (.Get 5) | default "gray-900" }}
+{{ $descriptionColorComparison := .Get "descriptionColorComparison" | default $params.descriptionColorComparison | default (.Get 6) | default "gray-600" }}
+{{ $toggleTextColor := .Get "toggleTextColor" | default $params.toggleTextColor | default "gray-500" }}
+{{ $toggleActiveColor := .Get "toggleActiveColor" | default $params.toggleActiveColor | default "white" }}
+{{ $toggleActiveBgColor := .Get "toggleActiveBgColor" | default $params.toggleActiveBgColor | default "primary" }}
+{{ $toggleBorderColor := .Get "toggleBorderColor" | default $params.toggleBorderColor | default "primary" }}
+{{ $togglePrice := .Get "togglePrice" | default $params.togglePrice | default true }}
+
+{{ $useDataFile := .Get "useDataFile" | default true }}
+{{ $dataFile := .Get "dataFile" | default "pricing" }}
+
+{{/* Determine which data to use */}}
+{{ $tiersComparison := slice }}
+{{ $featureCategories := slice }}
+
+{{ if $useDataFile }}
+  {{/* Use centralized data file */}}
+  {{ $pricingData := index .Site.Data $dataFile }}
+  {{ if $pricingData }}
+    {{ $tiersComparison = $pricingData.tiersComparison }}
+    {{ $featureCategories = $pricingData.featureCategories }}
+  {{ else }}
+    {{ errorf "Centralized pricing data not found at data/%s.yaml. Please create the file or set useDataFile=false." $dataFile }}
+  {{ end }}
+{{ else }}
+  {{/* Fallback to page params for backward compatibility */}}
+  {{ $tiersComparison = .Get "tiersComparison" | default $params.tiersComparison | default slice }}
+  {{ $featureCategories = .Get "featureCategories" | default $params.featureCategories | default slice }}
+{{ end }}
+
+{{ if not $tiersComparison }}
+  {{ errorf "No tiersComparison provided for pricing comparison table. Please define data in %s.yaml or page parameters." $dataFile }}
+{{ end }}
+
+{{ if not $featureCategories }}
+  {{ errorf "No featureCategories provided for pricing comparison table. Please define data in %s.yaml or page parameters." $dataFile }}
+{{ end }}
+
+{{ partial "sections/pricing/with_comparison_table.html" (dict
+  "taglineComparison" $taglineComparison
+  "headingComparison" $headingComparison
+  "descriptionComparison" $descriptionComparison
+  "backgroundColorComparison" $backgroundColorComparison
+  "taglineColorComparison" $taglineColorComparison
+  "headingColorComparison" $headingColorComparison
+  "descriptionColorComparison" $descriptionColorComparison
+  "tiersComparison" $tiersComparison
+  "featureCategories" $featureCategories
+  "toggleTextColor" $toggleTextColor
+  "toggleActiveColor" $toggleActiveColor
+  "toggleActiveBgColor" $toggleActiveBgColor
+  "toggleBorderColor" $toggleBorderColor
+  "togglePrice" $togglePrice
+) }}
+
+{{/*
+  USAGE EXAMPLES:
+
+  1. Using centralized data (default behavior):
+  {{< pricing-with-comparison-table-centralized >}}
+  
+  2. Using custom data file:
+  {{< pricing-with-comparison-table-centralized 
+    dataFile="custom-pricing" 
+  >}}
+  
+  3. Backward compatibility mode (uses page params):
+  {{< pricing-with-comparison-table-centralized 
+    useDataFile=false
+  >}}
+  
+  4. Full customization with centralized data:
+  {{< pricing-with-comparison-table-centralized
+    taglineComparison="Compare Plans"
+    headingComparison="Feature Comparison"
+    descriptionComparison="See which features are included in each plan."
+    backgroundColorComparison="gray-50"
+    togglePrice=true
+    dataFile="pricing"
+  >}}
+
+  CENTRALIZED DATA FILE FORMAT (data/pricing.yaml):
+  
+  tiersComparison:
+    - name: "Pro"
+      id: "tier-comparison-small"
+      emphasized: false
+      cta:
+        text: "Try for free"
+        url: "https://example.com/trial/"
+      # ... styling properties
+      
+    - name: "Ultimate"
+      id: "tier-comparison-medium"
+      emphasized: true
+      # ... other properties
+      
+  featureCategories:
+    - name: "Price"
+      features:
+        - name: "Per month billed annually"
+          tiersComparison:
+            Pro: "$129"
+            Ultimate: "$249"
+            Network: "$599"
+        - name: "Per month billed monthly"
+          tiersComparison:
+            Pro: "$139"
+            Ultimate: "$269"
+            Network: "$649"
+            
+    - name: "Support & services"
+      features:
+        - name: "Lifetime support"
+          tooltip: "We're here for you 24/7 × 365..."
+          tiersComparison:
+            Pro: "24/7 × 365"
+            Ultimate: "24/7 × 365"
+            Network: "24/7 × 365"
+        # ... more features
+    # ... more categories
+*/}}

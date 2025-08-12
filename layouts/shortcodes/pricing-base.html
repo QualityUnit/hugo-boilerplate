@@ -8,13 +8,23 @@
 {{ $headingColor := .Get "headingColor" | default $params.headingColor | default (.Get 5) | default "gray-900" }}
 {{ $descriptionColor := .Get "descriptionColor" | default $params.descriptionColor | default (.Get 6) | default "gray-600" }}
 {{ $checkIcon := .Get "checkIcon" | default $params.checkIcon | default "" }}
-{{ $tiers := .Get "tiers" | default $params.tiers | default slice }}
-{{ $columns := .Get "columns" | default $params.columns | default 4 }}
+{{ $columns := .Get "columns" | default $params.columns }}
 {{ $priceBeforeText := .Get "priceBeforeText" | default $params.priceBeforeText | default "" }}
 {{ $darkTheme := .Get "darkTheme" | default $params.darkTheme | default false }}
 
+{{/* Try to use centralized data first, fallback to page params */}}
+{{ $tiers := slice }}
+{{ $pricingData := .Site.Data.pricing }}
+{{ if and $pricingData $pricingData.tiers }}
+  {{/* Use centralized data */}}
+  {{ $tiers = $pricingData.tiers }}
+{{ else }}
+  {{/* Fallback to page parameters for backward compatibility */}}
+  {{ $tiers = .Get "tiers" | default $params.tiers | default slice }}
+{{ end }}
+
 {{ if not $tiers }}
-  {{ errorf "No tiers provided for pricing section. Please define 'tiers' parameter." }}
+  {{ errorf "No tiers provided for pricing section. Please define 'tiers' parameter or create data/pricing.yaml with tiers data." }}
 {{ end }}
 
 {{ if eq $darkTheme true }}
@@ -41,159 +51,57 @@
 ) }}
 
 {{/*
-  USAGE EXAMPLE:
-
-  {{< pricing-base
-    tagline="Our Plans"
-    heading="Simple, transparent pricing"
-    description="Choose the plan that fits your needs."
-    backgroundColor="gray-50"
-    taglineColor="blue-600"
-    headingColor="gray-900"
-    descriptionColor="gray-600"
-    checkIcon="check"
-  >}}
-
-  Or with custom tiers:
-
-  {{< pricing-base
-    tagline="Our Plans"
-    heading="Simple, transparent pricing"
-    description="Choose the plan that fits your needs."
-    tiers="site.Data.pricing.tiers"
-  >}}
-
-  Note: When using custom tiers, refer to the format in the partial template.
-  The tiers should be provided as a data file or page parameter in the correct structure.
-
-  CUSTOM TIERS EXAMPLE:
-
-  1. Create a data file at data/pricing/tiers.yaml with content like:
-
-  ```yaml
-  - name: "Basic"
-    id: "tier-basic"
-    price: "$9"
-    interval: "/month"
-    description: "Perfect for individuals and small projects."
-    popular: false
-    features:
-      - "3 projects"
-      - "Up to 500 subscribers"
-      - "Basic analytics"
-      - "72-hour support"
-    cta:
-      text: "Start free trial"
-      url: "/signup"
-    nameColor: "gray-900"
-    priceColor: "gray-900"
-    intervalColor: "gray-600"
-    descriptionColor: "gray-600"
-    featureColor: "gray-600"
-    featuresNote: ""
-    checkColor: "indigo-600"
-    ctaColor: "indigo-600"
-    ctaBgColor: ""
-    ctaRingColor: "indigo-200"
-    ctaHoverRingColor: "indigo-300"
-    backgroundColor: "white"
-    borderColor: "gray-200"
-    position: "left"
-
-  - name: "Pro"
-    id: "tier-pro"
-    price: "$29"
-    interval: "/month"
-    description: "Perfect for growing businesses and teams."
-    popular: true
-    popularText: "Most popular"
-    popularBgColor: "indigo-600/10"
-    popularTextColor: "primary"
-    features:
-      - "10 projects"
-      - "Up to 5,000 subscribers"
-      - "Advanced analytics"
-      - "24-hour support"
-      - "Custom domain"
-    cta:
-      text: "Start free trial"
-      url: "/signup/pro"
-    nameColor: "indigo-600"
-    priceColor: "gray-900"
-    intervalColor: "gray-600"
-    descriptionColor: "gray-600"
-    featureColor: "gray-600"
-    featuresNote: ""
-    checkColor: "indigo-600"
-    ctaColor: "white"
-    ctaBgColor: "indigo-600"
-    ctaHoverBgColor: "indigo-500"
-    backgroundColor: "white"
-    borderColor: "gray-200"
-    position: "center"
-
-  - name: "Enterprise"
-    id: "tier-enterprise"
-    price: "$99"
-    interval: "/month"
-    description: "Dedicated support and infrastructure for your company."
-    popular: false
-    features:
-      - "Unlimited projects"
-      - "Unlimited subscribers"
-      - "Advanced analytics & reporting"
-      - "1-hour support response"
-      - "Custom domain"
-      - "SSO & advanced security"
-    cta:
-      text: "Contact sales"
-      url: "/contact"
-    nameColor: "gray-900"
-    priceColor: "gray-900"
-    intervalColor: "gray-600"
-    descriptionColor: "gray-600"
-    featureColor: "gray-600"
-    featuresNote: ""
-    checkColor: "indigo-600"
-    ctaColor: "indigo-600"
-    ctaBgColor: ""
-    ctaRingColor: "indigo-200"
-    ctaHoverRingColor: "indigo-300"
-    backgroundColor: "white"
-    borderColor: "gray-200"
-    position: "right"
-  ```
-
-  2. Then use the shortcode with tiers parameter:
-
-  {{< pricing-base
-    tagline="Our Plans"
-    heading="Simple, transparent pricing"
-    description="Choose the plan that fits your needs."
-    tiers="site.Data.pricing.tiers"
-  >}}
-
-  3. Alternatively, define custom tiers in your page's front matter:
-
-  ```yaml
-  ---
-  title: Pricing
-  custom_tiers:
-    - name: "Basic"
-      # ... all tier properties as in the data file example
-    - name: "Pro"
-      # ... all tier properties
-    - name: "Enterprise"
-      # ... all tier properties
-  ---
-  ```
-
-  And use it in the shortcode:
-
-  {{< pricing-base
-    tagline="Our Plans"
-    heading="Simple, transparent pricing"
-    description="Choose the plan that fits your needs."
-    tiers=".Params.custom_tiers"
-  >}}
+  CENTRALIZED PRICING SYSTEM - Base Pricing Cards Shortcode
+  ========================================================
+  
+  This shortcode displays pricing cards using centralized data from data/pricing.yaml
+  with full multilingual support via i18n translations.
+  
+  FEATURES:
+  - Auto-loads pricing data from data/pricing.yaml (single source of truth)
+  - Multilingual support with i18n keys
+  - Backward compatibility with page-level parameters
+  - Responsive design with customizable styling
+  
+  USAGE:
+  {{< pricing-base >}}                           # Uses centralized data
+  {{< pricing-base heading="Custom title" >}}   # Override specific parameters
+  
+  CENTRALIZED DATA STRUCTURE (data/pricing.yaml):
+  tiers:
+    - name: "pricing_tier_pro_name"              # i18n key
+      price: "$129" 
+      interval: "pricing_interval_monthly_annual" # i18n key
+      description: "pricing_tier_pro_description" # i18n key
+      features:
+        - "pricing_feature_tracking_1m"           # i18n key
+        - "pricing_feature_unlimited_affiliates"  # i18n key
+      popular: false
+      cta:
+        text: "pricing_cta_try_free"              # i18n key
+        url: "https://www.postaffiliatepro.com/trial/"
+  
+  TRANSLATIONS (i18n/en.yaml):
+  pricing_tier_pro_name: "Pro"
+  pricing_interval_monthly_annual: "/month billed annually"
+  pricing_tier_pro_description: "Perfect for growing businesses"
+  pricing_feature_tracking_1m: "1 million tracking requests/month"
+  pricing_cta_try_free: "Try for free"
+  
+  PARAMETERS:
+  - tagline: Text above heading (default: i18n "pricing_tagline")
+  - heading: Main heading (default: i18n "pricing_heading") 
+  - description: Description text (default: i18n "pricing_description")
+  - backgroundColor: Section background (default: "white")
+  - taglineColor: Tagline color (default: "indigo-600")
+  - headingColor: Heading color (default: "gray-900")
+  - descriptionColor: Description color (default: "gray-600")
+  - columns: Number of columns override
+  - darkTheme: Enable dark theme (default: false)
+  
+  BENEFITS:
+  ✅ Single point of price updates across 250K+ pages
+  ✅ Multilingual support with consistent pricing
+  ✅ Backward compatibility with existing implementations
+  ✅ Easy customization of styling and content
 */}}

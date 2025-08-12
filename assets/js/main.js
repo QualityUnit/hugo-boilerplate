@@ -8,3 +8,5 @@ import './banner-dismiss.js';
 import './cookie-consent.js';
 // Import typewriter effect functionality
 import './typewriter.js';
+// Import tooltip functionality
+import './tooltips.js';
