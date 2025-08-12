@@ -11,8 +11,8 @@
                     {{ partial "components/media/icon.html" (dict "icon" $item.icon "class" "h-5 w-5") }}
                 {{ else if $item.svg }}
                     {{ partial "components/media/lazyimg.html" (dict 
-                        "src" $item.svg
-                        "alt"  $item.title
+                        "src"   $item.svg
+                        "alt"   $item.title
                         "class" "h-5 w-5"
                     ) }}
                 {{ else }}
