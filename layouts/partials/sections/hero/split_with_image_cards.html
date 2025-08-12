@@ -1,0 +1,107 @@
+{{/*
+Hero section with content at top and two interactive cards below.
+
+Parameters:
+- heading, description (optional): Text content
+- cards: Array of 2 card objects with title, description, backgroundImage, schemaImage, imageAlt, cta (text, url)
+- sectionPaddingY: Custom padding (default: "py-16 lg:py-24")
+
+Example:
+{{ partial "sections/hero/split_with_image_cards" (dict
+  "heading" "Become an affiliate marketing superhero"
+  "description" "Get an affiliate program for affiliate management or affiliate network for managing merchants and affiliates."
+  "cards" (slice
+    (dict
+      "title" "Affiliate Program"
+      "description" "Create & manage your affiliate programs with the right tools and features for the job."
+      "backgroundImage" "/images/landing-pages/affiliate-program-hero-bg.png"
+      "schemaImage" "/images/landing-pages/affiliate-program-hero-schema.png"
+      "cta" (dict "text" "Select" "url" "/affiliate-program/")
+    )
+    (dict
+      "title" "Affiliate Network"
+      "description" "Track and direct extensive affiliate networks from one intuitive dashboard with the right equipment"
+      "backgroundImage" "/images/landing-pages/affiliate-network-hero-bg.png"
+      "schemaImage" "/images/landing-pages/affiliate-network-hero-schema.png"
+      "cta" (dict "text" "Select" "url" "/affiliate-network/")
+    )
+  )
+) }}
+*/}}
+
+{{/* Section parameters */}}
+{{ $heading := .heading }}
+{{ $description := .description }}
+{{ $cards := .cards | default (slice) }}
+
+{{/* Classes for styles */}}
+{{ $sectionPaddingY := .sectionPaddingY | default "py-16 lg:py-24" }}
+{{ $headingTracking := "tracking-[-4.248px]" }}
+
+
+<div class="section-bg-light">
+    <div class="wrapper {{ $sectionPaddingY }}">
+        {{/* Header */}}
+        {{ if or $heading $description }}
+            <div class="text-center max-w-2xl mx-auto">
+                {{ if $heading }}
+                    <h1 class="text-5xl font-semibold {{ $headingTracking }} text-heading text-pretty sm:text-6xl lg:text-7xl">{{ $heading }}</h1>
+                {{ end }}
+                {{ if $description }}
+                    <p class="mt-9 text-lg/7 text-muted font-medium sm:text-xl/9 max-w-2xl mx-auto">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
+                {{ end }}
+            </div>
+        {{ end }}
+
+        {{/* Cards */}}
+        {{ if $cards }}
+            <div class="dark grid grid-cols-1 lg:grid-cols-2 gap-2.5{{ if or $heading $description }} mt-14{{ end }}">
+                {{ range $cards }}
+                    {{ $cardBackgroundImage := .backgroundImage }}
+                    {{ $cardSchemaImage := .schemaImage }}
+                    {{ $cardImageAlt := .imageAlt | default .title }}
+
+                    <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center" {{ with $cardBackgroundImage }}style="background-image: url('{{ . }}');"{{ end }}>
+                        <div class="relative z-10 flex flex-col h-full">
+                            {{ with $cardSchemaImage }}
+                                <div class="pt-12 px-5 flex-shrink-0">
+                                    {{ partial "components/media/lazyimg.html" (dict
+                                        "src" .
+                                        "alt" $cardImageAlt
+                                        "class" "w-full h-auto"
+                                        "noLazy" false
+                                    ) }}
+                                </div>
+                            {{ end }}
+
+                            <div class="flex-grow"></div>
+
+                            <div class="flex items-center gap-x-7 text-heading py-6 px-8 bg-gradient-to-r from-gray-600/60 via-gray-800/60 to-gray-900/60 backdrop-blur-sm flex-shrink-0">
+                                <div class="content flex-grow">
+                                    {{ with .title }}
+                                        <h3 class="text-2xl mb-4 leading-tight">{{ . | safeHTML }}</h3>
+                                    {{ end }}
+                                    {{ with .description }}
+                                        <p class="mt-1.5">{{ . }}</p>
+                                    {{ end }}
+                                </div>                                    
+                                
+                                {{ if and .cta .cta.text .cta.url }}
+                                    <div class="cta flex-shrink-0">
+                                        {{ partial "components/buttons/buttons.html" (dict
+                                            "text" .cta.text
+                                            "url" .cta.url
+                                            "variant" "secondary-alternate"
+                                            "showArrow" true
+                                            "sizeClasses" "xl"
+                                        ) }}
+                                    </div>
+                                {{ end }}
+                            </div>
+                        </div>
+                    </div>
+                {{ end }}
+            </div>
+        {{ end }}
+    </div>
+</div>
