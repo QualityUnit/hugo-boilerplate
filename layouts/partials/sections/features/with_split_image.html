@@ -39,7 +39,7 @@
             {{/* Subheading and heading */}}
             <h2 class="font-medium text-muted">{{ $subheading }}</h2>
             <p class="{{ if $subheading }}mt-4 {{ end }}text-5xl sm:text-7xl font-semibold tracking-tight text-heading">{{ $heading }}</p>
-            <p class="mt-9 text-muted">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+            <p class="mt-9 text-muted">{{ $description | safeHTML }}</p>
           </div>
           <div class="mt-[4.5rem] rounded-xl">
             {{ partial "components/media/lazyimg.html" (dict 

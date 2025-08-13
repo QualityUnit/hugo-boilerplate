@@ -94,7 +94,7 @@
         <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ $heading }}</h2>
       {{ end }}
       {{ if $description }}
-        <p class="mt-4 text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+        <p class="mt-4 text-gray-500">{{ $description | safeHTML }}</p>
       {{ end }}
     </div>
 
@@ -104,7 +104,7 @@
           {{ if eq $feature.imagePosition "right" }}
             <div class="mt-6 {{ $textColClasses }} lg:col-start-1 lg:row-start-1 lg:mt-0">
               <h2 class="{{ $headingClasses }} font-medium text-gray-900">{{ $feature.title }}</h2>
-              <p class="mt-2 {{ $textClasses }} text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $feature.description "page" $page) | safeHTML }}</p>
+              <p class="mt-2 {{ $textClasses }} text-gray-500">{{ $feature.description | safeHTML }}</p>
               {{ if $feature.listItems }}
                 <ul class="mt-4 pl-0 space-y-2">
                   {{ range $feature.listItems }}
@@ -156,7 +156,7 @@
           {{ else }}
             <div class="mt-6 {{ $textColClasses }} {{ $textColStartClasses }} lg:row-start-1 lg:mt-0">
               <h2 class="{{ $headingClasses }} font-medium text-gray-900">{{ $feature.title }}</h2>
-              <p class="mt-2 {{ $textClasses }} text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $feature.description "page" $page) | safeHTML }}</p>
+              <p class="mt-2 {{ $textClasses }} text-gray-500">{{ $feature.description | safeHTML }}</p>
               {{ if $feature.listItems }}
                 <ul class="mt-4 pl-0 space-y-2">
                   {{ range $feature.listItems }}

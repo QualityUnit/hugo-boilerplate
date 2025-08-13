@@ -61,7 +61,7 @@
         <dt class="text-base/7 font-semibold {{ $questionColor }} lg:col-span-5">{{ .question }}</dt>
         <dd class="mt-4 lg:col-span-7 lg:mt-0">
           <p class="text-base/7 {{ $answerColor }}">
-            {{ partial "utils/linkbuilding" (dict "content" .answer "page" $page) | safeHTML }}
+            {{ .answer | safeHTML }}
           </p>
         </dd>
       </div>

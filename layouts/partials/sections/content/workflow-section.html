@@ -40,7 +40,7 @@ Parameters:
             <h1 class="text-4xl font-semibold sm:text-5xl {{ $headingTracking }} text-heading leading-none text-pretty">{{ $heading }}</h1>
             {{ end }}
             {{ if $description }}
-            <p class="mt-9 text-lg/7 text-muted sm:text-xl/8">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
+            <p class="mt-9 text-lg/7 text-muted sm:text-xl/8">{{ $description | safeHTML }}</p>
             {{ end }}
 
             {{/* CTA Buttons */}}

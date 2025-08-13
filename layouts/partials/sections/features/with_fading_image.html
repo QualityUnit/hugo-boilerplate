@@ -60,14 +60,14 @@
   <div class="relative mx-auto -mt-12 max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
     <div class="mx-auto max-w-2xl text-center lg:max-w-4xl">
       <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ $heading }}</h2>
-      <p class="mt-4 text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+      <p class="mt-4 text-gray-500">{{ $description | safeHTML }}</p>
     </div>
 
     <dl class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:max-w-none lg:grid-cols-3 lg:gap-x-8">
       {{ range $specifications }}
       <div class="border-t border-gray-200 pt-4">
         <dt class="font-medium text-gray-900">{{ .title }}</dt>
-        <dd class="mt-2 text-sm text-gray-500">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</dd>
+        <dd class="mt-2 text-sm text-gray-500">{{ .description | safeHTML }}</dd>
       </div>
       {{ end }}
     </dl>

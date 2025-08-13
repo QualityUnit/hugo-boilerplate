@@ -8,7 +8,7 @@
 
 <!-- Main Content -->
 <div class="bg-white dark:bg-gray-900">
-    {{ .Content | partial "utils/linkbuilding" (dict "content" .Content "page" .) | safeHTML }}
+    {{ .Content | safeHTML }}
 </div>
 <!-- FAQ Section if available -->
 {{ if .Params.faq }}

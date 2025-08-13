@@ -8,7 +8,7 @@
   <div class="wrapper">
     <div class="wrapper-content">
       <div class="mx-auto max-w-none prose-custom">
-        {{ .Content | partial "utils/linkbuilding" (dict "content" .Content "page" .) | safeHTML }}
+        {{ .Content | safeHTML }}
       </div>
   </div>
   </div>

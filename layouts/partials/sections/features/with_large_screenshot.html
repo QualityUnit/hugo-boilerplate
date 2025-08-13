@@ -12,7 +12,7 @@
     <div class="mx-auto max-w-2xl sm:text-center">
       <h2 class="text-base/7 font-semibold text-primary">{{ $tagline }}</h2>
       <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl sm:text-balance">{{ $heading }}</p>
-      <p class="mt-6 text-lg/8 text-gray-600">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+      <p class="mt-6 text-lg/8 text-gray-600">{{ $description | safeHTML }}</p>
     </div>
   </div>
   <div class="relative overflow-hidden pt-16">
@@ -42,7 +42,7 @@
           {{ end }}
           {{ .title }}
         </dt>
-        <dd class="mt-1">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</dd>
+        <dd class="mt-1">{{ .description | safeHTML }}</dd>
       </div>
       {{ end }}
     </dl>
