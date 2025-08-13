@@ -32,14 +32,14 @@
           <h2 class="text-base/7 font-semibold text-indigo-600">{{ $tagline }}</h2>
           <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl">{{ $heading }}</p>
           <p class="mt-6 text-lg/8 text-gray-600">
-            {{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}
+            {{ $description | safeHTML }}
           </p>
           <div class="mt-8">
             <a href="{{ $cta.url }}" class="inline-flex rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $cta.text }}</a>
           </div>
           <figure class="mt-16 border-l border-gray-200 pl-8 text-gray-600">
             <blockquote class="text-base/7">
-              <p>"{{ partial "utils/linkbuilding" (dict "content" $testimonial.quote "page" $page) | safeHTML }}"</p>
+              <p>"{{ $testimonial.quote | safeHTML }}"</p>
             </blockquote>
             <figcaption class="mt-6 flex gap-x-4 text-sm/6">
               {{ partial "components/media/lazyimg.html" (dict 

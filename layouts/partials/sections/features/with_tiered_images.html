@@ -70,7 +70,7 @@
           {{ range $features }}
           <div>
             <dt class="text-sm font-medium text-gray-900">{{ .title }}</dt>
-            <dd class="mt-3 text-sm text-gray-500">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</dd>
+            <dd class="mt-3 text-sm text-gray-500">{{ .description | safeHTML }}</dd>
           </div>
           {{ end }}
         </dl>

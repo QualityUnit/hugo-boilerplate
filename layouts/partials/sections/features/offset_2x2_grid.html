@@ -39,7 +39,7 @@
             </div>
             {{ .title }}
           </dt>
-          <dd class="mt-1 text-base/7 text-gray-600">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</dd>
+          <dd class="mt-1 text-base/7 text-gray-600">{{ .description | safeHTML }}</dd>
         </div>
         {{ end }}
       </dl>

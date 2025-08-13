@@ -36,7 +36,7 @@
         <div class="lg:max-w-lg">
           <h2 class="text-base/7 font-semibold text-indigo-600">{{ $tagline }}</h2>
           <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl">{{ $heading }}</p>
-          <p class="mt-6 text-lg/8 text-gray-600">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+          <p class="mt-6 text-lg/8 text-gray-600">{{ $description | safeHTML }}</p>
           <dl class="mt-10 max-w-xl space-y-8 text-base/7 text-gray-600 lg:max-w-none">
             {{ range $features }}
             <div class="relative pl-9">
@@ -44,7 +44,7 @@
                 {{ partial "components/media/icon.html" (dict "icon" .icon) }}
                 {{ .title }}
               </dt>
-              <dd class="inline">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</dd>
+              <dd class="inline">{{ .description | safeHTML }}</dd>
             </div>
             {{ end }}
           </dl>

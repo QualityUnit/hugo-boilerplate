@@ -559,7 +559,7 @@ keywords:
 -   `exact`: (Boolean, optional, defaults to `false`) 
     -   If `false` (default): The keyword will be matched even if it's part of a larger word (e.g., if keyword is "log", "logging" would also be matched). The matching is case-insensitive.
     -   If `true`: The keyword will only be matched if it appears as an exact word (bounded by spaces or punctuation). The matching is case-sensitive.
--   `priority`: (Integer, optional, defaults to `1`) Used to determine which rule applies if multiple keywords could match the same text. Higher numbers usually mean higher priority, but the exact logic depends on the implementation in the `linkbuilding.html` partial. Currently, the partial processes keywords in the order they appear in the YAML file, and the first match for a given piece of text is used. The `priority` field itself is not directly used by the current version of the `linkbuilding.html` partial to reorder or select rules beyond their sequence in the file.
+-   `priority`: (Integer, optional, defaults to `1`) Used to determine which rule applies if multiple keywords could match the same text. Higher numbers usually mean higher priority. The linkbuilding module processes keywords based on their priority, with higher priority keywords being applied first.
 -   `title`: (String, optional, defaults to the `keyword` value) The text to be used for the `title` attribute of the generated `<a>` HTML tag. This is often used for tooltips or to provide more context to search engines.
 
 To add new linkbuilding rules, simply edit the appropriate `data/linkbuilding/<lang>.yaml` file and add new entries to the `keywords` list following this structure.

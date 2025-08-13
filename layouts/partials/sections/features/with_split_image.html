@@ -55,13 +55,13 @@
       <div class="lg:col-start-2">
         <h2 id="features-heading" class="font-medium text-gray-500">{{ $subheading }}</h2>
         <p class="mt-4 text-4xl font-bold tracking-tight text-gray-900">{{ $heading }}</p>
-        <p class="mt-4 text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+        <p class="mt-4 text-gray-500">{{ $description | safeHTML }}</p>
 
         <dl class="mt-10 grid grid-cols-1 gap-x-8 gap-y-10 text-sm sm:grid-cols-2">
                 {{ range $features }}
                 <div>
                   <dt class="font-medium text-gray-900">{{ .title }}</dt>
-            <dd class="mt-2 text-gray-500">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</dd>
+            <dd class="mt-2 text-gray-500">{{ .description | safeHTML }}</dd>
                 </div>
                 {{ end }}
               </dl>

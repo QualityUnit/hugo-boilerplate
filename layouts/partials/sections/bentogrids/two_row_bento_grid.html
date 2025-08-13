@@ -107,7 +107,7 @@
     {{ end }}
 
     {{ if $description }}
-      <p class="mt-1 text-lg/8 text-body">{{ partial "utils/linkbuilding" (dict "content" $description "page" .Page) | safeHTML }}</p>
+      <p class="mt-1 text-lg/8 text-body">{{ $description | safeHTML }}</p>
     {{ end }}
 
     {{ if $linkUrl }}
