@@ -6,12 +6,15 @@
   - eyebrow: Short text displayed above the main heading (optional, default: empty)
   - heading: Main section heading (optional, default: empty)
   - description: Short description text below the heading (optional, default: empty)
-  - videos: Array of video objects with content (supports unlimited videos)
+  - videos: Array of video objects with content (limited to maximum 2 videos)
     - title: Video title text (required)
     - description: Video description text (required)
     - src: Video URL (required)
     - url: Link to page on site (required)
     - poster: Image url (required)
+@note: This section uses a two-column layout with text content on the left and videos on the right. 
+       Videos use custom play button styling with two-circle design (gray outer circle, white inner circle, blue play icon).
+       If no video src is provided, displays poster image with text overlay.
 @example:
   {{ partial "sections/content/two_columns_with_videos.html" (dict
       "theme" "light"
@@ -32,12 +35,6 @@
               "src" "/videos/features/analytics.mp4"
               "url" "/affiliate-program-directory/"
               "poster" "/images/features/analytics.png"
-          )
-          (dict
-              "title" "Security" 
-              "description" "Enterprise-grade security with end-to-end encryption."
-              "src" "/videos/features/security.mp4"
-              "poster" "/images/features/security.png"
           )
       )
   ) }}
@@ -74,7 +71,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         
         {{/* Left Column - Text Content */}}
-        <div class="order-2 lg:order-1">
+        <div>
           {{ if $eyebrow }}
             <p class="text-sm font-semibold uppercase tracking-wide text-primary mb-4">
               {{ $eyebrow }}
@@ -95,10 +92,10 @@
         </div>
         
         {{/* Right Column - Videos */}}
-        <div class="order-1 lg:order-2">
+        <div>
           {{ if $videos }}
-            <div class="space-y-6">
-              {{ range $index, $video := $videos }}
+            <div class="space-y-8">
+              {{ range $index, $video := (first 2 $videos) }}
                 <div class="relative">
                   {{ if $video.src }}
                     {{/* Use custom video partial for video with popup */}}
@@ -110,6 +107,9 @@
                         "provider" "youtube"
                         "useLightbox" true
                         "showPlayOverlay" true
+                        "playBtnClass" "white-circle-bounce w-[7.75rem] h-[7.75rem] rounded-full backdrop-blur-sm"
+                        "playBtnInnerClass" "bg-white w-24 h-24 rounded-full flex items-center justify-center hover:w-[6.25rem] hover:h-[6.25rem] transition-transform duration-300"
+                        "svgIcon" "<svg width=\"35\" height=\"40\" viewBox=\"0 0 35 40\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M32.6329 17.285C34.5836 18.4487 34.5836 21.2739 32.6329 22.4377L5.19807 38.8052C3.19838 39.9982 0.661032 38.5574 0.661032 36.2289L0.661033 3.49381C0.661033 1.16528 3.19838 -0.275542 5.19807 0.917464L32.6329 17.285Z\" fill=\"#2563EB\"/></svg>"
                     ) }}
                   {{ else }}
                     {{/* Display poster image with text overlay if no video */}}
@@ -120,13 +120,24 @@
                     ) }}
                   {{ end }}
                   {{ if or $video.title $video.description }}
-                    <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end">
-                        <div class="p-6 text-white">
+                    <div class="absolute left-6 bottom-6 flex items-end z-30">
+                        <div class="text-white">
                         {{ if $video.title }}
-                            <h3 class="text-lg font-semibold mb-2">{{ $video.title }}</h3>
+                            <h3 class="font-semibold text-opacity-75">{{ $video.title }}</h3>
                         {{ end }}
                         {{ if $video.description }}
-                            <p class="text-sm opacity-90">{{ $video.description }}</p>
+                            <p class="text-sm mt-1.5 tracking-[-0.28px]">
+                                {{ if $video.url }}
+                                <a href="{{ $video.url }}" class="flex items-center text-white hover:underline">
+                                    {{ $video.description }}
+                                    <span class="ml-1 btn-arrow">
+                                        {{ partial "components/media/icon.html" (dict "icon" "arrow-up-right" "class" "w-5 h-5 p-0.5") }}
+                                    </span>
+                                </a>
+                                {{ else }}
+                                    {{ $video.description }}
+                                {{ end }}
+                            </p>
                         {{ end }}
                         </div>
                     </div>
