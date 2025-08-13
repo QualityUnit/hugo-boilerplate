@@ -1,0 +1,143 @@
+{{/*
+@section: Two Column With Videos
+@description: A visually appealing layout featuring two columns with video content, ideal for showcasing video tutorials
+@params:
+  - theme: "light" or "dark" (default: "light") — applies dark mode styles if set to "dark"
+  - eyebrow: Short text displayed above the main heading (optional, default: empty)
+  - heading: Main section heading (optional, default: empty)
+  - description: Short description text below the heading (optional, default: empty)
+  - videos: Array of video objects with content (supports unlimited videos)
+    - title: Video title text (required)
+    - description: Video description text (required)
+    - src: Video URL (required)
+    - url: Link to page on site (required)
+    - poster: Image url (required)
+@example:
+  {{ partial "sections/content/two_columns_with_videos.html" (dict
+      "theme" "light"
+      "eyebrow" "Video Tutorials"
+      "heading" "Learn with Our Video Guides"
+      "description" "Short description text below the heading"
+      "videos" (slice
+          (dict
+              "title" "Responsive Design" 
+              "description" "Our platform automatically adapts to any device or screen size."
+              "src" "/videos/features/responsive.mp4"
+              "url" "/affiliate-program-directory/"
+              "poster" "/images/features/responsive.png"
+          )
+          (dict
+              "title" "Analytics" 
+              "description" "Detailed insights into your user behavior and application performance."
+              "src" "/videos/features/analytics.mp4"
+              "url" "/affiliate-program-directory/"
+              "poster" "/images/features/analytics.png"
+          )
+          (dict
+              "title" "Security" 
+              "description" "Enterprise-grade security with end-to-end encryption."
+              "src" "/videos/features/security.mp4"
+              "poster" "/images/features/security.png"
+          )
+      )
+  ) }}
+@note: This section uses a two-column layout with text content on the left and videos on the right. If no video src is provided, displays poster image with text overlay.
+*/}}
+
+{{/* Header parameters */}}
+{{ $eyebrow := .eyebrow | default "" }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+
+{{/* Parse inner content as JSON if provided */}}
+{{ $videos := (slice) }}
+{{ with .Inner }}
+  {{ if . }}
+    {{ $videos = . | unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{/* If no Inner content, use videos parameter directly */}}
+{{ if not $videos }}
+  {{ $videos = .videos | default (slice) }}
+{{ end }}
+
+{{/* Theme setup */}}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+
+<div class="{{ $darkClass }}">
+  <div class="section-bg-light dark:section-bg-dark py-16 sm:py-24">
+    <div class="wrapper">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        
+        {{/* Left Column - Text Content */}}
+        <div class="order-2 lg:order-1">
+          {{ if $eyebrow }}
+            <p class="text-sm font-semibold uppercase tracking-wide text-primary mb-4">
+              {{ $eyebrow }}
+            </p>
+          {{ end }}
+          
+          {{ if $heading }}
+            <h2 class="text-3xl font-bold tracking-tight text-heading sm:text-4xl mb-6">
+              {{ $heading }}
+            </h2>
+          {{ end }}
+          
+          {{ if $description }}
+            <p class="text-lg text-body">
+              {{ $description }}
+            </p>
+          {{ end }}
+        </div>
+        
+        {{/* Right Column - Videos */}}
+        <div class="order-1 lg:order-2">
+          {{ if $videos }}
+            <div class="space-y-6">
+              {{ range $index, $video := $videos }}
+                <div class="relative">
+                  {{ if $video.src }}
+                    {{/* Use custom video partial for video with popup */}}
+                    {{ partial "components/media/video.html" (dict 
+                        "src" $video.src 
+                        "poster" $video.poster 
+                        "title" $video.title
+                        "class" "rounded-xl"
+                        "provider" "youtube"
+                        "useLightbox" true
+                        "showPlayOverlay" true
+                    ) }}
+                  {{ else }}
+                    {{/* Display poster image with text overlay if no video */}}
+                    {{ partial "components/media/lazyimg.html" (dict 
+                        "src" $video.poster 
+                        "alt" ($video.title | default "") 
+                        "class" "w-full h-auto"
+                    ) }}
+                  {{ end }}
+                  {{ if or $video.title $video.description }}
+                    <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end">
+                        <div class="p-6 text-white">
+                        {{ if $video.title }}
+                            <h3 class="text-lg font-semibold mb-2">{{ $video.title }}</h3>
+                        {{ end }}
+                        {{ if $video.description }}
+                            <p class="text-sm opacity-90">{{ $video.description }}</p>
+                        {{ end }}
+                        </div>
+                    </div>
+                    {{ end }}
+                </div>
+              {{ end }}
+            </div>
+          {{ end }}
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
