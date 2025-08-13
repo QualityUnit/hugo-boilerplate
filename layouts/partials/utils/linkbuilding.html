@@ -14,7 +14,6 @@
 
 @skip_functionality:
   Page-level skip: Add 'skip_linkbuilding = true' to page frontmatter to disable linkbuilding for entire page
-  Element-level skip: Add 'data-linkbuilding-skip' attribute to HTML elements to exclude them from linkbuilding
 
 @configuration: Settings can be configured in config/_default/params.toml under [params.linkbuilding]:
   enableAutoKeywords = false                  # Enable automatic keyword generation from frontmatter (default: false)
@@ -60,24 +59,8 @@ These keywords will automatically create links to the page they're defined on.
 {{/* Check for page-level skip_linkbuilding parameter for early return */}}
 {{ if not $page.Params.skip_linkbuilding }}
 
-{{/* Extract and preserve elements with data-linkbuilding-skip attribute */}}
-{{ $skipElements := slice }}
-{{ $skipPlaceholders := dict }}
-{{ $processedForSkip := $content }}
-
-{{/* Find all elements with data-linkbuilding-skip attribute */}}
-{{ $skipPattern := `<[^>]*\sdata-linkbuilding-skip[^>]*>[\s\S]*?</[^>]+>` }}
-{{ $skipMatches := findRE $skipPattern $content }}
-
-{{/* Replace skip elements with unique placeholders */}}
-{{ range $index, $element := $skipMatches }}
-  {{ $placeholder := printf "<!--LINKBUILDING_SKIP_%d-->" $index }}
-  {{ $skipPlaceholders = merge $skipPlaceholders (dict $placeholder $element) }}
-  {{ $processedForSkip = replace $processedForSkip $element $placeholder 1 }}
-{{ end }}
-
-{{/* Use the content with placeholders for processing */}}
-{{ $content = $processedForSkip }}
+{{/* Element-level skip temporarily disabled - needs more testing */}}
+{{/* TODO: Implement element-level skip with data-linkbuilding-skip attribute */}}
 
 {{/* Read linkbuilding settings from params.toml with fallback to defaults */}}
 {{ $linkbuildingParams := $page.Site.Params.linkbuilding | default dict }}
@@ -317,11 +300,6 @@ These keywords will automatically create links to the page they're defined on.
   {{ end }}
 
   {{ $content = $processedContent }}
-{{ end }}
-
-{{/* Restore elements with data-linkbuilding-skip attribute */}}
-{{ range $placeholder, $element := $skipPlaceholders }}
-  {{ $content = replace $content $placeholder $element 1 }}
 {{ end }}
 
 {{ end }}
