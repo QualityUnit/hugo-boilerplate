@@ -14,9 +14,14 @@
   - page: Page context for linkbuilding
 */}}
 
+{{/* Theme setup */}}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+
 {{ $backgroundColor := .backgroundColor | default "bg-white" }}
-{{ $imageUrl := .imageUrl | default "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-01-hero.jpg" }}
-{{ $imageAlt := .imageAlt | default "Black leather journal with silver steel disc binding resting on wooden shelf with machined steel pen." }}
+{{ $imageUrl := .imageUrl | default "" }}
+{{ $imageAlt := .imageAlt | default "" }}
 {{ $subheading := .subheading | default "" }}
 {{ $heading := .heading | default "" }}
 {{ $description := .description | default "" }}
@@ -24,48 +29,29 @@
 {{/* Page context for linkbuilding */}}
 {{ $page := .page }}
 
-{{ $features := .features | default (slice 
-  (dict 
-    "title" "Durable"
-    "description" "The leather cover and machined steel disc binding stand up to daily use for years to come."
-  )
-  (dict 
-    "title" "Refillable"
-    "description" "Buy it once and refill as often as you need. Subscribe and save on routine refills."
-  )
-  (dict 
-    "title" "Thoughtfully designed"
-    "description" "The comfortable disc binding allows you to quickly rearrange pages or combine lined, graph, and blank refills."
-  )
-  (dict 
-    "title" "Locally made"
-    "description" "Responsibly and sustainably made real close to wherever you are, somehow."
-  )
-) }}
+{{ $features := .features | default (slice) }}
 
-<div class="{{ $backgroundColor }} overflow-hidden rounded-2xl shadow-lg mx-auto max-w-7xl my-8">
-      <section aria-labelledby="features-heading" class="relative">
-          {{ partial "components/media/lazyimg.html" (dict 
-            "src" $imageUrl
-            "alt" $imageAlt
-      "class" "aspect-3/2 w-full object-cover sm:aspect-5/2 lg:absolute lg:aspect-auto lg:h-full lg:w-1/2 lg:pr-4 xl:pr-16"
-    ) }}
-
-    <div class="mx-auto max-w-2xl px-4 pt-16 pb-24 sm:px-6 sm:pb-32 lg:grid lg:max-w-7xl lg:grid-cols-2 lg:gap-x-8 lg:px-8 lg:pt-32">
-      <div class="lg:col-start-2">
-        <h2 id="features-heading" class="font-medium text-gray-500">{{ $subheading }}</h2>
-        <p class="mt-4 text-4xl font-bold tracking-tight text-gray-900">{{ $heading }}</p>
-        <p class="mt-4 text-gray-500">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
-
-        <dl class="mt-10 grid grid-cols-1 gap-x-8 gap-y-10 text-sm sm:grid-cols-2">
-                {{ range $features }}
-                <div>
-                  <dt class="font-medium text-gray-900">{{ .title }}</dt>
-            <dd class="mt-2 text-gray-500">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</dd>
-                </div>
-                {{ end }}
-              </dl>
-            </div>
+<div class="{{ $darkClass }}">
+  <div class="section-bg-light dark:section-bg-dark py-24 sm:py-32">
+    <div class="wrapper">
+        <section>
+          <div class="max-w-2xl mx-auto text-center">
+            {{/* Subheading and heading */}}
+            <h2 class="font-medium text-muted">{{ $subheading }}</h2>
+            <p class="{{ if $subheading }}mt-4 {{ end }}text-5xl sm:text-7xl font-semibold tracking-tight text-heading">{{ $heading }}</p>
+            <p class="mt-9 text-muted">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
           </div>
-      </section>
+          <div class="mt-[4.5rem] rounded-xl">
+            {{ partial "components/media/lazyimg.html" (dict 
+              "src" $imageUrl
+              "alt" $imageAlt
+              "class" "w-full object-cover"
+            ) }}
+          </div>
+          {{ if $features }}
+            {{ partial "components/lists/with_icon.html" (dict "lists" $features "margin" "mt-24 sm:mt-32" "columnsClass" "grid grid-cols-1 md:grid-cols-3 gap-12 sm:gap-16") }}
+          {{ end }}
+        </section>
     </div>
+  </div>
+</div>
