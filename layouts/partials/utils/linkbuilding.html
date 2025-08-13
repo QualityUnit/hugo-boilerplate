@@ -12,6 +12,10 @@
 
 @note: This utility enhances content by adding contextual links based on defined keywords. Manual keywords take precedence over automatic ones. It prevents duplicate links and ensures proper HTML structure.
 
+@skip_functionality:
+  Page-level skip: Add 'skip_linkbuilding = true' to page frontmatter to disable linkbuilding for entire page
+  Element-level skip: Add 'data-linkbuilding-skip="true"' attribute to HTML elements to exclude them from linkbuilding (planned for future implementation)
+
 @configuration: Settings can be configured in config/_default/params.toml under [params.linkbuilding]:
   enableAutoKeywords = false                  # Enable automatic keyword generation from frontmatter (default: false)
   maxSameKeywordReplacementsInPage = 5       # Maximum times the same keyword can be linked per page
@@ -52,6 +56,9 @@ These keywords will automatically create links to the page they're defined on.
 
 {{ $content := .content }}
 {{ $page := .page }}
+
+{{/* Check for page-level skip_linkbuilding parameter for early return */}}
+{{ if not $page.Params.skip_linkbuilding }}
 
 {{/* Read linkbuilding settings from params.toml with fallback to defaults */}}
 {{ $linkbuildingParams := $page.Site.Params.linkbuilding | default dict }}
@@ -293,4 +300,6 @@ These keywords will automatically create links to the page they're defined on.
   {{ $content = $processedContent }}
 {{ end }}
 
-{{ return $content }}
+{{ end }}
+
+{{ $content }}
