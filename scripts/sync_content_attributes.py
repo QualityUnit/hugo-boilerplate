@@ -1,6 +1,5 @@
 attributes_to_sync = [
     'image',
-    'skip_linkbuilding',
     'tags',
     'categories',
     'brands',
