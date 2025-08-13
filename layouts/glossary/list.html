@@ -90,7 +90,7 @@
 
   {{ if .Content }}
     {{ partial "sections/content/centered.html" (dict
-        "content" (.Content | safeHTML)
+        "content" .Content
         "bgColor" "bg-gray-50"
         "page" .
     ) }}
