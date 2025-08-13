@@ -10,6 +10,9 @@
   - height: Video height (optional, default: "auto")
   - id: Optional ID attribute (optional)
   - autoplay: Enable autoplay when opened in lightbox (optional, default: false)
+  - poster: Custom poster/thumbnail image URL (optional, defaults to YouTube thumbnail)
+  - playBtnClass: CSS classes for play button (optional)
+  - playBtnInnerClass: CSS classes for inner play button element (optional)
 @note: This partial should be called through the main video.html partial, not directly.
 */}}
 
@@ -25,7 +28,13 @@
 {{ $uploadDate := .uploadDate | default (now.Format "2006-01-02T15:04:05Z07:00") }}
 {{ $duration := .duration | default "PT0M0S" }}
 {{ $noLazy := .noLazy | default false }}
+{{ $poster := .poster }}
 {{ $loading := cond $noLazy "eager" "lazy" }}
+{{ $playBtnClass := .playBtnClass | default "w-16 h-12 bg-red-600 rounded-lg hover:bg-red-700 hover:scale-110" }}
+{{ $playBtnInnerClass := .playBtnInnerClass | default "" }}
+
+<!-- Determine thumbnail URL: use custom poster if provided, otherwise use YouTube default -->
+{{ $thumbnailUrl := cond $poster $poster (print "https://img.youtube.com/vi/" $videoID "/maxresdefault.jpg") }}
 
 <!-- Schema.org VideoObject metadata for SEO -->
 <script type="application/ld+json">
@@ -34,7 +43,7 @@
   "@type": "VideoObject",
   "name": {{ $title }},
   "description": {{ $description }},
-  "thumbnailUrl": "https://img.youtube.com/vi/{{ $videoID }}/maxresdefault.jpg",
+  "thumbnailUrl": {{ $thumbnailUrl }},
   "uploadDate": {{ $uploadDate }},
   "duration": {{ $duration }},
   "contentUrl": "https://www.youtube.com/watch?v={{ $videoID }}",
@@ -57,7 +66,7 @@
   <div class="lazy-video-thumbnail relative w-full video-aspect-ratio overflow-hidden cursor-pointer" data-video-trigger="true">
     <img 
       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E"
-      data-src="https://img.youtube.com/vi/{{ $videoID }}/maxresdefault.jpg"
+      data-src="{{ $thumbnailUrl }}"
       alt="Thumbnail for {{ $alt }}"
       class="lazy-video-thumb-img lazy-image absolute inset-0 w-full h-full object-cover transition-transform duration-300"
       data-video-id="{{ $videoID }}"
@@ -65,12 +74,20 @@
       decoding="async"
       width="{{ $width }}"
       height="{{ $height }}"
-      onload="this.onload=null; if(this.dataset.src === this.src) findBestThumbnail(this);"
+      {{ if not $poster }}onload="this.onload=null; if(this.dataset.src === this.src) findBestThumbnail(this);"{{ end }}
     />
   </div>
-  <div class="lazy-video-play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-12 bg-red-600 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-red-700 hover:scale-110 z-10">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-white ml-1">
-      <path d="M8 5v14l11-7z"/>
-    </svg>
+  <div class="lazy-video-play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-300 z-10 {{ $playBtnClass }}">
+    {{ if $playBtnInnerClass }}
+      <div class="{{ $playBtnInnerClass }}">
+        <svg width="35" height="40" viewBox="0 0 35 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 ml-1 text-primary">
+          <path d="M32.6329 17.285C34.5836 18.4487 34.5836 21.2739 32.6329 22.4377L5.19807 38.8052C3.19838 39.9982 0.661032 38.5574 0.661032 36.2289L0.661033 3.49381C0.661033 1.16528 3.19838 -0.275542 5.19807 0.917464L32.6329 17.285Z" fill="#2563EB"/>
+        </svg>
+      </div>
+    {{ else }}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-white ml-1">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    {{ end }}
   </div>
 </div>
