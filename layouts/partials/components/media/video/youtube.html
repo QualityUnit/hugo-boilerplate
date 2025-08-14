@@ -69,7 +69,7 @@
       data-src="{{ $thumbnailUrl }}"
       alt="Thumbnail for {{ $alt }}"
       class="lazy-video-thumb-img lazy-image absolute inset-0 w-full h-full object-cover transition-transform duration-300"
-      data-video-id="{{ $videoID }}"
+      {{ if not $poster }}data-video-id="{{ $videoID }}"{{ end }}
       loading="{{ $loading }}"
       decoding="async"
       width="{{ $width }}"
@@ -80,14 +80,10 @@
   <div class="lazy-video-play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-300 z-10 {{ $playBtnClass }}">
     {{ if $playBtnInnerClass }}
       <div class="{{ $playBtnInnerClass }}">
-        <svg width="35" height="40" viewBox="0 0 35 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 ml-1 text-primary">
-          <path d="M32.6329 17.285C34.5836 18.4487 34.5836 21.2739 32.6329 22.4377L5.19807 38.8052C3.19838 39.9982 0.661032 38.5574 0.661032 36.2289L0.661033 3.49381C0.661033 1.16528 3.19838 -0.275542 5.19807 0.917464L32.6329 17.285Z" fill="currentColor"/>
-        </svg>
+        {{ partial "icons/play-solid" "size-12 ml-1 text-primary" }}
       </div>
     {{ else }}
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-white ml-1">
-        <path d="M8 5v14l11-7z"/>
-      </svg>
+      {{ partial "icons/play-solid" "size-6 text-white ml-1" }}
     {{ end }}
   </div>
 </div>

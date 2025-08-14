@@ -23,18 +23,18 @@
       "description" "Short description text below the heading"
       "videos" (slice
           (dict
-              "title" "Responsive Design" 
-              "description" "Our platform automatically adapts to any device or screen size."
-              "src" "/videos/features/responsive.mp4"
-              "url" "/affiliate-program-directory/"
-              "poster" "/images/features/responsive.png"
+              "title": "Merchant",
+                "description": "Create an affiliate program",
+                "src": "https://youtu.be/9bpwD8b2PbU",
+                "poster": "/images/landing-pages/merchant.png",
+                "url": "/affiliate-program-directory/"
           )
           (dict
-              "title" "Analytics" 
-              "description" "Detailed insights into your user behavior and application performance."
-              "src" "/videos/features/analytics.mp4"
-              "url" "/affiliate-program-directory/"
-              "poster" "/images/features/analytics.png"
+                "title": "Affiliate", 
+                "description": "Sign-up to affiliate programs",
+                "src": "https://youtu.be/9bpwD8b2PbU",
+                "poster": "/images/landing-pages/affiliate.png",
+                "url": "/affiliate-program-directory/"
           )
       )
   ) }}
@@ -108,8 +108,7 @@
                         "useLightbox" true
                         "showPlayOverlay" true
                         "playBtnClass" "white-circle-bounce w-[7.75rem] h-[7.75rem] rounded-full backdrop-blur-sm"
-                        "playBtnInnerClass" "bg-white w-24 h-24 rounded-full flex items-center justify-center hover:w-[6.25rem] hover:h-[6.25rem] transition-transform duration-300"
-                        "svgIcon" "<svg width=\"35\" height=\"40\" viewBox=\"0 0 35 40\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M32.6329 17.285C34.5836 18.4487 34.5836 21.2739 32.6329 22.4377L5.19807 38.8052C3.19838 39.9982 0.661032 38.5574 0.661032 36.2289L0.661033 3.49381C0.661033 1.16528 3.19838 -0.275542 5.19807 0.917464L32.6329 17.285Z\" fill=\"#2563EB\"/></svg>"
+                        "playBtnInnerClass" "bg-white w-24 h-24 rounded-full flex items-center justify-center hover:scale-105 transition-transform duration-300"
                     ) }}
                   {{ else }}
                     {{/* Display poster image with text overlay if no video */}}
