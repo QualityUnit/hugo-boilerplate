@@ -204,7 +204,7 @@ def generate_embeddings(file_data, model_name):
     
     # Process files in batches to manage memory
     embeddings = []
-    batch_size = 8  # Process multiple files at a time, adjust based on memory constraints
+    batch_size = 30  # Process multiple files at a time, adjust based on memory constraints
     
     for i in range(0, len(file_data), batch_size):
         batch = file_data[i:i+batch_size]
