@@ -7,6 +7,12 @@
   box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
 }
 
+.lazy-video-play-button.white-circle-bounce {
+  background: transparent;
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
 .lazy-video-play-button:hover {
   cursor: pointer;
 }

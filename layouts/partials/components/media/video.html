@@ -15,9 +15,12 @@
   - loop: Enable loop (optional, default: false)
   - muted: Enable muted (optional, default: false)
   - controls: Show video controls (optional, default: true for custom, false for YouTube)
-  - poster: Poster image URL for HTML5 video (optional)
+  - poster: Poster image URL for HTML5 video or custom YouTube thumbnail (optional)
   - useLightbox: Use lightbox for custom videos (optional, default: false)
   - showPlayOverlay: Show play button overlay on custom videos (optional, default: true)
+  - playBtnClass: CSS classes for YouTube play button (optional)
+  - playBtnInnerClass: CSS classes for YouTube inner play button element (optional)
+  - svgClass: CSS classes for YouTube play icon SVG (optional)
 @example:
   {{ partial "components/media/video.html" (dict 
       "src" "https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
@@ -29,6 +32,7 @@
       "videoID" "dQw4w9WgXcQ"
       "provider" "youtube"
       "title" "Rick Astley - Never Gonna Give You Up" 
+      "poster" "/images/custom-youtube-thumbnail.jpg"
       "class" "my-8 rounded-xl shadow-lg"
   ) }}
   
@@ -98,6 +102,9 @@
       "id" $id
       "autoplay" $autoplay
       "noLazy" $noLazy
+      "poster" $poster
+      "playBtnClass" .playBtnClass
+      "playBtnInnerClass" .playBtnInnerClass
   ) }}
 {{ else if eq $provider "custom" }}
   <!-- Load video helper partial for resource management -->
