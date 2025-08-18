@@ -40,7 +40,7 @@ class ContentAnalyzer:
     SKIP_PATHS = {
         '/tags/', '/categories/', '/page/', '/author/',
         '/404.html', '/search/', '/index.xml', '/sitemap.xml',
-        '/feed.xml', '/rss.xml', '/atom.xml'
+        '/feed.xml', '/rss.xml', '/atom.xml', '/flags/'
     }
     
     def __init__(self, html_dir: Path):
@@ -49,13 +49,13 @@ class ContentAnalyzer:
         self.file_count = 0
         self.total_text_length = 0
     
-    def analyze_file(self, file_path: Path, keywords: List[Tuple[str, re.Pattern]], 
+    def analyze_file(self, file_path: Path, keywords_with_info: List[Tuple[str, re.Pattern, str]], 
                      already_found: Set[str]) -> Set[str]:
         """Analyze a single HTML file for keyword presence.
         
         Args:
             file_path: Path to HTML file to analyze
-            keywords: List of (keyword, compiled_pattern) tuples
+            keywords_with_info: List of (keyword, compiled_pattern, url) tuples
             already_found: Set of keywords already found (to skip searching for)
         
         Returns:
@@ -64,8 +64,19 @@ class ContentAnalyzer:
         found_in_file = set()
         
         # Skip file if all keywords are already found
-        if len(already_found) == len(keywords):
+        if len(already_found) == len(keywords_with_info):
             return found_in_file
+        
+        # Get the relative path from public directory for URL comparison
+        # Convert file path to URL-like format for comparison
+        file_path_str = str(file_path).replace('\\', '/')
+        # Extract the path after 'public/' to get the URL path
+        if '/public/' in file_path_str:
+            file_url_path = '/' + file_path_str.split('/public/')[-1]
+            # Remove index.html from the end
+            file_url_path = file_url_path.replace('/index.html', '/')
+        else:
+            file_url_path = None
         
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -89,8 +100,18 @@ class ContentAnalyzer:
             
             # Check each keyword using precompiled patterns
             # Skip keywords that were already found in previous files
-            for keyword, pattern in keywords:
-                if keyword not in already_found and pattern.search(text_lower):
+            # Skip keywords that link to the current page (no self-references)
+            for keyword, pattern, url in keywords_with_info:
+                # Skip if already found
+                if keyword in already_found:
+                    continue
+                    
+                # Skip if this keyword links to the current page (no self-references)
+                if file_url_path and url and file_url_path in url:
+                    continue
+                    
+                # Check if keyword exists in the text
+                if pattern.search(text_lower):
                     found_in_file.add(keyword)
             
             self.total_text_length += len(text)
@@ -138,10 +159,19 @@ class ContentAnalyzer:
         logger.info(f"Analyzing {self.file_count} HTML files for keyword presence...")
         
         # Precompile regex patterns for all keywords (much faster)
+        # Include URL info for self-reference checking
         keyword_patterns = []
-        for keyword in keywords:
-            pattern = re.compile(r'\b' + re.escape(keyword.lower()) + r'\b')
-            keyword_patterns.append((keyword, pattern))
+        for keyword, info in keywords.items():
+            # Check if keyword contains non-Latin characters (Chinese, Japanese, Korean, etc.)
+            # These languages don't use word boundaries like Latin scripts
+            if any(ord(char) > 127 for char in keyword):
+                # For non-Latin scripts, use simple string matching without word boundaries
+                # This handles Chinese, Japanese, Korean, Arabic, etc.
+                pattern = re.compile(re.escape(keyword.lower()))
+            else:
+                # For Latin scripts, use word boundaries for accurate matching
+                pattern = re.compile(r'\b' + re.escape(keyword.lower()) + r'\b')
+            keyword_patterns.append((keyword, pattern, info.get('url', '')))
         
         logger.info(f"  Compiled {len(keyword_patterns)} keyword patterns")
         
