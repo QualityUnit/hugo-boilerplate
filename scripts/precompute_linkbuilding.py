@@ -40,7 +40,7 @@ class ContentAnalyzer:
     SKIP_PATHS = {
         '/tags/', '/categories/', '/page/', '/author/',
         '/404.html', '/search/', '/index.xml', '/sitemap.xml',
-        '/feed.xml', '/rss.xml', '/atom.xml', '/flags/'
+        '/feed.xml', '/rss.xml', '/atom.xml', '/flags/', '/author/'
     }
     
     def __init__(self, html_dir: Path):
@@ -262,12 +262,41 @@ def save_optimized_linkbuilding(keywords: Dict[str, Dict],
                                found_keywords: Set[str],
                                output_path: Path) -> Dict:
     """Save optimized linkbuilding file with only found keywords."""
-    # Filter keywords to only those found
+    # Filter keywords to only those found and deduplicate case-insensitive ones
     optimized_items = []
+    seen_lowercase = {}  # Track lowercase versions for deduplication
     
     for keyword in found_keywords:
         if keyword in keywords:
             info = keywords[keyword]
+            
+            # For case-insensitive keywords (Exact=false), deduplicate by lowercase
+            if not info.get('exact', False):
+                keyword_lower = keyword.lower()
+                
+                # Check if we've already seen this keyword (case-insensitive)
+                if keyword_lower in seen_lowercase:
+                    # Keep the one with higher priority or better formatting
+                    existing = seen_lowercase[keyword_lower]
+                    if info.get('priority', 0) > existing['priority']:
+                        # Replace with higher priority version
+                        optimized_items = [item for item in optimized_items 
+                                         if item['Keyword'] != existing['keyword']]
+                        seen_lowercase[keyword_lower] = {
+                            'keyword': keyword,
+                            'priority': info.get('priority', 0)
+                        }
+                    else:
+                        # Skip this duplicate
+                        continue
+                else:
+                    # First occurrence of this keyword (case-insensitive)
+                    seen_lowercase[keyword_lower] = {
+                        'keyword': keyword,
+                        'priority': info.get('priority', 0)
+                    }
+            
+            # Add the keyword
             optimized_items.append({
                 'Keyword': keyword,
                 'URL': info['url'],
