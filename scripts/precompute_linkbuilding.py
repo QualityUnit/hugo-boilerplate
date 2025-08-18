@@ -36,6 +36,13 @@ class ContentAnalyzer:
         'iframe', 'video', 'audio', 'canvas', 'map', 'area'
     }
     
+    # Paths to skip (taxonomy pages, pagination, etc.)
+    SKIP_PATHS = {
+        '/tags/', '/categories/', '/page/', '/author/',
+        '/404.html', '/search/', '/index.xml', '/sitemap.xml',
+        '/feed.xml', '/rss.xml', '/atom.xml'
+    }
+    
     def __init__(self, html_dir: Path):
         self.html_dir = html_dir
         self.found_keywords = set()
@@ -64,8 +71,12 @@ class ContentAnalyzer:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            # Parse HTML
-            soup = BeautifulSoup(content, 'html.parser')
+            # Parse HTML (lxml is 2-3x faster than html.parser)
+            try:
+                soup = BeautifulSoup(content, 'lxml')
+            except:
+                # Fallback to html.parser if lxml is not available
+                soup = BeautifulSoup(content, 'html.parser')
             
             # Remove script and style elements
             for tag in self.SKIP_TAGS:
@@ -89,6 +100,21 @@ class ContentAnalyzer:
         
         return found_in_file
     
+    def should_skip_file(self, file_path: Path) -> bool:
+        """Check if a file should be skipped based on its path."""
+        path_str = str(file_path).replace('\\', '/')
+        
+        # Skip paths containing any of the skip patterns
+        for skip_pattern in self.SKIP_PATHS:
+            if skip_pattern in path_str:
+                return True
+        
+        # Skip pagination pages (page/2/, page/3/, etc.)
+        if '/page/' in path_str and path_str.split('/page/')[-1].split('/')[0].isdigit():
+            return True
+            
+        return False
+    
     def analyze_directory(self, keywords: Dict[str, Dict], 
                          max_workers: int = 8) -> Set[str]:
         """Analyze all HTML files in directory for keyword presence.
@@ -96,8 +122,17 @@ class ContentAnalyzer:
         Uses an optimized approach that stops searching for keywords once they're found.
         Files are processed in batches with parallel processing within each batch.
         """
-        # Find all HTML files
-        html_files = list(self.html_dir.rglob('*.html'))
+        # Find all HTML files and filter out unwanted ones
+        all_html_files = list(self.html_dir.rglob('*.html'))
+        html_files = [f for f in all_html_files if not self.should_skip_file(f)]
+        
+        skipped_count = len(all_html_files) - len(html_files)
+        if skipped_count > 0:
+            logger.info(f"  Skipping {skipped_count} files (categories, tags, pagination, etc.)")
+        
+        # Sort by file size (largest first) - larger files more likely to have keywords
+        html_files.sort(key=lambda f: f.stat().st_size, reverse=True)
+        
         self.file_count = len(html_files)
         
         logger.info(f"Analyzing {self.file_count} HTML files for keyword presence...")
@@ -235,7 +270,8 @@ def save_optimized_linkbuilding(keywords: Dict[str, Dict],
 def process_language(lang: str, 
                     linkbuilding_dir: Path,
                     public_dir: Path,
-                    output_dir: Path) -> Dict:
+                    output_dir: Path,
+                    fast_mode: bool = False) -> Dict:
     """Process a single language."""
     logger.info(f"\nProcessing language: {lang}")
     
@@ -340,6 +376,8 @@ Examples:
                        help='Specific languages to process (default: all)')
     parser.add_argument('--max-workers', type=int, default=8,
                        help='Maximum parallel workers for analysis (default: 8)')
+    parser.add_argument('--fast', action='store_true',
+                       help='Use fast mode (less accurate but much faster)')
     
     args = parser.parse_args()
     
@@ -378,7 +416,8 @@ Examples:
     results = []
     for lang in languages:
         try:
-            stats = process_language(lang, linkbuilding_dir, public_dir, output_dir)
+            stats = process_language(lang, linkbuilding_dir, public_dir, output_dir, 
+                                    fast_mode=args.fast)
             if stats:
                 results.append(stats)
         except Exception as e:

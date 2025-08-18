@@ -187,7 +187,7 @@ if __name__ == "__main__":
 
                 # Generate HTML report
                 report_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                html_path = SCRIPT_DIR / '../../../data/duplicate_images_report.html_rename'
+                html_path = SCRIPT_DIR / '../../../duplicate_images_report.htm'
                 html_content = [
                     "<html>",
                     "<head><title>Duplicate Images Report</title>",
