@@ -2,22 +2,30 @@
 Table of Contents Shortcode
 
 Description:
-Displays an automatically generated table of contents based on page headings using Hugo's built-in TableOfContents feature. 
-Creates a simple list-style TOC at full width using only Tailwind CSS classes.
+Displays a sticky dropdown-style table of contents that appears when scrolling. 
+Creates a select-like dropdown fixed under the header that provides smooth anchor navigation.
 
 Parameters:
-- title (optional): Custom title for the TOC section. Default: "Table of Contents"
+- title (optional): Custom title for the TOC section. Default: uses page title (H1)
 - class (optional): Additional Tailwind CSS classes to apply to the TOC wrapper
 
 Usage Examples:
-Basic usage:
+Basic usage (uses page title):
 {{< table-of-contents >}}
 
 With custom title:
-{{< table-of-contents title="Contents" >}}
+{{< table-of-contents title="Jump to section" >}}
 
 With additional classes:
-{{< table-of-contents title="Page Contents" class="mb-8" >}}
+{{< table-of-contents title="Navigate" class="z-50" >}}
+
+Features:
+- Appears on scroll (after 300px)
+- Sticky positioning under header
+- Select dropdown showing all sections
+- First section selected by default
+- Smooth scroll navigation
+- Uses page title (H1) as label
 
 Note: The page must have headings (h2, h3, etc.) for the TOC to generate content.
 TOC configuration in config/_default/markup.toml determines which heading levels are included.
@@ -25,6 +33,6 @@ TOC configuration in config/_default/markup.toml determines which heading levels
 
 {{ partial "table-of-contents.html" (dict 
   "page" .Page
-  "title" (.Get "title" | default "")
+  "title" (.Get "title" | default .Page.Title)
   "class" (.Get "class" | default "")
 ) }}
