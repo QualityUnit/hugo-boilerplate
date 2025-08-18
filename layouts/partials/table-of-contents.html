@@ -1,0 +1,44 @@
+{{/*
+Table of Contents Partial
+
+Description:
+Renders an automatically generated table of contents based on page headings using Hugo's built-in TableOfContents feature.
+Creates a simple full-width list-style TOC using only Tailwind CSS classes.
+
+Parameters (passed as context dict):
+- .page: Page context (required)
+- .title: Custom title for the TOC section (optional, default: "")
+- .class: Additional Tailwind classes (optional)
+
+Examples:
+Basic usage in layout:
+{{ partial "table-of-contents.html" (dict "page" .) }}
+
+With custom parameters:
+{{ partial "table-of-contents.html" (dict 
+  "page" . 
+  "title" "Contents" 
+  "class" "my-4"
+) }}
+*/}}
+
+{{ $page := .page | default . }}
+{{ $title := .title | default "" }}
+{{ $class := .class | default "" }}
+
+{{/* Get the table of contents */}}
+{{ $toc := $page.TableOfContents }}
+
+{{/* Only render if there's content in the TOC */}}
+{{ if $toc }}
+  {{ $allClasses := printf "table-of-contents section-bg-alternate border surface-border rounded-lg p-6 my-8 %s" $class }}
+  
+  <div class="{{ $allClasses | strings.TrimSpace }}">
+    <div class="mb-4 pb-3 border-b surface-border">
+      <h3 class="text-lg font-semibold text-heading m-0">{{ $title }}</h3>
+    </div>
+    <div class="toc-content">
+      {{ $toc | replaceRE `<nav[^>]*>` `<nav class="space-y-1">` | replaceRE `<ul[^>]*>` `<ul class="list-none m-0 p-0 space-y-1">` | replaceRE `<ul class="list-none m-0 p-0 space-y-1"([^>]*)>\s*<li[^>]*>\s*<ul[^>]*>` `<ul class="list-none ml-4 mt-1 p-0 space-y-1"$1><li><ul class="list-none ml-4 mt-1 p-0 space-y-1">` | replaceRE `<a([^>]*)>` `<a$1 class="text-body hover:text-primary hover:underline no-underline leading-relaxed block py-1 transition-colors duration-300">` | safeHTML }}
+    </div>
+  </div>
+{{ end }}

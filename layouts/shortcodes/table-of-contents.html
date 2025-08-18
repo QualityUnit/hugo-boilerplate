@@ -1,0 +1,30 @@
+{{/*
+Table of Contents Shortcode
+
+Description:
+Displays an automatically generated table of contents based on page headings using Hugo's built-in TableOfContents feature. 
+Creates a simple list-style TOC at full width using only Tailwind CSS classes.
+
+Parameters:
+- title (optional): Custom title for the TOC section. Default: "Table of Contents"
+- class (optional): Additional Tailwind CSS classes to apply to the TOC wrapper
+
+Usage Examples:
+Basic usage:
+{{< table-of-contents >}}
+
+With custom title:
+{{< table-of-contents title="Contents" >}}
+
+With additional classes:
+{{< table-of-contents title="Page Contents" class="mb-8" >}}
+
+Note: The page must have headings (h2, h3, etc.) for the TOC to generate content.
+TOC configuration in config/_default/markup.toml determines which heading levels are included.
+*/}}
+
+{{ partial "table-of-contents.html" (dict 
+  "page" .Page
+  "title" (.Get "title" | default "")
+  "class" (.Get "class" | default "")
+) }}
