@@ -42,9 +42,23 @@ class ContentAnalyzer:
         self.file_count = 0
         self.total_text_length = 0
     
-    def analyze_file(self, file_path: Path, keywords: List[Tuple[str, re.Pattern]]) -> Set[str]:
-        """Analyze a single HTML file for keyword presence."""
+    def analyze_file(self, file_path: Path, keywords: List[Tuple[str, re.Pattern]], 
+                     already_found: Set[str]) -> Set[str]:
+        """Analyze a single HTML file for keyword presence.
+        
+        Args:
+            file_path: Path to HTML file to analyze
+            keywords: List of (keyword, compiled_pattern) tuples
+            already_found: Set of keywords already found (to skip searching for)
+        
+        Returns:
+            Set of keywords found in this file
+        """
         found_in_file = set()
+        
+        # Skip file if all keywords are already found
+        if len(already_found) == len(keywords):
+            return found_in_file
         
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -63,8 +77,9 @@ class ContentAnalyzer:
             text_lower = text.lower()
             
             # Check each keyword using precompiled patterns
+            # Skip keywords that were already found in previous files
             for keyword, pattern in keywords:
-                if pattern.search(text_lower):
+                if keyword not in already_found and pattern.search(text_lower):
                     found_in_file.add(keyword)
             
             self.total_text_length += len(text)
@@ -76,7 +91,11 @@ class ContentAnalyzer:
     
     def analyze_directory(self, keywords: Dict[str, Dict], 
                          max_workers: int = 8) -> Set[str]:
-        """Analyze all HTML files in directory for keyword presence."""
+        """Analyze all HTML files in directory for keyword presence.
+        
+        Uses an optimized approach that stops searching for keywords once they're found.
+        Files are processed in batches with parallel processing within each batch.
+        """
         # Find all HTML files
         html_files = list(self.html_dir.rglob('*.html'))
         self.file_count = len(html_files)
@@ -91,31 +110,51 @@ class ContentAnalyzer:
         
         logger.info(f"  Compiled {len(keyword_patterns)} keyword patterns")
         
-        # Process files in parallel
+        # Process files with early stopping optimization
         all_found_keywords = set()
+        batch_size = min(50, max_workers * 2)  # Process in batches
+        completed = 0
         
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # Submit analysis tasks
-            future_to_file = {
-                executor.submit(self.analyze_file, file_path, keyword_patterns): file_path
-                for file_path in html_files
-            }
+        for batch_start in range(0, len(html_files), batch_size):
+            batch_end = min(batch_start + batch_size, len(html_files))
+            batch_files = html_files[batch_start:batch_end]
             
-            # Collect results
-            completed = 0
-            for future in concurrent.futures.as_completed(future_to_file):
-                file_path = future_to_file[future]
-                try:
-                    found = future.result()
-                    all_found_keywords.update(found)
-                    completed += 1
-                    
-                    # Progress update every 100 files
-                    if completed % 100 == 0:
-                        logger.info(f"  Processed {completed}/{self.file_count} files, "
-                                   f"found {len(all_found_keywords)} unique keywords")
-                except Exception as e:
-                    logger.error(f"Error processing {file_path}: {e}")
+            # Check if we've found all keywords already
+            if len(all_found_keywords) == len(keyword_patterns):
+                logger.info(f"  All {len(keyword_patterns)} keywords found after {completed} files!")
+                break
+            
+            # Process batch in parallel, passing already_found to each worker
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit analysis tasks with current already_found set
+                future_to_file = {
+                    executor.submit(self.analyze_file, file_path, keyword_patterns, 
+                                  all_found_keywords.copy()): file_path
+                    for file_path in batch_files
+                }
+                
+                # Collect results from this batch
+                for future in concurrent.futures.as_completed(future_to_file):
+                    file_path = future_to_file[future]
+                    try:
+                        found = future.result()
+                        all_found_keywords.update(found)
+                        completed += 1
+                        
+                        # Progress update
+                        if completed % 100 == 0 or completed == self.file_count:
+                            remaining_keywords = len(keyword_patterns) - len(all_found_keywords)
+                            logger.info(f"  Processed {completed}/{self.file_count} files, "
+                                       f"found {len(all_found_keywords)}/{len(keyword_patterns)} keywords "
+                                       f"({remaining_keywords} remaining)")
+                    except Exception as e:
+                        logger.error(f"Error processing {file_path}: {e}")
+                        completed += 1
+        
+        # Final progress if not already shown
+        if completed % 100 != 0 and completed != self.file_count:
+            logger.info(f"  Processed {completed}/{self.file_count} files, "
+                       f"found {len(all_found_keywords)}/{len(keyword_patterns)} keywords")
         
         self.found_keywords = all_found_keywords
         return all_found_keywords
