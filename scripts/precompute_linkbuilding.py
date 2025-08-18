@@ -270,8 +270,7 @@ def save_optimized_linkbuilding(keywords: Dict[str, Dict],
 def process_language(lang: str, 
                     linkbuilding_dir: Path,
                     public_dir: Path,
-                    output_dir: Path,
-                    fast_mode: bool = False) -> Dict:
+                    output_dir: Path) -> Dict:
     """Process a single language."""
     logger.info(f"\nProcessing language: {lang}")
     
@@ -376,8 +375,6 @@ Examples:
                        help='Specific languages to process (default: all)')
     parser.add_argument('--max-workers', type=int, default=8,
                        help='Maximum parallel workers for analysis (default: 8)')
-    parser.add_argument('--fast', action='store_true',
-                       help='Use fast mode (less accurate but much faster)')
     
     args = parser.parse_args()
     
@@ -416,8 +413,7 @@ Examples:
     results = []
     for lang in languages:
         try:
-            stats = process_language(lang, linkbuilding_dir, public_dir, output_dir, 
-                                    fast_mode=args.fast)
+            stats = process_language(lang, linkbuilding_dir, public_dir, output_dir)
             if stats:
                 results.append(stats)
         except Exception as e:
