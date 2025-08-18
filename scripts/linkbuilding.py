@@ -300,6 +300,9 @@ class LinkBuilder:
                 if isinstance(child, NavigableString):
                     # Process text node
                     if child.parent and child.parent.name not in self.SKIP_TAGS:
+                        # Skip if parent is a link with our marker
+                        if child.parent.name == 'a' and child.parent.get('data-lb'):
+                            continue
                         new_content = self.process_text_node(child, child.parent)
                         if new_content != str(child):
                             # Replace the text node with new content
@@ -307,8 +310,11 @@ class LinkBuilder:
                             child.replace_with(new_soup)
                             modified = True
                 elif isinstance(child, Tag):
-                    # Skip certain tags
+                    # Skip certain tags and existing linkbuilding links
                     if child.name not in self.SKIP_TAGS:
+                        # Skip links that already have our marker
+                        if child.name == 'a' and child.get('data-lb'):
+                            continue
                         if self.process_element(child):
                             modified = True
         
@@ -378,6 +384,9 @@ class LinkBuilder:
                 if self.config.add_title_attribute and keyword.title:
                     link_attrs.append(f'title="{html.escape(keyword.title)}"')
                 
+                # Add marker attribute for linkbuilding-generated links (short to save space)
+                link_attrs.append('data-lb="1"')
+                
                 # Determine if external link
                 if keyword.url.startswith(('http://', 'https://', '//')):
                     parsed = urlparse(keyword.url)
@@ -446,24 +455,94 @@ def load_keywords_from_csv(file_path: str) -> List[Keyword]:
 
 
 def load_keywords_from_json(file_path: str) -> List[Keyword]:
-    """Load keywords from JSON file"""
+    """Load keywords from JSON file (supports both manual and automatic formats)"""
     keywords = []
     
     with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    for item in data:
-        keyword = Keyword(
-            keyword=item.get('keyword', '').strip(),
-            url=item.get('url', '').strip(),
-            title=item.get('title', '').strip(),
-            priority=item.get('priority', 0),
-            exact_match=item.get('exact_match', False)
-        )
-        if keyword.keyword and keyword.url:
-            keywords.append(keyword)
+    # Check if data has "keywords" wrapper
+    if isinstance(data, dict) and "keywords" in data:
+        items = data["keywords"]
+    elif isinstance(data, list):
+        items = data
+    else:
+        # Fallback for single item or other format
+        items = [data] if not isinstance(data, list) else data
+    
+    # Process each item
+    for item in items:
+        if isinstance(item, dict):
+            # Try both lowercase and capitalized field names for compatibility
+            keyword_text = item.get('Keyword', item.get('keyword', '')).strip()
+            url = item.get('URL', item.get('url', '')).strip()
+            title = item.get('Title', item.get('title', '')).strip()
+            priority = item.get('Priority', item.get('priority', 0))
+            exact_match = item.get('Exact', item.get('exact_match', item.get('exact', False)))
+            
+            keyword = Keyword(
+                keyword=keyword_text,
+                url=url,
+                title=title,
+                priority=priority,
+                exact_match=exact_match
+            )
+            if keyword.keyword and keyword.url:
+                keywords.append(keyword)
     
     return keywords
+
+
+def load_keywords_from_multiple_sources(manual_file: Optional[str] = None,
+                                       automatic_file: Optional[str] = None,
+                                       manual_priority_boost: int = 10) -> List[Keyword]:
+    """Load keywords from both manual and automatic sources
+    
+    Args:
+        manual_file: Path to manual keywords file (CSV or JSON)
+        automatic_file: Path to automatic keywords file (JSON)
+        manual_priority_boost: Priority boost for manual keywords over automatic ones
+    
+    Returns:
+        Combined list of keywords with manual keywords having higher priority
+    """
+    keywords = []
+    
+    # Load automatic keywords first (lower priority)
+    if automatic_file and os.path.exists(automatic_file):
+        try:
+            auto_keywords = load_keywords_from_json(automatic_file)
+            print(f"Loaded {len(auto_keywords)} automatic keywords from {automatic_file}")
+            keywords.extend(auto_keywords)
+        except Exception as e:
+            print(f"Warning: Failed to load automatic keywords from {automatic_file}: {e}")
+    
+    # Load manual keywords (higher priority)
+    if manual_file and os.path.exists(manual_file):
+        try:
+            if manual_file.endswith('.json'):
+                manual_keywords = load_keywords_from_json(manual_file)
+            else:
+                manual_keywords = load_keywords_from_csv(manual_file)
+            
+            # Boost priority for manual keywords
+            for kw in manual_keywords:
+                kw.priority += manual_priority_boost
+            
+            print(f"Loaded {len(manual_keywords)} manual keywords from {manual_file}")
+            keywords.extend(manual_keywords)
+        except Exception as e:
+            print(f"Warning: Failed to load manual keywords from {manual_file}: {e}")
+    
+    # Remove duplicates (manual keywords take precedence due to higher priority)
+    # Keep the highest priority version of each keyword
+    keyword_dict = {}
+    for kw in keywords:
+        key = kw.keyword.lower()
+        if key not in keyword_dict or kw.priority > keyword_dict[key].priority:
+            keyword_dict[key] = kw
+    
+    return list(keyword_dict.values())
 
 
 def main():
@@ -473,11 +552,17 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Process English content with English keywords
+  # Process English content with manual keywords only
   python linkbuilding.py -k keywords_en.csv -d public/
   
+  # Process with both manual and automatic keywords
+  python linkbuilding.py -k keywords_en.csv -a en_automatic.json -d public/en/
+  
+  # Process with automatic keywords only
+  python linkbuilding.py -a en_automatic.json -d public/en/
+  
   # Process German content with German keywords, excluding other languages
-  python linkbuilding.py -k keywords_de.csv -d public/de/ --exclude en es fr
+  python linkbuilding.py -k keywords_de.csv -a de_automatic.json -d public/de/ --exclude en es fr
   
   # Use JSON configuration
   python linkbuilding.py -k keywords.json -d public/ -c config.json
@@ -490,7 +575,7 @@ CSV Format:
   "AI Tools",/tools/,Browse AI Tools,10,false
   "machine learning",/ml/,Learn about ML,5,true
 
-JSON Format:
+JSON Format (Manual):
   [
     {
       "keyword": "AI Tools",
@@ -500,11 +585,19 @@ JSON Format:
       "exact_match": false
     }
   ]
+  
+JSON Format (Automatic):
+  {
+    "AI workflow": {"url": "/flows/ai-workflow", "title": "AI Workflow Automation"},
+    "chatbot": {"url": "/flows/chatbot", "title": "Build Custom Chatbots"}
+  }
         """
     )
     
-    parser.add_argument('-k', '--keywords', required=True,
-                       help='Path to keywords file (CSV or JSON)')
+    parser.add_argument('-k', '--keywords',
+                       help='Path to manual keywords file (CSV or JSON)')
+    parser.add_argument('-a', '--automatic',
+                       help='Path to automatic keywords file (JSON)')
     parser.add_argument('-d', '--directory', required=True,
                        help='Directory to process HTML files')
     parser.add_argument('-c', '--config',
@@ -521,16 +614,27 @@ JSON Format:
                        help='Override max replacements per keyword')
     parser.add_argument('--max-url', type=int,
                        help='Override max replacements per URL')
+    parser.add_argument('--manual-priority-boost', type=int, default=10,
+                       help='Priority boost for manual keywords over automatic (default: 10)')
     
     args = parser.parse_args()
     
-    # Load keywords
-    if args.keywords.endswith('.json'):
-        keywords = load_keywords_from_json(args.keywords)
-    else:
-        keywords = load_keywords_from_csv(args.keywords)
+    # Validate that at least one keyword source is provided
+    if not args.keywords and not args.automatic:
+        parser.error("At least one keyword source is required: use -k/--keywords or -a/--automatic")
     
-    print(f"Loaded {len(keywords)} keywords")
+    # Load keywords from both sources
+    keywords = load_keywords_from_multiple_sources(
+        manual_file=args.keywords,
+        automatic_file=args.automatic,
+        manual_priority_boost=args.manual_priority_boost
+    )
+    
+    if not keywords:
+        print("Error: No keywords loaded from any source")
+        sys.exit(1)
+    
+    print(f"Loaded {len(keywords)} total keywords")
     
     # Load or create config
     config = LinkConfig()
@@ -564,17 +668,55 @@ JSON Format:
     
     print(f"\nReport saved to: {args.output}")
     
-    # Print summary
-    print(f"\nSummary:")
+    # Print detailed summary
+    print(f"\n{'='*60}")
+    print(f"LINKBUILDING REPORT SUMMARY")
+    print(f"{'='*60}")
     print(f"  Files processed: {stats.total_files_processed}")
     print(f"  Files modified: {stats.total_files_modified}")
     print(f"  Links added: {stats.total_links_added}")
     print(f"  Keywords used: {len(stats.links_per_keyword)}")
     
+    # Show top keywords by usage
+    if stats.links_per_keyword:
+        print(f"\nTop 10 Keywords by Usage:")
+        top_keywords = sorted(stats.links_per_keyword.items(), key=lambda x: x[1], reverse=True)[:10]
+        for keyword, count in top_keywords:
+            print(f"  {count:4} - {keyword}")
+    
+    # Show top URLs by usage
+    if stats.links_per_url:
+        print(f"\nTop 10 URLs by Usage:")
+        top_urls = sorted(stats.links_per_url.items(), key=lambda x: x[1], reverse=True)[:10]
+        for url, count in top_urls:
+            print(f"  {count:4} - {url}")
+    
+    # Save JSON statistics report
+    json_report_path = args.output.replace('.html', '.json')
+    stats_dict = {
+        'summary': {
+            'files_processed': stats.total_files_processed,
+            'files_modified': stats.total_files_modified,
+            'links_added': stats.total_links_added,
+            'keywords_used': len(stats.links_per_keyword),
+            'unique_urls': len(stats.links_per_url)
+        },
+        'keywords': stats.links_per_keyword,
+        'urls': stats.links_per_url,
+        'files': stats.links_per_file,
+        'errors': stats.errors
+    }
+    
+    with open(json_report_path, 'w', encoding='utf-8') as f:
+        json.dump(stats_dict, f, indent=2, ensure_ascii=False)
+    print(f"\nJSON report saved to: {json_report_path}")
+    
     if stats.errors:
         print(f"\nErrors encountered: {len(stats.errors)}")
         for error in stats.errors[:5]:
             print(f"  - {error}")
+    
+    print(f"{'='*60}")
     
     # Exit with appropriate code
     sys.exit(0 if stats.errors == [] else 1)
