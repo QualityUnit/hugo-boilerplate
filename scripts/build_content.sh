@@ -89,17 +89,6 @@ run_step() {
             echo -e "${GREEN}Translation key sync completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step sync_translations finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
-        validate_content)
-            echo -e "${BLUE}=== Step 1: Validating Content Files ===${NC}"
-            echo -e "${YELLOW}[DEBUG] Executing: bash ${SCRIPT_DIR}/validate_content.sh --path ${HUGO_ROOT}/content${NC}"
-            bash "${SCRIPT_DIR}/validate_content.sh" --path "${HUGO_ROOT}/content"
-            if [ $? -ne 0 ]; then
-                echo -e "${YELLOW}Content file validation failed. Stopping further processing.${NC}"
-                exit 1
-            fi
-            echo -e "${GREEN}Content file validation completed!${NC}"
-            echo -e "${YELLOW}[DEBUG] Step validate_content finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            ;;
         offload_images)
             echo -e "${BLUE}=== Step 2: Offload Images from Replicate ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/offload_replicate_images.py${NC}"
@@ -128,17 +117,6 @@ run_step() {
             python "${SCRIPT_DIR}/sync_content_attributes.py"
             echo -e "${GREEN}Content attributes sync completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step sync_content_attributes finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            ;;
-        validate_content_post)
-            echo -e "${BLUE}=== Step 3.6: Validating Content Files after translation ===${NC}"
-            echo -e "${YELLOW}[DEBUG] Executing: bash ${SCRIPT_DIR}/validate_content.sh --path ${HUGO_ROOT}/content${NC}"
-            bash "${SCRIPT_DIR}/validate_content.sh" --path "${HUGO_ROOT}/content"
-            if [ $? -ne 0 ]; then
-                echo -e "${YELLOW}Content file validation failed. Stopping further processing.${NC}"
-                exit 1
-            fi
-            echo -e "${GREEN}Content file validation completed!${NC}"
-            echo -e "${YELLOW}[DEBUG] Step validate_content_post finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_translation_urls)
             echo -e "${BLUE}=== Step 3.7: Generating Translation URLs Mapping ===${NC}"
@@ -210,8 +188,8 @@ run_step() {
             echo -e "${YELLOW}[DEBUG] Step extract_automatic_links finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         build_hugo)
-            echo -e "${BLUE}=== Step 4.7: Building Hugo Site (All Languages) ===${NC}"
-            echo -e "${YELLOW}Building Hugo site with minification for all languages...${NC}"
+            echo -e "${BLUE}=== Step 2: Building Hugo Site (All Languages) ===${NC}"
+            echo -e "${YELLOW}Building Hugo site to validate content and generate HTML files...${NC}"
             
             # Build Hugo with minification (all languages)
             echo -e "${YELLOW}[DEBUG] Executing: hugo --minify${NC}"
@@ -219,27 +197,29 @@ run_step() {
             cd "${HUGO_ROOT}"
             hugo --minify
             
-            if [ $? -eq 0 ]; then
-                echo -e "${GREEN}Hugo build completed successfully!${NC}"
-                
-                # Count generated files per language
-                total_count=$(find "${HUGO_ROOT}/public" -name "*.html" | wc -l)
-                echo -e "${GREEN}Generated ${total_count} total HTML files${NC}"
-                
-                # Show breakdown by language
-                echo -e "${YELLOW}Files per language:${NC}"
-                for lang_dir in ar cs da de es fi fr it ja ko nl no pl pt ro sk sv tr vi zh; do
-                    if [ -d "${HUGO_ROOT}/public/${lang_dir}" ]; then
-                        lang_count=$(find "${HUGO_ROOT}/public/${lang_dir}" -name "*.html" | wc -l)
-                        echo -e "  ${lang_dir}: ${lang_count} files"
-                    fi
-                done
-                # English is at root
-                en_count=$(find "${HUGO_ROOT}/public" -maxdepth 3 -name "*.html" -not -path "*/ar/*" -not -path "*/cs/*" -not -path "*/da/*" -not -path "*/de/*" -not -path "*/es/*" -not -path "*/fi/*" -not -path "*/fr/*" -not -path "*/it/*" -not -path "*/ja/*" -not -path "*/ko/*" -not -path "*/nl/*" -not -path "*/no/*" -not -path "*/pl/*" -not -path "*/pt/*" -not -path "*/ro/*" -not -path "*/sk/*" -not -path "*/sv/*" -not -path "*/tr/*" -not -path "*/vi/*" -not -path "*/zh/*" | wc -l)
-                echo -e "  en: ${en_count} files (at root)"
-            else
-                echo -e "${YELLOW}Warning: Hugo build failed${NC}"
+            if [ $? -ne 0 ]; then
+                echo -e "${RED}ERROR: Hugo build failed! Content has errors that must be fixed.${NC}"
+                echo -e "${RED}Please fix the errors above before continuing.${NC}"
+                exit 1
             fi
+            
+            echo -e "${GREEN}Hugo build completed successfully!${NC}"
+            
+            # Count generated files per language
+            total_count=$(find "${HUGO_ROOT}/public" -name "*.html" | wc -l)
+            echo -e "${GREEN}Generated ${total_count} total HTML files${NC}"
+            
+            # Show breakdown by language
+            echo -e "${YELLOW}Files per language:${NC}"
+            for lang_dir in ar cs da de es fi fr it ja ko nl no pl pt ro sk sv tr vi zh; do
+                if [ -d "${HUGO_ROOT}/public/${lang_dir}" ]; then
+                    lang_count=$(find "${HUGO_ROOT}/public/${lang_dir}" -name "*.html" | wc -l)
+                    echo -e "  ${lang_dir}: ${lang_count} files"
+                fi
+            done
+            # English is at root
+            en_count=$(find "${HUGO_ROOT}/public" -maxdepth 3 -name "*.html" -not -path "*/ar/*" -not -path "*/cs/*" -not -path "*/da/*" -not -path "*/de/*" -not -path "*/es/*" -not -path "*/fi/*" -not -path "*/fr/*" -not -path "*/it/*" -not -path "*/ja/*" -not -path "*/ko/*" -not -path "*/nl/*" -not -path "*/no/*" -not -path "*/pl/*" -not -path "*/pt/*" -not -path "*/ro/*" -not -path "*/sk/*" -not -path "*/sv/*" -not -path "*/tr/*" -not -path "*/vi/*" -not -path "*/zh/*" | wc -l)
+            echo -e "  en: ${en_count} files (at root)"
             
             echo -e "${YELLOW}[DEBUG] Step build_hugo finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
@@ -349,7 +329,7 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
 
 # If no steps specified, run all steps
 if [ ${#STEPS_TO_RUN[@]} -eq 0 ]; then
-    STEPS_TO_RUN=(sync_translations validate_content offload_images find_duplicate_images translate sync_content_attributes validate_content_post generate_translation_urls generate_related_content extract_automatic_links build_hugo precompute_linkbuilding preprocess_images)
+    STEPS_TO_RUN=(sync_translations build_hugo offload_images find_duplicate_images translate sync_content_attributes generate_translation_urls generate_related_content extract_automatic_links precompute_linkbuilding preprocess_images)
     echo -e "${YELLOW}[DEBUG] No steps specified, running all steps: ${STEPS_TO_RUN[@]}${NC}"
 else
     echo -e "${YELLOW}[DEBUG] Running specified steps: ${STEPS_TO_RUN[@]}${NC}"
