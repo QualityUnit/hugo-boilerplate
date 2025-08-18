@@ -10,7 +10,7 @@ Usage:
 
 Features:
 - Parses TOML frontmatter from markdown files
-- Extracts keywords array and optional URL parameter
+- Extracts ONLY the first 3 keywords from each page (to limit automatic links)
 - Determines title from description, shortDescription, or title (in priority order)
 - Generates JSON output compatible with linkbuilding.py
 - Supports multilingual content processing
@@ -90,10 +90,13 @@ class LinkExtractor:
             with open(file_path, 'r', encoding='utf-8') as f:
                 post = frontmatter.load(f)
             
-            # Get keywords from frontmatter
+            # Get keywords from frontmatter (limit to first 3)
             keywords = post.metadata.get('keywords', [])
             if not keywords or not isinstance(keywords, list):
                 return []
+            
+            # Only take the first 3 keywords for automatic links
+            keywords = keywords[:3]
             
             # Determine the URL for this file
             file_url = self.determine_url(file_path, post.metadata)
@@ -113,7 +116,7 @@ class LinkExtractor:
                     links.append(link_entry)
             
             if links:
-                logger.debug(f"Extracted {len(links)} keywords from {file_path}")
+                logger.debug(f"Extracted {len(links)} keywords (max 3) from {file_path}")
             
             return links
             
