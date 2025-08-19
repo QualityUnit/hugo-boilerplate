@@ -79,13 +79,14 @@
 {{ $typewriter := merge (dict "pause" 2000) $typewriter }}
 {{ $typewriter := merge (dict "color" "text-indigo-600") $typewriter }}
 {{ $typewriter := merge (dict "wordAlternatives" "") $typewriter }}{{/* comma separated words to alternate with */}}
+{{ $padding := .padding | default "py-24 sm:py-32" }}
 
 {{ $imgBgClass := .imgBgClass | default "bg-[linear-gradient(205deg,_theme(colors.primary.100)_66.27%,_theme(colors.primary.300)_99.99%)]" }}
 
 <div class="{{ $darkClass }}">
   <div class="section-bg-light dark:section-bg-dark">
-    <div class="relative isolate lg:pt-7">
-        <div class="wrapper py-24 sm:py-32">
+    <div class="relative isolate">
+        <div class="wrapper {{ $padding }}">
           <div class="mx-auto max-w-2xl text-center">
             {{ if $announcement.text }}
               <div class="hidden sm:mb-8 sm:flex sm:justify-center">
