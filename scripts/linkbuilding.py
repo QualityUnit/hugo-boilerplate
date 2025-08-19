@@ -201,11 +201,18 @@ class LinkBuilder:
         'iframe', 'video', 'audio', 'canvas', 'map', 'area', 'form'
     }
     
-    def __init__(self, keywords: List[Keyword], config: LinkConfig = None):
+    # Paths to skip (taxonomy pages, pagination, etc.) - same as precompute_linkbuilding.py
+    SKIP_PATHS = {
+        '/tags/', '/categories/', '/page/', '/author/',
+        '/search/', '/404.html', '/index.xml', '/sitemap.xml'
+    }
+    
+    def __init__(self, keywords: List[Keyword], config: LinkConfig = None, language: str = None):
         self.keywords = sorted(keywords, key=lambda k: (-k.priority, -len(k.keyword)))
         self.config = config or LinkConfig()
         self.stats = LinkStatistics()
         self.current_file = None
+        self.language = language or ''  # Language code for progress reporting
         self.reset_page_counters()
     
     def reset_page_counters(self):
@@ -217,26 +224,104 @@ class LinkBuilder:
         self.page_replacements = 0
         self.existing_links = 0
     
-    def process_directory(self, directory: str, exclude_dirs: List[str] = None) -> LinkStatistics:
-        """Process all HTML files in a directory"""
+    def should_skip_file(self, file_path: Path) -> bool:
+        """Check if a file should be skipped based on its path."""
+        path_str = str(file_path).replace('\\', '/')
+        
+        # Skip paths containing any of the skip patterns
+        for skip_pattern in self.SKIP_PATHS:
+            if skip_pattern in path_str:
+                return True
+        
+        # Don't skip index.html files - they are important content pages in Hugo
+        # Only skip if they match the skip patterns above
+        
+        return False
+    
+    def should_skip_for_english(self, file_path: Path, base_dir: Path) -> bool:
+        """Check if a file should be skipped when processing English content.
+        
+        English content is at the root of public/, but other languages are in
+        subdirectories like /ar/, /cs/, /de/, etc. We need to skip these.
+        """
+        path_str = str(file_path).replace('\\', '/')
+        base_str = str(base_dir).replace('\\', '/')
+        
+        # Get relative path from base directory
+        try:
+            rel_path = file_path.relative_to(base_dir)
+            parts = rel_path.parts
+            
+            # Check if first directory is a 2-letter language code
+            if len(parts) > 0:
+                first_dir = parts[0]
+                # Skip if it's a 2-letter directory name (language code)
+                if len(first_dir) == 2 and first_dir.isalpha() and first_dir.islower():
+                    return True
+        except ValueError:
+            pass
+        
+        return False
+    
+    def process_directory(self, directory: str, exclude_dirs: List[str] = None, is_english: bool = False) -> LinkStatistics:
+        """Process all HTML files in a directory
+        
+        Args:
+            directory: Directory to process
+            exclude_dirs: List of directory names to exclude
+            is_english: True if processing English content (to skip language subdirs)
+        """
         directory = Path(directory)
         exclude_dirs = exclude_dirs or []
         
         # Find all HTML files
-        html_files = []
+        all_html_files = []
         for root, dirs, files in os.walk(directory):
             # Remove excluded directories from dirs to prevent walking into them
             dirs[:] = [d for d in dirs if d not in exclude_dirs]
             
             for file in files:
                 if file.endswith('.html'):
-                    html_files.append(Path(root) / file)
+                    all_html_files.append(Path(root) / file)
+        
+        # Filter out unwanted files
+        html_files = []
+        skipped_lang = 0
+        skipped_other = 0
+        
+        for file_path in all_html_files:
+            # Skip based on path patterns
+            if self.should_skip_file(file_path):
+                skipped_other += 1
+                continue
+            
+            # For English, also skip language subdirectories
+            if is_english and self.should_skip_for_english(file_path, directory):
+                skipped_lang += 1
+                continue
+            
+            html_files.append(file_path)
         
         print(f"Found {len(html_files)} HTML files to process")
+        if skipped_lang > 0:
+            print(f"  Skipped {skipped_lang} files from other language directories")
+        if skipped_other > 0:
+            print(f"  Skipped {skipped_other} files (categories, tags, pagination, etc.)")
         
-        # Process each file
-        for html_file in html_files:
+        # Process each file with progress reporting
+        total_files = len(html_files)
+        for index, html_file in enumerate(html_files, 1):
             self.process_file(html_file)
+            
+            # Report progress every 100 files
+            if index % 100 == 0:
+                lang_prefix = f"[{self.language}] " if self.language else ""
+                print(f"{lang_prefix}Processed {index}/{total_files} files...")
+        
+        # Final progress if not already shown
+        if total_files > 0 and total_files % 100 != 0:
+            lang_prefix = f"[{self.language}] " if self.language else ""
+            print(f"{lang_prefix}Processed {total_files}/{total_files} files - completed")
         
         return self.stats
     
@@ -455,25 +540,51 @@ def load_keywords_from_csv(file_path: str) -> List[Keyword]:
 
 
 def load_keywords_from_json(file_path: str) -> List[Keyword]:
-    """Load keywords from JSON file (supports both manual and automatic formats)"""
+    """Load keywords from JSON file (supports both manual and automatic formats)
+    
+    Both formats use the same structure with capitalized field names:
+    {
+        "keywords": [
+            {
+                "Keyword": "AI Tools",
+                "URL": "/tools/",
+                "Title": "Browse AI Tools",
+                "Priority": 10,
+                "Exact": false
+            }
+        ]
+    }
+    
+    Note: The code also supports lowercase field names for backward compatibility.
+    """
     keywords = []
     
     with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # Check if data has "keywords" wrapper
+    # Check if data has "keywords" wrapper (for backwards compatibility)
     if isinstance(data, dict) and "keywords" in data:
         items = data["keywords"]
     elif isinstance(data, list):
         items = data
     else:
-        # Fallback for single item or other format
-        items = [data] if not isinstance(data, list) else data
+        # Support old automatic format where keywords are dict keys
+        # {"AI workflow": {"url": "/flows/ai-workflow", "title": "AI Workflow Automation"}}
+        items = []
+        for keyword_text, values in data.items():
+            if isinstance(values, dict):
+                items.append({
+                    "keyword": keyword_text,
+                    "url": values.get("url", ""),
+                    "title": values.get("title", ""),
+                    "priority": values.get("priority", 0),
+                    "exact_match": values.get("exact_match", False)
+                })
     
     # Process each item
     for item in items:
         if isinstance(item, dict):
-            # Try both lowercase and capitalized field names for compatibility
+            # Support both lowercase and capitalized field names for compatibility
             keyword_text = item.get('Keyword', item.get('keyword', '')).strip()
             url = item.get('URL', item.get('url', '')).strip()
             title = item.get('Title', item.get('title', '')).strip()
@@ -575,22 +686,27 @@ CSV Format:
   "AI Tools",/tools/,Browse AI Tools,10,false
   "machine learning",/ml/,Learn about ML,5,true
 
-JSON Format (Manual):
-  [
-    {
-      "keyword": "AI Tools",
-      "url": "/tools/",
-      "title": "Browse AI Tools",
-      "priority": 10,
-      "exact_match": false
-    }
-  ]
-  
-JSON Format (Automatic):
+JSON Format (Manual and Automatic - same structure):
   {
-    "AI workflow": {"url": "/flows/ai-workflow", "title": "AI Workflow Automation"},
-    "chatbot": {"url": "/flows/chatbot", "title": "Build Custom Chatbots"}
+    "keywords": [
+      {
+        "Keyword": "AI Tools",
+        "URL": "/tools/",
+        "Title": "Browse AI Tools",
+        "Priority": 10,
+        "Exact": false
+      },
+      {
+        "Keyword": "chatbot",
+        "URL": "/flows/chatbot",
+        "Title": "Build Custom Chatbots",
+        "Priority": 5,
+        "Exact": true
+      }
+    ]
   }
+  
+Note: Field names are capitalized (Keyword, URL, Title, Priority, Exact) but lowercase versions are also supported for compatibility.
         """
     )
     
@@ -604,8 +720,8 @@ JSON Format (Automatic):
                        help='Configuration file (JSON)')
     parser.add_argument('--exclude', nargs='+', default=[],
                        help='Directories to exclude from processing')
-    parser.add_argument('-o', '--output', default='linkbuilding-report.html',
-                       help='Output report file (default: linkbuilding-report.html)')
+    parser.add_argument('--language',
+                       help='Language code being processed (for progress reporting)')
     parser.add_argument('--dry-run', action='store_true',
                        help='Analyze without modifying files')
     parser.add_argument('--max-links', type=int,
@@ -651,22 +767,41 @@ JSON Format (Automatic):
     if args.max_url:
         config.max_replacements_per_url = args.max_url
     
-    # Create link builder
-    builder = LinkBuilder(keywords, config)
+    # Determine language being processed
+    language = args.language  # Use explicitly provided language if available
+    
+    if not language:
+        # Try to auto-detect language from directory
+        dir_path = Path(args.directory).resolve()
+        
+        if dir_path.name in ['ar', 'cs', 'da', 'de', 'es', 'fi', 'fr', 'it', 'ja', 'ko',
+                             'nl', 'no', 'pl', 'pt', 'ro', 'sk', 'sv', 'tr', 'vi', 'zh']:
+            language = dir_path.name
+        elif dir_path.name == 'public' or (args.exclude and len(args.exclude) >= 10):
+            # Check if we're excluding language directories (indicates English processing)
+            common_langs = {'ar', 'cs', 'da', 'de', 'es', 'fi', 'fr', 'it', 'ja', 'ko',
+                           'nl', 'no', 'pl', 'pt', 'ro', 'sk', 'sv', 'tr', 'vi', 'zh'}
+            if args.exclude:
+                excluded_set = set(args.exclude)
+                if len(excluded_set.intersection(common_langs)) >= 10:
+                    language = 'en'
+    
+    # Create link builder with language info
+    builder = LinkBuilder(keywords, config, language=language)
     
     # Process directory
     print(f"Processing directory: {args.directory}")
     if args.exclude:
         print(f"Excluding: {', '.join(args.exclude)}")
     
-    stats = builder.process_directory(args.directory, args.exclude)
+    # Determine if we're processing English content
+    is_english = (language == 'en')
+    if is_english:
+        print("  Processing English content - will skip 2-letter language subdirectories")
     
-    # Generate and save report
-    report_html = stats.to_html()
-    with open(args.output, 'w', encoding='utf-8') as f:
-        f.write(report_html)
+    stats = builder.process_directory(args.directory, args.exclude, is_english)
     
-    print(f"\nReport saved to: {args.output}")
+    # Don't generate HTML report file, just output to console
     
     # Print detailed summary
     print(f"\n{'='*60}")
@@ -691,25 +826,7 @@ JSON Format (Automatic):
         for url, count in top_urls:
             print(f"  {count:4} - {url}")
     
-    # Save JSON statistics report
-    json_report_path = args.output.replace('.html', '.json')
-    stats_dict = {
-        'summary': {
-            'files_processed': stats.total_files_processed,
-            'files_modified': stats.total_files_modified,
-            'links_added': stats.total_links_added,
-            'keywords_used': len(stats.links_per_keyword),
-            'unique_urls': len(stats.links_per_url)
-        },
-        'keywords': stats.links_per_keyword,
-        'urls': stats.links_per_url,
-        'files': stats.links_per_file,
-        'errors': stats.errors
-    }
-    
-    with open(json_report_path, 'w', encoding='utf-8') as f:
-        json.dump(stats_dict, f, indent=2, ensure_ascii=False)
-    print(f"\nJSON report saved to: {json_report_path}")
+    # Don't save JSON report file, summary is already printed to console
     
     if stats.errors:
         print(f"\nErrors encountered: {len(stats.errors)}")

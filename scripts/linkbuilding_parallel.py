@@ -94,6 +94,9 @@ def run_linkbuilding(lang_config: Dict,
     # Add directory
     cmd.extend(['-d', lang_config['html_dir']])
     
+    # Add language parameter for progress reporting
+    cmd.extend(['--language', lang.upper()])
+    
     # For English, exclude other language directories
     if lang == 'en':
         # List of all language codes to exclude
@@ -101,9 +104,7 @@ def run_linkbuilding(lang_config: Dict,
                         'nl', 'no', 'pl', 'pt', 'ro', 'sk', 'sv', 'tr', 'vi', 'zh']
         cmd.extend(['--exclude'] + exclude_langs)
     
-    # Add output report file
-    report_file = f"linkbuilding-report-{lang}.html"
-    cmd.extend(['-o', report_file])
+    # Don't add output report file parameter - reports will go to stdout only
     
     # Add optional arguments
     if config_file:
@@ -117,19 +118,35 @@ def run_linkbuilding(lang_config: Dict,
     logger.info(f"[{lang}] Starting linkbuilding: {' '.join(cmd)}")
     
     try:
-        # Run the command
+        # Run the command with real-time output
         start_time = time.time()
-        result = subprocess.run(
+        
+        # Use Popen to stream output in real-time
+        process = subprocess.Popen(
             cmd,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=300  # 5 minute timeout per language
+            bufsize=1,  # Line buffered
+            universal_newlines=True
         )
+        
+        # Collect output while also printing progress messages
+        output_lines = []
+        for line in process.stdout:
+            line = line.rstrip()
+            output_lines.append(line)
+            
+            # Print progress messages in real-time
+            if 'Processed' in line and 'files' in line:
+                logger.info(line)
+        
+        # Wait for process to complete
+        process.wait()
         elapsed = time.time() - start_time
         
-        if result.returncode == 0:
+        if process.returncode == 0:
             # Parse summary from output
-            output_lines = result.stdout.strip().split('\n')
             
             # Extract detailed stats from output
             stats = {
@@ -162,15 +179,7 @@ def run_linkbuilding(lang_config: Dict,
                     except:
                         pass
             
-            # Also try to load the JSON report for more detailed stats
-            json_report_file = report_file.replace('.html', '.json')
-            if os.path.exists(json_report_file):
-                try:
-                    with open(json_report_file, 'r') as f:
-                        json_stats = json.load(f)
-                        stats['detailed'] = json_stats
-                except:
-                    pass
+            # No JSON report files are generated anymore, stats come from stdout
             
             summary = (f"[{lang}] ✓ {stats['links_added']} links added, "
                       f"{stats['files_modified']} files modified "
@@ -179,14 +188,12 @@ def run_linkbuilding(lang_config: Dict,
             logger.info(summary)
             return (lang, True, summary, stats)
         else:
-            error_msg = f"[{lang}] Failed: {result.stderr or result.stdout}"
+            # Read stderr if there's an error
+            stderr_output = process.stderr.read() if process.stderr else ""
+            error_msg = f"[{lang}] Failed: {stderr_output or 'Unknown error'}"
             logger.error(error_msg)
             return (lang, False, error_msg, {})
             
-    except subprocess.TimeoutExpired:
-        error_msg = f"[{lang}] Timeout after 300 seconds"
-        logger.error(error_msg)
-        return (lang, False, error_msg, {})
     except Exception as e:
         error_msg = f"[{lang}] Error: {str(e)}"
         logger.error(error_msg)
@@ -371,20 +378,7 @@ Examples:
         for lang, _, msg, _ in failed:
             logger.error(f"  ✗ {msg}")
     
-    # Generate combined reports
-    if not args.dry_run:
-        logger.info("\n📝 Generating combined reports...")
-        
-        # HTML report
-        html_report_path = 'linkbuilding-report-combined.html'
-        generate_combined_report(results, html_report_path)
-        
-        # JSON master report with all statistics
-        json_report_path = 'linkbuilding-report-combined.json'
-        generate_json_master_report(results, json_report_path)
-        
-        logger.info(f"  HTML report: {html_report_path}")
-        logger.info(f"  JSON report: {json_report_path}")
+    # Don't generate combined report files - all output goes to console
     
     # Exit with appropriate code
     sys.exit(0 if len(failed) == 0 else 1)
