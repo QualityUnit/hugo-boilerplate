@@ -329,7 +329,8 @@ def save_optimized_linkbuilding(keywords: Dict[str, Dict],
 def process_language(lang: str, 
                     linkbuilding_dir: Path,
                     public_dir: Path,
-                    output_dir: Path) -> Dict:
+                    output_dir: Path,
+                    max_workers: int = 8) -> Dict:
     """Process a single language."""
     logger.info(f"\nProcessing language: {lang}")
     
@@ -371,7 +372,7 @@ def process_language(lang: str,
     
     # Analyze content
     analyzer = ContentAnalyzer(html_dir)
-    found_keywords = analyzer.analyze_directory(all_keywords)
+    found_keywords = analyzer.analyze_directory(all_keywords, max_workers=max_workers)
     
     logger.info(f"  Found {len(found_keywords)} keywords in content")
     logger.info(f"  Analyzed {analyzer.file_count} files, "
@@ -433,7 +434,9 @@ Examples:
     parser.add_argument('--languages', nargs='+',
                        help='Specific languages to process (default: all)')
     parser.add_argument('--max-workers', type=int, default=8,
-                       help='Maximum parallel workers for analysis (default: 8)')
+                       help='Maximum parallel workers for file analysis (default: 8)')
+    parser.add_argument('--parallel-languages', type=int, default=3,
+                       help='Number of languages to process in parallel (default: 3)')
     
     args = parser.parse_args()
     
@@ -466,17 +469,36 @@ Examples:
         sys.exit(1)
     
     logger.info(f"Found {len(languages)} languages to process: {', '.join(languages)}")
+    logger.info(f"Processing {args.parallel_languages} languages in parallel")
     logger.info("=" * 60)
     
-    # Process each language
+    # Process languages in parallel
     results = []
-    for lang in languages:
-        try:
-            stats = process_language(lang, linkbuilding_dir, public_dir, output_dir)
-            if stats:
-                results.append(stats)
-        except Exception as e:
-            logger.error(f"Error processing {lang}: {e}")
+    import concurrent.futures
+    import time
+    
+    start_time = time.time()
+    
+    with concurrent.futures.ProcessPoolExecutor(max_workers=args.parallel_languages) as executor:
+        # Submit all language processing tasks
+        future_to_lang = {
+            executor.submit(process_language, lang, linkbuilding_dir, public_dir, output_dir, args.max_workers): lang
+            for lang in languages
+        }
+        
+        # Collect results as they complete
+        for future in concurrent.futures.as_completed(future_to_lang):
+            lang = future_to_lang[future]
+            try:
+                stats = future.result()
+                if stats:
+                    results.append(stats)
+                    logger.info(f"✓ Completed {lang} ({len(results)}/{len(languages)})")
+            except Exception as e:
+                logger.error(f"Error processing {lang}: {e}")
+    
+    elapsed_time = time.time() - start_time
+    logger.info(f"Parallel processing completed in {elapsed_time:.1f} seconds")
     
     # Generate summary report
     logger.info("\n" + "=" * 60)
