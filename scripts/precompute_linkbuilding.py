@@ -136,20 +136,58 @@ class ContentAnalyzer:
             
         return False
     
+    def should_skip_for_english(self, file_path: Path) -> bool:
+        """Check if a file should be skipped when processing English content.
+        
+        English content is at the root of public/, but other languages are in
+        subdirectories like /ar/, /cs/, /de/, etc. We need to skip these.
+        """
+        path_str = str(file_path).replace('\\', '/')
+        
+        # Check if path contains a language subdirectory (2-letter code)
+        # Pattern: /public/XX/ where XX is a 2-letter language code
+        import re
+        if re.search(r'/public/[a-z]{2}/', path_str):
+            return True
+            
+        return False
+    
     def analyze_directory(self, keywords: Dict[str, Dict], 
-                         max_workers: int = 8) -> Set[str]:
+                         max_workers: int = 8, is_english: bool = False) -> Set[str]:
         """Analyze all HTML files in directory for keyword presence.
         
         Uses an optimized approach that stops searching for keywords once they're found.
         Files are processed in batches with parallel processing within each batch.
+        
+        Args:
+            keywords: Dictionary of keywords to search for
+            max_workers: Number of parallel workers
+            is_english: True if processing English content (to skip language subdirs)
         """
         # Find all HTML files and filter out unwanted ones
         all_html_files = list(self.html_dir.rglob('*.html'))
-        html_files = [f for f in all_html_files if not self.should_skip_file(f)]
         
-        skipped_count = len(all_html_files) - len(html_files)
-        if skipped_count > 0:
-            logger.info(f"  Skipping {skipped_count} files (categories, tags, pagination, etc.)")
+        # Apply filtering
+        if is_english:
+            # For English, skip language subdirectories AND regular skip patterns
+            html_files = [f for f in all_html_files 
+                         if not self.should_skip_file(f) and not self.should_skip_for_english(f)]
+            
+            # Count language files that were skipped
+            lang_skipped = len([f for f in all_html_files if self.should_skip_for_english(f)])
+            other_skipped = len(all_html_files) - len(html_files) - lang_skipped
+            
+            if lang_skipped > 0:
+                logger.info(f"  Skipping {lang_skipped} files from other language directories")
+            if other_skipped > 0:
+                logger.info(f"  Skipping {other_skipped} files (categories, tags, pagination, etc.)")
+        else:
+            # For other languages, just apply regular skip patterns
+            html_files = [f for f in all_html_files if not self.should_skip_file(f)]
+            
+            skipped_count = len(all_html_files) - len(html_files)
+            if skipped_count > 0:
+                logger.info(f"  Skipping {skipped_count} files (categories, tags, pagination, etc.)")
         
         # Sort by file size (largest first) - larger files more likely to have keywords
         html_files.sort(key=lambda f: f.stat().st_size, reverse=True)
@@ -370,9 +408,10 @@ def process_language(lang: str,
     
     logger.info(f"  Total keywords to check: {len(all_keywords)}")
     
-    # Analyze content
+    # Analyze content (pass is_english flag to skip language subdirs for English)
     analyzer = ContentAnalyzer(html_dir)
-    found_keywords = analyzer.analyze_directory(all_keywords, max_workers=max_workers)
+    is_english = (lang == 'en')
+    found_keywords = analyzer.analyze_directory(all_keywords, max_workers=max_workers, is_english=is_english)
     
     logger.info(f"  Found {len(found_keywords)} keywords in content")
     logger.info(f"  Analyzed {analyzer.file_count} files, "
