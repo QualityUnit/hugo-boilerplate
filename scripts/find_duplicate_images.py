@@ -21,7 +21,7 @@ import os
 from pathlib import Path
 from PIL import Image
 import torch
-from transformers import ViTFeatureExtractor, ViTModel
+from transformers import ViTImageProcessor, ViTModel
 import faiss
 import numpy as np
 from tqdm import tqdm
@@ -49,7 +49,7 @@ def find_image_files(directory):
     return image_paths
 
 def load_model():
-    """Loads the Vision Transformer model and feature extractor."""
+    """Loads the Vision Transformer model and image processor."""
     print(f"Loading model '{MODEL_NAME}'...")
     # Prefer GPU if available, with support for Apple Silicon (MPS)
     if torch.cuda.is_available():
@@ -60,16 +60,16 @@ def load_model():
         device = "cpu"
     print(f"Using device: {device}")
 
-    feature_extractor = ViTFeatureExtractor.from_pretrained(MODEL_NAME)
+    image_processor = ViTImageProcessor.from_pretrained(MODEL_NAME)
     model = ViTModel.from_pretrained(MODEL_NAME).to(device)
     model.eval()
-    return feature_extractor, model, device
+    return image_processor, model, device
 
-def extract_features(image_path, feature_extractor, model, device):
+def extract_features(image_path, image_processor, model, device):
     """Extracts a feature vector from a single image."""
     try:
         img = Image.open(image_path).convert("RGB")
-        inputs = feature_extractor(images=img, return_tensors="pt").to(device)
+        inputs = image_processor(images=img, return_tensors="pt").to(device)
         with torch.no_grad():
             outputs = model(**inputs)
             # Use the mean of the last hidden state as the feature vector
@@ -79,13 +79,13 @@ def extract_features(image_path, feature_extractor, model, device):
         print(f"Warning: Could not process image {image_path}. Error: {e}")
         return None
 
-def get_all_embeddings(image_paths, feature_extractor, model, device):
+def get_all_embeddings(image_paths, image_processor, model, device):
     """Extracts embeddings for a list of image paths."""
     embeddings = []
     valid_paths = []
     print("Extracting features from images...")
     for path in tqdm(image_paths, desc="Processing images"):
-        feature_vector = extract_features(path, feature_extractor, model, device)
+        feature_vector = extract_features(path, image_processor, model, device)
         if feature_vector is not None:
             embeddings.append(feature_vector)
             valid_paths.append(path)
@@ -168,8 +168,8 @@ if __name__ == "__main__":
         if not all_image_paths:
             print("No images found to process.")
         else:
-            extractor, vit_model, dev = load_model()
-            image_embeddings, valid_image_paths = get_all_embeddings(all_image_paths, extractor, vit_model, dev)
+            processor, vit_model, dev = load_model()
+            image_embeddings, valid_image_paths = get_all_embeddings(all_image_paths, processor, vit_model, dev)
             duplicates = find_duplicate_groups(image_embeddings, valid_image_paths)
 
             # Find unused images
@@ -187,7 +187,7 @@ if __name__ == "__main__":
 
                 # Generate HTML report
                 report_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                html_path = SCRIPT_DIR / '../../../data/duplicate_images_report.html_rename'
+                html_path = SCRIPT_DIR / '../../../duplicate_images_report.htm'
                 html_content = [
                     "<html>",
                     "<head><title>Duplicate Images Report</title>",

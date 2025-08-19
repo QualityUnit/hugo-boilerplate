@@ -1,0 +1,633 @@
+#!/usr/bin/env python3
+"""
+Precompute Linkbuilding Keywords
+Analyzes built HTML content to find which keywords are actually present,
+then creates optimized linkbuilding files with only the relevant keywords.
+This significantly speeds up deployment-time linkbuilding.
+"""
+
+import os
+import sys
+import json
+import re
+import argparse
+import logging
+from pathlib import Path
+from typing import Dict, List, Set, Tuple
+from bs4 import BeautifulSoup
+import concurrent.futures
+from collections import defaultdict
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+
+
+class ContentAnalyzer:
+    """Analyzes HTML content to find which keywords are present."""
+    
+    # Elements to skip when analyzing
+    SKIP_TAGS = {
+        'script', 'style', 'code', 'pre', 'meta', 'link', 'svg',
+        'iframe', 'video', 'audio', 'canvas', 'map', 'area'
+    }
+    
+    # Paths to skip (taxonomy pages, pagination, etc.)
+    SKIP_PATHS = {
+        '/tags/', '/categories/', '/page/', '/author/',
+        '/404.html', '/search/', '/index.xml', '/sitemap.xml',
+        '/feed.xml', '/rss.xml', '/atom.xml', '/flags/', '/author/'
+    }
+    
+    def __init__(self, html_dir: Path):
+        self.html_dir = html_dir
+        self.found_keywords = set()
+        self.file_count = 0
+        self.total_text_length = 0
+    
+    def analyze_file(self, file_path: Path, keywords_with_info: List[Tuple[str, re.Pattern, str]], 
+                     already_found: Set[str]) -> Set[str]:
+        """Analyze a single HTML file for keyword presence.
+        
+        Args:
+            file_path: Path to HTML file to analyze
+            keywords_with_info: List of (keyword, compiled_pattern, url) tuples
+            already_found: Set of keywords already found (to skip searching for)
+        
+        Returns:
+            Set of keywords found in this file
+        """
+        found_in_file = set()
+        
+        # Skip file if all keywords are already found
+        if len(already_found) == len(keywords_with_info):
+            return found_in_file
+        
+        # Get the relative path from public directory for URL comparison
+        # Convert file path to URL-like format for comparison
+        file_path_str = str(file_path).replace('\\', '/')
+        # Extract the path after 'public/' to get the URL path
+        if '/public/' in file_path_str:
+            file_url_path = '/' + file_path_str.split('/public/')[-1]
+            # Remove index.html from the end
+            file_url_path = file_url_path.replace('/index.html', '/')
+        else:
+            file_url_path = None
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Parse HTML (lxml is 2-3x faster than html.parser)
+            try:
+                soup = BeautifulSoup(content, 'lxml')
+            except:
+                # Fallback to html.parser if lxml is not available
+                soup = BeautifulSoup(content, 'html.parser')
+            
+            # Remove script and style elements
+            for tag in self.SKIP_TAGS:
+                for element in soup.find_all(tag):
+                    element.decompose()
+            
+            # Get text content
+            text = soup.get_text(separator=' ', strip=True)
+            text_lower = text.lower()
+            
+            # Check each keyword using precompiled patterns
+            # Skip keywords that were already found in previous files
+            # Skip keywords that link to the current page (no self-references)
+            for keyword, pattern, url in keywords_with_info:
+                # Skip if already found
+                if keyword in already_found:
+                    continue
+                    
+                # Skip if this keyword links to the current page (no self-references)
+                if file_url_path and url and file_url_path in url:
+                    continue
+                    
+                # Check if keyword exists in the text
+                if pattern.search(text_lower):
+                    found_in_file.add(keyword)
+            
+            self.total_text_length += len(text)
+            
+        except Exception as e:
+            logger.warning(f"Error analyzing {file_path}: {e}")
+        
+        return found_in_file
+    
+    def should_skip_file(self, file_path: Path) -> bool:
+        """Check if a file should be skipped based on its path."""
+        path_str = str(file_path).replace('\\', '/')
+        
+        # Skip paths containing any of the skip patterns
+        for skip_pattern in self.SKIP_PATHS:
+            if skip_pattern in path_str:
+                return True
+        
+        # Skip pagination pages (page/2/, page/3/, etc.)
+        if '/page/' in path_str and path_str.split('/page/')[-1].split('/')[0].isdigit():
+            return True
+            
+        return False
+    
+    def should_skip_for_english(self, file_path: Path) -> bool:
+        """Check if a file should be skipped when processing English content.
+        
+        English content is at the root of public/, but other languages are in
+        subdirectories like /ar/, /cs/, /de/, etc. We need to skip these.
+        """
+        path_str = str(file_path).replace('\\', '/')
+        
+        # Check if path contains a language subdirectory (2-letter code)
+        # Pattern: /public/XX/ where XX is a 2-letter language code
+        import re
+        if re.search(r'/public/[a-z]{2}/', path_str):
+            return True
+            
+        return False
+    
+    def analyze_directory(self, keywords: Dict[str, Dict], 
+                         max_workers: int = 8, is_english: bool = False) -> Set[str]:
+        """Analyze all HTML files in directory for keyword presence.
+        
+        Uses an optimized approach that stops searching for keywords once they're found.
+        Files are processed in batches with parallel processing within each batch.
+        
+        Args:
+            keywords: Dictionary of keywords to search for
+            max_workers: Number of parallel workers
+            is_english: True if processing English content (to skip language subdirs)
+        """
+        # Find all HTML files and filter out unwanted ones
+        all_html_files = list(self.html_dir.rglob('*.html'))
+        
+        # Apply filtering
+        if is_english:
+            # For English, skip language subdirectories AND regular skip patterns
+            html_files = [f for f in all_html_files 
+                         if not self.should_skip_file(f) and not self.should_skip_for_english(f)]
+            
+            # Count language files that were skipped
+            lang_skipped = len([f for f in all_html_files if self.should_skip_for_english(f)])
+            other_skipped = len(all_html_files) - len(html_files) - lang_skipped
+            
+            if lang_skipped > 0:
+                logger.info(f"  Skipping {lang_skipped} files from other language directories")
+            if other_skipped > 0:
+                logger.info(f"  Skipping {other_skipped} files (categories, tags, pagination, etc.)")
+        else:
+            # For other languages, just apply regular skip patterns
+            html_files = [f for f in all_html_files if not self.should_skip_file(f)]
+            
+            skipped_count = len(all_html_files) - len(html_files)
+            if skipped_count > 0:
+                logger.info(f"  Skipping {skipped_count} files (categories, tags, pagination, etc.)")
+        
+        # Sort by file size (largest first) - larger files more likely to have keywords
+        html_files.sort(key=lambda f: f.stat().st_size, reverse=True)
+        
+        self.file_count = len(html_files)
+        
+        logger.info(f"Analyzing {self.file_count} HTML files for keyword presence...")
+        
+        # Precompile regex patterns for all keywords (much faster)
+        # Include URL info for self-reference checking
+        keyword_patterns = []
+        for keyword, info in keywords.items():
+            # Check if keyword contains non-Latin characters (Chinese, Japanese, Korean, etc.)
+            # These languages don't use word boundaries like Latin scripts
+            if any(ord(char) > 127 for char in keyword):
+                # For non-Latin scripts, use simple string matching without word boundaries
+                # This handles Chinese, Japanese, Korean, Arabic, etc.
+                pattern = re.compile(re.escape(keyword.lower()))
+            else:
+                # For Latin scripts, use word boundaries for accurate matching
+                pattern = re.compile(r'\b' + re.escape(keyword.lower()) + r'\b')
+            keyword_patterns.append((keyword, pattern, info.get('url', '')))
+        
+        logger.info(f"  Compiled {len(keyword_patterns)} keyword patterns")
+        
+        # Process files with early stopping optimization
+        all_found_keywords = set()
+        batch_size = min(50, max_workers * 2)  # Process in batches
+        completed = 0
+        
+        for batch_start in range(0, len(html_files), batch_size):
+            batch_end = min(batch_start + batch_size, len(html_files))
+            batch_files = html_files[batch_start:batch_end]
+            
+            # Check if we've found all keywords already
+            if len(all_found_keywords) == len(keyword_patterns):
+                logger.info(f"  All {len(keyword_patterns)} keywords found after {completed} files!")
+                break
+            
+            # Process batch in parallel, passing already_found to each worker
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit analysis tasks with current already_found set
+                future_to_file = {
+                    executor.submit(self.analyze_file, file_path, keyword_patterns, 
+                                  all_found_keywords.copy()): file_path
+                    for file_path in batch_files
+                }
+                
+                # Collect results from this batch
+                for future in concurrent.futures.as_completed(future_to_file):
+                    file_path = future_to_file[future]
+                    try:
+                        found = future.result()
+                        all_found_keywords.update(found)
+                        completed += 1
+                        
+                        # Progress update
+                        if completed % 100 == 0 or completed == self.file_count:
+                            remaining_keywords = len(keyword_patterns) - len(all_found_keywords)
+                            logger.info(f"  Processed {completed}/{self.file_count} files, "
+                                       f"found {len(all_found_keywords)}/{len(keyword_patterns)} keywords "
+                                       f"({remaining_keywords} remaining)")
+                    except Exception as e:
+                        logger.error(f"Error processing {file_path}: {e}")
+                        completed += 1
+        
+        # Final progress if not already shown
+        if completed % 100 != 0 and completed != self.file_count:
+            logger.info(f"  Processed {completed}/{self.file_count} files, "
+                       f"found {len(all_found_keywords)}/{len(keyword_patterns)} keywords")
+        
+        self.found_keywords = all_found_keywords
+        return all_found_keywords
+
+
+def load_linkbuilding_file(file_path: Path) -> Dict[str, Dict]:
+    """Load keywords from linkbuilding JSON file."""
+    keywords = {}
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    # Handle both formats
+    if isinstance(data, dict) and 'keywords' in data:
+        items = data['keywords']
+    else:
+        items = data if isinstance(data, list) else []
+    
+    for item in items:
+        if isinstance(item, dict):
+            # Try both field name formats
+            keyword = item.get('Keyword', item.get('keyword', ''))
+            url = item.get('URL', item.get('url', ''))
+            title = item.get('Title', item.get('title', ''))
+            priority = item.get('Priority', item.get('priority', 0))
+            exact = item.get('Exact', item.get('exact', False))
+            
+            if keyword:
+                keywords[keyword] = {
+                    'url': url,
+                    'title': title,
+                    'priority': priority,
+                    'exact': exact
+                }
+    
+    return keywords
+
+
+def save_optimized_linkbuilding(keywords: Dict[str, Dict], 
+                               found_keywords: Set[str],
+                               output_path: Path) -> Dict:
+    """Save optimized linkbuilding file with only found keywords."""
+    # Filter keywords to only those found and deduplicate case-insensitive ones
+    optimized_items = []
+    seen_lowercase = {}  # Track lowercase versions for deduplication
+    
+    for keyword in found_keywords:
+        if keyword in keywords:
+            info = keywords[keyword]
+            
+            # For case-insensitive keywords (Exact=false), deduplicate by lowercase
+            if not info.get('exact', False):
+                keyword_lower = keyword.lower()
+                
+                # Check if we've already seen this keyword (case-insensitive)
+                if keyword_lower in seen_lowercase:
+                    # Keep the one with higher priority or better formatting
+                    existing = seen_lowercase[keyword_lower]
+                    if info.get('priority', 0) > existing['priority']:
+                        # Replace with higher priority version
+                        optimized_items = [item for item in optimized_items 
+                                         if item['Keyword'] != existing['keyword']]
+                        seen_lowercase[keyword_lower] = {
+                            'keyword': keyword,
+                            'priority': info.get('priority', 0)
+                        }
+                    else:
+                        # Skip this duplicate
+                        continue
+                else:
+                    # First occurrence of this keyword (case-insensitive)
+                    seen_lowercase[keyword_lower] = {
+                        'keyword': keyword,
+                        'priority': info.get('priority', 0)
+                    }
+            
+            # Add the keyword
+            optimized_items.append({
+                'Keyword': keyword,
+                'URL': info['url'],
+                'Title': info['title'],
+                'Priority': info['priority'],
+                'Exact': info['exact']
+            })
+    
+    # Sort by priority (highest first) then by keyword
+    optimized_items.sort(key=lambda x: (-x['Priority'], x['Keyword'].lower()))
+    
+    # Create output structure
+    output_data = {
+        'keywords': optimized_items,
+        'metadata': {
+            'original_keywords': len(keywords),
+            'optimized_keywords': len(optimized_items),
+            'reduction_percent': round((1 - len(optimized_items) / len(keywords)) * 100, 1) 
+                                if keywords else 0
+        }
+    }
+    
+    # Save to file
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(output_data, f, indent=2, ensure_ascii=False)
+    
+    return output_data['metadata']
+
+
+def process_language(lang: str, 
+                    linkbuilding_dir: Path,
+                    public_dir: Path,
+                    output_dir: Path,
+                    max_workers: int = 8) -> Dict:
+    """Process a single language."""
+    logger.info(f"\nProcessing language: {lang}")
+    
+    # Determine paths
+    manual_file = linkbuilding_dir / f"{lang}.json"
+    automatic_file = linkbuilding_dir / f"{lang}_automatic.json"
+    
+    # English is at root, others in subdirectories
+    if lang == 'en':
+        html_dir = public_dir
+    else:
+        html_dir = public_dir / lang
+    
+    if not html_dir.exists():
+        logger.warning(f"HTML directory not found: {html_dir}")
+        return {}
+    
+    # Load all keywords (manual + automatic)
+    all_keywords = {}
+    
+    if automatic_file.exists():
+        auto_keywords = load_linkbuilding_file(automatic_file)
+        all_keywords.update(auto_keywords)
+        logger.info(f"  Loaded {len(auto_keywords)} automatic keywords")
+    
+    if manual_file.exists():
+        manual_keywords = load_linkbuilding_file(manual_file)
+        # Manual keywords override automatic ones
+        for keyword, info in manual_keywords.items():
+            info['priority'] += 10  # Boost manual priority
+            all_keywords[keyword] = info
+        logger.info(f"  Loaded {len(manual_keywords)} manual keywords")
+    
+    if not all_keywords:
+        logger.warning(f"  No keywords found for {lang}")
+        return {}
+    
+    logger.info(f"  Total keywords to check: {len(all_keywords)}")
+    
+    # Analyze content (pass is_english flag to skip language subdirs for English)
+    analyzer = ContentAnalyzer(html_dir)
+    is_english = (lang == 'en')
+    found_keywords = analyzer.analyze_directory(all_keywords, max_workers=max_workers, is_english=is_english)
+    
+    logger.info(f"  Found {len(found_keywords)} keywords in content")
+    logger.info(f"  Analyzed {analyzer.file_count} files, "
+               f"{analyzer.total_text_length:,} total characters")
+    
+    # Save optimized file
+    output_file = output_dir / f"{lang}_optimized.json"
+    metadata = save_optimized_linkbuilding(all_keywords, found_keywords, output_file)
+    
+    logger.info(f"  Saved optimized file: {output_file}")
+    logger.info(f"  Reduction: {metadata['original_keywords']} → "
+               f"{metadata['optimized_keywords']} "
+               f"({metadata['reduction_percent']}% reduction)")
+    
+    # Return statistics
+    return {
+        'language': lang,
+        'html_files': analyzer.file_count,
+        'total_text_length': analyzer.total_text_length,
+        'original_keywords': metadata['original_keywords'],
+        'found_keywords': metadata['optimized_keywords'],
+        'reduction_percent': metadata['reduction_percent'],
+        'output_file': str(output_file)
+    }
+
+
+def main():
+    """Main entry point."""
+    parser = argparse.ArgumentParser(
+        description='Precompute optimized linkbuilding files based on actual content',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+This script analyzes built HTML content to find which keywords are actually
+present, then creates optimized linkbuilding files containing only those keywords.
+This significantly reduces processing time during deployment.
+
+Examples:
+  # Process all languages
+  python precompute_linkbuilding.py \\
+    --linkbuilding-dir data/linkbuilding \\
+    --public-dir public \\
+    --output-dir data/linkbuilding/optimized
+  
+  # Process specific languages
+  python precompute_linkbuilding.py \\
+    --linkbuilding-dir data/linkbuilding \\
+    --public-dir public \\
+    --output-dir data/linkbuilding/optimized \\
+    --languages en de fr
+        """
+    )
+    
+    parser.add_argument('--linkbuilding-dir', required=True,
+                       help='Directory containing original linkbuilding files')
+    parser.add_argument('--public-dir', required=True,
+                       help='Public directory with built HTML files')
+    parser.add_argument('--output-dir', required=True,
+                       help='Output directory for optimized linkbuilding files')
+    parser.add_argument('--languages', nargs='+',
+                       help='Specific languages to process (default: all)')
+    parser.add_argument('--max-workers', type=int, default=8,
+                       help='Maximum parallel workers for file analysis (default: 8)')
+    parser.add_argument('--parallel-languages', type=int, default=3,
+                       help='Number of languages to process in parallel (default: 3)')
+    parser.add_argument('--force', action='store_true',
+                       help='Force recomputation even if optimized files exist')
+    parser.add_argument('--force-languages', nargs='+',
+                       help='Force recomputation for specific languages only')
+    
+    args = parser.parse_args()
+    
+    # Convert paths
+    linkbuilding_dir = Path(args.linkbuilding_dir)
+    public_dir = Path(args.public_dir)
+    output_dir = Path(args.output_dir)
+    
+    # Validate directories
+    if not linkbuilding_dir.exists():
+        logger.error(f"Linkbuilding directory not found: {linkbuilding_dir}")
+        sys.exit(1)
+    if not public_dir.exists():
+        logger.error(f"Public directory not found: {public_dir}")
+        sys.exit(1)
+    
+    # Create output directory
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Find languages to process
+    if args.languages:
+        languages = args.languages
+    else:
+        # Find all automatic linkbuilding files
+        auto_files = list(linkbuilding_dir.glob('*_automatic.json'))
+        languages = [f.stem.replace('_automatic', '') for f in auto_files]
+    
+    if not languages:
+        logger.error("No languages found to process")
+        sys.exit(1)
+    
+    # Filter out languages that already have optimized files (unless forced)
+    languages_to_process = []
+    skipped_languages = []
+    
+    for lang in languages:
+        optimized_file = output_dir / f"{lang}_optimized.json"
+        
+        # Check if we should process this language
+        should_process = False
+        
+        if args.force:
+            # Force mode: process all
+            should_process = True
+            logger.debug(f"  {lang}: Force mode enabled, will process")
+        elif args.force_languages and lang in args.force_languages:
+            # Specific language force
+            should_process = True
+            logger.debug(f"  {lang}: Specifically requested for recomputation")
+        elif not optimized_file.exists():
+            # No optimized file exists
+            should_process = True
+            logger.debug(f"  {lang}: No optimized file found, will process")
+        else:
+            # Optimized file exists and not forced
+            skipped_languages.append(lang)
+            logger.debug(f"  {lang}: Optimized file exists, skipping")
+        
+        if should_process:
+            languages_to_process.append(lang)
+    
+    # Report what will be processed
+    if skipped_languages:
+        logger.info(f"Skipping {len(skipped_languages)} languages with existing optimized files: {', '.join(skipped_languages)}")
+        logger.info("  (Use --force to recompute all, or delete specific *_optimized.json files to recompute)")
+    
+    if not languages_to_process:
+        logger.info("All languages already have optimized files. Nothing to process.")
+        logger.info("  To recompute: use --force flag or delete specific *_optimized.json files")
+        sys.exit(0)
+    
+    logger.info(f"Will process {len(languages_to_process)} languages: {', '.join(languages_to_process)}")
+    logger.info(f"Processing {min(args.parallel_languages, len(languages_to_process))} languages in parallel")
+    logger.info("=" * 60)
+    
+    # Update languages list to only process needed ones
+    languages = languages_to_process
+    
+    # Process languages in parallel
+    results = []
+    import concurrent.futures
+    import time
+    
+    start_time = time.time()
+    
+    with concurrent.futures.ProcessPoolExecutor(max_workers=args.parallel_languages) as executor:
+        # Submit all language processing tasks
+        future_to_lang = {
+            executor.submit(process_language, lang, linkbuilding_dir, public_dir, output_dir, args.max_workers): lang
+            for lang in languages
+        }
+        
+        # Collect results as they complete
+        for future in concurrent.futures.as_completed(future_to_lang):
+            lang = future_to_lang[future]
+            try:
+                stats = future.result()
+                if stats:
+                    results.append(stats)
+                    logger.info(f"✓ Completed {lang} ({len(results)}/{len(languages)})")
+            except Exception as e:
+                logger.error(f"Error processing {lang}: {e}")
+    
+    elapsed_time = time.time() - start_time
+    logger.info(f"Parallel processing completed in {elapsed_time:.1f} seconds")
+    
+    # Generate summary report
+    logger.info("\n" + "=" * 60)
+    logger.info("PRECOMPUTATION SUMMARY")
+    logger.info("=" * 60)
+    
+    total_original = sum(r['original_keywords'] for r in results)
+    total_found = sum(r['found_keywords'] for r in results)
+    total_files = sum(r['html_files'] for r in results)
+    avg_reduction = sum(r['reduction_percent'] for r in results) / len(results) if results else 0
+    
+    logger.info(f"Languages processed: {len(results)}")
+    logger.info(f"Total HTML files analyzed: {total_files:,}")
+    logger.info(f"Total original keywords: {total_original:,}")
+    logger.info(f"Total keywords found in content: {total_found:,}")
+    logger.info(f"Average reduction: {avg_reduction:.1f}%")
+    
+    logger.info("\nPer-language results:")
+    logger.info("-" * 40)
+    for r in sorted(results, key=lambda x: x['reduction_percent'], reverse=True):
+        logger.info(f"  {r['language'].upper():3} | "
+                   f"{r['original_keywords']:6,} → {r['found_keywords']:5,} keywords "
+                   f"({r['reduction_percent']:5.1f}% reduction)")
+    
+    # Save summary report
+    summary_file = output_dir / 'precomputation_summary.json'
+    with open(summary_file, 'w', encoding='utf-8') as f:
+        json.dump({
+            'languages': results,
+            'summary': {
+                'total_languages': len(results),
+                'total_html_files': total_files,
+                'total_original_keywords': total_original,
+                'total_found_keywords': total_found,
+                'average_reduction_percent': avg_reduction
+            }
+        }, f, indent=2, ensure_ascii=False)
+    
+    logger.info(f"\nSummary report saved to: {summary_file}")
+    logger.info("\nOptimized linkbuilding files are ready for deployment!")
+    
+    sys.exit(0)
+
+
+if __name__ == '__main__':
+    main()
