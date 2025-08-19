@@ -352,17 +352,13 @@
     @apply hidden;
   }
 
-  /* Select for TOC */
+  /* TOC select appearance reset */
   .toc-select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-image: none;
-    background-repeat: no-repeat;
-    background-position: right;
   }
 
-  /* Additional browser-specific fixes for select appearance */
   .toc-select::-ms-expand {
     display: none;
   }

@@ -1,276 +1,242 @@
 {{/*
   Table of Contents Partial
-
-  Description:
-  Renders a sticky dropdown-style table of contents that appears on scroll.
-  Provides anchor navigation to page sections.
-
-  Parameters (passed as context dict):
-  - .page: Page context (required)
-  - .title: Custom title for the TOC section (optional, defaults to page title/H1)
-  - .class: Additional Tailwind classes (optional)
+  Renders a sticky dropdown-style table of contents with progress bar.
 */}}
 
 {{ $page := .page | default . }}
 {{ $title := .title | default $page.Title }}
 {{ $class := .class | default "" }}
 
-{{/*
-  Generate the table of contents. Prioritize the built-in Hugo TOC.
-  If it doesn't exist, fall back to finding H2 headers manually.
-*/}}
+{{ $headers := slice }}
 {{ $tocContent := $page.TableOfContents }}
-{{ $headers := findRE `(?i)<h2[^>]*id="[^"]*"[^>]*>.*?</h2>` $page.Content }}
 
-{{ if or $tocContent $headers }}
-  {{ $allClasses := printf "toc-dropdown-container fixed top-20 left-0 right-0 bg-white border-b border-gray-200 shadow-sm z-40 px-4 py-3 transition-transform duration-300 transform -translate-y-full opacity-0 %s" $class }}
+{{ if $tocContent }}
+  {{ range findRE `<a href="([^"]+)">([^<]+)</a>` $tocContent -}}
+    {{ $href := . | replaceRE `.*?href="([^"]+)".*` "$1" }}
+    {{ $text := . | replaceRE `.*?<a[^>]+>(.*?)</a>.*` "$1" | plainify }}
+    {{ $headers = $headers | append (dict "href" $href "text" $text) }}
+  {{- end }}
+{{ else }}
+  {{ range findRE `(?i)<h2[^>]*id="[^"]*"[^>]*>.*?</h2>` $page.Content -}}
+    {{ $id := . | replaceRE `(?i)<h2[^>]*id="([^"]*)".*` "$1" }}
+    {{ $text := . | replaceRE `(?i)<h2[^>]*>(.*?)</h2>` "$1" | plainify }}
+    {{ if and $id $text }}
+      {{ $headers = $headers | append (dict "href" (printf "#%s" $id) "text" $text) }}
+    {{ end }}
+  {{- end }}
+{{ end }}
+
+{{ if $headers }}
+  {{ $allClasses := printf "toc-dropdown-container t-[5rem] sm:t-[5.25rem] fixed left-0 right-0 surface-primary border-y surface-border shadow-sm z-40 py-3 transition-transform duration-300 transform -translate-y-full opacity-0 %s" $class }}
   
-  <div class="{{ $allClasses | strings.TrimSpace }}" id="tocDropdown" style="top: 84px;">
-    <div class="wrapper mx-auto grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-center">
-      <span class="text-xl font-semibold text-heading whitespace-nowrap md:text-left">{{ $title }}:</span>
-      <div class="relative w-full md:justify-self-end">
-        <select id="tocSelect" class="toc-select w-full bg-white border border-surface rounded-md px-3 py-2 pr-10 text-sm text-heading cursor-pointer">
-          
-          {{ if $tocContent }}
-            {{/* Use Hugo's built-in TOC */}}
-            {{ $links := findRE `<a href="([^"]+)">([^<]+)</a>` $tocContent }}
-            {{ range $links }}
-              {{ $href := . | replaceRE `.*?href="([^"]+)".*` "$1" }}
-              {{ $text := . | replaceRE `.*?<a[^>]+>(.*?)</a>.*` "$1" | plainify }}
-              <option value="{{ $href }}">{{ $text }}</option>
-            {{ end }}
-          {{ else }}
-            {{/* Fallback: parse H2 headers directly */}}
-            {{ range $headers }}
-              {{ $id := . | replaceRE `(?i)<h2[^>]*id="([^"]*)".*` "$1" }}
-              {{ $text := . | replaceRE `(?i)<h2[^>]*>(.*?)</h2>` "$1" | plainify }}
-              {{ if and $id $text }}
-                <option value="#{{ $id }}">{{ $text }}</option>
-              {{ end }}
-            {{ end }}
+  <div class="{{ $allClasses | strings.TrimSpace }}" id="tocDropdown">
+    <div class="wrapper mx-auto md:grid md:grid-cols-2 gap-3 md:gap-4 md:items-center">
+      <span class="text-xl font-semibold text-heading hidden md:block truncate">{{ $title }}:</span>
+      <div class="relative w-full md:justify-self-end hidden md:block">
+        <select id="tocSelect" class="toc-select hidden" aria-hidden="true">
+          {{ range $headers }}
+            <option value="{{ .href }}">{{ .text }}</option>
           {{ end }}
         </select>
-        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none z-20" id="tocChevron">
-          {{ partial "icons/chevron-down" (dict "class" "w-4 h-4 text-muted transition-transform duration-200") }}
+  
+        <div class="relative">
+          <div class="surface-primary border surface-border rounded-md px-3 py-2 text-sm cursor-pointer hover:surface-secondary transition-colors duration-200 flex items-center justify-between" id="selectTrigger">
+            <span class="truncate" id="selectLabel">Select section...</span>
+            <div class="pointer-events-none" id="tocChevron">
+              {{ partial "icons/chevron-down" (dict "class" "w-4 h-4 text-gray-500 transition-transform duration-200") }}
+            </div>
+          </div>
+        </div>
+  
+        <div class="hidden" id="tocOptionsTemplate">
+          <ul>
+            {{ range $headers }}
+              <li class="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 hover:text-heading transition-colors duration-150 border-b surface-border last:border-b-0" data-value="{{ .href }}">{{ .text }}</li>
+            {{ end }}
+          </ul>
         </div>
       </div>
     </div>
-    <!-- Progress bar -->
     <div class="absolute bottom-0 left-0 w-full h-0.5 surface-secondary">
-      <div id="tocProgressBar" class="h-full bg-primary transition-all duration-300 ease-out" style="width: 0%"></div>
+      <div id="tocProgressBar" class="h-full product-bg-primary transition-all duration-300 ease-out" style="width: 0%"></div>
     </div>
   </div>
-
+  
   <script>
     (function() {
       const tocDropdown = document.getElementById('tocDropdown');
-      const tocSelect = document.getElementById('tocSelect');
-      const tocChevron = document.getElementById('tocChevron');
       const tocProgressBar = document.getElementById('tocProgressBar');
-      
-      if (!tocSelect || !tocDropdown) return;
-      
+      const selectTrigger = document.getElementById('selectTrigger');
+      const selectLabel = document.getElementById('selectLabel');
+      const tocChevron = document.getElementById('tocChevron');
+      const optionsContainer = document.getElementById('tocOptionsTemplate');
+
+      if (!tocDropdown || !selectTrigger || !optionsContainer) {
+        return;
+      }
+
+      const headerOffset = 120; // This should match your CSS header height + some margin
       const scrollThreshold = 300;
-      const headerOffset = 120;
-      const scrollOffset = 50;
-      
+      let isDropdownOpen = false;
+      let dynamicDropdown = null;
       let sections = [];
-      let isScrolling = false;
-      let scrollTimeout;
-      let isSelectOpen = false;
+      let observer;
 
-      function initializeSections() {
-        // Try to use existing select options first
-        sections = Array.from(tocSelect.options).map(option => {
-          const element = document.querySelector(option.value);
-          return element ? {
-            element: element,
-            id: element.id,
-            anchor: option.value,
-            offsetTop: element.offsetTop
-          } : null;
+      // --- Helper Functions ---
+      function getSections() {
+        const templateOptions = optionsContainer.querySelectorAll('li');
+        return Array.from(templateOptions).map(option => {
+          const anchor = option.dataset.value;
+          const element = document.querySelector(anchor);
+          return element ? { element, anchor, option } : null;
         }).filter(Boolean);
+      }
 
-        // Fallback: find H2 elements directly and add missing options
-        if (sections.length === 0) {
-          const allH2Elements = document.querySelectorAll('h2[id]');
-          
-          sections = Array.from(allH2Elements).map(element => {
-            const anchor = `#${element.id}`;
-            
-            // Add option if it doesn't exist
-            const existingOption = Array.from(tocSelect.options).find(opt => opt.value === anchor);
-            if (!existingOption) {
-              const option = document.createElement('option');
-              option.value = anchor;
-              option.textContent = element.textContent.trim();
-              tocSelect.appendChild(option);
-            }
-            
-            return {
-              element: element,
-              id: element.id,
-              anchor: anchor,
-              offsetTop: element.offsetTop
-            };
+      function createDynamicDropdown() {
+        if (dynamicDropdown) return dynamicDropdown;
+
+        dynamicDropdown = document.createElement('ul');
+        dynamicDropdown.className = 'fixed surface-primary border surface-border rounded-md shadow-lg max-h-60 overflow-y-auto hidden z-[9999]';
+        dynamicDropdown.innerHTML = optionsContainer.querySelector('ul').innerHTML;
+        
+        // Add event listeners to the new list items
+        dynamicDropdown.querySelectorAll('li').forEach(option => {
+          option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleOptionClick(e.currentTarget);
           });
-        }
+        });
 
-        sections.sort((a, b) => a.offsetTop - b.offsetTop);
+        document.body.appendChild(dynamicDropdown);
+        return dynamicDropdown;
       }
 
-      function updateProgressBar() {
-        if (!tocProgressBar) return;
-        
-        const scrollTop = window.scrollY;
-        const documentHeight = document.documentElement.scrollHeight;
-        const windowHeight = window.innerHeight;
-        const scrollableHeight = documentHeight - windowHeight;
-        
-        let progress = 0;
-        if (scrollableHeight > 0) {
-          progress = Math.min(100, Math.max(0, (scrollTop / scrollableHeight) * 100));
-        }
-        
-        tocProgressBar.style.width = `${progress}%`;
-      }
+      function toggleDropdown(open = null) {
+        const shouldOpen = open !== null ? open : !isDropdownOpen;
+        isDropdownOpen = shouldOpen;
 
-      function updateActiveSection() {
-        if (sections.length === 0) return;
-
-        const scrollPosition = window.scrollY + headerOffset + scrollOffset;
-        const viewportHeight = window.innerHeight;
-        const documentHeight = document.documentElement.scrollHeight;
-        
-        let activeSection = null;
-
-        // Check if near bottom of page
-        if (window.scrollY + viewportHeight >= documentHeight - 100) {
-          activeSection = sections[sections.length - 1];
-        } else {
-          // Find current active section
-          for (let i = sections.length - 1; i >= 0; i--) {
-            const section = sections[i];
-            if (section.element.offsetTop <= scrollPosition) {
-              activeSection = section;
-              break;
-            }
-          }
-          
-          // Fallback to first section if at top
-          if (!activeSection && window.scrollY < headerOffset && sections.length > 0) {
-            activeSection = sections[0];
-          }
+        if (shouldOpen) {
+          const dropdown = createDynamicDropdown();
+          const triggerRect = selectTrigger.getBoundingClientRect();
+          Object.assign(dropdown.style, {
+            top: `${triggerRect.bottom + 4}px`,
+            left: `${triggerRect.left}px`,
+            width: `${triggerRect.width}px`
+          });
+          dropdown.classList.remove('hidden');
+        } else if (dynamicDropdown) {
+          dynamicDropdown.classList.add('hidden');
         }
 
-        // Update select value
-        if (activeSection && tocSelect.value !== activeSection.anchor) {
-          tocSelect.value = activeSection.anchor;
-        }
-      }
-
-      function toggleChevron(isOpen) {
         if (tocChevron) {
           const chevronSvg = tocChevron.querySelector('svg');
           if (chevronSvg) {
-            // chevron-down when closed (0deg), chevron-up when open (rotate 180deg to flip)
-            chevronSvg.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+            chevronSvg.style.transform = shouldOpen ? 'rotate(180deg)' : 'rotate(0deg)';
           }
         }
       }
 
-      function handleScroll() {
-        // Toggle TOC dropdown visibility
-        const shouldShow = window.scrollY > scrollThreshold;
-        tocDropdown.classList.toggle('-translate-y-full', !shouldShow);
-        tocDropdown.classList.toggle('opacity-0', !shouldShow);
-        tocDropdown.classList.toggle('translate-y-0', shouldShow);
-        tocDropdown.classList.toggle('opacity-100', shouldShow);
+      function handleOptionClick(option) {
+        const targetAnchor = option.dataset.value;
+        const targetElement = document.querySelector(targetAnchor);
 
-        // Update progress bar
-        updateProgressBar();
-
-        // Throttled section update
-        if (!isScrolling && sections.length > 0) {
-          isScrolling = true;
-          requestAnimationFrame(() => {
-            updateActiveSection();
-            isScrolling = false;
-          });
-        }
-
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-          if (sections.length > 0) updateActiveSection();
-        }, 150);
-      }
-
-      function handleSelectChange() {
-        const targetElement = document.querySelector(this.value);
         if (targetElement) {
+          toggleDropdown(false);
+          
           window.scrollTo({
-            top: targetElement.offsetTop - headerOffset,
+            top: targetElement.offsetTop - headerOffset - 25,
             behavior: 'smooth'
           });
         }
-        // After selection, dropdown closes, so show down arrow
-        isSelectOpen = false;
-        toggleChevron(false);
       }
 
-      function handleSelectFocus() {
-        // When focused, dropdown might open, show up arrow
-        isSelectOpen = true;
-        toggleChevron(true);
-      }
+      function updateActiveSection(entry) {
+        const activeSection = sections.find(s => s.element === entry.target);
+        if (activeSection) {
+          sections.forEach(s => {
+            s.option.classList.remove('product-bg-primary', 'text-white');
+            const dynamicOpt = dynamicDropdown?.querySelector(`li[data-value="${s.anchor}"]`);
+            dynamicOpt?.classList.remove('product-bg-primary', 'text-white');
+          });
 
-      function handleSelectBlur() {
-        // When focus lost (clicked outside or selection made), dropdown closes
-        isSelectOpen = false;
-        toggleChevron(false);
-      }
-
-      function handleSelectMouseDown() {
-        // Toggle state on mousedown (before dropdown opens/closes)
-        isSelectOpen = !isSelectOpen;
-        toggleChevron(isSelectOpen);
-      }
-
-      // Handle clicks outside to close dropdown
-      function handleDocumentClick(event) {
-        if (!tocSelect.contains(event.target) && !tocChevron.contains(event.target)) {
-          // Clicked outside select, close it
-          isSelectOpen = false;
-          toggleChevron(false);
+          activeSection.option.classList.add('product-bg-primary', 'text-white');
+          selectLabel.textContent = activeSection.option.textContent;
+          const activeDynamicOpt = dynamicDropdown?.querySelector(`li[data-value="${activeSection.anchor}"]`);
+          activeDynamicOpt?.classList.add('product-bg-primary', 'text-white');
         }
       }
 
       function initialize() {
-        initializeSections();
-        
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        tocSelect.addEventListener('change', handleSelectChange);
-        tocSelect.addEventListener('focus', handleSelectFocus);
-        tocSelect.addEventListener('blur', handleSelectBlur);
-        tocSelect.addEventListener('mousedown', handleSelectMouseDown);
-        document.addEventListener('click', handleDocumentClick);
-        
-        handleScroll();
-        updateProgressBar();
-        if (sections.length > 0) updateActiveSection();
-        
-        window.addEventListener('resize', () => {
-          initializeSections();
-          if (sections.length > 0) updateActiveSection();
-          updateProgressBar();
-        });
-      }
+        if (window.getComputedStyle(selectTrigger.parentElement).display === 'none') {
+          return;
+        }
 
-      // Initialize when DOM is ready
+        sections = getSections();
+        sections.sort((a, b) => a.element.offsetTop - b.element.offsetTop);
+
+        // Setup IntersectionObserver
+        observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              updateActiveSection(entry);
+            }
+          });
+        }, {
+          rootMargin: `-${headerOffset}px 0px -50% 0px`,
+          threshold: 0
+        });
+
+        sections.forEach(s => observer.observe(s.element));
+
+        // Event listeners
+        window.addEventListener('scroll', () => {
+          const shouldShow = window.scrollY > scrollThreshold;
+          tocDropdown.classList.toggle('-translate-y-full', !shouldShow);
+          tocDropdown.classList.toggle('opacity-0', !shouldShow);
+          tocDropdown.classList.toggle('translate-y-0', shouldShow);
+          tocDropdown.classList.toggle('opacity-100', shouldShow);
+
+          const scrollTop = window.scrollY;
+          const documentHeight = document.documentElement.scrollHeight;
+          const windowHeight = window.innerHeight;
+          const scrollableHeight = documentHeight - windowHeight;
+          const progress = scrollableHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / scrollableHeight) * 100)) : 0;
+          tocProgressBar.style.width = `${progress}%`;
+        }, { passive: true });
+
+        selectTrigger.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleDropdown();
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!selectTrigger.contains(e.target) && (!dynamicDropdown || !dynamicDropdown.contains(e.target))) {
+            toggleDropdown(false);
+          }
+        });
+
+        window.addEventListener('resize', () => {
+          if (isDropdownOpen) toggleDropdown(false);
+          if (dynamicDropdown) {
+            dynamicDropdown.remove();
+            dynamicDropdown = null;
+          }
+          if (observer) {
+            observer.disconnect();
+          }
+          initialize(); // Re-initialize on resize
+        });
+
+        // Set initial active section and progress bar state
+        handleScroll();
+      }
+      
+      // Initial call
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initialize);
       } else {
-        setTimeout(initialize, 100);
+        initialize();
       }
     })();
   </script>
