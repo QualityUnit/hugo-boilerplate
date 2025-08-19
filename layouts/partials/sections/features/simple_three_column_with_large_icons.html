@@ -62,7 +62,7 @@
 {{ $iconWrapperClass := "size-10 p-2 product-bg-primary rounded-lg flex items-center justify-center" }}
 
 <div class="{{ $theme }}">
-  <div class="{{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ if $isDark }}py-32{{ else }}py-12{{ end }}">
+  <div class="{{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} py-24 lg:py-32">
     <div class="wrapper">
       {{ if or $eyebrow $heading $description }}
         <div class="{{ $maxWidthHeading }}">
