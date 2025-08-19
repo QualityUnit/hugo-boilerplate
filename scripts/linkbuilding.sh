@@ -10,7 +10,7 @@ LINKBUILDER_PATH="${LINKBUILDER_PATH:-themes/boilerplate/linkbuilding/linkbuilde
 KEYWORDS_DIR="${KEYWORDS_DIR:-data/linkbuilding}"
 PUBLIC_DIR="${PUBLIC_DIR:-public}"
 LANGUAGES="${LANGUAGES:-en}"
-SKIP_PATHS="${SKIP_PATHS:-admin|api|search}"
+SKIP_PATHS="${SKIP_PATHS:-admin|api|search|tags|categories}"
 
 # Colors for output
 RED='\033[0;31m'
