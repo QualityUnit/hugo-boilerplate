@@ -27,7 +27,11 @@
 {{ end }}
 
 {{ if $headers }}
-  {{ $allClasses := printf "toc-dropdown-container t-[5rem] sm:t-[5.25rem] fixed left-0 right-0 surface-primary border-y surface-border shadow-sm z-40 py-3 transition-transform duration-300 transform -translate-y-full opacity-0 %s" $class }}
+  {{ $baseClass := "toc-dropdown-container" }}
+  {{ $positionClass := "t-[5rem] sm:t-[5.25rem] fixed left-0 right-0" }}
+  {{ $appearanceClass := "surface-primary border-y surface-border shadow-sm z-40 py-3" }}
+  {{ $transitionClass := "transition-transform duration-300 transform -translate-y-full opacity-0" }}
+  {{ $allClasses := printf "%s %s %s %s %s" $baseClass $positionClass $appearanceClass $transitionClass $class }}
   
   <div class="{{ $allClasses | strings.TrimSpace }}" id="tocDropdown">
     <div class="wrapper mx-auto md:grid md:grid-cols-2 gap-3 md:gap-4 md:items-center">
@@ -75,8 +79,15 @@
         return;
       }
 
-      const headerOffset = 120; // This should match your CSS header height + some margin
-      const scrollThreshold = 300;
+      // Configuration constants
+      const SCROLL_THRESHOLD = 300; // Minimum scroll distance before TOC dropdown activates
+      const HEADER_OFFSET_MARGIN = 25; // Additional margin for scroll positioning
+      
+      // Dynamically calculate header offset based on header element's height
+      const headerElement = document.querySelector('#siteHeader') || document.querySelector('.site-header') || document.querySelector('header');
+      const baseHeaderOffset = headerElement ? headerElement.offsetHeight : 120;
+      const headerOffset = baseHeaderOffset + HEADER_OFFSET_MARGIN;
+      
       let isDropdownOpen = false;
       let dynamicDropdown = null;
       let sections = [];
@@ -144,7 +155,7 @@
           toggleDropdown(false);
           
           window.scrollTo({
-            top: targetElement.offsetTop - headerOffset - 25,
+            top: targetElement.offsetTop - headerOffset,
             behavior: 'smooth'
           });
         }
@@ -164,6 +175,22 @@
           const activeDynamicOpt = dynamicDropdown?.querySelector(`li[data-value="${activeSection.anchor}"]`);
           activeDynamicOpt?.classList.add('product-bg-primary', 'text-white');
         }
+      }
+
+      function handleScroll() {
+        const shouldShow = window.scrollY > SCROLL_THRESHOLD;
+        tocDropdown.classList.toggle('-translate-y-full', !shouldShow);
+        tocDropdown.classList.toggle('opacity-0', !shouldShow);
+        tocDropdown.classList.toggle('translate-y-0', shouldShow);
+        tocDropdown.classList.toggle('opacity-100', shouldShow);
+
+        // Update progress bar
+        const scrollTop = window.scrollY;
+        const documentHeight = document.documentElement.scrollHeight;
+        const windowHeight = window.innerHeight;
+        const scrollableHeight = documentHeight - windowHeight;
+        const progress = scrollableHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / scrollableHeight) * 100)) : 0;
+        tocProgressBar.style.width = `${progress}%`;
       }
 
       function initialize() {
@@ -189,20 +216,7 @@
         sections.forEach(s => observer.observe(s.element));
 
         // Event listeners
-        window.addEventListener('scroll', () => {
-          const shouldShow = window.scrollY > scrollThreshold;
-          tocDropdown.classList.toggle('-translate-y-full', !shouldShow);
-          tocDropdown.classList.toggle('opacity-0', !shouldShow);
-          tocDropdown.classList.toggle('translate-y-0', shouldShow);
-          tocDropdown.classList.toggle('opacity-100', shouldShow);
-
-          const scrollTop = window.scrollY;
-          const documentHeight = document.documentElement.scrollHeight;
-          const windowHeight = window.innerHeight;
-          const scrollableHeight = documentHeight - windowHeight;
-          const progress = scrollableHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / scrollableHeight) * 100)) : 0;
-          tocProgressBar.style.width = `${progress}%`;
-        }, { passive: true });
+        window.addEventListener('scroll', handleScroll, { passive: true });
 
         selectTrigger.addEventListener('click', (e) => {
           e.preventDefault();
@@ -228,7 +242,7 @@
           initialize(); // Re-initialize on resize
         });
 
-        // Set initial active section and progress bar state
+        // Set initial state
         handleScroll();
       }
       
