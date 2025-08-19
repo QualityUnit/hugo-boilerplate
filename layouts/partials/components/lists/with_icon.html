@@ -2,7 +2,7 @@
 {{ $margin := .margin | default "mt-10" }}
 {{ $columnsClass := .columnsClass | default "" }}
 
-<dl class="{{ $margin }} max-w-full text-lg/7 text-body lg:max-w-full {{ $columnsClass }}">
+<dl class="{{ $margin }} max-w-full not-prose flex flex-col gap-y-8 text-lg/7 text-body lg:max-w-full {{ $columnsClass }}">
     {{ range $index, $item := $listItems }}
     <div class="relative pl-9">
         <dt class="inline font-bold text-heading">
