@@ -476,6 +476,10 @@ Examples:
                        help='Maximum parallel workers for file analysis (default: 8)')
     parser.add_argument('--parallel-languages', type=int, default=3,
                        help='Number of languages to process in parallel (default: 3)')
+    parser.add_argument('--force', action='store_true',
+                       help='Force recomputation even if optimized files exist')
+    parser.add_argument('--force-languages', nargs='+',
+                       help='Force recomputation for specific languages only')
     
     args = parser.parse_args()
     
@@ -507,9 +511,52 @@ Examples:
         logger.error("No languages found to process")
         sys.exit(1)
     
-    logger.info(f"Found {len(languages)} languages to process: {', '.join(languages)}")
-    logger.info(f"Processing {args.parallel_languages} languages in parallel")
+    # Filter out languages that already have optimized files (unless forced)
+    languages_to_process = []
+    skipped_languages = []
+    
+    for lang in languages:
+        optimized_file = output_dir / f"{lang}_optimized.json"
+        
+        # Check if we should process this language
+        should_process = False
+        
+        if args.force:
+            # Force mode: process all
+            should_process = True
+            logger.debug(f"  {lang}: Force mode enabled, will process")
+        elif args.force_languages and lang in args.force_languages:
+            # Specific language force
+            should_process = True
+            logger.debug(f"  {lang}: Specifically requested for recomputation")
+        elif not optimized_file.exists():
+            # No optimized file exists
+            should_process = True
+            logger.debug(f"  {lang}: No optimized file found, will process")
+        else:
+            # Optimized file exists and not forced
+            skipped_languages.append(lang)
+            logger.debug(f"  {lang}: Optimized file exists, skipping")
+        
+        if should_process:
+            languages_to_process.append(lang)
+    
+    # Report what will be processed
+    if skipped_languages:
+        logger.info(f"Skipping {len(skipped_languages)} languages with existing optimized files: {', '.join(skipped_languages)}")
+        logger.info("  (Use --force to recompute all, or delete specific *_optimized.json files to recompute)")
+    
+    if not languages_to_process:
+        logger.info("All languages already have optimized files. Nothing to process.")
+        logger.info("  To recompute: use --force flag or delete specific *_optimized.json files")
+        sys.exit(0)
+    
+    logger.info(f"Will process {len(languages_to_process)} languages: {', '.join(languages_to_process)}")
+    logger.info(f"Processing {min(args.parallel_languages, len(languages_to_process))} languages in parallel")
     logger.info("=" * 60)
+    
+    # Update languages list to only process needed ones
+    languages = languages_to_process
     
     # Process languages in parallel
     results = []

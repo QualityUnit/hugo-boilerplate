@@ -58,8 +58,11 @@ This is the primary script that coordinates the entire content preparation proce
 7. **Synchronizes attributes**: Ensures content attributes are consistent across translations
 8. **Generates translation URLs**: Creates URL mapping for all languages
 9. **Generates related content**: Creates YAML files for internal linking
-10. **Extracts automatic links**: Extracts keywords from frontmatter for linkbuilding
+10. **Extracts automatic links**: Extracts keywords from frontmatter for linkbuilding (first 2 keywords per page)
 11. **Precomputes linkbuilding**: Optimizes keyword files based on actual content
+    - **Incremental processing**: Only processes languages without existing optimized files
+    - **Force recomputation**: Delete specific `*_optimized.json` files to recompute those languages
+    - **Force all**: Use `--force` flag to recompute all languages
 12. **Preprocesses images**: Optimizes images for web delivery (WebP conversion, responsive sizes)
 
 #### Running Specific Steps:
@@ -85,6 +88,7 @@ Available steps:
 - `generate_related_content`: Create related content data
 - `extract_automatic_links`: Extract keywords from frontmatter for linkbuilding
 - `precompute_linkbuilding`: Optimize linkbuilding files based on actual content
+- `apply_linkbuilding`: Apply linkbuilding to HTML files in public folder
 - `preprocess_images`: Optimize images for web delivery
 
 #### Requirements:
@@ -94,6 +98,44 @@ Available steps:
 - Image processing tools (handled by the script)
 
 The script will prompt for a FlowHunt API key if not already configured.
+
+### Linkbuilding Optimization
+
+The linkbuilding system includes smart optimization features:
+
+#### Incremental Processing
+The `precompute_linkbuilding` step only processes languages that don't have optimized files yet:
+- Automatically skips languages with existing `*_optimized.json` files
+- Significantly speeds up repeated builds
+- Only recomputes when content changes
+
+#### Force Recomputation
+To recompute specific languages:
+```bash
+# Method 1: Delete the optimized file for that language
+rm data/linkbuilding/optimized/de_optimized.json
+./themes/boilerplate/scripts/build_content.sh --step precompute_linkbuilding
+
+# Method 2: Use force flag for specific languages
+themes/boilerplate/scripts/.venv/bin/python themes/boilerplate/scripts/precompute_linkbuilding.py \
+  --linkbuilding-dir data/linkbuilding \
+  --public-dir public \
+  --output-dir data/linkbuilding/optimized \
+  --force-languages de fr es
+
+# Method 3: Force all languages
+themes/boilerplate/scripts/.venv/bin/python themes/boilerplate/scripts/precompute_linkbuilding.py \
+  --linkbuilding-dir data/linkbuilding \
+  --public-dir public \
+  --output-dir data/linkbuilding/optimized \
+  --force
+```
+
+#### Performance Features
+- Processes 3 languages in parallel by default (configurable with `--parallel-languages`)
+- Skips unnecessary files (categories, tags, pagination)
+- Early stopping when all keywords are found
+- Deduplicates case-insensitive keywords automatically
 
 ## Installation
 
