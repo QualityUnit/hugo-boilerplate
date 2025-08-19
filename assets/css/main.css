@@ -351,4 +351,15 @@
     appearance: none;
     @apply hidden;
   }
+
+  /* TOC select appearance reset */
+  .toc-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  .toc-select::-ms-expand {
+    display: none;
+  }
 }

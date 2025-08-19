@@ -1,0 +1,257 @@
+{{/*
+  Table of Contents Partial
+  Renders a sticky dropdown-style table of contents with progress bar.
+*/}}
+
+{{ $page := .page | default . }}
+{{ $title := .title | default $page.Title }}
+{{ $class := .class | default "" }}
+
+{{ $headers := slice }}
+{{ $tocContent := $page.TableOfContents }}
+
+{{ if $tocContent }}
+  {{ range findRE `<a href="([^"]+)">([^<]+)</a>` $tocContent -}}
+    {{ $href := . | replaceRE `.*?href="([^"]+)".*` "$1" }}
+    {{ $text := . | replaceRE `.*?<a[^>]+>(.*?)</a>.*` "$1" | plainify }}
+    {{ $headers = $headers | append (dict "href" $href "text" $text) }}
+  {{- end }}
+{{ else }}
+  {{ range findRE `(?i)<h2[^>]*id="[^"]*"[^>]*>.*?</h2>` $page.Content -}}
+    {{ $id := . | replaceRE `(?i)<h2[^>]*id="([^"]*)".*` "$1" }}
+    {{ $text := . | replaceRE `(?i)<h2[^>]*>(.*?)</h2>` "$1" | plainify }}
+    {{ if and $id $text }}
+      {{ $headers = $headers | append (dict "href" (printf "#%s" $id) "text" $text) }}
+    {{ end }}
+  {{- end }}
+{{ end }}
+
+{{ if $headers }}
+  {{ $baseClass := "toc-dropdown-container" }}
+  {{ $positionClass := "t-[5rem] sm:t-[5.25rem] fixed left-0 right-0" }}
+  {{ $appearanceClass := "surface-primary border-y surface-border shadow-sm z-40 py-3" }}
+  {{ $transitionClass := "transition-transform duration-300 transform -translate-y-full opacity-0" }}
+  {{ $allClasses := printf "%s %s %s %s %s" $baseClass $positionClass $appearanceClass $transitionClass $class }}
+  
+  <div class="{{ $allClasses | strings.TrimSpace }}" id="tocDropdown">
+    <div class="wrapper mx-auto md:grid md:grid-cols-2 gap-3 md:gap-4 md:items-center">
+      <span class="text-xl font-semibold text-heading hidden md:block truncate">{{ $title }}:</span>
+      <div class="relative w-full md:justify-self-end hidden md:block">
+        <select id="tocSelect" class="toc-select hidden" aria-hidden="true">
+          {{ range $headers }}
+            <option value="{{ .href }}">{{ .text }}</option>
+          {{ end }}
+        </select>
+  
+        <div class="relative">
+          <div class="surface-primary border surface-border rounded-md px-3 py-2 text-sm cursor-pointer hover:surface-secondary transition-colors duration-200 flex items-center justify-between" id="selectTrigger">
+            <span class="truncate" id="selectLabel">Select section...</span>
+            <div class="pointer-events-none" id="tocChevron">
+              {{ partial "icons/chevron-down" (dict "class" "w-4 h-4 text-gray-500 transition-transform duration-200") }}
+            </div>
+          </div>
+        </div>
+  
+        <div class="hidden" id="tocOptionsTemplate">
+          <ul>
+            {{ range $headers }}
+              <li class="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 hover:text-heading transition-colors duration-150 border-b surface-border last:border-b-0" data-value="{{ .href }}">{{ .text }}</li>
+            {{ end }}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="absolute bottom-0 left-0 w-full h-0.5 surface-secondary">
+      <div id="tocProgressBar" class="h-full product-bg-primary transition-all duration-300 ease-out" style="width: 0%"></div>
+    </div>
+  </div>
+  
+  <script>
+    (function() {
+      const tocDropdown = document.getElementById('tocDropdown');
+      const tocProgressBar = document.getElementById('tocProgressBar');
+      const selectTrigger = document.getElementById('selectTrigger');
+      const selectLabel = document.getElementById('selectLabel');
+      const tocChevron = document.getElementById('tocChevron');
+      const optionsContainer = document.getElementById('tocOptionsTemplate');
+
+      if (!tocDropdown || !selectTrigger || !optionsContainer) {
+        return;
+      }
+
+      // Configuration constants
+      const SCROLL_THRESHOLD = 300; // Minimum scroll distance before TOC dropdown activates
+      const HEADER_OFFSET_MARGIN = 25; // Additional margin for scroll positioning
+      
+      // Dynamically calculate header offset based on header element's height
+      const headerElement = document.querySelector('#siteHeader') || document.querySelector('.site-header') || document.querySelector('header');
+      const baseHeaderOffset = headerElement ? headerElement.offsetHeight : 120;
+      const headerOffset = baseHeaderOffset + HEADER_OFFSET_MARGIN;
+      
+      let isDropdownOpen = false;
+      let dynamicDropdown = null;
+      let sections = [];
+      let observer;
+
+      // --- Helper Functions ---
+      function getSections() {
+        const templateOptions = optionsContainer.querySelectorAll('li');
+        return Array.from(templateOptions).map(option => {
+          const anchor = option.dataset.value;
+          const element = document.querySelector(anchor);
+          return element ? { element, anchor, option } : null;
+        }).filter(Boolean);
+      }
+
+      function createDynamicDropdown() {
+        if (dynamicDropdown) return dynamicDropdown;
+
+        dynamicDropdown = document.createElement('ul');
+        dynamicDropdown.className = 'fixed surface-primary border surface-border rounded-md shadow-lg max-h-60 overflow-y-auto hidden z-[9999]';
+        dynamicDropdown.innerHTML = optionsContainer.querySelector('ul').innerHTML;
+        
+        // Add event listeners to the new list items
+        dynamicDropdown.querySelectorAll('li').forEach(option => {
+          option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleOptionClick(e.currentTarget);
+          });
+        });
+
+        document.body.appendChild(dynamicDropdown);
+        return dynamicDropdown;
+      }
+
+      function toggleDropdown(open = null) {
+        const shouldOpen = open !== null ? open : !isDropdownOpen;
+        isDropdownOpen = shouldOpen;
+
+        if (shouldOpen) {
+          const dropdown = createDynamicDropdown();
+          const triggerRect = selectTrigger.getBoundingClientRect();
+          Object.assign(dropdown.style, {
+            top: `${triggerRect.bottom + 4}px`,
+            left: `${triggerRect.left}px`,
+            width: `${triggerRect.width}px`
+          });
+          dropdown.classList.remove('hidden');
+        } else if (dynamicDropdown) {
+          dynamicDropdown.classList.add('hidden');
+        }
+
+        if (tocChevron) {
+          const chevronSvg = tocChevron.querySelector('svg');
+          if (chevronSvg) {
+            chevronSvg.style.transform = shouldOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+          }
+        }
+      }
+
+      function handleOptionClick(option) {
+        const targetAnchor = option.dataset.value;
+        const targetElement = document.querySelector(targetAnchor);
+
+        if (targetElement) {
+          toggleDropdown(false);
+          
+          window.scrollTo({
+            top: targetElement.offsetTop - headerOffset,
+            behavior: 'smooth'
+          });
+        }
+      }
+
+      function updateActiveSection(entry) {
+        const activeSection = sections.find(s => s.element === entry.target);
+        if (activeSection) {
+          sections.forEach(s => {
+            s.option.classList.remove('product-bg-primary', 'text-white');
+            const dynamicOpt = dynamicDropdown?.querySelector(`li[data-value="${s.anchor}"]`);
+            dynamicOpt?.classList.remove('product-bg-primary', 'text-white');
+          });
+
+          activeSection.option.classList.add('product-bg-primary', 'text-white');
+          selectLabel.textContent = activeSection.option.textContent;
+          const activeDynamicOpt = dynamicDropdown?.querySelector(`li[data-value="${activeSection.anchor}"]`);
+          activeDynamicOpt?.classList.add('product-bg-primary', 'text-white');
+        }
+      }
+
+      function handleScroll() {
+        const shouldShow = window.scrollY > SCROLL_THRESHOLD;
+        tocDropdown.classList.toggle('-translate-y-full', !shouldShow);
+        tocDropdown.classList.toggle('opacity-0', !shouldShow);
+        tocDropdown.classList.toggle('translate-y-0', shouldShow);
+        tocDropdown.classList.toggle('opacity-100', shouldShow);
+
+        // Update progress bar
+        const scrollTop = window.scrollY;
+        const documentHeight = document.documentElement.scrollHeight;
+        const windowHeight = window.innerHeight;
+        const scrollableHeight = documentHeight - windowHeight;
+        const progress = scrollableHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / scrollableHeight) * 100)) : 0;
+        tocProgressBar.style.width = `${progress}%`;
+      }
+
+      function initialize() {
+        if (window.getComputedStyle(selectTrigger.parentElement).display === 'none') {
+          return;
+        }
+
+        sections = getSections();
+        sections.sort((a, b) => a.element.offsetTop - b.element.offsetTop);
+
+        // Setup IntersectionObserver
+        observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              updateActiveSection(entry);
+            }
+          });
+        }, {
+          rootMargin: `-${headerOffset}px 0px -50% 0px`,
+          threshold: 0
+        });
+
+        sections.forEach(s => observer.observe(s.element));
+
+        // Event listeners
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        selectTrigger.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleDropdown();
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!selectTrigger.contains(e.target) && (!dynamicDropdown || !dynamicDropdown.contains(e.target))) {
+            toggleDropdown(false);
+          }
+        });
+
+        window.addEventListener('resize', () => {
+          if (isDropdownOpen) toggleDropdown(false);
+          if (dynamicDropdown) {
+            dynamicDropdown.remove();
+            dynamicDropdown = null;
+          }
+          if (observer) {
+            observer.disconnect();
+          }
+          initialize(); // Re-initialize on resize
+        });
+
+        // Set initial state
+        handleScroll();
+      }
+      
+      // Initial call
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+      } else {
+        initialize();
+      }
+    })();
+  </script>
+{{ end }}
