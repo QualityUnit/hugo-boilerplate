@@ -1,6 +1,5 @@
 {{ define "main" }}
-  <div class="bg-white dark:bg-gray-900 py-24 lg:py-32">
-    {{ partial "breadcrumbs_default.html" . }}
+  <div class="bg-white dark:bg-gray-900 py-16">
     {{ partial "hero_default.html" . }}
     {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
     {{ $activeLetter := "" }}
@@ -90,7 +89,7 @@
 
   {{ if .Content }}
     {{ partial "sections/content/centered.html" (dict
-        "content" (partial "utils/linkbuilding" (dict "content" .Content "page" .) | safeHTML)
+        "content" .Content
         "bgColor" "bg-gray-50"
         "page" .
     ) }}

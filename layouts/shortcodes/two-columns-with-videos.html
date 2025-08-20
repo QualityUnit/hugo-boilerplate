@@ -1,0 +1,42 @@
+{{/*
+Shortcode: Two Columns With Videos
+Description: A shortcode for creating a two-column layout with text on the left and videos on the right
+
+Usage:
+{{< two-columns-with-videos
+    eyebrow="Post Affiliate Pro"
+    heading="How can you earn with affiliate marketing"
+    description="Affiliate marketers promote products via their content, such as blog posts, social media posts, and more. If a visitor buys a product via an affiliate link, the business will earn money, while the affiliate will get a commission. It allows you to make money while you sleep or engage in travel activities." >}}
+[
+  {
+    "title": "Merchant",
+    "description": "Create an affiliate program",
+    "src": "https://youtu.be/9bpwD8b2PbU",
+    "poster": "/images/landing-pages/merchant.png",
+    "url": "#"
+  },
+  {
+    "title": "Affiliate", 
+    "description": "Sign-up to affiliate programs",
+    "src": "",
+    "poster": "/images/landing-pages/affiliate.png",
+    "url": "#"
+  }
+]
+{{< /two-columns-with-videos >}}
+
+Parameters:
+- theme: "light" or "dark" (optional, default: "light")
+- eyebrow: Short text displayed above the main heading (optional)
+- heading: Main section heading (optional)
+- description: Description text below the heading (optional)
+- Inner content: JSON array of video objects with title, description, src, and poster
+*/}}
+
+{{ partial "sections/content/two_columns_with_videos.html" (dict 
+    "theme" (.Get "theme")
+    "eyebrow" (.Get "eyebrow")
+    "heading" (.Get "heading") 
+    "description" (.Get "description")
+    "Inner" .Inner
+) }}

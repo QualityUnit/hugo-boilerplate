@@ -43,7 +43,7 @@
             </button>
           </dt>
           <dd class="mt-2 pr-12 hidden" id="faq-dark-{{ $index }}">
-            <p class="text-base/7 {{ $answerColor }}">{{ partial "utils/linkbuilding" (dict "content" .answer "page" $page) | safeHTML }}</p>
+            <p class="text-base/7 {{ $answerColor }}">{{ .answer | safeHTML }}</p>
           </dd>
         </div>
         {{ end }}

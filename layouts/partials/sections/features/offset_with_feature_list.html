@@ -46,16 +46,15 @@
       <div class="col-span-2">
         <h2 class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</h2>
         <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl">{{ $heading }}</p>
-        <p class="mt-6 text-base/7 text-gray-600">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+        <p class="mt-6 text-base/7 text-gray-600">{{ $description | safeHTML }}</p>
       </div>
       <dl class="col-span-3 grid grid-cols-1 gap-x-8 gap-y-10 text-base/7 text-gray-600 sm:grid-cols-2 lg:gap-y-16">
         {{ range $features }}
         <div class="relative pl-9">
           <dt class="font-semibold text-gray-900">
-            {{ partial "components/media/icon.html" (dict "icon" "link") }}
-            {{ .title }}
+            <span class="inline-block align-middle mr-2 w-5 h-5 text-{{ $iconColor }}">{{ partial "components/media/icon.html" (dict "icon" (or .icon "arrow-right")) }}</span>{{ .title }}
           </dt>
-          <dd class="mt-2">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</dd>
+          <dd class="mt-2">{{ .description | safeHTML }}</dd>
         </div>
         {{ end }}
       </dl>

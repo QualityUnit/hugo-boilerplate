@@ -89,17 +89,6 @@ run_step() {
             echo -e "${GREEN}Translation key sync completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step sync_translations finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
-        validate_content)
-            echo -e "${BLUE}=== Step 1: Validating Content Files ===${NC}"
-            echo -e "${YELLOW}[DEBUG] Executing: bash ${SCRIPT_DIR}/validate_content.sh --path ${HUGO_ROOT}/content${NC}"
-            bash "${SCRIPT_DIR}/validate_content.sh" --path "${HUGO_ROOT}/content"
-            if [ $? -ne 0 ]; then
-                echo -e "${YELLOW}Content file validation failed. Stopping further processing.${NC}"
-                exit 1
-            fi
-            echo -e "${GREEN}Content file validation completed!${NC}"
-            echo -e "${YELLOW}[DEBUG] Step validate_content finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            ;;
         offload_images)
             echo -e "${BLUE}=== Step 2: Offload Images from Replicate ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/offload_replicate_images.py${NC}"
@@ -129,17 +118,6 @@ run_step() {
             echo -e "${GREEN}Content attributes sync completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step sync_content_attributes finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
-        validate_content_post)
-            echo -e "${BLUE}=== Step 3.6: Validating Content Files after translation ===${NC}"
-            echo -e "${YELLOW}[DEBUG] Executing: bash ${SCRIPT_DIR}/validate_content.sh --path ${HUGO_ROOT}/content${NC}"
-            bash "${SCRIPT_DIR}/validate_content.sh" --path "${HUGO_ROOT}/content"
-            if [ $? -ne 0 ]; then
-                echo -e "${YELLOW}Content file validation failed. Stopping further processing.${NC}"
-                exit 1
-            fi
-            echo -e "${GREEN}Content file validation completed!${NC}"
-            echo -e "${YELLOW}[DEBUG] Step validate_content_post finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            ;;
         generate_translation_urls)
             echo -e "${BLUE}=== Step 3.7: Generating Translation URLs Mapping ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translation-urls.py --hugo-root ${HUGO_ROOT}${NC}"
@@ -153,6 +131,186 @@ run_step() {
             python "${SCRIPT_DIR}/generate_related_content.py" --path "${HUGO_ROOT}/content" --hugo-root "${HUGO_ROOT}" --exclude-sections "author"
             echo -e "${GREEN}Related content generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_related_content finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
+        extract_automatic_links)
+            echo -e "${BLUE}=== Step 4.5: Extracting Automatic Links ===${NC}"
+            echo -e "${YELLOW}Extracting keywords from markdown frontmatter for linkbuilding...${NC}"
+            
+            # Create linkbuilding directory if it doesn't exist
+            mkdir -p "${HUGO_ROOT}/data/linkbuilding"
+            
+            # Start all language extractions in parallel
+            echo -e "${YELLOW}Starting parallel extraction for all languages...${NC}"
+            pids=()
+            
+            for lang_dir in "${HUGO_ROOT}/content"/*; do
+                if [ -d "$lang_dir" ]; then
+                    lang=$(basename "$lang_dir")
+                    echo -e "${YELLOW}[DEBUG] Starting extraction for language: $lang${NC}"
+                    
+                    # Run extraction in background (with virtual environment)
+                    (
+                        "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/extract_automatic_links.py" \
+                            --content-dir "${lang_dir}/" \
+                            --output "${HUGO_ROOT}/data/linkbuilding/${lang}_automatic.json" 2>&1 | \
+                            sed "s/^/[$lang] /"
+                        
+                        if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                            echo -e "${GREEN}[$lang] Automatic links extracted successfully${NC}"
+                        else
+                            echo -e "${YELLOW}[$lang] Warning: Failed to extract automatic links${NC}"
+                        fi
+                    ) &
+                    
+                    # Store the PID
+                    pids+=($!)
+                fi
+            done
+            
+            # Wait for all background processes to complete
+            echo -e "${YELLOW}Waiting for all language extractions to complete...${NC}"
+            failed_langs=()
+            for pid in "${pids[@]}"; do
+                wait $pid
+                if [ $? -ne 0 ]; then
+                    failed_langs+=("$pid")
+                fi
+            done
+            
+            # Report results
+            if [ ${#failed_langs[@]} -eq 0 ]; then
+                echo -e "${GREEN}All automatic link extractions completed successfully!${NC}"
+            else
+                echo -e "${YELLOW}Some extractions failed, but continuing...${NC}"
+            fi
+            
+            echo -e "${GREEN}Automatic link extraction completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step extract_automatic_links finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
+        build_hugo)
+            echo -e "${BLUE}=== Step 2: Building Hugo Site (All Languages) ===${NC}"
+            echo -e "${YELLOW}Building Hugo site to validate content and generate HTML files...${NC}"
+            
+            # Build Hugo with minification (all languages)
+            echo -e "${YELLOW}[DEBUG] Executing: hugo --minify${NC}"
+            
+            cd "${HUGO_ROOT}"
+            hugo --minify
+            
+            if [ $? -ne 0 ]; then
+                echo -e "${RED}ERROR: Hugo build failed! Content has errors that must be fixed.${NC}"
+                echo -e "${RED}Please fix the errors above before continuing.${NC}"
+                exit 1
+            fi
+            
+            echo -e "${GREEN}Hugo build completed successfully!${NC}"
+            
+            # Count generated files per language
+            total_count=$(find "${HUGO_ROOT}/public" -name "*.html" | wc -l)
+            echo -e "${GREEN}Generated ${total_count} total HTML files${NC}"
+            
+            # Show breakdown by language
+            echo -e "${YELLOW}Files per language:${NC}"
+            for lang_dir in ar cs da de es fi fr it ja ko nl no pl pt ro sk sv tr vi zh; do
+                if [ -d "${HUGO_ROOT}/public/${lang_dir}" ]; then
+                    lang_count=$(find "${HUGO_ROOT}/public/${lang_dir}" -name "*.html" | wc -l)
+                    echo -e "  ${lang_dir}: ${lang_count} files"
+                fi
+            done
+            # English is at root
+            en_count=$(find "${HUGO_ROOT}/public" -maxdepth 3 -name "*.html" -not -path "*/ar/*" -not -path "*/cs/*" -not -path "*/da/*" -not -path "*/de/*" -not -path "*/es/*" -not -path "*/fi/*" -not -path "*/fr/*" -not -path "*/it/*" -not -path "*/ja/*" -not -path "*/ko/*" -not -path "*/nl/*" -not -path "*/no/*" -not -path "*/pl/*" -not -path "*/pt/*" -not -path "*/ro/*" -not -path "*/sk/*" -not -path "*/sv/*" -not -path "*/tr/*" -not -path "*/vi/*" -not -path "*/zh/*" | wc -l)
+            echo -e "  en: ${en_count} files (at root)"
+            
+            echo -e "${YELLOW}[DEBUG] Step build_hugo finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
+        precompute_linkbuilding)
+            echo -e "${BLUE}=== Step 4.8: Precomputing Optimized Linkbuilding ===${NC}"
+            echo -e "${YELLOW}Analyzing content to optimize linkbuilding keywords...${NC}"
+            
+            # Ensure Hugo has been built
+            if [ ! -d "${HUGO_ROOT}/public" ]; then
+                echo -e "${YELLOW}Warning: Public directory not found. Building Hugo first...${NC}"
+                echo -e "${YELLOW}[DEBUG] Executing: hugo --minify${NC}"
+                cd "${HUGO_ROOT}"
+                hugo --minify
+                if [ $? -ne 0 ]; then
+                    echo -e "${YELLOW}Error: Hugo build failed. Cannot proceed with linkbuilding optimization.${NC}"
+                    exit 1
+                fi
+            else
+                # Check if public directory is recent
+                if [ -f "${HUGO_ROOT}/public/index.html" ]; then
+                    public_age=$(( $(date +%s) - $(stat -f%m "${HUGO_ROOT}/public/index.html" 2>/dev/null || stat -c%Y "${HUGO_ROOT}/public/index.html" 2>/dev/null) ))
+                    if [ $public_age -gt 3600 ]; then
+                        echo -e "${YELLOW}Public directory is over 1 hour old. Rebuilding Hugo (all languages)...${NC}"
+                        cd "${HUGO_ROOT}"
+                        hugo --minify
+                    else
+                        echo -e "${GREEN}Public directory is recent (less than 1 hour old), skipping rebuild${NC}"
+                    fi
+                fi
+            fi
+            
+            if [ -d "${HUGO_ROOT}/public" ]; then
+                # Create optimized directory
+                mkdir -p "${HUGO_ROOT}/data/linkbuilding/optimized"
+                
+                echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/precompute_linkbuilding.py${NC}"
+                
+                "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/precompute_linkbuilding.py" \
+                    --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
+                    --public-dir "${HUGO_ROOT}/public" \
+                    --output-dir "${HUGO_ROOT}/data/linkbuilding/optimized" \
+                    --max-workers 8
+                
+                if [ $? -eq 0 ]; then
+                    echo -e "${GREEN}Linkbuilding optimization completed!${NC}"
+                    
+                    # Show summary
+                    if [ -f "${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json" ]; then
+                        echo -e "${YELLOW}Optimization summary:${NC}"
+                        "${VENV_DIR}/bin/python" -c "
+import json
+with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json', 'r') as f:
+    data = json.load(f)
+    summary = data.get('summary', {})
+    print(f'  Original keywords: {summary.get(\"total_original_keywords\", 0):,}')
+    print(f'  Keywords found in content: {summary.get(\"total_found_keywords\", 0):,}')
+    print(f'  Average reduction: {summary.get(\"average_reduction_percent\", 0):.1f}%')
+"
+                    fi
+                else
+                    echo -e "${YELLOW}Warning: Linkbuilding optimization failed${NC}"
+                fi
+            fi
+            
+            echo -e "${YELLOW}[DEBUG] Step precompute_linkbuilding finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
+        apply_linkbuilding)
+            echo -e "${BLUE}=== Step 4.6: Applying Linkbuilding (Parallel) ===${NC}"
+            echo -e "${YELLOW}Running parallel linkbuilding for all languages...${NC}"
+            
+            # Check if public directory exists
+            if [ ! -d "${HUGO_ROOT}/public" ]; then
+                echo -e "${YELLOW}Warning: Public directory not found. Skipping linkbuilding.${NC}"
+                echo -e "${YELLOW}Run 'hugo' to generate the public directory first.${NC}"
+            else
+                echo -e "${YELLOW}[DEBUG] Executing: ${VENV_DIR}/bin/python ${SCRIPT_DIR}/linkbuilding_parallel.py --linkbuilding-dir ${HUGO_ROOT}/data/linkbuilding --public-dir ${HUGO_ROOT}/public${NC}"
+                
+                "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/linkbuilding_parallel.py" \
+                    --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
+                    --public-dir "${HUGO_ROOT}/public" \
+                    --script-path "${SCRIPT_DIR}/linkbuilding.py" \
+                    --max-workers 8
+                
+                if [ $? -eq 0 ]; then
+                    echo -e "${GREEN}Parallel linkbuilding completed successfully!${NC}"
+                else
+                    echo -e "${YELLOW}Warning: Some languages failed during linkbuilding${NC}"
+                fi
+            fi
+            
+            echo -e "${YELLOW}[DEBUG] Step apply_linkbuilding finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         preprocess_images)
             echo -e "${BLUE}=== Step 5: Preprocessing Images ===${NC}"
@@ -171,7 +329,7 @@ run_step() {
 
 # If no steps specified, run all steps
 if [ ${#STEPS_TO_RUN[@]} -eq 0 ]; then
-    STEPS_TO_RUN=(sync_translations validate_content offload_images find_duplicate_images translate sync_content_attributes validate_content_post generate_translation_urls generate_related_content preprocess_images)
+    STEPS_TO_RUN=(sync_translations build_hugo offload_images find_duplicate_images translate sync_content_attributes generate_translation_urls generate_related_content extract_automatic_links precompute_linkbuilding preprocess_images)
     echo -e "${YELLOW}[DEBUG] No steps specified, running all steps: ${STEPS_TO_RUN[@]}${NC}"
 else
     echo -e "${YELLOW}[DEBUG] Running specified steps: ${STEPS_TO_RUN[@]}${NC}"

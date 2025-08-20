@@ -31,7 +31,7 @@
     <div class="mx-auto max-w-2xl lg:text-center">
       <h2 class="text-base/7 font-semibold text-indigo-400">{{ $tagline }}</h2>
       <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-white sm:text-5xl lg:text-balance">{{ $heading }}</p>
-      <p class="mt-6 text-lg/8 text-gray-300">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+      <p class="mt-6 text-lg/8 text-gray-300">{{ $description | safeHTML }}</p>
     </div>
     <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
       <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
@@ -42,7 +42,7 @@
             {{ .title }}
           </dt>
           <dd class="mt-4 flex flex-auto flex-col text-base/7 text-gray-300">
-            <p class="flex-auto">{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</p>
+            <p class="flex-auto">{{ .description | safeHTML }}</p>
             {{ if .link }}
             <p class="mt-6">
               <a href="{{ .link.url }}" class="text-sm/6 font-semibold text-indigo-400">{{ .link.text }} <span aria-hidden="true">→</span></a>

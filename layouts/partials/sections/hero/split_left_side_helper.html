@@ -33,7 +33,7 @@
     {{ end }}
     {{ if $heading }}<h1 class="mt-6 text-5xl font-semibold tracking-[-2.832px] text-heading leading-none text-pretty sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>{{ end }}
     {{ if $description }}
-    <p class="mt-8 text-lg/7 text-body sm:text-xl/8">{{ partial "utils/linkbuilding" (dict "content" $description "page" .) | safeHTML }}</p>
+    <p class="mt-8 text-lg/7 text-body sm:text-xl/8">{{ $description | safeHTML }}</p>
     {{ end }}
 
     <!-- Tags and Categories -->

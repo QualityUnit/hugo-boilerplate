@@ -51,13 +51,19 @@ This is the primary script that coordinates the entire content preparation proce
 
 1. **Sets up environment**: Creates a Python virtual environment and installs required dependencies
 2. **Syncs translations**: Ensures translation keys are consistent across language files
-3. **Validates content**: Checks content structure and formatting
+3. **Builds Hugo site**: Validates content by building the entire site (exits on errors)
 4. **Offloads images**: Downloads and stores images from external sources if needed
-5. **Translates missing content**: Uses the FlowHunt API to translate missing content files
-6. **Synchronizes attributes**: Ensures content attributes are consistent across translations
-7. **Re-validates content**: Checks content structure again after translation
-8. **Generates related content**: Creates YAML files for internal linking
-9. **Preprocesses images**: Optimizes images for web delivery (WebP conversion, responsive sizes)
+5. **Finds duplicate images**: Identifies duplicate images across the project
+6. **Translates missing content**: Uses the FlowHunt API to translate missing content files
+7. **Synchronizes attributes**: Ensures content attributes are consistent across translations
+8. **Generates translation URLs**: Creates URL mapping for all languages
+9. **Generates related content**: Creates YAML files for internal linking
+10. **Extracts automatic links**: Extracts keywords from frontmatter for linkbuilding (first 2 keywords per page)
+11. **Precomputes linkbuilding**: Optimizes keyword files based on actual content
+    - **Incremental processing**: Only processes languages without existing optimized files
+    - **Force recomputation**: Delete specific `*_optimized.json` files to recompute those languages
+    - **Force all**: Use `--force` flag to recompute all languages
+12. **Preprocesses images**: Optimizes images for web delivery (WebP conversion, responsive sizes)
 
 #### Running Specific Steps:
 
@@ -73,12 +79,16 @@ You can run specific parts of the build process using the `--step` flag:
 
 Available steps:
 - `sync_translations`: Synchronize translation keys across files
-- `validate_content`: Validate content files before processing
+- `build_hugo`: Build and validate Hugo site (exits on errors)
 - `offload_images`: Download images from external services
+- `find_duplicate_images`: Find and report duplicate images
 - `translate`: Translate missing content with FlowHunt API
 - `sync_content_attributes`: Ensure content attribute consistency
-- `validate_content_post`: Validate content after translation
+- `generate_translation_urls`: Generate URL mappings for all languages
 - `generate_related_content`: Create related content data
+- `extract_automatic_links`: Extract keywords from frontmatter for linkbuilding
+- `precompute_linkbuilding`: Optimize linkbuilding files based on actual content
+- `apply_linkbuilding`: Apply linkbuilding to HTML files in public folder
 - `preprocess_images`: Optimize images for web delivery
 
 #### Requirements:
@@ -88,6 +98,44 @@ Available steps:
 - Image processing tools (handled by the script)
 
 The script will prompt for a FlowHunt API key if not already configured.
+
+### Linkbuilding Optimization
+
+The linkbuilding system includes smart optimization features:
+
+#### Incremental Processing
+The `precompute_linkbuilding` step only processes languages that don't have optimized files yet:
+- Automatically skips languages with existing `*_optimized.json` files
+- Significantly speeds up repeated builds
+- Only recomputes when content changes
+
+#### Force Recomputation
+To recompute specific languages:
+```bash
+# Method 1: Delete the optimized file for that language
+rm data/linkbuilding/optimized/de_optimized.json
+./themes/boilerplate/scripts/build_content.sh --step precompute_linkbuilding
+
+# Method 2: Use force flag for specific languages
+themes/boilerplate/scripts/.venv/bin/python themes/boilerplate/scripts/precompute_linkbuilding.py \
+  --linkbuilding-dir data/linkbuilding \
+  --public-dir public \
+  --output-dir data/linkbuilding/optimized \
+  --force-languages de fr es
+
+# Method 3: Force all languages
+themes/boilerplate/scripts/.venv/bin/python themes/boilerplate/scripts/precompute_linkbuilding.py \
+  --linkbuilding-dir data/linkbuilding \
+  --public-dir public \
+  --output-dir data/linkbuilding/optimized \
+  --force
+```
+
+#### Performance Features
+- Processes 3 languages in parallel by default (configurable with `--parallel-languages`)
+- Skips unnecessary files (categories, tags, pagination)
+- Early stopping when all keywords are found
+- Deduplicates case-insensitive keywords automatically
 
 ## Installation
 
@@ -559,7 +607,7 @@ keywords:
 -   `exact`: (Boolean, optional, defaults to `false`) 
     -   If `false` (default): The keyword will be matched even if it's part of a larger word (e.g., if keyword is "log", "logging" would also be matched). The matching is case-insensitive.
     -   If `true`: The keyword will only be matched if it appears as an exact word (bounded by spaces or punctuation). The matching is case-sensitive.
--   `priority`: (Integer, optional, defaults to `1`) Used to determine which rule applies if multiple keywords could match the same text. Higher numbers usually mean higher priority, but the exact logic depends on the implementation in the `linkbuilding.html` partial. Currently, the partial processes keywords in the order they appear in the YAML file, and the first match for a given piece of text is used. The `priority` field itself is not directly used by the current version of the `linkbuilding.html` partial to reorder or select rules beyond their sequence in the file.
+-   `priority`: (Integer, optional, defaults to `1`) Used to determine which rule applies if multiple keywords could match the same text. Higher numbers usually mean higher priority. The linkbuilding module processes keywords based on their priority, with higher priority keywords being applied first.
 -   `title`: (String, optional, defaults to the `keyword` value) The text to be used for the `title` attribute of the generated `<a>` HTML tag. This is often used for tooltips or to provide more context to search engines.
 
 To add new linkbuilding rules, simply edit the appropriate `data/linkbuilding/<lang>.yaml` file and add new entries to the `keywords` list following this structure.

@@ -60,12 +60,12 @@
           {{ if .html }}
             {{ .html | safeHTML }}
           {{ else if .text }}
-            {{ partial "utils/linkbuilding" (dict "content" .text "page" $page) | safeHTML }}
+            {{ .text | safeHTML }}
           {{ else }}
-            {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+            {{ . | safeHTML }}
           {{ end }}
         {{ else }}
-          {{ partial "utils/linkbuilding" (dict "content" . "page" $page) | safeHTML }}
+          {{ . | safeHTML }}
         {{ end }}
       </li>
     {{ end }}
@@ -103,9 +103,9 @@
               {{ if $item.html }}
                 {{ $item.html | safeHTML }}
               {{ else if $item.text }}
-                {{ partial "utils/linkbuilding" (dict "content" $item.text "page" $page) | safeHTML }}
+                {{ $item.text | safeHTML }}
               {{ else }}
-                {{ partial "utils/linkbuilding" (dict "content" $item "page" $page) | safeHTML }}
+                {{ $item | safeHTML }}
               {{ end }}
               {{ if $item.items }}
                 <div class="font-normal text-body">
@@ -113,7 +113,7 @@
                 </div>
               {{ end }}
             {{ else }}
-              {{ partial "utils/linkbuilding" (dict "content" $item "page" $page) | safeHTML }}
+              {{ $item | safeHTML }}
             {{ end }}
           </div>
         </li>
@@ -126,7 +126,7 @@
     {{ $textSize := index $sizeMap (printf "%d" $level) }}
     {{ printf "<%s class=\"font-bold %s\">%s</%s>" $tag $textSize $content $tag | safeHTML }}
   {{ else }}
-    <div>{{ partial "utils/linkbuilding" (dict "content" $content "page" $page) | safeHTML }}</div>
+    <div>{{ $content | safeHTML }}</div>
   {{ end }}
 {{ end }}
 
@@ -141,7 +141,7 @@
       </div>
     {{ end }}
   {{ else }}
-    <div>{{ partial "utils/linkbuilding" (dict "content" $desc "page" $page) | safeHTML }}</div>
+    <div>{{ $desc | safeHTML }}</div>
   {{ end }}
 {{ end }}
 

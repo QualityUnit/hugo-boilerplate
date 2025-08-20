@@ -1,0 +1,18 @@
+{
+  "max_replacements_per_keyword": 2,
+  "max_replacements_per_url": 5,
+  "max_replacements_per_keyword_url": 1,
+  "max_links_on_page": 500,
+  "max_replacements_per_page": 50,
+  "max_replacements_per_paragraph": 10,
+  "min_chars_between_links": 2,
+  "min_paragraph_length": 30,
+  "max_paragraph_density": 30,
+  "skip_existing_links": true,
+  "preserve_case": true,
+  "add_title_attribute": true,
+  "external_link_target": "_blank",
+  "internal_link_target": "",
+  "nofollow_external": true,
+  "track_statistics": true
+}

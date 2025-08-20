@@ -73,7 +73,7 @@
         <div>
           <dt class="text-base/7 font-semibold {{ $questionColor }}">{{ .question }}</dt>
           <dd class="mt-2 text-base/7 {{ $answerColor }}">
-            {{ partial "utils/linkbuilding" (dict "content" .answer "page" $page) | safeHTML }}
+            {{ .answer | safeHTML }}
           </dd>
         </div>
         {{ end }}

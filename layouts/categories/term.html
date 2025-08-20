@@ -3,7 +3,7 @@
 
 {{ $partialParams := dict
 "title" .Title
-"description" (partial "utils/linkbuilding" (dict "content" (printf (i18n "category_browse_content") .Title) "page" .))
+"description" (printf (i18n "category_browse_content") .Title)
 "eyebrow" (i18n "category_eyebrow")
 }}
 

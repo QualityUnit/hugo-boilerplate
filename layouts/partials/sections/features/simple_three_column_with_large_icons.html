@@ -62,7 +62,7 @@
 {{ $iconWrapperClass := "size-10 p-2 product-bg-primary rounded-lg flex items-center justify-center" }}
 
 <div class="{{ $theme }}">
-  <div class="{{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ if $isDark }}py-32{{ else }}py-12{{ end }}">
+  <div class="{{ if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} py-24 lg:py-32">
     <div class="wrapper">
       {{ if or $eyebrow $heading $description }}
         <div class="{{ $maxWidthHeading }}">
@@ -73,7 +73,7 @@
             <h2 class="text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
           {{ end }}
           {{ if $description }}
-            <p class="mt-6 text-lg/9 text-body">{{ partial "utils/linkbuilding" (dict "content" $description "page" $page) | safeHTML }}</p>
+            <p class="mt-6 text-lg/9 text-body">{{ $description | safeHTML }}</p>
           {{ end }}
         </div>
       {{ end }}
@@ -90,7 +90,7 @@
               <span>{{ .title }}</span>
             </dt>
             <dd class="mt-1 pl-0 text-base/7 text-body {{ if not .icon }} pl-0 {{ end }}">
-              <p>{{ partial "utils/linkbuilding" (dict "content" .description "page" $page) | safeHTML }}</p>
+              <p>{{ .description | safeHTML }}</p>
               {{ if .link }}
               <p class="mt-4">
                 {{ partial "components/buttons/buttons.html" (dict

@@ -1,0 +1,52 @@
+{{/*
+Workflow Section Shortcode
+@description: Content section with heading, description, image and CTA button, using split layout with centered content
+@params:
+  - heading: Main section heading (required)
+  - description: Section description text (optional)
+  - image: Image URL (required)
+  - image_alt: Image alt text (optional, defaults to heading)
+  - cta_text: CTA button text (optional)
+  - cta_url: CTA button URL (optional)
+  - padding: Custom padding classes (optional, default: "py-12 lg:py-16")
+@example:
+{{< workflow-section 
+    heading="How Affiliate Network works?"
+    description="Post Affiliate Pro is the ideal affiliate software solution for everyone. Manage everything you need - affiliate network, flat rate commissions, and more from one affiliate platform."
+    image="/images/affiliate-program-software/affiliate-program.png"
+    image_alt="Affiliate network workflow diagram"
+    cta_text="Try it now for free"
+    cta_url="/signup"
+    padding="py-16 lg:py-24"
+>}}
+*/}}
+
+{{/* Workflow Section Shortcode */}}
+
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $image := .Get "image" | default "" }}
+{{ $imageAlt := .Get "image_alt" | default $heading | default "" }}
+{{ $ctaText := .Get "cta_text" | default "" }}
+{{ $ctaUrl := .Get "cta_url" | default "" }}
+{{ $padding := .Get "padding" | default "py-12 lg:py-16" }}
+
+{{/* Validate required parameters */}}
+{{ if not $heading }}
+  {{ errorf "workflow-section shortcode: 'heading' parameter is required. File: %s" .Page.File.Path }}
+{{ end }}
+
+{{/* Create CTA object */}}
+{{ $cta := dict }}
+{{ if and $ctaText $ctaUrl }}
+  {{ $cta = dict "text" $ctaText "url" $ctaUrl }}
+{{ end }}
+
+{{ partial "sections/content/workflow-section.html" (dict 
+  "heading" $heading
+  "description" $description
+  "image" $image
+  "imageAlt" $imageAlt
+  "cta" $cta
+  "padding" $padding
+) }}

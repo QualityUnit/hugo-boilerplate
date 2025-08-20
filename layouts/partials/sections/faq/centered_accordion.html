@@ -80,7 +80,7 @@
           </dt>
           <dd class="mt-2 pr-12 hidden" id="faq-{{ $index }}">
             <p class="text-base/7 {{ $answerColor }}">
-              {{ partial "utils/linkbuilding" (dict "content" .answer "page" $page) | safeHTML }}
+              {{ .answer | safeHTML }}
             </p>
           </dd>
         </div>
