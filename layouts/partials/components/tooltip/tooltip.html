@@ -12,65 +12,16 @@
   {{ $tooltipPosition = "left-full top-1/2 transform -translate-y-1/2 ml-2" }}
 {{ end }}
 
- <div class="inline-block whitespace-normal hyphens-auto">
-  {{ .content | replaceRE "(\\S+)$" "<div class='whitespace-nowrap'>$1" | safeHTML }}<span class="group relative inline-block align-middle pl-2">
+<div class="inline-block whitespace-normal hyphens-auto">
+  <span class="whitespace-nowrap">{{ .content }}<span class="group relative inline-block align-middle pl-2">
     {{ partial "icons/information-circle" "h-4 w-4 text-gray-400 hover:text-gray-500 cursor-pointer tooltip-trigger" }}
     <div
-      class="pointer-events-none absolute {{ $tooltipPosition }} z-10 w-64 rounded-md bg-gray-900 px-3 py-2 text-xs text-white font-normal opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 tooltip-content"
+      class="pointer-events-none absolute {{ $tooltipPosition }} z-[9999] w-72 rounded-md bg-gray-900 px-4 py-3 text-sm text-white font-normal opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100 tooltip-content leading-relaxed"
       data-tooltip
       role="tooltip"
       aria-hidden="true"
     >
       {{ $text }}
     </div>
-  </span>
+  </span></span>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const style = document.createElement('style');
-    style.textContent = `
-      .tooltip-content.mobile-visible {
-        opacity: 1 !important;
-        pointer-events: auto !important;
-      }
-    `;
-    document.head.appendChild(style);
-    
-    function setupMobileTooltips() {
-      const isMobile = window.innerWidth <= 1023;
-
-      document.querySelectorAll('.tooltip-content.mobile-visible').forEach(tip => {
-        tip.classList.remove('mobile-visible');
-      });
-      
-      document.addEventListener('click', function(e) {
-        if (!isMobile) return;
-        
-        const trigger = e.target.closest('.tooltip-trigger');
-        
-        if (trigger) {
-          const group = trigger.closest('.group');
-          const content = group?.querySelector('.tooltip-content');
-          
-          document.querySelectorAll('.tooltip-content.mobile-visible').forEach(tip => {
-            if (tip !== content) tip.classList.remove('mobile-visible');
-          });
-          
-          if (content) content.classList.toggle('mobile-visible');
-          e.stopPropagation();
-        } else {
-          document.querySelectorAll('.tooltip-content.mobile-visible').forEach(tip => {
-            tip.classList.remove('mobile-visible');
-          });
-        }
-      });
-    }
-    
-    setupMobileTooltips();
-    
-    window.addEventListener('resize', function() {
-      setupMobileTooltips();
-    });
-  });
-</script>

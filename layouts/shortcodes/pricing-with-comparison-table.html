@@ -11,9 +11,20 @@
 {{ $toggleActiveBgColor := .Get "toggleActiveBgColor" | default $params.toggleActiveBgColor | default "primary" }}
 {{ $toggleBorderColor := .Get "toggleBorderColor" | default $params.toggleBorderColor | default "primary" }}
 {{ $togglePrice := .Get "togglePrice" | default $params.togglePrice | default true }}
-{{ $tiersComparison := .Get "tiersComparison" | default $params.tiersComparison | default slice }}
 
-{{ $featureCategories := .Get "featureCategories" | default $params.featureCategories | default slice}}
+{{/* Try to use centralized data first, fallback to page params */}}
+{{ $tiersComparison := slice }}
+{{ $featureCategories := slice }}
+{{ $pricingData := .Site.Data.pricing }}
+{{ if and $pricingData $pricingData.tiersComparison $pricingData.featureCategories }}
+  {{/* Use centralized data */}}
+  {{ $tiersComparison = $pricingData.tiersComparison }}
+  {{ $featureCategories = $pricingData.featureCategories }}
+{{ else }}
+  {{/* Fallback to page parameters for backward compatibility */}}
+  {{ $tiersComparison = .Get "tiersComparison" | default $params.tiersComparison | default slice }}
+  {{ $featureCategories = .Get "featureCategories" | default $params.featureCategories | default slice }}
+{{ end }}
 
 {{ partial "sections/pricing/with_comparison_table.html" (dict
   "taglineComparison" $taglineComparison
@@ -33,61 +44,81 @@
 ) }}
 
 {{/*
-  USAGE EXAMPLE:
-
-  {{< pricing-with-comparison-table >}}
-
-  Or with custom parameters:
-
-  {{< pricing-with-comparison-table
-    taglineComparison="Our Plans"
-    headingComparison="Simple, transparent pricing"
-    descriptionComparison="Choose the plan that fits your needs."
-    backgroundColorComparison="gray-50"
-    taglineColorComparison="blue-600"
-    headingColorComparison="gray-900"
-    descriptionColorComparison="gray-600"
-    toggleTextColor="gray-900"
-    toggleActiveColor="white"
-    toggleActiveBgColor="primary"
-    toggleBorderColor="primary"
-    togglePrice=true
-    tiersComparison="custom_tiers_variable" 
-    featureCategories="custom_features_variable"
-  >}}
-
-  Note: The tiers and feature categories are automatically pulled from page parameters.
-  You can define these in your markdown file frontmatter like:
-
-  +++
-  title = "Pricing"
-  tagline = "Simple and transparent"
-  heading = "Pricing Plans"
-  description = "Choose the plan that fits your needs."
-
-  [[tiers]]
-  name = "Basic"
-  id = "tier-basic"
-  price = "$19"
-  interval = "/month"
-  emphasized = false
-  # other tier properties...
-
-  [[tiers]]
-  name = "Pro"
-  # other tier properties...
-
-  [[tiers]]
-  name = "Enterprise"
-  # other tier properties...
-
-  # Optional: Define FAQ questions which will be used to generate feature categories
-  [[faq]]
-  question = "Question 1"
-  answer = "Answer 1"
-
-  [[faq]]
-  question = "Question 2"
-  answer = "Answer 2"
-  +++
+  CENTRALIZED PRICING SYSTEM - Comparison Table Shortcode
+  ======================================================
+  
+  This shortcode displays a comprehensive pricing comparison table using centralized 
+  data from data/pricing.yaml with full multilingual support via i18n translations.
+  
+  FEATURES:
+  - Auto-loads pricing data from data/pricing.yaml (single source of truth)
+  - Detailed feature comparison matrix with 9 categories
+  - Multilingual support with i18n keys for all text content
+  - Monthly/annual pricing toggle
+  - Responsive design with mobile optimization
+  - Backward compatibility with page-level parameters
+  
+  USAGE:
+  {{< pricing-with-comparison-table >}}                    # Uses centralized data
+  {{< pricing-with-comparison-table togglePrice=false >}}  # Disable price toggle
+  
+  CENTRALIZED DATA STRUCTURE (data/pricing.yaml):
+  tiersComparison:
+    - name: "Pro"                                   # Internal identifier
+      displayName: "pricing_tier_pro_name"         # i18n key for display
+      monthlyPrice: "$139"
+      annualPrice: "$129" 
+      interval: "pricing_interval_monthly_annual"   # i18n key
+      emphasized: false
+      cta:
+        text: "pricing_cta_try_free"                # i18n key
+        url: "https://www.postaffiliatepro.com/trial/"
+        
+  featureCategories:
+    - name: "pricing_category_tracking"             # i18n key
+      features:
+        - name: "pricing_feature_tracking_requests" # i18n key
+          tooltip: "pricing_tooltip_tracking_requests" # i18n key
+          tiersComparison:
+            Pro: "1 000 000/month"
+            Ultimate: "6 000 000/month"
+            Network: "20 000 000/month"
+  
+  TRANSLATIONS (i18n/en.yaml):
+  pricing_tier_pro_name: "Pro"
+  pricing_interval_monthly_annual: "/month billed annually"
+  pricing_category_tracking: "Tracking"
+  pricing_feature_tracking_requests: "Tracking requests"
+  pricing_tooltip_tracking_requests: "Number of tracking requests per month"
+  pricing_cta_try_free: "Try for free"
+  
+  PARAMETERS:
+  - taglineComparison: Text above heading (optional)
+  - headingComparison: Main heading (default: i18n "pricing_comparison_title")
+  - descriptionComparison: Description (default: i18n "pricing_comparison_description")
+  - backgroundColorComparison: Section background (default: "white")
+  - togglePrice: Enable monthly/annual toggle (default: true)
+  - toggleTextColor: Inactive toggle text color (default: "gray-500")
+  - toggleActiveColor: Active toggle text color (default: "white") 
+  - toggleActiveBgColor: Active toggle background (default: "primary")
+  - toggleBorderColor: Toggle border color (default: "primary")
+  
+  FEATURE CATEGORIES (9 total):
+  1. Price - Monthly/annual pricing
+  2. Support - Lifetime support options
+  3. Tracking - Tracking requests and methods
+  4. Management - Affiliate management tools
+  5. Commissions - Commission types and models
+  6. Marketing - Marketing tools and banners
+  7. Reporting - Analytics and reporting features
+  8. Integrations - Third-party integrations
+  9. Security - Security and compliance features
+  
+  BENEFITS:
+  ✅ Single point of price updates across 250K+ pages
+  ✅ Comprehensive feature comparison with tooltips
+  ✅ Multilingual support with consistent pricing
+  ✅ Interactive monthly/annual pricing toggle
+  ✅ Responsive mobile-first design
+  ✅ Backward compatibility with existing implementations
 */}}
