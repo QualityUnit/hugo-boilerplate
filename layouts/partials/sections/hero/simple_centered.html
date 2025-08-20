@@ -12,11 +12,11 @@
   - cta: Object with CTA buttons information (optional)
     - primary: Primary CTA button (text, url)
     - secondary: Secondary CTA button (text, url)
-  - image: Object with image information (optional)
-    - src: Image source URL
-    - alt: Alt text for accessibility
-    - width: Image width (optional)
-    - height: Image height (optional)
+  - image: Object with image or YouTube video information (optional)
+    - src: Image source URL or YouTube video ID (11 characters for YouTube)
+    - alt: Alt text for accessibility (used as video title for YouTube embeds)
+    - width: Image width (optional, not used for YouTube embeds)
+    - height: Image height (optional, not used for YouTube embeds)
   - typewriter: Object with typewriter effect configuration (optional)
     - enabled: Boolean to enable/disable the effect (default: false)
     - words: Number of words to animate (default: 1)
@@ -51,6 +51,14 @@
           "deleteSpeed" 75
           "pause" 3000
           "color" "text-blue-600"
+      )
+  ) }}
+
+  For YouTube video, use:
+  {{ partial "sections/hero/simple_centered.html" (dict
+      "image" (dict
+          "src" "dQw4w9WgXcQ"
+          "alt" "Product demo video"
       )
   ) }}
 */}}
@@ -142,14 +150,34 @@
 
           {{ if $image.src }}
             <div class="mt-16 flow-root sm:mt-[4.5rem]">
-              <div class="rounded-xl {{ $imgBgClass }}">
-                {{ partial "components/media/lazyimg.html" (dict
-                  "src" $image.src
-                  "alt" $image.alt
-                  "class" "w-full mx-auto max-w-[1145px] h-auto object-cover"
-                  "noLazy" true
-                ) }}
-              </div>
+              {{/* Check if image.src is a YouTube video ID (11 chars, no slashes or protocols) */}}
+              {{ $isYouTubeId := and (not (hasPrefix $image.src "http")) (not (hasPrefix $image.src "/")) (not (hasPrefix $image.src ".")) (eq (len $image.src) 11) }}
+              
+              {{ if $isYouTubeId }}
+                {{/* YouTube embed with SEO optimization - no background styling */}}
+                <div class="relative w-full mx-auto max-w-[1145px]" style="aspect-ratio: 16/9;">
+                  <iframe 
+                    src="https://www.youtube.com/embed/{{ $image.src }}" 
+                    title="{{ $image.alt | default "YouTube video player" }}"
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    class="w-full h-full rounded-xl"
+                    style="border: 0;">
+                  </iframe>
+                </div>
+              {{ else }}
+                {{/* Regular image handling with background styling */}}
+                <div class="rounded-xl {{ $imgBgClass }}">
+                  {{ partial "components/media/lazyimg.html" (dict
+                    "src" $image.src
+                    "alt" $image.alt
+                    "class" "w-full mx-auto max-w-[1145px] h-auto object-cover"
+                    "noLazy" true
+                  ) }}
+                </div>
+              {{ end }}
             </div>
           {{ end }}
         </div>
