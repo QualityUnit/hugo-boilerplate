@@ -142,46 +142,44 @@
     <p class="mx-auto mt-6 not-prose max-w-2xl text-pretty text-center text-lg font-medium text-{{ $descriptionColor }} sm:text-xl/8">{{ $description }}</p>
     <div class="isolate mx-auto mt-16 grid items-stretch grid-cols-1 {{ $columnsClass }} gap-y-8 sm:gap-x-4 sm:gap-y-4 sm:mt-20 lg:gap-x-5">
       {{ range $tier := $tiers }}
-      <div class='flex flex-col h-full rounded-3xl bg-{{ $tier.backgroundColor }} p-8 {{ if $tier.popular }}ring-2 ring-primary{{ else }} ring-1 ring-{{ $tier.borderColor }}{{ end }} {{ if $tier.darkTheme }}bg-slate-900 ring-slate-900{{ end }} xl:p-10 w-full'>
+      <div class='flex flex-col h-full rounded-3xl p-8 {{ if $tier.darkTheme }}bg-slate-900 ring-1 ring-slate-700{{ else }}bg-white ring-1 ring-gray-200{{ end }} {{ if $tier.popular }}ring-2 ring-primary{{ end }} xl:p-10 w-full'>
         <div class="flex flex-col flex-grow">
           <div class="flex items-start justify-between gap-x-4">
-            <h3 id="{{ $tier.id }}" class="mb-5 not-prose text-lg/8 font-semibold text-{{ $tier.nameColor }} {{ if $tier.popular }}text-primary{{ end }}">{{ i18n $tier.name }}</h3>
+            <h3 id="{{ $tier.id }}" class="mb-5 not-prose text-lg/8 font-semibold {{ if $tier.darkTheme }}text-white{{ else }}text-gray-900{{ end }} {{ if $tier.popular }}text-primary{{ end }}">{{ i18n $tier.name }}</h3>
             {{ if $tier.popular }}
-            <p class="rounded-full not-prose bg-indigo-50 px-2.5 py-1 text-xs/4 font-semibold text-center text-{{ $tier.popularTextColor }}">{{ i18n ($tier.popularText | default "pricing_popular_badge") }}</p>
+            <p class="rounded-full not-prose bg-indigo-50 px-2.5 py-1 text-xs/4 font-semibold text-center text-primary">{{ i18n ($tier.popularText | default "pricing_popular_badge") }}</p>
             {{ end }}
           </div>
-          <p class="mt-auto mb-4 text-sm/6 text-{{ $tier.descriptionColor }} sm:min-h-[5rem]">{{ i18n $tier.description }}</p>
+          <p class="mt-auto mb-4 text-sm/6 {{ if $tier.darkTheme }}text-gray-300{{ else }}text-gray-600{{ end }} sm:min-h-[5rem]">{{ i18n $tier.description }}</p>
           <p class="mt-auto mb-6 flex items-baseline gap-y-2 h-9">
-            {{ if $tier.priceBeforeText }}<span class="text-sm/6 font-semibold text-{{ $tier.intervalColor }} ring-gray-200 mr-1">{{ $tier.priceBeforeText }}</span>{{ end }}
-            <span class="text-4xl font-semibold tracking-tight text-{{ $tier.priceColor }} mr-2">{{ $tier.price }}</span>
-           <span class="text-sm/6 font-semibold text-{{ $tier.intervalColor }}">{{ i18n $tier.interval }}</span>
+            {{ if $tier.priceBeforeText }}<span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-gray-400{{ else }}text-gray-500{{ end }} ring-gray-200 mr-1">{{ $tier.priceBeforeText }}</span>{{ end }}
+            <span class="text-4xl font-semibold tracking-tight {{ if $tier.darkTheme }}text-white{{ else }}text-gray-900{{ end }} mr-2">{{ $tier.price }}</span>
+           <span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-gray-400{{ else }}text-gray-500{{ end }}">{{ i18n $tier.interval }}</span>
           </p>
           <div class="mt-auto mb-6">
-            {{ if $tier.ctaBgColor }}
-            <a href="{{ $tier.cta.url }}"
-               aria-describedby="{{ $tier.id }}"
-               class="block not-prose rounded-md {{ if $tier.popular }}bg-primary {{ else }} bg-{{ $tier.ctaBgColor }} {{ end }} px-3 py-2 text-center text-[14px] font-semibold text-white hover:bg-primary-dark hover:no-underline hover:font-semibold shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
-                {{ i18n $tier.cta.text }}
-            </a>
+            {{ if $tier.popular }}
+              {{ partial "components/buttons/buttons.html" (dict
+                  "text" (i18n $tier.cta.text)
+                  "url" $tier.cta.url 
+                  "variant" "primary"
+                  "classes" "not-prose block text-center"
+              ) }}
+            {{ else if $tier.darkTheme }}
+              <a href="{{ $tier.cta.url }}"
+                 aria-describedby="{{ $tier.id }}"
+                 class="block not-prose rounded-md bg-gray-700 px-3 py-2 text-center text-[14px] font-semibold text-white hover:bg-gray-600 hover:no-underline hover:font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                  {{ i18n $tier.cta.text }}
+              </a>
             {{ else }}
-              {{ if $tier.popular }}{{/*    */}}
-                {{ partial "components/buttons/buttons.html" (dict
-                    "text" (i18n $tier.cta.text)
-                    "url" $tier.cta.url 
-                    "variant" "primary"
-                    "classes" "not-prose block text-center"
-                ) }}
-              {{ else }}
-                {{ partial "components/buttons/buttons.html" (dict
-                    "text" (i18n $tier.cta.text)
-                    "url" $tier.cta.url 
-                    "variant" "secondary"
-                    "classes" (printf "not-prose block rounded-md px-3 py-2 text-primary text-center text-[14px] font-semibold hover:no-underline ring-1 ring-%s ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" ($tier.ctaRingColor | default "gray-300"))
-                ) }}
-              {{ end }}
+              {{ partial "components/buttons/buttons.html" (dict
+                  "text" (i18n $tier.cta.text)
+                  "url" $tier.cta.url 
+                  "variant" "secondary"
+                  "classes" "not-prose block rounded-md px-3 py-2 text-primary text-center text-[14px] font-semibold hover:no-underline ring-1 ring-gray-300 ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              ) }}
             {{ end }}
           </div>
-          <ul role="list" class="mt-0 mb-0 px-0 space-y-3 text-sm/6 text-{{ $tier.featureColor }} flex-grow min-h-[12rem]">
+          <ul role="list" class="mt-0 mb-0 px-0 space-y-3 text-sm/6 {{ if $tier.darkTheme }}text-gray-300{{ else }}text-gray-600{{ end }} flex-grow min-h-[12rem]">
             {{ range $feature := $tier.features }}
             <li class="flex pl-0 gap-x-3 not-prose">
                 {{ partial "icons/check" (printf "h-6 w-5 flex-none %s" (cond $tier.darkTheme "text-white" "text-primary")) }}

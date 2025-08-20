@@ -4,7 +4,7 @@
 {{ $heading := .Get "heading" | default $params.heading | default (.Get 1) | default (i18n "pricing_heading") }}
 {{ $description := .Get "description" | default $params.description | default (.Get 2) | default (i18n "pricing_description") }}
 {{ $backgroundColor := .Get "backgroundColor" | default $params.backgroundColor | default (.Get 3) | default "white" }}
-{{ $taglineColor := .Get "taglineColor" | default $params.taglineColor | default (.Get 4) | default "indigo-600" }}
+{{ $taglineColor := .Get "taglineColor" | default $params.taglineColor | default (.Get 4) | default "primary" }}
 {{ $headingColor := .Get "headingColor" | default $params.headingColor | default (.Get 5) | default "gray-900" }}
 {{ $descriptionColor := .Get "descriptionColor" | default $params.descriptionColor | default (.Get 6) | default "gray-600" }}
 {{ $checkIcon := .Get "checkIcon" | default $params.checkIcon | default "" }}
@@ -93,7 +93,7 @@
   - heading: Main heading (default: i18n "pricing_heading") 
   - description: Description text (default: i18n "pricing_description")
   - backgroundColor: Section background (default: "white")
-  - taglineColor: Tagline color (default: "indigo-600")
+  - taglineColor: Tagline color (default: "primary")
   - headingColor: Heading color (default: "gray-900")
   - descriptionColor: Description color (default: "gray-600")
   - columns: Number of columns override
