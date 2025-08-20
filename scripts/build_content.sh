@@ -50,18 +50,10 @@ pip install --upgrade pip
 echo -e "${YELLOW}Installing requirements...${NC}"
 pip install -r "${SCRIPT_DIR}/requirements.txt"
 
-# Check for FlowHunt API key
-if [ -z "$FLOWHUNT_API_KEY" ]; then
-    echo -e "${YELLOW}Checking for FlowHunt API key...${NC}"
-    if [ ! -f "${SCRIPT_DIR}/.env" ]; then
-        echo -e "${YELLOW}No .env file found. Please enter your FlowHunt API key:${NC}"
-        read -p "FlowHunt API Key: " flow_api_key
-        echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
-    elif ! grep -q "FLOWHUNT_API_KEY" "${SCRIPT_DIR}/.env"; then
-        echo -e "${YELLOW}FlowHunt API key not found in .env file. Please enter your FlowHunt API key:${NC}"
-        read -p "FlowHunt API Key: " flow_api_key
-        echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
-    fi
+# Load .env file if it exists
+if [ -f "${SCRIPT_DIR}/.env" ]; then
+    echo -e "${YELLOW}Loading environment variables from .env file...${NC}"
+    export $(grep -v '^#' "${SCRIPT_DIR}/.env" | xargs)
 fi
 
 # Parse arguments for step selection
@@ -105,6 +97,23 @@ run_step() {
             ;;
         translate)
             echo -e "${BLUE}=== Step 3: Translating Missing Content with FlowHunt API ===${NC}"
+            
+            # Check for FlowHunt API key only when needed for translation
+            if [ -z "$FLOWHUNT_API_KEY" ]; then
+                echo -e "${YELLOW}Checking for FlowHunt API key...${NC}"
+                if [ ! -f "${SCRIPT_DIR}/.env" ]; then
+                    echo -e "${YELLOW}No .env file found. Please enter your FlowHunt API key:${NC}"
+                    read -p "FlowHunt API Key: " flow_api_key
+                    echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
+                    export FLOWHUNT_API_KEY="${flow_api_key}"
+                elif ! grep -q "FLOWHUNT_API_KEY" "${SCRIPT_DIR}/.env"; then
+                    echo -e "${YELLOW}FlowHunt API key not found in .env file. Please enter your FlowHunt API key:${NC}"
+                    read -p "FlowHunt API Key: " flow_api_key
+                    echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
+                    export FLOWHUNT_API_KEY="${flow_api_key}"
+                fi
+            fi
+            
             echo -e "${YELLOW}Running FlowHunt translation script...${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translate_with_flowhunt.py --path ${HUGO_ROOT}/content${NC}"
             python "${SCRIPT_DIR}/translate_with_flowhunt.py" --path "${HUGO_ROOT}/content"
