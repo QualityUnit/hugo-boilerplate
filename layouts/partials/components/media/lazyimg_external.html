@@ -1,8 +1,8 @@
 {{/*
 @component: Lazy Image External
-@description: Displays external images with lazy-loading
+@description: Displays external images with lazy-loading, or redirects to video component for video URLs
 @params:
-  - src: Path to the source image (required)
+  - src: Path to the source image or video URL (required)
   - alt: Alternative text for accessibility (required)
   - class: Additional CSS classes (optional)
   - id: Image ID (optional)
@@ -29,20 +29,55 @@
 {{ $height := .height | default "" }}
 {{ $noLazy := .noLazy | default false }}
 
-<img 
-  {{ if $noLazy }}
-  src="{{ $src }}"
-  class="lazy-image loaded {{ with $class }}{{ . }}{{ end }}"
-  {{ else }}
-  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 2'%3E%3C/svg%3E"
-  data-src="{{ $src }}" 
-  class="lazy-image {{ with $class }}{{ . }}{{ end }}"
+{{/* Check if the URL is a video */}}
+{{ $isVideo := false }}
+{{ $isYouTube := false }}
+
+{{/* Check for YouTube URLs */}}
+{{ if or (findRE "youtube\\.com/watch\\?v=" $src) (findRE "youtu\\.be/" $src) (findRE "youtube\\.com/embed/" $src) }}
+  {{ $isVideo = true }}
+  {{ $isYouTube = true }}
+{{ end }}
+
+{{/* Check for common video file extensions */}}
+{{ $videoExtensions := slice ".mp4" ".webm" ".ogg" ".mov" ".avi" ".mkv" ".flv" ".wmv" ".m4v" ".3gp" }}
+{{ $lowerSrc := lower $src }}
+{{ range $ext := $videoExtensions }}
+  {{ if hasSuffix $lowerSrc $ext }}
+    {{ $isVideo = true }}
   {{ end }}
-  alt="{{ $alt }}" 
-  {{ with $id }}id="{{ . }}"{{ end }}
-  {{ with $width }}width="{{ . }}"{{ end }}
-  {{ with $height }}height="{{ . }}"{{ end }}
-  {{ if not $noLazy }}loading="lazy"{{ end }}
-  decoding="async"
-  data-original-src="{{ $src }}"
->
+{{ end }}
+
+{{/* If it's a video, use the video partial */}}
+{{ if $isVideo }}
+  {{ partial "components/media/video.html" (dict 
+      "src" $src
+      "title" $alt
+      "alt" $alt
+      "class" $class
+      "id" $id
+      "width" $width
+      "height" $height
+      "noLazy" $noLazy
+      "provider" (cond $isYouTube "youtube" "custom")
+  ) }}
+{{ else }}
+  {{/* Otherwise, render as an image */}}
+  <img 
+    {{ if $noLazy }}
+    src="{{ $src }}"
+    class="lazy-image loaded {{ with $class }}{{ . }}{{ end }}"
+    {{ else }}
+    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 2'%3E%3C/svg%3E"
+    data-src="{{ $src }}" 
+    class="lazy-image {{ with $class }}{{ . }}{{ end }}"
+    {{ end }}
+    alt="{{ $alt }}" 
+    {{ with $id }}id="{{ . }}"{{ end }}
+    {{ with $width }}width="{{ . }}"{{ end }}
+    {{ with $height }}height="{{ . }}"{{ end }}
+    {{ if not $noLazy }}loading="lazy"{{ end }}
+    decoding="async"
+    data-original-src="{{ $src }}"
+  >
+{{ end }}

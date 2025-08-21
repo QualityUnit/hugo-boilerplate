@@ -17,6 +17,7 @@
     - alt: Alt text for accessibility
     - width: Image width (optional)
     - height: Image height (optional)
+    - class: Image class (optional)
   - typewriter: Object with typewriter effect configuration (optional)
     - enabled: Boolean to enable/disable the effect (default: false)
     - words: Number of words to animate (default: 1)
@@ -24,7 +25,7 @@
     - deleteSpeed: Deleting speed in ms (default: 50)
     - pause: Pause duration in ms (default: 2000)
     - color: Color class for animated text (default: "text-indigo-600")
-  - imgBgClass: Background class for image container (default: "bg-[linear-gradient(205deg,_theme(colors.primary.100)_66.27%,_theme(colors.primary.300)_99.99%)]")
+  - imgBgClass: Background class for image container (default: "")
 @example:
   {{ partial "sections/hero/simple_centered.html" (dict
       "announcement" (dict
@@ -43,6 +44,7 @@
           "alt" "Dashboard screenshot"
           "width" "2432"
           "height" "1442"
+          "class" "bg-white"
       )
       "typewriter" (dict
           "enabled" true
@@ -70,6 +72,7 @@
   "alt" ""
   "width" ""
   "height" ""
+  "class" ""
 ) }}
 {{ $typewriter := .typewriter | default dict }}
 {{ $typewriter := merge (dict "enabled" false) $typewriter }}
@@ -81,7 +84,7 @@
 {{ $typewriter := merge (dict "wordAlternatives" "") $typewriter }}{{/* comma separated words to alternate with */}}
 {{ $padding := .padding | default "py-24 sm:py-32" }}
 
-{{ $imgBgClass := .imgBgClass | default "bg-[linear-gradient(205deg,_theme(colors.primary.100)_66.27%,_theme(colors.primary.300)_99.99%)]" }}
+{{ $imgBgClass := .imgBgClass | default "" }}
 
 <div class="{{ $darkClass }}">
   <div class="section-bg-light dark:section-bg-dark">
@@ -146,7 +149,7 @@
                 {{ partial "components/media/lazyimg.html" (dict
                   "src" $image.src
                   "alt" $image.alt
-                  "class" "w-full mx-auto max-w-[1145px] h-auto object-cover"
+                  "class" (cond (and (isset $image "class") (ne $image.class "")) $image.class "w-full mx-auto max-w-[1145px] h-auto object-cover rounded-lg shadow-md")
                   "noLazy" true
                 ) }}
               </div>
