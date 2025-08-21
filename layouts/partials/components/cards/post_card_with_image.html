@@ -39,7 +39,7 @@
 {{ $descriptionLength := 160 }}
 
 {{/* Image URL */}}
-{{ $image := cond (isset $page.Params "image") $page.Params.image (cond $page.Params.youtubeVideoID (printf "https://img.youtube.com/vi/%s/hqdefault.jpg%s" $page.Params.youtubeVideoID) "/placeholder-image.jpg") }}
+{{ $image := cond (isset $page.Params "image") $page.Params.image (cond $page.Params.youtubeVideoID (printf "https://img.youtube.com/vi/%s/hqdefault.jpg" $page.Params.youtubeVideoID) "/placeholder-image.jpg") }}
 
 {{/* Show Images */}}
 {{ $showImages := .showImages | default true }}
