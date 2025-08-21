@@ -1,6 +1,7 @@
 attributes_to_sync = [
     'image',
     'skip_linkbuilding',
+    'youtubeVideoID',
     'tags',
     'categories',
     'brands',
