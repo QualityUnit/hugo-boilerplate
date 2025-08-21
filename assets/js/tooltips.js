@@ -68,6 +68,9 @@ document.addEventListener('DOMContentLoaded', function () {
   
   // Add hover listeners for desktop tooltips
   document.addEventListener('mouseenter', function(e) {
+    // Check if target is an Element that has the closest method
+    if (!e.target || typeof e.target.closest !== 'function') return;
+    
     const trigger = e.target.closest('.tooltip-trigger');
     if (trigger && window.innerWidth > 1023) {
       const group = trigger.closest('.group');
