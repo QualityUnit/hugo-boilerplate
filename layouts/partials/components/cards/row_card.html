@@ -66,12 +66,12 @@ This component expects a page context (.) that has the following properties:
                 {{ $title }}
             </a>
         </h3>
-        <a href="{{ $permalink }}" class="mb-auto">
+        <a href="{{ $permalink }}" class="mb-4">
             <p class="text-sm leading-6 text-gray-600 font-normal line-clamp-3 overflow-hidden">{{ $description }}</p>
         </a>
         {{ if .code }}
             {{ with .code }}
-            <pre class="mt-4 bg-black text-white text-xs rounded-xl p-4 overflow-x-auto whitespace-pre-wrap break-words" style="white-space: pre-wrap; word-break: break-word;">
+            <pre class="mt-auto bg-black text-white text-xs rounded-xl p-4 overflow-x-auto whitespace-pre-wrap break-words flex-grow" style="word-break: break-word;">
                 <code>{{ . }}</code>
             </pre>
             {{ end }}
