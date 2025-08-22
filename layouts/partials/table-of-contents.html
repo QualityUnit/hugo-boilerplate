@@ -28,7 +28,7 @@
 
 {{ if $headers }}
   {{ $baseClass := "toc-dropdown-container" }}
-  {{ $positionClass := "t-[5rem] sm:t-[5.25rem] fixed left-0 right-0" }}
+  {{ $positionClass := "top-[5rem] sm:top-[5.25rem] fixed left-0 right-0" }}
   {{ $appearanceClass := "surface-primary border-y surface-border shadow-sm z-40 py-3" }}
   {{ $transitionClass := "transition-transform duration-300 transform -translate-y-full opacity-0" }}
   {{ $allClasses := printf "%s %s %s %s %s" $baseClass $positionClass $appearanceClass $transitionClass $class }}
