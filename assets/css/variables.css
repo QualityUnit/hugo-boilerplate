@@ -1,0 +1,29 @@
+/* 🎨 COLOR SYSTEM - CSS Custom Properties */
+@layer base {
+  :root {
+    /* Primary Theme Colors - For backward compatibility and general theming */
+    --color-primary: 37 99 235;         /* #2563eb - DEFAULT */
+    --color-primary-50: 239 246 255;    /* #eff6ff */
+    --color-primary-100: 219 234 254;   /* #dbeafe */
+    --color-primary-200: 191 219 254;   /* #bfdbfe */
+    --color-primary-300: 147 197 253;   /* #93c5fd */
+    --color-primary-400: 96 165 250;    /* #60a5fa */
+    --color-primary-500: 59 130 246;    /* #3b82f6 */
+    --color-primary-600: 37 99 235;     /* #2563eb */
+    --color-primary-700: 29 78 216;     /* #1d4ed8 */
+    --color-primary-800: 30 64 175;     /* #1e40af */
+    --color-primary-900: 30 58 138;     /* #1e3a8a */
+    --color-primary-950: 23 37 84;      /* #172554 */
+    
+    /* Button Primary Colors - Default to match primary theme for backward compatibility */
+    --color-button-primary: 37 99 235;         /* #2563eb - same as primary/600 */
+    --color-button-primary-hover: 29 78 216;   /* #1d4ed8 - same as primary/700 */
+    --color-button-primary-dark: 59 130 246;   /* #3b82f6 - same as primary/500 */
+    --color-button-primary-dark-hover: 96 165 250; /* #60a5fa - same as primary/400 */
+    
+    /* Button Secondary Colors - Default to match primary theme for backward compatibility */
+    --color-button-secondary-text: 37 99 235;  /* #2563eb - same as primary/600 */
+    --color-button-secondary-border: 191 219 254; /* #bfdbfe - same as primary/200 */
+    --color-button-secondary-border-hover: 147 197 253; /* #93c5fd - same as primary/300 */
+  }
+}
