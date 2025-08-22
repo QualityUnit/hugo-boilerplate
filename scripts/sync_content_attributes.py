@@ -26,7 +26,8 @@ attributes_to_sync = [
     'ctaHoverBorderColor',
     'ctaBorderColor',
     'featureCategories.features.tiersComparison',
-    'tiersComparison'
+    'tiersComparison',
+    'components'
 ]
 
 #unset_attributes = [ 'cards' ]
