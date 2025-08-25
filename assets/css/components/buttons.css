@@ -1,0 +1,63 @@
+/* 🔘 BUTTON SYSTEM - Customizable via CSS Custom Properties */
+
+@layer components {
+  /* Common button transition */
+  .btn-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Primary button on light backgrounds – white text, customizable background */
+  .btn-primary {
+    @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-sm text-white bg-button-primary hover:bg-button-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-button-primary btn-transition;
+  }
+
+  /* Primary button on light alternate backgrounds – white text, customizable background */
+  .btn-primary-alternate {
+    @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-sm text-white bg-button-primary hover:bg-button-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-button-primary btn-transition;
+  }
+
+  /* Primary button on dark backgrounds – customizable brand color */
+  .btn-primary-dark {
+    @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-sm text-white bg-button-primary-dark hover:bg-button-primary-dark-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-button-primary-dark btn-transition;
+  }
+
+  /* Primary button on dark alternate backgrounds – slightly lighter background for contrast */
+  .btn-primary-alternate-dark {
+    @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-sm text-gray-900 bg-white hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-100 btn-transition;
+  }
+  
+  /* Secondary button – customizable text and border colors */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-sm bg-white border-button-secondary-border text-button-secondary-text hover:bg-gray-400/5 hover:border-button-secondary-border-hover btn-transition;
+  }
+
+  /* Secondary button for alternate light backgrounds – customizable text and borders */
+  .btn-secondary-alternate {
+    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md bg-white border-button-secondary-border text-button-secondary-text hover:border-button-secondary-border-hover btn-transition;
+  }
+
+  /* Secondary button for dark backgrounds – uses customizable colors with white text */
+  .btn-secondary-dark {
+    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] text-white border-button-primary-dark bg-white/10 hover:bg-white/20 hover:border-button-primary-dark-hover btn-transition;
+  }
+
+  /* Secondary button for dark alternate backgrounds – uses customizable colors with white text */
+  .btn-secondary-alternate-dark {
+    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] text-white border-button-primary-dark bg-white/10 hover:bg-white/20 hover:border-button-primary-dark-hover btn-transition;
+  }
+
+  /* Minimal text button – typically inline or tertiary CTA on light background */
+  .btn-text {
+    @apply text-sm font-semibold text-button-secondary-text hover:text-button-primary btn-transition;
+  }
+
+  /* Minimal text button for dark backgrounds */
+  .btn-text-dark {
+    @apply text-sm font-semibold text-white hover:text-button-primary-dark-hover btn-transition;
+  }
+
+  /* Button arrow animation */
+  .btn-arrow {
+    @apply font-semibold inline-block transition-transform duration-300;
+  }
+}
