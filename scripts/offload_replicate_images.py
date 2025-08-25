@@ -134,10 +134,17 @@ def process_image_url(url, out_dir, title, md_stem, idx=None):
     return out_filename
 
 def process_md_file(md_path):
-    rel_folder = get_effective_rel_folder(md_path)
-    md_stem = md_path.stem  # Get the name of the md file without extension
-    with open(md_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+    try:
+        rel_folder = get_effective_rel_folder(md_path)
+        md_stem = md_path.stem  # Get the name of the md file without extension
+        with open(md_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"!!! ERROR: File not found: {md_path}")
+        return
+    except Exception as e:
+        print(f"!!! ERROR: Failed to read file {md_path}: {e}")
+        return
     # Split TOML frontmatter and body
     if content.startswith('+++'):
         end_idx = content.find('+++', 3)
@@ -256,8 +263,11 @@ def process_md_file(md_path):
 
     if changed:
         # Write both TOML and body together, always
-        with open(md_path, 'w', encoding='utf-8') as f:
-            f.write(f"+++\n{new_toml}\n+++\n{body}")
+        try:
+            with open(md_path, 'w', encoding='utf-8') as f:
+                f.write(f"+++\n{new_toml}\n+++\n{body}")
+        except Exception as e:
+            print(f"!!! ERROR: Failed to write file {md_path}: {e}")
 
 def process_shortcodes(content, rel_folder, md_stem):
     """
