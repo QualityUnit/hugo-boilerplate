@@ -1,19 +1,17 @@
-/* 🎨 CSS IMPORTS */
+/* 🎨 CSS IMPORTS - ALL IMPORTS MUST BE FIRST */
 @import "./variables.css";
 @import "./fonts.css";
 @import "./typewriter.css";
 @import "./lazy-images.css";
 @import "./lazy-videos.css";
+@import "./components/buttons.css";
+@import "./components/badges.css";
+@import "./layout/sections.css";
 
 /* 🎯 TAILWIND LAYERS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* 📦 COMPONENT IMPORTS */
-@import "./components/buttons.css";
-@import "./components/badges.css";
-@import "./layout/sections.css";
 
 /* 🎨 CORE STYLES */
 @layer components {
