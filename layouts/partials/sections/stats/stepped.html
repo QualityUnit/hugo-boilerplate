@@ -27,6 +27,7 @@
               "description" "Our growing community of users drives innovation and engagement across our ecosystem."
               "bgColor" "bg-blue-50"
               "valueColor" "text-blue-700"
+              "gapY" "gap-y-10"
           )
           (dict 
               "value" "$12.5M" 
@@ -36,6 +37,7 @@
               "valueColor" "text-white"
               "titleColor" "text-white"
               "descriptionColor" "text-gray-300"
+              "gapY" "gap-y-44"
           )
           (dict 
               "value" "99.99%" 
@@ -45,6 +47,7 @@
               "valueColor" "text-white"
               "titleColor" "text-white"
               "descriptionColor" "text-green-100"
+              "gapY" "gap-y-12"
           )
       )
   ) }}
@@ -74,8 +77,17 @@
       {{ range $index, $stat := $stats }}
         {{ $width := $stat.width | default "w-1/3" }}
         {{ $gapY := "" }}
+        {{/* Set gapY based on index by default */}}
+        {{ if eq $index 0 }}
+          {{ $gapY = "lg:gap-y-[5.5rem]" }}
+        {{ else if eq $index 1 }}
+          {{ $gapY = "lg:gap-y-40" }}
+        {{ else if eq $index 2 }}
+          {{ $gapY = "lg:gap-y-[4.5rem]" }}
+        {{ end }}
+
         {{ if $stat.gapY }}
-          {{ $gapY = printf "lg:%s" $stat.gapY | default "lg:gap-y-20" }}
+          {{ $gapY = printf "lg:%s" $stat.gapY }}
         {{ end }}
         {{ $bgColor := $stat.bgColor | default "bg-gray-50" }}
         {{ $valueColor := $stat.valueColor | default "text-heading" }}
