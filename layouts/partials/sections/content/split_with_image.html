@@ -56,7 +56,7 @@ Design Tokens:
 {{ $imageAlt := .imageAlt }}
 {{ $videoUrl := .videoUrl | default "" }}
 {{ $poster := .poster | default "" }}
-{{ $posterHeight := .posterHeight | default "h-[32.625rem]" }}
+{{ $posterHeight := .posterHeight | default "h-[522px]" }}
 {{ $videoTitle := .videoTitle | default "" }}
 {{ $videoDescription := .videoDescription | default "" }}
 {{ $videoLinkUrl := .videoLinkUrl | default "" }}
@@ -186,7 +186,7 @@ Design Tokens:
 
         {{/* Main content */}}
         {{ if $markdownContent }}
-          <div class="mt-10 max-w-full text-body lg:max-w-full"></div>
+          <div class="mt-10 max-w-full text-body lg:max-w-full">
             {{ if $contentAsHTML }}
                 {{ $markdownContent | safeHTML }}
             {{ else }}

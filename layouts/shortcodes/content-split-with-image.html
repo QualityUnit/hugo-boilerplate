@@ -21,7 +21,7 @@
     - mediaContainerPaddingY: Additional CSS classes for media container padding (default: "py-6")
     - videoUrl: Video URL for embedding (default: "")
     - poster: Video poster image URL (default: "")
-    - posterHeight: Additional CSS classes for poster height (default: "h-[32.625rem]")
+    - posterHeight: Additional CSS classes for poster height (default: "h-[522px]")
     - videoTitle: Video title text (default: "")
     - videoDescription: Video description text (default: "")
     - videoLinkUrl: Link to page on site from video overlay (default: "")
@@ -110,7 +110,7 @@
         description="See how easy it is to get started"
         videoUrl="https://youtu.be/9bpwD8b2PbU"
         poster="/images/video-poster.jpg"
-        posterHeight="h-[32.625rem]"
+        posterHeight="h-[522px]"
         videoTitle="Platform Demo"
         videoDescription="Learn how to get started"
         videoLinkUrl="/tutorials"
@@ -298,7 +298,7 @@
 {{ $imageAlt := .Get "imageAlt" | default "" }}
 {{ $videoUrl := .Get "videoUrl" | default "" }}
 {{ $poster := .Get "poster" | default "" }}
-{{ $posterHeight := .Get "posterHeight" | default "h-[32.625rem]" }}
+{{ $posterHeight := .Get "posterHeight" | default "h-[522px]" }}
 {{ $videoTitle := .Get "videoTitle" | default "" }}
 {{ $videoDescription := .Get "videoDescription" | default "" }}
 {{ $videoLinkUrl := .Get "videoLinkUrl" | default "" }}
