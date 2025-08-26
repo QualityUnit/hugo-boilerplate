@@ -18,6 +18,13 @@
     - layout: "image-left" or "image-right" (default: "image-left")
     - image: Image path (default: "")
     - imageAlt: Alt text for image (default: "")
+    - mediaContainerPaddingY: Additional CSS classes for media container padding (default: "py-6")
+    - videoUrl: Video URL for embedding (default: "")
+    - poster: Video poster image URL (default: "")
+    - posterHeight: Additional CSS classes for poster height (default: "h-[32.625rem]")
+    - videoTitle: Video title text (default: "")
+    - videoDescription: Video description text (default: "")
+    - videoLinkUrl: Link to page on site from video overlay (default: "")
     - link: CTA link URL (default: "")
     - linkText: CTA button text (default (i18n "learnMore"))
     - linkTarget: Link target "_self" or "_blank" (default: "_self")
@@ -95,7 +102,29 @@
     <p class="text-gray-600 mt-4">This is a paragraph with <strong>bold</strong> and <em>italic</em> text.</p>
     {{< /content-split-with-image >}}
 
-    3. JSON DATA ONLY (structured data blocks - no markers needed):
+    3. WITH VIDEO (video content instead of image):
+    {{< content-split-with-image
+        theme="light"
+        eyebrow="Video Tutorial"
+        heading="Watch Our Platform Demo"
+        description="See how easy it is to get started"
+        videoUrl="https://youtu.be/9bpwD8b2PbU"
+        poster="/images/video-poster.jpg"
+        posterHeight="h-[32.625rem]"
+        videoTitle="Platform Demo"
+        videoDescription="Learn how to get started"
+        videoLinkUrl="/tutorials"
+        mediaContainerPaddingY="py-5"
+        layout="image-left"
+        link="/get-started"
+        linkText="Start Free Trial"
+        buttonStyle="primary"
+    >}}
+     ## Learn more about our platform
+    This video tutorial will walk you through the key features and show you how to maximize your productivity.
+    {{< /content-split-with-image >}}
+
+    4. JSON DATA ONLY (structured data blocks - no markers needed):
     {{< content-split-with-image
         heading="By the Numbers"
         backgroundColor="bg-gradient-to-br from-blue-50 to-indigo-100"
@@ -146,7 +175,7 @@
     }
     {{< /content-split-with-image >}}
 
-    4. COMBINED (JSON data + markdown/HTML content - markers required):
+    5. COMBINED (JSON data + markdown/HTML content - markers required):
     {{< content-split-with-image
         heading="Complete AI Solution"
         description="Everything you need in one platform"
@@ -267,6 +296,12 @@
 {{ $layout := .Get "layout" | default "image-left" }}
 {{ $image := .Get "image" | default "" }}
 {{ $imageAlt := .Get "imageAlt" | default "" }}
+{{ $videoUrl := .Get "videoUrl" | default "" }}
+{{ $poster := .Get "poster" | default "" }}
+{{ $posterHeight := .Get "posterHeight" | default "h-[32.625rem]" }}
+{{ $videoTitle := .Get "videoTitle" | default "" }}
+{{ $videoDescription := .Get "videoDescription" | default "" }}
+{{ $videoLinkUrl := .Get "videoLinkUrl" | default "" }}
 {{ $link := .Get "link" | default "" }}
 {{ $linkText := .Get "linkText" | default (i18n "learnMore") | default "Learn more" }}
 {{ $linkTarget := .Get "linkTarget" | default "_self" }}
@@ -468,6 +503,11 @@
   "buttonStyle" $buttonStyle
   "image" $image
   "imageAlt" $imageAlt
+  "videoUrl" $videoUrl
+  "poster" $poster
+  "videoTitle" $videoTitle
+  "videoDescription" $videoDescription
+  "videoLinkUrl" $videoLinkUrl
   "markdownContent" $markdownContent
   "contentAsHTML" $contentAsHTML
   "features" $features

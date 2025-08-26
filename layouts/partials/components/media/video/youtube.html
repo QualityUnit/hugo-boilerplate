@@ -11,6 +11,7 @@
   - id: Optional ID attribute (optional)
   - autoplay: Enable autoplay when opened in lightbox (optional, default: false)
   - poster: Custom poster/thumbnail image URL (optional, defaults to YouTube thumbnail)
+  - posterHeight: Additional CSS classes for poster height (optional, e.g. "h-64", "h-80", "h-96", "h-[450px]")
   - playBtnClass: CSS classes for play button (optional)
   - playBtnInnerClass: CSS classes for inner play button element (optional)
 @note: This partial should be called through the main video.html partial, not directly.
@@ -29,9 +30,11 @@
 {{ $duration := .duration | default "PT0M0S" }}
 {{ $noLazy := .noLazy | default false }}
 {{ $poster := .poster }}
+{{ $posterHeight := .posterHeight | default "" }}
 {{ $loading := cond $noLazy "eager" "lazy" }}
 {{ $playBtnClass := .playBtnClass | default "w-16 h-12 bg-red-600 rounded-lg hover:bg-red-700 hover:scale-110" }}
 {{ $playBtnInnerClass := .playBtnInnerClass | default "" }}
+{{ $svgClass := .svgClass | default "size-6 text-white ml-1" }}
 
 <!-- Determine thumbnail URL: use custom poster if provided, otherwise use YouTube default -->
 {{ $thumbnailUrl := cond $poster $poster (print "https://img.youtube.com/vi/" $videoID "/maxresdefault.jpg") }}
@@ -63,7 +66,7 @@
   data-video-fallback-url="https://www.youtube.com/watch?v={{ $videoID }}"
   {{ with $id }}id="{{ . }}"{{ end }}
 >
-  <div class="lazy-video-thumbnail relative w-full video-aspect-ratio overflow-hidden cursor-pointer" data-video-trigger="true">
+  <div class="lazy-video-thumbnail relative w-full video-aspect-ratio overflow-hidden cursor-pointer{{ if $posterHeight }} {{ $posterHeight }}{{ end }}" data-video-trigger="true">
     <img 
       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E"
       data-src="{{ $thumbnailUrl }}"
@@ -80,10 +83,10 @@
   <div class="lazy-video-play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-300 z-10 {{ $playBtnClass }}">
     {{ if $playBtnInnerClass }}
       <div class="{{ $playBtnInnerClass }}">
-        {{ partial "icons/play-solid" "size-12 ml-1 text-primary" }}
+        {{ partial "icons/play-solid" $svgClass }}
       </div>
     {{ else }}
-      {{ partial "icons/play-solid" "size-6 text-white ml-1" }}
+      {{ partial "icons/play-solid" $svgClass }}
     {{ end }}
   </div>
 </div>
