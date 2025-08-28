@@ -3,7 +3,7 @@
 @description: Renders a button with different styles based on the variant.
 @params:
   - text: Button text (required)
-  - url: Button URL (required)
+  - url: Button URL (optional for buttons, required for links)
   - variant: Button type (e.g., "primary", "secondary", "text") (required)
   - size: Button size (e.g., "lg", "xl") (optional, default: "lg")
   - classes: Additional Tailwind classes (optional)
@@ -13,6 +13,8 @@
   - ariaLabel: ARIA label (optional; defaults to button text)
   - showArrow: Boolean to show an arrow after the text (optional, default: false)
   - dataAttributes: Data attributes for the button/link (optional)
+  - type: Button type (e.g., "submit", "button") (optional, default: "button")
+  - element: Element type ("button" or "link") (optional, default: "link")
 @example:
   {{ partial "components/buttons/buttons.html" (dict
       "text" "Get started"
@@ -27,6 +29,14 @@
       "url" "#"
       "variant" "primary"
       "dataAttributes" "data-cookie-consent=accept-all"
+  ) }}
+
+  {{ partial "components/buttons/buttons.html" (dict
+      "text" "Submit Form"
+      "variant" "primary"
+      "element" "button"
+      "type" "submit"
+      "classes" "w-full"
   ) }}
 */}}
 
@@ -43,6 +53,8 @@
 {{ $showArrow := .showArrow | default false }}
 {{ $iconArrow := "arrow-up-right" }}
 {{ $dataAttributes := .dataAttributes | default "" }}
+{{ $type := .type | default "button" }}
+{{ $element := .element | default "link" }}
 
 {{/* Determine variant classes */}}
 {{ $variantClasses := dict
@@ -69,21 +81,38 @@
 {{ $sizeClass := index $sizeClasses $size | default "px-3 py-2" }}
 
 {{/* Render button if required parameters are provided */}}
-{{ if and $text $url }}
-  <a
-    href="{{ if not (or (hasPrefix $url "http") (hasPrefix $url "#")) }}{{ $url | relLangURL }}{{ else }}{{ $url }}{{ end }}"
-    class="{{ $variantClass }} {{ $sizeClass }} {{ $classes }} not-prose group"
-    aria-label="{{ $ariaLabel }}"
-    target="{{ $target }}"
-    {{ with $id }}id="{{ . }}"{{ end }}
-    {{ with $rel }}rel="{{ . }}"{{ end }}
-    {{ with $dataAttributes }}{{ . | safeHTMLAttr }}{{ end }}
-  >
-    {{ $text }}
-    {{ if $showArrow }}
-      <span aria-hidden="true" class="ml-1.5 btn-arrow">
-        {{ partial "components/media/icon.html" (dict "icon" $iconArrow "class" "w-5 h-5 p-0.5") }}
-      </span>
-    {{ end }}
-  </a>
+{{ if $text }}
+  {{ if eq $element "button" }}
+    <button
+      type="{{ $type }}"
+      class="{{ $variantClass }} {{ $sizeClass }} {{ $classes }} not-prose group"
+      aria-label="{{ $ariaLabel }}"
+      {{ with $id }}id="{{ . }}"{{ end }}
+      {{ with $dataAttributes }}{{ . | safeHTMLAttr }}{{ end }}
+    >
+      {{ $text }}
+      {{ if $showArrow }}
+        <span aria-hidden="true" class="ml-1.5 btn-arrow">
+          {{ partial "components/media/icon.html" (dict "icon" $iconArrow "class" "w-5 h-5 p-0.5") }}
+        </span>
+      {{ end }}
+    </button>
+  {{ else if $url }}
+    <a
+      href="{{ if not (or (hasPrefix $url "http") (hasPrefix $url "#")) }}{{ $url | relLangURL }}{{ else }}{{ $url }}{{ end }}"
+      class="{{ $variantClass }} {{ $sizeClass }} {{ $classes }} not-prose group"
+      aria-label="{{ $ariaLabel }}"
+      target="{{ $target }}"
+      {{ with $id }}id="{{ . }}"{{ end }}
+      {{ with $rel }}rel="{{ . }}"{{ end }}
+      {{ with $dataAttributes }}{{ . | safeHTMLAttr }}{{ end }}
+    >
+      {{ $text }}
+      {{ if $showArrow }}
+        <span aria-hidden="true" class="ml-1.5 btn-arrow">
+          {{ partial "components/media/icon.html" (dict "icon" $iconArrow "class" "w-5 h-5 p-0.5") }}
+        </span>
+      {{ end }}
+    </a>
+  {{ end }}
 {{ end }}
