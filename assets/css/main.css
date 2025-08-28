@@ -101,6 +101,13 @@
     /* Surface border – light gray in light mode, darker gray in dark mode */
   }
 
+  /* Form elements with surface border */
+  input.surface-border,
+  select.surface-border,
+  textarea.surface-border {
+    @apply border-gray-300 dark:border-gray-600 !important;
+  }
+
   .surface-divider {
     @apply border-t border-gray-200 dark:border-gray-700;
     /* Surface divider – light gray top border in light mode, darker gray in dark mode */
@@ -126,7 +133,7 @@
   }
 
   .product-surface {
-    @apply bg-primary-500 dark:bg-primary-500 bg-opacity-20;
+    @apply bg-primary-500 dark:bg-primary-500 dark:bg-opacity-20;
     /* Product surface – light primary background in light mode, dark primary in dark mode */
   }
 
@@ -143,6 +150,22 @@
   .product-underlight {
     @apply bg-primary-300 dark:bg-primary-900;
     /* Product underlight – light primary background in light mode, dark primary in dark mode */
+  }
+
+  /* INPUT ERRORS STYLES */
+  .error-border {
+    @apply border-red-500 dark:border-red-400;
+    /* Input errors – red border in light mode, darker red in dark mode */
+  }
+
+  .error-text {
+      @apply text-red-500 dark:text-red-400;
+      /* Input errors – red text in light mode, darker red in dark mode */
+  }
+
+  .error-placeholder {
+    @apply text-red-200 dark:text-red-300;
+    /* Input errors placeholder – red text in light mode, darker red in dark mode */
   }
 
   /* 🎨 ICON STYLES */
