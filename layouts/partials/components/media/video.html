@@ -61,6 +61,7 @@
 {{ $useLightbox := .useLightbox | default false }}
 {{ $controls := (and (not $useLightbox) (.controls | default true)) }}
 {{ $poster := .poster }}
+{{ $posterHeight := .posterHeight | default "" }}
 {{ $provider := .provider | default "" }}
 {{ $noLazy := .noLazy | default false }}
 {{ $showPlayOverlay := .showPlayOverlay | default true }}
@@ -103,8 +104,10 @@
       "autoplay" $autoplay
       "noLazy" $noLazy
       "poster" $poster
+      "posterHeight" $posterHeight
       "playBtnClass" .playBtnClass
       "playBtnInnerClass" .playBtnInnerClass
+      "svgClass" .svgClass
   ) }}
 {{ else if eq $provider "custom" }}
   <!-- Load video helper partial for resource management -->

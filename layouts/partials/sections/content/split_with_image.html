@@ -5,6 +5,11 @@ Parameters:
 - theme: "light" | "dark" | "alternate" (default: "light")
 - layout: "image-left" | "image-right" (default: "image-left")
 - image, imageAlt: Image settings
+- videoUrl: Video URL for embedding (default: "")
+- poster: Video poster image URL (default: "")
+- videoTitle: Video title text (default: "")
+- videoDescription: Video description text (default: "")
+- videoLinkUrl: Link to page on site from video overlay (default: "")
 - eyebrow, heading, description: Text content
 - link, linkText, buttonStyle: CTA button
 - markdownContent, contentAsHTML: Main content
@@ -49,6 +54,12 @@ Design Tokens:
 {{ $layout := .layout | default "image-left" }}
 {{ $image := .image }}
 {{ $imageAlt := .imageAlt }}
+{{ $videoUrl := .videoUrl | default "" }}
+{{ $poster := .poster | default "" }}
+{{ $posterHeight := .posterHeight | default "h-[522px]" }}
+{{ $videoTitle := .videoTitle | default "" }}
+{{ $videoDescription := .videoDescription | default "" }}
+{{ $videoLinkUrl := .videoLinkUrl | default "" }}
 {{ $eyebrow := .eyebrow }}
 {{ $heading := .heading }}
 {{ $description := .description }}
@@ -73,7 +84,7 @@ Design Tokens:
 
 {{/* Design tokens and configurable dimensions */}}
 {{ $sectionPaddingY := .sectionPaddingY | default "py-24 lg:py-32" }}
-{{ $imageContainerPaddingY := "py-6" }}
+{{ $mediaContainerPaddingY := "py-6" }}
 {{ $contentPaddingY := "py-4" }}
 {{ $contentLeftPadding := "lg:pl-20" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
@@ -90,23 +101,66 @@ Design Tokens:
       "padding" $headerPadding
     ) }}
   {{ end }}
-  <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
+  <div class="wrapper lg:flex lg:justify-between lg:items-stretch {{ if not $videoUrl }}gap-x-8{{ end }}{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
-      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
-        {{ if $link }}
-          <a href="{{ $link }}" target="{{ $linkTarget }}" class="w-full flex items-center justify-center">
-        {{ end }}
-            {{ partial "components/media/lazyimg.html" (dict
-              "src" $image
-              "alt" $imageAlt
-              "class" "object-contain rounded-lg"
-            ) }}
-        {{ if $link }}
-          </a>
+      <div class="relative rounded-lg {{ $mediaContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem] {{ if $videoUrl }}h-full{{ end }}">
+        {{ if $videoUrl }}
+          <div class="relative flex w-full h-full">
+            {{/* Display video */}}
+            {{ partial "components/media/video.html" (dict 
+                  "src" $videoUrl 
+                  "poster" $poster
+                  "posterHeight" $posterHeight
+                  "title" $videoTitle
+                  "class" "rounded-xl h-full"
+                  "provider" "youtube"
+                  "useLightbox" true
+                  "showPlayOverlay" true
+                  "playBtnClass" "white-circle-bounce w-[7.75rem] h-[7.75rem] rounded-full backdrop-blur-sm"
+                  "playBtnInnerClass" "bg-white relative w-24 h-24 rounded-full hover:scale-105 transition-transform duration-300"
+                  "svgClass" "size-12 ml-1 text-primary absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              ) }}
+              {{ if or $videoTitle $videoDescription }}
+              <div class="absolute left-5 bottom-5 flex items-end z-30">
+                  <div class="text-white">
+                  {{ if $videoTitle }}
+                      <h3 class="font-semibold text-opacity-75">{{ $videoTitle }}</h3>
+                  {{ end }}
+                  {{ if $videoDescription }}
+                      <p class="text-sm mt-1.5 tracking-[-0.28px]">
+                          {{ if $videoLinkUrl }}
+                          <a href="{{ $videoLinkUrl }}" class="flex items-center text-white hover:underline">
+                              {{ $videoDescription }}
+                              <span class="ml-1 btn-arrow">
+                                  {{ partial "components/media/icon.html" (dict "icon" "arrow-up-right" "class" "w-5 h-5 p-0.5") }}
+                              </span>
+                          </a>
+                          {{ else }}
+                              {{ $videoDescription }}
+                          {{ end }}
+                      </p>
+                  {{ end }}
+                  </div>
+              </div>
+            {{ end }}
+          </div>
+        {{ else if $image }}
+          {{/* Display image */}}
+          {{ if $link }}
+            <a href="{{ $link }}" target="{{ $linkTarget }}" class="w-full flex items-center justify-center">
+          {{ end }}
+              {{ partial "components/media/lazyimg.html" (dict
+                "src" $image
+                "alt" $imageAlt
+                "class" "object-contain rounded-lg"
+              ) }}
+          {{ if $link }}
+            </a>
+          {{ end }}
         {{ end }}
       </div>
     </div>
-    <div class="lg:flex lg:w-1/2 lg:items-center">
+    <div class="lg:flex lg:w-1/2 lg:items-center {{ if $videoUrl }}lg:pr-8{{ end }}">
       <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ if eq $layout "image-right" }}lg:pl-0{{ else }}{{ $contentLeftPadding }} {{ end }}">
         {{ if $eyebrow }}
           <p class="text-base/7 font-semibold product-text">{{ $eyebrow }}</p>
@@ -131,15 +185,15 @@ Design Tokens:
         {{ end }}
 
         {{/* Main content */}}
-        <div class="mt-10 max-w-full text-body lg:max-w-full">
-          {{ if $markdownContent }}
+        {{ if $markdownContent }}
+          <div class="mt-10 max-w-full text-body lg:max-w-full">
             {{ if $contentAsHTML }}
                 {{ $markdownContent | safeHTML }}
             {{ else }}
                 {{ $markdownContent | markdownify }}
             {{ end }}
-          {{ end }}
-        </div>
+          </div>
+        {{ end }}
 
         {{/* Features */}}
         {{ if $features }}
