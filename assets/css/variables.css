@@ -15,15 +15,34 @@
     --color-primary-900: 30 58 138;     /* #1e3a8a */
     --color-primary-950: 23 37 84;      /* #172554 */
     
-    /* Button Primary Colors - Default to match primary theme for backward compatibility */
-    --color-button-primary: 37 99 235;         /* #2563eb - same as primary/600 */
-    --color-button-primary-hover: 29 78 216;   /* #1d4ed8 - same as primary/700 */
-    --color-button-primary-dark: 59 130 246;   /* #3b82f6 - same as primary/500 */
-    --color-button-primary-dark-hover: 96 165 250; /* #60a5fa - same as primary/400 */
+    /* 🔘 BUTTON COLOR SYSTEM - Complete set for all button types */
     
-    /* Button Secondary Colors - Default to match primary theme for backward compatibility */
-    --color-button-secondary-text: 37 99 235;  /* #2563eb - same as primary/600 */
-    --color-button-secondary-border: 191 219 254; /* #bfdbfe - same as primary/200 */
-    --color-button-secondary-border-hover: 147 197 253; /* #93c5fd - same as primary/300 */
+    /* Primary Button Variables */
+    --color-button-primary: 37 99 235;                    /* primary/600 - light bg */
+    --color-button-primary-hover: 29 78 216;              /* primary/700 - light hover */
+    --color-button-primary-dark: 59 130 246;              /* primary/500 - dark bg */
+    --color-button-primary-dark-hover: 96 165 250;        /* primary/400 - dark hover */
+    --color-button-primary-outline: 37 99 235;            /* primary/600 - outline color */
+    
+    /* Secondary Button Variables */
+    --color-button-secondary-bg: 255 255 255;             /* white background */
+    --color-button-secondary-text: 17 24 39;              /* gray/900 text */
+    --color-button-secondary-border: 209 213 219;         /* gray/300 border */
+    --color-button-secondary-border-hover: 156 163 175;   /* gray/400 border hover */
+    --color-button-secondary-bg-hover: 156 163 175;       /* gray/400 with opacity */
+    
+    /* Secondary Dark Button Variables */
+    --color-button-secondary-dark-text: 255 255 255;      /* white text */
+    --color-button-secondary-dark-bg: 255 255 255;        /* white with opacity */
+    --color-button-secondary-dark-border: 75 85 99;       /* gray/600 border */
+    --color-button-secondary-dark-border-hover: 107 114 128; /* gray/500 border hover */
+    --color-button-secondary-dark-bg-hover: 255 255 255;  /* white with opacity */
+    
+    /* Text Button Variables */
+    --color-button-text: 17 24 39;                        /* gray/900 */
+    --color-button-text-hover: 107 114 128;               /* gray/500 */
+    --color-button-text-dark: 255 255 255;                /* white */
+    --color-button-text-dark-hover: 96 165 250;           /* primary/400 */
   }
+  
 }
