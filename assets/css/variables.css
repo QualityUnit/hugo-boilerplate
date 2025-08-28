@@ -1,0 +1,48 @@
+/* 🎨 COLOR SYSTEM - CSS Custom Properties */
+@layer base {
+  :root {
+    /* Primary Theme Colors - For backward compatibility and general theming */
+    --color-primary: 37 99 235;         /* #2563eb - DEFAULT */
+    --color-primary-50: 239 246 255;    /* #eff6ff */
+    --color-primary-100: 219 234 254;   /* #dbeafe */
+    --color-primary-200: 191 219 254;   /* #bfdbfe */
+    --color-primary-300: 147 197 253;   /* #93c5fd */
+    --color-primary-400: 96 165 250;    /* #60a5fa */
+    --color-primary-500: 59 130 246;    /* #3b82f6 */
+    --color-primary-600: 37 99 235;     /* #2563eb */
+    --color-primary-700: 29 78 216;     /* #1d4ed8 */
+    --color-primary-800: 30 64 175;     /* #1e40af */
+    --color-primary-900: 30 58 138;     /* #1e3a8a */
+    --color-primary-950: 23 37 84;      /* #172554 */
+    
+    /* 🔘 BUTTON COLOR SYSTEM - Complete set for all button types */
+    
+    /* Primary Button Variables */
+    --color-button-primary: 37 99 235;                    /* primary/600 - light bg */
+    --color-button-primary-hover: 29 78 216;              /* primary/700 - light hover */
+    --color-button-primary-dark: 59 130 246;              /* primary/500 - dark bg */
+    --color-button-primary-dark-hover: 96 165 250;        /* primary/400 - dark hover */
+    --color-button-primary-outline: 37 99 235;            /* primary/600 - outline color */
+    
+    /* Secondary Button Variables */
+    --color-button-secondary-bg: 255 255 255;             /* white background */
+    --color-button-secondary-text: 17 24 39;              /* gray/900 text */
+    --color-button-secondary-border: 209 213 219;         /* gray/300 border */
+    --color-button-secondary-border-hover: 156 163 175;   /* gray/400 border hover */
+    --color-button-secondary-bg-hover: 156 163 175;       /* gray/400 with opacity */
+    
+    /* Secondary Dark Button Variables */
+    --color-button-secondary-dark-text: 255 255 255;      /* white text */
+    --color-button-secondary-dark-bg: 255 255 255;        /* white with opacity */
+    --color-button-secondary-dark-border: 75 85 99;       /* gray/600 border */
+    --color-button-secondary-dark-border-hover: 107 114 128; /* gray/500 border hover */
+    --color-button-secondary-dark-bg-hover: 255 255 255;  /* white with opacity */
+    
+    /* Text Button Variables */
+    --color-button-text: 17 24 39;                        /* gray/900 */
+    --color-button-text-hover: 107 114 128;               /* gray/500 */
+    --color-button-text-dark: 255 255 255;                /* white */
+    --color-button-text-dark-hover: 96 165 250;           /* primary/400 */
+  }
+  
+}
