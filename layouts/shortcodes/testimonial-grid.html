@@ -25,10 +25,19 @@
   ]
   {{< /testimonial-grid >}}
 
+  SEO Configuration (add to site params for enhanced software product schema):
+  [params]
+    softwareCategory = "Business Software"  # Type of software
+    softwareDescription = "AI workflow automation platform"  # Brief description  
+    operatingSystem = "Web-based"  # Platform compatibility
+    softwareAudience = "Business"  # Target user type
+
   Image Logic (priority order):
   1. personImage (if exists) → shows as avatar
   2. companyLogo (if personImage missing) → shows as avatar fallback
   3. default icon (if both missing) → shows placeholder
+
+  Schema: Includes SoftwareApplication structured data for better search engine understanding of product reviews.
 */ -}}
 
 {{ $headingTag := (.Get "headingTag") | default "" }}

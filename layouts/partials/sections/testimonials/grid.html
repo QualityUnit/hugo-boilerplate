@@ -1,6 +1,6 @@
 {{/*
 @section: Testimonials Grid
-@description: A responsive masonry layout for displaying testimonials with optional featured testimonial and headings.
+@description: A responsive masonry layout for displaying testimonials with optional featured testimonial and headings. Includes structured data for software product reviews.
 @params:
   - showHeading: Whether to display the heading section (optional, default: true)
   - headingTag: Small text displayed above the main heading (optional, default: "Testimonials")
@@ -13,6 +13,11 @@
     - companyLogo: URL to company logo (optional)
     - companyLogoAlt: Alt text for company logo (optional)
     - featured: Boolean indicating if this testimonial should be featured/larger (optional)
+@site_params: Configure SoftwareApplication schema for better SEO:
+  - softwareCategory: Type of software (default: "Business Software")
+  - softwareDescription: Brief description of what the software does
+  - operatingSystem: Platform compatibility (e.g., "Web-based", "SaaS", "Cross-platform")
+  - softwareAudience: Target user type (e.g., "Business", "Enterprise", "Small Business")
 @example:
   {{ partial "sections/testimonials/grid.html" (dict 
       "heading" "What our clients say" 
@@ -87,7 +92,10 @@
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
                     <span itemprop="name">{{ site.Title }}</span>
                     <span itemprop="url">{{ site.BaseURL }}</span>
-                    <span itemprop="applicationCategory">Business Software</span>
+                    <span itemprop="applicationCategory">{{ site.Params.softwareCategory | default "Business Software" }}</span>
+                    {{ with site.Params.softwareDescription }}<span itemprop="description">{{ . }}</span>{{ end }}
+                    {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
+                    {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
@@ -117,7 +125,10 @@
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
                     <span itemprop="name">{{ site.Title }}</span>
                     <span itemprop="url">{{ site.BaseURL }}</span>
-                    <span itemprop="applicationCategory">Business Software</span>
+                    <span itemprop="applicationCategory">{{ site.Params.softwareCategory | default "Business Software" }}</span>
+                    {{ with site.Params.softwareDescription }}<span itemprop="description">{{ . }}</span>{{ end }}
+                    {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
+                    {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
@@ -153,7 +164,10 @@
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
                     <span itemprop="name">{{ site.Title }}</span>
                     <span itemprop="url">{{ site.BaseURL }}</span>
-                    <span itemprop="applicationCategory">Business Software</span>
+                    <span itemprop="applicationCategory">{{ site.Params.softwareCategory | default "Business Software" }}</span>
+                    {{ with site.Params.softwareDescription }}<span itemprop="description">{{ . }}</span>{{ end }}
+                    {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
+                    {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-tablet-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
@@ -183,7 +197,10 @@
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
                     <span itemprop="name">{{ site.Title }}</span>
                     <span itemprop="url">{{ site.BaseURL }}</span>
-                    <span itemprop="applicationCategory">Business Software</span>
+                    <span itemprop="applicationCategory">{{ site.Params.softwareCategory | default "Business Software" }}</span>
+                    {{ with site.Params.softwareDescription }}<span itemprop="description">{{ . }}</span>{{ end }}
+                    {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
+                    {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-tablet-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
@@ -219,7 +236,10 @@
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
                     <span itemprop="name">{{ site.Title }}</span>
                     <span itemprop="url">{{ site.BaseURL }}</span>
-                    <span itemprop="applicationCategory">Business Software</span>
+                    <span itemprop="applicationCategory">{{ site.Params.softwareCategory | default "Business Software" }}</span>
+                    {{ with site.Params.softwareDescription }}<span itemprop="description">{{ . }}</span>{{ end }}
+                    {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
+                    {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col1-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
@@ -249,7 +269,10 @@
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
                     <span itemprop="name">{{ site.Title }}</span>
                     <span itemprop="url">{{ site.BaseURL }}</span>
-                    <span itemprop="applicationCategory">Business Software</span>
+                    <span itemprop="applicationCategory">{{ site.Params.softwareCategory | default "Business Software" }}</span>
+                    {{ with site.Params.softwareDescription }}<span itemprop="description">{{ . }}</span>{{ end }}
+                    {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
+                    {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col1-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
@@ -292,7 +315,10 @@
                     <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
                       <span itemprop="name">{{ site.Title }}</span>
                       <span itemprop="url">{{ site.BaseURL }}</span>
-                      <span itemprop="applicationCategory">Business Software</span>
+                      <span itemprop="applicationCategory">{{ site.Params.softwareCategory | default "Business Software" }}</span>
+                      {{ with site.Params.softwareDescription }}<span itemprop="description">{{ . }}</span>{{ end }}
+                      {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
+                      {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                     </div>
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
@@ -355,7 +381,10 @@
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
                     <span itemprop="name">{{ site.Title }}</span>
                     <span itemprop="url">{{ site.BaseURL }}</span>
-                    <span itemprop="applicationCategory">Business Software</span>
+                    <span itemprop="applicationCategory">{{ site.Params.softwareCategory | default "Business Software" }}</span>
+                    {{ with site.Params.softwareDescription }}<span itemprop="description">{{ . }}</span>{{ end }}
+                    {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
+                    {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
@@ -385,7 +414,10 @@
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
                     <span itemprop="name">{{ site.Title }}</span>
                     <span itemprop="url">{{ site.BaseURL }}</span>
-                    <span itemprop="applicationCategory">Business Software</span>
+                    <span itemprop="applicationCategory">{{ site.Params.softwareCategory | default "Business Software" }}</span>
+                    {{ with site.Params.softwareDescription }}<span itemprop="description">{{ . }}</span>{{ end }}
+                    {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
+                    {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col2-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
