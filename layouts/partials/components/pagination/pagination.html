@@ -6,11 +6,11 @@
         <!-- Previous button (mobile) -->
         {{ if $paginator.HasPrev }}
             <a href="{{ $paginator.Prev.URL }}" 
-               class="relative inline-flex items-center rounded-md surface-border surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">
+               class="relative inline-flex items-center rounded-md border-primary surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">
                 {{ i18n "pagination_previous" }}
             </a>
         {{ else }}
-            <span class="relative inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">
+            <span class="relative inline-flex items-center rounded-md border border-primary surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">
                 {{ i18n "pagination_previous" }}
             </span>
         {{ end }}
@@ -18,11 +18,11 @@
         <!-- Next button (mobile) -->
         {{ if $paginator.HasNext }}
             <a href="{{ $paginator.Next.URL }}" 
-               class="relative ml-3 inline-flex items-center rounded-md surface-border surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">
+               class="relative ml-3 inline-flex items-center rounded-md border-primary surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">
                 {{ i18n "pagination_next" }}
             </a>
         {{ else }}
-            <span class="relative ml-3 inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">
+            <span class="relative ml-3 inline-flex items-center rounded-md border border-primary surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">
                 {{ i18n "pagination_next" }}
             </span>
         {{ end }}
@@ -51,12 +51,12 @@
                 <!-- Previous page arrow -->
                 {{ if $paginator.HasPrev }}
                     <a href="{{ $paginator.Prev.URL }}" 
-                       class="relative inline-flex items-center rounded-l-md px-2 py-2 border surface-border hover:surface-secondary focus:z-20 focus:outline-offset-0">
+                       class="relative inline-flex items-center rounded-l-md px-2 py-2 border border-primary hover:surface-secondary focus:z-20 focus:outline-offset-0">
                         <span class="sr-only">{{ i18n "pagination_previous" }}</span>
                         {{ partial "icons/chevron-left" "w-5 h-5 icon-secondary" }}
                     </a>
                 {{ else }}
-                    <span class="relative inline-flex items-center rounded-l-md px-2 py-2 border surface-border cursor-not-allowed">
+                    <span class="relative inline-flex items-center rounded-l-md px-2 py-2 border border-primary cursor-not-allowed">
                         <span class="sr-only">{{ i18n "pagination_previous" }}</span>
                         {{ partial "icons/chevron-left" "w-5 h-5 icon-secondary" }}
                     </span>
@@ -74,7 +74,7 @@
                     {{ else }}
                         <!-- Other pages -->
                         <a href="{{ .URL }}" 
-                           class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading border surface-border hover:surface-secondary focus:z-20 focus:outline-offset-0">
+                           class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading border border-primary hover:surface-secondary focus:z-20 focus:outline-offset-0">
                             {{ .PageNumber }}
                         </a>
                     {{ end }}
@@ -83,12 +83,12 @@
                 <!-- Next page arrow -->
                 {{ if $paginator.HasNext }}
                     <a href="{{ $paginator.Next.URL }}" 
-                       class="relative inline-flex items-center rounded-r-md px-2 py-2 border surface-border hover:surface-secondary focus:z-20 focus:outline-offset-0">
+                       class="relative inline-flex items-center rounded-r-md px-2 py-2 border border-primary hover:surface-secondary focus:z-20 focus:outline-offset-0">
                         <span class="sr-only">{{ i18n "pagination_next" }}</span>
                         {{ partial "icons/chevron-right" "w-5 h-5 icon-secondary" }}
                     </a>
                 {{ else }}
-                    <span class="relative inline-flex items-center rounded-r-md px-2 py-2 border surface-border cursor-not-allowed">
+                    <span class="relative inline-flex items-center rounded-r-md px-2 py-2 border border-primary cursor-not-allowed">
                         <span class="sr-only">{{ i18n "pagination_next" }}</span>
                         {{ partial "icons/chevron-right" "w-5 h-5 icon-secondary" }}
                     </span>

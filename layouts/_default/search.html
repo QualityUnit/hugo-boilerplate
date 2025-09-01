@@ -106,11 +106,11 @@
 
                         let html = `<div class="flex flex-1 justify-between sm:hidden">
                             ${page > 1
-                                ? `<button data-page="${page - 1}" class="relative inline-flex items-center rounded-md surface-border surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">${chevronLeft} Prev</button>`
-                                : `<span class="relative inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">${chevronLeft} Prev</span>`}
+                                ? `<button data-page="${page - 1}" class="relative inline-flex items-center rounded-md border-primary surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">${chevronLeft} Prev</button>`
+                                : `<span class="relative inline-flex items-center rounded-md border border-primary surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">${chevronLeft} Prev</span>`}
                             ${page < totalPages
-                                ? `<button data-page="${page + 1}" class="relative ml-3 inline-flex items-center rounded-md surface-border surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">Next ${chevronRight}</button>`
-                                : `<span class="relative ml-3 inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">Next ${chevronRight}</span>`}
+                                ? `<button data-page="${page + 1}" class="relative ml-3 inline-flex items-center rounded-md border-primary surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">Next ${chevronRight}</button>`
+                                : `<span class="relative ml-3 inline-flex items-center rounded-md border border-primary surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">Next ${chevronRight}</span>`}
                         </div>`;
                         // Desktop: full pagination
                         html += `<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full max-w-[52rem] not-prose">
