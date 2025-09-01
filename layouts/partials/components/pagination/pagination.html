@@ -53,12 +53,12 @@
                     <a href="{{ $paginator.Prev.URL }}" 
                        class="relative inline-flex items-center rounded-l-md px-2 py-2 border border-primary hover:surface-secondary focus:z-20 focus:outline-offset-0">
                         <span class="sr-only">{{ i18n "pagination_previous" }}</span>
-                        {{ partial "icons/chevron-left" "w-5 h-5 icon-secondary" }}
+                        {{ partial "icons/chevron-left" "w-5 h-5 icon-on-gray" }}
                     </a>
                 {{ else }}
                     <span class="relative inline-flex items-center rounded-l-md px-2 py-2 border border-primary cursor-not-allowed">
                         <span class="sr-only">{{ i18n "pagination_previous" }}</span>
-                        {{ partial "icons/chevron-left" "w-5 h-5 icon-secondary" }}
+                        {{ partial "icons/chevron-left" "w-5 h-5 icon-on-gray" }}
                     </span>
                 {{ end }}
 
@@ -85,12 +85,12 @@
                     <a href="{{ $paginator.Next.URL }}" 
                        class="relative inline-flex items-center rounded-r-md px-2 py-2 border border-primary hover:surface-secondary focus:z-20 focus:outline-offset-0">
                         <span class="sr-only">{{ i18n "pagination_next" }}</span>
-                        {{ partial "icons/chevron-right" "w-5 h-5 icon-secondary" }}
+                        {{ partial "icons/chevron-right" "w-5 h-5 icon-on-gray" }}
                     </a>
                 {{ else }}
                     <span class="relative inline-flex items-center rounded-r-md px-2 py-2 border border-primary cursor-not-allowed">
                         <span class="sr-only">{{ i18n "pagination_next" }}</span>
-                        {{ partial "icons/chevron-right" "w-5 h-5 icon-secondary" }}
+                        {{ partial "icons/chevron-right" "w-5 h-5 icon-on-gray" }}
                     </span>
                 {{ end }}
             </nav>
