@@ -197,10 +197,10 @@
                         const end = start + perPage;
                         const pagedResults = results.slice(start, end);
 
-                        renderPagination(total, page, perPage);
+                            renderPagination(total, page, perPage);
 
                         if (pagedResults.length > 0) {
-                            let html = '<div class="surface-divider my-3"></div>';
+                            let html = '<div class="border-t border-secondary my-3"></div>';
                             pagedResults.forEach(({ item, matches, refIndex }) => {
                                 let snippet = '';
 
@@ -270,13 +270,13 @@
                             searchResults.innerHTML = html;
                         } else {
                             searchResults.innerHTML = `
-                              <div class="surface-divider"></div>
+                              <div class="border-t border-secondary"></div>
                               <div class="w-96 pt-6 not-prose">
                                 <div class="flex gap-1 text-base text-heading">
                                   <span>{{ i18n "search_no_results_for" }}:</span>
                                   <span class="font-bold">${query}</span>
                                 </div>
-                                <div class="surface-divider mt-3"></div>
+                                <div class="border-t border-secondary mt-3"></div>
                                 <div class="py-3">
                                   <div class="text-sm text-body font-semibold">{{ i18n "search_suggestions" }}</div>
                                   <ul class="mt-1 text-sm/7 text-muted list-disc list-inside">
@@ -285,7 +285,7 @@
                                     <li>{{ i18n "search_suggestion_terms" }}</li>
                                   </ul>
                                 </div>
-                                <div class="surface-divider mt-3"></div>
+                                <div class="border-t border-secondary mt-3"></div>
                                 <a href="/contact/" class="py-3 text-sm text-primary">{{ i18n "search_chat_link" }}</a>
                               </div>
                             `;

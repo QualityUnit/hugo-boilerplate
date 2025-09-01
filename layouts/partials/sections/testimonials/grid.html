@@ -97,7 +97,7 @@
                     {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
                     {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
-                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-{{ $index }}">
+                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -169,7 +169,7 @@
                     {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
                     {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
-                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-tablet-{{ $index }}">
+                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-tablet-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -241,7 +241,7 @@
                     {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
                     {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
-                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col1-desktop-{{ $index }}">
+                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col1-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -322,7 +322,7 @@
                     </div>
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
-                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-tablet-{{ $index }}">
+                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-tablet-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -386,7 +386,7 @@
                     {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
                     {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
-                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-desktop-{{ $index }}">
+                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -458,7 +458,7 @@
                 <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/Organization" style="display: none;">
                   <span itemprop="name">{{ site.Title }}</span>
                 </div>
-                <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col3-{{ $index }}">
+                <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col3-{{ $index }}">
                   {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                   {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                     {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
