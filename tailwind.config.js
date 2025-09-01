@@ -55,6 +55,15 @@ module.exports = {
             dark: 'rgb(var(--color-button-text-dark) / <alpha-value>)',
             'dark-hover': 'rgb(var(--color-button-text-dark-hover) / <alpha-value>)',
         },
+        // BRAND COLORS
+        'brand': {
+            surface: 'rgb(var(--color-brand-surface) / <alpha-value>)',
+            'surface-secondary': 'rgb(var(--color-brand-surface-secondary) / <alpha-value>)',
+            border: 'rgb(var(--color-brand-border) / <alpha-value>)',
+            text: 'rgb(var(--color-brand-text) / <alpha-value>)',
+            icon: 'rgb(var(--color-brand-icon) / <alpha-value>)',
+            underlight: 'rgb(var(--color-brand-underlight) / <alpha-value>)',
+        },
       },
     },
   },
