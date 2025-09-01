@@ -122,17 +122,18 @@
   }
 
    /* 📝 TEXT STYLES */
-  .text-heading, .text-primary {
+   /* Heading - "text primary" in design*/
+  .text-heading  {
     @apply text-gray-900 dark:text-white;
     /* Main heading text – black in light mode, white in dark mode */
   }
 
-  .text-body, .text-secondary {
+  .text-secondary, .text-body {
     @apply text-gray-600 dark:text-gray-300;
     /* Body text – medium gray in light mode, light gray in dark mode */
   }
 
-  .text-muted, .text-tertiary {
+  .text-tertiary, .text-muted {
     @apply text-gray-500 dark:text-gray-400;
     /* Subtle/secondary text – slightly muted for less emphasis */
   }
