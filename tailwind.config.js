@@ -58,11 +58,17 @@ module.exports = {
         // BRAND COLORS
         'brand': {
             surface: 'rgb(var(--color-brand-surface) / <alpha-value>)',
+            'dark-surface': 'rgb(var(--color-brand-dark-surface) / <alpha-value>)',
             'surface-secondary': 'rgb(var(--color-brand-surface-secondary) / <alpha-value>)',
+            'dark-surface-secondary': 'rgb(var(--color-brand-dark-surface-secondary) / <alpha-value>)',
             border: 'rgb(var(--color-brand-border) / <alpha-value>)',
+            'dark-border': 'rgb(var(--color-brand-dark-border) / <alpha-value>)',
             text: 'rgb(var(--color-brand-text) / <alpha-value>)',
+            'dark-text': 'rgb(var(--color-brand-dark-text) / <alpha-value>)',
             icon: 'rgb(var(--color-brand-icon) / <alpha-value>)',
+            'dark-icon': 'rgb(var(--color-brand-dark-icon) / <alpha-value>)',
             underlight: 'rgb(var(--color-brand-underlight) / <alpha-value>)',
+            'dark-underlight': 'rgb(var(--color-brand-dark-underlight) / <alpha-value>)',
         },
       },
     },
