@@ -133,7 +133,7 @@
                                         if (totalPages <= maxVisiblePages) {
                                             // Відображати всі сторінки, якщо загальна кількість сторінок у межах ліміту
                                             return n === page
-                                                ? `<span aria-current="page" class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">${n}</span>`
+                                                ? `<span aria-current="page" class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">${n}</span>`
                                                 : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
                                         } else {
                                             // Відображати еліпсис та обмежений діапазон сторінок
@@ -143,7 +143,7 @@
                                                 (n >= page - halfVisible && n <= page + halfVisible) // Показуємо сторінки навколо поточної
                                             ) {
                                                 return n === page
-                                                    ? `<span aria-current="page" class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">${n}</span>`
+                                                    ? `<span aria-current="page" class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">${n}</span>`
                                                     : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
                                             } else if (
                                                 // Показуємо "..."

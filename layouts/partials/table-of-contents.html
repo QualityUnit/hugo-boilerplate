@@ -62,7 +62,7 @@
       </div>
     </div>
     <div class="absolute bottom-0 left-0 w-full h-0.5 surface-secondary">
-      <div id="tocProgressBar" class="h-full product-bg-primary transition-all duration-300 ease-out" style="width: 0%"></div>
+      <div id="tocProgressBar" class="h-full surface-brand transition-all duration-300 ease-out" style="width: 0%"></div>
     </div>
   </div>
   
@@ -165,15 +165,15 @@
         const activeSection = sections.find(s => s.element === entry.target);
         if (activeSection) {
           sections.forEach(s => {
-            s.option.classList.remove('product-bg-primary', 'text-white');
+            s.option.classList.remove('surface-brand', 'text-white');
             const dynamicOpt = dynamicDropdown?.querySelector(`li[data-value="${s.anchor}"]`);
-            dynamicOpt?.classList.remove('product-bg-primary', 'text-white');
+            dynamicOpt?.classList.remove('surface-brand', 'text-white');
           });
 
-          activeSection.option.classList.add('product-bg-primary', 'text-white');
+          activeSection.option.classList.add('surface-brand', 'text-white');
           selectLabel.textContent = activeSection.option.textContent;
           const activeDynamicOpt = dynamicDropdown?.querySelector(`li[data-value="${activeSection.anchor}"]`);
-          activeDynamicOpt?.classList.add('product-bg-primary', 'text-white');
+          activeDynamicOpt?.classList.add('surface-brand', 'text-white');
         }
       }
 
