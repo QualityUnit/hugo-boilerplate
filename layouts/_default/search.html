@@ -8,13 +8,13 @@
 
             <div class="search-container py-6 gap-x-2 relative flex w-full md:w-80">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                   {{ partial "icons/magnifying-glass" "w-4 h-4 text-muted" }}
+                   {{ partial "icons/magnifying-glass" "w-4 h-4 text-tertiary" }}
                 </span>
                 <input type="search" name="q" id="search-query" autocomplete="off"
                     class="hide-search-clear px-9 py-1.5 w-full border border-gray-600 dark:border-gray-700 rounded-md focus:outline-none focus:ring-0 focus:ring-transparent focus:border-gray-400 transition" />
                 <button type="button" id="clear-search" aria-label="{{ i18n "search_clear_aria" }}"
                     class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-0">
-                    {{ partial "icons/x-mark" "w-4 h-4 text-muted" }}
+                    {{ partial "icons/x-mark" "w-4 h-4 text-tertiary" }}
                 </button>
             </div>
 
@@ -36,7 +36,7 @@
                         <div class="date-reading-time-container flex items-center justify-end text-secondary text-xs mt-3 md:mt-0 w-full md:w-1/4"></div>
                     </div>
 
-                    <p class="mt-5 text-sm/5 text-muted line-clamp-3 flex-grow">${snippet}</p>
+                    <p class="mt-5 text-sm/5 text-tertiary line-clamp-3 flex-grow">${snippet}</p>
 
                     <div class="tags-container mt-6 flex flex-wrap gap-2"></div>
                 </article>
@@ -236,7 +236,7 @@
                                 }
 
                                 articleHtml += `
-                                        </div> <p class="mt-5 text-sm/5 text-muted line-clamp-3 flex-grow">${snippet}</p>
+                                        </div> <p class="mt-5 text-sm/5 text-tertiary line-clamp-3 flex-grow">${snippet}</p>
                                 `;
 
                                 if (Array.isArray(item.tags) && item.tags.length > 0) {
@@ -279,7 +279,7 @@
                                 <div class="border-t border-secondary mt-3"></div>
                                 <div class="py-3">
                                   <div class="text-sm text-secondary font-semibold">{{ i18n "search_suggestions" }}</div>
-                                  <ul class="mt-1 text-sm/7 text-muted list-disc list-inside">
+                                  <ul class="mt-1 text-sm/7 text-tertiary list-disc list-inside">
                                     <li>{{ i18n "search_suggestion_spell" }}</li>
                                     <li>{{ i18n "search_suggestion_broaden" }}</li>
                                     <li>{{ i18n "search_suggestion_terms" }}</li>

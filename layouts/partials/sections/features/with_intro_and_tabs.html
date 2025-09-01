@@ -166,7 +166,7 @@
               <div class="flex px-8 w-full" aria-orientation="horizontal" role="tablist">
                 {{ range $index, $tab := $tabs }}
                   <button id="{{ $uniqueID }}-tab-{{ $tab.id }}" 
-                    class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}border-brand product-primary{{ else }}border-transparent text-muted hover:border-brand hover:product-primary{{ end }} p-6 text-base font-semibold tracking-[-0.3px] whitespace-nowrap" 
+                    class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}border-brand product-primary{{ else }}border-transparent text-tertiary hover:border-brand hover:product-primary{{ end }} p-6 text-base font-semibold tracking-[-0.3px] whitespace-nowrap" 
                     aria-controls="{{ $uniqueID }}-panel-{{ $tab.id }}" 
                     role="tab" 
                     type="button"
@@ -204,7 +204,7 @@
                         <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
                       {{ end }}
                       {{ if $tab.content.description }}
-                        <div class="mt-2 text-base/9 text-muted">
+                        <div class="mt-2 text-base/9 text-tertiary">
                           {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
                         </div>
                       {{ end }}
@@ -217,7 +217,7 @@
                         <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
                       {{ end }}
                       {{ if $tab.content.description }}
-                        <div class="mt-2 text-base/9 text-muted">
+                        <div class="mt-2 text-base/9 text-tertiary">
                           {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
                         </div>
                       {{ end }}
@@ -272,11 +272,11 @@ document.addEventListener('DOMContentLoaded', function() {
       // Update tab button styles
       document.querySelectorAll(`button[data-tabs-group="${tabsGroup}"]`).forEach(btn => {
         btn.classList.remove('border-brand', 'product-primary');
-        btn.classList.add('border-transparent', 'text-muted', 'hover:border-brand', 'hover:product-primary');
+        btn.classList.add('border-transparent', 'text-tertiary', 'hover:border-brand', 'hover:product-primary');
       });
       
       // Style the active tab
-      this.classList.remove('border-transparent', 'text-muted', 'hover:border-brand', 'hover:product-primary');
+      this.classList.remove('border-transparent', 'text-tertiary', 'hover:border-brand', 'hover:product-primary');
       this.classList.add('border-brand', 'product-primary');
     });
   });
