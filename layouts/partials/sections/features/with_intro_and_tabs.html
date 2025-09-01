@@ -108,7 +108,7 @@
                 {{ $item | safeHTML }}
               {{ end }}
               {{ if $item.items }}
-                <div class="font-normal text-body">
+                <div class="font-normal text-secondary">
                   {{ template "renderListItems" (dict "items" $item.items "page" $page) }}
                 </div>
               {{ end }}
@@ -155,7 +155,7 @@
             <p class="text-base/6 font-semibold product-text">{{ $eyebrow }}</p>
           {{ end }}
           <h2 id="{{ $uniqueID }}-heading" class="mt-2.5 text-3xl font-semibold tracking-[-2.8px] text-heading sm:text-5xl">{{ $heading }}</h2>
-          <div class="mt-6 text-lg text-body">
+          <div class="mt-6 text-lg text-secondary">
             {{ template "renderDescription" (dict "description" $description "page" $page) }}
           </div>
         </div>

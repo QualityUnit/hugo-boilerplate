@@ -16,7 +16,7 @@
     </div>
     <div id="search-results-popup-{{ $searchId }}" class="w-full mt-6 overflow-y-auto surface-primary z-45 hidden{{ if eq .type "header-mobile-search"  }} absolute{{ end }}">
         <div id="popup-search-results-{{ $searchId }}"></div>
-        <div class="search-loading-{{ $searchId }} text-center px-3 py-2 text-body hidden">{{ i18n "search_loading" }}</div>
+        <div class="search-loading-{{ $searchId }} text-center px-3 py-2 text-secondary hidden">{{ i18n "search_loading" }}</div>
         <div class="search-view-all-{{ $searchId }} text-center mt-6 hidden">
             <a href="/search" id="view-all-results-{{ $searchId }}" class="text-heading text-sm font-medium hover:underline hover:text-primary">{{ i18n "search_view_all_results" }}</a>
         </div>
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="p-3 surface-secondary ${borderClass} ${marginClass}">
                         <a href="${permalink}" class="no-underline text-inherit group/dropdown-item">
                             <div class="font-semibold text-heading mb-1.5 group-hover/dropdown-item:text-primary">${title}</div>
-                            <div class="text-sm text-body">${snippet}</div>
+                            <div class="text-sm text-secondary">${snippet}</div>
                         </a>
                     </div>`;
                 });

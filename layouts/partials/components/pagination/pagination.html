@@ -6,11 +6,11 @@
         <!-- Previous button (mobile) -->
         {{ if $paginator.HasPrev }}
             <a href="{{ $paginator.Prev.URL }}" 
-               class="relative inline-flex items-center rounded-md border-primary surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">
+               class="relative inline-flex items-center rounded-md border-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary hover:surface-secondary">
                 {{ i18n "pagination_previous" }}
             </a>
         {{ else }}
-            <span class="relative inline-flex items-center rounded-md border border-primary surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">
+            <span class="relative inline-flex items-center rounded-md border border-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary cursor-not-allowed">
                 {{ i18n "pagination_previous" }}
             </span>
         {{ end }}
@@ -18,11 +18,11 @@
         <!-- Next button (mobile) -->
         {{ if $paginator.HasNext }}
             <a href="{{ $paginator.Next.URL }}" 
-               class="relative ml-3 inline-flex items-center rounded-md border-primary surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">
+               class="relative ml-3 inline-flex items-center rounded-md border-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary hover:surface-secondary">
                 {{ i18n "pagination_next" }}
             </a>
         {{ else }}
-            <span class="relative ml-3 inline-flex items-center rounded-md border border-primary surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">
+            <span class="relative ml-3 inline-flex items-center rounded-md border border-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary cursor-not-allowed">
                 {{ i18n "pagination_next" }}
             </span>
         {{ end }}
@@ -35,7 +35,7 @@
             {{ $startItem := mul (add $paginator.PageNumber -1) $paginator.PagerSize | add 1 }}
             {{ $endItem := cond (lt (mul $paginator.PageNumber $paginator.PagerSize) $paginator.TotalNumberOfElements) (mul $paginator.PageNumber $paginator.PagerSize) $paginator.TotalNumberOfElements }}
             
-            <p class="text-sm text-body">
+            <p class="text-sm text-secondary">
                 {{ i18n "pagination_showing" }} 
                 <span class="font-semibold">{{ $startItem }}</span> 
                 {{ i18n "pagination_to" }} 

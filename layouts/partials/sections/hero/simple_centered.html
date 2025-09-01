@@ -109,7 +109,7 @@
               <h1 class="text-5xl font-semibold tracking-[-4.248px] leading-none text-balance text-heading sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>
             {{ end }}
             {{ if $description }}
-              <p class="mt-9 text-lg font-medium text-pretty text-body sm:text-xl/8">{{ $description }}</p>
+              <p class="mt-9 text-lg font-medium text-pretty text-secondary sm:text-xl/8">{{ $description }}</p>
             {{ end }}
 
             {{ if $tags }}

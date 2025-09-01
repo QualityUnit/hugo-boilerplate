@@ -75,12 +75,12 @@
     <h3 class="mt-2.5 text-lg/6 font-semibold text-heading group-hover:text-muted transition-colors duration-300">
       {{ $page.Title }}
     </h3>
-    <p class="mt-5 text-sm leading-6 text-body font-normal line-clamp-3 flex-grow overflow-hidden">{{ $description }}</p>
+    <p class="mt-5 text-sm leading-6 text-secondary font-normal line-clamp-3 flex-grow overflow-hidden">{{ $description }}</p>
     
     {{/* Date, Reading Time */}}
     {{ if $showDateReadingTime }}
     <div class="flex items-center gap-4 my-2.5 pt-2">
-      <span class="flex items-center text-xs font-normal text-body">
+      <span class="flex items-center text-xs font-normal text-secondary">
         {{ if $page.Date }}
           <time datetime="{{ $date }}">{{ $date }}</time>
         {{ end }}
