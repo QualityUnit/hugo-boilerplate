@@ -94,7 +94,7 @@
   /* BORDER STYLES */
   /* ================================================================ */
 
-  .border-primary {
+  .border-primary, .surface-border {
     @apply border-gray-300 dark:border-gray-600;
     /* Primary border – light gray in light mode, darker gray in dark mode */
   }
@@ -106,9 +106,14 @@
     @apply border-gray-300 dark:border-gray-600 !important;
   }
 
-  .border-secondary {
+  .border-secondary, .surface-divider {
     @apply border-gray-200 dark:border-gray-700;
     /* Secondary border – light gray in light mode, darker gray in dark mode */
+  }
+
+  /* For compatibility with older naming */
+  .surface-divider {
+    @apply border-t;
   }
 
   .border-brand, .product-border {
@@ -153,12 +158,12 @@
     /* Brand icon color – brand color in light mode, lighter brand-400 in dark mode */
   }
 
-  .icon-on-gray {
+  .icon-on-gray, .icon-secondary {
     @apply text-gray-600 dark:text-gray-300;
     /* On gray icon color – light gray in light mode, slightly darker in dark mode */
   }
 
-  .icon-on-brand {
+  .icon-on-brand, .icon-primary {
     @apply text-white dark:text-white;
     /* On brand icon color – brand color in light mode, lighter brand-400 in dark mode */
   }
