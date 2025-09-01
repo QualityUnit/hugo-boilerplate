@@ -34,12 +34,12 @@
     {{- if not (and (eq $index 0) (or (eq $item.title "Home") (eq $item.title "home"))) -}}
     <li>
       <div class="flex items-center">
-        <span class="mr-4 text-gray-400">/</span>
+        <span class="mr-4 text-gray-300 dark:text-gray-600">/</span>
         {{- $isLast := eq (add $index 1) (len $items) -}}
         {{- if $isLast -}}
-        <a href="{{ $item.url }}" class="text-sm font-medium text-gray-900 hover:text-gray-700" aria-current="page">{{ $item.title }}</a>
+        <a href="{{ $item.url }}" class="text-sm font-medium text-heading hover:text-gray-700" aria-current="page">{{ $item.title }}</a>
         {{- else -}}
-        <a href="{{ $item.url }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">{{ $item.title }}</a>
+        <a href="{{ $item.url }}" class="text-sm font-medium text-secondary hover:text-gray-700">{{ $item.title }}</a>
         {{- end -}}
       </div>
     </li>
