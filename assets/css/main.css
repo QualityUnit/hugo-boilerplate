@@ -94,15 +94,15 @@
   /* BORDER STYLES */
   /* ================================================================ */
 
-  .border-primary, .surface-border {
+  /* Border gray primary - "border primary" in design*/
+  .border-gray-primary, .surface-border {
     @apply border-gray-300 dark:border-gray-600;
     /* Primary border – light gray in light mode, darker gray in dark mode */
   }
-
   /* Form elements with surface border */
-  input.border-primary,
-  select.border-primary,
-  textarea.border-primary {
+  input.border-gray-primary,
+  select.border-gray-primary,
+  textarea.border-gray-primary {
     @apply border-gray-300 dark:border-gray-600 !important;
   }
 
