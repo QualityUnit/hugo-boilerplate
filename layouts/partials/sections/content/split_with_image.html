@@ -186,7 +186,7 @@ Design Tokens:
 
         {{/* Main content */}}
         {{ if $markdownContent }}
-          <div class="mt-10 max-w-full text-body lg:max-w-full [&_*]:mb-5 [&_*:last-child]:mb-0">
+          <div class="mt-10 max-w-full text-body lg:max-w-full [&_p]:mb-5 [&_h1]:mb-5 [&_h2]:mb-5 [&_h3]:mb-5 [&_h4]:mb-5 [&_h5]:mb-5 [&_h6]:mb-5 [&_ul]:mb-5 [&_ol]:mb-5 [&_*:last-child]:mb-0">
             {{ if $contentAsHTML }}
                 {{ $markdownContent | safeHTML }}
             {{ else }}
