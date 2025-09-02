@@ -7,7 +7,7 @@
 
 <div class="w-full h-full {{ $marginClass }}{{ if eq .type "header-mobile-search"  }} relative{{ end }}">
     <div class="relative w-full">
-        <input type="text" id="popup-search-input-{{ $searchId }}" class="hide-search-clear w-full pl-3 pr-9 py-1.5 text-sm border border-primary rounded-md surface-primary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary transition" placeholder="{{ i18n "search_placeholder" }}" aria-label="{{ i18n "search_placeholder" }}">
+        <input type="text" id="popup-search-input-{{ $searchId }}" class="hide-search-clear w-full pl-3 pr-9 py-1.5 text-sm border border-gray-primary rounded-md surface-primary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary transition" placeholder="{{ i18n "search_placeholder" }}" aria-label="{{ i18n "search_placeholder" }}">
         <button type="button" id="clear-search-{{ $searchId }}" class="absolute right-1.5 top-1/2 -translate-y-1/2 hidden" aria-label="{{ i18n "search_clear_aria" }}" title="{{ i18n "search_clear_title" }}">
             <div class="flex py-1.5 pr-1.5">
                 <span class="inline-flex items-center rounded border border-gray-200 dark:border-gray-700 px-1.5 py-1 font-sans text-xs text-placeholder">{{ i18n "search_clear_btn" }}</span>

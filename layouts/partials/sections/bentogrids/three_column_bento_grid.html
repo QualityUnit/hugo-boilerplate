@@ -83,7 +83,7 @@
         {{ range $index, $card := $cards }}
         {{ $imagePosition := $card.imagePosition | default "top" }}
         <div class="relative">
-          <div class="absolute inset-px rounded-2xl border surface-secondary border-primary shadow-lg"></div>
+          <div class="absolute inset-px rounded-2xl border surface-secondary border-gray-primary shadow-lg"></div>
               <div class="relative flex flex-col overflow-hidden">
                 {{ if and $card.image (eq $imagePosition "top") }}
                   <div class="flex items-center justify-center">
