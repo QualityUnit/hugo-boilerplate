@@ -59,7 +59,7 @@ module.exports = {
         'brand': {
             surface: 'rgb(var(--color-brand-surface) / <alpha-value>)',
             'dark-surface': 'rgb(var(--color-brand-dark-surface) / <alpha-value>)',
-            'surface-secondary': 'rgb(var(--color-brand-surface-secondary) / <alpha-value>)',
+            'surface-secondary': 'rgb(var(--color-brand-surface-secondary) / 20)',
             'dark-surface-secondary': 'rgb(var(--color-brand-dark-surface-secondary) / <alpha-value>)',
             border: 'rgb(var(--color-brand-border) / <alpha-value>)',
             'dark-border': 'rgb(var(--color-brand-dark-border) / <alpha-value>)',

@@ -81,7 +81,7 @@
   }
 
   .surface-brand-secondary, .product-surface {
-    @apply bg-brand-surface-secondary dark:bg-brand-dark-surface-secondary;
+    @apply bg-brand-surface-secondary/20 dark:bg-brand-dark-surface-secondary/20;
     /* Brand surface background – brand primary in light mode, brand secondary in dark mode */
   }
 
