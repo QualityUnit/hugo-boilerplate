@@ -8,7 +8,7 @@
         <div class="p-3 border border-t-0">
           <p class="font-mono text-sm">primary</p>
           <p class="text-text-light text-sm">var(--color-primary)</p>
-          <p class="font-mono text-sm text-text-muted">
+          <p class="font-mono text-sm text-tertiary">
             {{ with .Site.Params.theme.colors.primary }}{{ . }}{{ else }}#1a73e8{{ end }}
           </p>
         </div>
@@ -19,7 +19,7 @@
         <div class="p-3 border border-t-0">
           <p class="font-mono text-sm">primary-light</p>
           <p class="text-text-light text-sm">var(--color-primary-light)</p>
-          <p class="font-mono text-sm text-text-muted">
+          <p class="font-mono text-sm text-tertiary">
             {{ with .Site.Params.theme.colors.primaryLight }}{{ . }}{{ else }}#4285f4{{ end }}
           </p>
         </div>
@@ -30,7 +30,7 @@
         <div class="p-3 border border-t-0">
           <p class="font-mono text-sm">primary-dark</p>
           <p class="text-text-light text-sm">var(--color-primary-dark)</p>
-          <p class="font-mono text-sm text-text-muted">
+          <p class="font-mono text-sm text-tertiary">
             {{ with .Site.Params.theme.colors.primaryDark }}{{ . }}{{ else }}#1557b0{{ end }}
           </p>
         </div>

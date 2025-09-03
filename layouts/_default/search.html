@@ -8,13 +8,13 @@
 
             <div class="search-container py-6 gap-x-2 relative flex w-full md:w-80">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                   {{ partial "icons/magnifying-glass" "w-4 h-4 text-muted" }}
+                   {{ partial "icons/magnifying-glass" "w-4 h-4 text-tertiary" }}
                 </span>
                 <input type="search" name="q" id="search-query" autocomplete="off"
                     class="hide-search-clear px-9 py-1.5 w-full border border-gray-600 dark:border-gray-700 rounded-md focus:outline-none focus:ring-0 focus:ring-transparent focus:border-gray-400 transition" />
                 <button type="button" id="clear-search" aria-label="{{ i18n "search_clear_aria" }}"
                     class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-0">
-                    {{ partial "icons/x-mark" "w-4 h-4 text-muted" }}
+                    {{ partial "icons/x-mark" "w-4 h-4 text-tertiary" }}
                 </button>
             </div>
 
@@ -33,10 +33,10 @@
                             ${title}
                             </a>
                         </h3>
-                        <div class="date-reading-time-container flex items-center justify-end text-body text-xs mt-3 md:mt-0 w-full md:w-1/4"></div>
+                        <div class="date-reading-time-container flex items-center justify-end text-secondary text-xs mt-3 md:mt-0 w-full md:w-1/4"></div>
                     </div>
 
-                    <p class="mt-5 text-sm/5 text-muted line-clamp-3 flex-grow">${snippet}</p>
+                    <p class="mt-5 text-sm/5 text-tertiary line-clamp-3 flex-grow">${snippet}</p>
 
                     <div class="tags-container mt-6 flex flex-wrap gap-2"></div>
                 </article>
@@ -106,16 +106,16 @@
 
                         let html = `<div class="flex flex-1 justify-between sm:hidden">
                             ${page > 1
-                                ? `<button data-page="${page - 1}" class="relative inline-flex items-center rounded-md surface-border surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">${chevronLeft} Prev</button>`
-                                : `<span class="relative inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">${chevronLeft} Prev</span>`}
+                                ? `<button data-page="${page - 1}" class="relative inline-flex items-center rounded-md border-gray-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary hover:surface-secondary">${chevronLeft} Prev</button>`
+                                : `<span class="relative inline-flex items-center rounded-md border border-gray-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary cursor-not-allowed">${chevronLeft} Prev</span>`}
                             ${page < totalPages
-                                ? `<button data-page="${page + 1}" class="relative ml-3 inline-flex items-center rounded-md surface-border surface-primary px-4 py-2 text-sm font-semibold text-body hover:surface-secondary">Next ${chevronRight}</button>`
-                                : `<span class="relative ml-3 inline-flex items-center rounded-md border surface-border surface-primary px-4 py-2 text-sm font-semibold text-body cursor-not-allowed">Next ${chevronRight}</span>`}
+                                ? `<button data-page="${page + 1}" class="relative ml-3 inline-flex items-center rounded-md border-gray-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary hover:surface-secondary">Next ${chevronRight}</button>`
+                                : `<span class="relative ml-3 inline-flex items-center rounded-md border border-gray-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary cursor-not-allowed">Next ${chevronRight}</span>`}
                         </div>`;
                         // Desktop: full pagination
                         html += `<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full max-w-[52rem] not-prose">
                             <div>
-                                <p class="text-sm text-body">
+                                <p class="text-sm text-secondary">
                                     Showing <span class="font-semibold">${startItem}</span> to <span class="font-semibold">${endItem}</span> of <span class="font-semibold">${total}</span> results
                                 </p>
                             </div>
@@ -133,7 +133,7 @@
                                         if (totalPages <= maxVisiblePages) {
                                             // Відображати всі сторінки, якщо загальна кількість сторінок у межах ліміту
                                             return n === page
-                                                ? `<span aria-current="page" class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">${n}</span>`
+                                                ? `<span aria-current="page" class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">${n}</span>`
                                                 : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
                                         } else {
                                             // Відображати еліпсис та обмежений діапазон сторінок
@@ -143,7 +143,7 @@
                                                 (n >= page - halfVisible && n <= page + halfVisible) // Показуємо сторінки навколо поточної
                                             ) {
                                                 return n === page
-                                                    ? `<span aria-current="page" class="relative z-10 inline-flex items-center product-bg-primary px-4 py-2 text-sm font-semibold icon-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:product-bg-primary">${n}</span>`
+                                                    ? `<span aria-current="page" class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">${n}</span>`
                                                     : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
                                             } else if (
                                                 // Показуємо "..."
@@ -197,10 +197,10 @@
                         const end = start + perPage;
                         const pagedResults = results.slice(start, end);
 
-                        renderPagination(total, page, perPage);
+                            renderPagination(total, page, perPage);
 
                         if (pagedResults.length > 0) {
-                            let html = '<div class="surface-divider my-3"></div>';
+                            let html = '<div class="border-t border-secondary my-3"></div>';
                             pagedResults.forEach(({ item, matches, refIndex }) => {
                                 let snippet = '';
 
@@ -225,7 +225,7 @@
 
                                 if (safeDate) {
                                     articleHtml += `
-                                        <div class="flex items-center justify-end text-body text-xs mt-3 md:mt-0 w-full md:w-1/4">
+                                        <div class="flex items-center justify-end text-secondary text-xs mt-3 md:mt-0 w-full md:w-1/4">
                                             <time datetime="${safeDate}">${safeDate}</time>
                                     `;
 
@@ -236,7 +236,7 @@
                                 }
 
                                 articleHtml += `
-                                        </div> <p class="mt-5 text-sm/5 text-muted line-clamp-3 flex-grow">${snippet}</p>
+                                        </div> <p class="mt-5 text-sm/5 text-tertiary line-clamp-3 flex-grow">${snippet}</p>
                                 `;
 
                                 if (Array.isArray(item.tags) && item.tags.length > 0) {
@@ -270,22 +270,22 @@
                             searchResults.innerHTML = html;
                         } else {
                             searchResults.innerHTML = `
-                              <div class="surface-divider"></div>
+                              <div class="border-t border-secondary"></div>
                               <div class="w-96 pt-6 not-prose">
                                 <div class="flex gap-1 text-base text-heading">
                                   <span>{{ i18n "search_no_results_for" }}:</span>
                                   <span class="font-bold">${query}</span>
                                 </div>
-                                <div class="surface-divider mt-3"></div>
+                                <div class="border-t border-secondary mt-3"></div>
                                 <div class="py-3">
-                                  <div class="text-sm text-body font-semibold">{{ i18n "search_suggestions" }}</div>
-                                  <ul class="mt-1 text-sm/7 text-muted list-disc list-inside">
+                                  <div class="text-sm text-secondary font-semibold">{{ i18n "search_suggestions" }}</div>
+                                  <ul class="mt-1 text-sm/7 text-tertiary list-disc list-inside">
                                     <li>{{ i18n "search_suggestion_spell" }}</li>
                                     <li>{{ i18n "search_suggestion_broaden" }}</li>
                                     <li>{{ i18n "search_suggestion_terms" }}</li>
                                   </ul>
                                 </div>
-                                <div class="surface-divider mt-3"></div>
+                                <div class="border-t border-secondary mt-3"></div>
                                 <a href="/contact/" class="py-3 text-sm text-primary">{{ i18n "search_chat_link" }}</a>
                               </div>
                             `;

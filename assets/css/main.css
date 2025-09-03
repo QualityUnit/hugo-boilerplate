@@ -21,29 +21,8 @@
     pointer-events: none !important;
   }
 
-  /* 📝 TEXT STYLES */
-  .text-heading {
-    @apply text-gray-900 dark:text-white;
-    /* Main heading text – black in light mode, white in dark mode */
-  }
-
-  .text-body {
-    @apply text-gray-600 dark:text-gray-300;
-    /* Body text – medium gray in light mode, light gray in dark mode */
-  }
-
-  .text-muted {
-    @apply text-gray-500 dark:text-gray-400;
-    /* Subtle/secondary text – slightly muted for less emphasis */
-  }
-
-  .text-placeholder {
-    @apply text-gray-400 dark:text-gray-500;
-    /* Placeholder text – light gray in light mode, slightly darker in dark mode */
-  }
-
   /* ================================================================ */
-  /* 🎨 SECTION BACKGROUNDS (from sections.css) */
+  /* 🎨 SECTION BACKGROUNDS */
   /* ================================================================ */
   
   .section-bg-light {
@@ -62,7 +41,7 @@
   }
 
   /* ================================================================ */
-  /* 📦 WRAPPER CLASSES (from sections.css) */
+  /* 📦 WRAPPER CLASSES */
   /* ================================================================ */
   
   .wrapper {
@@ -83,7 +62,7 @@
   }
 
   /* ================================================================ */
-  /* 🏠 SURFACE STYLES (from sections.css) */
+  /* 🏠 SURFACE STYLES */
   /* ================================================================ */
   
   .surface-primary {
@@ -96,60 +75,98 @@
     /* Secondary surface background – light gray in light mode, very light gray in dark mode */
   }
 
-  .surface-border {
-    @apply border-gray-300 dark:border-gray-600;
-    /* Surface border – light gray in light mode, darker gray in dark mode */
+  .surface-brand, .product-bg-primary {
+    @apply bg-brand-surface dark:bg-brand-dark-surface;
+    /* Brand surface background – brand primary in light mode, brand secondary in dark mode */
   }
 
+  .surface-brand-secondary, .product-surface {
+    @apply bg-brand-surface-secondary/20 dark:bg-brand-dark-surface-secondary/20;
+    /* Brand surface background – brand primary in light mode, brand secondary in dark mode */
+  }
+
+  .surface-underlight, .product-underlight {
+    @apply bg-brand-underlight dark:bg-brand-dark-underlight;
+    /* Brand underlight background – brand primary in light mode, brand secondary in dark mode */
+  }
+
+  /* ================================================================ */
+  /* BORDER STYLES */
+  /* ================================================================ */
+
+  /* Border gray primary - "border primary" in design*/
+  .border-gray-primary, .surface-border {
+    @apply border-gray-300 dark:border-gray-600;
+    /* Primary border – light gray in light mode, darker gray in dark mode */
+  }
   /* Form elements with surface border */
-  input.surface-border,
-  select.surface-border,
-  textarea.surface-border {
+  input.border-gray-primary,
+  select.border-gray-primary,
+  textarea.border-gray-primary {
     @apply border-gray-300 dark:border-gray-600 !important;
   }
 
+  .border-secondary, .surface-divider {
+    @apply border-gray-200 dark:border-gray-700;
+    /* Secondary border – light gray in light mode, darker gray in dark mode */
+  }
+
+  /* For compatibility with older naming */
   .surface-divider {
-    @apply border-t border-gray-200 dark:border-gray-700;
-    /* Surface divider – light gray top border in light mode, darker gray in dark mode */
+    @apply border-t;
   }
 
-  /* ================================================================ */
-  /* 🎨 PRODUCT CONTENT STYLES (from sections.css) */
-  /* ================================================================ */
-  
-  .product-primary {
-    @apply text-primary dark:text-primary-500;
-    /* Primary product text – primary color in light mode, primary-500 in dark mode */
+  .border-brand, .product-border {
+    @apply border-brand-border dark:border-brand-dark-border;
+    /* Brand border – brand color in light mode, lighter brand-600 in dark mode */
   }
 
-  .product-bg-primary {
-    @apply bg-primary dark:bg-primary-500;
-    /* Primary product background – primary color in light mode, primary-500 in dark mode */
+   /* 📝 TEXT STYLES */
+   /* Heading - "text primary" in design*/
+  .text-heading  {
+    @apply text-gray-900 dark:text-white;
+    /* Main heading text – black in light mode, white in dark mode */
   }
 
-  .product-text {
-    @apply text-primary dark:text-primary-300;
-    /* Product text – primary color in light mode, lighter primary-300 in dark mode */
+  .text-secondary, .text-body {
+    @apply text-gray-600 dark:text-gray-300;
+    /* Body text – medium gray in light mode, light gray in dark mode */
   }
 
-  .product-surface {
-    @apply bg-primary-500 dark:bg-primary-500 dark:bg-opacity-20;
-    /* Product surface – light primary background in light mode, dark primary in dark mode */
+  .text-tertiary, .text-muted {
+    @apply text-gray-500 dark:text-gray-400;
+    /* Subtle/secondary text – slightly muted for less emphasis */
   }
 
-  .product-border {
-    @apply border-primary-500 dark:border-primary-400;
-    /* Product border – primary color in light mode, lighter primary-400 in dark mode */
+  .text-placeholder {
+    @apply text-gray-400 dark:text-gray-500;
+    /* Placeholder text – light gray in light mode, slightly darker in dark mode */
   }
 
-  .product-icon {
-    @apply text-primary dark:text-primary-500;
-    /* Product icon – primary color in light mode, primary-500 in dark mode */
+  .text-brand, .product-primary, .product-text {
+    @apply text-brand-text dark:text-brand-dark-text;
+    /* Brand text – brand color in light mode, lighter brand-400 in dark mode */
   }
 
-  .product-underlight {
-    @apply bg-primary-300 dark:bg-primary-900;
-    /* Product underlight – light primary background in light mode, dark primary in dark mode */
+  /* 🎨 ICON STYLES */
+  .icon-gray {
+    @apply text-gray-400 dark:text-gray-500;
+    /* Gray icon color – light gray in light mode, slightly darker in dark mode */
+  }
+
+  .icon-brand, .product-icon {
+    @apply text-brand-icon dark:text-brand-dark-icon;
+    /* Brand icon color – brand color in light mode, lighter brand-400 in dark mode */
+  }
+
+  .icon-on-gray, .icon-secondary {
+    @apply text-gray-600 dark:text-gray-300;
+    /* On gray icon color – light gray in light mode, slightly darker in dark mode */
+  }
+
+  .icon-on-brand, .icon-primary {
+    @apply text-white dark:text-white;
+    /* On brand icon color – brand color in light mode, lighter brand-400 in dark mode */
   }
 
   /* INPUT ERRORS STYLES */
@@ -166,18 +183,7 @@
   .error-placeholder {
     @apply text-red-200 dark:text-red-300;
     /* Input errors placeholder – red text in light mode, darker red in dark mode */
-  }
-
-  /* 🎨 ICON STYLES */
-  .icon-primary {
-    @apply text-white dark:text-white;
-    /* Primary icon color – white in both light and dark mode */
-  }
-
-  .icon-secondary {
-    @apply text-gray-400 dark:text-gray-500;
-    /* Secondary icon color – light gray in light mode, slightly darker in dark mode */
-  }
+  }  
 
   /* 🔗 LINK STYLES */
   .link-building-link {

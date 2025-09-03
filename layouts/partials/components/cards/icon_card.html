@@ -34,14 +34,14 @@
 {{ end }}
 {{ $iconAlt := .iconAlt }}
 
-<div class="surface-secondary surface-border rounded-xl p-8 {{ $cardClass }}">
+<div class="surface-secondary border-gray-primary rounded-xl p-8 {{ $cardClass }}">
     {{ if $icon }}
         <div class="mb-4">
             <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ $iconBackground}}">
                 {{ partial "components/media/lazysvg.html" (dict
                     "src" $icon
                     "alt" $iconAlt
-                    "class" "w-5 h-5 icon-primary flex-shrink-0"
+                    "class" "w-5 h-5 icon-on-brand flex-shrink-0"
                 ) }}
             </div>
         </div>
@@ -54,7 +54,7 @@
     {{ end }}
 
     {{ if $description }}
-        <p class="mt-1 text-body text-base line-clamp-3 not-prose">
+        <p class="mt-1 text-secondary text-base line-clamp-3 not-prose">
             {{ $description }}
         </p>
     {{ end }}

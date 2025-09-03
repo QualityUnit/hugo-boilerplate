@@ -25,14 +25,14 @@ Parameters:
 Custom Color Classes Documentation:
 - text-heading: Primary heading text color (typically dark for contrast)
 - text-primary: Brand primary color for accents and CTAs
-- text-body: Standard body text color (readable gray)
+- text-secondary: Standard body text color (readable gray)
 - text-gray-700: Tailwind gray-700 for secondary text
 - section-bg-light: Light background for sections
 
 Usage Guidelines:
 - Use text-heading for main headings and emphasized text elements
 - Use text-primary for brand accents, links, and call-to-action elements
-- Use text-body for regular paragraph text and descriptions
+- Use text-secondary for regular paragraph text and descriptions
 - Ensure color contrast meets accessibility standards (WCAG AA)
 
 Design Tokens:
@@ -114,7 +114,7 @@ Design Tokens:
           <h1 class="mt-6 text-5xl font-semibold {{ $headingTracking }} text-heading leading-none text-pretty sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>
         {{ end }}
         {{ if $description }}
-          <p class="mt-8 text-lg/7 text-body sm:text-xl/8">{{ $description | safeHTML }}</p>
+          <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8">{{ $description | safeHTML }}</p>
         {{ end }}
 
         {{/* Tags, Categories and Badges */}}
@@ -158,13 +158,16 @@ Design Tokens:
                 "text" $cta.primary.text
                 "url" $cta.primary.url
                 "variant" "primary"
+                "size" "xl"
               ) }}
             {{ end }}
             {{ if $showSecondaryCta }}
               {{ partial "components/buttons/buttons.html" (dict
                 "text" $cta.secondary.text
                 "url" $cta.secondary.url
-                "variant" "text"
+                "variant" "secondary"
+                "showArrow" true
+                "size" "xl"
               ) }}
             {{ end }}
           </div>
