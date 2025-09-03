@@ -6,8 +6,8 @@
   - description: The description text below the heading (default: "Anim aute id magna aliqua...")
   - bgColor: Background color class (default: "bg-white")
   - padding: Padding classes (default: "px-6 py-24 sm:py-32 lg:px-8")
-  - headingColor: Text color class for the heading (default: "text-gray-900")
-  - descriptionColor: Text color class for the description (default: "text-gray-500")
+  - headingColor: Text color class for the heading (default: "text-heading")
+  - descriptionColor: Text color class for the description (default: "text-tertiary")
   - maxWidth: Maximum width class for the content (default: "max-w-2xl")
   
   Usage example:
@@ -19,12 +19,12 @@
   >}}
 */}}
 
-{{ $heading := .Get "heading" | default "Support center" }}
-{{ $description := .Get "description" | default "Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat fugiat." }}
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
 {{ $bgColor := .Get "bgColor" | default "bg-white" }}
 {{ $padding := .Get "padding" | default "px-6 py-24 sm:py-32 lg:px-8" }}
-{{ $headingColor := .Get "headingColor" | default "text-gray-900" }}
-{{ $descriptionColor := .Get "descriptionColor" | default "text-gray-500" }}
+{{ $headingColor := .Get "headingColor" | default "text-heading" }}
+{{ $descriptionColor := .Get "descriptionColor" | default "text-tertiary" }}
 {{ $maxWidth := .Get "maxWidth" | default "max-w-2xl" }}
 
 {{ partial "layout/headers/centered.html" (dict 

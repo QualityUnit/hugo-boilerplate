@@ -10,14 +10,14 @@
   - mobileColumns: Number of columns on small screens (optional, default: 1)
   - showHeading: Whether to display the heading section (optional, default: true)
   - heading: Main section heading
-  - headingColor: Heading color class (optional, default: "text-gray-900")
+  - headingColor: Heading color class (optional, default: "text-heading")
   - description: Section description text
-  - descriptionColor: Description color class (optional, default: "text-gray-600")
+  - descriptionColor: Description color class (optional, default: "text-secondary")
   - stats: Array of statistic objects (required)
     - value: The statistic value to display
     - label: Description of what the value represents
-  - valueColor: Color class for statistic values (optional, default: "text-gray-900")
-  - labelColor: Color class for statistic labels (optional, default: "text-gray-600")
+  - valueColor: Color class for statistic values (optional, default: "text-heading")
+  - labelColor: Color class for statistic labels (optional, default: "text-secondary")
 @example:
   {{ partial "sections/stats/simple_grid.html" (dict 
       "heading" "Our Company in Numbers" 
@@ -59,16 +59,16 @@
 {{/* Heading */}}
 {{ $showHeading := .showHeading | default true }}
 {{ $heading := .heading }}
-{{ $headingColor := .headingColor | default "text-gray-900" }}
+{{ $headingColor := .headingColor | default "text-heading" }}
 {{ $description := .description }}
-{{ $descriptionColor := .descriptionColor | default "text-gray-600" }}
+{{ $descriptionColor := .descriptionColor | default "text-secondary" }}
 
 {{/* Stats */}}
 {{ $stats := .stats | default slice }}
 
 {{/* Text colors */}}
-{{ $valueColor := .valueColor | default "text-gray-900" }}
-{{ $labelColor := .labelColor | default "text-gray-600" }}
+{{ $valueColor := .valueColor | default "text-heading" }}
+{{ $labelColor := .labelColor | default "text-secondary" }}
 
 <div class="{{ $bgColor }} {{ $padding }}">
   <div class="wrapper">
@@ -81,7 +81,7 @@
         </h2>
         {{ end }}
         {{ if $description }}
-        <p class="mt-4 text-lg/8 {{ $descriptionColor }}">
+        <p class="mt-4 text-lg/8 {{ $descriptionColor }} prose-links prose-a:{{ $descriptionColor }}">
           {{ $description }}
         </p>
         {{ end }}

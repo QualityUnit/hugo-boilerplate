@@ -139,7 +139,7 @@
       <p class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</p>
       <h1 class="mt-2 not-prose text-5xl font-semibold tracking-tight text-balance text-{{ $headingColor }} sm:text-6xl">{{ $heading }}</h1>
     </div>
-    <p class="mx-auto mt-6 not-prose max-w-2xl text-pretty text-center text-lg font-medium text-{{ $descriptionColor }} sm:text-xl/8">{{ $description }}</p>
+    <p class="mx-auto mt-6 not-prose max-w-2xl text-pretty text-center text-lg font-medium text-{{ $descriptionColor }} sm:text-xl/8 prose-links prose-a:font-medium prose-a:text-{{ $descriptionColor }}">{{ $description }}</p>
     <div class="isolate mx-auto mt-16 grid items-stretch grid-cols-1 {{ $columnsClass }} gap-y-8 sm:gap-x-4 sm:gap-y-4 sm:mt-20 lg:gap-x-5">
       {{ range $tier := $tiers }}
       <div class='flex flex-col h-full rounded-3xl p-8 {{ if $tier.darkTheme }}bg-slate-900 ring-1 ring-slate-700{{ else }}bg-white ring-1 ring-gray-200{{ end }} {{ if $tier.popular }}ring-2 ring-primary{{ end }} xl:p-10 w-full'>

@@ -68,7 +68,7 @@
       {{ partial "components/media/lazyimg.html" (dict "src" $logo "alt" $logoAlt "class" "mx-auto {{ $logoHeight }}") }}
     {{ end }}
     <figure class="mt-10">
-      <blockquote class="text-center text-xl/8 font-semibold {{ $quoteColor }} sm:text-2xl/9">
+      <blockquote class="text-center text-xl/8 font-semibold {{ $quoteColor }} sm:text-2xl/9 prose-links prose-a:{{ $quoteColor }}">
         <p>"{{ $quote }}"</p>
       </blockquote>
       <figcaption class="mt-10">

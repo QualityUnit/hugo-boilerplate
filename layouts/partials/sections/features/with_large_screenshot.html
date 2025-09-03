@@ -8,15 +8,15 @@
 {{ $page := .page }}
 
 <div class="bg-white py-24 sm:py-32">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+  <div class="wrapper px-6 lg:px-8">
     <div class="mx-auto max-w-2xl sm:text-center">
       <h2 class="text-base/7 font-semibold text-primary">{{ $tagline }}</h2>
-      <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl sm:text-balance">{{ $heading }}</p>
-      <p class="mt-6 text-lg/8 text-gray-600">{{ $description | safeHTML }}</p>
+      <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl sm:text-balance">{{ $heading }}</p>
+      <p class="prose-links mt-6 text-lg/8 text-secondary">{{ $description | safeHTML }}</p>
     </div>
   </div>
   <div class="relative overflow-hidden pt-16">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="wrapper px-6 lg:px-8">
       {{ partial "components/media/lazyimg.html" (dict 
         "src" $screenshot.url 
         "alt" $screenshot.alt
@@ -30,11 +30,11 @@
     </div>
   </div>
   {{ if $features }}
-  <div class="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8">
-    <dl class="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base/7 text-gray-600 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
+  <div class="wrapper mt-16 px-6 sm:mt-20 md:mt-24 lg:px-8">
+    <dl class="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base/7 text-secondary sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
       {{ range $features }}
       <div class="relative pl-9">
-        <dt class="font-semibold text-gray-900">
+        <dt class="font-semibold text-heading">
           {{ if .icon }}
           <div class="absolute left-1 top-1 size-5 text-primary">
             {{ partial "components/media/icon.html" (dict "icon" .icon) }}
@@ -42,7 +42,7 @@
           {{ end }}
           {{ .title }}
         </dt>
-        <dd class="mt-1">{{ .description | safeHTML }}</dd>
+        <dd class="prose-links mt-1">{{ .description | safeHTML }}</dd>
       </div>
       {{ end }}
     </dl>

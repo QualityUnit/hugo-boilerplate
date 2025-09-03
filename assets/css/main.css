@@ -428,4 +428,13 @@
   iframe {
     outline: none !important;
   }
+
+  /* ================================================================ */
+  /* 📝 PROSE STYLES */
+  /* ================================================================ */
+  
+  .prose-links {
+    @apply prose-a:text-secondary prose-a:font-normal prose-a:underline prose-a:hover:text-brand-text;
+    /* Standard prose with custom link styling */
+  }
 }
