@@ -30,24 +30,24 @@
               "description" "Our platform automatically adapts to any device or screen size."
               "image" "/images/features/responsive.png"
               "imageAlt" "Responsive design illustration"
-              "url" "/features/responsive",
-              "target": "_self"
+              "url" "/features/responsive"
+              "target" "_self"
           )
           (dict
               "title" "Analytics" 
               "description" "Detailed insights into your user behavior and application performance."
               "image" "/images/features/analytics.png"
               "imageAlt" "Analytics dashboard"
-              "url" "/features/analytics",
-              "target": "_self"
+              "url" "/features/analytics"
+              "target" "_self"
           )
           (dict
               "title" "Security" 
               "description" "Enterprise-grade security with end-to-end encryption."
               "image" "/images/features/security.png"
               "imageAlt" "Security shield"
-              "url" "/features/security",
-              "target": "_blank"
+              "url" "/features/security"
+              "target" "_blank"
           )
       )
   ) }}
@@ -103,7 +103,7 @@
                 <span class="sr-only">{{ $card.title }}</span>
               </a>
             {{ end }}
-            <div class="flex items-center justify-centerl">
+            <div class="flex items-center justify-center">
                 {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "class" "rounded-xl") }}
             </div>
             
@@ -113,14 +113,8 @@
                   {{ $card.title }}
                 </p>
               {{ end }}
-              {{ if $card.title }}
-                {{ if $card.description }}
-                  <span class="max-w-lg text-sm/6 text-secondary font-normal">{{ $card.description }}</span>
-                {{ end }}
-              {{ else }}
-                {{ if $card.description }}
-                  <span class="max-w-lg text-sm/6 text-secondary">{{ $card.description }}</span>
-                {{ end }}
+              {{ if $card.description }}
+                <span class="max-w-lg text-sm/6 text-secondary font-normal">{{ $card.description }}</span>
               {{ end }}
             </div>
           </div>          
