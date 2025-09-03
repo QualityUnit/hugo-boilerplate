@@ -55,7 +55,7 @@
     {{ if $showHeading }}
       <div class="mx-auto md:max-w-2xl md:mx-0">
         <h2 class="text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
-        <p class="mt-6 text-lg/7 text-body">{{ $description }}</p>
+        <p class="mt-6 text-lg/7 text-secondary">{{ $description }}</p>
       </div>
     {{ end }}
     <div class="mx-auto mt-16 flex flex-col gap-8 md:mx-0 md:mt-20 md:max-w-none md:flex-row md:items-end">
@@ -81,13 +81,13 @@
         {{/* Define card styles based on position */}}
         {{ $cardStyles := dict }}
         {{ if eq $index 0 }}
-          {{ $cardStyles = dict "bg" "bg-gray-200" "value" "text-heading" "title" "text-heading" "desc" "text-body" }}
+          {{ $cardStyles = dict "bg" "bg-gray-200" "value" "text-heading" "title" "text-heading" "desc" "text-secondary" }}
         {{ else if eq $index 1 }}
           {{ $cardStyles = dict "bg" "bg-gray-900" "value" "text-white" "title" "text-white" "desc" "text-white" }}
         {{ else if eq $index 2 }}
           {{ $cardStyles = dict "bg" "bg-blue-600" "value" "text-white" "title" "text-white" "desc" "text-white" }}
         {{ else }}
-          {{ $cardStyles = dict "bg" "bg-gray-200" "value" "text-heading" "title" "text-heading" "desc" "text-body" }}
+          {{ $cardStyles = dict "bg" "bg-gray-200" "value" "text-heading" "title" "text-heading" "desc" "text-secondary" }}
         {{ end }}
 
         <div class="flex flex-col justify-between gap-x-16 gap-y-8 rounded-2xl {{ index $cardStyles "bg" }} p-8 md:p-4 lg:p-8  sm:flex-row-reverse sm:items-end {{ $width }} md:flex-col md:items-start {{ $verticalSpacing }}">

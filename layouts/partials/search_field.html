@@ -7,7 +7,7 @@
 
 <div class="w-full h-full {{ $marginClass }}{{ if eq .type "header-mobile-search"  }} relative{{ end }}">
     <div class="relative w-full">
-        <input type="text" id="popup-search-input-{{ $searchId }}" class="hide-search-clear w-full pl-3 pr-9 py-1.5 text-sm border surface-border rounded-md surface-primary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary transition" placeholder="{{ i18n "search_placeholder" }}" aria-label="{{ i18n "search_placeholder" }}">
+        <input type="text" id="popup-search-input-{{ $searchId }}" class="hide-search-clear w-full pl-3 pr-9 py-1.5 text-sm border border-gray-primary rounded-md surface-primary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary transition" placeholder="{{ i18n "search_placeholder" }}" aria-label="{{ i18n "search_placeholder" }}">
         <button type="button" id="clear-search-{{ $searchId }}" class="absolute right-1.5 top-1/2 -translate-y-1/2 hidden" aria-label="{{ i18n "search_clear_aria" }}" title="{{ i18n "search_clear_title" }}">
             <div class="flex py-1.5 pr-1.5">
                 <span class="inline-flex items-center rounded border border-gray-200 dark:border-gray-700 px-1.5 py-1 font-sans text-xs text-placeholder">{{ i18n "search_clear_btn" }}</span>
@@ -16,7 +16,7 @@
     </div>
     <div id="search-results-popup-{{ $searchId }}" class="w-full mt-6 overflow-y-auto surface-primary z-45 hidden{{ if eq .type "header-mobile-search"  }} absolute{{ end }}">
         <div id="popup-search-results-{{ $searchId }}"></div>
-        <div class="search-loading-{{ $searchId }} text-center px-3 py-2 text-body hidden">{{ i18n "search_loading" }}</div>
+        <div class="search-loading-{{ $searchId }} text-center px-3 py-2 text-secondary hidden">{{ i18n "search_loading" }}</div>
         <div class="search-view-all-{{ $searchId }} text-center mt-6 hidden">
             <a href="/search" id="view-all-results-{{ $searchId }}" class="text-heading text-sm font-medium hover:underline hover:text-primary">{{ i18n "search_view_all_results" }}</a>
         </div>
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="p-3 surface-secondary ${borderClass} ${marginClass}">
                         <a href="${permalink}" class="no-underline text-inherit group/dropdown-item">
                             <div class="font-semibold text-heading mb-1.5 group-hover/dropdown-item:text-primary">${title}</div>
-                            <div class="text-sm text-body">${snippet}</div>
+                            <div class="text-sm text-secondary">${snippet}</div>
                         </a>
                     </div>`;
                 });
@@ -234,15 +234,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     const markInstance = new Mark(searchResults);
                     markInstance.mark(query, {
                         element: 'mark',
-                        className: 'text-primary product-surface'
+                        className: 'text-primary surface-brand-secondary'
                     });
                 }
             } else {
                 searchResults.innerHTML = `
                     <div class="flex flex-col items-center justify-center text-center p-6">
-                        {{ partial "icons/face-frown" "w-11 h-11 icon-secondary" }}
+                        {{ partial "icons/face-frown" "w-11 h-11 icon-on-gray" }}
                         <p class="mt-3 text-sm font-semibold text-heading">${searchTranslations.searchNoResults}</p>
-                        <p class="mt-1 text-sm text-muted">${searchTranslations.searchNoResultsDescription}</p>
+                        <p class="mt-1 text-sm text-tertiary">${searchTranslations.searchNoResultsDescription}</p>
                     </div>
                 `;
                 viewAllSection.classList.add('hidden');
