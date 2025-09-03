@@ -29,7 +29,7 @@
 {{ if $headers }}
   {{ $baseClass := "toc-dropdown-container" }}
   {{ $positionClass := "top-[5rem] sm:top-[5.25rem] fixed left-0 right-0" }}
-  {{ $appearanceClass := "surface-primary border-y surface-border shadow-sm z-40 py-3" }}
+  {{ $appearanceClass := "surface-primary border-y border-gray-primary shadow-sm z-40 py-3" }}
   {{ $transitionClass := "transition-transform duration-300 transform -translate-y-full opacity-0" }}
   {{ $allClasses := printf "%s %s %s %s %s" $baseClass $positionClass $appearanceClass $transitionClass $class }}
   
@@ -44,7 +44,7 @@
         </select>
   
         <div class="relative">
-          <div class="surface-primary border surface-border rounded-md px-3 py-2 text-sm cursor-pointer hover:surface-secondary transition-colors duration-200 flex items-center justify-between" id="selectTrigger">
+          <div class="surface-primary border border-gray-primary rounded-md px-3 py-2 text-sm cursor-pointer hover:surface-secondary transition-colors duration-200 flex items-center justify-between" id="selectTrigger">
             <span class="truncate" id="selectLabel">Select section...</span>
             <div class="pointer-events-none" id="tocChevron">
               {{ partial "icons/chevron-down" (dict "class" "w-4 h-4 text-gray-500 transition-transform duration-200") }}
@@ -55,14 +55,14 @@
         <div class="hidden" id="tocOptionsTemplate">
           <ul>
             {{ range $headers }}
-              <li class="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 hover:text-heading transition-colors duration-150 border-b surface-border last:border-b-0" data-value="{{ .href }}">{{ .text }}</li>
+              <li class="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 hover:text-heading transition-colors duration-150 border-b border-gray-primary last:border-b-0" data-value="{{ .href }}">{{ .text }}</li>
             {{ end }}
           </ul>
         </div>
       </div>
     </div>
     <div class="absolute bottom-0 left-0 w-full h-0.5 surface-secondary">
-      <div id="tocProgressBar" class="h-full product-bg-primary transition-all duration-300 ease-out" style="width: 0%"></div>
+      <div id="tocProgressBar" class="h-full surface-brand transition-all duration-300 ease-out" style="width: 0%"></div>
     </div>
   </div>
   
@@ -107,7 +107,7 @@
         if (dynamicDropdown) return dynamicDropdown;
 
         dynamicDropdown = document.createElement('ul');
-        dynamicDropdown.className = 'fixed surface-primary border surface-border rounded-md shadow-lg max-h-60 overflow-y-auto hidden z-[9999]';
+        dynamicDropdown.className = 'fixed surface-primary border border-gray-primary rounded-md shadow-lg max-h-60 overflow-y-auto hidden z-[9999]';
         dynamicDropdown.innerHTML = optionsContainer.querySelector('ul').innerHTML;
         
         // Add event listeners to the new list items
@@ -165,15 +165,15 @@
         const activeSection = sections.find(s => s.element === entry.target);
         if (activeSection) {
           sections.forEach(s => {
-            s.option.classList.remove('product-bg-primary', 'text-white');
+            s.option.classList.remove('surface-brand', 'text-white');
             const dynamicOpt = dynamicDropdown?.querySelector(`li[data-value="${s.anchor}"]`);
-            dynamicOpt?.classList.remove('product-bg-primary', 'text-white');
+            dynamicOpt?.classList.remove('surface-brand', 'text-white');
           });
 
-          activeSection.option.classList.add('product-bg-primary', 'text-white');
+          activeSection.option.classList.add('surface-brand', 'text-white');
           selectLabel.textContent = activeSection.option.textContent;
           const activeDynamicOpt = dynamicDropdown?.querySelector(`li[data-value="${activeSection.anchor}"]`);
-          activeDynamicOpt?.classList.add('product-bg-primary', 'text-white');
+          activeDynamicOpt?.classList.add('surface-brand', 'text-white');
         }
       }
 

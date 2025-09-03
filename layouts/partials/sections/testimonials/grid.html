@@ -85,7 +85,7 @@
             <div class="block sm:hidden">
               {{ if $testimonial.featured }}
                 <!-- Featured testimonial -->
-                <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
+                <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
                   <blockquote class="p-6 text-lg font-semibold tracking-tight text-heading sm:p-10 sm:text-xl/8" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-{{ $index }}">
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
@@ -97,7 +97,7 @@
                     {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
                     {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
-                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-{{ $index }}">
+                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -112,14 +112,14 @@
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                         <span itemprop="name">{{ $testimonial.personName }}</span>
                       </cite>
-                      <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                      <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
                   </footer>
                 </article>
               {{ else }}
                 <!-- Regular testimonial -->
-                <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
-                  <blockquote class="text-body" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-{{ $index }}">
+                <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
+                  <blockquote class="text-secondary" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-{{ $index }}">
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
@@ -145,7 +145,7 @@
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                         <span itemprop="name">{{ $testimonial.personName }}</span>
                       </cite>
-                      <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                      <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
                   </footer>
                 </article>
@@ -157,7 +157,7 @@
             <div class="hidden sm:block lg:hidden">
               {{ if $testimonial.featured }}
                 <!-- Featured testimonial -->
-                <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
+                <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
                   <blockquote class="p-6 text-lg font-semibold tracking-tight text-heading sm:p-10 sm:text-xl/8" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-tablet-{{ $index }}">
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
@@ -169,7 +169,7 @@
                     {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
                     {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
-                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-tablet-{{ $index }}">
+                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-tablet-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -184,14 +184,14 @@
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                         <span itemprop="name">{{ $testimonial.personName }}</span>
                       </cite>
-                      <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                      <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
                   </footer>
                 </article>
               {{ else }}
                 <!-- Regular testimonial -->
-                <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
-                  <blockquote class="text-body" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-tablet-{{ $index }}">
+                <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
+                  <blockquote class="text-secondary" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-tablet-{{ $index }}">
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
@@ -217,7 +217,7 @@
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                         <span itemprop="name">{{ $testimonial.personName }}</span>
                       </cite>
-                      <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                      <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
                   </footer>
                 </article>
@@ -229,7 +229,7 @@
             <div class="hidden lg:block">
               {{ if $testimonial.featured }}
                 <!-- Featured testimonial -->
-                <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
+                <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
                   <blockquote class="p-6 text-lg font-semibold tracking-tight text-heading sm:p-10 sm:text-xl/8" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col1-desktop-{{ $index }}">
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
@@ -241,7 +241,7 @@
                     {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
                     {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
-                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col1-desktop-{{ $index }}">
+                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col1-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -256,14 +256,14 @@
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                         <span itemprop="name">{{ $testimonial.personName }}</span>
                       </cite>
-                      <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                      <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
                   </footer>
                 </article>
               {{ else }}
                 <!-- Regular testimonial -->
-                <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
-                  <blockquote class="text-body" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col1-desktop-{{ $index }}">
+                <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
+                  <blockquote class="text-secondary" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col1-desktop-{{ $index }}">
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
@@ -289,7 +289,7 @@
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                         <span itemprop="name">{{ $testimonial.personName }}</span>
                       </cite>
-                      <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                      <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
                   </footer>
                 </article>
@@ -310,7 +310,7 @@
             <div class="block lg:hidden">
               {{ if $testimonial.featured }}
                 <!-- Featured testimonial -->
-                <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
+                <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
                   <blockquote class="p-6 text-lg font-semibold tracking-tight text-heading sm:p-10 sm:text-xl/8" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col2-tablet-{{ $index }}">
                     <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
                       <span itemprop="name">{{ site.Title }}</span>
@@ -322,7 +322,7 @@
                     </div>
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
-                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-tablet-{{ $index }}">
+                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-tablet-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -337,14 +337,14 @@
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                         <span itemprop="name">{{ $testimonial.personName }}</span>
                       </cite>
-                      <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                      <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
                   </footer>
                 </article>
               {{ else }}
                 <!-- Regular testimonial -->
-                <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
-                  <blockquote class="text-body" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col2-tablet-{{ $index }}">
+                <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
+                  <blockquote class="text-secondary" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col2-tablet-{{ $index }}">
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col2-tablet-{{ $index }}">
@@ -362,7 +362,7 @@
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                         <span itemprop="name">{{ $testimonial.personName }}</span>
                       </cite>
-                      <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                      <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
                   </footer>
                 </article>
@@ -374,7 +374,7 @@
             <div class="hidden lg:block">
               {{ if $testimonial.featured }}
                 <!-- Featured testimonial -->
-                <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
+                <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
                   <blockquote class="p-6 text-lg font-semibold tracking-tight text-heading sm:p-10 sm:text-xl/8" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col2-desktop-{{ $index }}">
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
@@ -386,7 +386,7 @@
                     {{ with site.Params.operatingSystem }}<span itemprop="operatingSystem">{{ . }}</span>{{ end }}
                     {{ with site.Params.softwareAudience }}<span itemprop="audience">{{ . }}</span>{{ end }}
                   </div>
-                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-desktop-{{ $index }}">
+                  <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -401,14 +401,14 @@
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                         <span itemprop="name">{{ $testimonial.personName }}</span>
                       </cite>
-                      <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                      <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
                   </footer>
                 </article>
               {{ else }}
                 <!-- Regular testimonial -->
-                <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
-                  <blockquote class="text-body" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col2-desktop-{{ $index }}">
+                <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
+                  <blockquote class="text-secondary" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col2-desktop-{{ $index }}">
                     <p itemprop="reviewBody">"{{ $testimonial.quote }}"</p>
                   </blockquote>
                   <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/SoftwareApplication" style="display: none;">
@@ -434,7 +434,7 @@
                       <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                         <span itemprop="name">{{ $testimonial.personName }}</span>
                       </cite>
-                      <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                      <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                     </div>
                   </footer>
                 </article>
@@ -451,14 +451,14 @@
           {{ if eq (mod $index 3) 2 }}
             {{ if $testimonial.featured }}
               <!-- Featured testimonial -->
-              <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
+              <article class="break-inside-avoid rounded-xl surface-primary ring-2 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Featured customer testimonial" itemscope itemtype="https://schema.org/Review">
                 <blockquote class="p-6 text-lg font-semibold tracking-tight text-heading sm:p-10 sm:text-xl/8" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col3-{{ $index }}">
                   <p>"{{ $testimonial.quote }}"</p>
                 </blockquote>
                 <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/Organization" style="display: none;">
                   <span itemprop="name">{{ site.Title }}</span>
                 </div>
-                <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 surface-divider px-6 py-4 sm:flex-nowrap" id="testimonial-author-col3-{{ $index }}">
+                <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col3-{{ $index }}">
                   {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                   {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
                     {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
@@ -473,14 +473,14 @@
                     <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                       <span itemprop="name">{{ $testimonial.personName }}</span>
                     </cite>
-                    <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                    <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                   </div>
                 </footer>
               </article>
             {{ else }}
               <!-- Regular testimonial -->
-              <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 surface-border shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
-                <blockquote class="text-body" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col3-{{ $index }}">
+              <article class="break-inside-avoid rounded-xl surface-primary p-6 ring-1 ring-gray-200 border-gray-primary shadow-lg" role="group" aria-label="Customer testimonial" itemscope itemtype="https://schema.org/Review">
+                <blockquote class="text-secondary" cite="{{ $testimonial.personName }}" aria-describedby="testimonial-author-col3-{{ $index }}">
                   <p>"{{ $testimonial.quote }}"</p>
                 </blockquote>
                 <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/Organization" style="display: none;">
@@ -501,7 +501,7 @@
                     <cite class="font-semibold text-heading not-italic" itemprop="author" itemscope itemtype="https://schema.org/Person">
                       <span itemprop="name">{{ $testimonial.personName }}</span>
                     </cite>
-                    <div class="text-sm text-muted" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
+                    <div class="text-sm text-tertiary" itemprop="jobTitle">{{ $testimonial.personHandle }}</div>
                   </div>
                 </footer>
               </article>

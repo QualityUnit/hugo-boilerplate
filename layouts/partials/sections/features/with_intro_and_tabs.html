@@ -91,7 +91,7 @@
     <ul class="pl-0 space-y-4 {{ if eq $listType "checks" }}my-10{{ else }}mt-10{{ end }}">
       {{ range $index, $item := $items }}
         <li class="flex pl-0">
-          <span class="flex-shrink-0 flex mt-2 mr-3 {{ if eq $listType "numbers" }}items-center justify-center rounded-full bg-primary icon-primary text-[10px] h-5 w-5{{ else if eq $listType "checks" }}product-icon{{ else }}justify-center product-icon{{ end }}">
+          <span class="flex-shrink-0 flex mt-2 mr-3 {{ if eq $listType "numbers" }}items-center justify-center rounded-full bg-primary icon-on-brand text-[10px] h-5 w-5{{ else if eq $listType "checks" }}product-icon{{ else }}justify-center product-icon{{ end }}">
             {{ if eq $listType "checks" }}
               {{ partial "icons/check-circle-solid" "w-5 h-5 product-icon" }}
             {{ else if eq $listType "numbers" }}
@@ -108,7 +108,7 @@
                 {{ $item | safeHTML }}
               {{ end }}
               {{ if $item.items }}
-                <div class="font-normal text-body">
+                <div class="font-normal text-secondary">
                   {{ template "renderListItems" (dict "items" $item.items "page" $page) }}
                 </div>
               {{ end }}
@@ -155,18 +155,18 @@
             <p class="text-base/6 font-semibold product-text">{{ $eyebrow }}</p>
           {{ end }}
           <h2 id="{{ $uniqueID }}-heading" class="mt-2.5 text-3xl font-semibold tracking-[-2.8px] text-heading sm:text-5xl">{{ $heading }}</h2>
-          <div class="mt-6 text-lg text-body">
+          <div class="mt-6 text-lg text-secondary">
             {{ template "renderDescription" (dict "description" $description "page" $page) }}
           </div>
         </div>
 
         <div class="w-full mx-auto">
           <div class="flex overflow-x-auto w-full -mx-[2rem]">
-            <div class="flex-auto border-b surface-border w-full">
+            <div class="flex-auto border-b border-gray-primary w-full">
               <div class="flex px-8 w-full" aria-orientation="horizontal" role="tablist">
                 {{ range $index, $tab := $tabs }}
                   <button id="{{ $uniqueID }}-tab-{{ $tab.id }}" 
-                    class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}product-border product-primary{{ else }}border-transparent text-muted hover:product-border hover:product-primary{{ end }} p-6 text-base font-semibold tracking-[-0.3px] whitespace-nowrap" 
+                    class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}border-brand product-primary{{ else }}border-transparent text-tertiary hover:border-brand hover:product-primary{{ end }} p-6 text-base font-semibold tracking-[-0.3px] whitespace-nowrap" 
                     aria-controls="{{ $uniqueID }}-panel-{{ $tab.id }}" 
                     role="tab" 
                     type="button"
@@ -204,7 +204,7 @@
                         <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
                       {{ end }}
                       {{ if $tab.content.description }}
-                        <div class="mt-2 text-base/9 text-muted">
+                        <div class="mt-2 text-base/9 text-tertiary">
                           {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
                         </div>
                       {{ end }}
@@ -217,7 +217,7 @@
                         <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
                       {{ end }}
                       {{ if $tab.content.description }}
-                        <div class="mt-2 text-base/9 text-muted">
+                        <div class="mt-2 text-base/9 text-tertiary">
                           {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
                         </div>
                       {{ end }}
@@ -271,13 +271,13 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Update tab button styles
       document.querySelectorAll(`button[data-tabs-group="${tabsGroup}"]`).forEach(btn => {
-        btn.classList.remove('product-border', 'product-primary');
-        btn.classList.add('border-transparent', 'text-muted', 'hover:product-border', 'hover:product-primary');
+        btn.classList.remove('border-brand', 'product-primary');
+        btn.classList.add('border-transparent', 'text-tertiary', 'hover:border-brand', 'hover:product-primary');
       });
       
       // Style the active tab
-      this.classList.remove('border-transparent', 'text-muted', 'hover:product-border', 'hover:product-primary');
-      this.classList.add('product-border', 'product-primary');
+      this.classList.remove('border-transparent', 'text-tertiary', 'hover:border-brand', 'hover:product-primary');
+      this.classList.add('border-brand', 'product-primary');
     });
   });
 });
