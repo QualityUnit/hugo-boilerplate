@@ -15,6 +15,7 @@
     - image: URL to image (required)
     - imageAlt: Alt text for the image (optional)
     - url: URL to link the card to, making the entire card clickable (optional)
+    - target: Link target attribute for the card (optional, default: "_self")
 @example:
   {{ partial "sections/content/three_column_content.html" (dict 
       "theme" "light"
@@ -29,21 +30,24 @@
               "description" "Our platform automatically adapts to any device or screen size."
               "image" "/images/features/responsive.png"
               "imageAlt" "Responsive design illustration"
-              "url" "/features/responsive"
+              "url" "/features/responsive",
+              "target": "_self"
           )
           (dict
               "title" "Analytics" 
               "description" "Detailed insights into your user behavior and application performance."
               "image" "/images/features/analytics.png"
               "imageAlt" "Analytics dashboard"
-              "url" "/features/analytics"
+              "url" "/features/analytics",
+              "target": "_self"
           )
           (dict
               "title" "Security" 
               "description" "Enterprise-grade security with end-to-end encryption."
               "image" "/images/features/security.png"
               "imageAlt" "Security shield"
-              "url" "/features/security"
+              "url" "/features/security",
+              "target": "_blank"
           )
       )
   ) }}
@@ -95,7 +99,7 @@
         {{ range $index, $card := $cards }}
           <div class="relative flex flex-col overflow-hidden">
             {{ if $card.url }}
-              <a href="{{ $card.url }}" class="absolute inset-0 z-10 hover:opacity-90 transition-opacity">
+              <a href="{{ $card.url }}" target="{{ $card.target | default "_self" }}" class="absolute inset-0 z-10 hover:opacity-90 transition-opacity">
                 <span class="sr-only">{{ $card.title }}</span>
               </a>
             {{ end }}
