@@ -30,18 +30,29 @@
 {{ $maxWidth := .maxWidth | default 3000 }}
 {{ $noLazy := .noLazy | default false }}
 
+{{/* Check if static assets CDN is enabled and get the domain */}}
+{{ $staticDomain := "" }}
+{{ if and site.Params.staticAssets.enabled site.Params.staticAssets.domain }}
+  {{ $staticDomain = site.Params.staticAssets.domain }}
+{{ end }}
+
 {{ if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") }}
   <!-- SVGs: skip <picture> and srcset logic, just use <img> with lazy loading -->
   {{ $imgClassSvg := "lazy-image" }}
   {{ if $class }}{{ $imgClassSvg = printf "%s %s" $imgClassSvg $class }}{{ end }}
+  {{/* Prepend static domain if configured */}}
+  {{ $svgSrc := $src }}
+  {{ if and $staticDomain (hasPrefix $src "/") }}
+    {{ $svgSrc = printf "%s%s" $staticDomain $src }}
+  {{ end }}
   <img
     {{ if $noLazy }}
-    src="{{ $src }}"
+    src="{{ $svgSrc }}"
     class="{{ $imgClassSvg }} loaded"
     {{ else }}
     src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" {{/* Placeholder for linters */}}
     class="{{ $imgClassSvg }}"
-    data-src="{{ $src }}"
+    data-src="{{ $svgSrc }}"
     {{ end }}
     alt="{{ $alt }}"{{ if $id }}
     id="{{ $id }}"{{ end }}{{ if $width }}
@@ -238,6 +249,12 @@
     {{ if $hasOptimizedOriginal }}
       {{ $fallbackSrc = $optimizedOriginalPath }}
     {{ end }}
+    
+    {{/* Apply static domain to fallback source if configured */}}
+    {{ $fallbackSrcWithDomain := $fallbackSrc }}
+    {{ if and $staticDomain (hasPrefix $fallbackSrc "/") }}
+      {{ $fallbackSrcWithDomain = printf "%s%s" $staticDomain $fallbackSrc }}
+    {{ end }}
 
     {{ $origSrcset := "" }}
     {{ $webpSrcset := "" }}
@@ -282,27 +299,41 @@
     {{ $availableWebpWidths = sort $availableWebpWidths "width" "asc" }}
 
     {{ range $availableSrcWidths }}
+      {{/* Apply static domain to each source path if configured */}}
+      {{ $pathWithDomain := .path }}
+      {{ if and $staticDomain (hasPrefix .path "/") }}
+        {{ $pathWithDomain = printf "%s%s" $staticDomain .path }}
+      {{ end }}
       {{ if $origSrcset }}
-        {{ $origSrcset = printf "%s, %s %dw" $origSrcset .path .width }}
+        {{ $origSrcset = printf "%s, %s %dw" $origSrcset $pathWithDomain .width }}
       {{ else }}
-        {{ $origSrcset = printf "%s %dw" .path .width }}
+        {{ $origSrcset = printf "%s %dw" $pathWithDomain .width }}
       {{ end }}
     {{ end }}
 
     {{ range $availableWebpWidths }}
+      {{/* Apply static domain to each WebP path if configured */}}
+      {{ $pathWithDomain := .path }}
+      {{ if and $staticDomain (hasPrefix .path "/") }}
+        {{ $pathWithDomain = printf "%s%s" $staticDomain .path }}
+      {{ end }}
       {{ if $webpSrcset }}
-        {{ $webpSrcset = printf "%s, %s %dw" $webpSrcset .path .width }}
+        {{ $webpSrcset = printf "%s, %s %dw" $webpSrcset $pathWithDomain .width }}
       {{ else }}
-        {{ $webpSrcset = printf "%s %dw" .path .width }}
+        {{ $webpSrcset = printf "%s %dw" $pathWithDomain .width }}
       {{ end }}
     {{ end }}
 
     {{ if and (not $webpSrcset) $useOriginalWebp }}
-      {{ $webpSrcset = printf "%s %dw" $originalWebpPath $originalWidth }}
+      {{ $webpPathWithDomain := $originalWebpPath }}
+      {{ if and $staticDomain (hasPrefix $originalWebpPath "/") }}
+        {{ $webpPathWithDomain = printf "%s%s" $staticDomain $originalWebpPath }}
+      {{ end }}
+      {{ $webpSrcset = printf "%s %dw" $webpPathWithDomain $originalWidth }}
     {{ end }}
 
     {{ if not $origSrcset }}
-      {{ $origSrcset = printf "%s %dw" $fallbackSrc $originalWidth }}
+      {{ $origSrcset = printf "%s %dw" $fallbackSrcWithDomain $originalWidth }}
     {{ end }}
 
     {{ $fileExt := strings.ToLower (path.Ext $src) }}
@@ -349,9 +380,9 @@
       {{ if $noLazy }}{{ $imgClassFallback = printf "%s %s" $imgClassFallback "loaded" }}{{ end }}
       <img
         {{ if $noLazy }}
-        src="{{ $fallbackSrc }}"
+        src="{{ $fallbackSrcWithDomain }}"
         {{ else }}
-        data-src="{{ $fallbackSrc }}"
+        data-src="{{ $fallbackSrcWithDomain }}"
         {{ end }}
         alt="{{ $alt }}"
         class="{{ $imgClassFallback }}"{{ if $id }}
