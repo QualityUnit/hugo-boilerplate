@@ -86,7 +86,7 @@
           
           {{ if $description }}
             <p class="text-lg text-secondary prose-links">
-              {{ $description }}
+              {{ $description | safeHTML }}
             </p>
           {{ end }}
         </div>

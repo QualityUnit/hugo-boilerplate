@@ -82,7 +82,7 @@
         {{ end }}
         {{ if $description }}
         <p class="mt-4 text-lg/8 {{ $descriptionColor }} prose-links prose-a:{{ $descriptionColor }}">
-          {{ $description }}
+          {{ $description | safeHTML }}
         </p>
         {{ end }}
       </div>

@@ -63,7 +63,7 @@
     {{ end }}
     
     {{ if $description }}
-    <p class="mt-6 text-xl/8 {{ $descriptionColor }} prose-links">{{ $description }}</p>
+    <p class="mt-6 text-xl/8 {{ $descriptionColor }} prose-links">{{ $description | safeHTML }}</p>
     {{ end }}
     
     <!-- Apply Tailwind typography with custom processing for better heading styles -->

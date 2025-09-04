@@ -27,7 +27,7 @@
         <div class="wrapper {{ $padding }}">
             <div class="mx-auto lg:max-w-2xl lg:mx-0">
                 <h2 class="text-5xl font-semibold tracking-tight text-heading sm:text-7xl">{{ $heading }}</h2>
-                <p class="mt-8 text-pretty text-lg text-tertiary sm:text-xl/8 prose-links prose-a:text-tertiary">{{ $description }}</p>
+                <p class="mt-8 text-pretty text-lg text-tertiary sm:text-xl/8 prose-links prose-a:text-tertiary">{{ $description | safeHTML}}</p>
             </div>
         </div>
     </div>
