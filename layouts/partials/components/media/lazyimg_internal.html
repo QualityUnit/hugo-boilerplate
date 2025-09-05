@@ -1,3 +1,4 @@
+<!-- LAZYIMG_INTERNAL_LOADED -->
 {{/*
 @component: Lazy Image
 @description: Displays images with lazy-loading and automatic WebP support, responsive sizes, and optimization for different screens.
@@ -37,7 +38,6 @@
 {{ end }}
 
 {{ if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") }}
-  <!-- SVG src={{ $src }} staticDomain={{ $staticDomain }} -->
   <!-- SVGs: skip <picture> and srcset logic, just use <img> with lazy loading -->
   {{ $imgClassSvg := "lazy-image" }}
   {{ if $class }}{{ $imgClassSvg = printf "%s %s" $imgClassSvg $class }}{{ end }}
@@ -46,7 +46,6 @@
   {{ if and $staticDomain (hasPrefix $src "/") }}
     {{ $svgSrc = printf "%s%s" $staticDomain $src }}
   {{ end }}
-  <!-- SVG final src={{ $svgSrc }} -->
   <img
     {{ if $noLazy }}
     src="{{ $svgSrc }}"
