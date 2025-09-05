@@ -209,11 +209,16 @@
 
 
         {{ if $product.categories }}
+          {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
           <div class="mt-6 flex items-center gap-x-4">
             <ul role="list" class="flex flex-wrap gap-x-2 gap-y-1">
               {{ range $category := $product.categories }}
                 <li>
+                  {{ if $categoriesEnabled }}
                   <a href="/categories/{{ $category | urlize }}/" class="inline-block rounded-full bg-gray-100 px-2 py-1 text-sm font-medium text-gray-600 hover:bg-gray-200">{{ $category }}</a>
+                  {{ else }}
+                  <span class="inline-block rounded-full bg-gray-100 px-2 py-1 text-sm font-medium text-gray-600">{{ $category }}</span>
+                  {{ end }}
                 </li>
               {{ end }}
             </ul>
