@@ -62,3 +62,10 @@
   }
   
 }
+/* PROJECT VARIABLES - Custom colors for this project */
+
+@layer base {
+  :root {
+    /* FlowHunt brand button colors */
+  }
+}
