@@ -1,4 +1,3 @@
-<!-- LAZYIMG_INTERNAL TEMPLATE LOADED -->
 {{/*
 @component: Lazy Image
 @description: Displays images with lazy-loading and automatic WebP support, responsive sizes, and optimization for different screens.
@@ -32,19 +31,12 @@
 {{ $noLazy := .noLazy | default false }}
 
 {{/* Check if static assets CDN is enabled and get the domain */}}
-<!-- DEBUG: site.Params exists: {{ if site.Params }}true{{ else }}false{{ end }} -->
-<!-- DEBUG: site.Params.staticAssets exists: {{ if site.Params.staticAssets }}true{{ else }}false{{ end }} -->
-{{ with site.Params.staticAssets }}
-<!-- DEBUG: staticAssets.enabled = {{ .enabled }} -->
-<!-- DEBUG: staticAssets.domain = {{ .domain }} -->
-{{ end }}
 {{ $staticDomain := "" }}
 {{ with site.Params.staticAssets }}
   {{ if and .enabled .domain }}
     {{ $staticDomain = .domain }}
   {{ end }}
 {{ end }}
-<!-- DEBUG: Final staticDomain = {{ $staticDomain }} -->
 
 {{ if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") }}
   <!-- SVGs: skip <picture> and srcset logic, just use <img> with lazy loading -->
