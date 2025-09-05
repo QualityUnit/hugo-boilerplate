@@ -1,0 +1,155 @@
+{{/*
+@section: Base Pricing
+@description: A comprehensive pricing section featuring three pricing tiers with customizable features, colors, and call-to-action buttons.
+@params:
+  - tagline: Short tagline above main heading (optional, default: "Pricing")
+  - heading: Main section heading (optional, default: "Pricing that grows with you")
+  - description: Section description text (optional, default: "Choose an affordable plan...")
+  - backgroundColor: Background color for the section (optional, default: "white")
+  - taglineColor: Tagline text color (optional, default: "indigo-600")
+  - headingColor: Heading text color (optional, default: "gray-900")
+  - descriptionColor: Description text color (optional, default: "gray-600")
+
+  - .tiers: Array of pricing tier objects, each containing tier configuration
+  - .startColumn: (optional, default: 0) Integer specifying which column index to start rendering from.
+  Useful for pagination or splitting pricing tiers across multiple sections. For example:
+  - startColumn: 0 renders tiers starting from the first tier
+  - startColumn: 2 renders tiers starting from the third tier (index 2)
+  - Works in conjunction with columnsInt to control how many columns to display
+  - .columnsInt: Integer specifying how many columns to display from the startColumn
+  
+  Each tier object should contain:
+  - .id: Unique identifier for the tier
+  - .name: Internationalization key for tier name
+  - .description: Internationalization key for tier description
+  - .price: Price value to display
+  - .interval: Internationalization key for billing interval
+  - .popular: (optional) Boolean to mark tier as popular
+  - .darkTheme: (optional) Boolean to apply dark theme styling
+  - .popularText: (optional) Internationalization key for popular badge text
+  - .priceBeforeText: (optional) Internationalization key for text before price
+  - .cta: Object containing call-to-action button configuration
+  - .text: Internationalization key for button text
+  - .url: Button target URL
+  - .features: Array of internationalization keys for feature list
+  - .featuresNote: (optional) Additional note text for features
+  
+  Usage example:
+  {{ partial "sections/pricing/section.html" (dict "tiers" .Site.Data.pricing.tiers "startColumn" 2 "columnsInt" 3) }}
+   
+@note: The center tier can be highlighted as the popular option and will be visually elevated. Colors for all elements are fully customizable through parameters.
+*/}}
+
+{{/* Base Pricing Section */}}
+{{ $tagline := .tagline | default "" }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $backgroundColor := .backgroundColor | default "bg-gray-50" }}
+{{ $taglineColor := .taglineColor | default "primary" }}
+{{ $headingColor := .headingColor | default "black" }}
+{{ $descriptionColor := .descriptionColor | default "black" }}
+{{ $position := .position | default "right" }}
+{{ $showCheckbox := .showCheckbox | default false }}
+
+{{ $tiers := .tiers }}
+
+{{/* Auto-detect columns based on number of tiers if not explicitly set */}}
+{{ $autoColumns := len $tiers }}
+{{ $columnsParam := .columns | default "2" | string }}
+{{ $columnsClass := "sm:grid-cols-2 lg:grid-cols-3" }}
+{{- if eq $columnsParam "1" }}
+{{ $columnsClass = "grid-cols-1" }}
+{{- else if eq $columnsParam "2" }}
+{{ $columnsClass = "sm:grid-cols-2" }}
+{{- else if eq $columnsParam "3" }}
+{{ $columnsClass = "sm:grid-cols-2 lg:grid-cols-3" }}
+{{- else if eq $columnsParam "4" }}
+{{ $columnsClass = "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" }}
+{{- end }}
+
+{{ $wrapperClass := "" }}
+{{ $titleClass := "" }}
+{{ $descriptionClass := "" }}
+{{- if eq $position "center" }}
+{{ $wrapperClass = "flex-col gap-16 sm:gap-20" }}
+{{ $titleClass = "text-center" }}
+{{ $descriptionClass = "text-center" }}
+{{- else if eq $position "left" }}
+{{ $wrapperClass = "flex-row-reverse gap-16" }}
+{{- else if eq $position "right" }}
+{{ $wrapperClass = "flex gap-16" }}
+{{- end }}
+
+<div class="bg-{{ $backgroundColor }} py-20">
+  <div class="wrapper flex {{ $wrapperClass }}">
+    <div data-col="text" class="textBlock">
+      <div class="mx-auto max-w-4xl">
+        <p class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</p>
+        <h1 class="mt-2 not-prose text-5xl font-semibold tracking-tight text-balance {{ $titleClass }} text-{{ $headingColor }} sm:text-6xl">{{ $heading }}</h1>
+      </div>
+      <p class="mx-auto mt-6 not-prose max-w-2xl text-pretty {{ $descriptionClass }} text-lg font-medium text-{{ $descriptionColor }} sm:text-xl/8">{{ $description }}</p>
+    </div>
+    <div data-col="pricing" class="pricing isolate mx-auto grid items-stretch grid-cols-1 {{ $columnsClass }} gap-y-8 sm:gap-x-4 sm:gap-y-4 lg:gap-x-5">
+      {{ $columnsInt := int $columnsParam }}
+      {{ $startColumnParam := .startColumn | default 0 | int }}
+      {{ $startColumn := int $startColumnParam }}
+      {{ range $index, $tier := $tiers }}
+        {{ if and (ge $index $startColumn) (lt $index (add $startColumn $columnsInt)) }}
+        <div class='flex flex-col h-full rounded-3xl p-8 {{ if $tier.darkTheme }}bg-slate-900 ring-1 ring-slate-700{{ else }}bg-white ring-1 ring-gray-200{{ end }} {{ if $tier.popular }}ring-2 ring-primary{{ end }} xl:p-10 w-full'>
+          <div class="flex flex-col flex-grow">
+        <div class="flex items-start justify-between gap-x-4">
+          <h3 id="{{ $tier.id }}" class="mb-5 not-prose text-lg/8 font-semibold {{ if $tier.darkTheme }}text-white{{ else }}text-gray-900{{ end }} {{ if $tier.popular }}text-primary{{ end }}">{{ i18n $tier.name }}</h3>
+          {{ if $tier.popular }}
+          <p class="rounded-full not-prose bg-indigo-50 px-2.5 py-1 text-xs/4 font-semibold text-center text-primary">{{ i18n ($tier.popularText | default "pricing_popular_badge") }}</p>
+          {{ end }}
+        </div>
+        <p class="mt-auto mb-4 text-sm/6 {{ if $tier.darkTheme }}text-gray-300{{ else }}text-gray-600{{ end }} sm:min-h-[5rem]">{{ i18n $tier.description }}</p>
+        <p class="mt-auto mb-6 flex items-baseline gap-y-2 h-9">
+          {{ if $tier.priceBeforeText }}<span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-gray-400{{ else }}text-gray-500{{ end }} ring-gray-200 mr-1">{{ i18n $tier.priceBeforeText }}</span>{{ end }}
+          <span class="text-4xl font-semibold tracking-tight {{ if $tier.darkTheme }}text-white{{ else }}text-gray-900{{ end }} mr-2">{{ $tier.price }}</span>
+         <span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-gray-400{{ else }}text-gray-500{{ end }}">{{ i18n $tier.interval }}</span>
+        </p>
+        <div class="my-6">
+          {{ if $tier.popular }}
+        {{ partial "components/buttons/buttons.html" (dict
+        "text" (i18n $tier.cta.text)
+        "url" $tier.cta.url 
+        "variant" "primary"
+        "classes" "not-prose block text-center"
+        ) }}
+          {{ else if $tier.darkTheme }}
+        {{ partial "components/buttons/buttons.html" (dict
+        "text" (i18n $tier.cta.text)
+        "url" $tier.cta.url 
+        "variant" "primary-alternate"
+        "classes" "not-prose block text-center"
+        ) }}
+          {{ else }}
+        {{ partial "components/buttons/buttons.html" (dict
+        "text" (i18n $tier.cta.text)
+        "url" $tier.cta.url 
+        "variant" "secondary"
+        "classes" "not-prose block text-center"
+        ) }}
+          {{ end }}
+        </div>
+        {{ if $showCheckbox }}
+        <ul role="list" class="mt-0 mb-0 px-0 space-y-3 text-sm/6 {{ if $tier.darkTheme }}text-gray-300{{ else }}text-gray-600{{ end }} flex-grow min-h-[12rem]">
+          {{ range $feature := $tier.features }}
+          <li class="flex pl-0 gap-x-3 not-prose">
+          {{ partial "icons/check" (printf "h-6 w-5 flex-none %s" (cond $tier.darkTheme "text-white" "text-primary")) }}
+          {{ i18n $feature }}
+          </li>
+          {{ end }}
+          {{ if $tier.featuresNote }}
+          <li class="flex pl-0 gap-x-3">{{ $tier.featuresNote }}</li>
+          {{ end }}
+        </ul>
+        {{ end }}
+          </div>
+        </div>
+        {{ end }}
+      {{ end }}
+    </div>
+  </div>
+</div>

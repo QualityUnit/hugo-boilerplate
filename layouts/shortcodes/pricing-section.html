@@ -1,0 +1,113 @@
+{{ $params := .Page.Params }}
+
+{{ $tagline := .Get "tagline" | default (.Get 0) | default (i18n "pricing_section_tagline") }}
+{{ $heading := .Get "heading" | default (.Get 1) | default (i18n "pricing_section_heading") }}
+{{ $description := .Get "description" | default (.Get 2) | default (i18n "pricing_section_description") }}
+{{ $backgroundColor := .Get "backgroundColor" | default $params.backgroundColor | default (.Get 3) | default "gray-50" }}
+{{ $taglineColor := .Get "taglineColor" | default $params.taglineColor | default (.Get 4) | default "primary" }}
+{{ $headingColor := .Get "headingColor" | default $params.headingColor | default (.Get 5) | default "gray-900" }}
+{{ $descriptionColor := .Get "descriptionColor" | default $params.descriptionColor | default (.Get 6) | default "gray-600" }}
+{{ $checkIcon := .Get "checkIcon" | default $params.checkIcon | default "" }}
+{{ $columns := .Get "columns" | default $params.columns }}
+{{ $startColumn := .Get "startColumn" | default 0 | int }}
+{{ $showCheckbox := .Get "showCheckbox" | default false }}
+{{ $position := .Get "position" | default $params.position }}
+{{ $priceBeforeText := .Get "priceBeforeText" | default $params.priceBeforeText | default "" }}
+{{ $darkTheme := .Get "darkTheme" | default $params.darkTheme | default false }}
+
+{{/* Try to use centralized data first, fallback to page params */}}
+{{ $tiers := slice }}
+{{ $pricingData := .Site.Data.pricing }}
+{{ if and $pricingData $pricingData.tiers }}
+  {{/* Use centralized data */}}
+  {{ $tiers = $pricingData.tiers }}
+{{ else }}
+  {{/* Fallback to page parameters for backward compatibility */}}
+  {{ $tiers = .Get "tiers" | default $params.tiers | default slice }}
+{{ end }}
+
+{{ if not $tiers }}
+  {{ errorf "No tiers provided for pricing section. Please define 'tiers' parameter or create data/pricing.yaml with tiers data." }}
+{{ end }}
+
+{{ if eq $darkTheme true }}
+  {{ $backgroundColor = "bg-gray-900" }}
+  {{ $taglineColor = "text-white" }}
+  {{ $headingColor = "text-white" }}
+  {{ $descriptionColor = "text-gray-300" }}
+  {{ $checkIcon = "check-white" }}
+{{ end }}
+
+{{ partial "sections/pricing/section.html" (dict
+  "tagline" $tagline
+  "heading" $heading
+  "description" $description
+  "backgroundColor" $backgroundColor
+  "taglineColor" $taglineColor
+  "headingColor" $headingColor
+  "descriptionColor" $descriptionColor
+  "checkIcon" $checkIcon
+  "tiers" $tiers
+  "columns" $columns
+  "startColumn" $startColumn
+  "priceBeforeText" $priceBeforeText
+  "darkTheme" $darkTheme
+  "position" $position
+  "showCheckbox" $showCheckbox
+) }}
+
+{{/*
+  CENTRALIZED PRICING SYSTEM - Base Pricing Cards Shortcode
+  ========================================================
+  
+  This shortcode displays pricing cards using centralized data from data/pricing.yaml
+  with full multilingual support via i18n translations.
+  
+  FEATURES:
+  - Auto-loads pricing data from data/pricing.yaml (single source of truth)
+  - Multilingual support with i18n keys
+  - Backward compatibility with page-level parameters
+  - Responsive design with customizable styling
+  
+  USAGE:
+  {{< pricing-section >}}                           # Uses centralized data
+  {{< pricing-section heading="Custom title" >}}   # Override specific parameters
+  
+  CENTRALIZED DATA STRUCTURE (data/pricing.yaml):
+  tiers:
+    - name: "pricing_tier_pro_name"              # i18n key
+      price: "$129" 
+      interval: "pricing_interval_monthly_annual" # i18n key
+      description: "pricing_tier_pro_description" # i18n key
+      features:
+        - "pricing_feature_tracking_1m"           # i18n key
+        - "pricing_feature_unlimited_affiliates"  # i18n key
+      popular: false
+      cta:
+        text: "pricing_cta_try_free"              # i18n key
+        url: "https://www.postaffiliatepro.com/trial/"
+  
+  TRANSLATIONS (i18n/en.yaml):
+  pricing_tier_pro_name: "Pro"
+  pricing_interval_monthly_annual: "/month billed annually"
+  pricing_tier_pro_description: "Perfect for growing businesses"
+  pricing_feature_tracking_1m: "1 million tracking requests/month"
+  pricing_cta_try_free: "Try for free"
+  
+  PARAMETERS:
+  - tagline: Text above heading (default: i18n "pricing_tagline")
+  - heading: Main heading (default: i18n "pricing_heading") 
+  - description: Description text (default: i18n "pricing_description")
+  - backgroundColor: Section background (default: "white")
+  - taglineColor: Tagline color (default: "primary")
+  - headingColor: Heading color (default: "gray-900")
+  - descriptionColor: Description color (default: "gray-600")
+  - columns: Number of columns override
+  - darkTheme: Enable dark theme (default: false)
+  
+  BENEFITS:
+  ✅ Single point of price updates across 250K+ pages
+  ✅ Multilingual support with consistent pricing
+  ✅ Backward compatibility with existing implementations
+  ✅ Easy customization of styling and content
+*/}}
