@@ -111,7 +111,7 @@
         {{ end }}
         
         {{ if $description }}
-        <div class="{{ $descriptionClass }} {{ $descriptionColor }}">
+        <div class="{{ $descriptionClass }} {{ $descriptionColor }} prose-links prose-a:{{ $descriptionColor }}">
             {{ $description | safeHTML }}
         </div>
         {{ end }}

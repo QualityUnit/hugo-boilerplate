@@ -63,11 +63,11 @@
     {{ end }}
     
     {{ if $description }}
-    <p class="mt-6 text-xl/8 {{ $descriptionColor }}">{{ $description }}</p>
+    <p class="mt-6 text-xl/8 {{ $descriptionColor }} prose-links">{{ $description | safeHTML }}</p>
     {{ end }}
     
     <!-- Apply Tailwind typography with custom processing for better heading styles -->
-    <div class=" mt-10 prose prose-lg prose-indigo max-w-none">
+    <div class=" mt-10 prose prose-lg prose-indigo prose-links max-w-none">
       {{ $content }}
     </div>
   </div>

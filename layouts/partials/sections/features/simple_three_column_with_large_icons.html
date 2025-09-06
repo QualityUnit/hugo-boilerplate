@@ -73,7 +73,7 @@
             <h2 class="text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
           {{ end }}
           {{ if $description }}
-            <p class="mt-6 text-lg/9 text-secondary">{{ $description | safeHTML }}</p>
+            <p class="mt-6 text-lg/9 text-secondary prose-links">{{ $description | safeHTML }}</p>
           {{ end }}
         </div>
       {{ end }}
@@ -90,7 +90,7 @@
               <span>{{ .title }}</span>
             </dt>
             <dd class="mt-1 pl-0 text-base/7 text-secondary {{ if not .icon }} pl-0 {{ end }}">
-              <p>{{ .description | safeHTML }}</p>
+              <p class="prose-links">{{ .description | safeHTML }}</p>
               {{ if .link }}
               <p class="mt-4">
                 {{ partial "components/buttons/buttons.html" (dict

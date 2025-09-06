@@ -12,12 +12,12 @@ Usage:
 >}}
 */}}
 
-{{ $heading := .Get "heading" | default (.Get 0) | default "Support center" }}
-{{ $description := .Get "description" | default (.Get 1) | default "Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat fugiat." }}
+{{ $heading := .Get "heading" | default (.Get 0) | default "" }}
+{{ $description := .Get "description" | default (.Get 1) | default "" }}
 {{ $bgColor := .Get "bgColor" | default (.Get 2) | default "bg-white" }}
 {{ $padding := .Get "padding" | default (.Get 3) | default "py-24 sm:py-32" }}
-{{ $headingColor := .Get "headingColor" | default (.Get 4) | default "text-gray-900" }}
-{{ $descriptionColor := .Get "descriptionColor" | default (.Get 5) | default "text-gray-500" }}
+{{ $headingColor := .Get "headingColor" | default (.Get 4) | default "text-heading" }}
+{{ $descriptionColor := .Get "descriptionColor" | default (.Get 5) | default "text-tertiary" }}
 {{ $maxWidth := .Get "maxWidth" | default (.Get 6) | default "max-w-2xl" }}
 
 {{ partial "layout/headers/simple.html" (dict 

@@ -169,7 +169,7 @@ Design Tokens:
           <h2 class="mt-3  mb-0 text-4xl font-semibold {{ $headingTracking }}  text-heading leading-none text-pretty sm:text-5xl">{{ $heading }}</h2>
         {{ end }}
         {{ if $description }}
-          <p class="mt-6 text-lg/7 text-secondary">{{ $description | safeHTML }}</p>
+          <p class="mt-6 text-lg/7 text-secondary prose-links">{{ $description | safeHTML }}</p>
         {{ end }}
 
         {{/* Button */}}
@@ -186,7 +186,7 @@ Design Tokens:
 
         {{/* Main content */}}
         {{ if $markdownContent }}
-          <div class="mt-10 max-w-full text-secondary lg:max-w-full [&_p]:mb-5 [&_h1]:mb-5 [&_h2]:mb-5 [&_h3]:mb-5 [&_h4]:mb-5 [&_h5]:mb-5 [&_h6]:mb-5 [&_ul]:mb-5 [&_ol]:mb-5 [&_*:last-child]:mb-0">
+          <div class="mt-10 max-w-full text-secondary prose-links lg:max-w-full [&_p]:mb-5 [&_h1]:mb-5 [&_h2]:mb-5 [&_h3]:mb-5 [&_h4]:mb-5 [&_h5]:mb-5 [&_h6]:mb-5 [&_ul]:mb-5 [&_ol]:mb-5 [&_*:last-child]:mb-0">
             {{ if $contentAsHTML }}
                 {{ $markdownContent | safeHTML }}
             {{ else }}
@@ -209,7 +209,7 @@ Design Tokens:
               {{ .title }}.
             </dt>
             {{ if .description }}
-              <dd class="inline">{{ .description }}</dd>
+              <dd class="inline prose-links">{{ .description }}</dd>
             {{ end }}
           </div>
           {{ end }}
@@ -225,7 +225,7 @@ Design Tokens:
                   <span class="absolute left-1 top-1/2 -translate-y-1/2 w-5 h-5 text-[10px] flex justify-center items-center text-white rounded-full bg-primary">{{ add $index 1 }}</span>
                   {{ .title }}.
                 </span>
-                <span class="inline">{{ .description }}</span>
+                <span class="inline prose-links">{{ .description }}</span>
               </li>
             {{ end }}
           </ol>
@@ -247,7 +247,7 @@ Design Tokens:
         {{ if $quote }}
           <div class="lg:max-w-full">
             <figure class="mt-10 border-l border-gray-200 pl-8 text-secondary">
-              <blockquote class="text-base/7">
+              <blockquote class="text-base/7 prose-links">
                 <p>"{{ $quote.text }}"</p>
               </blockquote>
               <figcaption class="mt-6 flex gap-x-4 text-sm/6">
