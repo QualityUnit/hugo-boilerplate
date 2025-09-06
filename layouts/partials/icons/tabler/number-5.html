@@ -1,0 +1,22 @@
+{{/*
+@component: tabler/number-5 (outline) Icon
+@params:
+  - class: CSS classes to apply to the SVG element (optional, default: "w-6 h-6 text-gray-500")
+@examples:
+  <!-- Basic usage with default classes -->
+  {{ partial "icons/tabler/number-5" . }}
+
+  <!-- With custom size and color classes -->
+  {{ partial "icons/tabler/number-5" "w-8 h-8 text-blue-600" }}
+
+  <!-- With responsive classes -->
+  {{ partial "icons/tabler/number-5" "w-4 h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 text-indigo-500" }}
+*/}}
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24" 
+    class="{{ if . }}{{ . }}{{ else }}w-6 h-6 text-gray-500{{ end }}"
+    fill="none"
+>
+<path d="M8 20h4a4 4 0 1 0 0 -8h-4v-8h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
