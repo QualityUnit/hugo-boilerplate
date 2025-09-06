@@ -55,7 +55,7 @@
     {{ if $showHeading }}
       <div class="mx-auto md:max-w-2xl md:mx-0">
         <h2 class="text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
-        <p class="mt-6 text-lg/7 text-secondary">{{ $description }}</p>
+        <p class="mt-6 text-lg/7 text-secondary prose-links">{{ $description | safeHTML }}</p>
       </div>
     {{ end }}
     <div class="mx-auto mt-16 flex flex-col gap-8 md:mx-0 md:mt-20 md:max-w-none md:flex-row md:items-end">

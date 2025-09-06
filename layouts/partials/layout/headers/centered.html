@@ -24,9 +24,9 @@
 
 {{/* Heading */}}
 {{ $heading := .heading | default "Support center" }}
-{{ $headingColor := .headingColor | default "text-gray-900" }}
-{{ $description := .description | default "Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat fugiat." }}
-{{ $descriptionColor := .descriptionColor | default "text-gray-500" }}
+{{ $headingColor := .headingColor | default "text-heading" }}
+{{ $description := .description | default "" }}
+{{ $descriptionColor := .descriptionColor | default "text-tertiary" }}
 
 {{/* Max width */}}
 {{ $maxWidth := .maxWidth | default "max-w-2xl" }}
@@ -34,6 +34,6 @@
 <div class="{{ $bgColor }} {{ $padding }}">
   <div class="mx-auto {{ $maxWidth }} text-center">
     <h2 class="text-5xl font-semibold tracking-tight {{ $headingColor }} sm:text-7xl">{{ $heading }}</h2>
-    <p class="mt-8 text-lg font-medium text-pretty {{ $descriptionColor }} sm:text-xl/8">{{ $description }}</p>
+    <p class="mt-8 text-lg font-medium text-pretty {{ $descriptionColor }} sm:text-xl/8 prose-links prose-a:font-medium prose-a:{{ $descriptionColor }}">{{ $description }}</p>
   </div>
 </div>

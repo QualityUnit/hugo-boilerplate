@@ -114,7 +114,7 @@ Design Tokens:
           <h1 class="mt-6 text-5xl font-semibold {{ $headingTracking }} text-heading leading-none text-pretty sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>
         {{ end }}
         {{ if $description }}
-          <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8">{{ $description | safeHTML }}</p>
+          <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
         {{ end }}
 
         {{/* Tags, Categories and Badges */}}
@@ -132,11 +132,18 @@ Design Tokens:
           {{ end }}
 
           {{ if $categories }}
+          {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
           <div class="flex flex-wrap gap-2">
             {{ range $categories }}
+            {{ if $categoriesEnabled }}
             <a href="{{ print "/categories/" (. | urlize) | relLangURL }}/" class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark hover:bg-indigo-100">
             {{ . }}
             </a>
+            {{ else }}
+            <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark">
+            {{ . }}
+            </span>
+            {{ end }}
             {{ end }}
           </div>
           {{ end }}

@@ -14,6 +14,8 @@
     - description: Card description text (required)
     - image: URL to image (required)
     - imageAlt: Alt text for the image (optional)
+    - url: URL to link the card to, making the entire card clickable (optional)
+    - target: Link target attribute for the card (optional, default: "_self")
 @example:
   {{ partial "sections/content/three_column_content.html" (dict 
       "theme" "light"
@@ -28,18 +30,24 @@
               "description" "Our platform automatically adapts to any device or screen size."
               "image" "/images/features/responsive.png"
               "imageAlt" "Responsive design illustration"
+              "url" "/features/responsive"
+              "target" "_self"
           )
           (dict
               "title" "Analytics" 
               "description" "Detailed insights into your user behavior and application performance."
               "image" "/images/features/analytics.png"
               "imageAlt" "Analytics dashboard"
+              "url" "/features/analytics"
+              "target" "_self"
           )
           (dict
               "title" "Security" 
               "description" "Enterprise-grade security with end-to-end encryption."
               "image" "/images/features/security.png"
               "imageAlt" "Security shield"
+              "url" "/features/security"
+              "target" "_blank"
           )
       )
   ) }}
@@ -87,10 +95,15 @@
             "descriptionMargin" $descriptionMargin
             ) }}
         {{ end }}
-      <div class="mt-20 grid gap-8 lg:gap-16 md:grid-cols-3">
+            <div class="mt-20 grid gap-8 lg:gap-16 md:grid-cols-3">
         {{ range $index, $card := $cards }}
           <div class="relative flex flex-col overflow-hidden">
-            <div class="flex items-center justify-centerl">
+            {{ if $card.url }}
+              <a href="{{ $card.url }}" target="{{ $card.target | default "_self" }}" class="absolute inset-0 z-10 hover:opacity-90 transition-opacity">
+                <span class="sr-only">{{ $card.title }}</span>
+              </a>
+            {{ end }}
+            <div class="flex items-center justify-center">
                 {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "class" "rounded-xl") }}
             </div>
             
@@ -98,14 +111,10 @@
               {{ if $card.title }}
                 <p class="text-base/8 font-semibold tracking-tight text-heading">
                   {{ $card.title }}
-                  {{ if $card.description }}
-                    <span class="max-w-lg text-sm/6 text-secondary font-normal">{{ $card.description }}</span>
-                  {{ end }}
                 </p>
-              {{ else }}
-                {{ if $card.description }}
-                  <span class="max-w-lg text-sm/6 text-secondary">{{ $card.description }}</span>
-                {{ end }}
+              {{ end }}
+              {{ if $card.description }}
+                <span class="max-w-lg text-sm/6 text-secondary font-normal">{{ $card.description }}</span>
               {{ end }}
             </div>
           </div>          

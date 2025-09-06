@@ -48,11 +48,18 @@
   
   <!-- Tags -->
   {{ if .Params.tags }}
+    {{ $tagsEnabled := isset site.Taxonomies "tags" }}
     <div class="mt-4 flex flex-wrap gap-2">
       {{ range first 3 .Params.tags }}
+        {{ if $tagsEnabled }}
         <a href="{{ print "/tags/" (. | urlize) | relLangURL }}/" class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 hover:bg-gray-200">
           {{ . }}
         </a>
+        {{ else }}
+        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+          {{ . }}
+        </span>
+        {{ end }}
       {{ end }}
       {{ if gt (len .Params.tags) 3 }}
         <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">

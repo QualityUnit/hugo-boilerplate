@@ -3,6 +3,7 @@
 {{ if $tags }}
 {{ $containerId := .containerId | default "default" }}
 {{ $align := .align | default "start" }} <!-- Options: start, center, end -->
+{{ $tagsEnabled := isset site.Taxonomies "tags" }}
 <div class="pt-4 pb-4 gap-3 flex flex-wrap justify-{{ $align }}" id="tags-container-{{ $containerId }}">
 
     {{ $maxTags := .maxTags | default 4 }}
@@ -11,24 +12,42 @@
     <!-- Always visible tags -->
     {{ range $i, $tag := $tags }}
     {{ if lt $i $maxTags }}
+        {{ if $tagsEnabled }}
         <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/" class="tag-visible">
             {{ partial "components/label/label.html" (dict
                 "text" $tag
                 "badgeClass" "badge-base badge-gray badge-with-border" ) 
             }}
         </a>
+        {{ else }}
+        <span class="tag-visible">
+            {{ partial "components/label/label.html" (dict
+                "text" $tag
+                "badgeClass" "badge-base badge-gray badge-with-border" ) 
+            }}
+        </span>
+        {{ end }}
     {{ end }}
     {{ end }}
     
     <!-- Hidden tags (initially hidden) -->
     {{ range $i, $tag := $tags }}
     {{ if ge $i $maxTags }}
+        {{ if $tagsEnabled }}
         <a href="{{ print "/tags/" ($tag | urlize) | relLangURL }}/" class="tag-hidden hidden">
             {{ partial "components/label/label.html" (dict
                 "text" $tag
                 "badgeClass" "badge-base badge-gray badge-with-border" ) 
             }}
         </a>
+        {{ else }}
+        <span class="tag-hidden hidden">
+            {{ partial "components/label/label.html" (dict
+                "text" $tag
+                "badgeClass" "badge-base badge-gray badge-with-border" ) 
+            }}
+        </span>
+        {{ end }}
     {{ end }}
     {{ end }}
     
