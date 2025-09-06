@@ -50,7 +50,7 @@
 {{ $eyebrowColor := .eyebrowColor | default "text-primary" }}
 {{ $heading := .heading | default "" }}
 {{ $description := .description | default "" }}
-{{ $maxWidthHeading := .maxWidthHeading | default "max-w-2xl" }}
+{{ $maxWidthHeading := .maxWidthHeading | default "max-w-none lg:max-w-2xl" }}
 {{ $features := .features | default (slice) }}
 {{ $page := .page }}
 {{ $theme := .theme | default "light" }}
@@ -77,8 +77,8 @@
           {{ end }}
         </div>
       {{ end }}
-      <div class="mx-auto {{ if or $eyebrow $heading $description }}mt-16{{ else }}mt-0{{ end }} max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-        <dl class="grid max-w-xl grid-cols-1 gap-x-16 gap-y-24 lg:max-w-none lg:grid-cols-3">
+      <div class="mx-auto {{ if or $eyebrow $heading $description }}mt-16{{ else }}mt-0{{ end }} max-w-2-xl sm:mt-12 lg:mt-24 lg:max-w-none">
+        <dl class="grid max-w-xl grid-cols-1 gap-x-16 gap-y-12 lg:gap-y-24 md:max-w-none lg:grid-cols-3">
           {{ range $features }}
           <div class="relative pl-0">
             {{ if .icon }}
