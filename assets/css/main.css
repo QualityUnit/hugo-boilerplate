@@ -434,7 +434,12 @@
   /* ================================================================ */
   
   .prose-links {
-    @apply prose-a:text-secondary prose-a:font-normal prose-a:underline prose-a:hover:text-brand-text;
+    @apply prose-a:text-secondary prose-a:font-normal prose-a:underline;
     /* Standard prose with custom link styling */
+  }
+  
+  .prose-links a:hover,
+  a.prose-links:hover {
+    @apply text-brand-text;
   }
 }
