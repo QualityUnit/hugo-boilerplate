@@ -50,7 +50,7 @@
 {{ $eyebrowColor := .eyebrowColor | default "text-primary" }}
 {{ $heading := .heading | default "" }}
 {{ $description := .description | default "" }}
-{{ $maxWidthHeading := .maxWidthHeading | default "max-w-2xl" }}
+{{ $maxWidthHeading := .maxWidthHeading | default "max-w-none lg:max-w-2xl" }}
 {{ $features := .features | default (slice) }}
 {{ $page := .page }}
 {{ $theme := .theme | default "light" }}
@@ -73,12 +73,12 @@
             <h2 class="text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
           {{ end }}
           {{ if $description }}
-            <p class="mt-6 text-lg/9 text-secondary">{{ $description | safeHTML }}</p>
+            <p class="mt-6 text-lg/9 text-secondary prose-links">{{ $description | safeHTML }}</p>
           {{ end }}
         </div>
       {{ end }}
-      <div class="mx-auto {{ if or $eyebrow $heading $description }}mt-16{{ else }}mt-0{{ end }} max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-        <dl class="grid max-w-xl grid-cols-1 gap-x-16 gap-y-24 lg:max-w-none lg:grid-cols-3">
+      <div class="mx-auto {{ if or $eyebrow $heading $description }}mt-16{{ else }}mt-0{{ end }} max-w-2-xl sm:mt-12 lg:mt-24 lg:max-w-none">
+        <dl class="grid max-w-xl grid-cols-1 gap-x-16 gap-y-12 lg:gap-y-24 md:max-w-none lg:grid-cols-3">
           {{ range $features }}
           <div class="relative pl-0">
             {{ if .icon }}
@@ -90,7 +90,7 @@
               <span>{{ .title }}</span>
             </dt>
             <dd class="mt-1 pl-0 text-base/7 text-secondary {{ if not .icon }} pl-0 {{ end }}">
-              <p>{{ .description | safeHTML }}</p>
+              <p class="prose-links">{{ .description | safeHTML }}</p>
               {{ if .link }}
               <p class="mt-4">
                 {{ partial "components/buttons/buttons.html" (dict

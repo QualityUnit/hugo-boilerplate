@@ -43,6 +43,29 @@
     --color-button-text-hover: 107 114 128;               /* gray/500 */
     --color-button-text-dark: 255 255 255;                /* white */
     --color-button-text-dark-hover: 96 165 250;           /* primary/400 */
+
+    /* Brand colors for light theme */
+    --color-brand-surface: var(--color-primary-600);            /* #118AF7 */
+    --color-brand-surface-secondary: var(--color-primary-500);  /* #118AF733 */
+    --color-brand-border: var(--color-primary-500);             /* #57ABFA */
+    --color-brand-text: var(--color-primary-600);               /* #118AF7 */
+    --color-brand-icon: var(--color-primary-600);               /* #118AF7 */
+    --color-brand-underlight: var(--color-primary-300);         /* #8CC8FD */
+
+    /* Brand colors for dark theme */
+    --color-brand-dark-surface: var(--color-primary-500);           /* #118AF7 */
+    --color-brand-dark-surface-secondary: var(--color-primary-500); /* #118AF733 */
+    --color-brand-dark-border: var(--color-primary-400);            /* #57ABFA */
+    --color-brand-dark-text: var(--color-primary-300);              /* #8CC8FD */
+    --color-brand-dark-icon: var(--color-primary-500);              /* #118AF7 */
+    --color-brand-dark-underlight: var(--color-primary-900);        /* #0F4176 */
   }
   
+}
+/* PROJECT VARIABLES - Custom colors for this project */
+
+@layer base {
+  :root {
+    /* FlowHunt brand button colors */
+  }
 }

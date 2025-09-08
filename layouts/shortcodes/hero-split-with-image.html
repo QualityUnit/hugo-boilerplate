@@ -21,6 +21,7 @@ Example usage of Split Hero with Image Shortcode:
   "typewriterPause"="2500"
   "typewriterColor"="text-blue-600"
   "yPadding"="sm:py-0 lg:py-24"
+  "badges"="No setup fee, Customer service, No credit card required, Cancel any time"
 >}}
 
 Parameters:
@@ -44,6 +45,7 @@ Parameters:
 - typewriterPause: Pause duration between word cycles in milliseconds (default: 2000)
 - typewriterColor: Tailwind CSS color class for animated text (default: "text-indigo-600")
 - yPadding: Custom y-padding value using Tailwind classes (default: "sm:py-0 lg:py-24")
+- badges: Comma-separated list of badge texts to display (optional)
 */}}
 
 {{/* Split Hero with Image Shortcode */}}
@@ -60,6 +62,7 @@ Parameters:
 {{ $announcementText := .Get "announcementText" | default "" }}
 {{ $announcementLinkText := .Get "announcementLinkText" | default "Read more" }}
 {{ $announcementLinkUrl := .Get "announcementLinkUrl" | default "#" }}
+{{ $badges := .Get "badges" | default "" }}
 
 {{/* Typewriter parameters */}}
 {{ $typewriterEnabled := .Get "typewriterEnabled" | default false }}
@@ -71,6 +74,7 @@ Parameters:
 
 {{/* Custom y-padding */}}
 {{ $yPadding := .Get "yPadding" | default "sm:py-0 lg:py-24" }}
+{{ $contentLeftPadding := .Get "contentLeftPadding" | default "lg:pr-20" }}
 
 {{ $announcement := dict 
   "enabled" (eq $announcementEnabled "true")
@@ -103,6 +107,15 @@ Parameters:
   "color" $typewriterColor
 }}
 
+{{/* Process badges into slice */}}
+{{ $badgeSlice := slice }}
+{{ if $badges }}
+  {{ $badgeList := split $badges "," }}
+  {{ range $badgeList }}
+    {{ $badgeSlice = $badgeSlice | append (trim . " ") }}
+  {{ end }}
+{{ end }}
+
 {{ partial "sections/hero/split_with_image.html" (dict 
   "logo" $logo
   "announcement" $announcement
@@ -112,4 +125,6 @@ Parameters:
   "image" $image
   "typewriter" $typewriter
   "yPadding" $yPadding
+  "contentLeftPadding" $contentLeftPadding
+  "badges" $badgeSlice
 ) }}

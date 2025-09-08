@@ -155,7 +155,7 @@
             <p class="text-base/6 font-semibold product-text">{{ $eyebrow }}</p>
           {{ end }}
           <h2 id="{{ $uniqueID }}-heading" class="mt-2.5 text-3xl font-semibold tracking-[-2.8px] text-heading sm:text-5xl">{{ $heading }}</h2>
-          <div class="mt-6 text-lg text-secondary">
+          <div class="mt-6 text-lg text-secondary prose-links">
             {{ template "renderDescription" (dict "description" $description "page" $page) }}
           </div>
         </div>
@@ -204,7 +204,7 @@
                         <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
                       {{ end }}
                       {{ if $tab.content.description }}
-                        <div class="mt-2 text-base/9 text-tertiary">
+                        <div class="mt-2 text-base/9 text-tertiary prose-links prose-a:text-tertiary">
                           {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
                         </div>
                       {{ end }}
@@ -217,7 +217,7 @@
                         <h3 class="text-3xl font-bold text-heading">{{ $tab.content.title }}</h3>
                       {{ end }}
                       {{ if $tab.content.description }}
-                        <div class="mt-2 text-base/9 text-tertiary">
+                        <div class="mt-2 text-base/9 text-tertiary prose-links prose-a:text-tertiary">
                           {{ template "renderDescription" (dict "description" $tab.content.description "page" $page) }}
                         </div>
                       {{ end }}

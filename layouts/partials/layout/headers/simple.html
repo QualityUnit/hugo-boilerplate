@@ -5,9 +5,9 @@
   - bgColor: Background color class (optional, default: "bg-white")
   - padding: Padding classes (optional, default: "py-24 sm:py-32")
   - heading: Main heading text (optional, default: "Support center")
-  - headingColor: Heading text color (optional, default: "text-gray-900")
+  - headingColor: Heading text color (optional, default: "text-heading")
   - description: Description text (optional, default: provided placeholder text)
-  - descriptionColor: Description text color (optional, default: "text-gray-500")
+  - descriptionColor: Description text color (optional, default: "text-tertiary")
   - maxWidth: Max width class for the content container (optional, default: "max-w-2xl")
 @example:
   {{ partial "layout/headers/simple.html" (dict 
@@ -23,10 +23,10 @@
 {{ $padding := .padding | default "py-24 sm:py-32" }}
 
 {{/* Heading */}}
-{{ $heading := .heading | default "Support center" }}
-{{ $headingColor := .headingColor | default "text-gray-900" }}
-{{ $description := .description | default "Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat fugiat." }}
-{{ $descriptionColor := .descriptionColor | default "text-gray-500" }}
+{{ $heading := .heading | default "" }}
+{{ $headingColor := .headingColor | default "text-heading" }}
+{{ $description := .description | default "" }}
+{{ $descriptionColor := .descriptionColor | default "text-tertiary" }}
 
 {{/* Max width */}}
 {{ $maxWidth := .maxWidth | default "max-w-2xl" }}
@@ -35,7 +35,7 @@
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto {{ $maxWidth }} lg:mx-0">
       <h2 class="text-5xl font-semibold tracking-tight {{ $headingColor }} sm:text-7xl">{{ $heading }}</h2>
-      <p class="mt-8 text-lg font-medium text-pretty {{ $descriptionColor }} sm:text-xl/8">{{ $description }}</p>
+      <p class="mt-8 text-lg font-medium text-pretty {{ $descriptionColor }} sm:text-xl/8 prose-links prose-a:font-medium prose-a:{{ $descriptionColor }}">{{ $description | safeHTML }}</p>
     </div>
   </div>
 </div>
