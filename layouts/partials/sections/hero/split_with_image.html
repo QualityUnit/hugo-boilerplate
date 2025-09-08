@@ -10,6 +10,7 @@ Parameters:
   - secondary: Secondary button (text, url)
 - tags: Array of tags (optional), will create tag links to /tags/[tag-name]/
 - categories: Array of categories (optional), will create category links to /categories/[category-name]
+- badges: Array of badge texts (optional), displayed as styled badges
 - typewriter: Object with typewriter effect configuration (optional)
   - enabled: Boolean to enable/disable the effect (default: false)
   - words: Number of words to animate (default: 1)
@@ -55,6 +56,7 @@ Design Tokens:
 {{ $cta := .cta }}
 {{ $tags := .tags | default (slice) }}
 {{ $categories := .categories | default (slice) }}
+{{ $badges := .badges | default (slice) }}
 {{ $typewriter := .typewriter | default dict }}
 
 {{/* Typewriter configuration with defaults */}}
@@ -70,7 +72,7 @@ Design Tokens:
 {{ $sectionPaddingY := .sectionPaddingY | default "py-12 lg:py-16" }}
 {{ $imageContainerPaddingY := "py-6" }}
 {{ $contentPaddingY := "py-4" }}
-{{ $contentLeftPadding := "lg:pr-20" }}
+{{ $contentLeftPadding := .contentLeftPadding | default "lg:pr-20" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
 {{/* Image processing */}}
@@ -115,9 +117,20 @@ Design Tokens:
           <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
         {{ end }}
 
-        {{/* Tags and Categories */}}
-        {{ if or $categories $tags }}
+        {{/* Tags, Categories and Badges */}}
+        {{ if or $categories $tags $badges }}
         <div class="mt-6 flex flex-col gap-4">
+          {{ if $badges }}
+          <div class="flex flex-wrap gap-2">
+            {{ range $badges }}
+              {{ partial "components/label/label.html" (dict 
+                "text" . 
+                "badgeClass" "badge-base badge-gray badge-with-border"
+              ) }}
+            {{ end }}
+          </div>
+          {{ end }}
+
           {{ if $categories }}
           {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
           <div class="flex flex-wrap gap-2">
