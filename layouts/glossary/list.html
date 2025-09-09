@@ -1,4 +1,8 @@
 {{ define "main" }}
+
+{{/* Configuration variables */}}
+{{ $cardHeight := 252 }}
+
   <div class="bg-white dark:bg-gray-900 py-16">
     {{ partial "hero_default.html" . }}
     {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
@@ -75,7 +79,7 @@
             <ul class="mt-8 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
               {{ range sort $termsInCategory "Title" }}
                 {{ partial "components/cards/post_card_with_image.html" (
-                  dict "page" . "cardHeight" 252
+                  dict "page" . "cardHeight" $cardHeight
                   "showImages" false
                   "showDateReadingTime" false
                 ) }}
