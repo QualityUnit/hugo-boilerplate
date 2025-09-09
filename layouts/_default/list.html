@@ -1,5 +1,9 @@
 {{ define "main" }}
 
+{{/* Configuration variables */}}
+{{ $paginationSize := 60 }}
+{{ $cardHeight := 540 }}
+
 {{ partial "hero_default.html" . }}
 
 {{ if eq (len .Pages) 0 }}
@@ -35,17 +39,17 @@
     {{ $pages = $pages.Reverse }}
   {{ end }}
 
-  {{ $paginator := .Paginate $pages 60 }}
+  {{ $paginator := .Paginate $pages $paginationSize }}
 
   <div class="wrapper grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
     {{ range $paginator.Pages }}
       <div>
-        {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" 540) }}
+        {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" $cardHeight) }}
       </div>
     {{ end }}
   </div>
   <!-- Pagination -->
-  {{ if gt $paginator.TotalPages 1 }}
+  {{ if gt $paginator.TotalPages 1 }}`
     {{partial "components/pagination/pagination.html" $paginator }}
   {{ end }}
 {{ end }}
