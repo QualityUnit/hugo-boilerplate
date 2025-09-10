@@ -28,8 +28,8 @@
 @note: This component provides a strong brand presence with its vibrant background color while maintaining a clean, focused layout for the call-to-action content.
 */}}
 
-{{ $heading := .heading | default "Boost your productivity. Start using our app today." }}
-{{ $description := .description | default "Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim id veniam aliqua proident excepteur commodo do ea." }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
 {{ $primaryCta := .primaryCta | default (dict 
   "text" "Get started"
   "url" "#"
@@ -44,7 +44,7 @@
 {{ $primaryCtaHoverColor := .primaryCtaHoverColor | default "indigo-50" }}
 
 <div class="bg-{{ $brandColor }}">
-  <div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+  <div class="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
     <div class="mx-auto max-w-2xl text-center">
       <h2 class="text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl">{{ $heading }}</h2>
       <p class="mx-auto mt-6 max-w-xl text-lg/8 text-pretty text-{{ $brandLightColor }}">{{ $description }}</p>
