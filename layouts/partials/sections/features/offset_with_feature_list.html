@@ -8,7 +8,7 @@
 {{ $page := .page }}
 
 <div class="bg-white py-24 sm:py-32">
-  <div class="wrapper lg:px-8">
+  <div class="wrapper px-4 lg:px-8">
     <div class="mx-auto grid grid-cols-1 gap-x-8 gap-y-8 sm:gap-y-12 lg:mx-0 lg:max-w-none lg:grid-cols-5">
       <div class="col-span-2">
         <h2 class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</h2>
@@ -17,7 +17,7 @@
       </div>
       <dl class="col-span-3 grid grid-cols-1 gap-x-8 gap-y-10 text-base/7 text-secondary sm:grid-cols-2 lg:gap-y-16">
         {{ range $features }}
-        <div class="relative pl-0 lg:pl-9">
+        <div class="relative lg:pl-9">
           <dt class="font-semibold text-heading">
             <span class="inline-block align-middle mr-2 w-5 h-5 text-{{ $iconColor }}">{{ partial "components/media/icon.html" (dict "icon" (or .icon "arrow-right")) }}</span>{{ .title }}
           </dt>
