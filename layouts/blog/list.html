@@ -2,6 +2,9 @@
 
 {{ partial "hero_default.html" . }}
 
+{{/* Configuration variables */}}
+{{ $cardHeight := 540 }}
+
 {{ if eq (len .Pages) 0 }}
   <div class="wrapper text-center">
     <p class="text-xl font-semibold ">{{ i18n "no_posts_found" }}</p>
@@ -13,7 +16,7 @@
   <div class="wrapper grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
     {{ range $paginator.Pages }}
       <div>
-        {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" 540) }}
+        {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" $cardHeight) }}
       </div>
     {{ end }}
   </div>
