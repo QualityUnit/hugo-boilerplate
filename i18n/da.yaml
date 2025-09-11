@@ -116,3 +116,6 @@ courses.format: "Format"
 
 # Icon card translations
 icon.card.btn: "Se"
+
+# Attachments
+attachments.title: "Vedhæftede filer"

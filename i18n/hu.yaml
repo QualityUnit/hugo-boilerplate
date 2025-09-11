@@ -115,3 +115,6 @@ courses.format: "Formátum"
 
 # Icon card translations
 icon.card.btn: "Megtekintés"
+
+# Attachments
+attachments.title: "Mellékletek"

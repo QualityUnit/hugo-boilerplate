@@ -114,3 +114,6 @@ courses.format: "Formaat"
 
 # Icon card translations
 icon.card.btn: "Vaata"
+
+# Attachments
+attachments.title: "Manused"

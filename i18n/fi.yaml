@@ -114,3 +114,6 @@ courses.format: "Muoto"
 
 # Icon card translations
 icon.card.btn: "Katso"
+
+# Attachments
+attachments.title: "Liitteet"

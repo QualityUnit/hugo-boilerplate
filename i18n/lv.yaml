@@ -114,3 +114,6 @@ courses.format: "Formāts"
 
 # Icon card translations
 icon.card.btn: "Skatīt"
+
+# Attachments
+attachments.title: "Pielikumi"

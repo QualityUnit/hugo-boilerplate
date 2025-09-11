@@ -101,4 +101,7 @@ search_chat_link: "Au zungumza nasi →"
 
 # Icon card translations
 icon.card.btn: "Tazama"
+
+# Attachments
+attachments.title: "Viunganisho"
 search_no_results_description: "Försök ändra din sökning - något fantastiskt kan vara bara några ord bort."

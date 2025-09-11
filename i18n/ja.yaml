@@ -116,3 +116,6 @@ courses.format: "フォーマット"
 
 # Icon card translations
 icon.card.btn: "見る"
+
+# Attachments
+attachments.title: "添付ファイル"

@@ -115,3 +115,6 @@ courses.format: "Формат"
 
 # Icon card translations
 icon.card.btn: "Дивитися"
+
+# Attachments
+attachments.title: "Вкладення"

@@ -103,4 +103,5 @@ search_suggestions: "Suxestións:"
 search_suggestion_spell: "Asegúrate de que todas as palabras están correctamente escritas."
 search_suggestion_broaden: "Amplía as túas palabras clave."
 search_suggestion_terms: "Proba con outros termos ou explora outras categorías."
-search_chat_link: "Ou chámanos ao chat →"
+search_chat_link: "Ou chámanos ao chat →"# Attachments
+attachments.title: "Adxuntos"
