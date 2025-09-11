@@ -50,6 +50,8 @@
   - classes: Additional CSS classes to add (optional)
   - url: URL to make the label clickable as a link (optional)
   - target: Link target attribute (default: "_self", can be "_blank" for new window)
+  - icon: Icon name to display before text (optional)
+  - iconClass: CSS classes for the icon (optional, default: "w-4 h-4")
 @example:
   {{ partial "components/label/label.html" (dict 
       "text" "New Feature" 
@@ -68,14 +70,25 @@
       "url" "/tags/ai-tools/"
       "target" "_blank"
   ) }}
+
+  {{ partial "components/label/label.html" (dict 
+      "text" "Download" 
+      "badgeClass" "badge-base badge-blue badge-with-border"
+      "icon" "arrow-down-tray"
+      "iconClass" "w-4 h-4"
+      "url" "/download/"
+      "target" "_blank"
+  ) }}
 */}}
 
 {{/* Set default values if not provided */}}
-{{ $text := .text | default "Badge" }}
+{{ $text := .text | default "" }}
 {{ $badgeClass := .badgeClass | default "badge-base badge-gray badge-with-border" }}
 {{ $classes := .classes | default "" }}
 {{ $url := .url | default "" }}
 {{ $target := .target | default "_self" }}
+{{ $icon := .icon | default "" }}
+{{ $iconClass := .iconClass | default "w-4 h-4" }}
 
 {{/* Prepare link styling classes */}}
 {{ $linkClasses := "" }}
@@ -83,15 +96,22 @@
   {{ $linkClasses = "hover:opacity-80 transition-opacity duration-200 cursor-pointer" }}
 {{ end }}
 
+{{/* Prepare content with optional icon */}}
+{{ $content := $text }}
+{{ if $icon }}
+  {{ $iconHtml := partial (printf "icons/%s" $icon) $iconClass }}
+  {{ $content = printf `<div class="flex items-center gap-2.5">%s<span>%s</span></div>` $iconHtml $text }}
+{{ end }}
+
 {{/* Render the label with conditional link wrapper */}}
 {{ if $url }}
   <a href="{{ $url }}" target="{{ $target }}" class="{{ $badgeClass }} {{ $classes }} {{ $linkClasses }} no-underline">
-    {{ $text }}
+    {{ $content | safeHTML }}
   </a>
 {{ else }}
   <span class="{{ $badgeClass }} {{ $classes }} not-prose whitespace-nowrap
     [&_a]:no-underline [&_a]:!text-inherit [&_a]:px-0.5
     [&_.link-building-link]:!no-underline [&_.link-building-link]:!text-inherit">
-    {{ $text | safeHTML }}
+    {{ $content | safeHTML }}
   </span>
 {{ end }}

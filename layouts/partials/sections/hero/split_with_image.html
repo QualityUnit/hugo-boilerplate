@@ -11,6 +11,7 @@ Parameters:
 - tags: Array of tags (optional), will create tag links to /tags/[tag-name]/
 - categories: Array of categories (optional), will create category links to /categories/[category-name]
 - badges: Array of badge texts (optional), displayed as styled badges
+- resources: Array of resource objects with 'name' and 'link' properties (optional), displayed as download buttons
 - typewriter: Object with typewriter effect configuration (optional)
   - enabled: Boolean to enable/disable the effect (default: false)
   - words: Number of words to animate (default: 1)
@@ -57,6 +58,7 @@ Design Tokens:
 {{ $tags := .tags | default (slice) }}
 {{ $categories := .categories | default (slice) }}
 {{ $badges := .badges | default (slice) }}
+{{ $resources := .resources | default (slice) }}
 {{ $typewriter := .typewriter | default dict }}
 
 {{/* Typewriter configuration with defaults */}}
@@ -117,8 +119,8 @@ Design Tokens:
           <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
         {{ end }}
 
-        {{/* Tags, Categories and Badges */}}
-        {{ if or $categories $tags $badges }}
+        {{/* Tags, Categories, Badges and Resources */}}
+        {{ if or $categories $tags $badges $resources }}
         <div class="mt-6 flex flex-col gap-4">
           {{ if $badges }}
           <div class="flex flex-wrap gap-2">
@@ -150,6 +152,10 @@ Design Tokens:
 
           {{ if $tags }}
             {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 ) }}
+          {{ end }}
+
+          {{ if $resources }}
+            {{ partial "sections/resources/resources.html" (dict "resources" $resources "maxItems" 4) }}
           {{ end }}
         </div>
         {{ end }}
