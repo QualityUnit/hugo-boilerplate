@@ -1,57 +1,24 @@
 {{/* Feature Section with Offset Feature List */}}
-{{ $tagline := .tagline | default "Everything you need" }}
-{{ $heading := .heading | default "All-in-one platform" }}
-{{ $description := .description | default "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione." }}
-{{ $features := .features | default (slice
-  (dict 
-    "title" "Invite team members"
-    "description" "Rerum repellat labore necessitatibus reprehenderit molestiae praesentium."
-  )
-  (dict 
-    "title" "List view"
-    "description" "Corporis asperiores ea nulla temporibus asperiores non tempore assumenda aut."
-  )
-  (dict 
-    "title" "Keyboard shortcuts"
-    "description" "In sit qui aliquid deleniti et. Ad nobis sunt omnis. Quo sapiente dicta laboriosam."
-  )
-  (dict 
-    "title" "Calendars"
-    "description" "Sed rerum sunt dignissimos ullam. Iusto iure occaecati voluptate eligendi."
-  )
-  (dict 
-    "title" "Notifications"
-    "description" "Quos inventore harum enim nesciunt. Aut repellat rerum omnis adipisci."
-  )
-  (dict 
-    "title" "Boards"
-    "description" "Quae sit sunt excepturi fugit veniam voluptatem ipsum commodi."
-  )
-  (dict 
-    "title" "Reporting"
-    "description" "Eos laudantium repellat sed architecto earum unde incidunt."
-  )
-  (dict 
-    "title" "Mobile app"
-    "description" "Nulla est saepe accusamus nostrum est est fugit omnis."
-  )
-) }}
+{{ $tagline := .tagline | default "" }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $features := .features | default (slice) }}
 {{ $iconColor := .iconColor | default "indigo-500" }}
 {{ $taglineColor := .taglineColor | default "indigo-600" }}
 {{ $page := .page }}
 
 <div class="bg-white py-24 sm:py-32">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
-    <div class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-5">
+  <div class="wrapper px-4 lg:px-8">
+    <div class="mx-auto grid grid-cols-1 gap-x-8 gap-y-8 sm:gap-y-12 lg:mx-0 lg:max-w-none lg:grid-cols-5">
       <div class="col-span-2">
         <h2 class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</h2>
-        <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl">{{ $heading }}</p>
-        <p class="mt-6 text-base/7 text-gray-600">{{ $description | safeHTML }}</p>
+        <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</p>
+        <p class="mt-6 text-base/7 text-secondary">{{ $description | safeHTML }}</p>
       </div>
-      <dl class="col-span-3 grid grid-cols-1 gap-x-8 gap-y-10 text-base/7 text-gray-600 sm:grid-cols-2 lg:gap-y-16">
+      <dl class="col-span-3 grid grid-cols-1 gap-x-8 gap-y-10 text-base/7 text-secondary sm:grid-cols-2 lg:gap-y-16">
         {{ range $features }}
-        <div class="relative pl-9">
-          <dt class="font-semibold text-gray-900">
+        <div class="relative lg:pl-9">
+          <dt class="font-semibold text-heading">
             <span class="inline-block align-middle mr-2 w-5 h-5 text-{{ $iconColor }}">{{ partial "components/media/icon.html" (dict "icon" (or .icon "arrow-right")) }}</span>{{ .title }}
           </dt>
           <dd class="mt-2">{{ .description | safeHTML }}</dd>

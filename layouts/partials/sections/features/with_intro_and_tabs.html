@@ -147,10 +147,10 @@
 
 {{/* --- FINAL RENDER --- */}}
 <section aria-labelledby="{{ $uniqueID }}-heading" class="{{ $darkClass }}">
-  <div class="section-bg-light dark:section-bg-dark py-32">
-    <div class="mx-auto {{ if eq $widthContainer "narrow" }}wrapper-narrow{{ else }}wrapper{{ end }} surface-secondary rounded-xl sm:px-2 lg:px-8">
+  <div class="section-bg-light dark:section-bg-dark py-24 sm:py-32">
+    <div class="mx-auto {{ if eq $widthContainer "narrow" }}wrapper-narrow{{ else }}wrapper{{ end }} surface-secondary rounded-xl lg:px-8">
       <div class="max-w-none">
-        <div class="w-full pt-16 pb-8">
+        <div class="w-full py-8 md:pt-16 md:pb-8">
           {{ if $eyebrow }}
             <p class="text-base/6 font-semibold product-text">{{ $eyebrow }}</p>
           {{ end }}
@@ -161,9 +161,9 @@
         </div>
 
         <div class="w-full mx-auto">
-          <div class="flex overflow-x-auto w-full -mx-[2rem]">
+          <div class="flex overflow-x-auto w-full md:-mx-[2rem]">
             <div class="flex-auto border-b border-gray-primary w-full">
-              <div class="flex px-8 w-full" aria-orientation="horizontal" role="tablist">
+              <div class="flex md:px-8 w-full" aria-orientation="horizontal" role="tablist">
                 {{ range $index, $tab := $tabs }}
                   <button id="{{ $uniqueID }}-tab-{{ $tab.id }}" 
                     class="border-b-2 {{ if eq $tab.id $defaultActiveTabId }}border-brand product-primary{{ else }}border-transparent text-tertiary hover:border-brand hover:product-primary{{ end }} p-6 text-base font-semibold tracking-[-0.3px] whitespace-nowrap" 
@@ -181,7 +181,7 @@
 
           {{ range $index, $tab := $tabs }}
             <div id="{{ $uniqueID }}-panel-{{ $tab.id }}" 
-              class="pt-8 pb-32 {{ if ne $tab.id $defaultActiveTabId }}hidden{{ end }}" 
+              class="py-8 md:pt-8 md:pb-32 {{ if ne $tab.id $defaultActiveTabId }}hidden{{ end }}" 
               aria-labelledby="{{ $uniqueID }}-tab-{{ $tab.id }}" 
               role="tabpanel" 
               data-tabs-group="{{ $uniqueID }}"

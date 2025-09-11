@@ -25,8 +25,8 @@
   ) }}
 */}}
 
-{{ $heading := .heading | default "Boost your productivity. Start using our app today." }}
-{{ $description := .description | default "Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim id veniam aliqua proident excepteur commodo do ea." }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
 {{ $primaryCta := .primaryCta | default (dict 
   "text" "Get started"
   "url" "#"
@@ -41,7 +41,7 @@
 {{ $page := .page }}
 
 <div class="bg-white">
-  <div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+  <div class="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
     <div class="mx-auto max-w-2xl text-center">
       <h2 class="text-4xl font-semibold tracking-tight text-balance text-heading sm:text-5xl">{{ $heading }}</h2>
       <p class="mx-auto mt-6 max-w-xl text-lg/8 text-pretty text-secondary prose-links">{{ $description | safeHTML }}</p>
