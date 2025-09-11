@@ -109,13 +109,13 @@
         {{ end }}
             <div class="mt-20 grid gap-8 lg:gap-16 md:grid-cols-3">
         {{ range $index, $card := $cards }}
-          <div class="relative flex flex-col overflow-hidden">
+          <div class="relative {{ if $card.url }}group{{ end }} flex flex-col overflow-hidden">
             {{ if $card.url }}
               <a href="{{ $card.url }}" target="{{ $card.target | default "_self" }}" class="absolute inset-0 z-10 hover:opacity-90 transition-opacity">
                 <span class="sr-only">{{ $card.title }}</span>
               </a>
             {{ end }}
-            <div class="flex items-center justify-center">
+            <div class="flex items-center justify-center {{ if $card.url }}group-hover:opacity-75 transition-opacity{{ end }}">
                 {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "class" "rounded-xl") }}
             </div>
 
