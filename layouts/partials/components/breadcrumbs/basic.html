@@ -21,32 +21,29 @@
 {{- $homeUrl := .homeUrl | default "/" -}}
 
 <nav class="wrapper flex gap-2 py-8" aria-label="Breadcrumb">
-  <ol role="list" class="flex items-center space-x-4">
-    <li>
-      <div>
-        <a href="{{ $homeUrl }}" class="icon-on-gray">
-          {{ partial "icons/home-solid.html" (dict "class" "size-5 block h-5 shrink-0 ") }}
-          <span class="sr-only">Home</span>
-        </a>
-      </div>
+  <ol role="list" class="flex flex-wrap items-center gap-y-2">
+    <li class="flex items-center">
+      <a href="{{ $homeUrl }}" class="icon-on-gray">
+        {{ partial "icons/home-solid.html" (dict "class" "size-5 block h-5 shrink-0 ") }}
+        <span class="sr-only">Home</span>
+      </a>
+      {{- if $items -}}
+      <span class="mx-2 lg:mx-4 text-gray-300 dark:text-gray-600 whitespace-nowrap">/</span>
+      {{- end -}}
     </li>
     {{- range $index, $item := $items -}}
     {{- if not (and (eq $index 0) (or (eq $item.title "Home") (eq $item.title "home"))) -}}
-    <li>
-      <div class="flex items-center">
-        <span class="mr-4 text-gray-300 dark:text-gray-600">/</span>
-        {{- $isLast := eq (add $index 1) (len $items) -}}
-        {{- if $isLast -}}
-        <a href="{{ $item.url }}" class="text-sm font-medium text-heading hover:text-gray-700" aria-current="page">{{ $item.title }}</a>
-        {{- else -}}
-        <a href="{{ $item.url }}" class="text-sm font-medium text-secondary hover:text-gray-700">{{ $item.title }}</a>
-        {{- end -}}
-      </div>
+    {{- $isLast := eq (add $index 1) (len $items) -}}
+    <li class="flex items-center">
+      {{- if $isLast -}}
+      <a href="{{ $item.url }}" class="text-sm font-medium text-heading hover:text-gray-700 break-words" aria-current="page">{{ $item.title }}</a>
+      {{- else -}}
+      <a href="{{ $item.url }}" class="text-sm font-medium text-secondary hover:text-gray-700 break-words">{{ $item.title }}</a>
+      <span class="mx-2 lg:mx-4 text-gray-300 dark:text-gray-600 whitespace-nowrap">/</span>
+      {{- end -}}
     </li>
     {{- end -}}
     {{- end -}}
-  </ol>
-</nav>
   </ol>
 </nav>
 
