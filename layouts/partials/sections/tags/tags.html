@@ -53,13 +53,13 @@
     
     <!-- Show more/less buttons -->
     {{ if gt $tagsCount $maxTags }}
-        <button type="button" class="show-more-btn text-secondary font-semibold text-xs tracking-[0.216px] cursor-pointer" data-container="{{ $containerId }}">
+        <button type="button" class="show-more-btn text-secondary font-semibold text-xs tracking-[0.216px] cursor-pointer" data-container="{{ $containerId }}" data-container-type="tags">
             <div class="flex items-center gap-1">
                 <span>{{ (printf "+%d more" (sub $tagsCount $maxTags)) }}</span>
                 {{ partial "icons/chevron-down" "size-5 text-secondary" }}
             </div>
         </button>
-        <button type="button" class="show-less-btn text-secondary font-semibold text-xs tracking-[0.216px] cursor-pointer hidden" data-container="{{ $containerId }}">
+        <button type="button" class="show-less-btn text-secondary font-semibold text-xs tracking-[0.216px] cursor-pointer hidden" data-container="{{ $containerId }}" data-container-type="tags">
             <div class="flex items-center gap-1">
                 <span>{{ i18n "tag_show_less" }}</span>
                 {{ partial "icons/chevron-up" "size-5 text-secondary" }}
@@ -69,8 +69,8 @@
 </div>
 
 {{ if gt $tagsCount $maxTags }}
-{{ $tagToggleJS := resources.Get "js/tag-toggle.js" | js.Build }}
-<script src="{{ $tagToggleJS.RelPermalink }}" defer></script>
+{{ $itemToggleJS := resources.Get "js/item-toggle.js" | js.Build }}
+<script src="{{ $itemToggleJS.RelPermalink }}" defer></script>
 {{ end }}
 
 {{ end }}
