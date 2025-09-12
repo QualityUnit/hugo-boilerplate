@@ -74,6 +74,7 @@
 {{ $headerWrapperPadding := .Get "headerWrapperPadding" | default "p-0" }}
 {{ $headingMargin := .Get "headingMargin" | default "mt-2.5" }}
 {{ $descriptionMargin := .Get "descriptionMargin" | default "mt-6" }}
+{{ $contentAlignment := .Get "contentAlignment" | default "left" }}
 
 {{/* Parse inner content as JSON if provided */}}
 
@@ -94,5 +95,6 @@
   "headerWrapperPadding" $headerWrapperPadding
   "headingMargin" $headingMargin
   "descriptionMargin" $descriptionMargin
+  "contentAlignment" $contentAlignment
   "cards" $cards
 ) }}

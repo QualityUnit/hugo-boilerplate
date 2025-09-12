@@ -72,6 +72,17 @@
   {{ end }}
 {{ end }}
 
+{{/* Content alignment setup */}}
+{{ $contentAlignment := .contentAlignment | default "left" }}
+{{ $contentAlignmentClass := "" }}
+{{ if eq $contentAlignment "center" }}
+  {{ $contentAlignmentClass = "text-center" }}
+{{ else if eq $contentAlignment "right" }}
+  {{ $contentAlignmentClass = "text-right" }}
+{{ else }}
+  {{ $contentAlignmentClass = "text-left" }}
+{{ end }}
+
 {{/* Theme setup */}}
 {{ $theme := .theme | default "light" }}
 {{ $isDark := eq $theme "dark" }}
@@ -97,17 +108,17 @@
         {{ end }}
             <div class="mt-20 grid gap-8 lg:gap-16 md:grid-cols-3">
         {{ range $index, $card := $cards }}
-          <div class="relative flex flex-col overflow-hidden">
+          <div class="relative {{ if $card.url }}group{{ end }} flex flex-col overflow-hidden">
             {{ if $card.url }}
               <a href="{{ $card.url }}" target="{{ $card.target | default "_self" }}" class="absolute inset-0 z-10 hover:opacity-90 transition-opacity">
                 <span class="sr-only">{{ $card.title }}</span>
               </a>
             {{ end }}
-            <div class="flex items-center justify-center">
+            <div class="flex items-center justify-center {{ if $card.url }}group-hover:opacity-75 transition-opacity{{ end }}">
                 {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "class" "rounded-xl") }}
             </div>
-            
-            <div class="pt-6">
+
+            <div class="{{ $contentAlignmentClass }} pt-6">
               {{ if $card.title }}
                 <p class="text-base/8 font-semibold tracking-tight text-heading">
                   {{ $card.title }}
