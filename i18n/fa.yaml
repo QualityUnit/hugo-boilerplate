@@ -115,3 +115,6 @@ courses.format: "فرمت"
 
 # Icon card translations
 icon.card.btn: "مشاهده"
+
+# Attachments
+attachments.title: "پیوست‌ها"

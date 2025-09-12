@@ -115,3 +115,6 @@ courses.format: "التنسيق"
 
 # Icon card translations
 icon.card.btn: "عرض"
+
+# Attachments
+attachments.title: "المرفقات"

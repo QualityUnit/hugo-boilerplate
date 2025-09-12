@@ -113,3 +113,6 @@ courses.format: "รูปแบบ"
 
 # Icon card translations
 icon.card.btn: "ดู"
+
+# Attachments
+attachments.title: "ไฟล์แนบ"

@@ -122,3 +122,6 @@ courses.or: "or"
 
 # Icon card translations
 icon.card.btn: "See"
+
+# Attachments
+attachments.title: "Attachments"

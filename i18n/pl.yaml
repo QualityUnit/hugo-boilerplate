@@ -114,3 +114,6 @@ courses.format: "Format"
 
 # Icon card translations
 icon.card.btn: "Zobacz"
+
+# Attachments
+attachments.title: "Załączniki"

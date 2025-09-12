@@ -1,0 +1,90 @@
+{{/*
+@component: Resources List
+@description: Renders a list of resources as styled badges with icons, using the label component's built-in URL functionality
+@params:
+  - resources: Array of resource objects with 'name' and 'link' properties (required)
+  - maxItems: Maximum number of resources to display before showing "show more" (optional, default: 4)
+  - containerId: Unique ID for the container (optional, default: "default")
+  - align: Alignment of resources (start, center, end) (optional, default: "start")
+
+@example:
+  {{ partial "sections/resources/resources.html" (dict 
+    "resources" $resources 
+    "maxItems" 4 
+    "containerId" "hero-resources"
+  ) }}
+
+Resource object structure:
+- name: Display name for the resource (string)
+- link: URL to the resource (string)
+
+Features:
+- Uses download icon (arrow-down-tray) by default
+- Opens resources in new tab (_blank)
+- Built-in hover effects and transitions
+- Show more/less functionality for large resource lists
+*/}}
+
+{{ $resources := .resources | default (slice) }}
+{{ if $resources }}
+    {{ $containerId := .containerId | default "default" }}
+    {{ $align := .align | default "start" }} <!-- Options: start, center, end -->
+    <div class="text-sm font-semibold text-secondary">{{ i18n "attachments.title" | default "Attachments" }}</div>
+    <div class="gap-2 mt-2 flex flex-wrap justify-{{ $align }}" id="resources-container-{{ $containerId }}">
+
+        {{ $maxItems := .maxItems | default 4 }}
+        {{ $resourcesCount := len $resources }}
+        
+        <!-- Always visible resources -->
+        {{ range $i, $resource := $resources }}
+        {{ if and (lt $i $maxItems) (and $resource.name $resource.link) }}
+            <div class="resource-visible">
+                {{ partial "components/label/label.html" (dict
+                    "text" $resource.name
+                    "badgeClass" "badge-base badge-gray badge-with-border"
+                    "url" $resource.link
+                    "target" "_blank"
+                    "icon" "arrow-down-tray"
+                    "iconClass" "w-4 h-4"
+                ) }}
+            </div>
+        {{ end }}
+        {{ end }}
+        
+        <!-- Hidden resources (initially hidden) -->
+        {{ range $i, $resource := $resources }}
+        {{ if and (ge $i $maxItems) (and $resource.name $resource.link) }}
+            <div class="resource-hidden hidden">
+                {{ partial "components/label/label.html" (dict
+                    "text" $resource.name
+                    "badgeClass" "badge-base badge-gray badge-with-border"
+                    "url" $resource.link
+                    "target" "_blank"
+                    "icon" "arrow-down-tray"
+                    "iconClass" "w-4 h-4"
+                ) }}
+            </div>
+        {{ end }}
+        {{ end }}
+        
+        <!-- Show more/less buttons -->
+        {{ if gt $resourcesCount $maxItems }}
+            <button type="button" class="show-more-btn text-secondary font-semibold text-xs tracking-[0.216px] cursor-pointer" data-container="{{ $containerId }}" data-container-type="resources">
+                <div class="flex items-center gap-2">
+                    <span>{{ (printf "+%d more" (sub $resourcesCount $maxItems)) }}</span>
+                    {{ partial "icons/chevron-down" "size-5 text-secondary" }}
+                </div>
+            </button>
+            <button type="button" class="show-less-btn text-secondary font-semibold text-xs tracking-[0.216px] cursor-pointer hidden" data-container="{{ $containerId }}" data-container-type="resources">
+                <div class="flex items-center gap-2">
+                    <span>{{ i18n "resource_show_less" | default "Show less" }}</span>
+                    {{ partial "icons/chevron-up" "size-5 text-secondary" }}
+                </div>
+            </button>
+        {{ end }}
+    </div>
+
+    {{ if gt $resourcesCount $maxItems }}
+        {{ partial "components/load-item-toggle.html" . }}
+    {{ end }}
+{{ end }}

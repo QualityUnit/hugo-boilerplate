@@ -113,3 +113,6 @@ courses.format: "Format"
 
 # Icon card translations
 icon.card.btn: "Veure"
+
+# Attachments
+attachments.title: "Adjunts"

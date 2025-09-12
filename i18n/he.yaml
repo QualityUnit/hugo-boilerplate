@@ -114,3 +114,6 @@ courses.format: "פורמט"
 
 # Icon card translations
 icon.card.btn: "ראה"
+
+# Attachments
+attachments.title: "קבצים מצורפים"

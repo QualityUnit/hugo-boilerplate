@@ -104,3 +104,6 @@ search_chat_link: "Или ћаскајте са нама →"
 
 # Icon card translations
 icon.card.btn: "Pogledaj"
+
+# Attachments
+attachments.title: "Прилози"

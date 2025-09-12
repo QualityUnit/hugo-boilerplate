@@ -115,3 +115,6 @@ courses.format: "Format"
 
 # Icon card translations
 icon.card.btn: "Gör"
+
+# Attachments
+attachments.title: "Ekler"

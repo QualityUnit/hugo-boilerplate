@@ -102,3 +102,6 @@ search_chat_link: "या हमसे चैट करें →"
 
 # Icon card translations
 icon.card.btn: "देखें"
+
+# Attachments
+attachments.title: "अटैचमेंट"

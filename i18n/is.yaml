@@ -112,3 +112,6 @@ search_suggestion_spell: "Gakktu úr skugga um að öll orð séu rétt skrifuð
 search_suggestion_broaden: "Reyndu að víkka út leitarorðin þín."
 search_suggestion_terms: "Prófaðu önnur orð eða skoðaðu aðrar flokka."
 search_chat_link: "Eða spjallaðu við okkur →"
+
+# Attachments
+attachments.title: "Viðhengi"

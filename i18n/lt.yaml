@@ -114,3 +114,6 @@ courses.format: "Formatas"
 
 # Icon card translations
 icon.card.btn: "Žiūrėti"
+
+# Attachments
+attachments.title: "Priedai"

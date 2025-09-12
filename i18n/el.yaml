@@ -116,3 +116,6 @@ courses.format: "Μορφή"
 
 # Icon card translations
 icon.card.btn: "Δες"
+
+# Attachments
+attachments.title: "Συνημμένα"

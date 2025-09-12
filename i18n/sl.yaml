@@ -114,3 +114,6 @@ courses.format: "Format"
 
 # Icon card translations
 icon.card.btn: "Poglej"
+
+# Attachments
+attachments.title: "Priloge"

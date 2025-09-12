@@ -114,3 +114,6 @@ courses.format: "Формат"
 
 # Icon card translations
 icon.card.btn: "Виж"
+
+# Attachments
+attachments.title: "Прикачени файлове"

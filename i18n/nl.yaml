@@ -116,3 +116,6 @@ courses.format: "Formaat"
 
 # Icon card translations
 icon.card.btn: "Bekijk"
+
+# Attachments
+attachments.title: "Bijlagen"

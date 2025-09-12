@@ -104,3 +104,6 @@ search_suggestion_spell: "Make sure that all words are spelled correctly."
 search_suggestion_broaden: "Broaden your keywords."
 search_suggestion_terms: "Try using different terms or explore other categories."
 search_chat_link: "Or chat with us →"
+
+# Attachments
+attachments.title: "Attachments"

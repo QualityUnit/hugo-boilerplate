@@ -12,6 +12,8 @@
   - cta: Object with CTA buttons information (optional)
     - primary: Primary CTA button (text, url)
     - secondary: Secondary CTA button (text, url)
+  - tags: Array of tags (optional), will create tag links to /tags/[tag-name]/
+  - resources: Array of resource objects with 'name' and 'link' properties (optional), displayed as download buttons
   - image: Object with image information (optional)
     - src: Image source URL
     - alt: Alt text for accessibility
@@ -67,6 +69,7 @@
 {{ $description := .description | default "" }}
 {{ $cta := .cta | default dict }}
 {{ $tags := .tags | default (slice) }}
+{{ $resources := .resources | default (slice) }}
 {{ $image := .image | default (dict
   "src" ""
   "alt" ""
@@ -114,6 +117,12 @@
 
             {{ if $tags }}
                 {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 "align" "center") }}
+            {{ end }}
+
+            {{ if $resources }}
+                <div class="mt-6 flex justify-center">
+                  {{ partial "sections/resources/resources.html" (dict "resources" $resources "maxItems" 4 "align" "center") }}
+                </div>
             {{ end }}
 
             {{ $primaryCTA := $cta.primary | default dict }}

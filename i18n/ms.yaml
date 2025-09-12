@@ -114,3 +114,6 @@ courses.format: "Format"
 
 # Icon card translations
 icon.card.btn: "Lihat"
+
+# Attachments
+attachments.title: "Lampiran"
