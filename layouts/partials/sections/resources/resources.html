@@ -85,7 +85,6 @@ Features:
     </div>
 
     {{ if gt $resourcesCount $maxItems }}
-        {{ $itemToggleJS := resources.Get "js/item-toggle.js" | js.Build }}
-        <script src="{{ $itemToggleJS.RelPermalink }}" defer></script>
+        {{ partial "components/load-item-toggle.html" . }}
     {{ end }}
 {{ end }}
