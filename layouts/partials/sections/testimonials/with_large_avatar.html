@@ -78,6 +78,40 @@
       <figcaption class="text-base lg:col-start-1 lg:row-start-3">
         <div class="font-semibold {{ $personNameColor }}">{{ $personName }}</div>
         <div class="mt-1 {{ $personRoleColor }}">{{ $personRole }}</div>
+        
+        {{/* Contact buttons for affiliate managers */}}
+        {{ if or .personEmail .personLinkedIn .personProfileUrl }}
+        <div class="mt-4 flex flex-wrap gap-3">
+          {{ if .personEmail }}
+          {{ partial "components/buttons/buttons.html" (dict
+              "text" "Contact Manager"
+              "url" .personEmail
+              "variant" "primary"
+              "size" "lg"
+          ) }}
+          {{ end }}
+          
+          {{ if .personLinkedIn }}
+          {{ partial "components/buttons/buttons.html" (dict
+              "text" "LinkedIn"
+              "url" .personLinkedIn
+              "variant" "secondary"
+              "size" "lg"
+              "target" "_blank"
+              "showArrow" true
+          ) }}
+          {{ end }}
+          
+          {{ if .personProfileUrl }}
+          {{ partial "components/buttons/buttons.html" (dict
+              "text" "View Profile"
+              "url" .personProfileUrl
+              "variant" "text"
+              "showArrow" true
+          ) }}
+          {{ end }}
+        </div>
+        {{ end }}
       </figcaption>
     </figure>
   </div>
