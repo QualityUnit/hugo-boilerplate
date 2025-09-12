@@ -100,5 +100,7 @@ search_suggestions: "பரிந்துரைகள்:"
 search_suggestion_spell: "எல்லா வார்த்தைகளும் சரியாக எழுதப்பட்டுள்ளனவா என்பதை உறுதிப்படுத்துங்கள்."
 search_suggestion_broaden: "உங்கள் முக்கிய வார்த்தைகளை விரிவாக்குங்கள்."
 search_suggestion_terms: "வேறு சொற்களை முயற்சிக்கவும் அல்லது பிற வகைகளை ஆராயவும்."
-search_chat_link: "அல்லது எங்களுடன் உரையாடுங்கள் →"# Attachments
+search_chat_link: "அல்லது எங்களுடன் உரையாடுங்கள் →"
+
+# Attachments
 attachments.title: "இணைப்புகள்"

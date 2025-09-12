@@ -102,5 +102,7 @@ search_suggestions: "Sugjerime:"
 search_suggestion_spell: "Sigurohuni që të gjitha fjalët janë shkruar saktë."
 search_suggestion_broaden: "Zgjero fjalët kyçe."
 search_suggestion_terms: "Provoni terma të ndryshëm ose eksploroni kategori të tjera."
-search_chat_link: "Ose bisedoni me ne →"# Attachments
+search_chat_link: "Ose bisedoni me ne →"
+
+# Attachments
 attachments.title: "Bashkëngjitje"
