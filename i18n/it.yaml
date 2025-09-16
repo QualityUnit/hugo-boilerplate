@@ -116,3 +116,6 @@ courses.format: "Formato"
 
 # Icon card translations
 icon.card.btn: "Vedi"
+
+# Attachments
+attachments.title: "Allegati"

@@ -116,3 +116,6 @@ courses.format: "格式"
 
 # Icon card translations
 icon.card.btn: "查看"
+
+# Attachments
+attachments.title: "附件"

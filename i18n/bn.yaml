@@ -113,3 +113,6 @@ search_suggestion_spell: "সব শব্দ সঠিকভাবে লেখ
 search_suggestion_broaden: "আপনার কীওয়ার্ডগুলো বিস্তৃত করুন।"
 search_suggestion_terms: "ভিন্ন শব্দ ব্যবহার করুন বা অন্যান্য বিভাগ দেখুন।"
 search_chat_link: "অথবা আমাদের সাথে চ্যাট করুন →"
+
+# Attachments
+attachments.title: "সংযুক্তি"

@@ -2,6 +2,7 @@
 {{ $description := .shortDescription | default .description | default ""}}
 {{ $cta := .cta }}
 {{ $tags := .tags | default (slice) }}
+{{ $resources := .resources | default (slice) }}
 {{ $categories := .categories }}
 {{ $typewriter := .typewriter | default dict }}
 {{ $typewriter := merge (dict "enabled" false) $typewriter }}
@@ -37,27 +38,31 @@
     {{ end }}
 
     <!-- Tags and Categories -->
-    {{ if or $categories $tags }}
+    {{ if or $categories $tags $resources }}
     <div class="mt-6 flex flex-col gap-4">
         {{ if $categories }}
-        {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
-        <div class="flex flex-wrap gap-2">
-            {{ range $categories }}
-            {{ if $categoriesEnabled }}
-            <a href="{{ print "/categories/" (. | urlize) | relLangURL }}/" class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark hover:bg-indigo-100">
-            {{ . }}
-            </a>
-            {{ else }}
-            <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark">
-            {{ . }}
-            </span>
-            {{ end }}
-            {{ end }}
-        </div>
+            {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
+            <div class="flex flex-wrap gap-2">
+                {{ range $categories }}
+                {{ if $categoriesEnabled }}
+                <a href="{{ print "/categories/" (. | urlize) | relLangURL }}/" class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark hover:bg-indigo-100">
+                {{ . }}
+                </a>
+                {{ else }}
+                <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark">
+                {{ . }}
+                </span>
+                {{ end }}
+                {{ end }}
+            </div>
         {{ end }}
 
         {{ if $tags }}
             {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 ) }}
+        {{ end }}
+
+        {{ if $resources }}
+            {{ partial "sections/resources/resources.html" (dict "resources" $resources "maxItems" 4) }}
         {{ end }}
     </div>
     {{ end }}

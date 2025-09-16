@@ -102,3 +102,6 @@ courses.format: "Định dạng"
 
 # Icon card translations
 icon.card.btn: "Xem"
+
+# Attachments
+attachments.title: "Tệp đính kèm"

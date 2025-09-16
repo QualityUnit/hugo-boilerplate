@@ -115,3 +115,6 @@ courses.format: "Formát"
 
 # Icon card translations
 icon.card.btn: "Zobrazit"
+
+# Attachments
+attachments.title: "Přílohy"

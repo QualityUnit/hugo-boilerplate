@@ -103,3 +103,6 @@ search_suggestion_spell: "Ziurtatu hitz guztiak ondo idatzita daudela."
 search_suggestion_broaden: "Zabaldu zure gako-hitzak."
 search_suggestion_terms: "Saiatu beste termino batzuk edo arakatu beste kategoriak."
 search_chat_link: "Edo hitz egin gurekin →"
+
+# Attachments
+attachments.title: "Eranskinak"

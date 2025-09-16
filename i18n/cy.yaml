@@ -103,3 +103,6 @@ search_suggestion_spell: "Gwnewch yn siŵr bod pob gair wedi'i sillafu'n gywir."
 search_suggestion_broaden: "Ehangwch eich geiriau allweddol."
 search_suggestion_terms: "Ceisiwch dermau eraill neu archwiliwch gategorïau eraill."
 search_chat_link: "Neu sgwrsio gyda ni →"
+
+# Attachments
+attachments.title: "Atodiadau"
