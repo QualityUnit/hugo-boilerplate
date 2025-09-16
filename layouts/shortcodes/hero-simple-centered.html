@@ -16,6 +16,7 @@
     imageAlt="Image alt text"
     imageWidth="Image width"
     imageHeight="Image height"
+    imageClass="custom-image-classes"
     typewriterEnabled="true/false"
     typewriterWords="1"
     typewriterWordAlternatives=""
@@ -42,6 +43,7 @@
   - imageAlt: Alt text for the image
   - imageWidth: Image width (optional)
   - imageHeight: Image height (optional)
+  - imageClass: CSS classes to apply to the image (optional)
   - typewriterEnabled: Enable/disable typewriter effect (true/false, default: false)
   - typewriterWords: Number of words to animate from the end (default: 1)
   - typewriterSpeed: Typing speed in milliseconds (default: 100)
@@ -67,6 +69,7 @@
 {{ $imageAlt := .Get "imageAlt" | default "" }}
 {{ $imageWidth := .Get "imageWidth" | default "" }}
 {{ $imageHeight := .Get "imageHeight" | default "" }}
+{{ $imageClass := .Get "imageClass" | default "" }}
 {{ $theme := .Get "theme" | default "light" }}
 
 {{/* Typewriter parameters */}}
@@ -98,6 +101,7 @@
   "alt" $imageAlt
   "width" $imageWidth
   "height" $imageHeight
+  "class" $imageClass
 }}
 
 {{ $typewriter := dict 
