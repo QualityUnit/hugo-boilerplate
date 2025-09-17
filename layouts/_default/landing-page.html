@@ -2,9 +2,9 @@
 
 {{ $image := .Params.image }}
 
-{{ if ne .Params.showBreadcrumbs false }}
-  {{ partial "breadcrumbs_default.html" . }}
-{{ end }}
+  {{ if .Params.showBreadcrumbs }}
+    {{ partial "breadcrumbs_default.html" . }}
+  {{ end }}
 
 <!-- Main Content -->
 <div class="bg-white dark:bg-gray-900">
