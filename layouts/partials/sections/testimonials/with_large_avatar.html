@@ -85,7 +85,7 @@
           {{ if .personEmail }}
           {{ partial "components/buttons/buttons.html" (dict
               "text" "Contact Manager"
-              "url" .personEmail
+              "url" (printf "mailto:%s" .personEmail)
               "variant" "primary"
               "size" "lg"
           ) }}
