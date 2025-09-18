@@ -2,7 +2,7 @@
 {{- /*
 
     Usage in markdown:
-    {{< hero-split-with-image-cards
+    {{< split-with-image-cards
     heading="Become an affiliate marketing superhero"
     description="Get an affiliate program for affiliate management or affiliate network for managing merchants and affiliates."
     >}}
@@ -28,7 +28,7 @@
         }
     }
     ]
-    {{< /hero-split-with-image-cards >}}
+    {{< /split-with-image-cards >}}
 
     Parameters:
     - heading: Main heading text (optional)
@@ -45,6 +45,7 @@
 */ -}}
 
 {{ $heading := .Get "heading" }}
+{{ $asHero := .Get "asHero" }}
 {{ $description := .Get "description" }}
 {{ $sectionPaddingY := .Get "sectionPaddingY" | default "py-16 lg:py-24" }}
 
@@ -57,9 +58,10 @@
   {{ end }}
 {{ end }}
 
-{{ partial "sections/hero/split_with_image_cards.html" (dict
+{{ partial "sections/content/split_with_image_cards.html" (dict
   "heading" $heading
   "description" $description
+  "asHero" $asHero
   "cards" $cards
   "sectionPaddingY" $sectionPaddingY
 ) }}
