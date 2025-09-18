@@ -60,7 +60,7 @@ Example:
 
         {{/* Cards */}}
         {{ if $cards }}
-            <div class="dark grid grid-cols-1 lg:grid-cols-2 gap-2.5{{ if or $heading $description }} mt-14{{ end }}">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-2.5{{ if or $heading $description }} mt-14{{ end }}">
                 {{ range $cards }}
                     {{ $cardBackgroundImage := .backgroundImage }}
                     {{ $cardSchemaImage := .schemaImage }}
