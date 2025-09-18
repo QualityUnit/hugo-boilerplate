@@ -224,9 +224,6 @@
   .btn-secondary {
     @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-sm bg-button-secondary border-button-secondary-border text-button-secondary-text hover:border-button-secondary-border-hover btn-transition;
   }
-  .btn-secondary:hover {
-    background-color: rgba(var(--color-button-secondary-bg-hover), 0.05);
-  }
 
   /* Secondary button for alternate light backgrounds – customizable colors */
   .btn-secondary-alternate {
@@ -235,18 +232,12 @@
 
   /* Secondary button for dark backgrounds – customizable dark colors */
   .btn-secondary-dark {
-    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] text-button-secondary-dark-text border-button-secondary-dark-border hover:border-button-secondary-dark-border-hover btn-transition;
-  }
-  .btn-secondary-dark:hover {
-    background-color: rgba(var(--color-button-secondary-dark-bg-hover), 0.2);
+    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-sm text-button-secondary-dark-text border-button-secondary-dark-border hover:border-button-secondary-dark-border-hover btn-transition;
   }
 
   /* Secondary button for dark alternate backgrounds – customizable dark colors */
   .btn-secondary-alternate-dark {
-    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] text-button-secondary-dark-text border-button-secondary-dark-border hover:border-button-secondary-dark-border-hover btn-transition;
-  }
-  .btn-secondary-alternate-dark:hover {
-    background-color: rgba(var(--color-button-secondary-dark-bg-hover), 0.2);
+    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-sm text-button-secondary-dark-text border-button-secondary-dark-border hover:border-button-secondary-dark-border-hover btn-transition;
   }
 
   /* Minimal text button – customizable text colors */
