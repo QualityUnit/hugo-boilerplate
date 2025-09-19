@@ -103,7 +103,7 @@ Design Tokens:
   {{ end }}
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch {{ if not $videoUrl }}gap-x-8{{ end }}{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
-      <div class="relative rounded-lg {{ $mediaContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem] {{ if $videoUrl }}h-full{{ end }}">
+      <div class="group/video relative rounded-lg {{ $mediaContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem] {{ if $videoUrl }}h-full{{ end }}">
         {{ if $videoUrl }}
           <div class="relative flex w-full h-full">
             {{/* Display video */}}
@@ -116,9 +116,9 @@ Design Tokens:
                   "provider" "youtube"
                   "useLightbox" true
                   "showPlayOverlay" true
-                  "playBtnClass" "white-circle-bounce w-[7.75rem] h-[7.75rem] rounded-full backdrop-blur-sm"
+                  "playBtnClass" "white-circle-bounce w-[7.75rem] h-[7.75rem] rounded-full backdrop-blur-[3px]"
                   "playBtnInnerClass" "bg-white relative w-24 h-24 rounded-full hover:scale-105 transition-transform duration-300"
-                  "svgClass" "size-12 ml-1 text-primary absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                  "svgClass" "size-14 ml-1 text-[#4F46E5] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
               ) }}
               {{ if or $videoTitle $videoDescription }}
               <div class="absolute left-5 bottom-5 flex items-end z-30">
@@ -127,9 +127,9 @@ Design Tokens:
                       <h3 class="font-semibold text-opacity-75">{{ $videoTitle }}</h3>
                   {{ end }}
                   {{ if $videoDescription }}
-                      <p class="text-sm mt-1.5 tracking-[-0.28px]">
+                      <p class="text-sm mt-1.5 tracking-[-0.28px] group-hover/video:underline">
                           {{ if $videoLinkUrl }}
-                          <a href="{{ $videoLinkUrl }}" class="flex items-center text-white hover:underline">
+                          <a href="{{ $videoLinkUrl }}" class="flex items-center text-white ">
                               {{ $videoDescription }}
                               <span class="ml-1 btn-arrow">
                                   {{ partial "components/media/icon.html" (dict "icon" "arrow-up-right" "class" "w-5 h-5 p-0.5") }}
@@ -161,7 +161,7 @@ Design Tokens:
       </div>
     </div>
     <div class="lg:flex lg:w-1/2 lg:items-center {{ if $videoUrl }}lg:pr-8{{ end }}">
-      <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ if eq $layout "image-right" }}lg:pl-0{{ else }}{{ $contentLeftPadding }} {{ end }}">
+      <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ if eq $layout "image-right" }}lg:pr-20{{ else }}{{ $contentLeftPadding }} {{ end }}">
         {{ if $eyebrow }}
           <p class="text-base/7 font-semibold product-text">{{ $eyebrow }}</p>
         {{ end }}
