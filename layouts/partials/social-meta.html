@@ -1,13 +1,13 @@
 <!-- SEO Meta Tags -->
-<meta name="description" content="{{ with .Params.description }}{{ . }}{{ else }}{{ with .Description }}{{ . }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
+<!-- Meta description is now handled in head.html via seo-description.html partial -->
 {{ with .Params.keywords }}<meta name="keywords" content="{{ delimit . ", " }}">{{ end }}
 
 <!-- Social Media Meta Tags -->
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="{{ if eq .Type "blog" }}article{{ else }}website{{ end }}">
 <meta property="og:url" content="{{ .Permalink }}">
-<meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}">
-<meta property="og:description" content="{{ with .Params.description }}{{ . }}{{ else }}{{ with .Description }}{{ . }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
+<meta property="og:title" content="{{ partial "seo-title.html" . }}">
+<meta property="og:description" content="{{ partial "seo-description.html" . }}">
 
 <!-- Image selection logic -->
 {{ $ogImage := "" }}
@@ -34,6 +34,6 @@
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="{{ .Permalink }}">
-<meta name="twitter:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}">
-<meta name="twitter:description" content="{{ with .Params.description }}{{ . }}{{ else }}{{ with .Description }}{{ . }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
+<meta name="twitter:title" content="{{ partial "seo-title.html" . }}">
+<meta name="twitter:description" content="{{ partial "seo-description.html" . }}">
 <meta name="twitter:image" content="{{ $ogImage }}">
