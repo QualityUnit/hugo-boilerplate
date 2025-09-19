@@ -157,24 +157,29 @@
            <span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-gray-400{{ else }}text-gray-500{{ end }}">{{ i18n $tier.interval }}</span>
           </p>
           <div class="mt-auto mb-6">
+            {{ $ctaUrl := $tier.cta.url }}
+            {{ $translatedUrl := i18n $ctaUrl }}
+            {{ if $translatedUrl }}
+              {{ $ctaUrl = $translatedUrl }}
+            {{ end }}
             {{ if $tier.popular }}
               {{ partial "components/buttons/buttons.html" (dict
                   "text" (i18n $tier.cta.text)
-                  "url" $tier.cta.url 
+                  "url" $ctaUrl 
                   "variant" "primary"
                   "classes" "not-prose block text-center"
               ) }}
             {{ else if $tier.darkTheme }}
               {{ partial "components/buttons/buttons.html" (dict
                   "text" (i18n $tier.cta.text)
-                  "url" $tier.cta.url 
+                  "url" $ctaUrl 
                   "variant" "primary-alternate"
                   "classes" "not-prose block text-center"
               ) }}
             {{ else }}
               {{ partial "components/buttons/buttons.html" (dict
                   "text" (i18n $tier.cta.text)
-                  "url" $tier.cta.url 
+                  "url" $ctaUrl 
                   "variant" "secondary"
                   "classes" "not-prose block text-center"
               ) }}
