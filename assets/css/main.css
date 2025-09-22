@@ -232,7 +232,7 @@
 
   /* Secondary button for dark backgrounds – customizable dark colors */
   .btn-secondary-dark {
-    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-sm text-button-secondary-dark-text border-button-secondary-dark-border hover:border-button-secondary-dark-border-hover btn-transition;
+    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-sm bg-button-secondary-dark bg-opacity-10 text-button-secondary-dark-text border-button-secondary-dark-border hover:border-button-secondary-dark-border-hover btn-transition;
   }
 
   /* Secondary button for dark alternate backgrounds – customizable dark colors */
