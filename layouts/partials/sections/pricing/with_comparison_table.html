@@ -179,14 +179,14 @@
                                         {{ if $tier.emphasized }}
                                         {{ partial "components/buttons/buttons.html" (dict
                                             "text" (i18n $tier.cta.text)
-                                            "url" $tier.cta.url
+                                            "url" (i18n $tier.cta.url)
                                             "variant" "primary"
                                             "classes" "mt-8 not-prose block text-center"
                                         )}}
                                         {{ else }}
                                         {{ partial "components/buttons/buttons.html" (dict
                                             "text" (i18n $tier.cta.text)
-                                            "url" $tier.cta.url
+                                            "url" (i18n $tier.cta.url)
                                             "variant" "secondary"
                                             "classes" "mt-8 not-prose block text-center"
                                         ) }}

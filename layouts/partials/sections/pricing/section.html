@@ -77,11 +77,11 @@
 {{- else if eq $position "left" }}
 {{ $wrapperClass = "flex-row-reverse gap-16" }}
 {{- else if eq $position "right" }}
-{{ $wrapperClass = "flex gap-16" }}
+{{ $wrapperClass = "gap-16" }}
 {{- end }}
 
 <div class="bg-{{ $backgroundColor }} py-20">
-  <div class="wrapper flex {{ $wrapperClass }}">
+  <div class="wrapper flex flex-col lg:flex-row {{ $wrapperClass }}">
     <div data-col="text" class="textBlock">
       <div class="mx-auto max-w-4xl">
         <p class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</p>
@@ -113,21 +113,21 @@
           {{ if $tier.popular }}
         {{ partial "components/buttons/buttons.html" (dict
         "text" (i18n $tier.cta.text)
-        "url" $tier.cta.url 
+        "url" (i18n $tier.cta.url)
         "variant" "primary"
         "classes" "not-prose block text-center"
         ) }}
           {{ else if $tier.darkTheme }}
         {{ partial "components/buttons/buttons.html" (dict
         "text" (i18n $tier.cta.text)
-        "url" $tier.cta.url 
+        "url" (i18n $tier.cta.url)
         "variant" "primary-alternate"
         "classes" "not-prose block text-center"
         ) }}
           {{ else }}
         {{ partial "components/buttons/buttons.html" (dict
         "text" (i18n $tier.cta.text)
-        "url" $tier.cta.url 
+        "url" (i18n $tier.cta.url)
         "variant" "secondary"
         "classes" "not-prose block text-center"
         ) }}
