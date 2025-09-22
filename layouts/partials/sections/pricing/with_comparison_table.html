@@ -176,17 +176,22 @@
                                         {{ end }}
                                     </p>
                                     {{ if and $tier.cta $tier.cta.url $tier.cta.text }}
+                                        {{ $ctaUrl := $tier.cta.url }}
+                                        {{ $translatedUrl := i18n $ctaUrl }}
+                                        {{ if $translatedUrl }}
+                                          {{ $ctaUrl = $translatedUrl }}
+                                        {{ end }}
                                         {{ if $tier.emphasized }}
                                         {{ partial "components/buttons/buttons.html" (dict
                                             "text" (i18n $tier.cta.text)
-                                            "url" (i18n $tier.cta.url)
+                                            "url" $ctaUrl
                                             "variant" "primary"
                                             "classes" "mt-8 not-prose block text-center"
                                         )}}
                                         {{ else }}
                                         {{ partial "components/buttons/buttons.html" (dict
                                             "text" (i18n $tier.cta.text)
-                                            "url" (i18n $tier.cta.url)
+                                            "url" $ctaUrl
                                             "variant" "secondary"
                                             "classes" "mt-8 not-prose block text-center"
                                         ) }}
