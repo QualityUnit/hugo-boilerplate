@@ -313,9 +313,9 @@
           </p>
           
           {{ if $tier.emphasized }}
-            <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-6 block rounded-md bg-{{ $tier.ctaBgColor }} px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
+            <a href="{{ $tier.cta.url | relLangURL }}" aria-describedby="{{ $tier.id }}" class="mt-6 block rounded-md bg-{{ $tier.ctaBgColor }} px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
           {{ else }}
-            <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-6 block rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaBorderColor }} ring-inset hover:ring-{{ $tier.ctaHoverBorderColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
+            <a href="{{ $tier.cta.url | relLangURL }}" aria-describedby="{{ $tier.id }}" class="mt-6 block rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaBorderColor }} ring-inset hover:ring-{{ $tier.ctaHoverBorderColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.cta.text }}</a>
           {{ end }}
           
           <ul role="list" class="mt-8 space-y-3 text-sm/6 text-{{ $tier.featureColor }}">

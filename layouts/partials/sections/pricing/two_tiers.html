@@ -187,7 +187,7 @@
             </li>
             {{ end }}
           </ul>
-          <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md bg-{{ $tier.ctaBgColor }} px-3.5 py-2.5 text-center text-sm font-semibold text-{{ $tier.ctaColor }} shadow-sm hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaBgColor }} sm:mt-10">{{ $tier.cta.text }}</a>
+          <a href="{{ $tier.cta.url | relLangURL }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md bg-{{ $tier.ctaBgColor }} px-3.5 py-2.5 text-center text-sm font-semibold text-{{ $tier.ctaColor }} shadow-sm hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaBgColor }} sm:mt-10">{{ $tier.cta.text }}</a>
         </div>
       {{ else }}
         <div class="rounded-3xl bg-{{ $tier.backgroundColor }} p-8 ring-1 ring-{{ $tier.borderColor }} sm:mx-8 sm:rounded-t-none sm:p-10 lg:mx-0 lg:rounded-tr-3xl lg:rounded-bl-none">
@@ -207,7 +207,7 @@
             </li>
             {{ end }}
           </ul>
-          <a href="{{ $tier.cta.url }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaRingColor }} ring-inset hover:ring-{{ $tier.ctaHoverRingColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaColor }} sm:mt-10">{{ $tier.cta.text }}</a>
+          <a href="{{ $tier.cta.url | relLangURL }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold text-{{ $tier.ctaColor }} ring-1 ring-{{ $tier.ctaRingColor }} ring-inset hover:ring-{{ $tier.ctaHoverRingColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaColor }} sm:mt-10">{{ $tier.cta.text }}</a>
         </div>
       {{ end }}
     {{ end }}
