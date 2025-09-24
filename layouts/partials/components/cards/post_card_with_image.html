@@ -36,7 +36,7 @@
   {{ $cardHeight = printf "%.4frem" (div (float .cardHeight) 16) }}
 {{ end }}
 {{ $cardClasses := printf "h-full min-h-[%s]" $cardHeight }}
-{{ $imageWrapperClasses := "h-48 min-h-[15.3125rem] overflow-hidden" }}
+{{ $imageWrapperClasses := .imageWrapperClasses | default "h-48 min-h-[15.3125rem] overflow-hidden" }}
 {{ $descriptionLength := 160 }}
 
 {{/* Image URL */}}
