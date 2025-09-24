@@ -60,7 +60,7 @@ Example:
 
         {{/* Cards */}}
         {{ if $cards }}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-2.5{{ if or $heading $description }} mt-14{{ end }}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5{{ if or $heading $description }} mt-14{{ end }}">
                 {{ range $cards }}
                     {{ $cardBackgroundImage := .backgroundImage }}
                     {{ $cardSchemaImage := .schemaImage }}
@@ -81,7 +81,7 @@ Example:
 
                             <div class="flex-grow bg-[#F9FAFB]"></div>
 
-                            <div class="flex items-center gap-x-7 py-6 px-8 bg-gray-100 text-black flex-shrink-0">
+                            <div class="flex max-lg:flex-col max-lg:mt-2 lg:items-center gap-x-7 py-6 px-8 bg-gray-100 text-black flex-shrink-0">
                                 <div class="content flex-grow">
                                     {{ with .title }}
                                         <h3 class="text-2xl mb-4 leading-tight">{{ . | safeHTML }}</h3>

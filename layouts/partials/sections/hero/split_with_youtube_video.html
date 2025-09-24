@@ -43,7 +43,7 @@ Parameters:
 <div class="split-with-video-hero {{ if .backgroundColor }}{{ .backgroundColor }}{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
-      <div class="relative rounded-lg py-6 flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
+      <div class="max-md:hidden relative rounded-lg py-6 flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
         {{ partial "components/media/video.html" (dict
           "videoID" $videoID 
           "title" ($videoTitle | default "YouTube Video")
