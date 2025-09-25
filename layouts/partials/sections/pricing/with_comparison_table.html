@@ -87,7 +87,8 @@
 {{ $featureCategories := .featureCategories }}
 
 {{ if (gt (len $tiersComparison) 0) }}
-    <div id="comparison-table" class="bg-{{ $backgroundColorComparison }} py-20 hidden md:block">
+    
+    <div id="comparison-table" class="bg-{{ $backgroundColorComparison }} py-20">
         <div class="wrapper">
             <div class="text-center">
                 {{ if $headingComparison }}
@@ -117,21 +118,21 @@
                 {{ end }}
             </div>
             <div class="isolate mt-20">
-                <div class="relative -mx-8">
+                <div class="relative lg:-mx-8">
                     {{ $columnCount := add (len $tiersComparison) 1 }}
                     {{ range $index, $tier := $tiersComparison }}
                         {{ if $tier.emphasized }}
                             {{ $columnWidth := div 100 $columnCount }}
                             {{ $marginLeft := mul $columnWidth (add $index 1) }}
                             <div
-                                    class="pointer-events-none absolute top-0 left-0 -z-10 h-full px-4"
+                                    class="max-lg:hidden pointer-events-none absolute top-0 left-0 -z-10 h-full px-4"
                                     style="width: {{ $columnWidth }}%; margin-left: {{ $marginLeft }}%;">
                                 <div class="w-full rounded-t-xl border-x border-t border-gray-900/10 bg-gray-400/5 h-full"></div>
                             </div>
                         {{ end }}
                     {{ end }}
                     <table class="w-full table-fixed border-separate border-spacing-x-8 text-left">
-                        <colgroup>
+                        <colgroup class="max-lg:hidden">
                             <col class="w-1/4">
                             {{ range $tiersComparison }}
                                 <col class="w-1/4">
@@ -154,7 +155,7 @@
                                 {{ $hasFunctionality := or (or $tier.monthlyPrice $tier.annualPrice) (and $tier.cta $tier.cta.url $tier.cta.text) }}
                                 {{ if $hasFunctionality }}
                                 <td class="not-prose px-6 pt-0 xl:px-8">
-                                    <p class="mt-0 flex items-baseline gap-x-1">
+                                    <p class="mt-0 lg:flex items-baseline gap-x-1">
                                         {{ if $togglePrice }}
                                             <!-- Monthly price (default visible) -->
                                             {{ if $tier.monthlyPrice }}
@@ -207,7 +208,7 @@
                                 <th scope="colgroup" colspan="{{ add (len $tiersComparison) 1 }}"
                                     class="pt-{{ if eq $categoryIndex 0 }}8{{ else }}16{{ end }} pb-4 text-sm/6 font-semibold text-gray-900">
                                     {{ i18n $category.name }}
-                                    <div class="absolute inset-x-8 mt-4 h-px bg-gray-900/10"></div>
+                                    <div class="max-lg:hidden absolute inset-x-8 mt-4 h-px bg-gray-900/10"></div>
                                 </th>
                             </tr>
 
@@ -219,7 +220,7 @@
                                         {{ else }}
                                             {{ i18n $feature.name }}
                                         {{ end }}
-                                        <div class="absolute inset-x-8 mt-4 h-px bg-gray-900/5"></div>
+                                        <div class="max-lg:hidden absolute inset-x-8 mt-4 h-px bg-gray-900/5"></div>
                                     </th>
 
                                     {{ range $tierIndex, $tier := $tiersComparison }}
@@ -252,6 +253,117 @@
             </div>
         </div>
     </div>
+
+    <style type="text/css">
+        #comparison-table {
+            --border: 1px solid rgba(17, 24, 39, .1);
+        }
+    
+        @media (max-width: 1024px) {
+    
+            table,
+            thead,
+            tbody,
+            tfoot,
+            tr,
+            th,
+            td {
+                display: block
+            }
+    
+            colgroup,
+            thead td {
+                display: none;
+            }
+
+            thead.fixed {
+                background-color: #fff;
+                z-index: 9999;
+                width: calc(100% - 2rem);
+                border-bottom: var(--border);
+            }
+    
+            tr {
+                display: flex;
+                flex-wrap: wrap;
+                border-top: var(--border);
+            }
+    
+            tr th:first-child:last-child {
+                background-color: #eee;
+            }
+    
+            tr th:has(~ td) {
+                background-color: #fcfcfc;
+            }
+    
+            tbody th {
+                width: 100%;
+                flex-shrink: 0;
+                border-left: var(--border);
+                border-right: var(--border);
+            }
+    
+            tbody tr:last-child {
+                border-bottom: var(--border);
+            }
+    
+            th,
+            td {
+                padding: .25em .5em !important;
+            }
+    
+            td,
+            thead th {
+                width: 33.33%;
+                text-align: left !important;
+                border-left: var(--border);
+            }
+    
+            td {
+                border-top: var(--border);
+            }
+    
+            thead th:last-child,
+            td:last-child {
+                border-right: var(--border);
+            }
+    
+            td>* {
+                text-align: left !important;
+                margin: 0 !important
+            }
+        }
+    </style>
+
+    <script>
+        const mainHeaderHeight = document.querySelector('header').clientHeight;
+        /* Sticky header */
+        function sticky(stickyTable) {
+            if (stickyTable !== null) {
+                const stickyTop = stickyTable.getBoundingClientRect();
+
+                if (window.matchMedia('(max-width: 1024px)').matches) {
+                    const header = document.querySelector(
+                        'thead'
+                    );
+                    const posTop = stickyTop.top + window.pageYOffset - mainHeaderHeight;
+
+                    window.addEventListener('scroll', () => {
+                        if (window.scrollY >= posTop) {
+                            header.classList.add('fixed');
+                            header.style.top = `${mainHeaderHeight}px`;
+                        } else {
+                            header.classList.remove('fixed');
+                            header.style.top = 0
+                        }
+                    });
+                }
+            }
+        }
+
+        sticky(document.querySelector('#comparison-table table'));
+    </script>
 
     {{ if $togglePrice }}
         <!-- JavaScript for toggle functionality -->
