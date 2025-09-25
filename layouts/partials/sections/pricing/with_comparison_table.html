@@ -120,6 +120,7 @@
             <div class="isolate mt-20">
                 <div class="relative lg:-mx-8">
                     {{ $columnCount := add (len $tiersComparison) 1 }}
+                    {{ $columnWidthVar := div 100 (len $tiersComparison) }}
                     {{ range $index, $tier := $tiersComparison }}
                         {{ if $tier.emphasized }}
                             {{ $columnWidth := div 100 $columnCount }}
@@ -131,7 +132,7 @@
                             </div>
                         {{ end }}
                     {{ end }}
-                    <table class="w-full table-fixed border-separate border-spacing-x-8 text-left">
+                    <table class="w-full table-fixed border-separate border-spacing-x-8 text-left" style="--colWidth: {{ $columnWidthVar }}%">
                         <colgroup class="max-lg:hidden">
                             <col class="w-1/4">
                             {{ range $tiersComparison }}
@@ -159,16 +160,16 @@
                                         {{ if $togglePrice }}
                                             <!-- Monthly price (default visible) -->
                                             {{ if $tier.monthlyPrice }}
-                                            <span class="text-4xl font-semibold tracking-tight text-gray-900 monthly-price">{{ $tier.monthlyPrice }}</span>
+                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-gray-900 monthly-price">{{ $tier.monthlyPrice }}</span>
                                             {{ end }}
                                             <!-- Annual price (hidden by default) -->
                                             {{ if $tier.annualPrice }}
-                                            <span class="text-4xl font-semibold tracking-tight text-gray-900 annual-price hidden">{{ $tier.annualPrice }}</span>
+                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-gray-900 annual-price hidden">{{ $tier.annualPrice }}</span>
                                             {{ end }}
                                         {{ else }}
                                             <!-- Only monthly price when toggle is disabled -->
                                             {{ if $tier.monthlyPrice }}
-                                            <span class="text-4xl font-semibold tracking-tight text-gray-900">{{ $tier.monthlyPrice }}</span>
+                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-gray-900">{{ $tier.monthlyPrice }}</span>
                                             {{ end }}
                                         {{ end }}
                                         <!-- Interval -->
@@ -315,7 +316,7 @@
     
             td,
             thead th {
-                width: 33.33%;
+                width: var(--colWidth);
                 text-align: left !important;
                 border-left: var(--border);
             }
