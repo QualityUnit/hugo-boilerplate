@@ -120,7 +120,7 @@
             <div class="isolate mt-20">
                 <div class="relative lg:-mx-8">
                     {{ $columnCount := add (len $tiersComparison) 1 }}
-                    {{ $columnWidthVar := div 100 (len $tiersComparison) }}
+                    {{ $columnWidthVar := div 100.0 (len $tiersComparison) }}
                     {{ range $index, $tier := $tiersComparison }}
                         {{ if $tier.emphasized }}
                             {{ $columnWidth := div 100 $columnCount }}
