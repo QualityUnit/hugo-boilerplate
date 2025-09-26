@@ -32,11 +32,11 @@
       {{ end }}
       
       {{ if gt (len $relatedPages) 0 }}
-        <div class="bg-white py-24 lg:py-32">
+        <div class="bg-white py-24 lg:py-32 {{ if and $currentPage.RelPermalink (strings.Contains $currentPage.RelPermalink "/about") }}max-md:hidden{{ end }}">
           <div class="wrapper">
               <div class="text-center mb-8"></div>
               <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-center mb-4 pb-2">
-                {{ i18n "learnMore" | default "Want to know more?" }}
+          {{ i18n "learnMore" | default "Want to know more?" }}
               </h2>
           </div>
           
@@ -48,21 +48,21 @@
             {{ $hasImages := false }}
             {{ range $relatedPages }}
               {{ if .Params.image }}
-                {{ $hasImages = true }}
+          {{ $hasImages = true }}
               {{ end }}
             {{ end }}
 
             {{ range first 3 $relatedPages }}
               {{ if . }}
-                {{ partial "components/cards/post_card_with_image.html" (dict "cardHeight" 500 "showImages" $hasImages "page" .) }}
-                {{ $validPages = add $validPages 1 }}
+          {{ partial "components/cards/post_card_with_image.html" (dict "cardHeight" 500 "showImages" $hasImages "page" .) }}
+          {{ $validPages = add $validPages 1 }}
               {{ end }}
             {{ end }}
             
             {{ if eq $validPages 0 }}
               <!-- If we got here but no valid pages were rendered, hide the entire section -->
               <style>
-                .text-center.mb-8 { display: none; }
+          .text-center.mb-8 { display: none; }
               </style>
             {{ end }}
             </div>

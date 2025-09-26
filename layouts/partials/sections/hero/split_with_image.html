@@ -71,7 +71,7 @@ Design Tokens:
 {{ $typewriter := merge (dict "wordAlternatives" "") $typewriter }}
 
 {{/* Design tokens and configurable dimensions */}}
-{{ $sectionPaddingY := .sectionPaddingY | default "py-12 lg:py-16" }}
+{{ $sectionPaddingY := .sectionPaddingY | default "max-md:pt-0 py-12 lg:py-16" }}
 {{ $imageContainerPaddingY := "py-6" }}
 {{ $contentPaddingY := "py-4" }}
 {{ $contentLeftPadding := .contentLeftPadding | default "lg:pr-20" }}
@@ -98,7 +98,7 @@ Design Tokens:
 <div class="split-with-image-hero {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
-      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
+      <div class="max-md:hidden relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
         {{ partial "components/media/lazyimg.html" (dict
           "src" $imageSrc
           "alt" $finalImageAlt

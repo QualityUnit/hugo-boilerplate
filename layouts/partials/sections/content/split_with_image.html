@@ -101,7 +101,7 @@ Design Tokens:
       "padding" $headerPadding
     ) }}
   {{ end }}
-  <div class="wrapper lg:flex lg:justify-between lg:items-stretch {{ if not $videoUrl }}gap-x-8{{ end }}{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
+  <div class="wrapper flex flex-col lg:flex-row lg:justify-between lg:items-stretch {{ if not $videoUrl }}gap-x-8{{ end }}{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
       <div class="group/video relative rounded-lg {{ $mediaContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem] {{ if $videoUrl }}h-full{{ end }}">
         {{ if $videoUrl }}
@@ -160,7 +160,7 @@ Design Tokens:
         {{ end }}
       </div>
     </div>
-    <div class="lg:flex lg:w-1/2 lg:items-center {{ if $videoUrl }}lg:pr-8{{ end }}">
+    <div class="max-md:-order-1 lg:flex lg:w-1/2 lg:items-center {{ if $videoUrl }}lg:pr-8{{ end }}">
       <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ if eq $layout "image-right" }}lg:pr-20{{ else }}{{ $contentLeftPadding }} {{ end }}">
         {{ if $eyebrow }}
           <p class="text-base/7 font-semibold product-text">{{ $eyebrow }}</p>

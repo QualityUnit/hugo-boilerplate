@@ -16,7 +16,11 @@
   <div class="wrapper grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
     {{ range $paginator.Pages }}
       <div>
-        {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" $cardHeight) }}
+        {{ partial "components/cards/post_card_with_image.html" (dict 
+        "page" . 
+        "cardHeight" $cardHeight
+        "imageWrapperClasses" "max-md:hidden"
+        ) }}
       </div>
     {{ end }}
   </div>
