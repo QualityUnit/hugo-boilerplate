@@ -217,7 +217,7 @@
             <span class="text-sm/6 font-semibold text-{{ $tier.intervalColor }}">{{ $tier.interval }}</span>
           </p>
           <p class="mt-3 text-sm/6 text-{{ $tier.annualPriceColor }}">{{ $tier.annualPrice }}</p>
-          <a href="{{ $tier.cta.url | relLangURL }}" aria-describedby="{{ $tier.id }}" class="mt-10 block rounded-md bg-{{ $tier.ctaBgColor }} px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaBgColor }}">{{ $tier.cta.text }}</a>
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $tier.cta.url) }}" aria-describedby="{{ $tier.id }}" class="mt-10 block rounded-md bg-{{ $tier.ctaBgColor }} px-3 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaBgColor }}">{{ $tier.cta.text }}</a>
           <p class="mt-10 text-sm/6 font-semibold text-{{ $tier.summaryColor }}">{{ $tier.summary }}</p>
           <ul role="list" class="mt-6 space-y-3 text-sm/6 text-{{ $tier.featureColor }}">
             {{ range $feature := $tier.features }}

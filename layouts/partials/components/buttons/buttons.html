@@ -100,7 +100,7 @@
     </button>
   {{ else if $url }}
     <a
-      href="{{ if not (or (hasPrefix $url "http") (hasPrefix $url "#")) }}{{ $url | relLangURL }}{{ else }}{{ $url }}{{ end }}"
+      href="{{ partial "helpers/get-translated-url.html" (dict "url" $url) }}"
       class="{{ $variantClass }} {{ $sizeClass }} {{ $classes }} not-prose group"
       aria-label="{{ $ariaLabel }}"
       target="{{ $target }}"

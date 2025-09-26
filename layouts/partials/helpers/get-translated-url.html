@@ -1,0 +1,45 @@
+{{/*
+@component: Get Translated URL
+@description: Gets the properly translated URL for a page, using the custom URL from frontmatter if available
+@params:
+  - url: The base URL path (e.g., "/features/")
+  - lang: The current language code (optional, defaults to site language)
+@returns: The translated URL with language prefix
+@example:
+{{ $translatedUrl := partial "helpers/get-translated-url.html" (dict "url" "/features/") }}
+*/}}
+
+{{- $url := .url | default "#" -}}
+{{- $lang := .lang | default site.Language.Lang -}}
+{{- $site := site -}}
+
+{{- /* Handle external URLs and anchors - return as-is */ -}}
+{{- if or (hasPrefix $url "http://") (hasPrefix $url "https://") (hasPrefix $url "#") -}}
+  {{- $url -}}
+{{- else -}}
+  {{- /* Try to find the page and get its actual URL from frontmatter */ -}}
+  {{- $contentPath := strings.TrimPrefix "/" (strings.TrimSuffix "/" $url) -}}
+  {{- $page := "" -}}
+
+  {{- /* First try to get the page directly in current language */ -}}
+  {{- with $site.GetPage (printf "/%s/%s" $lang $contentPath) -}}
+    {{- $page = . -}}
+  {{- else -}}
+    {{- /* Try without language prefix */ -}}
+    {{- with $site.GetPage $contentPath -}}
+      {{- $page = . -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if $page -}}
+    {{- /* Use the page's actual URL from frontmatter if it exists */ -}}
+    {{- with $page.Params.url -}}
+      {{- . | relLangURL -}}
+    {{- else -}}
+      {{- $page.RelPermalink -}}
+    {{- end -}}
+  {{- else -}}
+    {{- /* Fallback to just adding language prefix */ -}}
+    {{- $url | relLangURL -}}
+  {{- end -}}
+{{- end -}}
