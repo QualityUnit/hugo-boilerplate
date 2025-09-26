@@ -138,7 +138,7 @@
               <span class="text-5xl font-semibold tracking-tight text-{{ $priceColor }}">{{ $price }}</span>
               <span class="text-sm/6 font-semibold tracking-wide text-{{ $currencyColor }}">{{ $currency }}</span>
             </p>
-            <a href="{{ $ctaUrl }}" class="mt-10 block w-full rounded-md bg-{{ $ctaBgColor }} px-3 py-2 text-center text-sm font-semibold text-{{ $ctaTextColor }} shadow-xs hover:bg-{{ $ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $ctaBgColor }}">{{ $ctaText }}</a>
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $ctaUrl) }}" class="mt-10 block w-full rounded-md bg-{{ $ctaBgColor }} px-3 py-2 text-center text-sm font-semibold text-{{ $ctaTextColor }} shadow-xs hover:bg-{{ $ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $ctaBgColor }}">{{ $ctaText }}</a>
             <p class="mt-6 text-xs/5 text-{{ $footnoteColor }}">{{ $footnote }}</p>
           </div>
         </div>

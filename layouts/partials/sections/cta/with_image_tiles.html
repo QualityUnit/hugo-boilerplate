@@ -92,7 +92,7 @@
         <p class="mt-6 text-xl/8 text-gray-600">{{ $description1 }}</p>
         <p class="mt-6 text-base/7 text-gray-600">{{ $description2 }}</p>
         <div class="mt-10 flex">
-          <a href="{{ $cta.url }}" class="rounded-md bg-{{ $primaryCtaColor }} px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-{{ $primaryCtaHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $primaryCtaColor }}">{{ $cta.text }} <span aria-hidden="true">&rarr;</span></a>
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $cta.url) }}" class="rounded-md bg-{{ $primaryCtaColor }} px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-{{ $primaryCtaHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $primaryCtaColor }}">{{ $cta.text }} <span aria-hidden="true">&rarr;</span></a>
         </div>
       </div>
       <div class="flex flex-wrap items-start justify-end gap-6 sm:gap-8 lg:contents">

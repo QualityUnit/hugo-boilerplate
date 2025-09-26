@@ -95,7 +95,7 @@
   <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-bold text-gray-900">{{ $heading }}</h2>
-      <a href="{{ $viewAllUrl }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">{{ $viewAllText }}</a>
+      <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $viewAllUrl) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">{{ $viewAllText }}</a>
     </div>
 
     <div class="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
@@ -120,7 +120,7 @@
           </div>
         </div>
         <div class="mt-6">
-          <a href="{{ .url }}" class="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200">{{ $addToCartText }}<span class="sr-only">, {{ .title }}</span></a>
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200">{{ $addToCartText }}<span class="sr-only">, {{ .title }}</span></a>
         </div>
       </div>
       {{ end }}

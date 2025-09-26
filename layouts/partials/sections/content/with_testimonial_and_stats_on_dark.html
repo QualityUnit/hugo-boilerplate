@@ -122,7 +122,7 @@
         </dl>
         {{ if $showCta }}
         <div class="mt-10 flex">
-          <a href="{{ $ctaUrl }}" class="text-base/7 font-semibold {{ $ctaColor }}">{{ $ctaText }} <span aria-hidden="true">&rarr;</span></a>
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $ctaUrl) }}" class="text-base/7 font-semibold {{ $ctaColor }}">{{ $ctaText }} <span aria-hidden="true">&rarr;</span></a>
         </div>
         {{ end }}
       </div>

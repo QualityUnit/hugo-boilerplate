@@ -89,7 +89,7 @@
           <div class="mt-6 flow-root">
             <div class="-my-2">
               {{ range $engagementLinks }}
-              <a href="{{ .url }}" class="flex gap-x-4 py-2 text-sm/6 font-semibold {{ $linkTextColor }}">
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="flex gap-x-4 py-2 text-sm/6 font-semibold {{ $linkTextColor }}">
                 {{ partial "components/media/icon.html" (dict "icon" .icon) }}
                 {{ .title }}
               </a>
@@ -102,7 +102,7 @@
           <div class="mt-6 flow-root">
             <div class="-my-2">
               {{ range $resourceLinks }}
-              <a href="{{ .url }}" class="flex gap-x-4 py-2 text-sm/6 font-semibold {{ $linkTextColor }}">
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="flex gap-x-4 py-2 text-sm/6 font-semibold {{ $linkTextColor }}">
                 {{ if .icon }}
                 {{ partial (printf "icons/%s" .icon) }}
                 {{ end }}
@@ -134,7 +134,7 @@
               <a href="{{ .categoryUrl }}" class="relative z-10 rounded-full {{ $blogCategoryBgColor }} px-3 py-1.5 text-xs font-medium {{ $blogCategoryTextColor }} {{ $blogCategoryHoverColor }}">{{ .category }}</a>
             </div>
             <h4 class="mt-2 text-sm/6 font-semibold {{ $blogTitleColor }}">
-              <a href="{{ .url }}">
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}">
                 <span class="absolute inset-0"></span>
                 {{ .title }}
               </a>

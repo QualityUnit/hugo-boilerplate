@@ -90,7 +90,7 @@
           {{ range $index, $logo := $logos }}
             <div class="flex items-center justify-center">
               {{ $class := "block max-h-12 h-10 lg:h-12 w-full object-contain" }}
-              {{ if $logo.url }}<a href="{{ $logo.url }}" target="_blank" rel="noopener noreferrer" title="{{ $logo.name }}">{{ end }}
+              {{ if $logo.url }}<a href="{{ partial "helpers/get-translated-url.html" (dict "url" $logo.url) }}" target="_blank" rel="noopener noreferrer" title="{{ $logo.name }}">{{ end }}
                   {{ partial "components/media/lazyimg.html" (dict
                     "src" $logo.image
                     "alt" $logo.name

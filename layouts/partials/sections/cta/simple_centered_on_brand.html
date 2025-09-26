@@ -49,8 +49,8 @@
       <h2 class="text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl">{{ $heading }}</h2>
       <p class="mx-auto mt-6 max-w-xl text-lg/8 text-pretty text-{{ $brandLightColor }}">{{ $description }}</p>
       <div class="mt-10 flex items-center justify-center gap-x-6">
-        <a href="{{ $primaryCta.url }}" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-{{ $primaryCtaColor }} shadow-xs hover:bg-{{ $primaryCtaHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">{{ $primaryCta.text }}</a>
-        <a href="{{ $secondaryCta.url }}" class="text-sm/6 font-semibold text-white">{{ $secondaryCta.text }} <span aria-hidden="true">→</span></a>
+        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $primaryCta.url) }}" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-{{ $primaryCtaColor }} shadow-xs hover:bg-{{ $primaryCtaHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">{{ $primaryCta.text }}</a>
+        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $secondaryCta.url) }}" class="text-sm/6 font-semibold text-white">{{ $secondaryCta.text }} <span aria-hidden="true">→</span></a>
       </div>
     </div>
   </div>

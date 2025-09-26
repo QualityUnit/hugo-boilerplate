@@ -34,7 +34,7 @@
 
 <div id="{{ $bannerId }}" data-banner class="flex items-center gap-x-6 {{ $backgroundColor }} px-6 py-2.5 sm:px-3.5 sm:before:flex-1 z-50">
   <p class="text-sm/6 {{ $textColor }}">
-    <a href="{{ $url }}">
+    <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $url) }}">
       <strong class="font-semibold">{{ $title }}</strong><svg viewBox="0 0 2 2" class="mx-2 inline size-0.5 fill-current" aria-hidden="true"><circle cx="1" cy="1" r="1" /></svg>{{ $message }}&nbsp;<span aria-hidden="true">&rarr;</span>
     </a>
   </p>

@@ -132,7 +132,7 @@
             {{ partial "components/media/icon.html" (dict "icon" .icon) }}
           </div>
           <div>
-            <a href="{{ .url }}" class="font-semibold {{ $titleColor }}">
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="font-semibold {{ $titleColor }}">
               {{ .title }}
               <span class="absolute inset-0"></span>
             </a>
@@ -145,7 +145,7 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-6">
           <div class="grid grid-cols-1 divide-y divide-gray-900/5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:border-x sm:border-gray-900/5">
             {{ range $footerLinks }}
-            <a href="{{ .url }}" class="flex items-center gap-x-2.5 p-3 px-4 text-sm/6 font-semibold {{ $footerLinkColor }} {{ $footerLinkHoverBgColor }} sm:justify-center sm:px-0">
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="flex items-center gap-x-2.5 p-3 px-4 text-sm/6 font-semibold {{ $footerLinkColor }} {{ $footerLinkHoverBgColor }} sm:justify-center sm:px-0">
               {{ if .icon }}
               {{ partial (printf "icons/%s" .icon) (dict "class" $footerLinkIconColor) }}
               {{ end }}

@@ -133,7 +133,7 @@
             {{ partial "components/media/icon.html" (dict "icon" .icon) }}
           </div>
           <div>
-            <a href="{{ .url }}" class="font-semibold {{ $titleColor }}">
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="font-semibold {{ $titleColor }}">
               {{ .title }}
               <span class="absolute inset-0"></span>
             </a>

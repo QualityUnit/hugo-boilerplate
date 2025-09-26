@@ -23,7 +23,7 @@
 <nav class="wrapper flex gap-2 py-8" aria-label="Breadcrumb">
   <ol role="list" class="flex flex-wrap items-center gap-y-2">
     <li class="flex items-center">
-      <a href="{{ $homeUrl }}" class="icon-on-gray">
+      <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $homeUrl) }}" class="icon-on-gray">
         {{ partial "icons/home-solid.html" (dict "class" "size-5 block h-5 shrink-0 ") }}
         <span class="sr-only">Home</span>
       </a>
@@ -36,9 +36,9 @@
     {{- $isLast := eq (add $index 1) (len $items) -}}
     <li class="flex items-center">
       {{- if $isLast -}}
-      <a href="{{ $item.url }}" class="text-sm font-medium text-heading hover:text-gray-700 break-words" aria-current="page">{{ $item.title }}</a>
+      <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $item.url) }}" class="text-sm font-medium text-heading hover:text-gray-700 break-words" aria-current="page">{{ $item.title }}</a>
       {{- else -}}
-      <a href="{{ $item.url }}" class="text-sm font-medium text-secondary hover:text-gray-700 break-words">{{ $item.title }}</a>
+      <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $item.url) }}" class="text-sm font-medium text-secondary hover:text-gray-700 break-words">{{ $item.title }}</a>
       <span class="mx-2 lg:mx-4 text-gray-300 dark:text-gray-600 whitespace-nowrap">/</span>
       {{- end -}}
     </li>
@@ -47,4 +47,3 @@
   </ol>
 </nav>
 
-{{ partial "schemaorg/breadcrumbs.html" (dict "items" $items) }}

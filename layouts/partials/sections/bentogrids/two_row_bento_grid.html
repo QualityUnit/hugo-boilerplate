@@ -155,7 +155,7 @@
           {{ if $url }}
             {{ $cardImageClasses = $card.cardImageClasses | default "h-80 object-cover object-left transition-transform group-hover:scale-105" }}
 
-            <a href="{{ $url }}" class="relative block h-full group">
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $url) }}" class="relative block h-full group">
               <div class="relative flex h-full flex-col overflow-hidden {{ $borderRadius }}">
                 <div class="{{ $backgroundColorImage }}">
                   {{ partial "components/media/lazyimg.html" (dict

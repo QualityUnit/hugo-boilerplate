@@ -83,7 +83,7 @@
             "maxWidth" 400
           ) }}
           <h3 class="mt-6 text-sm text-gray-500">
-            <a href="{{ .url }}">
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}">
               <span class="absolute inset-0"></span>
               {{ .title }}
             </a>

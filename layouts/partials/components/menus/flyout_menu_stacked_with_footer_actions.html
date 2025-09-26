@@ -95,7 +95,7 @@
           </div>
           {{ end }}
           <div>
-            <a href="{{ .url }}" class="font-semibold {{ $titleColor }}">
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="font-semibold {{ $titleColor }}">
               {{ .title }}
               <span class="absolute inset-0"></span>
             </a>
@@ -107,7 +107,7 @@
       {{ if and $footerActions (gt (len $footerActions) 0) }}
       <div class="grid grid-cols-{{ len $footerActions }} divide-x divide-gray-900/5 {{ $footerBackgroundColor }}">
         {{ range $footerActions }}
-        <a href="{{ .url }}" class="flex items-center justify-center gap-x-2.5 p-3 font-semibold {{ $footerTextColor }} {{ $footerHoverColor }}">
+        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="flex items-center justify-center gap-x-2.5 p-3 font-semibold {{ $footerTextColor }} {{ $footerHoverColor }}">
           {{ partial "components/media/icon.html" (dict "icon" .icon) }}
           {{ .text }}
         </a>

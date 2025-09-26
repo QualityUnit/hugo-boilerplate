@@ -78,7 +78,7 @@
             {{ end }}
           </ul>
           <div class="mt-10 flex">
-            <a href="{{ $cta.url }}" class="text-sm/6 font-semibold text-{{ $ctaColor }}">{{ $cta.text }} <span aria-hidden="true">&rarr;</span></a>
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $cta.url) }}" class="text-sm/6 font-semibold text-{{ $ctaColor }}">{{ $cta.text }} <span aria-hidden="true">&rarr;</span></a>
           </div>
         </div>
       </div>

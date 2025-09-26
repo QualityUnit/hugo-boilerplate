@@ -228,7 +228,7 @@
                     <p class="text-gray-400 billing-text-annually hidden">{{ $tier1BillingTextAnnual }}</p>
                   </div>
                 </div>
-                <a href="{{ $tier1ButtonUrl }}" aria-describedby="{{ $tier1Id }}" class="rounded-md bg-white/10 px-3 py-2 text-center text-sm/6 font-semibold text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">{{ $tier1ButtonText }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $tier1ButtonUrl) }}" aria-describedby="{{ $tier1Id }}" class="rounded-md bg-white/10 px-3 py-2 text-center text-sm/6 font-semibold text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">{{ $tier1ButtonText }}</a>
               </div>
               <div class="mt-8 flow-root sm:mt-10">
                 <ul role="list" class="-my-2 divide-y divide-white/5 border-t border-white/5 text-sm/6 text-white lg:border-t-0">
@@ -259,7 +259,7 @@
                     <p class="text-gray-500 billing-text-annually hidden">{{ $tier2BillingTextAnnual }}</p>
                   </div>
                 </div>
-                <a href="{{ $tier2ButtonUrl }}" aria-describedby="{{ $tier2Id }}" class="rounded-md bg-indigo-600 px-3 py-2 text-center text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier2ButtonText }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $tier2ButtonUrl) }}" aria-describedby="{{ $tier2Id }}" class="rounded-md bg-indigo-600 px-3 py-2 text-center text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier2ButtonText }}</a>
               </div>
               <div class="mt-8 flow-root sm:mt-10">
                 <ul role="list" class="-my-2 divide-y divide-gray-900/5 border-t border-gray-900/5 text-sm/6 text-gray-600 lg:border-t-0">
@@ -290,7 +290,7 @@
                     <p class="text-gray-400 billing-text-annually hidden">{{ $tier3BillingTextAnnual }}</p>
                   </div>
                 </div>
-                <a href="{{ $tier3ButtonUrl }}" aria-describedby="{{ $tier3Id }}" class="rounded-md bg-white/10 px-3 py-2 text-center text-sm/6 font-semibold text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">{{ $tier3ButtonText }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $tier3ButtonUrl) }}" aria-describedby="{{ $tier3Id }}" class="rounded-md bg-white/10 px-3 py-2 text-center text-sm/6 font-semibold text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">{{ $tier3ButtonText }}</a>
               </div>
               <div class="mt-8 flow-root sm:mt-10">
                 <ul role="list" class="-my-2 divide-y divide-white/5 border-t border-white/5 text-sm/6 text-white lg:border-t-0">
@@ -474,4 +474,4 @@
         });
       });
     });
-  </script>
+</script>

@@ -118,8 +118,8 @@
         <h2 class="text-4xl font-semibold tracking-tight text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
         <p class="mt-6 text-lg/8 {{ $descriptionColor }}">{{ $description }}</p>
         <div class="mt-8 flex items-center gap-x-6">
-          <a href="{{ $primaryButtonUrl }}" class="rounded-md {{ $primaryButtonBgColor }} px-3.5 py-2.5 text-sm font-semibold {{ $primaryButtonTextColor }} shadow-xs {{ $primaryButtonHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $primaryButtonText }}</a>
-          <a href="{{ $secondaryButtonUrl }}" class="text-sm font-semibold {{ $secondaryButtonColor }}">{{ $secondaryButtonText }} <span aria-hidden="true">&rarr;</span></a>
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $primaryButtonUrl) }}" class="rounded-md {{ $primaryButtonBgColor }} px-3.5 py-2.5 text-sm font-semibold {{ $primaryButtonTextColor }} shadow-xs {{ $primaryButtonHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $primaryButtonText }}</a>
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $secondaryButtonUrl) }}" class="text-sm font-semibold {{ $secondaryButtonColor }}">{{ $secondaryButtonText }} <span aria-hidden="true">&rarr;</span></a>
         </div>
       </div>
       <div class="mx-auto grid w-full max-w-xl grid-cols-2 items-center gap-y-12 sm:gap-y-14 lg:mx-0 lg:max-w-none lg:pl-8">

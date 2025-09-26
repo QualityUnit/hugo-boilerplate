@@ -121,7 +121,7 @@
         <p class="text-sm/6 text-balance {{ $missionTextColor }}">{{ $missionText }}</p>
         <div class="flex gap-x-6">
           {{ range $socialLinks }}
-          <a href="{{ .url }}" class="{{ $socialLinkColor }} hover:{{ $socialLinkHoverColor }}">
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="{{ $socialLinkColor }} hover:{{ $socialLinkHoverColor }}">
             <span class="sr-only">{{ .name }}</span>
             {{ partial "components/media/icon.html" (dict "icon" .icon) }}
           </a>
@@ -135,7 +135,7 @@
             <ul role="list" class="mt-6 space-y-4">
               {{ range $column1Links }}
               <li>
-                <a href="{{ .url }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
               </li>
               {{ end }}
             </ul>
@@ -145,7 +145,7 @@
             <ul role="list" class="mt-6 space-y-4">
               {{ range $column2Links }}
               <li>
-                <a href="{{ .url }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
               </li>
               {{ end }}
             </ul>
@@ -157,7 +157,7 @@
             <ul role="list" class="mt-6 space-y-4">
               {{ range $column3Links }}
               <li>
-                <a href="{{ .url }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
               </li>
               {{ end }}
             </ul>
@@ -167,7 +167,7 @@
             <ul role="list" class="mt-6 space-y-4">
               {{ range $column4Links }}
               <li>
-                <a href="{{ .url }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
               </li>
               {{ end }}
             </ul>

@@ -278,7 +278,7 @@
                 </div>
               </div>
               <div class="mt-8">
-                <a href="{{ $tier.ctaUrl }}" aria-label="{{ $tier.ctaText }} on the {{ $tier.name }} plan" class="inline-block rounded-md bg-indigo-600 px-3.5 py-2 text-center text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.ctaText }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $tier.ctaUrl) }}" aria-label="{{ $tier.ctaText }} on the {{ $tier.name }} plan" class="inline-block rounded-md bg-indigo-600 px-3.5 py-2 text-center text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $tier.ctaText }}</a>
               </div>
               <div class="mt-8">
                 <h3 class="text-sm/6 font-medium text-gray-950">Start selling with:</h3>
@@ -332,7 +332,7 @@
           <th class="p-0"></th>
           {{ range $tier := $tiers }}
           <td class="px-0 pt-3 pb-0">
-            <a href="{{ $tier.ctaUrl }}" aria-label="Get started with the {{ $tier.name }} plan" class="inline-block rounded-xl bg-white px-2.5 py-1.5 text-center text-sm/6 font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50">Get started</a>
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $tier.ctaUrl) }}" aria-label="Get started with the {{ $tier.name }} plan" class="inline-block rounded-xl bg-white px-2.5 py-1.5 text-center text-sm/6 font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50">Get started</a>
           </td>
           {{ end }}
         </tr>
@@ -407,7 +407,7 @@
 
       {{ range $tierIndex, $tier := $tiers }}
       <div id="tabs-1-panel-{{ add $tierIndex 1 }}" aria-labelledby="tabs-1-tab-{{ add $tierIndex 1 }}" role="tabpanel" tabindex="0">
-        <a href="{{ $tier.ctaUrl }}" class="mt-8 block rounded-xl bg-white px-3.5 py-2.5 text-center text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50">Get started</a>
+        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $tier.ctaUrl) }}" class="mt-8 block rounded-xl bg-white px-3.5 py-2.5 text-center text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50">Get started</a>
         
         {{ range $categoryIndex, $category := $featureCategories }}
         <div class="-mx-6 mt-10 rounded-lg bg-gray-50 px-6 py-3 text-sm/6 font-semibold text-gray-950 {{ if eq $categoryIndex 0 }}group-first-of-type:mt-5{{ end }}">{{ $category.name }}</div>

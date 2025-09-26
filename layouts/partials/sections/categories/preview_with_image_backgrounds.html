@@ -86,7 +86,7 @@
           <div class="absolute inset-0 flex items-end p-6">
             <div>
               <h3 class="font-semibold text-white">
-                <a href="{{ .url }}">
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}">
                   <span class="absolute inset-0"></span>
                   {{ .title }}
                 </a>

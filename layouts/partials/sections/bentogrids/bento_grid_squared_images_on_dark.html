@@ -113,7 +113,7 @@
               {{ if and (not $isFirst) (not $isLast) (eq $modulo 0) }}lg:rounded-l-lg{{ end }}
               {{ if and (not $isFirst) (not $isLast) (eq $modulo 3) }}lg:rounded-r-lg{{ end }}">
               {{ if $card.url }}
-              <a href="{{ $card.url }}" class="block h-full hover:opacity-90 transition-opacity">
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $card.url) }}" class="block h-full hover:opacity-90 transition-opacity">
               {{ end }}
               <div class="aspect-square w-full overflow-hidden">
                 {{ partial "components/media/lazyimg.html" (dict 
@@ -152,7 +152,7 @@
               {{ if and (eq $modulo 1) (not $isFirst) }}lg:rounded-r-lg{{ end }}
               {{ if and (eq $modulo 2) (not $isLast) }}lg:rounded-l-lg{{ end }}">
               {{ if $card.url }}
-              <a href="{{ $card.url }}" class="block h-full hover:opacity-90 transition-opacity">
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $card.url) }}" class="block h-full hover:opacity-90 transition-opacity">
               {{ end }}
               <div class="aspect-square w-full overflow-hidden">
                 {{ partial "components/media/lazyimg.html" (dict 

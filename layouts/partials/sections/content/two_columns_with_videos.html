@@ -128,7 +128,7 @@
                         {{ if $video.description }}
                             <p class="text-sm mt-1.5 tracking-[-0.28px]">
                                 {{ if $video.url }}
-                                <a href="{{ $video.url }}" class="flex items-center text-white hover:underline">
+                                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $video.url) }}" class="flex items-center text-white hover:underline">
                                     {{ $video.description }}
                                     <span class="ml-1 btn-arrow">
                                         {{ partial "components/media/icon.html" (dict "icon" "arrow-up-right" "class" "w-5 h-5 p-0.5") }}

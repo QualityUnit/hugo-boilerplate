@@ -89,7 +89,7 @@
     <div class="{{ $menuWidth }} {{ $menuMaxWidth }} flex-auto rounded-3xl {{ $menuBgColor }} p-4 text-sm/6 ring-1 {{ $menuShadowColor }} {{ $menuRingColor }}">
       {{- range $menuItems -}}
       <div class="relative rounded-lg p-4 {{ $itemHoverBgColor }}">
-        <a href="{{ .url }}" class="font-semibold {{ $titleColor }}">
+        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="font-semibold {{ $titleColor }}">
           {{ .title }}
           <span class="absolute inset-0"></span>
         </a>

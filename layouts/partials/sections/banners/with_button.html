@@ -63,7 +63,7 @@
     <p class="text-sm/6 {{ $textColor }}">
       <strong class="font-semibold">{{ $title }}</strong><svg viewBox="0 0 2 2" class="mx-2 inline size-0.5 fill-current" aria-hidden="true"><circle cx="1" cy="1" r="1" /></svg>{{ $message }}
     </p>
-    <a href="{{ $buttonUrl }}" class="flex-none rounded-full {{ $buttonBackgroundColor }} px-3.5 py-1 text-sm font-semibold {{ $buttonTextColor }} shadow-xs {{ $buttonHoverColor }} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 {{ $buttonFocusColor }}">{{ $buttonText }} <span aria-hidden="true">&rarr;</span></a>
+    <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $buttonUrl) }}" class="flex-none rounded-full {{ $buttonBackgroundColor }} px-3.5 py-1 text-sm font-semibold {{ $buttonTextColor }} shadow-xs {{ $buttonHoverColor }} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 {{ $buttonFocusColor }}">{{ $buttonText }} <span aria-hidden="true">&rarr;</span></a>
   </div>
   {{ if $isDismissable }}
   <div class="flex flex-1 justify-end">

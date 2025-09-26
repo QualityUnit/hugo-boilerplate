@@ -111,7 +111,7 @@
               {{ $largeCard := index $cards $startIndex }}
               <div class="lg:col-span-4 h-full flex">
                 {{ if $largeCard.url }}
-                <a href="{{ $largeCard.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $largeCard.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
                 {{ end }}
                 <div class="w-full h-full overflow-hidden rounded-lg {{ if eq $rowIndex 0 }}max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]{{ end }}">
                   {{ partial "components/media/lazyimg.html" (dict 
@@ -129,7 +129,7 @@
                 <div class="grid grid-rows-2 gap-4 h-full">
                   <div class="h-full row-span-1 flex">
                     {{ if $smallCard1.url }}
-                    <a href="{{ $smallCard1.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+                    <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $smallCard1.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
                     {{ end }}
                     <div class="w-full h-full overflow-hidden rounded-lg {{ if eq $rowIndex 0 }}lg:rounded-tr-[2rem]{{ end }}">
                       {{ partial "components/media/lazyimg.html" (dict 
@@ -143,7 +143,7 @@
                   </div>
                   <div class="h-full row-span-1 flex">
                     {{ if $smallCard2.url }}
-                    <a href="{{ $smallCard2.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+                    <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $smallCard2.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
                     {{ end }}
                     <div class="w-full h-full overflow-hidden rounded-lg {{ if and (eq $rowIndex (div (sub (len $cards) 1) 3)) (eq (mod (len $cards) 3) 0) }}max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]{{ end }}">
                       {{ partial "components/media/lazyimg.html" (dict 
@@ -165,7 +165,7 @@
                 <div class="grid grid-rows-2 gap-4 h-full">
                   <div class="h-full row-span-1 flex">
                     {{ if $smallCard1.url }}
-                    <a href="{{ $smallCard1.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+                    <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $smallCard1.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
                     {{ end }}
                     <div class="w-full h-full overflow-hidden rounded-lg {{ if eq $rowIndex 0 }}lg:rounded-tl-[2rem]{{ end }}">
                       {{ partial "components/media/lazyimg.html" (dict 
@@ -179,7 +179,7 @@
                   </div>
                   <div class="h-full row-span-1 flex">
                     {{ if $smallCard2.url }}
-                    <a href="{{ $smallCard2.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+                    <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $smallCard2.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
                     {{ end }}
                     <div class="w-full h-full overflow-hidden rounded-lg {{ if and (eq $rowIndex (div (sub (len $cards) 1) 3)) (eq (mod (len $cards) 3) 0) }}max-lg:rounded-b-[2rem] lg:rounded-bl-[2rem]{{ end }}">
                       {{ partial "components/media/lazyimg.html" (dict 
@@ -196,7 +196,7 @@
               {{ $largeCard := index $cards $startIndex }}
               <div class="lg:col-span-4 h-full flex">
                 {{ if $largeCard.url }}
-                <a href="{{ $largeCard.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $largeCard.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
                 {{ end }}
                 <div class="w-full h-full overflow-hidden rounded-lg {{ if eq $rowIndex 0 }}max-lg:rounded-t-[2rem] lg:rounded-tr-[2rem]{{ end }}">
                   {{ partial "components/media/lazyimg.html" (dict 
@@ -216,7 +216,7 @@
               {{ $largeCard := index $cards $startIndex }}
               <div class="lg:col-span-4 h-full flex">
                 {{ if $largeCard.url }}
-                <a href="{{ $largeCard.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $largeCard.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
                 {{ end }}
                 <div class="w-full h-full overflow-hidden rounded-lg {{ if eq $rowIndex 0 }}max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]{{ end }}">
                   {{ partial "components/media/lazyimg.html" (dict 
@@ -231,7 +231,7 @@
               {{ $smallCard := index $cards (add $startIndex 1) }}
               <div class="lg:col-span-2 h-full flex">
                 {{ if $smallCard.url }}
-                <a href="{{ $smallCard.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $smallCard.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
                 {{ end }}
                 <div class="w-full h-full overflow-hidden rounded-lg {{ if eq $rowIndex 0 }}lg:rounded-tr-[2rem]{{ end }} max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]">
                   {{ partial "components/media/lazyimg.html" (dict 
@@ -248,7 +248,7 @@
               {{ $smallCard := index $cards (add $startIndex 1) }}
               <div class="lg:col-span-2 h-full flex">
                 {{ if $smallCard.url }}
-                <a href="{{ $smallCard.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $smallCard.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
                 {{ end }}
                 <div class="w-full h-full overflow-hidden rounded-lg {{ if eq $rowIndex 0 }}lg:rounded-tl-[2rem]{{ end }} max-lg:rounded-b-[2rem] lg:rounded-bl-[2rem]">
                   {{ partial "components/media/lazyimg.html" (dict 
@@ -263,7 +263,7 @@
               {{ $largeCard := index $cards $startIndex }}
               <div class="lg:col-span-4 h-full flex">
                 {{ if $largeCard.url }}
-                <a href="{{ $largeCard.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $largeCard.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
                 {{ end }}
                 <div class="w-full h-full overflow-hidden rounded-lg {{ if eq $rowIndex 0 }}max-lg:rounded-t-[2rem] lg:rounded-tr-[2rem]{{ end }}">
                   {{ partial "components/media/lazyimg.html" (dict 
@@ -282,7 +282,7 @@
             {{ $largeCard := index $cards $startIndex }}
             <div class="lg:col-span-4 h-full flex">
               {{ if $largeCard.url }}
-              <a href="{{ $largeCard.url }}" class="block w-full h-full transition-opacity hover:opacity-90">
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $largeCard.url) }}" class="block w-full h-full transition-opacity hover:opacity-90">
               {{ end }}
               <div class="w-full h-full overflow-hidden rounded-lg {{ if eq $rowIndex 0 }}max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]{{ end }} max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]">
                 {{ partial "components/media/lazyimg.html" (dict 

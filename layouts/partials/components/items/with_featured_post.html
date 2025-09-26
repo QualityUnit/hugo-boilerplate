@@ -169,12 +169,12 @@
       <div class="mt-4 flex flex-col justify-between gap-6 sm:mt-8 sm:flex-row-reverse sm:gap-8 lg:mt-4 lg:flex-col">
         {{ if $featuredPost.link }}
         <div class="flex">
-          <a href="{{ $featuredPost.link }}" class="text-sm/6 font-semibold {{ $featuredLinkColor }}" {{ if $featuredPost.titleId }}aria-describedby="{{ $featuredPost.titleId }}"{{ end }}>{{ $featuredPost.linkText | default "Continue reading" }} <span aria-hidden="true">&rarr;</span></a>
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $featuredPost.link) }}" class="text-sm/6 font-semibold {{ $featuredLinkColor }}" {{ if $featuredPost.titleId }}aria-describedby="{{ $featuredPost.titleId }}"{{ end }}>{{ $featuredPost.linkText | default "Continue reading" }} <span aria-hidden="true">&rarr;</span></a>
         </div>
         {{ end }}
         {{ if $featuredPost.authorName }}
         <div class="flex lg:border-t lg:{{ $featuredBorderColor }} lg:pt-8">
-          <a href="{{ $featuredPost.authorLink }}" class="flex gap-x-2.5 text-sm/6 font-semibold {{ $featuredAuthorColor }}">
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $featuredPost.authorLink) }}" class="flex gap-x-2.5 text-sm/6 font-semibold {{ $featuredAuthorColor }}">
             {{ if $featuredPost.authorImage }}
               {{ partial "components/media/lazyimg.html" (dict 
                 "src" $featuredPost.authorImage 
@@ -196,7 +196,7 @@
           <div class="group relative max-w-xl">
             {{ if .date }}<time datetime="{{ .date }}" class="block text-sm/6 {{ $itemDateColor }}">{{ .dateDisplay }}</time>{{ end }}
             <h2 class="mt-2 text-lg font-semibold {{ $itemTitleColor }} {{ $itemTitleHoverColor }}">
-              <a href="{{ .titleLink }}">
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .titleLink) }}">
                 <span class="absolute inset-0"></span>
                 {{ .title }}
               </a>
@@ -205,7 +205,7 @@
           </div>
           {{ if .authorName }}
           <div class="mt-4 flex">
-            <a href="{{ .authorLink }}" class="relative flex gap-x-2.5 text-sm/6 font-semibold {{ $itemAuthorColor }}">
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .authorLink) }}" class="relative flex gap-x-2.5 text-sm/6 font-semibold {{ $itemAuthorColor }}">
               {{ if .authorImage }}
                 {{ partial "components/media/lazyimg.html" (dict 
                   "src" .authorImage 

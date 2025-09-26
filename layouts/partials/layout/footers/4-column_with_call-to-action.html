@@ -148,7 +148,7 @@
       </hgroup>
       <p class="mx-auto mt-6 max-w-xl text-lg/8 text-pretty {{ $ctaDescriptionColor }}">{{ $ctaDescription }}</p>
       <div class="mt-8 flex justify-center">
-        <a href="{{ $ctaButtonUrl }}" class="rounded-md {{ $ctaButtonBgColor }} px-3.5 py-2.5 text-sm font-semibold {{ $ctaButtonTextColor }} shadow-xs hover:{{ $ctaButtonHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $ctaButtonText }}</a>
+        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $ctaButtonUrl) }}" class="rounded-md {{ $ctaButtonBgColor }} px-3.5 py-2.5 text-sm font-semibold {{ $ctaButtonTextColor }} shadow-xs hover:{{ $ctaButtonHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $ctaButtonText }}</a>
       </div>
     </div>
     <div class="mt-24 border-t {{ $borderColor }} pt-12 xl:grid xl:grid-cols-3 xl:gap-8">
@@ -164,7 +164,7 @@
             <ul role="list" class="mt-6 space-y-4">
               {{ range $column1Links }}
               <li>
-                <a href="{{ .url }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
               </li>
               {{ end }}
             </ul>
@@ -174,7 +174,7 @@
             <ul role="list" class="mt-6 space-y-4">
               {{ range $column2Links }}
               <li>
-                <a href="{{ .url }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
               </li>
               {{ end }}
             </ul>
@@ -186,7 +186,7 @@
             <ul role="list" class="mt-6 space-y-4">
               {{ range $column3Links }}
               <li>
-                <a href="{{ .url }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
               </li>
               {{ end }}
             </ul>
@@ -196,7 +196,7 @@
             <ul role="list" class="mt-6 space-y-4">
               {{ range $column4Links }}
               <li>
-                <a href="{{ .url }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="text-sm/6 {{ $linkColor }} hover:{{ $linkHoverColor }}">{{ .text }}</a>
               </li>
               {{ end }}
             </ul>
@@ -207,7 +207,7 @@
     <div class="mt-12 border-t {{ $borderColor }} pt-8 md:flex md:items-center md:justify-between">
       <div class="flex gap-x-6 md:order-2">
         {{ range $socialLinks }}
-        <a href="{{ .url }}" class="{{ $socialLinkColor }} hover:{{ $socialLinkHoverColor }}">
+        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="{{ $socialLinkColor }} hover:{{ $socialLinkHoverColor }}">
           <span class="sr-only">{{ .name }}</span>
           {{ partial "components/media/icon.html" (dict "icon" .icon) }}
         </a>
