@@ -1,0 +1,22 @@
+{{/*
+@function: Get Static URL
+@description: Returns the URL for a static asset, prepending the CDN domain if configured
+@params:
+  - path: Path to the static asset (required, should start with /)
+@returns: The full URL to the static asset (with CDN domain if configured, otherwise relative path)
+@example:
+  {{ $imageUrl := partial "functions/get-static-url.html" (dict "path" "/images/logo.png") }}
+  <img src="{{ $imageUrl }}" alt="Logo">
+*/}}
+
+{{ $path := .path }}
+{{ $result := $path }}
+
+{{/* Check if static assets CDN is enabled and get the domain */}}
+{{ with site.Params.staticAssets }}
+  {{ if and .enabled .domain (hasPrefix $path "/") }}
+    {{ $result = printf "%s%s" .domain $path }}
+  {{ end }}
+{{ end }}
+
+{{ return $result }}

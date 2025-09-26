@@ -30,23 +30,13 @@
 {{ $maxWidth := .maxWidth | default 3000 }}
 {{ $noLazy := .noLazy | default false }}
 
-{{/* Check if static assets CDN is enabled and get the domain */}}
-{{ $staticDomain := "" }}
-{{ with site.Params.staticAssets }}
-  {{ if and .enabled .domain }}
-    {{ $staticDomain = .domain }}
-  {{ end }}
-{{ end }}
 
 {{ if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") }}
   <!-- SVGs: skip <picture> and srcset logic, just use <img> with lazy loading -->
   {{ $imgClassSvg := "lazy-image" }}
   {{ if $class }}{{ $imgClassSvg = printf "%s %s" $imgClassSvg $class }}{{ end }}
-  {{/* Prepend static domain if configured */}}
-  {{ $svgSrc := $src }}
-  {{ if and $staticDomain (hasPrefix $src "/") }}
-    {{ $svgSrc = printf "%s%s" $staticDomain $src }}
-  {{ end }}
+  {{/* Get URL with static domain if configured */}}
+  {{ $svgSrc := partial "functions/get-static-url.html" (dict "path" $src) }}
   <img
     {{ if $noLazy }}
     src="{{ $svgSrc }}"
@@ -253,10 +243,7 @@
     {{ end }}
     
     {{/* Apply static domain to fallback source if configured */}}
-    {{ $fallbackSrcWithDomain := $fallbackSrc }}
-    {{ if and $staticDomain (hasPrefix $fallbackSrc "/") }}
-      {{ $fallbackSrcWithDomain = printf "%s%s" $staticDomain $fallbackSrc }}
-    {{ end }}
+    {{ $fallbackSrcWithDomain := partial "functions/get-static-url.html" (dict "path" $fallbackSrc) }}
 
     {{ $origSrcset := "" }}
     {{ $webpSrcset := "" }}
@@ -302,10 +289,7 @@
 
     {{ range $availableSrcWidths }}
       {{/* Apply static domain to each source path if configured */}}
-      {{ $pathWithDomain := .path }}
-      {{ if and $staticDomain (hasPrefix .path "/") }}
-        {{ $pathWithDomain = printf "%s%s" $staticDomain .path }}
-      {{ end }}
+      {{ $pathWithDomain := partial "functions/get-static-url.html" (dict "path" .path) }}
       {{ if $origSrcset }}
         {{ $origSrcset = printf "%s, %s %dw" $origSrcset $pathWithDomain .width }}
       {{ else }}
@@ -315,10 +299,7 @@
 
     {{ range $availableWebpWidths }}
       {{/* Apply static domain to each WebP path if configured */}}
-      {{ $pathWithDomain := .path }}
-      {{ if and $staticDomain (hasPrefix .path "/") }}
-        {{ $pathWithDomain = printf "%s%s" $staticDomain .path }}
-      {{ end }}
+      {{ $pathWithDomain := partial "functions/get-static-url.html" (dict "path" .path) }}
       {{ if $webpSrcset }}
         {{ $webpSrcset = printf "%s, %s %dw" $webpSrcset $pathWithDomain .width }}
       {{ else }}
@@ -327,10 +308,7 @@
     {{ end }}
 
     {{ if and (not $webpSrcset) $useOriginalWebp }}
-      {{ $webpPathWithDomain := $originalWebpPath }}
-      {{ if and $staticDomain (hasPrefix $originalWebpPath "/") }}
-        {{ $webpPathWithDomain = printf "%s%s" $staticDomain $originalWebpPath }}
-      {{ end }}
+      {{ $webpPathWithDomain := partial "functions/get-static-url.html" (dict "path" $originalWebpPath) }}
       {{ $webpSrcset = printf "%s %dw" $webpPathWithDomain $originalWidth }}
     {{ end }}
 

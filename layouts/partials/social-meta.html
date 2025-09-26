@@ -21,9 +21,11 @@
 {{ if eq $ogImage "" }}
   {{ $defaultImage := "/images/social-share.jpg" }}
   {{ if fileExists (printf "static%s" $defaultImage) }}
-    {{ $ogImage = $defaultImage | absURL }}
+    {{ $defaultImageWithCDN := partial "functions/get-static-url.html" (dict "path" $defaultImage) }}
+    {{ $ogImage = $defaultImageWithCDN | absURL }}
   {{ else if fileExists (printf "static/images/placeholder.webp") }}
-    {{ $ogImage = "/images/placeholder.webp" | absURL }}
+    {{ $placeholderWithCDN := partial "functions/get-static-url.html" (dict "path" "/images/placeholder.webp") }}
+    {{ $ogImage = $placeholderWithCDN | absURL }}
   {{ end }}
 {{ end }}
 
