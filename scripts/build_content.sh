@@ -118,6 +118,13 @@ run_step() {
             echo -e "${GREEN}Content attributes sync completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step sync_content_attributes finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
+        sync_translation_urls)
+            echo -e "${BLUE}=== Step 3.6: Syncing Translation URLs ===${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/sync_translation_urls.py --hugo-root ${HUGO_ROOT}${NC}"
+            python "${SCRIPT_DIR}/sync_translation_urls.py" --hugo-root "${HUGO_ROOT}"
+            echo -e "${GREEN}Translation URLs synced!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step sync_translation_urls finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
         generate_translation_urls)
             echo -e "${BLUE}=== Step 3.7: Generating Translation URLs Mapping ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translation-urls.py --hugo-root ${HUGO_ROOT}${NC}"
@@ -329,7 +336,7 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
 
 # If no steps specified, run all steps
 if [ ${#STEPS_TO_RUN[@]} -eq 0 ]; then
-    STEPS_TO_RUN=(sync_translations build_hugo offload_images find_duplicate_images translate sync_content_attributes generate_translation_urls generate_related_content extract_automatic_links precompute_linkbuilding preprocess_images)
+    STEPS_TO_RUN=(sync_translations build_hugo offload_images find_duplicate_images translate sync_content_attributes sync_translation_urls generate_translation_urls generate_related_content extract_automatic_links precompute_linkbuilding preprocess_images)
     echo -e "${YELLOW}[DEBUG] No steps specified, running all steps: ${STEPS_TO_RUN[@]}${NC}"
 else
     echo -e "${YELLOW}[DEBUG] Running specified steps: ${STEPS_TO_RUN[@]}${NC}"
