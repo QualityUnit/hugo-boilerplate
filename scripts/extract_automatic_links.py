@@ -86,9 +86,19 @@ class LinkExtractor:
     def extract_keywords_from_file(self, file_path: Path) -> List[Dict]:
         """Extract keywords from a single markdown file"""
         try:
-            # Read and parse frontmatter
+            # Read and parse frontmatter (automatically detects YAML or TOML)
             with open(file_path, 'r', encoding='utf-8') as f:
-                post = frontmatter.load(f)
+                content = f.read()
+                
+            # Detect frontmatter type and parse accordingly
+            if content.startswith('+++'):
+                # TOML frontmatter
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    post = frontmatter.load(f, handler=frontmatter.TOMLHandler())
+            else:
+                # YAML frontmatter (default)
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    post = frontmatter.load(f)
             
             # Get keywords from frontmatter (limit to first 2)
             keywords = post.metadata.get('keywords', [])
@@ -125,11 +135,22 @@ class LinkExtractor:
             raise
     
     def determine_url(self, file_path: Path, frontmatter_data: Dict) -> str:
-        """Determine the URL for a file based on frontmatter and file path"""
+        """Determine the URL for a file based on frontmatter and file path
         
-        # 1. Check for explicit URL in frontmatter
+        Priority:
+        1. Use explicit 'url' from frontmatter (for translated URLs)
+        2. For flow templates with 'flow_id', generate from path
+        3. Fall back to generating from file path
+        """
+        
+        # 1. Check for explicit URL in frontmatter (this is the translated URL)
+        # This ensures we use the same URL that Hugo uses when building the site
         if 'url' in frontmatter_data and frontmatter_data['url']:
-            return frontmatter_data['url']
+            url = frontmatter_data['url']
+            # Ensure URL ends with / for consistency (unless it's a file with extension)
+            if not url.endswith('/') and '.' not in url.split('/')[-1]:
+                url += '/'
+            return url
         
         # 2. Check for flow_id (special case for ai-flow-templates)
         if 'flow_id' in frontmatter_data:
@@ -138,7 +159,7 @@ class LinkExtractor:
             url_path = self.path_to_url(relative_path)
             return url_path
         
-        # 3. Generate URL from file path
+        # 3. Generate URL from file path as fallback
         relative_path = file_path.relative_to(self.content_dir)
         url_path = self.path_to_url(relative_path)
         

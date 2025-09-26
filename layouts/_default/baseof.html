@@ -4,9 +4,6 @@
   {{ partialCached "head.html" . .Permalink }}
 </head>
 <body class="antialiased bg-white">
-<!-- Initialize linkbuilding tracking for all pages -->
-{{ .Scratch.Set "processedLinks" slice }}
-
 {{ partialCached "header.html" . (printf "header-%s" site.Language.Lang) }}
 <main class="w-full">
   {{ block "main" . }}{{ end }}
