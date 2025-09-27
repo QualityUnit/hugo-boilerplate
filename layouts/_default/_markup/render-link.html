@@ -45,6 +45,9 @@
     {{- $target = "_blank" -}}
     {{- $rel = cond $useNofollow "nofollow noopener noreferrer" "noopener noreferrer" -}}
   {{- end -}}
+{{- else -}}
+  {{- /* For internal links, process with get-translated-url */ -}}
+  {{- $url = partial "helpers/get-translated-url.html" (dict "url" $url) -}}
 {{- end -}}
 
 <a href="{{ $url }}"
