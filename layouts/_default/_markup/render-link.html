@@ -1,0 +1,55 @@
+{{/*
+  External Link Handler
+  =====================
+
+  This template automatically handles external links with configurable attributes based on domain rules.
+
+  [params.externalLinks]
+    nofollow = false  # Global disable nofollow (default: true)
+
+    [params.externalLinks.domainRules]
+      "docs.google.com" = { target = "_self", rel = "" }
+      "youtube.com" = { target = "_blank", rel = "nofollow noopener" }
+      "support.qualityunit.com" = { target = "_self", rel = "noopener" }
+*/}}
+
+{{- $url := .Destination -}}
+{{- $isExternal := hasPrefix $url "http://" | or (hasPrefix $url "https://") -}}
+
+{{- $target := "" -}}
+{{- $rel := "" -}}
+
+{{- if $isExternal -}}
+  {{- $parsedURL := urls.Parse site.BaseURL -}}
+  {{- $currentDomain := $parsedURL.Host -}}
+
+  {{- $domainRules := site.Params.externalLinks.domainRules | default dict -}}
+  
+  {{- $matchedRule := false -}}
+  {{- range $domain, $rule := $domainRules -}}
+    {{- if and (not $matchedRule) (strings.Contains $url $domain) -}}
+      {{- $target = $rule.target -}}
+      {{- $rel = $rule.rel -}}
+      {{- $matchedRule = true -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if and (not $matchedRule) (strings.Contains $url $currentDomain) -}}
+    {{- $target = "_blank" -}}
+    {{- $rel = "noopener noreferrer" -}}
+    {{- $matchedRule = true -}}
+  {{- end -}}
+
+  {{- if not $matchedRule -}}
+    {{- $useNofollow := site.Params.externalLinks.nofollow | default true -}}
+    {{- $target = "_blank" -}}
+    {{- $rel = cond $useNofollow "nofollow noopener noreferrer" "noopener noreferrer" -}}
+  {{- end -}}
+{{- end -}}
+
+<a href="{{ $url }}"
+   {{- if $target }} target="{{ $target }}"{{ end }}
+   {{- if $rel }} rel="{{ $rel }}"{{ end }}
+   {{- with .Title }} title="{{ . }}"{{ end -}}>
+   {{- .Text -}}
+</a>
