@@ -14,6 +14,7 @@
   - posterHeight: Additional CSS classes for poster height (optional, e.g. "h-64", "h-80", "h-96", "h-[450px]")
   - playBtnClass: CSS classes for play button (optional)
   - playBtnInnerClass: CSS classes for inner play button element (optional)
+  - showPlayButton: Show/hide play button overlay (optional, default: true)
 @note: This partial should be called through the main video.html partial, not directly.
 */}}
 
@@ -35,6 +36,7 @@
 {{ $playBtnClass := .playBtnClass | default "w-16 h-12 bg-red-600 rounded-lg hover:bg-red-700 hover:scale-110" }}
 {{ $playBtnInnerClass := .playBtnInnerClass | default "" }}
 {{ $svgClass := .svgClass | default "size-6 text-white ml-1" }}
+{{ $showPlayButton := .showPlayButton | default true }}
 
 <!-- Determine thumbnail URL: use custom poster if provided, otherwise use YouTube default -->
 {{ $thumbnailUrl := cond $poster $poster (print "https://img.youtube.com/vi/" $videoID "/maxresdefault.jpg") }}
@@ -80,6 +82,7 @@
       {{ if not $poster }}onload="this.onload=null; if(this.dataset.src === this.src) findBestThumbnail(this);"{{ end }}
     />
   </div>
+  {{ if $showPlayButton }}
   <div class="lazy-video-play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-300 z-10 {{ $playBtnClass }}">
     {{ if $playBtnInnerClass }}
       <div class="{{ $playBtnInnerClass }}">
@@ -89,4 +92,5 @@
       {{ partial "icons/play-solid" $svgClass }}
     {{ end }}
   </div>
+  {{ end }}
 </div>
