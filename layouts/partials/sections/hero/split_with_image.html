@@ -1,9 +1,13 @@
 {{/*
-Responsive hero section with split layout - content left, image right.
+Responsive hero section with split layout - content left, image/video right.
 
 Parameters:
 - theme: "light" | "dark" | "alternate" (default: "light")
 - image, imageAlt: Image settings
+- video: Video object with properties (optional, takes priority over image if enabled):
+  - enabled: Boolean to enable video mode (default: false)
+  - src: YouTube URL for the video
+  - poster: Custom poster/thumbnail image for the video (falls back to imageUrl if not provided)
 - eyebrow, heading, description: Text content
 - cta: Call-to-action buttons
   - primary: Primary button (text, url)
@@ -35,12 +39,14 @@ Usage Guidelines:
 - Use text-primary for brand accents, links, and call-to-action elements
 - Use text-secondary for regular paragraph text and descriptions
 - Ensure color contrast meets accessibility standards (WCAG AA)
+- When video.enabled is true, video will be displayed with popup functionality
+- Video supports YouTube URLs and will open in lightbox popup on click
 
 Design Tokens:
 - Image dimensions are configurable via variables for easy maintenance
 - Spacing values use consistent design system tokens
 - Typography tracking and sizing follow brand guidelines
-- Image is always positioned on the right side
+- Media (image/video) is always positioned on the right side
 */}}
 
 {{ $theme := .theme | default "light" }}
@@ -51,6 +57,7 @@ Design Tokens:
 {{/* Section parameters */}}
 {{ $image := .image }}
 {{ $imageAlt := .imageAlt }}
+{{ $video := .video | default (dict "enabled" false) }}
 {{ $eyebrow := .eyebrow }}
 {{ $heading := .heading }}
 {{ $description := .description }}
@@ -99,12 +106,30 @@ Design Tokens:
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
       <div class="max-md:hidden relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
-        {{ partial "components/media/lazyimg.html" (dict
-          "src" $imageSrc
-          "alt" $finalImageAlt
-          "class" "object-contain rounded-lg"
-          "noLazy" true
-        ) }}
+        {{ if and $video $video.enabled }}
+          {{/* Display video with popup */}}
+          {{ partial "components/media/video.html" (dict 
+              "src" $video.src 
+              "poster" $video.poster 
+              "title" $heading
+              "class" "object-contain rounded-lg w-full h-auto"
+              "provider" "youtube"
+              "playBtnClass" ""
+              "posterHeight" "h-full"
+              "useAspectRatio" false
+              "showPlayButton" $video.showPlayButton
+              "useLightbox" true
+              "noLazy" true
+          ) }}
+        {{ else }}
+          {{/* Display regular image */}}
+          {{ partial "components/media/lazyimg.html" (dict
+            "src" $imageSrc
+            "alt" $finalImageAlt
+            "class" "object-contain rounded-lg"
+            "noLazy" true
+          ) }}
+        {{ end }}
       </div>
     </div>
     <div class="lg:flex lg:w-1/2 lg:items-center">

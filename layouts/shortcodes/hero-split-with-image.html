@@ -5,6 +5,10 @@ Example usage of Split Hero with Image Shortcode:
   "description"="Discover tools and insights to drive growth and success." 
   "imageUrl"="https://example.com/hero-image.jpg" 
   "imageAlt"="An inspiring hero image" 
+  "videoUrl"="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  "videoPoster"="https://example.com/video-poster.jpg"
+  "videoEnabled"="true"
+  "showVideoPlayButton"="false"
   "primaryCTAText"="Start Now" 
   "primaryCTAUrl"="/get-started" 
   "secondaryCTAText"="Learn More" 
@@ -29,6 +33,10 @@ Parameters:
 - description: Description text below the heading
 - imageUrl: URL of the hero image
 - imageAlt: Alt text for the hero image
+- videoUrl: YouTube URL for video popup (optional, takes priority over image if enabled)
+- videoPoster: Custom poster image for the video (optional, if not provided uses imageUrl)
+- videoEnabled: Enable video mode instead of image (true/false, default: false)
+- showVideoPlayButton: Show play button overlay on video (true/false, default: false)
 - primaryCTAText: Text for the primary call-to-action button
 - primaryCTAUrl: URL for the primary call-to-action button
 - secondaryCTAText: Text for the secondary call-to-action button
@@ -53,6 +61,13 @@ Parameters:
 {{ $description := .Get "description" | default "" }}
 {{ $imageUrl := .Get "imageUrl" | default "" }}
 {{ $imageAlt := .Get "imageAlt" | default "" }}
+
+{{/* Video parameters */}}
+{{ $videoUrl := .Get "videoUrl" | default "" }}
+{{ $videoPoster := .Get "videoPoster" | default "" }}
+{{ $videoEnabled := .Get "videoEnabled" | default "false" }}
+{{ $showVideoPlayButton := .Get "showVideoPlayButton" | default "false" }}
+
 {{ $primaryCTAText := .Get "primaryCTAText" }}
 {{ $primaryCTAUrl := .Get "primaryCTAUrl" }}
 {{ $secondaryCTAText := .Get "secondaryCTAText" }}
@@ -98,6 +113,19 @@ Parameters:
   "alt" $imageAlt
 }}
 
+{{/* Video object for popup functionality */}}
+{{ $video := dict }}
+{{ if and (eq $videoEnabled "true") $videoUrl }}
+  {{ $video = dict
+    "enabled" true
+    "src" $videoUrl
+    "poster" (or $videoPoster $imageUrl)
+    "showPlayButton" (eq $showVideoPlayButton "true")
+  }}
+{{ else }}
+  {{ $video = dict "enabled" false }}
+{{ end }}
+
 {{ $typewriter := dict
   "enabled" (eq $typewriterEnabled "true")
   "words" $typewriterWords
@@ -123,6 +151,7 @@ Parameters:
   "description" ( $description | markdownify )
   "cta" $cta
   "image" $image
+  "video" $video
   "typewriter" $typewriter
   "yPadding" $yPadding
   "contentLeftPadding" $contentLeftPadding
