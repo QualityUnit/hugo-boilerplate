@@ -67,6 +67,12 @@ Example:
                     {{ $cardImageAlt := .imageAlt | default .title }}
 
                     <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center" {{ with $cardBackgroundImage }}style="background-image: url('{{ partial "functions/get-static-url.html" (dict "path" .) }}');"{{ end }}>
+                        {{ if .cta.url }}
+                            <a href="{{ .cta.url }}" class="absolute inset-0 z-20" aria-label="{{ .title }}">
+                                <span class="sr-only">{{ .title }}</span>
+                            </a>
+                        {{ end }}
+                        
                         <div class="relative z-10 flex flex-col h-full bg-[#F9FAFB]">
                             {{ with $cardSchemaImage }}
                                 <div class="pt-12 px-12 flex-shrink-0">
