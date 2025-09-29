@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         });
       }, {
-        rootMargin: '200px 0px', // Loads SVGs 200px before they enter the viewport
+        rootMargin: '400px 0px', // Loads SVGs 400px before they enter the viewport
         threshold: 0.1 // Triggers when 10% of the SVG is visible
       });
       
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         });
       }, {
-        rootMargin: '200px 0px', // Loads images 200px before they enter the viewport
+        rootMargin: '400px 0px', // Loads images 400px before they enter the viewport
         threshold: 0.1 // Triggers when 10% of the image is visible
       });
 
