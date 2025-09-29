@@ -81,7 +81,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'akademia',
         'comparisons': 'porovnania',
         'directory': 'adresar',
-        'reviews': 'recenzie'
+        'reviews': 'recenzie',
+        'author': 'author',
+        'authors': 'authors'
     },
     'cs': {
         'about': 'o-nas',
@@ -97,7 +99,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'akademie',
         'comparisons': 'srovnani',
         'directory': 'adresar',
-        'reviews': 'recenze'
+        'reviews': 'recenze',
+        'author': 'author',
+        'authors': 'authors'
     },
     'de': {
         'about': 'ueber-uns',
@@ -113,7 +117,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'akademie',
         'comparisons': 'vergleiche',
         'directory': 'verzeichnis',
-        'reviews': 'bewertungen'
+        'reviews': 'bewertungen',
+        'author': 'author',
+        'authors': 'authors'
     },
     'fr': {
         'about': 'a-propos',
@@ -129,7 +135,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'academie',
         'comparisons': 'comparaisons',
         'directory': 'repertoire',
-        'reviews': 'avis'
+        'reviews': 'avis',
+        'author': 'author',
+        'authors': 'authors'
     },
     'es': {
         'about': 'acerca-de',
@@ -145,7 +153,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'academia',
         'comparisons': 'comparaciones',
         'directory': 'directorio',
-        'reviews': 'resenas'
+        'reviews': 'resenas',
+        'author': 'author',
+        'authors': 'authors'
     },
     'it': {
         'about': 'chi-siamo',
@@ -161,7 +171,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'accademia',
         'comparisons': 'confronti',
         'directory': 'directory',
-        'reviews': 'recensioni'
+        'reviews': 'recensioni',
+        'author': 'author',
+        'authors': 'authors'
     },
     'pt': {
         'about': 'sobre',
@@ -177,7 +189,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'academia',
         'comparisons': 'comparacoes',
         'directory': 'diretorio',
-        'reviews': 'avaliacoes'
+        'reviews': 'avaliacoes',
+        'author': 'author',
+        'authors': 'authors'
     },
     'pt-br': {
         'about': 'sobre',
@@ -193,7 +207,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'academia',
         'comparisons': 'comparacoes',
         'directory': 'diretorio',
-        'reviews': 'avaliacoes'
+        'reviews': 'avaliacoes',
+        'author': 'author',
+        'authors': 'authors'
     },
     'nl': {
         'about': 'over',
@@ -209,7 +225,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'academie',
         'comparisons': 'vergelijkingen',
         'directory': 'directory',
-        'reviews': 'beoordelingen'
+        'reviews': 'beoordelingen',
+        'author': 'author',
+        'authors': 'authors'
     },
     'da': {
         'about': 'om',
@@ -225,7 +243,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'akademi',
         'comparisons': 'sammenligninger',
         'directory': 'oversigt',
-        'reviews': 'anmeldelser'
+        'reviews': 'anmeldelser',
+        'author': 'author',
+        'authors': 'authors'
     },
     'sv': {
         'about': 'om',
@@ -241,7 +261,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'akademi',
         'comparisons': 'jamforelser',
         'directory': 'katalog',
-        'reviews': 'recensioner'
+        'reviews': 'recensioner',
+        'author': 'author',
+        'authors': 'authors'
     },
     'no': {
         'about': 'om',
@@ -257,7 +279,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'akademi',
         'comparisons': 'sammenligninger',
         'directory': 'katalog',
-        'reviews': 'anmeldelser'
+        'reviews': 'anmeldelser',
+        'author': 'author',
+        'authors': 'authors'
     },
     'fi': {
         'about': 'tietoja',
@@ -273,7 +297,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'akatemia',
         'comparisons': 'vertailut',
         'directory': 'hakemisto',
-        'reviews': 'arvostelut'
+        'reviews': 'arvostelut',
+        'author': 'author',
+        'authors': 'authors'
     },
     'pl': {
         'about': 'o-nas',
@@ -289,7 +315,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'akademia',
         'comparisons': 'porownania',
         'directory': 'katalog',
-        'reviews': 'recenzje'
+        'reviews': 'recenzje',
+        'author': 'author',
+        'authors': 'authors'
     },
     'ro': {
         'about': 'despre',
@@ -305,7 +333,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'academie',
         'comparisons': 'comparatii',
         'directory': 'director',
-        'reviews': 'recenzii'
+        'reviews': 'recenzii',
+        'author': 'author',
+        'authors': 'authors'
     },
     'hu': {
         'about': 'rolunk',
@@ -321,7 +351,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'akademia',
         'comparisons': 'osszehasonlitasok',
         'directory': 'konyvtar',
-        'reviews': 'velemenyek'
+        'reviews': 'velemenyek',
+        'author': 'author',
+        'authors': 'authors'
     },
     'tr': {
         'about': 'hakkinda',
@@ -337,7 +369,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'akademi',
         'comparisons': 'karsilastirmalar',
         'directory': 'dizin',
-        'reviews': 'incelemeler'
+        'reviews': 'incelemeler',
+        'author': 'author',
+        'authors': 'authors'
     },
     'ar': {
         'about': 'حول',
@@ -353,7 +387,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'الأكاديمية',
         'comparisons': 'مقارنات',
         'directory': 'دليل',
-        'reviews': 'مراجعات'
+        'reviews': 'مراجعات',
+        'author': 'author',
+        'authors': 'authors'
     },
     'ja': {
         'about': '私たちについて',
@@ -369,7 +405,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'アカデミー',
         'comparisons': '比較',
         'directory': 'ディレクトリ',
-        'reviews': 'レビュー'
+        'reviews': 'レビュー',
+        'author': 'author',
+        'authors': 'authors'
     },
     'ko': {
         'about': '소개',
@@ -385,7 +423,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': '아카데미',
         'comparisons': '비교',
         'directory': '디렉토리',
-        'reviews': '리뷰'
+        'reviews': '리뷰',
+        'author': 'author',
+        'authors': 'authors'
     },
     'zh': {
         'about': '关于',
@@ -401,7 +441,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': '学院',
         'comparisons': '比较',
         'directory': '目录',
-        'reviews': '评论'
+        'reviews': '评论',
+        'author': 'author',
+        'authors': 'authors'
     },
     'vi': {
         'about': 've-chung-toi',
@@ -417,7 +459,9 @@ DIRECTORY_TRANSLATIONS = {
         'academy': 'hoc-vien',
         'comparisons': 'so-sanh',
         'directory': 'danh-ba',
-        'reviews': 'danh-gia'
+        'reviews': 'danh-gia',
+        'author': 'author',
+        'authors': 'authors'
     }
 }
 
@@ -475,32 +519,30 @@ def get_translated_path(language: str, directory_name: str) -> str:
 
 def get_directory_url_path(directory_path: Path, language: str, hugo_config: Dict) -> Optional[str]:
     """Get the URL path for a directory by checking its _index.md file or predicting from directory name"""
-    index_file = directory_path / '_index.md'
-    
     # Determine if we need to add language prefix
     default_lang = hugo_config.get('defaultContentLanguage', 'en')
     default_in_subdir = hugo_config.get('defaultContentLanguageInSubdir', True)
     needs_lang_prefix = (language != default_lang) or (language == default_lang and default_in_subdir)
     
-    if index_file.exists():
-        _, front_matter, _, _ = extract_front_matter(index_file)
-        if 'url' in front_matter:
-            url = front_matter['url'].rstrip('/')
-            # Check if URL already has language prefix or if it needs one
-            if needs_lang_prefix and not url.startswith(f'/{language}/') and language != default_lang:
-                # URL doesn't have language prefix but needs one
-                return f"/{language}{url}"
-            return url
+    # Always build the URL from the directory structure for consistency
+    # Get the content directory to calculate relative path
+    content_dir = get_content_dir()
+    lang_dir = content_dir / language
     
-    # Predict from directory name
-    dir_name = directory_path.name
-    translated_name = get_translated_path(language, dir_name)
+    # Get the relative path from the language directory
+    relative_path = directory_path.relative_to(lang_dir)
     
-    # Add language prefix if needed
+    # Build the URL path by translating each part
+    path_parts = []
+    for part in relative_path.parts:
+        translated_part = get_translated_path(language, part)
+        path_parts.append(translated_part)
+    
+    # Construct the final URL
     if needs_lang_prefix and language != default_lang:
-        return f"/{language}/{translated_name}"
+        return f"/{language}/{'/'.join(path_parts)}"
     else:
-        return f"/{translated_name}"
+        return f"/{'/'.join(path_parts)}"
 
 
 def ensure_trailing_slash(url: str) -> str:
@@ -546,10 +588,19 @@ def process_directory(lang_dir: Path, directory: Path, stats: Dict, hugo_config:
                 current_url = front_matter.get('url', '')
                 expected_url = ensure_trailing_slash(base_url)
                 
-                if current_url != expected_url and not current_url.startswith(base_url):
-                    # Only update if the URL doesn't match the expected base
-                    if verbose:
-                        print(f"  _index.md URL is custom, keeping: {current_url}")
+                if current_url != expected_url:
+                    # Update if the URL doesn't match the expected URL
+                    if not dry_run:
+                        update_front_matter_url_only(file_path, original_toml, expected_url, remaining_content)
+                    if verbose or dry_run:
+                        content_dir = get_content_dir()
+                        rel_file_path = file_path.relative_to(content_dir.parent)
+                        print(f"  {'[DRY-RUN] Would fix' if dry_run else 'Fixed'} {rel_file_path}")
+                        print(f"    Current URL: {current_url}")
+                        print(f"    New URL:     {expected_url}")
+                    stats['urls_fixed'] += 1
+                else:
+                    stats['urls_correct'] += 1
         else:
             # Process regular files
             original_toml, front_matter, remaining_content, _ = extract_front_matter(file_path)
