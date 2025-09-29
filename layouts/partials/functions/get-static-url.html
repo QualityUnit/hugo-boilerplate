@@ -13,7 +13,7 @@
 {{ $result := $path }}
 
 {{/* Check if static assets CDN is enabled and get the domain */}}
-{{ with site.Params.staticAssets }}
+{{ with site.Language.Params.staticAssets }}
   {{ if and .enabled .domain (hasPrefix $path "/") }}
     {{ $result = printf "%s%s" .domain $path }}
   {{ end }}
