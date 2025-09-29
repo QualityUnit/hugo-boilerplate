@@ -1,5 +1,8 @@
 attributes_to_sync = [
     'image',
+    'videoUrl',
+    'videoPoster',
+    'videoEnabled',
     'skip_linkbuilding',
     'youtubeVideoID',
     'tags',
