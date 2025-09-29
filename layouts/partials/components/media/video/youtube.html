@@ -70,7 +70,18 @@
   data-video-fallback-url="https://www.youtube.com/watch?v={{ $videoID }}"
   {{ with $id }}id="{{ . }}"{{ end }}
 >
-  <div class="lazy-video-thumbnail{{ if $useAspectRatio }} aspect-ratio video-aspect-ratio {{ else }} min-h-[35rem] {{ end }} relative w-full overflow-hidden cursor-pointer{{ if $posterHeight }} {{ $posterHeight }}{{ end }}" data-video-trigger="true">
+  {{/* Build thumbnail class string for maintainability */}}
+  {{ $thumbnailClass := "lazy-video-thumbnail" }}
+  {{ if $useAspectRatio }}
+    {{ $thumbnailClass = printf "%s aspect-ratio video-aspect-ratio" $thumbnailClass }}
+  {{ else }}
+    {{ $thumbnailClass = printf "%s min-h-[35rem]" $thumbnailClass }}
+  {{ end }}
+  {{ $thumbnailClass = printf "%s relative w-full overflow-hidden cursor-pointer" $thumbnailClass }}
+  {{ if $posterHeight }}
+    {{ $thumbnailClass = printf "%s %s" $thumbnailClass $posterHeight }}
+  {{ end }}
+  <div class="{{ $thumbnailClass }}" data-video-trigger="true">
     <img 
       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E"
       data-src="{{ $thumbnailUrl }}"
