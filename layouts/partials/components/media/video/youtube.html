@@ -37,7 +37,12 @@
 {{ $svgClass := .svgClass | default "size-6 text-white ml-1" }}
 
 <!-- Determine thumbnail URL: use custom poster if provided, otherwise use YouTube default -->
-{{ $thumbnailUrl := cond $poster $poster (print "https://img.youtube.com/vi/" $videoID "/maxresdefault.jpg") }}
+{{ $thumbnailUrl := "" }}
+{{ if $poster }}
+  {{ $thumbnailUrl = partial "functions/get-static-url.html" (dict "path" $poster) }}
+{{ else }}
+  {{ $thumbnailUrl = print "https://img.youtube.com/vi/" $videoID "/maxresdefault.jpg" }}
+{{ end }}
 
 <!-- Schema.org VideoObject metadata for SEO -->
 <script type="application/ld+json">

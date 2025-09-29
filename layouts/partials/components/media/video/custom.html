@@ -30,6 +30,10 @@
 {{ $muted := .muted | default false }}
 {{ $controls := .controls | default true }}
 {{ $poster := .poster }}
+{{ $posterUrl := "" }}
+{{ if $poster }}
+  {{ $posterUrl = partial "functions/get-static-url.html" (dict "path" $poster) }}
+{{ end }}
 {{ $useLightbox := .useLightbox | default true }}
 {{ $showPlayOverlay := .showPlayOverlay | default true }}
 
@@ -47,7 +51,7 @@
       {{ if $loop }}loop{{ end }}
       {{ if $muted }}muted{{ end }}
       {{ if $controls }}controls{{ end }}
-      {{ with $poster }}poster="{{ . }}"{{ end }}
+      {{ with $posterUrl }}poster="{{ . }}"{{ end }}
       preload="metadata"
       class="w-full h-full custom-video-player {{ if $useLightbox }}lightbox-ready{{ end }}"
       title="{{ $title }}"
