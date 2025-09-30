@@ -1,0 +1,53 @@
+{{/*
+@component: SVG Icon
+@description: Universal inline SVG component with CSS styling support. Automatically converts hardcoded colors to currentColor for both fill and stroke-based SVGs.
+@params:
+  - src: SVG file path (required)
+  - class: Additional CSS classes (optional)
+  - alt: Alternative text for accessibility (optional)
+@features:
+  - Converts fill="#xxx" to fill="currentColor"
+  - Converts stroke="#xxx" to stroke="currentColor"  
+  - Works with Tailwind text-color classes
+  - Preserves viewBox for proper scaling
+@example:
+  {{ partial "components/media/svg-icon.html" (dict 
+      "src" "/images/icons/example.svg" 
+      "class" "w-8 h-8 text-red-600"
+      "alt" "Example icon"
+  ) }}
+*/}}
+
+{{ $src := .src }}
+{{ $class := .class | default "" }}
+{{ $alt := .alt | default "" }}
+
+{{ if $src }}
+  {{ $svgPath := printf "static%s" $src }}
+  {{ if fileExists $svgPath }}
+    {{ $svgContent := readFile $svgPath }}
+    {{ $svgContent = replaceRE `fill="#[^"]*"` `fill="currentColor"` $svgContent }}
+    {{ $svgContent = replaceRE `stroke="#[^"]*"` `stroke="currentColor"` $svgContent }}
+    
+    {{/* Build attributes string */}}
+    {{ $attrs := printf `class="%s"` $class }}
+    {{ if $alt }}
+      {{ $attrs = printf `%s role="img" aria-label="%s"` $attrs $alt }}
+    {{ else }}
+      {{ $attrs = printf `%s aria-hidden="true"` $attrs }}
+    {{ end }}
+
+    {{/* Replace SVG opening tag with our attributes */}}
+    {{ $svgContent = replaceRE `<svg([^>]*)>` (printf `<svg$1 %s>` $attrs) $svgContent }}
+    {{ $svgContent | safeHTML }}
+  {{ else }}
+    {{/* Fallback icon */}}
+    <div class="{{ $class }}" role="img" aria-label="{{ $alt }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+  {{ end }}
+{{ end }}
