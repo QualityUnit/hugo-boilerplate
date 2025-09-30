@@ -43,6 +43,23 @@ def get_hugo_config(hugo_root: Path) -> Dict:
             except tomllib.TOMLDecodeError as e:
                 print(f"Warning: Error parsing config at {config_path}: {e}")
     
+    # Also read languages.toml to get baseURLs for each language
+    languages_paths = [
+        hugo_root / 'config' / '_default' / 'languages.toml',
+        hugo_root / 'languages.toml'
+    ]
+    
+    for languages_path in languages_paths:
+        if languages_path.exists():
+            try:
+                with open(languages_path, 'rb') as f:
+                    languages_config = tomllib.load(f)
+                    # Languages are at the root level of the languages.toml file
+                    config['languages'] = languages_config
+                    break
+            except tomllib.TOMLDecodeError as e:
+                print(f"Warning: Error parsing languages config at {languages_path}: {e}")
+    
     return config
 
 def get_content_dir(hugo_root: Optional[str] = None) -> Path:
@@ -65,405 +82,8 @@ def get_content_dir(hugo_root: Optional[str] = None) -> Path:
     return Path(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../content')))
 
 # Language-specific directory name translations
-# Maps language -> directory_name -> translated_name
-DIRECTORY_TRANSLATIONS = {
-    'sk': {
-        'about': 'o-nas',
-        'features': 'funkcie',
-        'pricing': 'ceny',
-        'support': 'podpora',
-        'blog': 'blog',
-        'resources': 'zdroje',
-        'integrations': 'integracie',
-        'templates': 'sablony',
-        'affiliate-manager': 'affiliate-manazer',
-        'glossary': 'slovnik',
-        'academy': 'akademia',
-        'comparisons': 'porovnania',
-        'directory': 'adresar',
-        'reviews': 'recenzie',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'cs': {
-        'about': 'o-nas',
-        'features': 'funkce',
-        'pricing': 'cenik',
-        'support': 'podpora',
-        'blog': 'blog',
-        'resources': 'zdroje',
-        'integrations': 'integrace',
-        'templates': 'sablony',
-        'affiliate-manager': 'affiliate-manazer',
-        'glossary': 'slovnik',
-        'academy': 'akademie',
-        'comparisons': 'srovnani',
-        'directory': 'adresar',
-        'reviews': 'recenze',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'de': {
-        'about': 'ueber-uns',
-        'features': 'funktionen',
-        'pricing': 'preise',
-        'support': 'unterstuetzung',
-        'blog': 'blog',
-        'resources': 'ressourcen',
-        'integrations': 'integrationen',
-        'templates': 'vorlagen',
-        'affiliate-manager': 'affiliate-manager',
-        'glossary': 'glossar',
-        'academy': 'akademie',
-        'comparisons': 'vergleiche',
-        'directory': 'verzeichnis',
-        'reviews': 'bewertungen',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'fr': {
-        'about': 'a-propos',
-        'features': 'fonctionnalites',
-        'pricing': 'tarifs',
-        'support': 'support',
-        'blog': 'blog',
-        'resources': 'ressources',
-        'integrations': 'integrations',
-        'templates': 'modeles',
-        'affiliate-manager': 'gestionnaire-affilie',
-        'glossary': 'glossaire',
-        'academy': 'academie',
-        'comparisons': 'comparaisons',
-        'directory': 'repertoire',
-        'reviews': 'avis',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'es': {
-        'about': 'acerca-de',
-        'features': 'caracteristicas',
-        'pricing': 'precios',
-        'support': 'soporte',
-        'blog': 'blog',
-        'resources': 'recursos',
-        'integrations': 'integraciones',
-        'templates': 'plantillas',
-        'affiliate-manager': 'gerente-afiliado',
-        'glossary': 'glosario',
-        'academy': 'academia',
-        'comparisons': 'comparaciones',
-        'directory': 'directorio',
-        'reviews': 'resenas',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'it': {
-        'about': 'chi-siamo',
-        'features': 'caratteristiche',
-        'pricing': 'prezzi',
-        'support': 'supporto',
-        'blog': 'blog',
-        'resources': 'risorse',
-        'integrations': 'integrazioni',
-        'templates': 'modelli',
-        'affiliate-manager': 'gestore-affiliato',
-        'glossary': 'glossario',
-        'academy': 'accademia',
-        'comparisons': 'confronti',
-        'directory': 'directory',
-        'reviews': 'recensioni',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'pt': {
-        'about': 'sobre',
-        'features': 'recursos',
-        'pricing': 'precos',
-        'support': 'suporte',
-        'blog': 'blog',
-        'resources': 'recursos',
-        'integrations': 'integracoes',
-        'templates': 'modelos',
-        'affiliate-manager': 'gerente-afiliado',
-        'glossary': 'glossario',
-        'academy': 'academia',
-        'comparisons': 'comparacoes',
-        'directory': 'diretorio',
-        'reviews': 'avaliacoes',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'pt-br': {
-        'about': 'sobre',
-        'features': 'recursos',
-        'pricing': 'precos',
-        'support': 'suporte',
-        'blog': 'blog',
-        'resources': 'recursos',
-        'integrations': 'integracoes',
-        'templates': 'modelos',
-        'affiliate-manager': 'gerente-afiliado',
-        'glossary': 'glossario',
-        'academy': 'academia',
-        'comparisons': 'comparacoes',
-        'directory': 'diretorio',
-        'reviews': 'avaliacoes',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'nl': {
-        'about': 'over',
-        'features': 'functies',
-        'pricing': 'prijzen',
-        'support': 'ondersteuning',
-        'blog': 'blog',
-        'resources': 'middelen',
-        'integrations': 'integraties',
-        'templates': 'sjablonen',
-        'affiliate-manager': 'affiliate-manager',
-        'glossary': 'woordenlijst',
-        'academy': 'academie',
-        'comparisons': 'vergelijkingen',
-        'directory': 'directory',
-        'reviews': 'beoordelingen',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'da': {
-        'about': 'om',
-        'features': 'funktioner',
-        'pricing': 'priser',
-        'support': 'support',
-        'blog': 'blog',
-        'resources': 'ressourcer',
-        'integrations': 'integrationer',
-        'templates': 'skabeloner',
-        'affiliate-manager': 'affiliate-manager',
-        'glossary': 'ordliste',
-        'academy': 'akademi',
-        'comparisons': 'sammenligninger',
-        'directory': 'oversigt',
-        'reviews': 'anmeldelser',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'sv': {
-        'about': 'om',
-        'features': 'funktioner',
-        'pricing': 'priser',
-        'support': 'support',
-        'blog': 'blogg',
-        'resources': 'resurser',
-        'integrations': 'integrationer',
-        'templates': 'mallar',
-        'affiliate-manager': 'affiliate-hanterare',
-        'glossary': 'ordlista',
-        'academy': 'akademi',
-        'comparisons': 'jamforelser',
-        'directory': 'katalog',
-        'reviews': 'recensioner',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'no': {
-        'about': 'om',
-        'features': 'funksjoner',
-        'pricing': 'priser',
-        'support': 'støtte',
-        'blog': 'blogg',
-        'resources': 'ressurser',
-        'integrations': 'integrasjoner',
-        'templates': 'maler',
-        'affiliate-manager': 'affiliate-leder',
-        'glossary': 'ordliste',
-        'academy': 'akademi',
-        'comparisons': 'sammenligninger',
-        'directory': 'katalog',
-        'reviews': 'anmeldelser',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'fi': {
-        'about': 'tietoja',
-        'features': 'ominaisuudet',
-        'pricing': 'hinnat',
-        'support': 'tuki',
-        'blog': 'blogi',
-        'resources': 'resurssit',
-        'integrations': 'integraatiot',
-        'templates': 'mallit',
-        'affiliate-manager': 'kumppanuuspaallikkö',
-        'glossary': 'sanasto',
-        'academy': 'akatemia',
-        'comparisons': 'vertailut',
-        'directory': 'hakemisto',
-        'reviews': 'arvostelut',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'pl': {
-        'about': 'o-nas',
-        'features': 'funkcje',
-        'pricing': 'cennik',
-        'support': 'wsparcie',
-        'blog': 'blog',
-        'resources': 'zasoby',
-        'integrations': 'integracje',
-        'templates': 'szablony',
-        'affiliate-manager': 'menedzer-partnerski',
-        'glossary': 'slownik',
-        'academy': 'akademia',
-        'comparisons': 'porownania',
-        'directory': 'katalog',
-        'reviews': 'recenzje',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'ro': {
-        'about': 'despre',
-        'features': 'caracteristici',
-        'pricing': 'preturi',
-        'support': 'suport',
-        'blog': 'blog',
-        'resources': 'resurse',
-        'integrations': 'integrari',
-        'templates': 'sabloane',
-        'affiliate-manager': 'manager-afiliat',
-        'glossary': 'glosar',
-        'academy': 'academie',
-        'comparisons': 'comparatii',
-        'directory': 'director',
-        'reviews': 'recenzii',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'hu': {
-        'about': 'rolunk',
-        'features': 'funkciok',
-        'pricing': 'arak',
-        'support': 'tamogatas',
-        'blog': 'blog',
-        'resources': 'forrasok',
-        'integrations': 'integraciok',
-        'templates': 'sablonok',
-        'affiliate-manager': 'partner-menedzser',
-        'glossary': 'szotar',
-        'academy': 'akademia',
-        'comparisons': 'osszehasonlitasok',
-        'directory': 'konyvtar',
-        'reviews': 'velemenyek',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'tr': {
-        'about': 'hakkinda',
-        'features': 'ozellikler',
-        'pricing': 'fiyatlar',
-        'support': 'destek',
-        'blog': 'blog',
-        'resources': 'kaynaklar',
-        'integrations': 'entegrasyonlar',
-        'templates': 'sablonlar',
-        'affiliate-manager': 'ortaklik-yoneticisi',
-        'glossary': 'sozluk',
-        'academy': 'akademi',
-        'comparisons': 'karsilastirmalar',
-        'directory': 'dizin',
-        'reviews': 'incelemeler',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'ar': {
-        'about': 'حول',
-        'features': 'مميزات',
-        'pricing': 'الأسعار',
-        'support': 'الدعم',
-        'blog': 'مدونة',
-        'resources': 'موارد',
-        'integrations': 'تكاملات',
-        'templates': 'قوالب',
-        'affiliate-manager': 'مدير-الشركاء',
-        'glossary': 'قاموس',
-        'academy': 'الأكاديمية',
-        'comparisons': 'مقارنات',
-        'directory': 'دليل',
-        'reviews': 'مراجعات',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'ja': {
-        'about': '私たちについて',
-        'features': '機能',
-        'pricing': '価格',
-        'support': 'サポート',
-        'blog': 'ブログ',
-        'resources': 'リソース',
-        'integrations': '統合',
-        'templates': 'テンプレート',
-        'affiliate-manager': 'アフィリエイトマネージャー',
-        'glossary': '用語集',
-        'academy': 'アカデミー',
-        'comparisons': '比較',
-        'directory': 'ディレクトリ',
-        'reviews': 'レビュー',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'ko': {
-        'about': '소개',
-        'features': '기능',
-        'pricing': '가격',
-        'support': '지원',
-        'blog': '블로그',
-        'resources': '자료',
-        'integrations': '통합',
-        'templates': '템플릿',
-        'affiliate-manager': '제휴-매니저',
-        'glossary': '용어집',
-        'academy': '아카데미',
-        'comparisons': '비교',
-        'directory': '디렉토리',
-        'reviews': '리뷰',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'zh': {
-        'about': '关于',
-        'features': '功能',
-        'pricing': '价格',
-        'support': '支持',
-        'blog': '博客',
-        'resources': '资源',
-        'integrations': '集成',
-        'templates': '模板',
-        'affiliate-manager': '联盟经理',
-        'glossary': '词汇表',
-        'academy': '学院',
-        'comparisons': '比较',
-        'directory': '目录',
-        'reviews': '评论',
-        'author': 'author',
-        'authors': 'authors'
-    },
-    'vi': {
-        'about': 've-chung-toi',
-        'features': 'tinh-nang',
-        'pricing': 'gia',
-        'support': 'ho-tro',
-        'blog': 'blog',
-        'resources': 'tai-nguyen',
-        'integrations': 'tich-hop',
-        'templates': 'mau',
-        'affiliate-manager': 'quan-ly-doi-tac',
-        'glossary': 'tu-dien',
-        'academy': 'hoc-vien',
-        'comparisons': 'so-sanh',
-        'directory': 'danh-ba',
-        'reviews': 'danh-gia',
-        'author': 'author',
-        'authors': 'authors'
-    }
-}
+# Cache for directory URL lookups
+DIRECTORY_URL_CACHE = {}
 
 
 def extract_front_matter(file_path: Path) -> Tuple[str, Dict, str, str]:
@@ -508,21 +128,57 @@ def update_front_matter_url_only(file_path: Path, original_toml: str, new_url: s
         f.write(remaining_content)
 
 
-def get_translated_path(language: str, directory_name: str) -> str:
-    """Get the translated directory name for a given language and directory"""
-    if language == 'en':
-        return directory_name
+def get_directory_url_slug(directory_path: Path) -> str:
+    """Get the URL slug for a directory by checking its _index.md file or using the directory name"""
+    # Check if directory has _index.md file
+    index_file = directory_path / '_index.md'
     
-    translations = DIRECTORY_TRANSLATIONS.get(language, {})
-    return translations.get(directory_name, directory_name)
+    if index_file.exists():
+        # Extract URL from _index.md
+        _, front_matter, _, _ = extract_front_matter(index_file)
+        if 'url' in front_matter:
+            url = front_matter['url'].strip('/')
+            # Extract the last part of the URL as the slug
+            if '/' in url:
+                return url.split('/')[-1]
+            return url
+    
+    # Fallback to directory name
+    return directory_path.name
 
 
 def get_directory_url_path(directory_path: Path, language: str, hugo_config: Dict) -> Optional[str]:
     """Get the URL path for a directory by checking its _index.md file or predicting from directory name"""
+    # Check if languages have different domains
+    languages = hugo_config.get('languages', {})
+    has_custom_domains = False
+    
+    if languages:
+        # Get baseURLs for all languages
+        base_urls = set()
+        for lang_code, lang_config in languages.items():
+            if 'baseURL' in lang_config:
+                # Extract domain from baseURL
+                from urllib.parse import urlparse
+                parsed_url = urlparse(lang_config['baseURL'])
+                base_urls.add(parsed_url.netloc)
+        
+        # If we have different domains for different languages, don't use language prefix
+        has_custom_domains = len(base_urls) > 1
+    
     # Determine if we need to add language prefix
     default_lang = hugo_config.get('defaultContentLanguage', 'en')
     default_in_subdir = hugo_config.get('defaultContentLanguageInSubdir', True)
-    needs_lang_prefix = (language != default_lang) or (language == default_lang and default_in_subdir)
+    
+    # Language prefix is needed only if:
+    # 1. Languages DON'T have custom domains, AND
+    # 2. Either it's not the default language, OR defaultContentLanguageInSubdir is true
+    if has_custom_domains:
+        # Each language has its own domain, no language prefix needed
+        needs_lang_prefix = False
+    else:
+        # Languages share the same domain, use subdirectories
+        needs_lang_prefix = (language != default_lang) or (language == default_lang and default_in_subdir)
     
     # Always build the URL from the directory structure for consistency
     # Get the content directory to calculate relative path
@@ -532,14 +188,16 @@ def get_directory_url_path(directory_path: Path, language: str, hugo_config: Dic
     # Get the relative path from the language directory
     relative_path = directory_path.relative_to(lang_dir)
     
-    # Build the URL path by translating each part
+    # Build the URL path by getting URL slugs for each directory
     path_parts = []
+    current_path = lang_dir
     for part in relative_path.parts:
-        translated_part = get_translated_path(language, part)
-        path_parts.append(translated_part)
+        current_path = current_path / part
+        url_slug = get_directory_url_slug(current_path)
+        path_parts.append(url_slug)
     
     # Construct the final URL
-    if needs_lang_prefix and language != default_lang:
+    if needs_lang_prefix:
         return f"/{language}/{'/'.join(path_parts)}"
     else:
         return f"/{'/'.join(path_parts)}"
