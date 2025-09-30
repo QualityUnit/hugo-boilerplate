@@ -16,10 +16,13 @@
 .lazy-video-thumbnail {
   position: relative;
   width: 100%;
-  height: 0;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
   overflow: hidden;
   cursor: pointer;
+}
+
+.lazy-video-thumbnail.aspect-ratio {
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
 }
 
 .lazy-video-wrapper {

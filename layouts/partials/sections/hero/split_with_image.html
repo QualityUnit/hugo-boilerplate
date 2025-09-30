@@ -1,5 +1,5 @@
 {{/*
-Responsive hero section with split layout - content left, image right.
+Responsive hero section with split layout - content left, image/video right.
 
 Parameters:
 - type: "default" | "features" | "integrations" (default: "default") - Controls overlay icon display
@@ -9,6 +9,10 @@ Parameters:
   - For type "features": Background image + SVG icon overlay in square
   - For type "integrations": integration-detail.png background + logo overlay in square
 - icon: SVG icon path (used only for type "features")
+- video: Video object with properties (optional, takes priority over image if enabled):
+  - enabled: Boolean to enable video mode (default: false)
+  - src: YouTube URL for the video
+  - poster: Custom poster/thumbnail image for the video (falls back to imageUrl if not provided)
 - eyebrow, heading, description: Text content
 - cta: Call-to-action buttons
   - primary: Primary button (text, url)
@@ -45,12 +49,14 @@ Usage Guidelines:
 - Use text-primary for brand accents, links, and call-to-action elements
 - Use text-secondary for regular paragraph text and descriptions
 - Ensure color contrast meets accessibility standards (WCAG AA)
+- When video.enabled is true, video will be displayed with popup functionality
+- Video supports YouTube URLs and will open in lightbox popup on click
 
 Design Tokens:
 - Image dimensions are configurable via variables for easy maintenance
 - Spacing values use consistent design system tokens
 - Typography tracking and sizing follow brand guidelines
-- Image is always positioned on the right side
+- Media (image/video) is always positioned on the right side
 */}}
 
 {{ $theme := .theme | default "light" }}
@@ -64,6 +70,7 @@ Design Tokens:
 {{ $imageAlt := .imageAlt }}
 {{ $icon := .icon }}
 {{ $features := .features | default (slice) }}
+{{ $video := .video | default (dict "enabled" false) }}
 {{ $eyebrow := .eyebrow }}
 {{ $heading := .heading }}
 {{ $description := .description }}
@@ -138,7 +145,24 @@ Design Tokens:
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
       <div class="max-md:hidden relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
-        {{ if and $showOverlay $iconImageSrc }}
+        {{ if and $video $video.enabled }}
+          {{/* Display video with popup */}}
+          {{ partial "components/media/video.html" (dict 
+              "src" $video.src 
+              "poster" $video.poster 
+              "title" $heading
+              "class" "rounded-lg w-full h-auto"
+              "provider" "youtube"
+              "playBtnClass" ""
+              "posterHeight" "h-full"
+              "useAspectRatio" false
+              "showPlayButton" $video.showPlayButton
+              "useLightbox" true
+              "noLazy" true
+          ) }}
+        {{ else }}
+          {{/* Display regular image */}}
+          {{ if and $showOverlay $iconImageSrc }}
           <div class="absolute top-[5.69rem] left-[1.25rem] z-10 w-[7.88rem] h-[7.88rem] rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm" 
                style="box-shadow: 0.25rem 0.54rem 0.34rem -0.29rem rgba(0, 0, 0, 0.06), 0.245rem 0.538rem 0.343rem -0.294rem rgba(0, 0, 0, 0.06);">
             {{ if eq $type "integrations" }}
@@ -165,11 +189,12 @@ Design Tokens:
           </div>
         {{ end }}
         {{ partial "components/media/lazyimg.html" (dict
-          "src" $imageSrc
-          "alt" $finalImageAlt
-          "class" "object-contain rounded-lg"
-          "noLazy" true
-        ) }}
+            "src" $imageSrc
+            "alt" $finalImageAlt
+            "class" "object-contain rounded-lg"
+            "noLazy" true
+          ) }}
+        {{ end }}
       </div>
     </div>
     <div class="lg:flex lg:w-1/2 lg:items-center">
