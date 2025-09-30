@@ -2,8 +2,13 @@
 Responsive hero section with split layout - content left, image right.
 
 Parameters:
+- type: "default" | "features" | "integrations" (default: "default") - Controls overlay icon display
 - theme: "light" | "dark" | "alternate" (default: "light")
 - image, imageAlt: Image settings
+  - For type "default": Just background image, no overlay
+  - For type "features": Background image + SVG icon overlay in square
+  - For type "integrations": integration-detail.png background + logo overlay in square
+- icon: SVG icon path (used only for type "features")
 - eyebrow, heading, description: Text content
 - cta: Call-to-action buttons
   - primary: Primary button (text, url)
@@ -22,6 +27,11 @@ Parameters:
   - wordAlternatives: Comma separated words to alternate with
 - sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
 - backgroundColor: Custom background color class
+
+Image Handling by Type:
+- type="default": Uses image parameter for background, no overlay square
+- type="features": Uses image parameter for background, icon parameter for SVG overlay in square
+- type="integrations": Uses /images/integration-methods/integration-detail.png for background, image parameter for logo overlay in square
 
 Custom Color Classes Documentation:
 - text-heading: Primary heading text color (typically dark for contrast)
@@ -49,8 +59,11 @@ Design Tokens:
 {{ $isAlternate := eq $theme "alternate" }}
 
 {{/* Section parameters */}}
+{{ $type := .type | default "default" }}
 {{ $image := .image }}
 {{ $imageAlt := .imageAlt }}
+{{ $icon := .icon }}
+{{ $features := .features | default (slice) }}
 {{ $eyebrow := .eyebrow }}
 {{ $heading := .heading }}
 {{ $description := .description }}
@@ -79,8 +92,13 @@ Design Tokens:
 
 {{/* Image processing */}}
 {{ $imageSrc := "" }}
+{{ $iconImageSrc := "" }}
 {{ $finalImageAlt := $heading | default .Title | default "Hero image" }}
-{{ if $image }}
+
+{{/* Set background image based on type */}}
+{{ if eq $type "integrations" }}
+  {{ $imageSrc = "/images/integration-methods/integration-detail.png" }}
+{{ else if $image }}
   {{ if reflect.IsMap $image }}
     {{ $imageSrc = $image.url }}
     {{ $finalImageAlt = $image.alt | default $finalImageAlt }}
@@ -91,6 +109,27 @@ Design Tokens:
   {{ $imageSrc = "https://images.unsplash.com/photo-1487017159836-4e23ece2e4cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2102&q=80" }}
 {{ end }}
 
+{{/* Set icon/square image based on type - only for features and integrations */}}
+{{ $iconImageSrc := "" }}
+{{ $showOverlay := false }}
+{{ if eq $type "integrations" }}
+  {{ $iconImageSrc = $image }}
+  {{ $showOverlay = true }}
+{{ else if eq $type "features" }}
+  {{ $iconImageSrc = $icon }}
+  {{ $showOverlay = and $icon (ne $icon "") }}
+{{ end }}
+
+{{/* Icon colors configuration for features */}}
+{{ $featuresIconsColors := slice
+  (dict "section" "promotional-materials" "colorIcon" "text-green-600")
+  (dict "section" "reporting" "colorIcon" "text-fuchsia-600")
+  (dict "section" "commissions" "colorIcon" "text-yellow-600")
+  (dict "section" "user-interface" "colorIcon" "text-orange-300")
+  (dict "section" "tracking" "colorIcon" "text-sky-600")
+  (dict "section" "security" "colorIcon" "text-pink-600")
+}}
+
 {{ if $imageAlt }}
   {{ $finalImageAlt = $imageAlt }}
 {{ end }}
@@ -99,6 +138,32 @@ Design Tokens:
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
       <div class="max-md:hidden relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
+        {{ if and $showOverlay $iconImageSrc }}
+          <div class="absolute top-[5.69rem] left-[1.25rem] z-10 w-[7.88rem] h-[7.88rem] rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm" 
+               style="box-shadow: 0.25rem 0.54rem 0.34rem -0.29rem rgba(0, 0, 0, 0.06), 0.245rem 0.538rem 0.343rem -0.294rem rgba(0, 0, 0, 0.06);">
+            {{ if eq $type "integrations" }}
+             {{ partial "components/media/lazyimg.html" (dict
+                "src" $iconImageSrc
+                "alt" "Integration logo"
+                "class" "w-[6.25rem] h-[6.25rem] object-contain"
+                "noLazy" true
+              ) }}
+            {{ else if eq $type "features" }}
+              {{ $iconColor := "text-green-600" }}
+              {{ range $featuresIconsColors }}
+                {{ if eq .section $.Section }}
+                  {{ $iconColor = .colorIcon }}
+                  {{ break }}
+                {{ end }}
+              {{ end }}
+              {{ partial "components/media/svg-icon.html" (dict
+                "src" $iconImageSrc
+                "alt" "Icon"
+                "class" (printf "w-[4.25rem] h-[4.25rem] %s" $iconColor)
+              ) }}
+            {{ end }}
+          </div>
+        {{ end }}
         {{ partial "components/media/lazyimg.html" (dict
           "src" $imageSrc
           "alt" $finalImageAlt

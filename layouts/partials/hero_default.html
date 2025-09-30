@@ -44,14 +44,25 @@
     "typewriter" $typewriter
     ) }}
 {{ else if $image }} {{/* Use the fetched image URL */}}
+    {{ $heroType := "default" }}
+    {{ if and (eq .Section "integration-methods") (ne .Kind "section") }}
+        {{ $heroType = "integrations" }}
+    {{ else if and (.Params.icon) (eq .Section "features") (ne .Kind "section") }}
+        {{ $heroType = "features" }}
+    {{ end }}
     {{ partial "sections/hero/split_with_image.html" (dict
+    "type" $heroType
     "heading" $title
     "description" (markdownify $shortDescription)
     "eyebrow"  (.Params.eyebrow | default (i18n "eyebrow") | default "")
+    "icon" (.Params.icon | default "")
     "image" $image
     "tags" $tags
     "resources" $resources
     "typewriter" $typewriter
+    "cta" (dict
+        "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
+        "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
     ) }}
 {{ else if eq .Params.heroVariant "simple_base" }}
     {{ partial "sections/hero/simple_base.html" (dict
