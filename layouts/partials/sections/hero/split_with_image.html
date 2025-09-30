@@ -117,7 +117,6 @@ Design Tokens:
 {{ end }}
 
 {{/* Set icon/square image based on type - only for features and integrations */}}
-{{ $iconImageSrc := "" }}
 {{ $showOverlay := false }}
 {{ if eq $type "integrations" }}
   {{ $iconImageSrc = $image }}
@@ -175,7 +174,7 @@ Design Tokens:
             {{ else if eq $type "features" }}
               {{ $iconColor := "text-green-600" }}
               {{ range $featuresIconsColors }}
-                {{ if eq .section $.Section }}
+                {{ if eq .section $.Params.feature }}
                   {{ $iconColor = .colorIcon }}
                   {{ break }}
                 {{ end }}
