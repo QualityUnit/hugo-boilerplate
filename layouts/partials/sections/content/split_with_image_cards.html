@@ -66,7 +66,7 @@ Example:
                     {{ $cardSchemaImage := .schemaImage }}
                     {{ $cardImageAlt := .imageAlt | default .title }}
 
-                    <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center" {{ with $cardBackgroundImage }}style="background-image: url('{{ partial "functions/get-static-url.html" (dict "path" .) }}');"{{ end }}>
+                    <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center"{{ if not .cta.url }} aria-label="{{ .title }}" {{ end }} {{ with $cardBackgroundImage }}style="background-image: url('{{ partial "functions/get-static-url.html" (dict "path" .) }}');"{{ end }}>
                         {{ if .cta.url }}
                             <a href="{{ .cta.url }}" class="absolute inset-0 z-20" aria-label="{{ .title }}"></a>
                         {{ end }}
@@ -103,6 +103,7 @@ Example:
                                             "variant" "secondary"
                                             "showArrow" true
                                             "sizeClasses" "xl"
+                                            "ariaHidden" true
                                         ) }}
                                     </div>
                                 {{ end }}
