@@ -5,9 +5,13 @@
 {{ if $showCTA }}
     {{ $ctaDescription := .Params.ctaDescription | default (i18n "cta_default_description") }}
     {{ $ctaPrimaryText := .Params.ctaPrimaryText | default (i18n "cta_default_primary_text") }}
-    {{ $ctaPrimaryURL := .Params.ctaPrimaryURL | default (i18n "cta_default_primary_url") }}
+    {{ $ctaPrimaryURL := .Params.ctaPrimaryURL | default "/trial/" }}
     {{ $ctaSecondaryText := .Params.ctaSecondaryText | default (i18n "cta_default_secondary_text") }}
-    {{ $ctaSecondaryURL := .Params.ctaSecondaryURL | default (i18n "cta_default_secondary_url") }}
+    {{ $ctaSecondaryURL := .Params.ctaSecondaryURL | default "/contact/" }}
+
+    {{/* Get translated URLs */}}
+    {{ $ctaPrimaryURL = partial "helpers/get-translated-url.html" (dict "url" $ctaPrimaryURL "lang" site.Language.Lang) }}
+    {{ $ctaSecondaryURL = partial "helpers/get-translated-url.html" (dict "url" $ctaSecondaryURL "lang" site.Language.Lang) }}
 
     {{ partial "sections/cta/simple_centered_on_dark.html" (dict
     "heading" $ctaHeading
