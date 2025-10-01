@@ -40,7 +40,7 @@
               "filePath" $filePath
           ) }}
 
-          <a href="{{ (lower $href) }}"
+          <a href="{{ $href }}"
              class="inline-flex items-center text-sm hover:opacity-75 transition-opacity" 
              title="{{ $langData.languageName }}"
              aria-label="{{ $langData.languageName }}">
@@ -72,7 +72,7 @@
             "permalink" .Permalink
         ) }}
         
-        <a href="{{ (lower $href ) }}"
+        <a href="{{ $href }}"
            class="inline-flex items-center text-sm hover:opacity-75 transition-opacity" 
            title="{{ .Language.LanguageName }}"
            aria-label="{{ .Language.LanguageName }}">
