@@ -41,7 +41,7 @@
         {{ $hreflang := $langData.params.bcp47Lang | default $code }}
         
         <!-- Create hreflang link with full URL -->
-        {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s">` $hreflang (lower $href) }}
+        {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s">` $hreflang $href }}
         {{ $links = $links | append $link }}
       {{ end }}
     {{ end }}
@@ -52,13 +52,13 @@
   <!-- Add links for existing translations -->
   {{ range $currentPage.Translations }}
     {{ $hreflang := .Language.Params.bcp47Lang | default .Language.Lang }}
-    {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s">` $hreflang (lower .Permalink) }}
+    {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s">` $hreflang .Permalink }}
     {{ $links = $links | append $link }}
   {{ end }}
 
   <!-- Add link for current page -->
   {{ $currentHreflang := $currentPage.Language.Params.bcp47Lang | default $currentPage.Language.Lang }}
-  {{ $currentLink := printf `<link rel="alternate" hreflang="%s" href="%s">` $currentHreflang (lower $currentPage.Permalink) }}
+  {{ $currentLink := printf `<link rel="alternate" hreflang="%s" href="%s">` $currentHreflang $currentPage.Permalink }}
   {{ $links = $links | append $currentLink }}
 
   <!-- Add links for languages without translations (construct URLs) -->
@@ -90,7 +90,7 @@
           
           {{ if $shouldIncludeLink }}
             {{ $hreflang := .Language.Params.bcp47Lang | default .Language.Lang }}
-            {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s%s">` $hreflang .Language.Params.baseDomainName (lower $langURL)  }}
+            {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s%s">` $hreflang .Language.Params.baseDomainName $langURL  }}
             {{ $links = $links | append $link }}
           {{ end }}
       {{ end }}
@@ -152,7 +152,7 @@
   {{ end }}
 {{ end }}
 
-{{ $xDefaultLink := printf `<link rel="alternate" hreflang="x-default" href="%s">` (lower $xDefaultURL) }}
+{{ $xDefaultLink := printf `<link rel="alternate" hreflang="x-default" href="%s">` $xDefaultURL }}
 {{ $links = $links | append $xDefaultLink }}
 
 <!-- Output all links -->
