@@ -6,8 +6,8 @@
   - class: Additional CSS classes (optional)
   - alt: Alternative text for accessibility (optional)
 @features:
-  - Converts fill="#xxx" to fill="currentColor"
-  - Converts stroke="#xxx" to stroke="currentColor"  
+  - Converts fill="#xxx" to fill="currentColor" (preserves fill="none")
+  - Converts stroke="#xxx" to stroke="currentColor" (preserves stroke="none")
   - Works with Tailwind text-color classes
   - Preserves viewBox for proper scaling
 @example:
@@ -26,8 +26,15 @@
   {{ $svgPath := printf "static%s" $src }}
   {{ if fileExists $svgPath }}
     {{ $svgContent := readFile $svgPath }}
-    {{ $svgContent = replaceRE `fill="#[^"]*"` `fill="currentColor"` $svgContent }}
-    {{ $svgContent = replaceRE `stroke="#[^"]*"` `stroke="currentColor"` $svgContent }}
+    {{/* First preserve none values by temporarily replacing them */}}
+    {{ $svgContent = replace $svgContent `fill="none"` `FILL_NONE_PLACEHOLDER` }}
+    {{ $svgContent = replace $svgContent `stroke="none"` `STROKE_NONE_PLACEHOLDER` }}
+    {{/* Replace all fill and stroke colors */}}
+    {{ $svgContent = replaceRE `fill="[^"]*"` `fill="currentColor"` $svgContent }}
+    {{ $svgContent = replaceRE `stroke="[^"]*"` `stroke="currentColor"` $svgContent }}
+    {{/* Restore none values */}}
+    {{ $svgContent = replace $svgContent `FILL_NONE_PLACEHOLDER` `fill="none"` }}
+    {{ $svgContent = replace $svgContent `STROKE_NONE_PLACEHOLDER` `stroke="none"` }}
     
     {{/* Build attributes string */}}
     {{ $attrs := printf `class="%s"` $class }}
