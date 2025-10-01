@@ -33,7 +33,8 @@
     {{ $currentDomain = $currentLangData.baseDomainName }}
   {{ end }}
   {{ $baseDomain := $langData.baseDomainName }}
-  {{ if or (eq $currentDomain $baseDomain) (in $currentPage.Permalink "localhost") }}
+  {{/* Only remove baseDomain if on localhost, keep it for production even if domains match */}}
+  {{ if (in $currentPage.Permalink "localhost") }}
     {{ $baseDomain = "" }}
   {{ end }}
   {{ $href = printf "%s%s" $baseDomain $langData.baseURL }}
@@ -111,9 +112,9 @@
           {{/* Construct the URL with language prefix */}}
           {{ if eq $code "en" }}
             {{ if $urlPath }}
-              {{ $href = printf "%s/%s/" $baseDomain $urlPath }}
+              {{ $href = printf "%s%s%s/" $baseDomain $langData.baseURL $urlPath }}
             {{ else }}
-              {{ $href = printf "%s/" $baseDomain }}
+              {{ $href = printf "%s%s" $baseDomain $langData.baseURL }}
             {{ end }}
           {{ else }}
             {{ if $urlPath }}
@@ -141,9 +142,9 @@
         {{/* Construct the URL with language prefix */}}
         {{ if eq $code "en" }}
           {{ if $urlPath }}
-            {{ $href = printf "%s/%s/" $baseDomain $urlPath }}
+            {{ $href = printf "%s%s%s/" $baseDomain $langData.baseURL $urlPath }}
           {{ else }}
-            {{ $href = printf "%s/" $baseDomain }}
+            {{ $href = printf "%s%s" $baseDomain $langData.baseURL }}
           {{ end }}
         {{ else }}
           {{ if $urlPath }}
