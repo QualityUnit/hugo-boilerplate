@@ -173,8 +173,18 @@
                                             {{ end }}
                                         {{ end }}
                                         <!-- Interval -->
-                                        {{ if $tier.interval }}
-                                        <span class="text-sm/6 font-semibold text-gray-900">{{ i18n $tier.interval }}</span>
+                                        {{ if $togglePrice }}
+                                            {{ with $tier.intervalMonthly }}
+                                            <span class="text-sm/6 font-semibold text-gray-900 monthly-interval">{{ i18n . }}</span>
+                                            {{ end }}
+                                            {{ with $tier.intervalAnnual }}
+                                            <span class="text-sm/6 font-semibold text-gray-900 annual-interval hidden">{{ i18n . }}</span>
+                                            {{ end }}
+                                        {{ else }}
+                                            {{ $intervalKey := or $tier.intervalMonthly $tier.interval }}
+                                            {{ with $intervalKey }}
+                                            <span class="text-sm/6 font-semibold text-gray-900">{{ i18n . }}</span>
+                                            {{ end }}
                                         {{ end }}
                                     </p>
                                     {{ if and $tier.cta $tier.cta.url $tier.cta.text }}
@@ -376,29 +386,25 @@
 
                 const monthlyLabel = document.getElementById('monthly-label');
                 const annuallyLabel = document.getElementById('annually-label');
-                const monthlyPrices = document.querySelectorAll('.monthly-price');
-                const annualPrices = document.querySelectorAll('.annual-price');
+                const monthlyElements = document.querySelectorAll('.monthly-price, .monthly-interval');
+                const annualElements = document.querySelectorAll('.annual-price, .annual-interval');
 
                 // Function to toggle between monthly and annual pricing
                 function togglePricing(isMonthly) {
+                    const activeLabel = isMonthly ? monthlyLabel : annuallyLabel;
+                    const inactiveLabel = isMonthly ? annuallyLabel : monthlyLabel;
+                    const showElements = isMonthly ? monthlyElements : annualElements;
+                    const hideElements = isMonthly ? annualElements : monthlyElements;
 
-                    if (isMonthly) {
-                        monthlyLabel.classList.add('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
-                        monthlyLabel.classList.remove('text-{{ $toggleTextColor }}');
-                        annuallyLabel.classList.remove('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
-                        annuallyLabel.classList.add('text-{{ $toggleTextColor }}');
+                    // Update label styles
+                    activeLabel.classList.add('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
+                    activeLabel.classList.remove('text-{{ $toggleTextColor }}');
+                    inactiveLabel.classList.remove('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
+                    inactiveLabel.classList.add('text-{{ $toggleTextColor }}');
 
-                        monthlyPrices.forEach(el => el.classList.remove('hidden'));
-                        annualPrices.forEach(el => el.classList.add('hidden'));
-                    } else {
-                        annuallyLabel.classList.add('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
-                        annuallyLabel.classList.remove('text-{{ $toggleTextColor }}');
-                        monthlyLabel.classList.remove('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
-                        monthlyLabel.classList.add('text-{{ $toggleTextColor }}');
-
-                        monthlyPrices.forEach(el => el.classList.add('hidden'));
-                        annualPrices.forEach(el => el.classList.remove('hidden'));
-                    }
+                    // Toggle element visibility
+                    showElements.forEach(el => el.classList.remove('hidden'));
+                    hideElements.forEach(el => el.classList.add('hidden'));
                 }
 
                 // Set up event listeners for the toggle
