@@ -309,7 +309,7 @@
 {{ $theme := .Get "theme" | default "light" }}
 {{ $backgroundColor := .Get "backgroundColor" | default "" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
-{{ $sectionPaddingY := .Get "sectionPaddingY" | default "py-24 lg:py-32" }}
+{{ $sectionPaddingY := .Get "sectionPaddingY" }}
 
 {{/* Header parameters */}}
 {{ $headerEyebrow := .Get "headerEyebrow" | default "" }}
