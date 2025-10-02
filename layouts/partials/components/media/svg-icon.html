@@ -23,15 +23,18 @@
 {{ $alt := .alt | default "" }}
 
 {{ if $src }}
+  {{ if not (hasPrefix $src "/") }}
+    {{ $src = printf "/%s" $src }}
+  {{ end }}
   {{ $svgPath := printf "static%s" $src }}
   {{ if fileExists $svgPath }}
     {{ $svgContent := readFile $svgPath }}
     {{/* First preserve none values by temporarily replacing them */}}
     {{ $svgContent = replace $svgContent `fill="none"` `FILL_NONE_PLACEHOLDER` }}
     {{ $svgContent = replace $svgContent `stroke="none"` `STROKE_NONE_PLACEHOLDER` }}
-    {{/* Replace all fill and stroke colors */}}
-    {{ $svgContent = replaceRE `fill="[^"]*"` `fill="currentColor"` $svgContent }}
-    {{ $svgContent = replaceRE `stroke="[^"]*"` `stroke="currentColor"` $svgContent }}
+    {{/* Replace color values with consolidated regex patterns */}}
+    {{ $svgContent = replaceRE `fill="(#[0-9a-fA-F]{3,8}|rgba?\\([^)]*\\)|hsla?\\([^)]*\\))"` `fill="currentColor"` $svgContent }}
+    {{ $svgContent = replaceRE `stroke="(#[0-9a-fA-F]{3,8}|rgba?\\([^)]*\\)|hsla?\\([^)]*\\))"` `stroke="currentColor"` $svgContent }}
     {{/* Restore none values */}}
     {{ $svgContent = replace $svgContent `FILL_NONE_PLACEHOLDER` `fill="none"` }}
     {{ $svgContent = replace $svgContent `STROKE_NONE_PLACEHOLDER` `stroke="none"` }}
