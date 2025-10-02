@@ -74,10 +74,12 @@
       {{ end }}
       
       <!-- If no translation exists and it's not the current page language -->
-      {{ if (not $hasTranslation) }}
+      {{ if and (not $hasTranslation) (ne $langCode $currentPage.Language.Lang) }}
           {{ $langBaseURL := .Permalink }}
           {{ $langBaseWithoutSlash := strings.TrimSuffix "/" $langBaseURL }}
-          {{ $langURL := print $langBaseWithoutSlash "/" $pagePath }}
+          {{/* Ensure pagePath doesn't start with slash to avoid double slash */}}
+          {{ $cleanPagePath := strings.TrimPrefix "/" $pagePath }}
+          {{ $langURL := print $langBaseWithoutSlash "/" $cleanPagePath }}
           
           <!-- Check if we should include this link -->
           {{ $shouldIncludeLink := true }}
@@ -90,7 +92,8 @@
           
           {{ if $shouldIncludeLink }}
             {{ $hreflang := .Language.Params.bcp47Lang | default .Language.Lang }}
-            {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s%s">` $hreflang .Language.Params.baseDomainName $langURL  }}
+            {{/* langURL already contains the full path constructed on line 80 */}}
+            {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s">` $hreflang $langURL }}
             {{ $links = $links | append $link }}
           {{ end }}
       {{ end }}
