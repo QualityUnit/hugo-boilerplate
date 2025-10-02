@@ -119,14 +119,62 @@ Design Tokens:
 {{ $overlayIconSizeFeatures := .overlayIconSizeFeatures | default "w-[4.25rem] h-[4.25rem]" }}
 {{ $overlayShadowClass := .overlayShadowClass | default "hero-overlay-shadow" }}
 
+{{/* Hero type configuration - clean and simple */}}
+
+{{/* Feature category colors map */}}
+{{ $featureColors := dict
+  "promotional-materials" "text-green-600"
+  "reporting" "text-fuchsia-600"
+  "commissions" "text-yellow-600"
+  "user-interface" "text-orange-300"
+  "tracking" "text-sky-600"
+  "security" "text-pink-600"
+}}
+
+{{/* Base config for Features (SVG Overlay mode) */}}
+{{ $featureBaseConfig := dict 
+    "customBackground" ""
+    "showOverlay" true 
+    "overlayMode" "svg"
+}}
+
+{{/* Base config for Integrations (Image Overlay mode) */}}
+{{ $integrationConfig := dict 
+    "customBackground" "/images/integration-methods/integration-detail.png"
+    "showOverlay" true 
+    "overlayMode" "image"
+    "overlayColor" ""
+}}
+
+{{/* All Types Map: Defines all possible configurations */}}
+{{ $allTypeConfigs := dict
+  "integrations" $integrationConfig
+  "features" (merge $featureBaseConfig (dict "overlayColor" "text-green-600"))
+}}
+
+{{/* Dynamically merge feature category configurations into the main map */}}
+{{ range $category, $color := $featureColors }}
+  {{ $categoryConfig := merge $featureBaseConfig (dict "overlayColor" $color) }}
+  {{ $allTypeConfigs = merge $allTypeConfigs (dict $category $categoryConfig) }}
+{{ end }}
+
+{{/* Fallback (Default type has no overlay) */}}
+{{ $defaultConfig := dict 
+    "customBackground" "" 
+    "showOverlay" false 
+    "overlayMode" "none"
+    "overlayColor" "" 
+}}
+{{ $config := index $allTypeConfigs $type | default $defaultConfig }}
+
 {{/* Image processing */}}
 {{ $imageSrc := "" }}
 {{ $iconImageSrc := "" }}
-{{ $finalImageAlt := $heading | default .Title | default "Hero image" }}
+{{ $finalImageAlt := $imageAlt | default $heading | default .Title | default "Hero image" }}
 
-{{/* Set background image based on type */}}
-{{ if eq $type "integrations" }}
-  {{ $imageSrc = "/images/integration-methods/integration-detail.png" }}
+{{/* Background image source logic */}}
+{{ if $config.customBackground }}
+  {{ $imageSrc = $config.customBackground }}
 {{ else if $image }}
   {{ if reflect.IsMap $image }}
     {{ $imageSrc = $image.url }}
@@ -138,31 +186,13 @@ Design Tokens:
   {{ $imageSrc = "https://images.unsplash.com/photo-1487017159836-4e23ece2e4cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2102&q=80" }}
 {{ end }}
 
-{{/* Icon colors configuration for features */}}
-{{ $featuresIconsColors := dict
-  "promotional-materials" "text-green-600"
-  "reporting" "text-fuchsia-600"
-  "commissions" "text-yellow-600"
-  "user-interface" "text-orange-300"
-  "tracking" "text-sky-600"
-  "security" "text-pink-600"
-}}
-
-{{/* Check if type is a feature category */}}
-{{ $isFeatureType := isset $featuresIconsColors $type }}
-
-{{/* Set icon/square image based on type - only for features and integrations */}}
-{{ $showOverlay := false }}
-{{ if eq $type "integrations" }}
+{{/* Overlay icon source logic (Simplified by using overlayMode) */}}
+{{ $showOverlay := $config.showOverlay }}
+{{ if eq $config.overlayMode "image" }}
   {{ $iconImageSrc = $image }}
-  {{ $showOverlay = true }}
-{{ else if or (eq $type "features") $isFeatureType }}
+{{ else if eq $config.overlayMode "svg" }}
   {{ $iconImageSrc = $icon }}
-  {{ $showOverlay = and $icon (ne $icon "") }}
-{{ end }}
-
-{{ if $imageAlt }}
-  {{ $finalImageAlt = $imageAlt }}
+  {{ $showOverlay = and $showOverlay (ne $iconImageSrc "") }}
 {{ end }}
 
 <div class="split-with-image-hero {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
@@ -187,30 +217,31 @@ Design Tokens:
         {{ else }}
           {{/* Display regular image */}}
           {{ if and $showOverlay $iconImageSrc }}
-          <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
-            {{ if eq $type "integrations" }}
-             {{ partial "components/media/lazyimg.html" (dict
-                "src" $iconImageSrc
-                "alt" "Integration logo"
-                "class" (printf "%s object-contain" $overlayIconSizeIntegrations)
-                "noLazy" true
-              ) }}
-            {{ else if or (eq $type "features") $isFeatureType }}
-              {{ $iconColor := index $featuresIconsColors $type | default "text-green-600" }}
-              {{ partial "components/media/svg-icon.html" (dict
-                "src" $iconImageSrc
-                "alt" "Icon"
-                "class" (printf "%s %s" $overlayIconSizeFeatures $iconColor)
-              ) }}
-            {{ end }}
-          </div>
-        {{ end }}
-        {{ partial "components/media/lazyimg.html" (dict
-            "src" $imageSrc
-            "alt" $finalImageAlt
-            "class" "object-contain rounded-lg"
-            "noLazy" true
-          ) }}
+            <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
+              {{ if eq $config.overlayMode "image" }}
+                {{/* Integration logo (Image Overlay) */}}
+                {{ partial "components/media/lazyimg.html" (dict
+                  "src" $iconImageSrc
+                  "alt" "Integration logo"
+                  "class" (printf "%s object-contain" $overlayIconSizeIntegrations)
+                  "noLazy" true
+                ) }}
+              {{ else if eq $config.overlayMode "svg" }}
+                {{/* Feature SVG icon (SVG Overlay) */}}
+                {{ partial "components/media/svg-icon.html" (dict
+                  "src" $iconImageSrc
+                  "alt" "Feature icon"
+                  "class" (printf "%s %s" $overlayIconSizeFeatures $config.overlayColor)
+                ) }}
+              {{ end }}
+            </div>
+          {{ end }}
+          {{ partial "components/media/lazyimg.html" (dict
+              "src" $imageSrc
+              "alt" $finalImageAlt
+              "class" "object-contain rounded-lg"
+              "noLazy" true
+            ) }}
         {{ end }}
       </div>
     </div>
