@@ -63,7 +63,7 @@ Design Tokens:
 {{ $eyebrow := .eyebrow }}
 {{ $heading := .heading }}
 {{ $description := .description }}
-{{ $link := .link }}
+{{ $link := partial "helpers/get-translated-url.html" (dict "url" .link) }}
 {{ $linkText := .linkText }}
 {{ $linkTarget := .linkTarget | default "_self" }}
 {{ $buttonStyle := .buttonStyle | default "primary" }}

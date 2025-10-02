@@ -37,7 +37,7 @@
           {{ range $index, $breadcrumb := $product.breadcrumbs }}
             <li>
               <div class="flex items-center text-sm">
-                <a href="{{ $breadcrumb.href }}" class="font-medium text-gray-500 hover:text-gray-900">{{ $breadcrumb.name }}</a>
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $breadcrumb.href) }}" class="font-medium text-gray-500 hover:text-gray-900">{{ $breadcrumb.name }}</a>
                 {{ if ne $index (sub (len $product.breadcrumbs) 1) }}
                   <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="ml-2 size-5 shrink-0 text-gray-300">
                     <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
