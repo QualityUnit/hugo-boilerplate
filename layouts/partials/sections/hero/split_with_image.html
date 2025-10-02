@@ -169,7 +169,6 @@ Design Tokens:
 
 {{/* Image processing */}}
 {{ $imageSrc := "" }}
-{{ $iconImageSrc := "" }}
 {{ $finalImageAlt := $imageAlt | default $heading | default .Title | default "Hero image" }}
 
 {{/* Background image source logic */}}
@@ -188,6 +187,7 @@ Design Tokens:
 
 {{/* Overlay icon source logic (Simplified by using overlayMode) */}}
 {{ $showOverlay := $config.showOverlay }}
+{{ $iconImageSrc := "" }}
 {{ if eq $config.overlayMode "image" }}
   {{ $iconImageSrc = $image }}
 {{ else if eq $config.overlayMode "svg" }}
