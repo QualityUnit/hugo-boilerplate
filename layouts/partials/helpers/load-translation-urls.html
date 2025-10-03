@@ -7,10 +7,17 @@
 */}}
 
 {{ $folder := .folder }}
-{{ $translationData := dict }}
 
-{{/* Try to load folder-specific JSON file */}}
-{{ $folderData := index site.Data.translation_urls $folder }}
+{{/* Load the folder-specific JSON file from data/translation_urls/ */}}
+{{/* Note: Hugo converts hyphens in filenames to underscores in the data structure */}}
+{{ $folderKey := replace $folder "-" "_" }}
+
+{{/* Access the translation_urls data */}}
+{{ $translationUrls := site.Data.translation_urls }}
+{{ $folderData := dict }}
+{{ if $translationUrls }}
+  {{ $folderData = index $translationUrls $folderKey }}
+{{ end }}
 
 {{/* Return the folder data or empty dict */}}
 {{ return $folderData | default (dict) }}

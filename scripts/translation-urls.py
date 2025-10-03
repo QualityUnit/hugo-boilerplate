@@ -24,6 +24,7 @@ import json
 import argparse
 from pathlib import Path
 from collections import defaultdict
+import yaml
 
 def parse_args():
     """Parse command line arguments."""
@@ -37,15 +38,30 @@ def parse_args():
                         help="Output directory relative to Hugo root (default: data/translation_urls)")
     return parser.parse_args()
 
-def get_url_from_file(file_path, lang, relative_path):
+def load_language_config(hugo_root):
+    """Load language configuration from all_languages.yaml."""
+    config_path = os.path.join(hugo_root, 'data', 'all_languages.yaml')
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+            return data.get('languages', {})
+    except Exception as e:
+        print(f"Warning: Could not load language config: {e}")
+        return {}
+
+def has_custom_domain(lang_config):
+    """Check if a language uses a custom domain (baseURL = '/')."""
+    return lang_config.get('baseURL', '') == '/'
+
+def get_url_from_file(file_path, lang, relative_path, lang_config=None):
     """Extract URL from a markdown file, either from frontmatter or derive from path."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             post = frontmatter.load(f, handler=TOMLHandler())
 
-        # Check if URL is defined in frontmatter
-        if 'url' in post.metadata:
-            url = post.metadata['url']
+        # Check if URL is defined and not empty in frontmatter
+        if 'url' in post.metadata and post.metadata['url'] and post.metadata['url'].strip():
+            url = post.metadata['url'].strip()
             # Ensure URL ends with /
             if not url.endswith('/'):
                 url = url + '/'
@@ -69,11 +85,15 @@ def get_url_from_file(file_path, lang, relative_path):
         elif not url_path:
             url_path = '/'
         
-        # Add language prefix for non-English languages
-        if lang != 'en':
-            # Add language prefix while preserving full path
+        # Add language prefix only if NOT using custom domain
+        # If lang_config is provided and language uses custom domain, don't add prefix
+        if lang_config and has_custom_domain(lang_config):
+            # Custom domain - no language prefix needed
+            pass
+        elif lang != 'en':
+            # Not custom domain and not English - add language prefix
             url_path = f'/{lang}{url_path}'
-        # For English, URL path is already correct
+        # For English or custom domains, URL path is already correct
         
         # Ensure URL ends with /
         if not url_path.endswith('/'):
@@ -107,6 +127,9 @@ def process_content_by_folder(hugo_root, content_dir):
     languages = get_all_languages(os.path.join(hugo_root, content_dir))
     folders_data = defaultdict(lambda: defaultdict(dict))
     
+    # Load language configuration
+    lang_configs = load_language_config(hugo_root)
+    
     print(f"Found languages: {', '.join(languages)}")
     
     # First, collect all files for all languages
@@ -116,6 +139,9 @@ def process_content_by_folder(hugo_root, content_dir):
         lang_dir = os.path.join(hugo_root, content_dir, lang)
         if not os.path.exists(lang_dir):
             continue
+        
+        # Get language config for this language
+        lang_config = lang_configs.get(lang, {})
             
         for root, dirs, files in os.walk(lang_dir):
             for file in files:
@@ -123,7 +149,7 @@ def process_content_by_folder(hugo_root, content_dir):
                     file_path = os.path.join(root, file)
                     relative_path = os.path.relpath(file_path, lang_dir)
                     
-                    url = get_url_from_file(file_path, lang, relative_path)
+                    url = get_url_from_file(file_path, lang, relative_path, lang_config)
                     if url:
                         all_files[relative_path][lang] = url
     
@@ -163,7 +189,9 @@ def generate_folder_files(folders_data, hugo_root, output_dir):
             continue
             
         # Generate JSON file for this folder
-        folder_file = os.path.join(output_path, f"{folder}.json")
+        # Replace hyphens with underscores in folder name for consistency with Hugo template lookup
+        folder_filename = folder.replace('-', '_')
+        folder_file = os.path.join(output_path, f"{folder_filename}.json")
         
         with open(folder_file, 'w', encoding='utf-8') as f:
             json.dump(files_data, f, separators=(',', ':'), ensure_ascii=False)
@@ -176,13 +204,13 @@ def generate_folder_files(folders_data, hugo_root, output_dir):
         unique_urls_count = sum(len(urls) for urls in files_data.values())
         
         folder_stats.append({
-            'folder': folder,
+            'folder': folder_filename,
             'files': len(files_data),
             'unique_urls': unique_urls_count,
             'size': file_size
         })
         
-        print(f"  📁 {folder}.json: {len(files_data)} files, {unique_urls_count} unique URLs ({file_size/1024:.1f} KB)")
+        print(f"  📁 {folder_filename}.json: {len(files_data)} files, {unique_urls_count} unique URLs ({file_size/1024:.1f} KB)")
     
     print("=" * 60)
     print(f"\n📊 Summary:")

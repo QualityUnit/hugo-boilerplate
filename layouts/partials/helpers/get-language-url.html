@@ -1,20 +1,13 @@
 {{/*
 @helper: Get Language URL
-@description: Generates the correct URL for a specific language, handling translation URLs and fallbacks
+@description: Returns the URL for a given language code using precomputed translation URLs
 @params:
-  .code (string): The language code
-  .langData (object): Language data object containing baseURL, baseDomainName and other info (optional, for all_languages data)
-  .currentPage (object): The current page object
-  .filePath (string): The current file path (optional)
-  .permalink (string): The permalink for translations (optional, used when .langData is not available)
-@returns: URL string for the language
-@example:
-  {{ $url := partial "helpers/get-language-url.html" (dict 
-      "code" "en" 
-      "langData" $langData 
-      "currentPage" $currentPage 
-      "filePath" $filePath
-  ) }}
+  .code (string): The language code (e.g., "en", "de", "es")
+  .langData (object): Language data object from all_languages.yaml
+  .currentPage (Page): The current Hugo page object
+  .filePath (string): The file path relative to content directory (optional)
+  .permalink (string): Direct permalink override (optional)
+@returns: The full URL for the specified language
 */}}
 
 {{ $code := .code }}
@@ -22,160 +15,68 @@
 {{ $currentPage := .currentPage }}
 {{ $filePath := .filePath }}
 {{ $permalink := .permalink }}
+{{ $currentLangCode := $currentPage.Language.Lang }}
 
 {{ $href := "" }}
 
 {{ if $langData }}
-  {{ $currentLangCode := $currentPage.Language.Lang }}
-  {{ $currentLangData := index site.Data.all_languages.languages $currentLangCode }}
-  {{ $currentDomain := "" }}
-  {{ if $currentLangData }}
-    {{ $currentDomain = $currentLangData.baseDomainName }}
-  {{ end }}
+  {{/* Set up base domain */}}
   {{ $baseDomain := $langData.baseDomainName }}
-  {{/* Only remove baseDomain if on localhost, keep it for production even if domains match */}}
   {{ if (in $currentPage.Permalink "localhost") }}
     {{ $baseDomain = "" }}
   {{ end }}
+  
+  {{/* Default URL using language base URL */}}
   {{ $href = printf "%s%s" $baseDomain $langData.baseURL }}
   
+  {{/* Try to load from precomputed translation URLs */}}
   {{ if $filePath }}
+    {{/* Clean up file path - remove language prefix if present */}}
+    {{ $cleanFilePath := $filePath }}
+    {{ $langPrefix := printf "%s/" $currentLangCode }}
+    {{ if hasPrefix $cleanFilePath $langPrefix }}
+      {{ $cleanFilePath = strings.TrimPrefix $langPrefix $cleanFilePath }}
+    {{ end }}
+    
     {{/* Determine folder from file path */}}
     {{ $folder := "_root" }}
-    {{ $pathParts := split $filePath "/" }}
+    {{ $pathParts := split $cleanFilePath "/" }}
     {{ if gt (len $pathParts) 1 }}
       {{ $folder = index $pathParts 0 }}
     {{ end }}
     
-    {{/* Use partialCached to load folder-specific translation URLs */}}
-    {{ $folderTranslations := partialCached "helpers/load-translation-urls.html" (dict "folder" $folder) $folder }}
-    
-    {{ if $folderTranslations }}
-      {{ $translationData := index $folderTranslations $filePath }}
-      {{ if $translationData }}
-        {{/* Check if this language has a different URL */}}
-        {{ $translatedUrl := index $translationData $code }}
-        {{ if $translatedUrl }}
-          {{/* Use the custom URL from the translation file */}}
-          {{/* URLs in translation file should already include language prefix */}}
-          {{ $href = printf "%s%s" $baseDomain $translatedUrl }}
-        {{ else }}
-          {{/* Language not in translation file, use English URL as base */}}
-          {{ $enUrl := index $translationData "en" }}
-          {{ if $enUrl }}
-            {{/* We have the English URL from translation data */}}
-            {{ if eq $code "en" }}
-              {{ $href = printf "%s%s" $baseDomain $enUrl }}
-            {{ else }}
-              {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $enUrl }}
-            {{ end }}
-          {{ else }}
-            {{/* No English URL in translation data, try to find English page */}}
-            {{ $enPage := site.GetPage (printf "/en/%s" (strings.TrimPrefix "/" $filePath)) }}
-            {{ if $enPage }}
-              {{/* Use English page's RelPermalink */}}
-              {{ $enPath := $enPage.RelPermalink }}
-              {{ if eq $code "en" }}
-                {{/* For English, use the path as-is */}}
-                {{ $href = printf "%s%s" $baseDomain $enPath }}
-              {{ else }}
-                {{/* For other languages, add language prefix to English path */}}
-                {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $enPath }}
+    {{/* Load translation URLs directly without partialCached to avoid issues */}}
+    {{ $folderKey := replace $folder "-" "_" }}
+    {{ $translationUrls := site.Data.translation_urls }}
+    {{ if $translationUrls }}
+      {{ $folderData := index $translationUrls $folderKey }}
+      {{ if $folderData }}
+        {{/* Get translation data for this specific file */}}
+        {{ $translationData := index $folderData $cleanFilePath }}
+        {{ if $translationData }}
+          {{/* Get URL for the requested language */}}
+          {{ $translatedUrl := index $translationData $code }}
+          {{ if $translatedUrl }}
+            {{/* Use the precomputed URL from JSON */}}
+            {{/* For custom domains (baseURL="/"), remove language prefix from URL */}}
+            {{ $cleanUrl := $translatedUrl }}
+            {{ if eq $langData.baseURL "/" }}
+              {{ $langPrefix := printf "/%s/" $code }}
+              {{ if hasPrefix $cleanUrl $langPrefix }}
+                {{ $cleanUrl = strings.TrimPrefix $langPrefix $cleanUrl }}
+                {{ if not $cleanUrl }}
+                  {{ $cleanUrl = "/" }}
+                {{ end }}
               {{ end }}
-            {{ else }}
-              {{/* Fallback: Strip current language prefix from RelPermalink */}}
-              {{ $cleanPath := $currentPage.RelPermalink }}
-              {{ $currentLangPrefix := printf "/%s/" $currentLangCode }}
-              {{ if hasPrefix $cleanPath $currentLangPrefix }}
-                {{ $cleanPath = strings.TrimPrefix $currentLangPrefix $cleanPath }}
-                {{ $cleanPath = printf "/%s" $cleanPath }}
-              {{ end }}
-              {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $cleanPath }}
             {{ end }}
-          {{ end }}
-        {{ end }}
-      {{ else }}
-        {{/* File not in translation data, construct URL using default pattern */}}
-        {{/* For files not in translation data, we assume standard URL structure */}}
-        {{ if $filePath }}
-          {{/* Derive URL from file path */}}
-          {{ $urlPath := $filePath }}
-          {{ if strings.HasSuffix $urlPath ".md" }}
-            {{ $urlPath = strings.TrimSuffix ".md" $urlPath }}
-          {{ end }}
-          {{ if strings.HasSuffix $urlPath "/_index" }}
-            {{ $urlPath = strings.TrimSuffix "/_index" $urlPath }}
-          {{ else if eq $urlPath "_index" }}
-            {{ $urlPath = "" }}
-          {{ end }}
-          
-          {{/* Construct the URL with language prefix */}}
-          {{ if eq $code "en" }}
-            {{ if $urlPath }}
-              {{ $href = printf "%s%s%s/" $baseDomain $langData.baseURL $urlPath }}
-            {{ else }}
-              {{ $href = printf "%s%s" $baseDomain $langData.baseURL }}
-            {{ end }}
-          {{ else }}
-            {{ if $urlPath }}
-              {{ $href = printf "%s%s/%s/" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $urlPath }}
-            {{ else }}
-              {{ $href = printf "%s%s/" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) }}
-            {{ end }}
+            {{ $href = printf "%s%s" $baseDomain $cleanUrl }}
           {{ end }}
         {{ end }}
       {{ end }}
-    {{ else }}
-      {{/* No translation data for this folder, construct URL using default pattern */}}
-      {{ if $filePath }}
-        {{/* Derive URL from file path */}}
-        {{ $urlPath := $filePath }}
-        {{ if strings.HasSuffix $urlPath ".md" }}
-          {{ $urlPath = strings.TrimSuffix ".md" $urlPath }}
-        {{ end }}
-        {{ if strings.HasSuffix $urlPath "/_index" }}
-          {{ $urlPath = strings.TrimSuffix "/_index" $urlPath }}
-        {{ else if eq $urlPath "_index" }}
-          {{ $urlPath = "" }}
-        {{ end }}
-        
-        {{/* Construct the URL with language prefix */}}
-        {{ if eq $code "en" }}
-          {{ if $urlPath }}
-            {{ $href = printf "%s%s%s/" $baseDomain $langData.baseURL $urlPath }}
-          {{ else }}
-            {{ $href = printf "%s%s" $baseDomain $langData.baseURL }}
-          {{ end }}
-        {{ else }}
-          {{ if $urlPath }}
-            {{ $href = printf "%s%s/%s/" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $urlPath }}
-          {{ else }}
-            {{ $href = printf "%s%s/" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) }}
-          {{ end }}
-        {{ end }}
-      {{ end }}
-    {{ end }}
-  {{ else }}
-    {{/* No file path, use current page URL structure */}}
-    {{ $cleanPath := $currentPage.RelPermalink }}
-    {{ $currentLangPrefix := printf "/%s/" $currentLangCode }}
-    {{ if hasPrefix $cleanPath $currentLangPrefix }}
-      {{ $cleanPath = strings.TrimPrefix $currentLangPrefix $cleanPath }}
-    {{ else if eq $currentLangCode "en" }}
-      {{/* English URLs don't have language prefix */}}
-    {{ else }}
-      {{/* Unexpected case, but handle it */}}
-      {{ $cleanPath = $currentPage.RelPermalink }}
-    {{ end }}
-    
-    {{/* Now construct URL for target language */}}
-    {{ if eq $code "en" }}
-      {{ $href = printf "%s%s" $baseDomain $cleanPath }}
-    {{ else }}
-      {{ $href = printf "%s%s%s" $baseDomain (strings.TrimSuffix "/" $langData.baseURL) $cleanPath }}
     {{ end }}
   {{ end }}
 {{ else if $permalink }}
   {{ $href = $permalink }}
 {{ end }}
+
 {{ return $href }}

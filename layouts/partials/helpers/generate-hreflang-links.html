@@ -13,10 +13,37 @@
 {{ $defaultLang := .defaultLang | default "en" }}
 {{ $links := slice }}
 {{ $filePath := "" }}
+
+{{/* Always try to get the file path, either from .File or construct it */}}
 {{ if $currentPage.File }}
   {{ $filePath = $currentPage.File.Path }}
 {{ end }}
 
+{{/* If no file path yet, construct from URL */}}
+{{ if not $filePath }}
+  {{ $pagePath := $currentPage.RelPermalink }}
+  
+  {{/* Remove language prefix if present */}}
+  {{ $langPrefix := printf "/%s/" $currentPage.Language.Lang }}
+  {{ if hasPrefix $pagePath $langPrefix }}
+    {{ $pagePath = strings.TrimPrefix $langPrefix $pagePath }}
+  {{ end }}
+  
+  {{/* Clean up the path */}}
+  {{ $pagePath = strings.TrimPrefix "/" $pagePath }}
+  {{ $pagePath = strings.TrimSuffix "/" $pagePath }}
+  
+  {{/* Construct the file path */}}
+  {{ if eq $pagePath "" }}
+    {{ $filePath = "_index.md" }}
+  {{ else if strings.Contains $pagePath "/" }}
+    {{/* Has subdirectory */}}
+    {{ $filePath = printf "%s.md" $pagePath }}
+  {{ else }}
+    {{/* Root level page */}}
+    {{ $filePath = printf "%s.md" $pagePath }}
+  {{ end }}
+{{ end }}
 
 {{ $pagePath := strings.TrimPrefix (print "/" $currentPage.Language.Lang "/") $currentPage.RelPermalink }}
 
