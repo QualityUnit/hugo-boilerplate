@@ -24,7 +24,7 @@
     {{ if and .announcement .announcement.enabled }}
         <div class="hidden sm:mt-32 sm:flex lg:mt-16">
             <div class="relative rounded-full px-3 py-1 text-sm/6 text-gray-500 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-                {{ .announcement.text }} {{ if and .announcement.linkUrl .announcement.linkText }}<a href="{{ .announcement.linkUrl }}" class="font-semibold whitespace-nowrap text-primary"><span class="absolute inset-0" aria-hidden="true"></span>{{ .announcement.linkText }} <span aria-hidden="true">&rarr;</span></a>{{end}}
+                {{ .announcement.text }} {{ if and .announcement.linkUrl .announcement.linkText }}<a href="{{ partial "helpers/get-translated-url.html" (dict "url" .announcement.linkUrl) }}" class="font-semibold whitespace-nowrap text-primary"><span class="absolute inset-0" aria-hidden="true"></span>{{ .announcement.linkText }} <span aria-hidden="true">&rarr;</span></a>{{end}}
             </div>
         </div>
     {{ end }}

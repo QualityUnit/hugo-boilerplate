@@ -22,7 +22,8 @@
             <div id="search-results"></div>
             <div id="search-pagination" class="flex gap-2 py-3 max-w-full"></div> 
             <div class="search-loading">{{ i18n "search_loading" }}</div>
-            <div id="min-read-translation" class="hidden">{{ i18n "minutes_read" }}</div> 
+            <div id="min-read-translation" class="hidden">{{ i18n "minutes_read" }}</div>
+            <div id="contact-url" class="hidden" data-url="{{ partial "helpers/get-translated-url.html" (dict "url" "/contact/") }}"></div> 
 
             <script id="search-result-template" type="text/x-js-template">
                 <article id="summary-${key}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-[52rem] h-full flex flex-col">
@@ -269,6 +270,7 @@
                             });
                             searchResults.innerHTML = html;
                         } else {
+                            const contactUrl = document.getElementById('contact-url').getAttribute('data-url');
                             searchResults.innerHTML = `
                               <div class="border-t border-secondary"></div>
                               <div class="w-96 pt-6 not-prose">
@@ -286,7 +288,7 @@
                                   </ul>
                                 </div>
                                 <div class="border-t border-secondary mt-3"></div>
-                                <a href="/contact/" class="py-3 text-sm text-primary">{{ i18n "search_chat_link" }}</a>
+                                <a href="${contactUrl}" class="py-3 text-sm text-primary">{{ i18n "search_chat_link" }}</a>
                               </div>
                             `;
                             document.getElementById('search-pagination').innerHTML = '';

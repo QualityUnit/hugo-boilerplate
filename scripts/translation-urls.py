@@ -63,22 +63,17 @@ def get_url_from_file(file_path, lang, relative_path):
         elif url_path == '_index':
             url_path = ''  # Root index
         
+        # Ensure URL starts with /
+        if url_path and not url_path.startswith('/'):
+            url_path = '/' + url_path
+        elif not url_path:
+            url_path = '/'
+        
         # Add language prefix for non-English languages
         if lang != 'en':
-            # Ensure URL starts with /
-            if url_path and not url_path.startswith('/'):
-                url_path = '/' + url_path
-            elif not url_path:
-                url_path = '/'
-            
-            # Add language prefix
+            # Add language prefix while preserving full path
             url_path = f'/{lang}{url_path}'
-        else:
-            # For English, just ensure proper formatting
-            if url_path and not url_path.startswith('/'):
-                url_path = '/' + url_path
-            elif not url_path:
-                url_path = '/'
+        # For English, URL path is already correct
         
         # Ensure URL ends with /
         if not url_path.endswith('/'):
@@ -132,32 +127,20 @@ def process_content_by_folder(hugo_root, content_dir):
                     if url:
                         all_files[relative_path][lang] = url
     
-    # Now organize by folder and only store URLs different from English
+    # Now organize by folder and store all URLs (needed for proper language switching)
     for relative_path, lang_urls in all_files.items():
         folder = get_folder_name(relative_path)
         en_url = lang_urls.get('en', '')
         
-        # Only store URLs that differ from English (comparing path structure, not language prefix)
-        different_urls = {}
+        # Store all language URLs to ensure proper language switching
+        all_lang_urls = {}
         for lang, url in lang_urls.items():
-            if lang != 'en':
-                # Strip language prefix for comparison
-                lang_prefix = f'/{lang}/'
-                if url.startswith(lang_prefix):
-                    # Remove language prefix
-                    url_without_prefix = url[len(lang_prefix)-1:]  # Keep the leading /
-                else:
-                    url_without_prefix = url
-                
-                # Compare the path structure, not the full URL with language prefix
-                if url_without_prefix != en_url:
-                    different_urls[lang] = url
+            # Always store the URL, even if path structure is same
+            all_lang_urls[lang] = url
         
-        # Only add to folder data if there are different URLs
-        if different_urls:
-            # Include English URL as reference for proper fallback calculation
-            different_urls['en'] = en_url
-            folders_data[folder][relative_path] = different_urls
+        # Add to folder data if we have any URLs
+        if all_lang_urls:
+            folders_data[folder][relative_path] = all_lang_urls
     
     return folders_data
 
