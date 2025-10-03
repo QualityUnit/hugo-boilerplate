@@ -11,6 +11,7 @@
   - rel: Link rel attribute (optional)
   - id: HTML id attribute (optional)
   - ariaLabel: ARIA label (optional; defaults to button text)
+  - ariaHidden: Boolean to hide button from screen readers (optional, default: false)
   - showArrow: Boolean to show an arrow after the text (optional, default: false)
   - dataAttributes: Data attributes for the button/link (optional)
   - type: Button type (e.g., "submit", "button") (optional, default: "button")
@@ -50,6 +51,7 @@
 {{ $rel := .rel | default "" }}
 {{ $id := .id | default "" }}
 {{ $ariaLabel := .ariaLabel | default $text }}
+{{ $ariaHidden := .ariaHidden | default false }}
 {{ $showArrow := .showArrow | default false }}
 {{ $iconArrow := "arrow-up-right" }}
 {{ $dataAttributes := .dataAttributes | default "" }}
@@ -88,6 +90,7 @@
       type="{{ $type }}"
       class="{{ $variantClass }} {{ $sizeClass }} {{ $classes }} not-prose group"
       aria-label="{{ $ariaLabel }}"
+      {{ if $ariaHidden }}aria-hidden="true"{{ end }}
       {{ with $id }}id="{{ . }}"{{ end }}
       {{ with $dataAttributes }}{{ . | safeHTMLAttr }}{{ end }}
     >
@@ -103,6 +106,7 @@
       href="{{ partial "helpers/get-translated-url.html" (dict "url" $url) }}"
       class="{{ $variantClass }} {{ $sizeClass }} {{ $classes }} not-prose group"
       aria-label="{{ $ariaLabel }}"
+      {{ if $ariaHidden }}aria-hidden="true"{{ end }}
       target="{{ $target }}"
       {{ with $id }}id="{{ . }}"{{ end }}
       {{ with $rel }}rel="{{ . }}"{{ end }}
