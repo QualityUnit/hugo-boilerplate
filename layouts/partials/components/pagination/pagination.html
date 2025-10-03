@@ -29,7 +29,7 @@
     </div>
 
     <!-- Desktop pagination: Show full pagination with page numbers -->
-    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full wrapper p-0 not-prose">
         <!-- Results count display -->
         <div>
             {{ $startItem := mul (add $paginator.PageNumber -1) $paginator.PagerSize | add 1 }}
@@ -62,22 +62,57 @@
                     </span>
                 {{ end }}
 
-                <!-- Page numbers -->
-                {{ $currentPageNumber := $paginator.PageNumber }}
-                {{ range $paginator.Pagers }}
-                    {{ if eq .PageNumber $currentPageNumber }}
+                <!-- Page numbers with ellipsis -->
+                {{ $current := $paginator.PageNumber }}
+                {{ $total := $paginator.TotalPages }}
+                {{ $show := 2 }}
+
+                <!-- First page -->
+                {{ if gt $current (add $show 2) }}
+                    <a href="{{ (index $paginator.Pagers 0).URL }}" 
+                       class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading border border-gray-primary hover:surface-secondary focus:z-20 focus:outline-offset-0">
+                        1
+                    </a>
+                    <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-secondary">...</span>
+                {{ else if gt $current (add $show 1) }}
+                    <a href="{{ (index $paginator.Pagers 0).URL }}" 
+                       class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading border border-gray-primary hover:surface-secondary focus:z-20 focus:outline-offset-0">
+                        1
+                    </a>
+                {{ end }}
+
+                <!-- Adjacent pages -->
+                {{ $start := cond (gt (sub $current $show) 1) (sub $current $show) 1 }}
+                {{ $end := cond (lt (add $current $show) $total) (add $current $show) $total }}
+                {{ range seq $start $end }}
+                    {{ $page := index $paginator.Pagers (sub . 1) }}
+                    {{ if eq . $current }}
                         <!-- Current page (highlighted) -->
                         <span aria-current="page" 
                               class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">
-                            {{ .PageNumber }}
+                            {{ . }}
                         </span>
                     {{ else }}
                         <!-- Other pages -->
-                        <a href="{{ .URL }}" 
+                        <a href="{{ $page.URL }}" 
                            class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading border border-gray-primary hover:surface-secondary focus:z-20 focus:outline-offset-0">
-                            {{ .PageNumber }}
+                            {{ . }}
                         </a>
                     {{ end }}
+                {{ end }}
+
+                <!-- Last page -->
+                {{ if lt $current (sub $total (add $show 1)) }}
+                    <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-secondary">...</span>
+                    <a href="{{ (index $paginator.Pagers (sub $total 1)).URL }}" 
+                       class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading border border-gray-primary hover:surface-secondary focus:z-20 focus:outline-offset-0">
+                        {{ $total }}
+                    </a>
+                {{ else if lt $current (sub $total $show) }}
+                    <a href="{{ (index $paginator.Pagers (sub $total 1)).URL }}" 
+                       class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading border border-gray-primary hover:surface-secondary focus:z-20 focus:outline-offset-0">
+                        {{ $total }}
+                    </a>
                 {{ end }}
                 
                 <!-- Next page arrow -->

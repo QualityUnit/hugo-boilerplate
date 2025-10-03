@@ -128,32 +128,29 @@
                                     ${Array.from({length: totalPages}, (_, i) => {
                                         const n = i + 1;
                                         // Add logic to display a limited number of pages (e.g., current, prev 2, next 2, and ellipsis)
-                                        const maxVisiblePages = 7; // Максимальна кількість видимих кнопок пагінації, включаючи "..."
+                                        const maxVisiblePages = 7;
                                         const halfVisible = Math.floor(maxVisiblePages / 2);
 
                                         if (totalPages <= maxVisiblePages) {
-                                            // Відображати всі сторінки, якщо загальна кількість сторінок у межах ліміту
                                             return n === page
                                                 ? `<span aria-current="page" class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">${n}</span>`
                                                 : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
                                         } else {
-                                            // Відображати еліпсис та обмежений діапазон сторінок
                                             if (
-                                                n === 1 || // Завжди показуємо першу сторінку
-                                                n === totalPages || // Завжди показуємо останню сторінку
-                                                (n >= page - halfVisible && n <= page + halfVisible) // Показуємо сторінки навколо поточної
+                                                n === 1 ||
+                                                n === totalPages ||
+                                                (n >= page - halfVisible && n <= page + halfVisible)
                                             ) {
                                                 return n === page
                                                     ? `<span aria-current="page" class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">${n}</span>`
                                                     : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
                                             } else if (
-                                                // Показуємо "..."
                                                 (n === page - halfVisible - 1 && page - halfVisible > 1) ||
                                                 (n === page + halfVisible + 1 && page + halfVisible < totalPages)
                                             ) {
                                                 return `<span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300">...</span>`;
                                             }
-                                            return ''; // Ховаємо інші сторінки
+                                            return '';
                                         }
                                     }).join('')}
                                     ${page < totalPages
@@ -177,7 +174,7 @@
                     let lastQuery = '';
                     function performSearch(query, page = 1) {
                         lastQuery = query;
-                        const perPage = 30; // Кількість результатів на сторінку
+                        const perPage = 30;
                         if (!query || query.trim() === '') {
                             searchResults.innerHTML = '';
                             document.getElementById('search-pagination').innerHTML = '';
@@ -189,7 +186,7 @@
 
                         if (!fuse) {
                             loadingIndicator.style.display = 'block';
-                            return; // Чекаємо завантаження індексу
+                            return;
                         }
 
                         const results = fuse.search(query);
@@ -244,7 +241,7 @@
                                    
                                     let tagsHtml = '';
                                     const maxTags = 3;
-                                    const tagBaseUrl = '/tags/'; // Це можна налаштувати, якщо теги мають інший базовий URL
+                                    const tagBaseUrl = '/tags/';
                                     const tagClass = 'badge-base badge-gray badge-with-border not-prose whitespace-nowrap [&_a]:no-underline [&_a]:!text-inherit [&_a]:px-0.5 [&_.link-building-link]:!no-underline [&_.link-building-link]:!text-inherit';
                                     const shownTags = item.tags.slice(0, maxTags);
                                     shownTags.forEach(tag => {
