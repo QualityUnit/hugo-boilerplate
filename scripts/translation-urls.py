@@ -189,7 +189,9 @@ def generate_folder_files(folders_data, hugo_root, output_dir):
             continue
             
         # Generate JSON file for this folder
-        folder_file = os.path.join(output_path, f"{folder}.json")
+        # Replace hyphens with underscores in folder name for consistency with Hugo template lookup
+        folder_filename = folder.replace('-', '_')
+        folder_file = os.path.join(output_path, f"{folder_filename}.json")
         
         with open(folder_file, 'w', encoding='utf-8') as f:
             json.dump(files_data, f, separators=(',', ':'), ensure_ascii=False)
@@ -202,13 +204,13 @@ def generate_folder_files(folders_data, hugo_root, output_dir):
         unique_urls_count = sum(len(urls) for urls in files_data.values())
         
         folder_stats.append({
-            'folder': folder,
+            'folder': folder_filename,
             'files': len(files_data),
             'unique_urls': unique_urls_count,
             'size': file_size
         })
         
-        print(f"  📁 {folder}.json: {len(files_data)} files, {unique_urls_count} unique URLs ({file_size/1024:.1f} KB)")
+        print(f"  📁 {folder_filename}.json: {len(files_data)} files, {unique_urls_count} unique URLs ({file_size/1024:.1f} KB)")
     
     print("=" * 60)
     print(f"\n📊 Summary:")
