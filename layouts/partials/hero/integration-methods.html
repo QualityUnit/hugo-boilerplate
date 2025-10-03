@@ -1,0 +1,27 @@
+{{/*
+Hero template specifically for integration-methods section
+Removes hardcoded "integrations" type and section check
+*/}}
+
+{{ $eyebrow := .Params.eyebrow | default "" }}
+{{ $tags := .Params.tags | default (slice) }}
+{{ $resources := .Params.resources | default (slice) }}
+{{ $title := .Params.title | default .Title | default "" }}
+{{ $shortDescription := .Params.shortDescription | default .Params.description | default "" }}
+{{ $typewriter := .Params.typewriter | default dict }}
+{{ $image := .Params.image }}
+
+{{ partial "sections/hero/split_with_image.html" (dict
+    "type" "integrations"
+    "heading" $title
+    "description" (markdownify $shortDescription)
+    "eyebrow"  (.Params.eyebrow | default (i18n "eyebrow") | default "")
+    "icon" (.Params.icon | default "")
+    "image" $image
+    "tags" $tags
+    "resources" $resources
+    "typewriter" $typewriter
+    "cta" (dict
+        "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
+        "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
+) }}

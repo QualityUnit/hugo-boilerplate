@@ -412,6 +412,11 @@
     display: none;
   }
 
+  /* Hero overlay shadow */
+  .hero-overlay-shadow {
+    box-shadow: 0.25rem 0.54rem 0.34rem -0.29rem rgba(0, 0, 0, 0.06), 0.245rem 0.538rem 0.343rem -0.294rem rgba(0, 0, 0, 0.06);
+  }
+
   /* Eliminate focus outline for iframes */
   iframe {
     outline: none !important;
