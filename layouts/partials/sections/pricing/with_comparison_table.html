@@ -16,7 +16,8 @@
     - emphasized: Boolean to indicate if this is the emphasized tier
     - monthlyPrice: The monthly price to display
     - annualPrice: The annual price to display
-    - interval: i18n key for price interval (e.g. "pricing_interval_monthly_annual")
+    - intervalMonthly: i18n key for monthly price interval (e.g. "pricing_interval_monthly")
+    - intervalAnnual: i18n key for annual price interval (e.g. "pricing_interval_monthly_annual")
     - cta: Object with i18n text key and url for the call-to-action button
   - featureCategories: Array of feature category objects from data/pricing.yaml (auto-loaded)
     - name: i18n key for category name (e.g. "pricing_category_price")
@@ -59,7 +60,8 @@
     - displayName: i18n key for display name (pricing_tier_pro_name)
     - emphasized: Boolean for highlighted tier
     - monthlyPrice/annualPrice: Pricing values
-    - interval: i18n key for price interval
+    - intervalMonthly: i18n key for monthly price interval
+    - intervalAnnual: i18n key for annual price interval
     - cta: Object with i18n text key and URL
   - featureCategories: Auto-loaded feature comparison matrix with:
     - name: i18n key for category name (pricing_category_*)
@@ -144,7 +146,7 @@
                             <td></td>
                             {{ range $tiersComparison }}
                                 <th scope="col" class="px-6 pt-6 xl:px-8 xl:pt-8">
-                                    <div class="text-sm/7 font-semibold text-gray-900">{{ i18n (.displayName | default .name) | default "Plan" }}</div>
+                                    <div class="text-sm/7 font-semibold text-heading">{{ i18n (.displayName | default .name) | default "Plan" }}</div>
                                 </th>
                             {{ end }}
                         </tr>
@@ -160,21 +162,30 @@
                                         {{ if $togglePrice }}
                                             <!-- Monthly price (default visible) -->
                                             {{ if $tier.monthlyPrice }}
-                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-gray-900 monthly-price">{{ $tier.monthlyPrice }}</span>
+                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading monthly-price">{{ $tier.monthlyPrice }}</span>
                                             {{ end }}
                                             <!-- Annual price (hidden by default) -->
                                             {{ if $tier.annualPrice }}
-                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-gray-900 annual-price hidden">{{ $tier.annualPrice }}</span>
+                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading annual-price hidden">{{ $tier.annualPrice }}</span>
                                             {{ end }}
                                         {{ else }}
                                             <!-- Only monthly price when toggle is disabled -->
                                             {{ if $tier.monthlyPrice }}
-                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-gray-900">{{ $tier.monthlyPrice }}</span>
+                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading">{{ $tier.monthlyPrice }}</span>
                                             {{ end }}
                                         {{ end }}
                                         <!-- Interval -->
-                                        {{ if $tier.interval }}
-                                        <span class="text-sm/6 font-semibold text-gray-900">{{ i18n $tier.interval }}</span>
+                                        {{ if $togglePrice }}
+                                            {{ with $tier.intervalMonthly }}
+                                            <span class="text-sm/6 font-semibold text-heading monthly-interval">{{ i18n . }}</span>
+                                            {{ end }}
+                                            {{ with $tier.intervalAnnual }}
+                                            <span class="text-sm/6 font-semibold text-heading annual-interval hidden">{{ i18n . }}</span>
+                                            {{ end }}
+                                        {{ else }}
+                                            {{ with $tier.intervalMonthly }}
+                                            <span class="text-sm/6 font-semibold text-heading">{{ i18n . }}</span>
+                                            {{ end }}
                                         {{ end }}
                                     </p>
                                     {{ if and $tier.cta $tier.cta.url $tier.cta.text }}
@@ -207,7 +218,7 @@
                         {{ range $categoryIndex, $category := $featureCategories }}
                             <tr>
                                 <th scope="colgroup" colspan="{{ add (len $tiersComparison) 1 }}"
-                                    class="pt-{{ if eq $categoryIndex 0 }}8{{ else }}16{{ end }} pb-4 text-sm/6 font-semibold text-gray-900">
+                                    class="pt-{{ if eq $categoryIndex 0 }}8{{ else }}16{{ end }} pb-4 text-sm/6 font-semibold text-heading">
                                     {{ i18n $category.name }}
                                     <div class="max-lg:hidden absolute inset-x-8 mt-4 h-px bg-gray-900/10"></div>
                                 </th>
@@ -215,7 +226,7 @@
 
                             {{ range $featureIndex, $feature := $category.features }}
                                 <tr>
-                                    <th scope="row" class="not-prose py-4 text-sm/6 font-normal text-gray-900">
+                                    <th scope="row" class="not-prose py-4 text-sm/6 font-normal text-heading">
                                         {{ if $feature.tooltip }}
                                             {{ partial "components/tooltip/tooltip.html" (dict "content" (i18n $feature.name) "text" (i18n $feature.tooltip)) }}
                                         {{ else }}
@@ -235,7 +246,7 @@
                                             {{ else if eq $tierValue false }}
                                                 {{ partial "icons/minus" "mx-auto size-5 text-gray-400" }}
                                             {{ else if $tierValue }}
-                                                <div class="text-center text-sm/6 text-gray-500">
+                                                <div class="text-center text-sm/6 text-tertiary">
                                                     {{ if (hasPrefix $tierValue "pricing_") }}
                                                         {{ i18n $tierValue | default $tierValue }}
                                                     {{ else }}
@@ -376,29 +387,25 @@
 
                 const monthlyLabel = document.getElementById('monthly-label');
                 const annuallyLabel = document.getElementById('annually-label');
-                const monthlyPrices = document.querySelectorAll('.monthly-price');
-                const annualPrices = document.querySelectorAll('.annual-price');
+                const monthlyElements = document.querySelectorAll('.monthly-price, .monthly-interval');
+                const annualElements = document.querySelectorAll('.annual-price, .annual-interval');
 
                 // Function to toggle between monthly and annual pricing
                 function togglePricing(isMonthly) {
+                    const activeLabel = isMonthly ? monthlyLabel : annuallyLabel;
+                    const inactiveLabel = isMonthly ? annuallyLabel : monthlyLabel;
+                    const showElements = isMonthly ? monthlyElements : annualElements;
+                    const hideElements = isMonthly ? annualElements : monthlyElements;
 
-                    if (isMonthly) {
-                        monthlyLabel.classList.add('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
-                        monthlyLabel.classList.remove('text-{{ $toggleTextColor }}');
-                        annuallyLabel.classList.remove('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
-                        annuallyLabel.classList.add('text-{{ $toggleTextColor }}');
+                    // Update label styles
+                    activeLabel.classList.add('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
+                    activeLabel.classList.remove('text-{{ $toggleTextColor }}');
+                    inactiveLabel.classList.remove('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
+                    inactiveLabel.classList.add('text-{{ $toggleTextColor }}');
 
-                        monthlyPrices.forEach(el => el.classList.remove('hidden'));
-                        annualPrices.forEach(el => el.classList.add('hidden'));
-                    } else {
-                        annuallyLabel.classList.add('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
-                        annuallyLabel.classList.remove('text-{{ $toggleTextColor }}');
-                        monthlyLabel.classList.remove('bg-{{ $toggleActiveBgColor }}', 'text-{{ $toggleActiveColor }}');
-                        monthlyLabel.classList.add('text-{{ $toggleTextColor }}');
-
-                        monthlyPrices.forEach(el => el.classList.add('hidden'));
-                        annualPrices.forEach(el => el.classList.remove('hidden'));
-                    }
+                    // Toggle element visibility
+                    showElements.forEach(el => el.classList.remove('hidden'));
+                    hideElements.forEach(el => el.classList.add('hidden'));
                 }
 
                 // Set up event listeners for the toggle
