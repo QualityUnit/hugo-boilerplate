@@ -95,9 +95,16 @@ Design Tokens:
 {{ $badges := .badges | default (slice) }}
 {{ $resources := .resources | default (slice) }}
 {{ $typewriter := .typewriter | default dict }}
+{{ $search := .search | default dict }}
 
 {{/* Typewriter configuration with defaults */}}
 {{ $typewriter := merge (dict "enabled" false) $typewriter }}
+
+{{/* Search configuration with defaults */}}
+{{ $search := merge (dict "enabled" false) $search }}
+{{ $search := merge (dict "directories" (slice)) $search }}
+{{ $search := merge (dict "placeholder" "Search...") $search }}
+{{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 {{ $typewriter := merge (dict "words" 1) $typewriter }}
 {{ $typewriter := merge (dict "speed" 100) $typewriter }}
 {{ $typewriter := merge (dict "deleteSpeed" 50) $typewriter }}
@@ -323,6 +330,17 @@ Design Tokens:
             {{ end }}
           </div>
           {{ end }}
+        {{ end }}
+        
+        {{/* Search Field */}}
+        {{ if $search.enabled }}
+          <div class="mt-8 max-w-xl">
+            {{ partial "search_field.html" (dict
+              "type" "hero-search"
+              "directories" $search.directories
+              "placeholder" $search.placeholder
+            ) }}
+          </div>
         {{ end }}
       </div>
     </div>

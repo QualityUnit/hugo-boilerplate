@@ -1,4 +1,16 @@
 <!-- Hero Section with Split Image -->
+{{/* Accept search configuration either from params or from caller */}}
+{{ $search := dict }}
+{{ if reflect.IsMap . }}
+  {{ if .search }}
+    {{ $search = .search }}
+  {{ end }}
+{{ else if .Params }}
+  {{ if .Params.search }}
+    {{ $search = .Params.search }}
+  {{ end }}
+{{ end }}
+
 {{ $eyebrow := .Params.eyebrow | default "" }}
 {{ $tags := .Params.tags | default (slice) }}
 {{ $resources := .Params.resources | default (slice) }}
@@ -26,6 +38,7 @@
     "typewriter" $typewriter
     "tags" $tags
     "resources" $resources
+    "search" $search
     "cta" (dict
         "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
         "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
@@ -39,6 +52,7 @@
     "workspaceId" .Params.workspaceId
     "tags" $tags
     "resources" $resources
+    "search" $search
     "cta" (dict
     "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
     "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL)
@@ -56,6 +70,7 @@
         "tags" $tags
         "resources" $resources
         "typewriter" $typewriter
+        "search" $search
         "cta" (dict
             "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
             "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
@@ -65,6 +80,7 @@
     "heading" $title
     "description" (markdownify $shortDescription)
     "padding" (.Params.heroPadding | default "py-24 sm:py-32")
+    "search" $search
     ) }}
 {{ else }}
     {{ partial "sections/hero/simple_centered.html" (dict
@@ -78,5 +94,6 @@
     "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
     "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
     "padding" (.Params.heroPadding | default "py-24 sm:py-32")
+    "search" $search
     ) }}
 {{ end }}

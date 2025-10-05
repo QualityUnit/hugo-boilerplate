@@ -56,6 +56,8 @@
   (dict "url" "https://images.unsplash.com/photo-1670272505284-8faba1c31f7d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&h=528&q=80" "alt" "Person working on computer")
 ) }}
 {{ $typewriter := .typewriter | default dict }}
+{{ $search := .search | default dict }}
+
 {{ $typewriter := merge (dict "enabled" false) $typewriter }}
 {{ $typewriter := merge (dict "words" 1) $typewriter }}
 {{ $typewriter := merge (dict "speed" 100) $typewriter }}
@@ -63,6 +65,12 @@
 {{ $typewriter := merge (dict "pause" 2000) $typewriter }}
 {{ $typewriter := merge (dict "color" "text-indigo-600") $typewriter }}
 {{ $typewriter := merge (dict "wordAlternatives" "") $typewriter }}{{/* comma separated words to alternate with */}}
+
+{{/* Search configuration with defaults */}}
+{{ $search := merge (dict "enabled" false) $search }}
+{{ $search := merge (dict "directories" (slice)) $search }}
+{{ $search := merge (dict "placeholder" "Search...") $search }}
+{{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 
 <div class="relative isolate">
   <svg class="absolute inset-x-0 top-0 -z-10 h-[64rem] w-full stroke-gray-200 [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)]" aria-hidden="true">
@@ -94,6 +102,17 @@
             <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $secondaryCtaUrl) }}" class="text-sm/6 font-semibold text-gray-900">{{ $secondaryCtaText }} <span aria-hidden="true">→</span></a>
             {{ end }}
           </div>
+          {{ end }}
+          
+          {{/* Search Field */}}
+          {{ if $search.enabled }}
+            <div class="mt-8 max-w-xl">
+              {{ partial "search_field.html" (dict
+                "type" "hero-search"
+                "directories" $search.directories
+                "placeholder" $search.placeholder
+              ) }}
+            </div>
           {{ end }}
         </div>
         <div class="mt-14 flex justify-start gap-6 sm:-mt-44 sm:justify-start sm:pl-0 lg:mt-0 lg:pl-0 lg:-ml-10">

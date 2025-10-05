@@ -64,6 +64,8 @@
   "height" "1442"
 ) }}
 {{ $typewriter := .typewriter | default dict }}
+{{ $search := .search | default dict }}
+
 {{ $typewriter := merge (dict "enabled" false) $typewriter }}
 {{ $typewriter := merge (dict "words" 1) $typewriter }}
 {{ $typewriter := merge (dict "speed" 100) $typewriter }}
@@ -71,6 +73,12 @@
 {{ $typewriter := merge (dict "pause" 2000) $typewriter }}
 {{ $typewriter := merge (dict "color" "text-indigo-400") $typewriter }}
 {{ $typewriter := merge (dict "wordAlternatives" "") $typewriter }}{{/* comma separated words to alternate with */}}
+
+{{/* Search configuration with defaults */}}
+{{ $search := merge (dict "enabled" false) $search }}
+{{ $search := merge (dict "directories" (slice)) $search }}
+{{ $search := merge (dict "placeholder" "Search...") $search }}
+{{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 
 <div class="relative isolate overflow-hidden bg-gray-900">
   <svg class="absolute inset-0 -z-10 size-full stroke-white/10 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]" aria-hidden="true">
@@ -111,6 +119,17 @@
         <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $cta.primary.url) }}" class="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $cta.primary.text }}</a>
         <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $cta.secondary.url) }}" class="text-sm/6 font-semibold text-white">{{ $cta.secondary.text }} <span aria-hidden="true">→</span></a>
       </div>
+      
+      {{/* Search Field */}}
+      {{ if $search.enabled }}
+        <div class="mt-8 max-w-xl">
+          {{ partial "search_field.html" (dict
+            "type" "hero-search"
+            "directories" $search.directories
+            "placeholder" $search.placeholder
+          ) }}
+        </div>
+      {{ end }}
     </div>
     <div class="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:mt-0 lg:mr-0 lg:ml-10 lg:max-w-none lg:flex-none xl:ml-32">
       <div class="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">

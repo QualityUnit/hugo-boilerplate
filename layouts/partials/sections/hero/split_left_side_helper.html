@@ -5,6 +5,8 @@
 {{ $resources := .resources | default (slice) }}
 {{ $categories := .categories }}
 {{ $typewriter := .typewriter | default dict }}
+{{ $search := .search | default dict }}
+
 {{ $typewriter := merge (dict "enabled" false) $typewriter }}
 {{ $typewriter := merge (dict "words" 1) $typewriter }}
 {{ $typewriter := merge (dict "speed" 100) $typewriter }}
@@ -12,6 +14,12 @@
 {{ $typewriter := merge (dict "pause" 2000) $typewriter }}
 {{ $typewriter := merge (dict "color" "text-indigo-600") $typewriter }}
 {{ $typewriter := merge (dict "wordAlternatives" "") $typewriter }}{{/* comma separated words to alternate with */}}
+
+{{/* Search configuration with defaults */}}
+{{ $search := merge (dict "enabled" false) $search }}
+{{ $search := merge (dict "directories" (slice)) $search }}
+{{ $search := merge (dict "placeholder" "Search...") $search }}
+{{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 
 <div class="">
     {{ if .logo }}
@@ -88,5 +96,16 @@
                 {{ end }}
             </div>
         {{ end }}
+    {{ end }}
+    
+    {{/* Search Field */}}
+    {{ if $search.enabled }}
+        <div class="mt-8 max-w-xl">
+            {{ partial "search_field.html" (dict
+                "type" "hero-search"
+                "directories" $search.directories
+                "placeholder" $search.placeholder
+            ) }}
+        </div>
     {{ end }}
 </div>

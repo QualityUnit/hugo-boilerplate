@@ -91,6 +91,17 @@ console.log(greeting);"
   "color" $typewriterColor
 }}
 
+{{/* Search parameters */}}
+{{ $searchEnabled := .Get "searchEnabled" | default false }}
+{{ $searchDirectories := .Get "searchDirectories" | default "" }}
+{{ $searchPlaceholder := .Get "searchPlaceholder" | default "Search..." }}
+
+{{ $search := dict
+  "enabled" (eq $searchEnabled "true")
+  "directories" (cond (ne $searchDirectories "") (split $searchDirectories ",") (slice))
+  "placeholder" $searchPlaceholder
+}}
+
 {{ partial "sections/hero/split_with_code_example.html" (dict 
   "logo" $logo
   "heading" $heading
@@ -99,4 +110,5 @@ console.log(greeting);"
   "badge" $badge
   "code" $code
   "typewriter" $typewriter
+  "search" $search
 ) }}

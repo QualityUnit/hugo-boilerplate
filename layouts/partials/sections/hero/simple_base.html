@@ -20,6 +20,13 @@
 {{ $heading := .heading | default "" }}
 {{ $description := .description | default "" }}
 {{ $padding := .padding | default "py-24 sm:py-32" }}
+{{ $search := .search | default dict }}
+
+{{/* Search configuration with defaults */}}
+{{ $search := merge (dict "enabled" false) $search }}
+{{ $search := merge (dict "directories" (slice)) $search }}
+{{ $search := merge (dict "placeholder" "Search...") $search }}
+{{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 
 <div class="{{ $darkClass }}">
   <div class="section-bg-light dark:section-bg-dark">
@@ -28,6 +35,17 @@
             <div class="mx-auto lg:max-w-2xl lg:mx-0">
                 <h1 class="text-5xl font-semibold tracking-tight text-heading sm:text-7xl">{{ $heading }}</h1>
                 <p class="mt-8 text-pretty text-lg text-tertiary sm:text-xl/8 prose-links prose-a:text-tertiary">{{ $description | safeHTML}}</p>
+                
+                {{/* Search Field */}}
+                {{ if $search.enabled }}
+                  <div class="mt-8 max-w-xl">
+                    {{ partial "search_field.html" (dict
+                      "type" "hero-search"
+                      "directories" $search.directories
+                      "placeholder" $search.placeholder
+                    ) }}
+                  </div>
+                {{ end }}
             </div>
         </div>
     </div>

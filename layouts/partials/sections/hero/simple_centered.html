@@ -28,6 +28,11 @@
     - pause: Pause duration in ms (default: 2000)
     - color: Color class for animated text (default: "text-indigo-600")
   - imgBgClass: Background class for image container (default: "")
+  - search: Object with search configuration (optional)
+    - enabled: Boolean to enable search field (default: false)
+    - directories: Array of directories to search in (default: [])
+    - placeholder: Search placeholder text (default: "Search...")
+    - searchFields: Fields to search in (default: ["title", "content", "tags", "categories"])
 @example:
   {{ partial "sections/hero/simple_centered.html" (dict
       "announcement" (dict
@@ -89,6 +94,12 @@
 
 {{ $imgBgClass := .imgBgClass | default "" }}
 
+{{ $search := .search | default dict }}
+{{ $search := merge (dict "enabled" false) $search }}
+{{ $search := merge (dict "directories" (slice)) $search }}
+{{ $search := merge (dict "placeholder" "Search...") $search }}
+{{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
+
 <div class="{{ $darkClass }}">
   <div class="section-bg-light dark:section-bg-dark">
     <div class="relative isolate">
@@ -148,6 +159,16 @@
                       "arrow" true
                     ) }}
                   {{ end }}
+              </div>
+            {{ end }}
+            
+            {{ if $search.enabled }}
+              <div class="mt-8 max-w-xl mx-auto">
+                {{ partial "search_field.html" (dict
+                  "type" "hero-search"
+                  "directories" $search.directories
+                  "placeholder" $search.placeholder
+                ) }}
               </div>
             {{ end }}
           </div>

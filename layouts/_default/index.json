@@ -1,5 +1,13 @@
 {{- $.Scratch.Add "index" slice -}}
 {{- range .Site.RegularPages -}}
-{{- $.Scratch.Add "index" (dict "title" .Title "tags" .Params.tags "categories" .Params.categories "content" .Params.description "permalink" .Permalink "readingTime" .ReadingTime "date" (.Date.Format "Jan 2, 2006")) -}}
+{{- $dir := "" -}}
+{{- if .File -}}
+  {{- $path := .File.Dir -}}
+  {{- if $path -}}
+    {{- $dir = replaceRE "^[a-z]{2}/" "" $path -}}
+    {{- $dir = replaceRE "/$" "" $dir -}}
+  {{- end -}}
+{{- end -}}
+{{- $.Scratch.Add "index" (dict "title" .Title "tags" .Params.tags "categories" .Params.categories "content" .Params.description "permalink" .Permalink "readingTime" .ReadingTime "date" (.Date.Format "Jan 2, 2006") "dir" $dir "image" .Params.image) -}}
 {{- end -}}
 {{- $.Scratch.Get "index" | jsonify -}}

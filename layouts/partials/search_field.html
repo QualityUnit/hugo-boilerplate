@@ -2,22 +2,32 @@
 {{- $searchId := .type | default "header-desktop-search" -}}
 {{- $marginClass := .marginClass | default "" -}}
 {{- $context := .context | default . -}}
+{{- $directories := .directories | default (slice) -}}
+{{- $placeholder := .placeholder | default (i18n "search_placeholder") -}}
+{{- $resultsContainer := .resultsContainer | default "" -}}
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js" integrity="sha512-Nqw1tH3mpavka9cQCc5zWWEZNfIPdOYyQFjlV1NvflEtQ0/XI6ZQ+H/D3YgJdqSUJlMLAPRj/oXlaHCFbFCjoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<div class="w-full h-full {{ $marginClass }}{{ if eq .type "header-mobile-search"  }} relative{{ end }}">
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+
+<div class="w-full h-full {{ $marginClass }} relative">
     <div class="relative w-full">
-        <input type="text" id="popup-search-input-{{ $searchId }}" class="hide-search-clear w-full pl-3 pr-9 py-1.5 text-sm border border-gray-primary rounded-md surface-primary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary transition" placeholder="{{ i18n "search_placeholder" }}" aria-label="{{ i18n "search_placeholder" }}">
-        <button type="button" id="clear-search-{{ $searchId }}" class="absolute right-1.5 top-1/2 -translate-y-1/2 hidden" aria-label="{{ i18n "search_clear_aria" }}" title="{{ i18n "search_clear_title" }}">
-            <div class="flex py-1.5 pr-1.5">
-                <span class="inline-flex items-center rounded border border-gray-200 dark:border-gray-700 px-1.5 py-1 font-sans text-xs text-placeholder">{{ i18n "search_clear_btn" }}</span>
-            </div>
+        <input type="text" id="popup-search-input-{{ $searchId }}" class="hide-search-clear w-full pl-3 pr-9 py-1.5 text-sm border border-gray-primary rounded-md surface-primary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary transition" placeholder="{{ $placeholder }}" aria-label="{{ $placeholder }}">
+        <button type="button" id="clear-search-{{ $searchId }}" class="absolute right-2 top-1/2 -translate-y-1/2 hidden p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors" aria-label="{{ i18n "search_clear_aria" }}" title="{{ i18n "search_clear_title" }}">
+            {{ partial "icons/x-mark" "w-4 h-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" }}
         </button>
     </div>
-    <div id="search-results-popup-{{ $searchId }}" class="w-full mt-6 overflow-y-auto surface-primary z-45 hidden{{ if eq .type "header-mobile-search"  }} absolute{{ end }}">
-        <div id="popup-search-results-{{ $searchId }}"></div>
-        <div class="search-loading-{{ $searchId }} text-center px-3 py-2 text-secondary hidden">{{ i18n "search_loading" }}</div>
-        <div class="search-view-all-{{ $searchId }} text-center mt-6 hidden">
+    <div id="search-results-popup-{{ $searchId }}" class="absolute top-full left-0 right-0 mt-2 max-h-[500px] overflow-y-auto bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 hidden">
+        <div id="popup-search-results-{{ $searchId }}" class="p-2"></div>
+        <div class="search-loading-{{ $searchId }} text-center px-3 py-4 text-secondary hidden">{{ i18n "search_loading" }}</div>
+        <div class="search-view-all-{{ $searchId }} text-center py-3 border-t border-gray-200 dark:border-gray-700 hidden">
             <a href="/search/" id="view-all-results-{{ $searchId }}" class="text-heading text-sm font-medium hover:underline hover:text-primary">{{ i18n "search_view_all_results" }}</a>
         </div>
     </div>
@@ -34,7 +44,9 @@ document.addEventListener('DOMContentLoaded', function() {
         searchNoResults: {{ i18n "search_no_results" | jsonify | safeJS }},
         searchNoResultsDescription: {{ i18n "search_no_results_description" | jsonify | safeJS }},
         searchNoContentPreview: {{ i18n "search_no_content_preview" | jsonify | safeJS }},
-        searchUntitled: {{ i18n "search_untitled" | jsonify | safeJS }}
+        searchUntitled: {{ i18n "search_untitled" | jsonify | safeJS }},
+        searchResultsFound: {{ i18n "search_results_found" | jsonify | safeJS }},
+        searchResultsFoundPlural: {{ i18n "search_results_found_plural" | jsonify | safeJS }}
     };
 
     // Make sure the required libraries are available
@@ -59,7 +71,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let fuseInstance = null;
     let debounceTimer;
     let searchData = null;
+    let originalSearchData = null;
     let isSearchInitialized = false;
+    const directories = {{ $directories | jsonify | safeJS }};
+    const resultsContainer = {{ $resultsContainer | jsonify | safeJS }};
 
     // --- Event Listeners ---
 
@@ -67,6 +82,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(event) {
         if (!searchInput.contains(event.target) && !searchResultsPopup.contains(event.target)) {
             searchResultsPopup.classList.add('hidden');
+        }
+    });
+
+    // Close popup on Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && !searchResultsPopup.classList.contains('hidden')) {
+            searchResultsPopup.classList.add('hidden');
+            searchInput.blur();
         }
     });
 
@@ -139,8 +162,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Search index is empty or invalid');
                 }
 
-                searchData = data;
-                fuseInstance = new Fuse(data, {
+                originalSearchData = data;
+                
+                // Filter by directories if specified
+                if (directories && directories.length > 0) {
+                    searchData = data.filter(item => {
+                        return item.dir && directories.includes(item.dir);
+                    });
+                } else {
+                    searchData = data;
+                }
+
+                fuseInstance = new Fuse(searchData, {
                     keys: ['title', 'content', 'tags'],
                     includeScore: true,
                     includeMatches: true,
@@ -179,6 +212,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const results = fuseInstance.search(query);
+            
+            // If we have a custom results container, display results there
+            if (resultsContainer) {
+                displayResultsInContainer(results, query);
+                return;
+            }
+            
             loadingIndicator.classList.add('hidden');
             searchResultsPopup.classList.remove('hidden');
 
@@ -252,6 +292,196 @@ document.addEventListener('DOMContentLoaded', function() {
             searchResults.innerHTML = `<p>${searchTranslations.searchErrorPerforming}</p>`;
             searchResultsPopup.classList.remove('hidden');
         }
+    }
+    
+    /**
+     * Display search results in a custom container (for page-specific search) or in a popup
+     */
+    function displayResultsInContainer(results, query) {
+        const container = document.getElementById(resultsContainer);
+        
+        // If no container is specified or it doesn't exist, show results in popup
+        if (!container) {
+            displayResultsInPopup(results, query);
+            return;
+        }
+        
+        // Store original content on first search
+        if (!container.hasAttribute('data-original-content')) {
+            container.setAttribute('data-original-content', container.innerHTML);
+        }
+        
+        if (query.length < 2) {
+            // Restore original content
+            container.innerHTML = container.getAttribute('data-original-content');
+            return;
+        }
+        
+        if (results.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <p class="text-lg text-gray-500">${searchTranslations.searchNoResults}</p>
+                    <p class="mt-2 text-sm text-gray-400">${searchTranslations.searchNoResultsDescription}</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Filter out duplicates based on permalink
+        const uniqueResults = [];
+        const seenPermalinks = new Set();
+        
+        for (const result of results) {
+            if (!seenPermalinks.has(result.item.permalink)) {
+                uniqueResults.push(result);
+                seenPermalinks.add(result.item.permalink);
+            }
+        }
+        
+        // Check if we're in a grid container
+        const gridContainer = container.querySelector('.grid');
+        
+        if (gridContainer) {
+            // Preserve grid structure, just replace the content
+            const resultsHTML = uniqueResults.map(result => {
+                const item = result.item;
+                return createResultCard(item);
+            }).join('');
+            
+            gridContainer.innerHTML = resultsHTML;
+            
+            // Add search info if not already present
+            let searchInfo = container.querySelector('.search-info');
+            if (!searchInfo) {
+                searchInfo = document.createElement('div');
+                searchInfo.className = 'search-info wrapper mb-4';
+                // Insert before the wrapper that contains the grid
+                const wrapperDiv = gridContainer.closest('.wrapper');
+                if (wrapperDiv && wrapperDiv.parentElement) {
+                    wrapperDiv.parentElement.insertBefore(searchInfo, wrapperDiv);
+                } else if (container.firstChild) {
+                    container.insertBefore(searchInfo, container.firstChild);
+                } else {
+                    container.appendChild(searchInfo);
+                }
+            }
+            const resultText = uniqueResults.length === 1 
+                ? searchTranslations.searchResultsFound.replace('%d', uniqueResults.length).replace('"%s"', `"${query}"`)
+                : searchTranslations.searchResultsFoundPlural.replace('%d', uniqueResults.length).replace('"%s"', `"${query}"`);
+            searchInfo.innerHTML = `
+                <p class="text-sm text-gray-600">
+                    ${resultText}
+                </p>
+            `;
+        }
+    }
+    
+    /**
+     * Display search results in a popup (for hero search)
+     */
+    function displayResultsInPopup(results, query) {
+        loadingIndicator.classList.add('hidden');
+        searchResultsPopup.classList.remove('hidden');
+        
+        viewAllLink.href = `/search?q=${encodeURIComponent(query)}`;
+        
+        if (results.length > 0) {
+            // Filter out duplicates based on permalink
+            const uniqueResults = [];
+            const seenPermalinks = new Set();
+            
+            for (const result of results) {
+                if (!seenPermalinks.has(result.item.permalink)) {
+                    uniqueResults.push(result);
+                    seenPermalinks.add(result.item.permalink);
+                }
+            }
+            
+            const displayResults = uniqueResults.slice(0, 5);
+            let html = '';
+            
+            displayResults.forEach(({ item, matches }, index) => {
+                const title = item.title || searchTranslations.searchUntitled;
+                const permalink = item.permalink || '#';
+                const imageUrl = item.image || '';
+                
+                let snippet = searchTranslations.searchNoContentPreview;
+                if (item && typeof item.content === 'string' && item.content.trim().length > 0) {
+                    snippet = item.content.substring(0, Math.min(item.content.length, 120)) + '...';
+                }
+                
+                const isLast = index === displayResults.length - 1;
+                
+                html += `
+                <a href="${permalink}" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${!isLast ? 'border-b border-gray-100 dark:border-gray-800' : ''}">
+                    <div class="flex items-start gap-3">
+                        ${imageUrl ? `
+                        <div class="flex-shrink-0 w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center overflow-hidden">
+                            <img src="${imageUrl}" alt="${title}" class="w-full h-full object-contain p-1" loading="lazy">
+                        </div>
+                        ` : ''}
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1 truncate">${title}</div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">${snippet}</div>
+                        </div>
+                    </div>
+                </a>`;
+            });
+            
+            searchResults.innerHTML = html;
+            viewAllSection.classList.toggle('hidden', uniqueResults.length <= 5);
+            
+            if (typeof Mark !== 'undefined' && searchResults.children.length > 0) {
+                const markInstance = new Mark(searchResults);
+                markInstance.mark(query, {
+                    element: 'mark',
+                    className: 'text-primary surface-brand-secondary'
+                });
+            }
+        } else {
+            searchResults.innerHTML = `
+                <div class="flex flex-col items-center justify-center text-center py-8 px-4">
+                    <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">${searchTranslations.searchNoResults}</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">${searchTranslations.searchNoResultsDescription}</p>
+                </div>
+            `;
+            viewAllSection.classList.add('hidden');
+        }
+    }
+    
+    /**
+     * Create result card matching existing design (for grid layouts)
+     */
+    function createResultCard(item) {
+        const imageUrl = item.image || '/images/default-integration.png';
+        const truncatedContent = item.content ? 
+            item.content.substring(0, 150) + '...' : '';
+        
+        return `
+            <div>
+                <div class="flex h-[540px] flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-lg">
+                    <div class="flex h-48 items-center justify-center bg-gray-50 p-8">
+                        <img src="${imageUrl}" alt="${item.title}" class="w-full h-full p-8 object-contain" loading="lazy">
+                    </div>
+                    <div class="flex flex-1 flex-col p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                            <a href="${item.permalink}" class="hover:text-blue-600">
+                                ${item.title}
+                            </a>
+                        </h3>
+                        <p class="text-gray-600 text-sm flex-1">${truncatedContent}</p>
+                        <div class="mt-4 flex items-center justify-between">
+                            <a href="${item.permalink}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Learn more →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 });
 </script>
