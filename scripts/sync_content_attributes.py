@@ -1,5 +1,7 @@
 attributes_to_sync = [
     'image',
+    'sitemap_exclude',
+    'private',
     'videoUrl',
     'videoPoster',
     'videoEnabled',
