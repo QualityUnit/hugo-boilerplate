@@ -118,3 +118,6 @@ icon.card.btn: "عرض"
 
 # Attachments
 attachments.title: "المرفقات"
+
+search_results_found: "تم العثور على %d نتيجة لـ %s"
+search_results_found_plural: "تم العثور على %d نتائج لـ %s"

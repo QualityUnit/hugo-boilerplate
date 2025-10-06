@@ -118,3 +118,6 @@ icon.card.btn: "Pozrieť"
 
 # Attachments
 attachments.title: "Prílohy"
+
+search_results_found: "Nájdený %d výsledok pre %s"
+search_results_found_plural: "Nájdených %d výsledkov pre %s"

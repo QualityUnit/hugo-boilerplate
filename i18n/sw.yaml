@@ -105,3 +105,6 @@ icon.card.btn: "Tazama"
 # Attachments
 attachments.title: "Viunganisho"
 search_no_results_description: "Försök ändra din sökning - något fantastiskt kan vara bara några ord bort."
+
+search_results_found: "Imepata tokeo %d la %s"
+search_results_found_plural: "Imepata matokeo %d ya %s"

@@ -116,3 +116,6 @@ icon.card.btn: "Sehen"
 
 # Attachments
 attachments.title: "Anhänge"
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"

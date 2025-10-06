@@ -29,8 +29,8 @@ search_initializing: "Search is still initializing. Please try again."
 search_no_results_description: "Try changing your search - something great might be just a few words away."
 search_no_content_preview: "No content preview available"
 search_untitled: "Untitled"
-search_results_found: "Found %d result for \"%s\""
-search_results_found_plural: "Found %d results for \"%s\""
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"
 
 # Glossary translations
 glossary_eyebrow: "Glossary"

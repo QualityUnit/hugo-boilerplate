@@ -119,3 +119,6 @@ icon.card.btn: "Смотреть"
 
 # Attachments
 attachments.title: "Вложения"
+
+search_results_found: "Найден %d результат для %s"
+search_results_found_plural: "Найдено %d результатов для %s"

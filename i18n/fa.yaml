@@ -118,3 +118,6 @@ icon.card.btn: "مشاهده"
 
 # Attachments
 attachments.title: "پیوست‌ها"
+
+search_results_found: "%d نتیجه برای %s یافت شد"
+search_results_found_plural: "%d نتیجه برای %s یافت شد"

@@ -117,3 +117,6 @@ icon.card.btn: "Poglej"
 
 # Attachments
 attachments.title: "Priloge"
+
+search_results_found: "Najden %d rezultat za %s"
+search_results_found_plural: "Najdenih %d rezultatov za %s"

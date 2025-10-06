@@ -117,3 +117,6 @@ icon.card.btn: "Виж"
 
 # Attachments
 attachments.title: "Прикачени файлове"
+
+search_results_found: "Намерен %d резултат за %s"
+search_results_found_plural: "Намерени %d резултата за %s"

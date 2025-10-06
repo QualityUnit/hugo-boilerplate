@@ -105,3 +105,7 @@ search_chat_link: "Oder schriebe mit üs →"
 
 # Attachments
 attachments.title: "Aahäng"
+
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"

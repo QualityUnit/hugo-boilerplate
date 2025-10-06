@@ -119,3 +119,6 @@ icon.card.btn: "查看"
 
 # Attachments
 attachments.title: "附件"
+
+search_results_found: "为 %s 找到 %d 个结果"
+search_results_found_plural: "为 %s 找到 %d 个结果"

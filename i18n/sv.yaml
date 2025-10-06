@@ -119,3 +119,6 @@ icon.card.btn: "Se"
 
 # Attachments
 attachments.title: "Bilagor"
+
+search_results_found: "Hittade %d resultat för %s"
+search_results_found_plural: "Hittade %d resultat för %s"

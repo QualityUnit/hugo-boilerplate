@@ -119,3 +119,6 @@ icon.card.btn: "보기"
 
 # Attachments
 attachments.title: "첨부 파일"
+
+search_results_found: "%s에 대한 %d개의 결과를 찾았습니다"
+search_results_found_plural: "%s에 대한 %d개의 결과를 찾았습니다"

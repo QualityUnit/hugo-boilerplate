@@ -116,3 +116,6 @@ icon.card.btn: "ดู"
 
 # Attachments
 attachments.title: "ไฟล์แนบ"
+
+search_results_found: "พบ %d ผลลัพธ์สำหรับ %s"
+search_results_found_plural: "พบ %d ผลลัพธ์สำหรับ %s"

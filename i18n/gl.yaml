@@ -107,3 +107,7 @@ search_chat_link: "Ou chámanos ao chat →"
 
 # Attachments
 attachments.title: "Adxuntos"
+
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"

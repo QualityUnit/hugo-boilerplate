@@ -118,3 +118,6 @@ icon.card.btn: "Дивитися"
 
 # Attachments
 attachments.title: "Вкладення"
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"

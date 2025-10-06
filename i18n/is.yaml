@@ -115,3 +115,7 @@ search_chat_link: "Eða spjallaðu við okkur →"
 
 # Attachments
 attachments.title: "Viðhengi"
+
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"

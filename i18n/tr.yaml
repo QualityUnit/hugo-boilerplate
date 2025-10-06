@@ -118,3 +118,6 @@ icon.card.btn: "Gör"
 
 # Attachments
 attachments.title: "Ekler"
+
+search_results_found: "%s için %d sonuç bulundu"
+search_results_found_plural: "%s için %d sonuç bulundu"

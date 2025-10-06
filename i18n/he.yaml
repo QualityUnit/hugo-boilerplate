@@ -117,3 +117,6 @@ icon.card.btn: "ראה"
 
 # Attachments
 attachments.title: "קבצים מצורפים"
+
+search_results_found: "נמצאה תוצאה %d עבור %s"
+search_results_found_plural: "נמצאו %d תוצאות עבור %s"

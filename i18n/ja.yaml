@@ -119,3 +119,6 @@ icon.card.btn: "見る"
 
 # Attachments
 attachments.title: "添付ファイル"
+
+search_results_found: "%s に対して %d 件の結果が見つかりました"
+search_results_found_plural: "%s に対して %d 件の結果が見つかりました"

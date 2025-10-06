@@ -117,3 +117,6 @@ icon.card.btn: "Katso"
 
 # Attachments
 attachments.title: "Liitteet"
+
+search_results_found: "Löytyi %d tulos haulle %s"
+search_results_found_plural: "Löytyi %d tulosta haulle %s"

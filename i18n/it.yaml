@@ -119,3 +119,6 @@ icon.card.btn: "Vedi"
 
 # Attachments
 attachments.title: "Allegati"
+
+search_results_found: "Trovato %d risultato per %s"
+search_results_found_plural: "Trovati %d risultati per %s"

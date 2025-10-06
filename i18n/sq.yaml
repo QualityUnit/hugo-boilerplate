@@ -106,3 +106,7 @@ search_chat_link: "Ose bisedoni me ne →"
 
 # Attachments
 attachments.title: "Bashkëngjitje"
+
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"

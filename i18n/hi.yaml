@@ -105,3 +105,6 @@ icon.card.btn: "देखें"
 
 # Attachments
 attachments.title: "अटैचमेंट"
+
+search_results_found: "%s के लिए %d परिणाम मिला"
+search_results_found_plural: "%s के लिए %d परिणाम मिले"

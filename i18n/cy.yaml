@@ -106,3 +106,7 @@ search_chat_link: "Neu sgwrsio gyda ni →"
 
 # Attachments
 attachments.title: "Atodiadau"
+
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"

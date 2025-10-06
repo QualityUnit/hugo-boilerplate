@@ -117,3 +117,6 @@ icon.card.btn: "Vezi"
 
 # Attachments
 attachments.title: "Atașamente"
+
+search_results_found: "S-a găsit %d rezultat pentru %s"
+search_results_found_plural: "S-au găsit %d rezultate pentru %s"

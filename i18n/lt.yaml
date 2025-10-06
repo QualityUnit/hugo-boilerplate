@@ -117,3 +117,6 @@ icon.card.btn: "Žiūrėti"
 
 # Attachments
 attachments.title: "Priedai"
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"

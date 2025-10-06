@@ -104,3 +104,5 @@ search_chat_link: "Of gesels met ons →"
 
 # Attachments
 attachments.title: "Aanhegsels"
+search_results_found: "%d resultaat gevind vir \"%s\""
+search_results_found_plural: "%d resultate gevind vir \"%s\""

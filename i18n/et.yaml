@@ -117,3 +117,6 @@ icon.card.btn: "Vaata"
 
 # Attachments
 attachments.title: "Manused"
+
+search_results_found: "Leiti %d tulemus päringule %s"
+search_results_found_plural: "Leiti %d tulemust päringule %s"

@@ -119,3 +119,6 @@ icon.card.btn: "Se"
 
 # Attachments
 attachments.title: "Vedhæftede filer"
+
+search_results_found: "Fandt %d resultat for %s"
+search_results_found_plural: "Fandt %d resultater for %s"

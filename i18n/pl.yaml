@@ -117,3 +117,6 @@ icon.card.btn: "Zobacz"
 
 # Attachments
 attachments.title: "Załączniki"
+
+search_results_found: "Znaleziono %d wynik dla %s"
+search_results_found_plural: "Znaleziono %d wyników dla %s"

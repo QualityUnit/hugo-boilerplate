@@ -116,3 +116,6 @@ search_chat_link: "অথবা আমাদের সাথে চ্যাট 
 
 # Attachments
 attachments.title: "সংযুক্তি"
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"

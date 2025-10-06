@@ -107,3 +107,6 @@ icon.card.btn: "Pogledaj"
 
 # Attachments
 attachments.title: "Прилози"
+
+search_results_found: "Пронађен %d резултат за %s"
+search_results_found_plural: "Пронађено %d резултата за %s"

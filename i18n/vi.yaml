@@ -105,3 +105,6 @@ icon.card.btn: "Xem"
 
 # Attachments
 attachments.title: "Tệp đính kèm"
+
+search_results_found: "Tìm thấy %d kết quả cho %s"
+search_results_found_plural: "Tìm thấy %d kết quả cho %s"

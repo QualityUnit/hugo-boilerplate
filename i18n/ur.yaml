@@ -104,3 +104,7 @@ search_suggestion_broaden: "اپنے کلیدی الفاظ کو وسیع کری�
 search_suggestion_terms: "مختلف اصطلاحات استعمال کریں یا دیگر زمروں کو دیکھیں۔"
 search_chat_link: "یا ہم سے چیٹ کریں →"# Attachments
 attachments.title: "منسلکات"
+
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"

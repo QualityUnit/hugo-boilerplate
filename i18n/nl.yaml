@@ -119,3 +119,6 @@ icon.card.btn: "Bekijk"
 
 # Attachments
 attachments.title: "Bijlagen"
+
+search_results_found: "%d resultaat gevonden voor %s"
+search_results_found_plural: "%d resultaten gevonden voor %s"

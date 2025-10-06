@@ -106,3 +106,7 @@ search_chat_link: "Jew ċċettja magħna →"
 
 # Attachments
 attachments.title: "Anness"
+
+
+search_results_found: "Found %d result for %s"
+search_results_found_plural: "Found %d results for %s"
