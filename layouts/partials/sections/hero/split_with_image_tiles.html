@@ -69,7 +69,7 @@
 {{/* Search configuration with defaults */}}
 {{ $search := merge (dict "enabled" false) $search }}
 {{ $search := merge (dict "directories" (slice)) $search }}
-{{ $search := merge (dict "placeholder" "Search...") $search }}
+{{ $search := merge (dict "placeholder" (i18n "search_placeholder")) $search }}
 {{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 
 <div class="relative isolate">

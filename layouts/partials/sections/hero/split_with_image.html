@@ -103,7 +103,7 @@ Design Tokens:
 {{/* Search configuration with defaults */}}
 {{ $search := merge (dict "enabled" false) $search }}
 {{ $search := merge (dict "directories" (slice)) $search }}
-{{ $search := merge (dict "placeholder" "Search...") $search }}
+{{ $search := merge (dict "placeholder" (i18n "search_placeholder")) $search }}
 {{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 {{ $typewriter := merge (dict "words" 1) $typewriter }}
 {{ $typewriter := merge (dict "speed" 100) $typewriter }}

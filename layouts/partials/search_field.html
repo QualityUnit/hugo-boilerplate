@@ -24,7 +24,7 @@
             {{ partial "icons/x-mark" "w-4 h-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" }}
         </button>
     </div>
-    <div id="search-results-popup-{{ $searchId }}" class="absolute top-full left-0 right-0 mt-2 max-h-[500px] overflow-y-auto bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 hidden">
+    <div id="search-results-popup-{{ $searchId }}" class="absolute top-full left-0 right-0 mt-2 max-h-[500px] overflow-y-auto bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] hidden">
         <div id="popup-search-results-{{ $searchId }}" class="p-2"></div>
         <div class="search-loading-{{ $searchId }} text-center px-3 py-4 text-secondary hidden">{{ i18n "search_loading" }}</div>
         <div class="search-view-all-{{ $searchId }} text-center py-3 border-t border-gray-200 dark:border-gray-700 hidden">

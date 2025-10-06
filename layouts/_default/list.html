@@ -4,7 +4,13 @@
 {{ $paginationSize := 60 }}
 {{ $cardHeight := 540 }}
 
-{{ partial "hero_default.html" . }}
+{{/* Define search configuration for default list pages */}}
+{{ $searchConfig := dict 
+  "enabled" true
+  "directories" (slice .Section)
+}}
+
+{{ partial "hero_default.html" (dict "Params" .Params "Title" .Title "search" $searchConfig "Site" .Site) }}
 
 {{ if eq (len .Pages) 0 }}
   <div class="wrapper text-center">

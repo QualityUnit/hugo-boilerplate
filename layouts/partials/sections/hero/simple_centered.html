@@ -31,7 +31,7 @@
   - search: Object with search configuration (optional)
     - enabled: Boolean to enable search field (default: false)
     - directories: Array of directories to search in (default: [])
-    - placeholder: Search placeholder text (default: "Search...")
+    - placeholder: Search placeholder text (default: i18n "search_placeholder")
     - searchFields: Fields to search in (default: ["title", "content", "tags", "categories"])
 @example:
   {{ partial "sections/hero/simple_centered.html" (dict
@@ -97,7 +97,7 @@
 {{ $search := .search | default dict }}
 {{ $search := merge (dict "enabled" false) $search }}
 {{ $search := merge (dict "directories" (slice)) $search }}
-{{ $search := merge (dict "placeholder" "Search...") $search }}
+{{ $search := merge (dict "placeholder" (i18n "search_placeholder")) $search }}
 {{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 
 <div class="{{ $darkClass }}">

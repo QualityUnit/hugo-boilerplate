@@ -94,7 +94,7 @@ console.log(greeting);"
 {{/* Search parameters */}}
 {{ $searchEnabled := .Get "searchEnabled" | default false }}
 {{ $searchDirectories := .Get "searchDirectories" | default "" }}
-{{ $searchPlaceholder := .Get "searchPlaceholder" | default "Search..." }}
+{{ $searchPlaceholder := .Get "searchPlaceholder" | default (i18n "search_placeholder") }}
 
 {{ $search := dict
   "enabled" (eq $searchEnabled "true")

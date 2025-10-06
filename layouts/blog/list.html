@@ -1,9 +1,15 @@
 {{ define "main" }}
 
-{{ partial "hero_default.html" . }}
-
 {{/* Configuration variables */}}
 {{ $cardHeight := 540 }}
+
+{{/* Define search configuration for blog list pages */}}
+{{ $searchConfig := dict 
+  "enabled" true
+  "directories" (slice "blog")
+}}
+
+{{ partial "hero_default.html" (dict "Params" .Params "Title" .Title "search" $searchConfig "Site" .Site) }}
 
 {{ if eq (len .Pages) 0 }}
   <div class="wrapper text-center">
