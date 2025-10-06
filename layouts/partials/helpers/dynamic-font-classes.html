@@ -1,0 +1,35 @@
+{{/*
+  Dynamic Font Class Helper
+  Centralizes font size mapping logic for heading length
+  Returns: (dict "fontSizeClass" "..." "headingTracking" "...")
+*/}}
+
+{{ $headingLength := .headingLength | int }}
+{{ $fontSizeClass := "text-5xl lg:text-6xl" }}
+{{ $headingTracking := "tracking-[-2.832px]" }}
+
+{{/* Only apply dynamic sizing for lengths that benefit from it */}}
+{{ if gt $headingLength 40 }}
+  {{ if gt $headingLength 120 }}
+    {{ $fontSizeClass = "lg:text-[1.5rem]" }}
+    {{ $headingTracking = "tracking-tight" }}
+  {{ else if gt $headingLength 100 }}
+    {{ $fontSizeClass = "lg:text-[1.6rem] xl:text-[1.75rem]" }}
+    {{ $headingTracking = "tracking-tight" }}
+  {{ else if gt $headingLength 85 }}
+    {{ $fontSizeClass = "lg:text-[1.75rem] xl:text-[2rem]" }}
+    {{ $headingTracking = "tracking-tight" }}
+  {{ else if gt $headingLength 70 }}
+    {{ $fontSizeClass = "lg:text-[2rem] xl:text-[2.25rem]" }}
+    {{ $headingTracking = "tracking-tight" }}
+  {{ else if gt $headingLength 60 }}
+    {{ $fontSizeClass = "lg:text-[2.5rem] xl:text-[2.75rem]" }}
+    {{ $headingTracking = "tracking-tight" }}
+  {{ else if gt $headingLength 50 }}
+    {{ $fontSizeClass = "lg:text-[3rem] xl:text-[3.25rem]" }}
+  {{ else if gt $headingLength 40 }}
+    {{ $fontSizeClass = "lg:text-[3.5rem] xl:text-[3.75rem]" }}
+  {{ end }}
+{{ end }}
+
+{{ return (dict "fontSizeClass" $fontSizeClass "headingTracking" $headingTracking) }}
