@@ -109,5 +109,10 @@ document.addEventListener('DOMContentLoaded', function() {
         'ad_personalization': allowed ? 'granted' : 'denied'
       });
     }
+    
+    // Update Capterra consent
+    if (typeof window.updateCapterraConsent === 'function') {
+      window.updateCapterraConsent(allowed);
+    }
   }
 });
