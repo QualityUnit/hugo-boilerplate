@@ -206,10 +206,10 @@ run_step() {
             echo -e "${YELLOW}Building Hugo site to validate content and generate HTML files...${NC}"
             
             # Build Hugo with minification (all languages)
-            echo -e "${YELLOW}[DEBUG] Executing: hugo --minify${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: hugo --minify --buildFuture${NC}"
             
             cd "${HUGO_ROOT}"
-            hugo --minify
+            hugo --minify --buildFuture
             
             if [ $? -ne 0 ]; then
                 echo -e "${RED}ERROR: Hugo build failed! Content has errors that must be fixed.${NC}"
@@ -244,9 +244,9 @@ run_step() {
             # Ensure Hugo has been built
             if [ ! -d "${HUGO_ROOT}/public" ]; then
                 echo -e "${YELLOW}Warning: Public directory not found. Building Hugo first...${NC}"
-                echo -e "${YELLOW}[DEBUG] Executing: hugo --minify${NC}"
+                echo -e "${YELLOW}[DEBUG] Executing: hugo --minify --buildFuture${NC}"
                 cd "${HUGO_ROOT}"
-                hugo --minify
+                hugo --minify --buildFuture
                 if [ $? -ne 0 ]; then
                     echo -e "${YELLOW}Error: Hugo build failed. Cannot proceed with linkbuilding optimization.${NC}"
                     exit 1
@@ -258,7 +258,7 @@ run_step() {
                     if [ $public_age -gt 3600 ]; then
                         echo -e "${YELLOW}Public directory is over 1 hour old. Rebuilding Hugo (all languages)...${NC}"
                         cd "${HUGO_ROOT}"
-                        hugo --minify
+                        hugo --minify --buildFuture
                     else
                         echo -e "${GREEN}Public directory is recent (less than 1 hour old), skipping rebuild${NC}"
                     fi
