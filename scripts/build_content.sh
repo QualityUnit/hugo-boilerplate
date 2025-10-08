@@ -139,6 +139,62 @@ run_step() {
             echo -e "${GREEN}Amplify redirects generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_amplify_redirects finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
+        generate_linkbuilding_keywords)
+            echo -e "${BLUE}=== Step 3.9: Generating Linkbuilding Keywords ===${NC}"
+            echo -e "${YELLOW}Running linkbuilding keyword generation for all languages...${NC}"
+            
+            # Start all language extractions in parallel
+            echo -e "${YELLOW}Starting parallel linkbuilding keyword generation for all languages...${NC}"
+            pids=()
+            
+            for lang_dir in "${HUGO_ROOT}/content"/*; do
+                if [ -d "$lang_dir" ]; then
+                    lang=$(basename "$lang_dir")
+                    echo -e "${YELLOW}[DEBUG] Starting linkbuilding keyword generation for language: $lang${NC}"
+                    
+                    # Run generation in background (with virtual environment)
+                    (
+                        "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_linkbuilding_keywords.py" \
+                            --lang "$lang" \
+                            --top-k 5 \
+                            --min-keyword-freq 3 \
+                            --min-files 2 \
+                            --min-ngram 2 \
+                            --max-ngram 4 2>&1 | \
+                            sed "s/^/[$lang] /"
+                        
+                        if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                            echo -e "${GREEN}[$lang] Linkbuilding keywords generated successfully${NC}"
+                        else
+                            echo -e "${YELLOW}[$lang] Warning: Failed to generate linkbuilding keywords${NC}"
+                        fi
+                    ) &
+                    
+                    # Store the PID
+                    pids+=($!)
+                fi
+            done
+            
+            # Wait for all background processes to complete
+            echo -e "${YELLOW}Waiting for all language linkbuilding generations to complete...${NC}"
+            failed_langs=()
+            for pid in "${pids[@]}"; do
+                wait $pid
+                if [ $? -ne 0 ]; then
+                    failed_langs+=("$pid")
+                fi
+            done
+            
+            # Report results
+            if [ ${#failed_langs[@]} -eq 0 ]; then
+                echo -e "${GREEN}All linkbuilding keyword generations completed successfully!${NC}"
+            else
+                echo -e "${YELLOW}Some linkbuilding generations failed, but continuing...${NC}"
+            fi
+            
+            echo -e "${GREEN}Linkbuilding keyword generation completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step generate_linkbuilding_keywords finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
         generate_related_content)
             echo -e "${BLUE}=== Step 4: Generating Related Content ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/generate_related_content.py --path ${HUGO_ROOT}/content --hugo-root ${HUGO_ROOT} --exclude-sections author${NC}"
@@ -343,7 +399,7 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
 
 # If no steps specified, run all steps
 if [ ${#STEPS_TO_RUN[@]} -eq 0 ]; then
-    STEPS_TO_RUN=(sync_translations build_hugo offload_images find_duplicate_images translate sync_content_attributes sync_translation_urls generate_translation_urls generate_amplify_redirects generate_related_content extract_automatic_links precompute_linkbuilding preprocess_images)
+    STEPS_TO_RUN=(sync_translations build_hugo offload_images find_duplicate_images translate sync_content_attributes sync_translation_urls generate_translation_urls generate_amplify_redirects generate_linkbuilding_keywords generate_related_content extract_automatic_links precompute_linkbuilding preprocess_images)
     echo -e "${YELLOW}[DEBUG] No steps specified, running all steps: ${STEPS_TO_RUN[@]}${NC}"
 else
     echo -e "${YELLOW}[DEBUG] Running specified steps: ${STEPS_TO_RUN[@]}${NC}"

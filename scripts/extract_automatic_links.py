@@ -10,7 +10,8 @@ Usage:
 
 Features:
 - Parses TOML frontmatter from markdown files
-- Extracts ONLY the first 2 keywords from each page (to limit automatic links)
+- Priority 1: Uses ALL keywords from 'linkbuilding' attribute (no limit)
+- Priority 2: Uses first 2 keywords from 'keywords' attribute (legacy fallback)
 - Determines title from description, shortDescription, or title (in priority order)
 - Generates JSON output compatible with linkbuilding.py
 - Supports multilingual content processing
@@ -100,19 +101,31 @@ class LinkExtractor:
                 with open(file_path, 'r', encoding='utf-8') as f:
                     post = frontmatter.load(f)
             
-            # Get keywords from frontmatter (limit to first 2)
-            keywords = post.metadata.get('keywords', [])
-            if not keywords or not isinstance(keywords, list):
-                return []
-            
-            # Only take the first 2 keywords for automatic links
-            keywords = keywords[:2]
+            # Priority 1: Use linkbuilding attribute if it exists (no limit on keywords)
+            if 'linkbuilding' in post.metadata:
+                keywords = post.metadata.get('linkbuilding', [])
+                if keywords and isinstance(keywords, list):
+                    # Use ALL keywords from linkbuilding attribute (no 2-keyword limit)
+                    pass  # keywords already set
+                else:
+                    return []
+            else:
+                # Priority 2: Use keywords attribute with 2-keyword limit
+                keywords = post.metadata.get('keywords', [])
+                if not keywords or not isinstance(keywords, list):
+                    return []
+                
+                # Only take the first 2 keywords for automatic links when using keywords attribute
+                keywords = keywords[:2]
             
             # Determine the URL for this file
             file_url = self.determine_url(file_path, post.metadata)
             
             # Get the title (description > shortDescription > title)
             title = self.get_title_from_frontmatter(post.metadata)
+            
+            # Calculate priority for this page
+            priority = self.calculate_priority(file_path, file_url)
             
             # Create link entries for each keyword
             links = []
@@ -121,7 +134,8 @@ class LinkExtractor:
                     link_entry = {
                         "keyword": keyword.strip(),
                         "url": file_url,
-                        "title": title
+                        "title": title,
+                        "priority": priority
                     }
                     links.append(link_entry)
             
@@ -206,6 +220,32 @@ class LinkExtractor:
         # Fallback: empty string
         return ""
     
+    def calculate_priority(self, file_path: Path, file_url: str) -> int:
+        """Calculate priority based on page hierarchy and type
+        
+        Priority calculation:
+        - Main pages (_index.md): Higher priority (10)
+        - Root level pages: High priority (8)
+        - Each directory level deeper: -2 priority
+        - Minimum priority: 1
+        """
+        
+        # Check if it's a main page (_index.md)
+        if file_path.name == '_index.md':
+            base_priority = 10
+        else:
+            base_priority = 8
+        
+        # Calculate depth by counting URL segments (excluding empty ones)
+        url_segments = [segment for segment in file_url.strip('/').split('/') if segment]
+        depth = len(url_segments)
+        
+        # Adjust priority based on depth
+        priority = base_priority - (depth * 2)
+        
+        # Ensure minimum priority of 1
+        return max(1, priority)
+    
     def get_stats(self) -> Dict:
         """Get processing statistics"""
         return self.stats.copy()
@@ -226,7 +266,7 @@ def save_links_to_json(links: List[Dict], output_file: str) -> None:
             "URL": link['url'],
             "Title": link['title'],
             "Exact": False,  # Default for automatic links
-            "Priority": 0  # Lower priority for automatic links (manual links will have higher)
+            "Priority": link.get('priority', 1)  # Use calculated priority or default to 1
         })
     
     # Sort links by keyword for consistent output
