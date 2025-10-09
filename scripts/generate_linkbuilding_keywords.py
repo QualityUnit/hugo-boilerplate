@@ -6,6 +6,13 @@ This script generates unique keywords from content files using n-grams, creates
 FAISS vectors for each keyword, and then matches documents to their best keywords
 for linkbuilding purposes.
 
+Text for vectorization uses only:
+- URL attribute from frontmatter (or file path if URL doesn't exist)
+- Title from frontmatter
+- Description from frontmatter
+
+The actual content of the markdown file is NOT used for vectorization.
+
 Usage:
     python generate_linkbuilding_keywords.py --lang en
     python generate_linkbuilding_keywords.py --lang en --min-ngram 2 --max-ngram 4 --top-k 10
@@ -53,7 +60,9 @@ EXCLUDED_DIRECTORIES = [
     "affiliate-manager",
     "affiliate-program-directory", 
     "gdpr",
-    "search"
+    "search",
+    "author",
+    "gdpr"
 ]
 
 # Global variables for model
@@ -93,7 +102,7 @@ def parse_args():
                         help=f"Model name to use (default: {MODEL_NAME})")
     parser.add_argument("--min-keyword-freq", type=int, default=2,
                         help="Minimum frequency for keywords to be included (default: 2)")
-    parser.add_argument("--min-files", type=int, default=2,
+    parser.add_argument("--min-files", type=int, default=5,
                         help="Minimum number of files a keyword must appear in to be included (default: 2)")
     return parser.parse_args()
 
@@ -135,7 +144,7 @@ def generate_ngrams(text, min_n, max_n, lang='english'):
         return []
 
 def collect_content_files(content_directory):
-    """Collect all markdown files and their content."""
+    """Collect all markdown files and extract URL, title, and description from frontmatter."""
     print(f"Collecting content files from: {content_directory}")
     
     if not os.path.exists(content_directory):
@@ -185,23 +194,26 @@ def collect_content_files(content_directory):
                     title = metadata.get("title", "") if metadata else ""
                     description = metadata.get("description", "") if metadata else ""
                     
-                    # Extract content safely
-                    content_text = getattr(post, 'content', '') or ''
-                    text = extract_text_from_markdown(content_text)
+                    # Get URL from frontmatter, or use the relative path if URL doesn't exist
+                    url = metadata.get("url", "") if metadata else ""
+                    if not url:
+                        # Use the relative path without .md extension as fallback
+                        url = rel_path.replace('.md', '')
                     
-                    # Skip files with no meaningful content
-                    if not title and not description and not text:
+                    # Skip files with no meaningful metadata
+                    if not title and not description:
                         continue
                     
-                    # Combine title, description and content for full text
-                    full_text = f"{title} {description} {text}".strip()
+                    # Create text for vectorization using only url, title, and description
+                    full_text = f"{url} {title} {description}".strip()
                     
-                    if len(text) > MAX_TEXT_LENGTH:
-                        text = text[:MAX_TEXT_LENGTH]
+                    # For backward compatibility, keep text field but empty (not used for vectorization)
+                    text = ""
                     
                     file_data.append({
                         "path": file_path,
                         "rel_path": rel_path,
+                        "url": url,
                         "title": title,
                         "description": description,
                         "text": text,
@@ -281,28 +293,33 @@ def create_keyword_index(keywords, keyword_counts, model_name):
     return index, keyword_embeddings
 
 def find_best_keywords_for_document(doc_text, keywords, keyword_counts, keyword_index, keyword_embeddings, model_name, top_k, similarity_threshold=0.1):
-    """Find best matching keywords for a document, preferring higher frequency keywords."""
+    """Find best matching keywords for a single document, preferring higher frequency keywords."""
     model = load_model(model_name)
     
-    # Generate embedding for document
-    doc_embedding = model.encode([doc_text])
+    # Generate embedding for the document
+    doc_embedding = model.encode([doc_text], show_progress_bar=False)
     doc_embedding = doc_embedding.astype('float32')
     
     # Search for more candidates than we need (to allow for frequency-based selection)
     search_k = min(top_k * 3, len(keywords))
+    
+    # Search in FAISS
     distances, indices = keyword_index.search(doc_embedding, search_k)
+    distances = distances[0]
+    indices = indices[0]
+    
+    max_freq = max(keyword_counts.values())
     
     # Create candidates with similarity scores and frequencies
     candidates = []
-    for i, idx in enumerate(indices[0]):
+    for i, idx in enumerate(indices):
         if idx < len(keywords):
             keyword = keywords[idx]
-            similarity = distances[0][i]  # Higher is better for cosine similarity
+            similarity = distances[i]  # Higher is better for cosine similarity
             frequency = keyword_counts[keyword]
             
             # Create a combined score: similarity + normalized frequency bonus
             # Normalize frequency to 0-1 range based on max frequency
-            max_freq = max(keyword_counts.values())
             freq_bonus = (frequency / max_freq) * 0.3  # 30% weight for frequency
             combined_score = similarity + freq_bonus
             
@@ -376,15 +393,18 @@ def process_language(args):
     # Step 3: Create FAISS index for keywords
     keyword_index, keyword_embeddings = create_keyword_index(unique_keywords, keyword_counts, args.model)
     
-    # Step 4: Process each document and find best matching keywords
-    print("Finding best keywords for each document...")
+    # Step 4: Process documents one by one to find best matching keywords
+    print("Finding best keywords for all documents...")
     updated_count = 0
     
-    for file_info in tqdm(file_data, desc="Processing documents"):
-        # Create document vector from title, description and content
+    # Process each file individually
+    for idx, file_info in enumerate(file_data):
+        print(f"Processing document {idx + 1}/{len(file_data)}: {file_info['rel_path']}")
+        
+        # Get document text (only url/path, title, and description)
         doc_text = file_info['full_text']
         
-        # Find best matching keywords
+        # Find best matching keywords for this document
         best_keywords = find_best_keywords_for_document(
             doc_text, unique_keywords, keyword_counts, keyword_index, keyword_embeddings, args.model, args.top_k
         )
@@ -392,6 +412,7 @@ def process_language(args):
         # Update file with keywords
         if best_keywords and update_file_frontmatter(file_info, best_keywords):
             updated_count += 1
+            print(f"Updated {file_info['rel_path']} with keywords: {best_keywords}")
     
     print(f"\nProcessing complete for {args.lang}")
     print(f"Updated {updated_count} files with linkbuilding keywords")

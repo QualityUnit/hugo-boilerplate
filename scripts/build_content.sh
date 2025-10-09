@@ -158,7 +158,7 @@ run_step() {
                             --lang "$lang" \
                             --top-k 10 \
                             --min-keyword-freq 3 \
-                            --min-files 2 \
+                            --min-files 5 \
                             --min-ngram 2 \
                             --max-ngram 4 2>&1 | \
                             sed "s/^/[$lang] /"
