@@ -29,26 +29,42 @@ echo -e "${BLUE}Hugo root: ${HUGO_ROOT}${NC}"
 echo -e "${BLUE}=== Building Content for Hugo Site ===${NC}"
 echo -e "${BLUE}Hugo root: ${HUGO_ROOT}${NC}"
 
-# Create a virtual environment if it doesn't exist
+# Setup virtual environment
 VENV_DIR="${SCRIPT_DIR}/.venv"
+
+# Check if venv exists and has required packages
 if [ ! -d "$VENV_DIR" ]; then
     echo -e "${YELLOW}Creating virtual environment...${NC}"
     python3 -m venv "$VENV_DIR"
+    NEED_INSTALL=true
 else
-    echo -e "${YELLOW}Using existing virtual environment...${NC}"
+    echo -e "${YELLOW}Using existing virtual environment at $VENV_DIR${NC}"
+    # Check if beautifulsoup4 is installed (as a proxy for all deps)
+    if ! "${VENV_DIR}/bin/python" -c "import bs4" 2>/dev/null; then
+        echo -e "${YELLOW}Virtual environment exists but dependencies are missing${NC}"
+        NEED_INSTALL=true
+    else
+        echo -e "${GREEN}Virtual environment has required dependencies${NC}"
+        NEED_INSTALL=false
+    fi
 fi
 
 # Activate the virtual environment
 echo -e "${YELLOW}Activating virtual environment...${NC}"
 source "${VENV_DIR}/bin/activate"
 
-# Install or upgrade pip
-echo -e "${YELLOW}Upgrading pip...${NC}"
-pip install --upgrade pip
-
-# Install requirements
-echo -e "${YELLOW}Installing requirements...${NC}"
-pip install -r "${SCRIPT_DIR}/requirements.txt"
+# Only install if needed
+if [ "$NEED_INSTALL" = true ]; then
+    # Install or upgrade pip
+    echo -e "${YELLOW}Upgrading pip...${NC}"
+    pip install --upgrade pip
+    
+    # Install requirements
+    echo -e "${YELLOW}Installing requirements...${NC}"
+    pip install -r "${SCRIPT_DIR}/requirements.txt"
+else
+    echo -e "${GREEN}Skipping dependency installation - already installed${NC}"
+fi
 
 # Check for FlowHunt API key
 if [ -z "$FLOWHUNT_API_KEY" ]; then
@@ -365,12 +381,22 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
             echo -e "  - Current directory: $(pwd)"
             echo -e "  - HUGO_ROOT: ${HUGO_ROOT}"
             echo -e "  - VENV_DIR: ${VENV_DIR}"
-            echo -e "  - Python version: $(${VENV_DIR}/bin/python --version 2>&1)"
+            echo -e "  - VENV_DIR exists: $([ -d "${VENV_DIR}" ] && echo 'YES' || echo 'NO')"
+            echo -e "  - Python binary exists: $([ -f "${VENV_DIR}/bin/python" ] && echo 'YES' || echo 'NO')"
             
-            # Check Python dependencies
-            echo -e "${YELLOW}[DEBUG] Checking Python dependencies:${NC}"
-            ${VENV_DIR}/bin/python -c "import bs4; print('  ✓ beautifulsoup4 version:', bs4.__version__)" 2>&1 || echo -e "  ${RED}✗ beautifulsoup4 NOT FOUND${NC}"
-            ${VENV_DIR}/bin/python -c "import yaml; print('  ✓ pyyaml installed')" 2>&1 || echo -e "  ${RED}✗ pyyaml NOT FOUND${NC}"
+            # Check if the venv Python is accessible
+            if [ -f "${VENV_DIR}/bin/python" ]; then
+                echo -e "  - Python version: $(${VENV_DIR}/bin/python --version 2>&1)"
+                
+                # Check Python dependencies
+                echo -e "${YELLOW}[DEBUG] Checking Python dependencies:${NC}"
+                ${VENV_DIR}/bin/python -c "import bs4; print('  ✓ beautifulsoup4 version:', bs4.__version__)" 2>&1 || echo -e "  ${RED}✗ beautifulsoup4 NOT FOUND${NC}"
+                ${VENV_DIR}/bin/python -c "import yaml; print('  ✓ pyyaml installed')" 2>&1 || echo -e "  ${RED}✗ pyyaml NOT FOUND${NC}"
+            else
+                echo -e "  ${RED}ERROR: Python binary not found at ${VENV_DIR}/bin/python${NC}"
+                echo -e "  ${RED}Virtual environment may not be properly initialized${NC}"
+                exit 1
+            fi
             
             # Check if public directory exists
             if [ ! -d "${HUGO_ROOT}/public" ]; then
