@@ -364,7 +364,28 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
             if [ ! -d "${HUGO_ROOT}/public" ]; then
                 echo -e "${YELLOW}Warning: Public directory not found. Skipping linkbuilding.${NC}"
                 echo -e "${YELLOW}Run 'hugo' to generate the public directory first.${NC}"
+                exit 1
             else
+                # Check what language directories were actually built
+                echo -e "${YELLOW}Checking built language directories:${NC}"
+                for lang_code in en ar cs da de es fi fr it ja ko nl no pl pt ro sk sv tr vi zh; do
+                    if [ "$lang_code" = "en" ]; then
+                        # English is at root
+                        if [ -f "${HUGO_ROOT}/public/index.html" ]; then
+                            echo -e "  ✓ English (en) - found at root"
+                        else
+                            echo -e "  ✗ English (en) - NOT FOUND"
+                        fi
+                    else
+                        if [ -d "${HUGO_ROOT}/public/${lang_code}" ]; then
+                            file_count=$(find "${HUGO_ROOT}/public/${lang_code}" -name "*.html" 2>/dev/null | wc -l)
+                            echo -e "  ✓ ${lang_code} - ${file_count} HTML files"
+                        else
+                            echo -e "  ✗ ${lang_code} - directory not found"
+                        fi
+                    fi
+                done
+                
                 echo -e "${YELLOW}[DEBUG] Executing: ${VENV_DIR}/bin/python ${SCRIPT_DIR}/linkbuilding_parallel.py --linkbuilding-dir ${HUGO_ROOT}/data/linkbuilding --public-dir ${HUGO_ROOT}/public${NC}"
                 
                 "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/linkbuilding_parallel.py" \
@@ -373,10 +394,14 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
                     --script-path "${SCRIPT_DIR}/linkbuilding.py" \
                     --max-workers 8
                 
-                if [ $? -eq 0 ]; then
+                EXIT_CODE=$?
+                if [ $EXIT_CODE -eq 0 ]; then
                     echo -e "${GREEN}Parallel linkbuilding completed successfully!${NC}"
                 else
-                    echo -e "${YELLOW}Warning: Some languages failed during linkbuilding${NC}"
+                    echo -e "${YELLOW}Warning: Linkbuilding exited with code $EXIT_CODE${NC}"
+                    echo -e "${YELLOW}This may mean some languages were skipped - check the logs above${NC}"
+                    # Don't fail the build for linkbuilding issues
+                    exit 0
                 fi
             fi
             
