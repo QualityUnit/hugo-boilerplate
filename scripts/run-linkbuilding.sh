@@ -133,7 +133,7 @@ else
     
     if [ ! -d "$LANG_DIR" ]; then
         echo "Error: Language directory not found: $LANG_DIR"
-        echo "Please build the site first: hugo --configDir config_${LANGUAGE}"
+        echo "Please build the site first: hugo --buildFuture --configDir config_${LANGUAGE}"
         exit 1
     fi
     
