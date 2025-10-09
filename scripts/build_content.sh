@@ -331,7 +331,7 @@ run_step() {
                     --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
                     --public-dir "${HUGO_ROOT}/public" \
                     --output-dir "${HUGO_ROOT}/data/linkbuilding/optimized" \
-                    --max-workers 8
+                    --max-workers 4
                 
                 if [ $? -eq 0 ]; then
                     echo -e "${GREEN}Linkbuilding optimization completed!${NC}"
@@ -392,7 +392,7 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
                     --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
                     --public-dir "${HUGO_ROOT}/public" \
                     --script-path "${SCRIPT_DIR}/linkbuilding.py" \
-                    --max-workers 8
+                    --max-workers 4
                 
                 EXIT_CODE=$?
                 if [ $EXIT_CODE -eq 0 ]; then

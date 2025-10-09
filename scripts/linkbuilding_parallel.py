@@ -15,6 +15,13 @@ from typing import List, Tuple, Dict, Optional
 import time
 import logging
 
+# Try to import psutil for memory monitoring, but don't fail if it's not available
+try:
+    import psutil
+    MEMORY_MONITORING = True
+except ImportError:
+    MEMORY_MONITORING = False
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -250,8 +257,8 @@ Examples:
                        help='Configuration file for linkbuilding')
     parser.add_argument('--dry-run', action='store_true',
                        help='Analyze without modifying files')
-    parser.add_argument('--max-workers', type=int, default=8,
-                       help='Maximum number of parallel workers (default: 8)')
+    parser.add_argument('--max-workers', type=int, default=4,
+                       help='Maximum number of parallel workers (default: 4, reduce if memory issues occur)')
     parser.add_argument('--languages', nargs='+',
                        help='Specific languages to process (default: all)')
     parser.add_argument('--exclude-languages', nargs='+',
@@ -316,9 +323,18 @@ Examples:
     
     # Run linkbuilding in parallel
     logger.info(f"Starting parallel linkbuilding with {args.max_workers} workers...")
+    
+    # Report initial memory usage if available
+    if MEMORY_MONITORING:
+        process = psutil.Process()
+        mem_info = process.memory_info()
+        logger.info(f"Initial memory usage: {mem_info.rss / 1024 / 1024:.1f} MB")
+    
     start_time = time.time()
     
     results = []
+    # Use ThreadPoolExecutor for better memory efficiency
+    # Threads share memory, which is more efficient for I/O-bound tasks like file processing
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.max_workers) as executor:
         # Submit all tasks
         futures = {
@@ -362,6 +378,12 @@ Examples:
     logger.info(f"🔗 Total links added: {total_links:,}")
     logger.info(f"📄 Total files modified: {total_files_modified:,}")
     logger.info(f"📁 Total files processed: {total_files_processed:,}")
+    
+    # Report final memory usage if available
+    if MEMORY_MONITORING:
+        process = psutil.Process()
+        mem_info = process.memory_info()
+        logger.info(f"💾 Final memory usage: {mem_info.rss / 1024 / 1024:.1f} MB")
     
     if successful:
         logger.info("\n📊 Per-Language Statistics:")
