@@ -269,7 +269,7 @@ Design Tokens:
           {{/* Build typewriter attributes efficiently */}}
           {{ $typewriterAttrs := "" }}
           {{ if $typewriter.enabled }}
-            {{ $typewriterAttrs = printf ` data-typewriter data-typewriter-words="%d" data-typewriter-word-alternatives="%s" data-typewriter-speed="%d" data-typewriter-delete-speed="%d" data-typewriter-pause="%d" data-typewriter-color="%s"` $typewriter.words $typewriter.wordAlternatives $typewriter.speed $typewriter.deleteSpeed $typewriter.pause $typewriter.color }}
+            {{ $typewriterAttrs = printf ` data-typewriter data-typewriter-words="%s" data-typewriter-word-alternatives="%s" data-typewriter-speed="%d" data-typewriter-delete-speed="%d" data-typewriter-pause="%d" data-typewriter-color="%s"` $typewriter.words $typewriter.wordAlternatives $typewriter.speed $typewriter.deleteSpeed $typewriter.pause $typewriter.color }}
           {{ end }}
 
           <h1 class="mt-6 {{ $fontSizeClass }} font-semibold {{ $headingTracking }} text-heading {{ $lineHeightClass }}" 
