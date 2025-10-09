@@ -360,10 +360,23 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
             echo -e "${BLUE}=== Step 4.6: Applying Linkbuilding (Parallel) ===${NC}"
             echo -e "${YELLOW}Running parallel linkbuilding for all languages...${NC}"
             
+            # Log environment details for debugging
+            echo -e "${YELLOW}[DEBUG] Environment details:${NC}"
+            echo -e "  - Current directory: $(pwd)"
+            echo -e "  - HUGO_ROOT: ${HUGO_ROOT}"
+            echo -e "  - VENV_DIR: ${VENV_DIR}"
+            echo -e "  - Python version: $(${VENV_DIR}/bin/python --version 2>&1)"
+            
+            # Check Python dependencies
+            echo -e "${YELLOW}[DEBUG] Checking Python dependencies:${NC}"
+            ${VENV_DIR}/bin/python -c "import bs4; print('  ✓ beautifulsoup4 version:', bs4.__version__)" 2>&1 || echo -e "  ${RED}✗ beautifulsoup4 NOT FOUND${NC}"
+            ${VENV_DIR}/bin/python -c "import yaml; print('  ✓ pyyaml installed')" 2>&1 || echo -e "  ${RED}✗ pyyaml NOT FOUND${NC}"
+            
             # Check if public directory exists
             if [ ! -d "${HUGO_ROOT}/public" ]; then
-                echo -e "${YELLOW}Warning: Public directory not found. Skipping linkbuilding.${NC}"
-                echo -e "${YELLOW}Run 'hugo' to generate the public directory first.${NC}"
+                echo -e "${RED}ERROR: Public directory not found at ${HUGO_ROOT}/public${NC}"
+                echo -e "${RED}Cannot run linkbuilding without Hugo build output.${NC}"
+                echo -e "${YELLOW}Please ensure Hugo build completes successfully before linkbuilding.${NC}"
                 exit 1
             else
                 # Check what language directories were actually built
@@ -386,22 +399,47 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
                     fi
                 done
                 
-                echo -e "${YELLOW}[DEBUG] Executing: ${VENV_DIR}/bin/python ${SCRIPT_DIR}/linkbuilding_parallel.py --linkbuilding-dir ${HUGO_ROOT}/data/linkbuilding --public-dir ${HUGO_ROOT}/public${NC}"
+                # Check linkbuilding data directory
+                echo -e "${YELLOW}[DEBUG] Checking linkbuilding data:${NC}"
+                if [ -d "${HUGO_ROOT}/data/linkbuilding" ]; then
+                    echo -e "  ✓ Linkbuilding data directory exists"
+                    file_count=$(find "${HUGO_ROOT}/data/linkbuilding" -name "*.json" -o -name "*.yaml" 2>/dev/null | wc -l)
+                    echo -e "  - Found ${file_count} data files"
+                else
+                    echo -e "  ${RED}✗ Linkbuilding data directory NOT FOUND at ${HUGO_ROOT}/data/linkbuilding${NC}"
+                fi
                 
+                echo -e "${YELLOW}[DEBUG] Executing linkbuilding command:${NC}"
+                echo -e "  ${VENV_DIR}/bin/python ${SCRIPT_DIR}/linkbuilding_parallel.py \\"
+                echo -e "    --linkbuilding-dir ${HUGO_ROOT}/data/linkbuilding \\"
+                echo -e "    --public-dir ${HUGO_ROOT}/public \\"
+                echo -e "    --script-path ${SCRIPT_DIR}/linkbuilding.py \\"
+                echo -e "    --max-workers 4"
+                
+                # Run with explicit error capture
+                ERROR_LOG=$(mktemp)
                 "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/linkbuilding_parallel.py" \
                     --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
                     --public-dir "${HUGO_ROOT}/public" \
                     --script-path "${SCRIPT_DIR}/linkbuilding.py" \
-                    --max-workers 4
+                    --max-workers 4 2>"${ERROR_LOG}"
                 
                 EXIT_CODE=$?
+                
+                # Show any error output
+                if [ -s "${ERROR_LOG}" ]; then
+                    echo -e "${YELLOW}[DEBUG] Stderr output from linkbuilding:${NC}"
+                    cat "${ERROR_LOG}"
+                fi
+                rm -f "${ERROR_LOG}"
+                
                 if [ $EXIT_CODE -eq 0 ]; then
                     echo -e "${GREEN}Parallel linkbuilding completed successfully!${NC}"
                 else
-                    echo -e "${YELLOW}Warning: Linkbuilding exited with code $EXIT_CODE${NC}"
-                    echo -e "${YELLOW}This may mean some languages were skipped - check the logs above${NC}"
-                    # Don't fail the build for linkbuilding issues
-                    exit 0
+                    echo -e "${RED}ERROR: Linkbuilding failed with exit code $EXIT_CODE${NC}"
+                    echo -e "${YELLOW}Please check the error messages above for details.${NC}"
+                    # Exit with error code to properly report failure
+                    exit $EXIT_CODE
                 fi
             fi
             

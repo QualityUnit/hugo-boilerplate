@@ -276,32 +276,77 @@ Examples:
     linkbuilding_dir = Path(args.linkbuilding_dir)
     public_dir = Path(args.public_dir)
     
+    # Log current working directory and paths for debugging
+    logger.info(f"Current working directory: {os.getcwd()}")
+    logger.info(f"Linkbuilding directory path: {linkbuilding_dir.absolute()}")
+    logger.info(f"Public directory path: {public_dir.absolute()}")
+    
     # Validate directories
     if not linkbuilding_dir.exists():
-        logger.error(f"Linkbuilding directory not found: {linkbuilding_dir}")
+        logger.error(f"ERROR: Linkbuilding directory not found: {linkbuilding_dir.absolute()}")
+        logger.error(f"Expected to find linkbuilding data files at this location")
+        logger.error(f"Please ensure the linkbuilding data generation step has been completed")
         sys.exit(1)
+    else:
+        # Log what we found in the directory
+        json_files = list(linkbuilding_dir.glob('*.json'))
+        logger.info(f"Found {len(json_files)} JSON files in linkbuilding directory")
+        if json_files:
+            logger.info(f"Available files: {', '.join(f.name for f in json_files[:5])}...")
+    
     if not public_dir.exists():
-        logger.error(f"Public directory not found: {public_dir}")
+        logger.error(f"ERROR: Public directory not found: {public_dir.absolute()}")
+        logger.error(f"Expected to find Hugo's generated HTML files at this location")
+        logger.error(f"Please ensure Hugo build has completed successfully before running linkbuilding")
         sys.exit(1)
+    else:
+        # Check if there are any HTML files
+        html_count = len(list(public_dir.rglob('*.html')))
+        logger.info(f"Found {html_count} HTML files in public directory")
     
     # Find script path
+    logger.info(f"Looking for linkbuilding.py script...")
     if not Path(args.script_path).exists():
         # Try in same directory as this script
         script_dir = Path(__file__).parent
         script_path = script_dir / 'linkbuilding.py'
         if not script_path.exists():
-            logger.error(f"linkbuilding.py not found at {args.script_path} or {script_path}")
+            logger.error(f"ERROR: linkbuilding.py script not found")
+            logger.error(f"  Checked: {Path(args.script_path).absolute()}")
+            logger.error(f"  Checked: {script_path.absolute()}")
+            logger.error(f"Please ensure linkbuilding.py exists in the scripts directory")
             sys.exit(1)
+        else:
+            logger.info(f"Found linkbuilding.py at: {script_path.absolute()}")
     else:
         script_path = Path(args.script_path)
+        logger.info(f"Using linkbuilding.py at: {script_path.absolute()}")
     
     # Find all language configurations
     logger.info("Discovering language configurations...")
     languages = find_language_files(linkbuilding_dir, public_dir)
     
     if not languages:
-        logger.error("No language configurations found - this likely means Hugo hasn't built the public directory yet")
-        logger.error(f"Please ensure Hugo has been run and the public directory ({public_dir}) contains HTML files")
+        logger.error("ERROR: No language configurations found")
+        logger.error(f"  Linkbuilding directory: {linkbuilding_dir.absolute()}")
+        logger.error(f"  Public directory: {public_dir.absolute()}")
+        logger.error("Possible causes:")
+        logger.error("  1. Hugo hasn't built the public directory yet")
+        logger.error("  2. Linkbuilding data files (*_automatic.json) are missing")
+        logger.error("  3. Language directories don't match between data and public folders")
+        
+        # Show what's actually in the directories for debugging
+        auto_files = list(linkbuilding_dir.glob('*_automatic.json'))
+        if auto_files:
+            logger.error(f"Found automatic files: {', '.join(f.name for f in auto_files)}")
+        else:
+            logger.error("No *_automatic.json files found in linkbuilding directory")
+        
+        # Check public directory structure
+        subdirs = [d for d in public_dir.iterdir() if d.is_dir()]
+        if subdirs:
+            logger.error(f"Public subdirectories: {', '.join(d.name for d in subdirs[:10])}")
+        
         sys.exit(1)
     
     # Filter languages if specified
