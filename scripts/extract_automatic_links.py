@@ -261,12 +261,24 @@ def save_links_to_json(links: List[Dict], output_file: str) -> None:
     # Convert to proper format with capitalized field names
     formatted_links = []
     for link in links:
+        # Calculate priority based on keyword length
+        # Longer keywords get higher priority
+        keyword_length = len(link['keyword'])
+        base_priority = link.get('priority', 1)
+        
+        # Add bonus priority based on keyword length
+        # For example: keywords with 10+ chars get +3, 20+ chars get +6, etc.
+        length_bonus = keyword_length // 5  # +1 priority for every 5 characters
+        
+        # Final priority is base priority plus length bonus
+        final_priority = base_priority + length_bonus
+        
         formatted_links.append({
             "Keyword": link['keyword'],
             "URL": link['url'],
             "Title": link['title'],
             "Exact": False,  # Default for automatic links
-            "Priority": link.get('priority', 1)  # Use calculated priority or default to 1
+            "Priority": final_priority
         })
     
     # Sort links by keyword for consistent output
