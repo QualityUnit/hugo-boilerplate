@@ -80,7 +80,7 @@ def parse_args():
     parser.add_argument(
         "--path",
         type=str,
-        default=os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "content")),
+        default=os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "content")),
         help="Absolute path to the content directory"
     )
     parser.add_argument("--min-ngram", type=int, default=DEFAULT_MIN_NGRAM,
