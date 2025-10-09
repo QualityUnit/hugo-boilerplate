@@ -66,19 +66,7 @@ else
     echo -e "${GREEN}Skipping dependency installation - already installed${NC}"
 fi
 
-# Check for FlowHunt API key
-if [ -z "$FLOWHUNT_API_KEY" ]; then
-    echo -e "${YELLOW}Checking for FlowHunt API key...${NC}"
-    if [ ! -f "${SCRIPT_DIR}/.env" ]; then
-        echo -e "${YELLOW}No .env file found. Please enter your FlowHunt API key:${NC}"
-        read -p "FlowHunt API Key: " flow_api_key
-        echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
-    elif ! grep -q "FLOWHUNT_API_KEY" "${SCRIPT_DIR}/.env"; then
-        echo -e "${YELLOW}FlowHunt API key not found in .env file. Please enter your FlowHunt API key:${NC}"
-        read -p "FlowHunt API Key: " flow_api_key
-        echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
-    fi
-fi
+# FlowHunt API key check moved to translate step where it's actually needed
 
 # Parse arguments for step selection
 STEPS_TO_RUN=()
@@ -121,6 +109,26 @@ run_step() {
             ;;
         translate)
             echo -e "${BLUE}=== Step 3: Translating Missing Content with FlowHunt API ===${NC}"
+            
+            # Check for FlowHunt API key (only needed for translation)
+            # Skip in non-interactive environments (like GitHub Actions)
+            if [ -z "$FLOWHUNT_API_KEY" ] && [ -t 0 ]; then
+                echo -e "${YELLOW}Checking for FlowHunt API key...${NC}"
+                if [ ! -f "${SCRIPT_DIR}/.env" ]; then
+                    echo -e "${YELLOW}No .env file found. Please enter your FlowHunt API key:${NC}"
+                    read -p "FlowHunt API Key: " flow_api_key
+                    echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
+                elif ! grep -q "FLOWHUNT_API_KEY" "${SCRIPT_DIR}/.env"; then
+                    echo -e "${YELLOW}FlowHunt API key not found in .env file. Please enter your FlowHunt API key:${NC}"
+                    read -p "FlowHunt API Key: " flow_api_key
+                    echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
+                fi
+            elif [ -z "$FLOWHUNT_API_KEY" ]; then
+                echo -e "${YELLOW}Warning: FlowHunt API key not set. Translation step will be skipped.${NC}"
+                echo -e "${YELLOW}To use translation, set FLOWHUNT_API_KEY environment variable.${NC}"
+                exit 0
+            fi
+            
             echo -e "${YELLOW}Running FlowHunt translation script...${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translate_with_flowhunt.py --path ${HUGO_ROOT}/content${NC}"
             python "${SCRIPT_DIR}/translate_with_flowhunt.py" --path "${HUGO_ROOT}/content"
