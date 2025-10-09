@@ -314,12 +314,24 @@ Examples:
     
     # Build extra arguments
     extra_args = []
+    # Override with reasonable limits if not specified
     if args.max_links:
         extra_args.extend(['--max-links', str(args.max_links)])
+    else:
+        # Default to reasonable limit
+        extra_args.extend(['--max-links', '15'])
+    
     if args.max_keyword:
         extra_args.extend(['--max-keyword', str(args.max_keyword)])
+    else:
+        # Default to reasonable limit
+        extra_args.extend(['--max-keyword', '1'])
+    
     if args.max_url:
         extra_args.extend(['--max-url', str(args.max_url)])
+    else:
+        # Default to reasonable limit
+        extra_args.extend(['--max-url', '3'])
     
     # Run linkbuilding in parallel
     logger.info(f"Starting parallel linkbuilding with {args.max_workers} workers...")
