@@ -55,7 +55,7 @@
     {{ end }}
   </div>
   <!-- Pagination -->
-  {{ if gt $paginator.TotalPages 1 }}`
+  {{ if gt $paginator.TotalPages 1 }}
     {{partial "components/pagination/pagination.html" $paginator }}
   {{ end }}
 {{ end }}
