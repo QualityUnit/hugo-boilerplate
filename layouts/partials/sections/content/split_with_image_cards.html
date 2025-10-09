@@ -72,8 +72,10 @@ Example:
                         {{ end }}
                         
                         <div class="relative z-10 flex flex-col h-full bg-[#F9FAFB]">
+                            <div class="flex-grow bg-[#F9FAFB]"></div>
+
                             {{ with $cardSchemaImage }}
-                                <div class="pt-12 px-12 flex-shrink-0">
+                                <div class="flex-shrink-0">
                                     {{ partial "components/media/lazyimg.html" (dict
                                         "src" .
                                         "alt" $cardImageAlt
@@ -84,6 +86,7 @@ Example:
                             {{ end }}
 
                             <div class="flex-grow bg-[#F9FAFB]"></div>
+
 
                             <div class="flex max-lg:flex-col max-lg:mt-2 lg:items-center gap-x-7 py-6 px-8 bg-gray-100 text-black flex-shrink-0">
                                 <div class="content flex-grow">
