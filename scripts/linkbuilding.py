@@ -50,15 +50,15 @@ class Keyword:
 @dataclass
 class LinkConfig:
     """Configuration for linkbuilding"""
-    max_replacements_per_keyword: int = 1  # Reduced from 2
-    max_replacements_per_url: int = 3  # Reduced from 5
+    max_replacements_per_keyword: int = 2  # Reduced from 2
+    max_replacements_per_url: int = 2  # Reduced from 5
     max_replacements_per_keyword_url: int = 1
-    max_links_on_page: int = 20  # Dramatically reduced from 500!
-    max_replacements_per_page: int = 15  # Reduced from 50
+    max_links_on_page: int = 50  # Dramatically reduced from 500!
+    max_replacements_per_page: int = 30  # Reduced from 50
     max_replacements_per_paragraph: int = 3  # Reduced from 10
-    min_chars_between_links: int = 50  # Increased from 2 to avoid link clustering
-    min_paragraph_length: int = 50  # Increased from 30
-    max_paragraph_density: int = 100  # Increased from 30 - min chars per link in paragraph
+    min_chars_between_links: int = 1  # Increased from 2 to avoid link clustering
+    min_paragraph_length: int = 30  # Increased from 30
+    max_paragraph_density: int = 30  # Increased from 30 - min chars per link in paragraph
     skip_existing_links: bool = True
     preserve_case: bool = True
     add_title_attribute: bool = True
