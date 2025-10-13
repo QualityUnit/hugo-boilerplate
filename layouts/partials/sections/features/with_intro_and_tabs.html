@@ -19,6 +19,7 @@
   - widthContainer: Controls the width and layout of the container:
     * "wide" (default): wrapper width with two-column layout (text left, image right)
     * "narrow": wrapper-narrow width with one-column layout (image on top, text below)
+    * When hasWrapperNarrower is set via page.Scratch, uses px-8 instead of wrapper classes
   - activeTab: ID of the tab that should be active by default (default: first tab)
   - tabs: Array of tab objects with the following structure:
     - id: Unique ID for the tab
@@ -43,6 +44,12 @@
 {{ $uniqueID := printf "features-tabs-%s" (.heading | urlize | default (now.Format "150405")) }}
 {{ $activeTab := .activeTab }}
 {{ $tabs := .tabs | default (slice) }}
+
+{{/* Check if the page uses wrapper-narrower layout */}}
+{{ $hasWrapperNarrower := false }}
+{{ if $page }}
+  {{ $hasWrapperNarrower = $page.Scratch.Get "hasWrapperNarrower" | default false }}
+{{ end }}
 
 {{ $defaultActiveTabId := "" }}
 {{ if $tabs }}
@@ -148,7 +155,11 @@
 {{/* --- FINAL RENDER --- */}}
 <section aria-labelledby="{{ $uniqueID }}-heading" class="{{ $darkClass }}">
   <div class="section-bg-light dark:section-bg-dark py-24 sm:py-32">
-    <div class="mx-auto {{ if eq $widthContainer "narrow" }}wrapper-narrow{{ else }}wrapper{{ end }} surface-secondary rounded-xl lg:px-8">
+    {{ if $hasWrapperNarrower }}
+      <div class="mx-auto px-8">
+    {{ else }}
+      <div class="mx-auto {{ if eq $widthContainer "narrow" }}wrapper-narrow{{ else }}wrapper{{ end }} surface-secondary rounded-xl lg:px-8">
+    {{ end }}
       <div class="max-w-none">
         <div class="w-full py-8 md:pt-16 md:pb-8">
           {{ if $eyebrow }}
