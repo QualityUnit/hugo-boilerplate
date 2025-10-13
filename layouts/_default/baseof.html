@@ -21,10 +21,5 @@
 <!-- App JavaScript - non-critical interactions -->
 <script src="/js/app.js?v={{ partialCached "helpers/build-timestamp.html" . }}"></script>
 
-<!-- Body Scripts (tracking scripts for before closing body) -->
-{{ if templates.Exists "partials/tracking/body-scripts.html" }}
-  {{ partial "tracking/body-scripts.html" . }}
-{{ end }}
-
 </body>
 </html>
