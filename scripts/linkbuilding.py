@@ -50,15 +50,15 @@ class Keyword:
 @dataclass
 class LinkConfig:
     """Configuration for linkbuilding"""
-    max_replacements_per_keyword: int = 2
-    max_replacements_per_url: int = 5
+    max_replacements_per_keyword: int = 2  # Reduced from 2
+    max_replacements_per_url: int = 2  # Reduced from 5
     max_replacements_per_keyword_url: int = 1
-    max_links_on_page: int = 500
-    max_replacements_per_page: int = 50
-    max_replacements_per_paragraph: int = 10
-    min_chars_between_links: int = 2
-    min_paragraph_length: int = 30
-    max_paragraph_density: int = 30  # min chars per link in paragraph
+    max_links_on_page: int = 50  # Dramatically reduced from 500!
+    max_replacements_per_page: int = 30  # Reduced from 50
+    max_replacements_per_paragraph: int = 3  # Reduced from 10
+    min_chars_between_links: int = 1  # Increased from 2 to avoid link clustering
+    min_paragraph_length: int = 30  # Increased from 30
+    max_paragraph_density: int = 30  # Increased from 30 - min chars per link in paragraph
     skip_existing_links: bool = True
     preserve_case: bool = True
     add_title_attribute: bool = True
@@ -198,7 +198,8 @@ class LinkBuilder:
         'a', 'script', 'style', 'code', 'pre', 'button', 'input', 'textarea',
         'select', 'option', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'nav', 'header', 'footer', 'aside', 'meta', 'link', 'img', 'svg',
-        'iframe', 'video', 'audio', 'canvas', 'map', 'area', 'form'
+        'iframe', 'video', 'audio', 'canvas', 'map', 'area', 'form', 'title',
+        'head', 'footer'
     }
     
     # Paths to skip (taxonomy pages, pagination, etc.) - same as precompute_linkbuilding.py

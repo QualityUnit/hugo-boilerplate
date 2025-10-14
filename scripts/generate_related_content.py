@@ -293,8 +293,8 @@ def find_related_content(file_data, embeddings, top_k=TOP_K):
                     if related_dir:
                         related_path = related_dir
                 
-                # Skip if this is the same file or if the path matches
-                if j == i or related_path == current_normalized_path:
+                # Skip if this is the same file, if the path matches, or if it's an _index file
+                if j == i or related_path == current_normalized_path or related_is_index:
                     continue
                 
                 # Add to related content

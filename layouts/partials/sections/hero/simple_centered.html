@@ -101,7 +101,7 @@
 {{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 
 <div class="{{ $darkClass }}">
-  <div class="section-bg-light dark:section-bg-dark">
+  <div class="section-bg-light dark:section-bg-dark relative z-[1]">
     <div class="relative isolate">
         <div class="wrapper {{ $padding }}">
           <div class="mx-auto max-w-2xl text-center">

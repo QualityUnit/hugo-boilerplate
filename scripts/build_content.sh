@@ -29,40 +29,44 @@ echo -e "${BLUE}Hugo root: ${HUGO_ROOT}${NC}"
 echo -e "${BLUE}=== Building Content for Hugo Site ===${NC}"
 echo -e "${BLUE}Hugo root: ${HUGO_ROOT}${NC}"
 
-# Create a virtual environment if it doesn't exist
+# Setup virtual environment
 VENV_DIR="${SCRIPT_DIR}/.venv"
+
+# Check if venv exists and has required packages
 if [ ! -d "$VENV_DIR" ]; then
     echo -e "${YELLOW}Creating virtual environment...${NC}"
     python3 -m venv "$VENV_DIR"
+    NEED_INSTALL=true
 else
-    echo -e "${YELLOW}Using existing virtual environment...${NC}"
+    echo -e "${YELLOW}Using existing virtual environment at $VENV_DIR${NC}"
+    # Check if beautifulsoup4 is installed (as a proxy for all deps)
+    if ! "${VENV_DIR}/bin/python" -c "import bs4" 2>/dev/null; then
+        echo -e "${YELLOW}Virtual environment exists but dependencies are missing${NC}"
+        NEED_INSTALL=true
+    else
+        echo -e "${GREEN}Virtual environment has required dependencies${NC}"
+        NEED_INSTALL=false
+    fi
 fi
 
 # Activate the virtual environment
 echo -e "${YELLOW}Activating virtual environment...${NC}"
 source "${VENV_DIR}/bin/activate"
 
-# Install or upgrade pip
-echo -e "${YELLOW}Upgrading pip...${NC}"
-pip install --upgrade pip
-
-# Install requirements
-echo -e "${YELLOW}Installing requirements...${NC}"
-pip install -r "${SCRIPT_DIR}/requirements.txt"
-
-# Check for FlowHunt API key
-if [ -z "$FLOWHUNT_API_KEY" ]; then
-    echo -e "${YELLOW}Checking for FlowHunt API key...${NC}"
-    if [ ! -f "${SCRIPT_DIR}/.env" ]; then
-        echo -e "${YELLOW}No .env file found. Please enter your FlowHunt API key:${NC}"
-        read -p "FlowHunt API Key: " flow_api_key
-        echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
-    elif ! grep -q "FLOWHUNT_API_KEY" "${SCRIPT_DIR}/.env"; then
-        echo -e "${YELLOW}FlowHunt API key not found in .env file. Please enter your FlowHunt API key:${NC}"
-        read -p "FlowHunt API Key: " flow_api_key
-        echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
-    fi
+# Only install if needed
+if [ "$NEED_INSTALL" = true ]; then
+    # Install or upgrade pip
+    echo -e "${YELLOW}Upgrading pip...${NC}"
+    pip install --upgrade pip
+    
+    # Install requirements
+    echo -e "${YELLOW}Installing requirements...${NC}"
+    pip install -r "${SCRIPT_DIR}/requirements.txt"
+else
+    echo -e "${GREEN}Skipping dependency installation - already installed${NC}"
 fi
+
+# FlowHunt API key check moved to translate step where it's actually needed
 
 # Parse arguments for step selection
 STEPS_TO_RUN=()
@@ -105,6 +109,26 @@ run_step() {
             ;;
         translate)
             echo -e "${BLUE}=== Step 3: Translating Missing Content with FlowHunt API ===${NC}"
+            
+            # Check for FlowHunt API key (only needed for translation)
+            # Skip in non-interactive environments (like GitHub Actions)
+            if [ -z "$FLOWHUNT_API_KEY" ] && [ -t 0 ]; then
+                echo -e "${YELLOW}Checking for FlowHunt API key...${NC}"
+                if [ ! -f "${SCRIPT_DIR}/.env" ]; then
+                    echo -e "${YELLOW}No .env file found. Please enter your FlowHunt API key:${NC}"
+                    read -p "FlowHunt API Key: " flow_api_key
+                    echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
+                elif ! grep -q "FLOWHUNT_API_KEY" "${SCRIPT_DIR}/.env"; then
+                    echo -e "${YELLOW}FlowHunt API key not found in .env file. Please enter your FlowHunt API key:${NC}"
+                    read -p "FlowHunt API Key: " flow_api_key
+                    echo "FLOWHUNT_API_KEY=${flow_api_key}" >> "${SCRIPT_DIR}/.env"
+                fi
+            elif [ -z "$FLOWHUNT_API_KEY" ]; then
+                echo -e "${YELLOW}Warning: FlowHunt API key not set. Translation step will be skipped.${NC}"
+                echo -e "${YELLOW}To use translation, set FLOWHUNT_API_KEY environment variable.${NC}"
+                exit 0
+            fi
+            
             echo -e "${YELLOW}Running FlowHunt translation script...${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translate_with_flowhunt.py --path ${HUGO_ROOT}/content${NC}"
             python "${SCRIPT_DIR}/translate_with_flowhunt.py" --path "${HUGO_ROOT}/content"
@@ -158,7 +182,7 @@ run_step() {
                             --lang "$lang" \
                             --top-k 10 \
                             --min-keyword-freq 3 \
-                            --min-files 2 \
+                            --min-files 5 \
                             --min-ngram 2 \
                             --max-ngram 4 2>&1 | \
                             sed "s/^/[$lang] /"
@@ -331,7 +355,7 @@ run_step() {
                     --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
                     --public-dir "${HUGO_ROOT}/public" \
                     --output-dir "${HUGO_ROOT}/data/linkbuilding/optimized" \
-                    --max-workers 8
+                    --max-workers 4
                 
                 if [ $? -eq 0 ]; then
                     echo -e "${GREEN}Linkbuilding optimization completed!${NC}"
@@ -360,23 +384,96 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
             echo -e "${BLUE}=== Step 4.6: Applying Linkbuilding (Parallel) ===${NC}"
             echo -e "${YELLOW}Running parallel linkbuilding for all languages...${NC}"
             
+            # Log environment details for debugging
+            echo -e "${YELLOW}[DEBUG] Environment details:${NC}"
+            echo -e "  - Current directory: $(pwd)"
+            echo -e "  - HUGO_ROOT: ${HUGO_ROOT}"
+            echo -e "  - VENV_DIR: ${VENV_DIR}"
+            echo -e "  - VENV_DIR exists: $([ -d "${VENV_DIR}" ] && echo 'YES' || echo 'NO')"
+            echo -e "  - Python binary exists: $([ -f "${VENV_DIR}/bin/python" ] && echo 'YES' || echo 'NO')"
+            
+            # Check if the venv Python is accessible
+            if [ -f "${VENV_DIR}/bin/python" ]; then
+                echo -e "  - Python version: $(${VENV_DIR}/bin/python --version 2>&1)"
+                
+                # Check Python dependencies
+                echo -e "${YELLOW}[DEBUG] Checking Python dependencies:${NC}"
+                ${VENV_DIR}/bin/python -c "import bs4; print('  ✓ beautifulsoup4 version:', bs4.__version__)" 2>&1 || echo -e "  ${RED}✗ beautifulsoup4 NOT FOUND${NC}"
+                ${VENV_DIR}/bin/python -c "import yaml; print('  ✓ pyyaml installed')" 2>&1 || echo -e "  ${RED}✗ pyyaml NOT FOUND${NC}"
+            else
+                echo -e "  ${RED}ERROR: Python binary not found at ${VENV_DIR}/bin/python${NC}"
+                echo -e "  ${RED}Virtual environment may not be properly initialized${NC}"
+                exit 1
+            fi
+            
             # Check if public directory exists
             if [ ! -d "${HUGO_ROOT}/public" ]; then
-                echo -e "${YELLOW}Warning: Public directory not found. Skipping linkbuilding.${NC}"
-                echo -e "${YELLOW}Run 'hugo' to generate the public directory first.${NC}"
+                echo -e "${RED}ERROR: Public directory not found at ${HUGO_ROOT}/public${NC}"
+                echo -e "${RED}Cannot run linkbuilding without Hugo build output.${NC}"
+                echo -e "${YELLOW}Please ensure Hugo build completes successfully before linkbuilding.${NC}"
+                exit 1
             else
-                echo -e "${YELLOW}[DEBUG] Executing: ${VENV_DIR}/bin/python ${SCRIPT_DIR}/linkbuilding_parallel.py --linkbuilding-dir ${HUGO_ROOT}/data/linkbuilding --public-dir ${HUGO_ROOT}/public${NC}"
+                # Check what language directories were actually built
+                echo -e "${YELLOW}Checking built language directories:${NC}"
+                for lang_code in en ar cs da de es fi fr it ja ko nl no pl pt ro sk sv tr vi zh; do
+                    if [ "$lang_code" = "en" ]; then
+                        # English is at root
+                        if [ -f "${HUGO_ROOT}/public/index.html" ]; then
+                            echo -e "  ✓ English (en) - found at root"
+                        else
+                            echo -e "  ✗ English (en) - NOT FOUND"
+                        fi
+                    else
+                        if [ -d "${HUGO_ROOT}/public/${lang_code}" ]; then
+                            file_count=$(find "${HUGO_ROOT}/public/${lang_code}" -name "*.html" 2>/dev/null | wc -l)
+                            echo -e "  ✓ ${lang_code} - ${file_count} HTML files"
+                        else
+                            echo -e "  ✗ ${lang_code} - directory not found"
+                        fi
+                    fi
+                done
                 
+                # Check linkbuilding data directory
+                echo -e "${YELLOW}[DEBUG] Checking linkbuilding data:${NC}"
+                if [ -d "${HUGO_ROOT}/data/linkbuilding" ]; then
+                    echo -e "  ✓ Linkbuilding data directory exists"
+                    file_count=$(find "${HUGO_ROOT}/data/linkbuilding" -name "*.json" -o -name "*.yaml" 2>/dev/null | wc -l)
+                    echo -e "  - Found ${file_count} data files"
+                else
+                    echo -e "  ${RED}✗ Linkbuilding data directory NOT FOUND at ${HUGO_ROOT}/data/linkbuilding${NC}"
+                fi
+                
+                echo -e "${YELLOW}[DEBUG] Executing linkbuilding command:${NC}"
+                echo -e "  ${VENV_DIR}/bin/python ${SCRIPT_DIR}/linkbuilding_parallel.py \\"
+                echo -e "    --linkbuilding-dir ${HUGO_ROOT}/data/linkbuilding \\"
+                echo -e "    --public-dir ${HUGO_ROOT}/public \\"
+                echo -e "    --script-path ${SCRIPT_DIR}/linkbuilding.py \\"
+                echo -e "    --max-workers 8"
+                
+                # Run with explicit error capture
+                ERROR_LOG=$(mktemp)
                 "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/linkbuilding_parallel.py" \
                     --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
                     --public-dir "${HUGO_ROOT}/public" \
                     --script-path "${SCRIPT_DIR}/linkbuilding.py" \
-                    --max-workers 8
+                    --max-workers 8 2>"${ERROR_LOG}"
                 
-                if [ $? -eq 0 ]; then
+                EXIT_CODE=$?
+                
+                # Show any error output
+                if [ -s "${ERROR_LOG}" ]; then
+                    echo -e "${YELLOW}[DEBUG] Stderr output from linkbuilding:${NC}"
+                    cat "${ERROR_LOG}"
+                fi
+                rm -f "${ERROR_LOG}"
+                
+                if [ $EXIT_CODE -eq 0 ]; then
                     echo -e "${GREEN}Parallel linkbuilding completed successfully!${NC}"
                 else
-                    echo -e "${YELLOW}Warning: Some languages failed during linkbuilding${NC}"
+                    echo -e "${RED}ERROR: Linkbuilding failed with exit code $EXIT_CODE${NC}"
+                    echo -e "${YELLOW}Please check the error messages above for details.${NC}"
+                    # Exit with error code to properly report failure
+                    exit $EXIT_CODE
                 fi
             fi
             

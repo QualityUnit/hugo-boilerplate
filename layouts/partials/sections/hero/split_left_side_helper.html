@@ -40,7 +40,27 @@
         {{ $eyebrowColor := .eyebrowColor | default "text-primary" }}
         <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ .eyebrow }}</p>
     {{ end }}
-    {{ if $heading }}<h1 class="mt-6 text-5xl font-semibold tracking-[-2.832px] text-heading leading-none text-pretty sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>{{ end }}
+    {{ if $heading }}
+        {{ $headingLength := len $heading }}
+        {{ $lineHeightClass := "leading-tight" }}
+        
+        {{/* Get dynamic font classes from shared partial */}}
+        {{ $fontConfig := partial "helpers/dynamic-font-classes.html" (dict "headingLength" $headingLength) }}
+        {{ $fontSizeClass := $fontConfig.fontSizeClass }}
+        {{ $headingTracking := $fontConfig.headingTracking }}
+        
+        {{/* Build typewriter attributes efficiently */}}
+        {{ $typewriterAttrs := "" }}
+        {{ if $typewriter.enabled }}
+            {{ $typewriterAttrs = printf ` data-typewriter data-typewriter-words="%s" data-typewriter-word-alternatives="%s" data-typewriter-speed="%d" data-typewriter-delete-speed="%d" data-typewriter-pause="%d" data-typewriter-color="%s"` $typewriter.words $typewriter.wordAlternatives $typewriter.speed $typewriter.deleteSpeed $typewriter.pause $typewriter.color }}
+        {{ end }}
+
+        <h1 class="mt-6 {{ $fontSizeClass }} font-semibold {{ $headingTracking }} text-heading {{ $lineHeightClass }}" 
+            data-dynamic-font 
+            data-text-length="{{ $headingLength }}"{{ $typewriterAttrs | safeHTMLAttr }}>
+            {{ $heading }}
+        </h1>
+    {{ end }}
     {{ if $description }}
     <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
     {{ end }}

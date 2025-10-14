@@ -1,13 +1,18 @@
 {{ define "main" }}
 
+{{/* Set page context for shortcodes to know about wrapper-narrower-content usage */}}
+{{ .Scratch.Set "hasWrapperNarrower" true }}
+
 {{ partial "breadcrumbs_default.html" . }}
 {{ partial "hero_default.html" . }}
 
 <!-- Main Content -->
 <div class="bg-white">
   <div class="wrapper">
-    <div class="mx-auto max-w-none prose">
-      {{ .Content }}
+    <div class="wrapper-content">
+      <div class="mx-auto max-w-none prose">
+        {{ .Content }}
+      </div>
     </div>
   </div>
 </div>

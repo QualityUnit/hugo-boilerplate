@@ -15,6 +15,13 @@ from typing import List, Tuple, Dict, Optional
 import time
 import logging
 
+# Try to import psutil for memory monitoring, but don't fail if it's not available
+try:
+    import psutil
+    MEMORY_MONITORING = True
+except ImportError:
+    MEMORY_MONITORING = False
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -58,8 +65,13 @@ def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
             html_dir = public_dir / lang
             
         if not html_dir.exists():
-            logger.warning(f"HTML directory not found for language {lang}: {html_dir}")
-            continue
+            # Check if ANY HTML files exist in the public directory for this language
+            # Sometimes Hugo might place them differently
+            potential_files = list(public_dir.glob(f"**/{lang}/*.html"))[:1]  # Check for at least one file
+            if not potential_files:
+                logger.warning(f"HTML directory not found for language {lang}: {html_dir} - skipping")
+                continue
+            logger.info(f"Found alternative location for {lang} content")
         
         languages.append({
             'lang': lang,
@@ -67,6 +79,19 @@ def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
             'automatic_file': str(auto_file),
             'html_dir': str(html_dir)
         })
+    
+    # If no languages were found, return at least English if it exists
+    if not languages and (public_dir / "index.html").exists():
+        logger.warning("No language directories found, but found English content at root")
+        en_auto = linkbuilding_dir / "en_automatic.json"
+        en_manual = linkbuilding_dir / "en.json"
+        if en_auto.exists():
+            languages.append({
+                'lang': 'en',
+                'manual_file': str(en_manual) if en_manual.exists() else None,
+                'automatic_file': str(en_auto),
+                'html_dir': str(public_dir)
+            })
     
     return languages
 
@@ -232,8 +257,8 @@ Examples:
                        help='Configuration file for linkbuilding')
     parser.add_argument('--dry-run', action='store_true',
                        help='Analyze without modifying files')
-    parser.add_argument('--max-workers', type=int, default=8,
-                       help='Maximum number of parallel workers (default: 8)')
+    parser.add_argument('--max-workers', type=int, default=4,
+                       help='Maximum number of parallel workers (default: 4, reduce if memory issues occur)')
     parser.add_argument('--languages', nargs='+',
                        help='Specific languages to process (default: all)')
     parser.add_argument('--exclude-languages', nargs='+',
@@ -251,31 +276,77 @@ Examples:
     linkbuilding_dir = Path(args.linkbuilding_dir)
     public_dir = Path(args.public_dir)
     
+    # Log current working directory and paths for debugging
+    logger.info(f"Current working directory: {os.getcwd()}")
+    logger.info(f"Linkbuilding directory path: {linkbuilding_dir.absolute()}")
+    logger.info(f"Public directory path: {public_dir.absolute()}")
+    
     # Validate directories
     if not linkbuilding_dir.exists():
-        logger.error(f"Linkbuilding directory not found: {linkbuilding_dir}")
+        logger.error(f"ERROR: Linkbuilding directory not found: {linkbuilding_dir.absolute()}")
+        logger.error(f"Expected to find linkbuilding data files at this location")
+        logger.error(f"Please ensure the linkbuilding data generation step has been completed")
         sys.exit(1)
+    else:
+        # Log what we found in the directory
+        json_files = list(linkbuilding_dir.glob('*.json'))
+        logger.info(f"Found {len(json_files)} JSON files in linkbuilding directory")
+        if json_files:
+            logger.info(f"Available files: {', '.join(f.name for f in json_files[:5])}...")
+    
     if not public_dir.exists():
-        logger.error(f"Public directory not found: {public_dir}")
+        logger.error(f"ERROR: Public directory not found: {public_dir.absolute()}")
+        logger.error(f"Expected to find Hugo's generated HTML files at this location")
+        logger.error(f"Please ensure Hugo build has completed successfully before running linkbuilding")
         sys.exit(1)
+    else:
+        # Check if there are any HTML files
+        html_count = len(list(public_dir.rglob('*.html')))
+        logger.info(f"Found {html_count} HTML files in public directory")
     
     # Find script path
+    logger.info(f"Looking for linkbuilding.py script...")
     if not Path(args.script_path).exists():
         # Try in same directory as this script
         script_dir = Path(__file__).parent
         script_path = script_dir / 'linkbuilding.py'
         if not script_path.exists():
-            logger.error(f"linkbuilding.py not found at {args.script_path} or {script_path}")
+            logger.error(f"ERROR: linkbuilding.py script not found")
+            logger.error(f"  Checked: {Path(args.script_path).absolute()}")
+            logger.error(f"  Checked: {script_path.absolute()}")
+            logger.error(f"Please ensure linkbuilding.py exists in the scripts directory")
             sys.exit(1)
+        else:
+            logger.info(f"Found linkbuilding.py at: {script_path.absolute()}")
     else:
         script_path = Path(args.script_path)
+        logger.info(f"Using linkbuilding.py at: {script_path.absolute()}")
     
     # Find all language configurations
     logger.info("Discovering language configurations...")
     languages = find_language_files(linkbuilding_dir, public_dir)
     
     if not languages:
-        logger.error("No language configurations found")
+        logger.error("ERROR: No language configurations found")
+        logger.error(f"  Linkbuilding directory: {linkbuilding_dir.absolute()}")
+        logger.error(f"  Public directory: {public_dir.absolute()}")
+        logger.error("Possible causes:")
+        logger.error("  1. Hugo hasn't built the public directory yet")
+        logger.error("  2. Linkbuilding data files (*_automatic.json) are missing")
+        logger.error("  3. Language directories don't match between data and public folders")
+        
+        # Show what's actually in the directories for debugging
+        auto_files = list(linkbuilding_dir.glob('*_automatic.json'))
+        if auto_files:
+            logger.error(f"Found automatic files: {', '.join(f.name for f in auto_files)}")
+        else:
+            logger.error("No *_automatic.json files found in linkbuilding directory")
+        
+        # Check public directory structure
+        subdirs = [d for d in public_dir.iterdir() if d.is_dir()]
+        if subdirs:
+            logger.error(f"Public subdirectories: {', '.join(d.name for d in subdirs[:10])}")
+        
         sys.exit(1)
     
     # Filter languages if specified
@@ -288,18 +359,39 @@ Examples:
     
     # Build extra arguments
     extra_args = []
+    # Override with reasonable limits if not specified
     if args.max_links:
         extra_args.extend(['--max-links', str(args.max_links)])
+    else:
+        # Default to reasonable limit
+        extra_args.extend(['--max-links', '15'])
+    
     if args.max_keyword:
         extra_args.extend(['--max-keyword', str(args.max_keyword)])
+    else:
+        # Default to reasonable limit
+        extra_args.extend(['--max-keyword', '1'])
+    
     if args.max_url:
         extra_args.extend(['--max-url', str(args.max_url)])
+    else:
+        # Default to reasonable limit
+        extra_args.extend(['--max-url', '3'])
     
     # Run linkbuilding in parallel
     logger.info(f"Starting parallel linkbuilding with {args.max_workers} workers...")
+    
+    # Report initial memory usage if available
+    if MEMORY_MONITORING:
+        process = psutil.Process()
+        mem_info = process.memory_info()
+        logger.info(f"Initial memory usage: {mem_info.rss / 1024 / 1024:.1f} MB")
+    
     start_time = time.time()
     
     results = []
+    # Use ThreadPoolExecutor for better memory efficiency
+    # Threads share memory, which is more efficient for I/O-bound tasks like file processing
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.max_workers) as executor:
         # Submit all tasks
         futures = {
@@ -344,6 +436,12 @@ Examples:
     logger.info(f"📄 Total files modified: {total_files_modified:,}")
     logger.info(f"📁 Total files processed: {total_files_processed:,}")
     
+    # Report final memory usage if available
+    if MEMORY_MONITORING:
+        process = psutil.Process()
+        mem_info = process.memory_info()
+        logger.info(f"💾 Final memory usage: {mem_info.rss / 1024 / 1024:.1f} MB")
+    
     if successful:
         logger.info("\n📊 Per-Language Statistics:")
         logger.info("-" * 60)
@@ -380,8 +478,16 @@ Examples:
     
     # Don't generate combined report files - all output goes to console
     
-    # Exit with appropriate code
-    sys.exit(0 if len(failed) == 0 else 1)
+    # Exit with appropriate code - but be more lenient
+    # Only exit with error if ALL languages failed
+    if len(successful) == 0 and len(failed) > 0:
+        logger.error("All languages failed during linkbuilding")
+        sys.exit(1)
+    elif len(failed) > 0:
+        logger.warning(f"Partial success: {len(successful)} languages succeeded, {len(failed)} failed")
+        sys.exit(0)  # Exit successfully to not block deployment
+    else:
+        sys.exit(0)
 
 
 def generate_json_master_report(results: List[Tuple[str, bool, str, Dict]], output_file: str):

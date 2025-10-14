@@ -189,6 +189,8 @@ class LinkExtractor:
         # Handle index files
         if path_str.endswith('/_index'):
             path_str = path_str[:-7]  # Remove /_index
+        elif path_str == '_index':
+            path_str = ''  # Root index becomes empty (will become "/" below)
         elif path_str.endswith('/index'):
             path_str = path_str[:-6]  # Remove /index
         
