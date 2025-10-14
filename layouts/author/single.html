@@ -1,0 +1,41 @@
+{{ define "main" }}
+<div class="author-page bg-white">
+  <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    
+    {{/* Author Info Section */}}
+    <div class="text-center mb-12">
+      {{ if .Params.image }}
+        <img class="mx-auto h-32 w-32 rounded-full object-cover" src="{{ .Params.image }}" alt="{{ .Title }}">
+      {{ end }}
+      <h1 class="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ .Title }}</h1>
+      {{ if .Params.role }}
+        <p class="mt-2 text-lg text-gray-600">{{ .Params.role }}</p>
+      {{ end }}
+      {{ if .Params.description }}
+        <p class="mx-auto mt-4 max-w-2xl text-base text-gray-500">{{ .Params.description }}</p>
+      {{ end }}
+    </div>
+
+    {{/* Author's Articles */}}
+    <div class="mt-16">
+      <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ i18n "articles_by_author" | default "Articles by" }} {{ .Title }}</h2>
+      
+      <div class="mt-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {{ $authorKey := .Params.author_key }}
+        {{ $articles := where site.RegularPages "Params.author" $authorKey }}
+        {{ if not $articles }}
+          <p class="text-gray-500 col-span-full">{{ i18n "no_articles_yet" | default "No articles published yet." }}</p>
+        {{ else }}
+          {{ range $articles }}
+            {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" 400) }}
+          {{ end }}
+        {{ end }}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{{/* Schema.org structured data */}}
+{{ partial "schemaorg/author.html" . }}
+{{ end }}
