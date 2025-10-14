@@ -198,7 +198,8 @@ class LinkBuilder:
         'a', 'script', 'style', 'code', 'pre', 'button', 'input', 'textarea',
         'select', 'option', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'nav', 'header', 'footer', 'aside', 'meta', 'link', 'img', 'svg',
-        'iframe', 'video', 'audio', 'canvas', 'map', 'area', 'form'
+        'iframe', 'video', 'audio', 'canvas', 'map', 'area', 'form', 'title',
+        'head', 'footer'
     }
     
     # Paths to skip (taxonomy pages, pagination, etc.) - same as precompute_linkbuilding.py

@@ -448,7 +448,7 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
                 echo -e "    --linkbuilding-dir ${HUGO_ROOT}/data/linkbuilding \\"
                 echo -e "    --public-dir ${HUGO_ROOT}/public \\"
                 echo -e "    --script-path ${SCRIPT_DIR}/linkbuilding.py \\"
-                echo -e "    --max-workers 4"
+                echo -e "    --max-workers 8"
                 
                 # Run with explicit error capture
                 ERROR_LOG=$(mktemp)
@@ -456,7 +456,7 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
                     --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
                     --public-dir "${HUGO_ROOT}/public" \
                     --script-path "${SCRIPT_DIR}/linkbuilding.py" \
-                    --max-workers 4 2>"${ERROR_LOG}"
+                    --max-workers 8 2>"${ERROR_LOG}"
                 
                 EXIT_CODE=$?
                 
