@@ -120,3 +120,8 @@ attachments.title: "Privitci"
 
 search_results_found: "Pronađen %d rezultat za %s"
 search_results_found_plural: "Pronađeno %d rezultata za %s"
+
+# Copy code functionality
+copy_code: "Kopiraj kod"
+copy_success: "Kopirano!"
+copy_error: "Greška pri kopiranju"

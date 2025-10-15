@@ -108,3 +108,8 @@ attachments.title: "Tệp đính kèm"
 
 search_results_found: "Tìm thấy %d kết quả cho %s"
 search_results_found_plural: "Tìm thấy %d kết quả cho %s"
+
+# Copy code functionality
+copy_code: "Sao chép mã"
+copy_success: "Đã sao chép!"
+copy_error: "Lỗi khi sao chép"

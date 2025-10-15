@@ -41,39 +41,72 @@ This component expects a page context (.) that has the following properties:
     {{- $description = printf "%.160s..." $description -}}
 {{ end }}
 
-{{ $permalink := .url }}
+{{ $permalink := .url | default nil }}
 
 <article class="group relative rounded-xl flex w-full overflow-hidden border border-opacity/black-10%" style="min-height: {{ $cardHeight }}px;">
     {{ if $image }}
-    <div class="flex-none overflow-hidden" style="width: {{ $imageWidth }}px;">
-        <a href="{{ $permalink }}" class="h-full w-full flex items-center justify-center">
-            {{ partial "components/media/lazyimg.html" (dict
-            "src" $image
-            "alt" $title
-            "class" "w-full h-full object-cover"
-            "classPicture" "w-full h-full object-cover"
-            "maxWidth" 300
-            ) }}
-        </a>
-    </div>
+        <div class="flex-none overflow-hidden" style="width: {{ $imageWidth }}px;">
+            {{ if $permalink }}
+                <a href="{{ $permalink }}" class="h-full w-full flex items-center justify-center">
+                    {{ partial "components/media/lazyimg.html" (dict
+                    "src" $image
+                    "alt" $title
+                    "class" "w-full h-full object-cover"
+                    "classPicture" "w-full h-full object-cover"
+                    "maxWidth" 300
+                    ) }}
+                </a>
+            {{ else }}
+                {{ partial "components/media/lazyimg.html" (dict
+                "src" $image
+                "alt" $title
+                "class" "w-full h-full object-cover"
+                "classPicture" "w-full h-full object-cover"
+                "maxWidth" 300
+                ) }}
+            {{ end }}
+        </div>
     {{ end }}
 
-    <div class="flex flex-col flex-grow p-6">
+    <div class="flex flex-col flex-grow justify-between pt-8 pl-8 gap-8">
         <!-- Title and Description -->
-        <h3 class="mb-3 text-lg font-semibold group-hover:text-primary text-gray-900">
-            <a href="{{ $permalink }}" class="hover:text-primary focus:outline-none">
-                <span class="inset-0" aria-hidden="true"></span>
-                {{ $title }}
+        <div class="flex flex-col pr-8 gap-5">
+            <h3 class="text-lg font-semibold m-0 group-hover:text-primary text-heading">
+                {{ if $permalink }}
+                    <a href="{{ $permalink }}" class="hover:text-primary focus:outline-none">
+                        <span class="inset-0" aria-hidden="true"></span>
+                        {{ $title }}
+                    </a>
+                {{ else }}
+                    <span class="inset-0" aria-hidden="true"></span>
+                    {{ $title }}
+                {{ end }}
+            </h3>
+            {{ if $permalink }}
+            <a href="{{ $permalink }}">
+                <p class="text-sm leading-6 text-secondary font-normal m-0 line-clamp-3 overflow-hidden">{{ $description }}</p>
             </a>
-        </h3>
-        <a href="{{ $permalink }}" class="mb-4">
-            <p class="text-sm leading-6 text-gray-600 font-normal line-clamp-3 overflow-hidden">{{ $description }}</p>
-        </a>
+            {{ else }}
+            <p class="text-sm leading-6 text-secondary font-normal m-0 line-clamp-3 overflow-hidden">{{ $description }}</p>
+            {{ end }}
+        </div>
         {{ if .code }}
             {{ with .code }}
-            <pre class="mt-auto bg-black text-white text-xs rounded-xl p-4 overflow-x-auto whitespace-pre-wrap break-words flex-grow" style="word-break: break-word;">
-                <code>{{ . }}</code>
-            </pre>
+                <div class="relative h-[19.3rem] py-5 px-7 bg-gray-900 text-white text-xs rounded-tl-[0.625rem] rounded-br-[0.625rem] scrollbar-custom code-container">
+                    <pre class="bg-gray-900 m-0 p-0 whitespace-pre-wrap break-words text-left">
+                        <code class="text-xs block whitespace-pre-wrap leading-tight pl-0">{{ . }}</code>
+                    </pre>
+                    <button data-copy-code 
+                            data-copied-text="{{ i18n "copy_success" | default "Copied!" }}"
+                            data-copy-error-text="{{ i18n "copy_error" | default "Copy error" }}"
+                            data-copy-default-text="{{ i18n "copy_code" | default "Copy code" }}"
+                            class="absolute top-5 right-5 w-5 h-5 text-gray-500 hover:text-white cursor-pointer transition-colors duration-200" 
+                            title="{{ i18n "copy_code" | default "Copy code" }}" 
+                            aria-label="{{ i18n "copy_code" | default "Copy code" }}">
+                        {{ partial "icons/tabler/copy" "w-5 h-5" }}
+                    </button>
+                </div>
+                {{ partial "components/load-copy-code.html" . }}
             {{ end }}
         {{ end }}
     </div>

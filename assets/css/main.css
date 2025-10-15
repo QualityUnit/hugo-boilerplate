@@ -435,4 +435,24 @@
   a.prose-links:hover {
     @apply text-brand-text;
   }
+  
+  /* ================================================================ */
+  /* CUSTOM SCROLLBAR */
+  /* ================================================================ */
+
+  .scrollbar-custom {
+    overflow: auto;
+  }
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 4px;
+    height: 100px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-md;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
 }

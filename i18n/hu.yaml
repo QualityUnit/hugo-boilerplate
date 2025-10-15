@@ -121,3 +121,8 @@ attachments.title: "Mellékletek"
 
 search_results_found: "%d találat erre: %s"
 search_results_found_plural: "%d találat erre: %s"
+
+# Copy code functionality
+copy_code: "Kód másolása"
+copy_success: "Másolva!"
+copy_error: "Másolási hiba"

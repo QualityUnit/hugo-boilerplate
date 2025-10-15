@@ -119,3 +119,8 @@ attachments.title: "ไฟล์แนบ"
 
 search_results_found: "พบ %d ผลลัพธ์สำหรับ %s"
 search_results_found_plural: "พบ %d ผลลัพธ์สำหรับ %s"
+
+# Copy code functionality
+copy_code: "คัดลอกโค้ด"
+copy_success: "คัดลอกแล้ว!"
+copy_error: "ข้อผิดพลาดในการคัดลอก"

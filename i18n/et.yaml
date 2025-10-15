@@ -120,3 +120,8 @@ attachments.title: "Manused"
 
 search_results_found: "Leiti %d tulemus päringule %s"
 search_results_found_plural: "Leiti %d tulemust päringule %s"
+
+# Copy code functionality
+copy_code: "Kopeeri kood"
+copy_success: "Kopeeritud!"
+copy_error: "Kopeerimisviga"

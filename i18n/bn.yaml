@@ -119,3 +119,8 @@ attachments.title: "সংযুক্তি"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Copy code functionality
+copy_code: "কোড কপি করুন"
+copy_success: "কপি হয়েছে!"
+copy_error: "কপি করতে সমস্যা হয়েছে"

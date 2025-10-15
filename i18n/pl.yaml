@@ -120,3 +120,8 @@ attachments.title: "Załączniki"
 
 search_results_found: "Znaleziono %d wynik dla %s"
 search_results_found_plural: "Znaleziono %d wyników dla %s"
+
+# Copy code functionality
+copy_code: "Kopiuj kod"
+copy_success: "Skopiowano!"
+copy_error: "Błąd kopiowania"
