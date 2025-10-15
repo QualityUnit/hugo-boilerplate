@@ -443,10 +443,6 @@
   .scrollbar-custom {
     overflow: auto;
   }
-  .scrollbar-custom::-webkit-scrollbar {
-    width: 4px;
-    height: 100px;
-  }
 
   .scrollbar-custom::-webkit-scrollbar-thumb {
     @apply bg-gray-400 rounded-md;
