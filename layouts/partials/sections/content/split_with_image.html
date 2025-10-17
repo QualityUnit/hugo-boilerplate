@@ -60,6 +60,9 @@ Design Tokens:
 {{ $videoTitle := .videoTitle | default "" }}
 {{ $videoDescription := .videoDescription | default "" }}
 {{ $videoLinkUrl := .videoLinkUrl | default "" }}
+{{ $provider := .provider | default "youtube" }}
+{{ $pureVideo := .pureVideo | default false }}
+
 {{ $eyebrow := .eyebrow }}
 {{ $heading := .heading }}
 {{ $description := .description }}
@@ -92,7 +95,6 @@ Design Tokens:
 {{ $contentLeftPadding := "lg:pl-20" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
-
 <div class="split-with-image-section {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   {{/* Render header if header parameters are provided */}}
   {{ if or $headerHeading $headerEyebrow $headerDescription $showHeader }}
@@ -116,7 +118,8 @@ Design Tokens:
                   "posterHeight" $posterHeight
                   "title" $videoTitle
                   "class" "rounded-xl h-full"
-                  "provider" "youtube"
+                  "provider" $provider
+                  "pureVideo" $pureVideo
                   "useLightbox" true
                   "showPlayOverlay" true
                   "playBtnClass" "white-circle-bounce w-[7.75rem] h-[7.75rem] rounded-full backdrop-blur-[3px]"
