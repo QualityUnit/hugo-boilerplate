@@ -48,6 +48,8 @@
 {{ $asHero := .Get "asHero" }}
 {{ $description := .Get "description" }}
 {{ $sectionPaddingY := .Get "sectionPaddingY" | default "py-16 lg:py-24" }}
+{{ $cols := .Get "cols" | default "grid-cols-1 md:grid-cols-2 gap-2.5" }}
+{{ $simple := .Get "simple" | default false }}
 
 {{/* Parse JSON content between shortcode tags */}}
 {{ $cardsJSON := .Inner | strings.TrimSpace }}
@@ -63,5 +65,7 @@
   "description" $description
   "asHero" $asHero
   "cards" $cards
+  "cols" $cols
+  "simple" $simple
   "sectionPaddingY" $sectionPaddingY
 ) }}
