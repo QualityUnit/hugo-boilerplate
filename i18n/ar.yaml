@@ -121,3 +121,8 @@ attachments.title: "المرفقات"
 
 search_results_found: "تم العثور على %d نتيجة لـ %s"
 search_results_found_plural: "تم العثور على %d نتائج لـ %s"
+
+# Copy code functionality
+copy_code: "نسخ الكود"
+copy_success: "تم النسخ!"
+copy_error: "خطأ في النسخ"

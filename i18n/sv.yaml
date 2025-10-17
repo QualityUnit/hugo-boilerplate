@@ -122,3 +122,8 @@ attachments.title: "Bilagor"
 
 search_results_found: "Hittade %d resultat för %s"
 search_results_found_plural: "Hittade %d resultat för %s"
+
+# Copy code functionality
+copy_code: "Kopiera kod"
+copy_success: "Kopierat!"
+copy_error: "Fel vid kopiering"

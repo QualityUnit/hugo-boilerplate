@@ -122,3 +122,8 @@ attachments.title: "添付ファイル"
 
 search_results_found: "%s に対して %d 件の結果が見つかりました"
 search_results_found_plural: "%s に対して %d 件の結果が見つかりました"
+
+# Copy code functionality
+copy_code: "コードをコピー"
+copy_success: "コピーしました！"
+copy_error: "コピーエラー"

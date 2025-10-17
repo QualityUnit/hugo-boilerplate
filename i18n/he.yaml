@@ -120,3 +120,8 @@ attachments.title: "קבצים מצורפים"
 
 search_results_found: "נמצאה תוצאה %d עבור %s"
 search_results_found_plural: "נמצאו %d תוצאות עבור %s"
+
+# Copy code functionality
+copy_code: "העתק קוד"
+copy_success: "הועתק!"
+copy_error: "שגיאת העתקה"

@@ -121,3 +121,8 @@ attachments.title: "Вкладення"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Copy code functionality
+copy_code: "Копіювати код"
+copy_success: "Скопійовано!"
+copy_error: "Помилка копіювання"

@@ -122,3 +122,8 @@ attachments.title: "Anhänge"
 
 search_results_found: "%d Ergebnis für %s gefunden"
 search_results_found_plural: "%d Ergebnisse für %s gefunden"
+
+# Copy code functionality
+copy_code: "Code kopieren"
+copy_success: "Kopiert!"
+copy_error: "Fehler beim Kopieren"

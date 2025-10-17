@@ -121,3 +121,8 @@ attachments.title: "Prílohy"
 
 search_results_found: "Nájdený %d výsledok pre %s"
 search_results_found_plural: "Nájdených %d výsledkov pre %s"
+
+# Copy code functionality
+copy_code: "Kopírovať kód"
+copy_success: "Skopírované!"
+copy_error: "Chyba kopírovania"

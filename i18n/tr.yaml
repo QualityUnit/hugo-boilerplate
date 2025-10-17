@@ -121,3 +121,8 @@ attachments.title: "Ekler"
 
 search_results_found: "%s için %d sonuç bulundu"
 search_results_found_plural: "%s için %d sonuç bulundu"
+
+# Copy code functionality
+copy_code: "Kodu kopyala"
+copy_success: "Kopyalandı!"
+copy_error: "Kopyalama hatası"

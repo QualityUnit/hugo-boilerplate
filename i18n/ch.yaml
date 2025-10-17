@@ -106,6 +106,10 @@ search_chat_link: "Oder schriebe mit üs →"
 # Attachments
 attachments.title: "Aahäng"
 
+# Copy code functionality
+copy_code: "Code kopiere"
+copy_success: "Kopiert!"
+copy_error: "Kopierfehler"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"

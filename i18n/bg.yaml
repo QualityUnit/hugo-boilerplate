@@ -120,3 +120,8 @@ attachments.title: "Прикачени файлове"
 
 search_results_found: "Намерен %d резултат за %s"
 search_results_found_plural: "Намерени %d резултата за %s"
+
+# Copy code functionality
+copy_code: "Копирай кода"
+copy_success: "Скопирано!"
+copy_error: "Грешка при копиране"

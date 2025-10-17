@@ -108,3 +108,8 @@ search_no_results_description: "Försök ändra din sökning - något fantastisk
 
 search_results_found: "Imepata tokeo %d la %s"
 search_results_found_plural: "Imepata matokeo %d ya %s"
+
+# Copy code functionality
+copy_code: "Nakili msimbo"
+copy_success: "Imenakiliwa!"
+copy_error: "Hitilafu ya kunakili"

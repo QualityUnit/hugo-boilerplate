@@ -120,3 +120,8 @@ attachments.title: "Liitteet"
 
 search_results_found: "Löytyi %d tulos haulle %s"
 search_results_found_plural: "Löytyi %d tulosta haulle %s"
+
+# Copy code functionality
+copy_code: "Kopioi koodi"
+copy_success: "Kopioitu!"
+copy_error: "Kopiointivirhe"

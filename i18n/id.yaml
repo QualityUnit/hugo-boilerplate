@@ -120,3 +120,8 @@ attachments.title: "Lampiran"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Copy code functionality
+copy_code: "Salin kode"
+copy_success: "Disalin!"
+copy_error: "Kesalahan penyalinan"

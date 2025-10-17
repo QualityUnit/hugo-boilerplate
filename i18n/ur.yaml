@@ -108,3 +108,8 @@ attachments.title: "منسلکات"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Copy code functionality
+copy_code: "کوڈ کو کاپی کریں"
+copy_success: "کاپی ہو گیا!"
+copy_error: "کاپی کرنے میں خرابی"

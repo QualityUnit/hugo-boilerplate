@@ -127,3 +127,8 @@ icon.card.btn: "See"
 
 # Attachments
 attachments.title: "Attachments"
+
+# Copy code functionality
+copy_code: "Copy code"
+copy_success: "Copied!"
+copy_error: "Copy error"

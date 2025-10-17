@@ -106,3 +106,8 @@ search_chat_link: "Of gesels met ons →"
 attachments.title: "Aanhegsels"
 search_results_found: "%d resultaat gevind vir \"%s\""
 search_results_found_plural: "%d resultate gevind vir \"%s\""
+
+# Copy code functionality
+copy_code: "Kopieer kode"
+copy_success: "Gekopieer!"
+copy_error: "Kopieer fout"

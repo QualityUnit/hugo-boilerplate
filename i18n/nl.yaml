@@ -122,3 +122,8 @@ attachments.title: "Bijlagen"
 
 search_results_found: "%d resultaat gevonden voor %s"
 search_results_found_plural: "%d resultaten gevonden voor %s"
+
+# Copy code functionality
+copy_code: "Code kopiëren"
+copy_success: "Gekopieerd!"
+copy_error: "Kopieerfout"

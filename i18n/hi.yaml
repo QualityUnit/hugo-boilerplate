@@ -108,3 +108,8 @@ attachments.title: "अटैचमेंट"
 
 search_results_found: "%s के लिए %d परिणाम मिला"
 search_results_found_plural: "%s के लिए %d परिणाम मिले"
+
+# Copy code functionality
+copy_code: "कोड कॉपी करें"
+copy_success: "कॉपी हो गया!"
+copy_error: "कॉपी त्रुटि"

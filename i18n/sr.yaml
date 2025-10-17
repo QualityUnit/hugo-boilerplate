@@ -110,3 +110,8 @@ attachments.title: "Прилози"
 
 search_results_found: "Пронађен %d резултат за %s"
 search_results_found_plural: "Пронађено %d резултата за %s"
+
+# Copy code functionality
+copy_code: "Копирај код"
+copy_success: "Копирано!"
+copy_error: "Грешка при копирању"

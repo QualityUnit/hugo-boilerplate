@@ -110,3 +110,8 @@ attachments.title: "Anness"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Copy code functionality
+copy_code: "Ikopja l-kodiċi"
+copy_success: "Ikopjat!"
+copy_error: "Żball fil-kopjar"

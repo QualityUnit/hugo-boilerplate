@@ -121,3 +121,8 @@ attachments.title: "پیوست‌ها"
 
 search_results_found: "%d نتیجه برای %s یافت شد"
 search_results_found_plural: "%d نتیجه برای %s یافت شد"
+
+# Copy code functionality
+copy_code: "کپی کد"
+copy_success: "کپی شد!"
+copy_error: "خطا در کپی"

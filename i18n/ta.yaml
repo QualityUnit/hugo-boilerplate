@@ -108,3 +108,8 @@ attachments.title: "இணைப்புகள்"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Copy code functionality
+copy_code: "கோடுகளை நகலெடுக்கவும்"
+copy_success: "நகலெடுக்கப்பட்டது!"
+copy_error: "நகலெடுக்கும்போது பிழை"

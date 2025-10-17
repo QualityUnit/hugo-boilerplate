@@ -120,3 +120,8 @@ attachments.title: "Pielikumi"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Copy code functionality
+copy_code: "Kopēt kodu"
+copy_success: "Nokopēts!"
+copy_error: "Kopēšanas kļūda"
