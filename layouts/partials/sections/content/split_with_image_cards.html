@@ -34,6 +34,8 @@ Example:
 {{ $description := .description }}
 {{ $asHero := .asHero }}
 {{ $cards := .cards | default (slice) }}
+{{ $cols := .cols }}
+{{ $simple := .simple }}
 
 {{/* Classes for styles */}}
 {{ $sectionPaddingY := .sectionPaddingY | default "py-16 lg:py-24" }}
@@ -60,13 +62,13 @@ Example:
 
         {{/* Cards */}}
         {{ if $cards }}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5{{ if or $heading $description }} mt-14{{ end }}">
+            <div class="grid {{ $cols }} {{ if or $heading $description }} mt-14{{ end }}">
                 {{ range $cards }}
                     {{ $cardBackgroundImage := .backgroundImage }}
                     {{ $cardSchemaImage := .schemaImage }}
                     {{ $cardImageAlt := .imageAlt | default .title }}
 
-                    <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center"{{ if not .cta.url }} aria-label="{{ .title }}" {{ end }} {{ with $cardBackgroundImage }}style="background-image: url('{{ partial "functions/get-static-url.html" (dict "path" .) }}');"{{ end }}>
+                    <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center {{ if $simple }} shadow-lg{{ end }}"{{ if not .cta.url }} aria-label="{{ .title }}" {{ end }} {{ with $cardBackgroundImage }}style="background-image: url('{{ partial "functions/get-static-url.html" (dict "path" .) }}');"{{ end }}>
                         {{ if .cta.url }}
                             <a href="{{ .cta.url }}" class="absolute inset-0 z-20" aria-label="{{ .title }}"></a>
                         {{ end }}

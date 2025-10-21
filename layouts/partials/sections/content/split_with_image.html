@@ -60,10 +60,16 @@ Design Tokens:
 {{ $videoTitle := .videoTitle | default "" }}
 {{ $videoDescription := .videoDescription | default "" }}
 {{ $videoLinkUrl := .videoLinkUrl | default "" }}
+{{ $provider := .provider | default "youtube" }}
+{{ $pureVideo := .pureVideo | default false }}
+
 {{ $eyebrow := .eyebrow }}
 {{ $heading := .heading }}
 {{ $description := .description }}
-{{ $link := partial "helpers/get-translated-url.html" (dict "url" .link) }}
+{{ $link := "" }}
+{{ if .link }}
+  {{ $link = partial "helpers/get-translated-url.html" (dict "url" .link) }}
+{{ end }}
 {{ $linkText := .linkText }}
 {{ $linkTarget := .linkTarget | default "_self" }}
 {{ $buttonStyle := .buttonStyle | default "primary" }}
@@ -89,8 +95,7 @@ Design Tokens:
 {{ $contentLeftPadding := "lg:pl-20" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
-
-<div class="split-with-image-section {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionMarginY }}">
+<div class="split-with-image-section {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   {{/* Render header if header parameters are provided */}}
   {{ if or $headerHeading $headerEyebrow $headerDescription $showHeader }}
     {{ partial "layout/headers/simple_with_eyebrow_base.html" (dict 
@@ -113,7 +118,8 @@ Design Tokens:
                   "posterHeight" $posterHeight
                   "title" $videoTitle
                   "class" "rounded-xl h-full"
-                  "provider" "youtube"
+                  "provider" $provider
+                  "pureVideo" $pureVideo
                   "useLightbox" true
                   "showPlayOverlay" true
                   "playBtnClass" "white-circle-bounce w-[7.75rem] h-[7.75rem] rounded-full backdrop-blur-[3px]"
@@ -197,7 +203,7 @@ Design Tokens:
 
         {{/* Features */}}
         {{ if $features }}
-        <dl class="mt-10 max-w-full space-y-8 text-lg/7 text-secondary lg:max-w-full">
+        <dl class="mt-6 max-w-full space-y-3 text-normal text-secondary lg:max-w-full">
           {{ range $features }}
           <div class="relative pl-9">
             <dt class="inline {{ if .description }}font-bold{{ end }} text-heading">
@@ -218,7 +224,7 @@ Design Tokens:
 
         {{/* Numbered Features */}}
         {{ if $numbered_features }}
-          <ol class="mt-10 max-w-full space-y-3 text-lg/7 text-secondary lg:max-w-full">
+          <ol class="mt-6 max-w-full space-y-3 text-normal text-secondary lg:max-w-full">
             {{ range $index, $feature := $numbered_features }}
               <li class="relative pl-9">
                 <span class="inline-flex text-heading font-bold">
