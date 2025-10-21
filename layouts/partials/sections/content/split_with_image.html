@@ -17,7 +17,7 @@ Parameters:
 - numbered_features: [{title, description}] (features with numbers instead of icons)
 - stats: [{number, label}]
 - quote: {text, author, role, company, avatar}
-- sectionPaddingY: Custom vertical padding using Tailwind classes (default: "py-24 lg:py-32")
+- sectionMarginY: Custom vertical margin using Tailwind classes (default: "my-24 lg:my-32")
 - Color classes: *Color parameters for styling
 
 Header section parameters:
@@ -89,7 +89,7 @@ Design Tokens:
 {{ $headerPadding := .headerPadding | default "pb-24 lg:pb-32" }}
 
 {{/* Design tokens and configurable dimensions */}}
-{{ $sectionPaddingY := .sectionPaddingY | default "py-12 lg:py-32" }}
+{{ $sectionMarginY := .sectionMarginY | default "my-24 lg:my-32" }}
 {{ $mediaContainerPaddingY := "py-6" }}
 {{ $contentPaddingY := "py-4" }}
 {{ $contentLeftPadding := "lg:pl-20" }}

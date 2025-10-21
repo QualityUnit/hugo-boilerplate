@@ -40,6 +40,10 @@
     /* Dark background, used for contrast or "dark mode" sections */
   }
 
+  .section-bg-dark a:not(.btn-primary):not(.not-prose), .bg-gray-900 a:not(.btn-primary):not(.not-prose) {
+    @apply text-primary-500 hover:text-primary-700;
+  }
+
   /* ================================================================ */
   /* 📦 WRAPPER CLASSES */
   /* ================================================================ */
