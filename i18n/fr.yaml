@@ -121,3 +121,8 @@ attachments.title: "Pièces jointes"
 
 search_results_found: "Trouvé %d résultat pour %s"
 search_results_found_plural: "Trouvé %d résultats pour %s"
+
+# Copy code functionality
+copy_code: "Copier le code"
+copy_success: "Copié !"
+copy_error: "Erreur de copie"

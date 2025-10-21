@@ -111,3 +111,8 @@ attachments.title: "Adxuntos"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Copy code functionality
+copy_code: "Copiar código"
+copy_success: "¡Copiado!"
+copy_error: "Error ao copiar"

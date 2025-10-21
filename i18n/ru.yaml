@@ -122,3 +122,8 @@ attachments.title: "Вложения"
 
 search_results_found: "Найден %d результат для %s"
 search_results_found_plural: "Найдено %d результатов для %s"
+
+# Copy code functionality
+copy_code: "Копировать код"
+copy_success: "Скопировано!"
+copy_error: "Ошибка копирования"

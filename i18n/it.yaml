@@ -122,3 +122,8 @@ attachments.title: "Allegati"
 
 search_results_found: "Trovato %d risultato per %s"
 search_results_found_plural: "Trovati %d risultati per %s"
+
+# Copy code functionality
+copy_code: "Copia codice"
+copy_success: "Copiato!"
+copy_error: "Errore di copia"

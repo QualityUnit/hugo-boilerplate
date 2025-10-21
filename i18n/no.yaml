@@ -121,3 +121,8 @@ attachments.title: "Vedlegg"
 
 search_results_found: "Fant %d resultat for %s"
 search_results_found_plural: "Fant %d resultater for %s"
+
+# Copy code functionality
+copy_code: "Kopier kode"
+copy_success: "Kopiert!"
+copy_error: "Kopieringsfeil"

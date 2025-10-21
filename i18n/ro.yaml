@@ -120,3 +120,8 @@ attachments.title: "Atașamente"
 
 search_results_found: "S-a găsit %d rezultat pentru %s"
 search_results_found_plural: "S-au găsit %d rezultate pentru %s"
+
+# Copy code functionality
+copy_code: "Copiază codul"
+copy_success: "Copiat!"
+copy_error: "Eroare la copiere"

@@ -110,3 +110,8 @@ attachments.title: "Eranskinak"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Copy code functionality
+copy_code: "Kodea kopiatu"
+copy_success: "Kopiatu da!"
+copy_error: "Kopiatzeko errorea"

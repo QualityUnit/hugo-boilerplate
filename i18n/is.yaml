@@ -119,3 +119,8 @@ attachments.title: "Viðhengi"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Copy code functionality
+copy_code: "Afrita kóða"
+copy_success: "Afritað!"
+copy_error: "Villa við afritun"

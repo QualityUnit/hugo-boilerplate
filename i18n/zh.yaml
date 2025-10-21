@@ -122,3 +122,8 @@ attachments.title: "附件"
 
 search_results_found: "为 %s 找到 %d 个结果"
 search_results_found_plural: "为 %s 找到 %d 个结果"
+
+# Copy code functionality
+copy_code: "复制代码"
+copy_success: "已复制！"
+copy_error: "复制时出错"

@@ -120,3 +120,8 @@ attachments.title: "Priloge"
 
 search_results_found: "Najden %d rezultat za %s"
 search_results_found_plural: "Najdenih %d rezultatov za %s"
+
+# Copy code functionality
+copy_code: "Kopiraj kodo"
+copy_success: "Kopirano!"
+copy_error: "Napaka pri kopiranju"
