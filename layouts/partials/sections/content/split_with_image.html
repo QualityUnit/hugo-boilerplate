@@ -95,7 +95,7 @@ Design Tokens:
 {{ $contentLeftPadding := "lg:pl-20" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
-<div class="split-with-image-section {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
+<div class="split-with-image-section {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionMarginY }}">
   {{/* Render header if header parameters are provided */}}
   {{ if or $headerHeading $headerEyebrow $headerDescription $showHeader }}
     {{ partial "layout/headers/simple_with_eyebrow_base.html" (dict 
