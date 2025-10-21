@@ -181,8 +181,24 @@
   }
 
   .error-placeholder {
-    @apply text-red-200 dark:text-red-300;
+    @apply placeholder:text-red-400 dark:placeholder:text-red-300;
     /* Input errors placeholder – red text in light mode, darker red in dark mode */
+  }
+
+  /* INPUT SUCCESS STYLES */
+  .success-border {
+    @apply border-green-500 dark:border-green-400;
+    /* Input success – green border in light mode, darker green in dark mode */
+  }
+
+  .success-text {
+    @apply text-green-500 dark:text-green-400;
+    /* Input success – green text in light mode, darker green in dark mode */
+  }
+
+  .success-placeholder{
+    @apply placeholder:text-green-400 dark:placeholder:text-green-300;
+    /* Input success placeholder – green text in light mode, darker green in dark mode */
   }  
 
   /* 🔗 LINK STYLES */
