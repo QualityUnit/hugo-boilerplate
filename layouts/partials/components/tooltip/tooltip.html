@@ -1,5 +1,15 @@
 {{ $text := .text }}
 {{ $position := .position | default "top" }}
+{{ $icon := "information-circle" }}
+{{ $colorIcon := .colorIcon | default "text-gray-400 hover:text-gray-500" }}
+{{ $sizeIcon := .sizeIcon | default "h-4 w-4" }}
+{{ $typeIcon := .typeIcon | default "solid" }}
+
+{{ if eq $typeIcon "solid" }}
+{{ $icon = "information-circle-solid" }}
+{{ else }}
+{{ $icon = "information-circle" }}
+{{ end }}
 
 {{ $tooltipPosition := "" }}
 {{ if eq $position "top" }}
@@ -14,7 +24,7 @@
 
 <div class="inline-block whitespace-normal hyphens-auto">
   <span class="whitespace-nowrap">{{ .content }}<span class="group relative inline-block align-middle pl-2">
-    {{ partial "icons/information-circle" "h-4 w-4 text-gray-400 hover:text-gray-500 cursor-pointer tooltip-trigger" }}
+    {{ partial (printf "icons/%s" $icon) (printf "%s cursor-pointer tooltip-trigger %s" $sizeIcon $colorIcon) }}
     <div
       class="pointer-events-none absolute {{ $tooltipPosition }} z-[9999] w-72 rounded-md bg-gray-900 px-4 py-3 text-sm text-white font-normal opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100 tooltip-content leading-relaxed"
       data-tooltip
