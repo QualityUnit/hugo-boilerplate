@@ -96,7 +96,7 @@ Design Tokens:
 {{ $resources := .resources | default (slice) }}
 {{ $typewriter := .typewriter | default dict }}
 {{ $search := .search | default dict }}
-{{ $checklist := .checklist | default false }}
+{{ $checklist := .checklist | default dict }}
 
 {{/* Typewriter configuration with defaults */}}
 {{ $typewriter := merge (dict "enabled" false) $typewriter }}
@@ -367,9 +367,9 @@ Design Tokens:
   </div>
 
   {{/* Checklist */}}
-  {{ if $checklist }}
+  {{ if $checklist.enabled }}
     <div class="relative bg-white border-b border-secondary hidden lg:block" id="checklistTocStickyWrapper">
-      <div class="py-6 transition-all duration-300 bg-white border-t border-secondary" id="checklistTocSticky">
+      <div class="py-6 transition-all duration-300 bg-white" id="checklistTocSticky">
         <div class="wrapper">
           {{ partial "components/checklist-toc.html" (dict "title" $heading) }}
         </div>
