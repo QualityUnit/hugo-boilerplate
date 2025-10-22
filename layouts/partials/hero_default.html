@@ -19,6 +19,8 @@
 {{ $typewriter := .Params.typewriter | default dict }}
 
 {{ $image := .Params.image }}
+{{ $icon := .Params.icon }}
+
 {{ if not $image }}
     {{ if .Params.youtubeVideoID }}
         {{ $image = printf "https://img.youtube.com/vi/%s/hqdefault.jpg" .Params.youtubeVideoID }}
