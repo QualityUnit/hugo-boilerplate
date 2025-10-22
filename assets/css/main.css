@@ -40,7 +40,7 @@
     /* Dark background, used for contrast or "dark mode" sections */
   }
 
-  .section-bg-dark a:not(.btn-primary):not(.not-prose), .bg-gray-900 a:not(.btn-primary):not(.not-prose) {
+  .section-bg-dark a[data-lb], .bg-gray-900 a[data-lb] {
     @apply text-primary-500 hover:text-primary-700;
   }
 
