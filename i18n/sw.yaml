@@ -89,7 +89,6 @@ search_error_loading: "Hitilafu katika kupakia matokeo ya utafutaji."
 search_error_performing: "Hitilafu katika kufanya utafutaji."
 search_not_available: "Kipengele cha utafutaji hakipo. Jaribu tena baadaye."
 search_initializing: "Utafutaji bado unaanza. Jaribu tena."
-search_no_content_preview: "Hakuna muonekano wa maudhui uliopo"
 search_no_content_preview: "Hakuna muhtasari wa maudhui unaopatikana"
 search_untitled: "Bila kichwa"
 search_no_results_for: "Hakuna matokeo yaliyopatikana kwa"
@@ -104,7 +103,7 @@ icon.card.btn: "Tazama"
 
 # Attachments
 attachments.title: "Viunganisho"
-search_no_results_description: "Försök ändra din sökning - något fantastiskt kan vara bara några ord bort."
+search_no_results_description: "Jaribu kubadilisha utafutaji wako - jambo la ajabu linaweza kuwa sehemu ya maneno machache tu."
 
 search_results_found: "Imepata tokeo %d la %s"
 search_results_found_plural: "Imepata matokeo %d ya %s"
