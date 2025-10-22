@@ -27,6 +27,13 @@
 
 {{ $heroType := .Params.heroType | default "default" }}
 
+{{ $checklist := dict "enabled" false }}
+{{ if reflect.IsMap . }}
+  {{ if .checklist }}
+    {{ $checklist = .checklist }}
+  {{ end }}
+{{ end }}
+
 {{ if .Params.youtubeVideoID }}
     {{ partial "sections/hero/split_with_youtube_video.html" (dict
     "heading" $title
@@ -71,6 +78,8 @@
         "resources" $resources
         "typewriter" $typewriter
         "search" $search
+        "checklist" $checklist
+        "context" .
         "cta" (dict
             "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
             "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
