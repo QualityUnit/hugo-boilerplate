@@ -153,8 +153,16 @@ Design Tokens:
     "overlayColor" ""
 }}
 
+{{ $academyConfig := dict 
+    "customBackground" ""
+    "showOverlay" true 
+    "overlayMode" "svg"
+    "overlayColor" ""
+}}
+
 {{/* All Types Map: Defines all possible configurations */}}
 {{ $allTypeConfigs := dict
+  "academy" $academyConfig
   "integrations" $integrationConfig
   "features" (merge $featureBaseConfig (dict "overlayColor" "text-green-600"))
 }}
