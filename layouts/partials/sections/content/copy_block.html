@@ -1,0 +1,46 @@
+{{/*
+@section: Centered Content
+@description: A clean, centered content section with optional eyebrow text, heading, description, and rich text content. Includes typography styling for rich content with proper spacing and responsive design.
+@params:
+  - bgColor: Background color class (optional, default: "bg-gray-50")
+  - padding: Padding classes (optional, default: "px-6 py-32 lg:px-8")
+  - content: Main content HTML/Markdown (optional)
+  - contentColor: Color class for main content (optional, default: "text-gray-700")
+  - page: Page context for linkbuilding function (required)
+@example:
+  {{ partial "sections/content/copy_block.html" (dict 
+      "content" "
+        <p>Founded in 2015, our company has been dedicated to building tools that help teams work more efficiently.</p>
+        <h2>Our Mission</h2>
+        <p>We believe that great software should be both powerful and easy to use. Our mission is to create tools that simplify complex workflows without sacrificing functionality.</p>
+        <h2>Core Values</h2>
+        <ul>
+          <li><strong>User-centered design:</strong> We put our users first in every decision we make.</li>
+          <li><strong>Continuous improvement:</strong> We're always looking for ways to make our products better.</li>
+          <li><strong>Transparency:</strong> We communicate openly with our team and our customers.</li>
+        </ul>
+      "
+      "bgColor" "bg-white"
+      "page" .
+  ) }}
+@note: This section automatically applies typography styling to HTML content, enhancing headings, paragraphs, lists, blockquotes, code blocks, and tables with appropriate spacing and styling.
+*/}}
+
+{{/* Configurable variables */}}
+{{ $bgColor := .bgColor | default "bg-gray-100" }}
+{{ $padding := .padding | default "px-4 py-8 lg:px-8" }}
+
+{{/* Content section */}}
+{{ $contentColor := .contentColor | default "text-gray-700" }}
+{{ $content := .content | default "" }}
+{{ $page := .page }}
+{{ $copyBtn := i18n "ui.copy" | default "Copy to clipboard" }}
+
+<div class="Copy rounded-lg font-mono {{ $bgColor }} {{ $padding }} border {{ $contentColor }}">
+  <div class="textarea-pseudo">
+    {{ $content }}
+  </div>
+  <button class="font-sans btn-secondary-alternate p-2 Button--copy">
+      {{ $copyBtn }}
+  </button>
+</div>
