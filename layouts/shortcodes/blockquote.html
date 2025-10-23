@@ -30,8 +30,8 @@
 {{ $name := .Get "name" }}
 {{ $imageUrl := .Get "image" }}
 
-{{ partial "quote/blockquote" (dict 
-    "text" $text
-    "name" $name
-    "imageUrl" $imageUrl
+{{ partial "components/quote/blockquote.html" (dict
+  "text" $text
+  "name" $name
+  "imageUrl" $imageUrl
 ) }}
