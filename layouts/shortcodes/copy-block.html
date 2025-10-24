@@ -1,0 +1,43 @@
+{{/* 
+  Centered Content Shortcode
+  
+  Named Parameters:
+  - eyebrow: Small text displayed above the heading (default: "Introducing")
+  - heading: Main heading text (default: "JavaScript for beginners")
+  - description: Short description text displayed below the heading
+  - bgColor: Background color class (default: "bg-white")
+  - padding: Padding classes (default: "px-6 py-32 lg:px-8")
+  - eyebrowColor: Color class for the eyebrow text (default: "text-primary")
+  - headingColor: Color class for the heading text (default: "text-gray-900")
+  - descriptionColor: Color class for the description text (default: "text-gray-700")
+  - contentColor: Color class for the main content (default: "text-gray-700")
+  
+  Inner Content:
+  - HTML content to be displayed in the centered layout
+  
+  Example usage:
+  {{< copy-block
+      bgColor="bg-gray-50"
+  >}}
+    This is the main content of the centered section. 
+    
+    Feature one with detailed explanation</li>
+    Feature two with examples</li>
+    
+    Add as much content as needed in this section.
+  {{< /copy-block >}}
+*/}}
+
+{{ $bgColor := .Get "bgColor" | default "bg-gray-100" }}
+{{ $padding := .Get "padding" | default "px-4 py-8 lg:px-8" }}
+{{ $contentColor := .Get "contentColor" | default "text-gray-700" }}
+
+{{ $content := .Inner | markdownify | default "" }}
+
+{{ partial "sections/content/copy_block.html" (dict
+  "bgColor" $bgColor
+  "padding" $padding
+  "contentColor" $contentColor
+  "content" $content
+  "page" $.Page
+) }}
