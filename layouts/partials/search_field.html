@@ -167,7 +167,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Filter by directories if specified
                 if (directories && directories.length > 0) {
                     searchData = data.filter(item => {
-                        return item.dir && directories.includes(item.dir);
+                        if (!item.dir) return false;
+                        return directories.some(dir => item.dir === dir || item.dir.startsWith(dir + '/'));
                     });
                 } else {
                     searchData = data;

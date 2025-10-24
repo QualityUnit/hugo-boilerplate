@@ -10,4 +10,18 @@
 {{- end -}}
 {{- $.Scratch.Add "index" (dict "title" .Title "tags" .Params.tags "categories" .Params.categories "content" .Params.description "permalink" .Permalink "readingTime" .ReadingTime "date" (.Date.Format "Jan 2, 2006") "dir" $dir "image" .Params.image) -}}
 {{- end -}}
+{{- /* Include taxonomy terms (e.g., components) in the search index */ -}}
+{{- range $taxonomy := .Site.Taxonomies -}}
+  {{- range $term := $taxonomy -}}
+    {{- $dir := "" -}}
+    {{- if $term.Page.File -}}
+      {{- $path := $term.Page.File.Dir -}}
+      {{- if $path -}}
+        {{- $dir = replaceRE "^[a-z]{2}/" "" $path -}}
+        {{- $dir = replaceRE "/$" "" $dir -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $.Scratch.Add "index" (dict "title" $term.Page.Title "tags" $term.Page.Params.tags "categories" $term.Page.Params.categories "content" $term.Page.Params.description "permalink" $term.Page.Permalink "readingTime" $term.Page.ReadingTime "date" ($term.Page.Date.Format "Jan 2, 2006") "dir" $dir "image" $term.Page.Params.image) -}}
+  {{- end -}}
+{{- end -}}
 {{- $.Scratch.Get "index" | jsonify -}}
