@@ -12,7 +12,7 @@
 {{- end -}}
 {{- /* Include taxonomy terms (e.g., components) in the search index */ -}}
 {{- range $taxonomy := .Site.Taxonomies -}}
-  {{- range $term := . -}}
+  {{- range $term := $taxonomy -}}
     {{- $dir := "" -}}
     {{- if $term.Page.File -}}
       {{- $path := $term.Page.File.Dir -}}
