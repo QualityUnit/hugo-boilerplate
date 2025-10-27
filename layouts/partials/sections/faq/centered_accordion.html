@@ -90,25 +90,7 @@
   </div>
 </div>
 
-<!-- Schema.org FAQPage markup -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {{ range $index, $faq := $faqs }}
-    {
-      "@type": "Question",
-      "name": {{ .question | jsonify }},
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": {{ .answer | jsonify }}
-      }
-    }{{ if ne $index (sub (len $faqs) 1) }},{{ end }}
-    {{ end }}
-  ]
-}
-</script>
+{{ partial "schemaorg/faq.html" (dict "faqs" $faqs) }}
 
 <script>
   function toggleFAQ(button, id) {

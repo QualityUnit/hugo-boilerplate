@@ -1,23 +1,31 @@
 {{ define "main" }}
 {{ partial "breadcrumbs_default.html" . }}
 
+<div class="wrapper">
 {{/* Configuration variables */}}
 {{ $cardHeight := 540 }}
 
-<!-- Hero Section -->
-{{ partial "sections/hero/split_with_rounded_image" (dict
-  "heading" .Title
-  "description" .Params.description
-  "image" .Params.image
-  "eyebrow" (i18n "author_eyebrow")
-  "search" (.Params.search | default dict)
-) }}
+  <!-- Hero Section -->
+  {{ partial "sections/hero/split_with_rounded_image" (dict
+    "heading" .Title
+    "description" .Params.description
+    "image" .Params.image
+    "eyebrow" (i18n "author_eyebrow")
+    "search" (.Params.search | default dict)
+  ) }}
 
-<div class="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-  {{ range sort .Pages "Date" "desc" }}
-    {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" $cardHeight) }}
-  {{ end }}
+  <div class=" mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+    {{ range sort .Pages "Date" "desc" }}
+      {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" $cardHeight) }}
+    {{ end }}
+  </div>
 </div>
 
+   {{ $paginator := .Paginate .Pages.ByDate.Reverse 60 }}
+
+<!-- Pagination -->
+  {{ if gt $paginator.TotalPages 1 }}
+    {{partial "components/pagination/pagination.html" $paginator }}
+  {{ end }}
 
 {{ end }}

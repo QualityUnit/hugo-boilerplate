@@ -11,7 +11,7 @@
 */}}
 
 {{ $authorKey := .Params.author }}
-{{ if not $authorKey }}
+{{ if $authorKey }}
     {{ $authors := site.Data.authors }}
     {{ if and $authorKey $authors (index $authors $authorKey) }}
         {{ $author := index $authors $authorKey }}

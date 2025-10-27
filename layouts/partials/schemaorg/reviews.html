@@ -1,0 +1,41 @@
+{{/*
+@partial: Schema.org Reviews
+@description: Generates JSON-LD structured data for testimonials/reviews using schema.org Review type
+@params:
+  - testimonials: Array of testimonial objects (required)
+    - quote: Testimonial text
+    - personName: Name of the person giving testimonial
+@example:
+  {{ partial "schemaorg/reviews.html" (dict "testimonials" $testimonials) }}
+@note: Generates Review structured data for better SEO optimization
+*/}}
+
+{{ if .testimonials }}
+{{ $testimonials := .testimonials }}
+<!-- Schema.org structured data for reviews -->
+<script type="application/ld+json">
+[
+  {{ range $index, $testimonial := $testimonials }}
+  {{ if $index }},{{ end }}
+  {
+    "@context": "https://schema.org",
+    "@type": "Review",
+    "reviewBody": {{ $testimonial.quote | jsonify }},
+    "author": {
+      "@type": "Person",
+      "name": {{ $testimonial.personName | jsonify }}
+    },
+    "itemReviewed": {
+      "@type": "SoftwareApplication",
+      "name": {{ site.Title | jsonify }},
+      "url": {{ site.BaseURL | jsonify }},
+      "applicationCategory": {{ site.Params.softwareCategory | default "Business Software" | jsonify }}
+      {{ with site.Params.softwareDescription }},"description": {{ . | jsonify }}{{ end }}
+      {{ with site.Params.operatingSystem }},"operatingSystem": {{ . | jsonify }}{{ end }}
+      {{ with site.Params.softwareAudience }},"audience": {{ . | jsonify }}{{ end }}
+    }
+  }
+  {{ end }}
+]
+</script>
+{{ end }}
