@@ -14,7 +14,7 @@
 {{ $eyebrow := .Params.eyebrow | default "" }}
 {{ $tags := .Params.tags | default (slice) }}
 {{ $resources := .Params.resources | default (slice) }}
-{{ $title := .Params.title | default .Title | default "" }}
+{{ $title := .Params.heading | default .Params.title | default .Title | default "" }}
 {{ $shortDescription := .Params.shortDescription | default .Params.description | default "" }}
 {{ $typewriter := .Params.typewriter | default dict }}
 

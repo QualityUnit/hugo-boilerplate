@@ -21,6 +21,8 @@
 */}}
 
 {{ $icon := .icon }}
+{{ $iconSize := .iconSize | default "w-5 h-5" }}
+{{ $iconBackgroundSize := .iconBackgroundSize | default "w-10 h-10" }}
 {{ $title := .title }}
 {{ $description := .description }}
 {{ $buttonText := printf "%s %s" (i18n "icon.card.btn") $title }}
@@ -29,7 +31,9 @@
 {{ $iconCategory := .iconBackgroundCategory }}
 {{ $iconColors := site.Data.components.iconColors }}
 {{ $iconBackground := "bg-red-900" }}
-{{ if and $iconCategory (ne $iconCategory "") (index $iconColors $iconCategory) }}
+{{ if .iconBackground }}
+  {{ $iconBackground = .iconBackground }}
+{{ else if and $iconCategory (ne $iconCategory "") (index $iconColors $iconCategory) }}
   {{ $iconBackground = index $iconColors $iconCategory }}
 {{ end }}
 {{ $iconAlt := .iconAlt }}
@@ -37,11 +41,11 @@
 <div class="surface-secondary border-gray-primary rounded-xl p-8 {{ $cardClass }}">
     {{ if $icon }}
         <div class="mb-4">
-            <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ $iconBackground}}">
+            <div class="{{ $iconBackgroundSize }} flex items-center justify-center rounded-lg {{ $iconBackground}}">
                 {{ partial "components/media/lazysvg.html" (dict
                     "src" $icon
                     "alt" $iconAlt
-                    "class" "w-5 h-5 icon-on-brand flex-shrink-0"
+                    "class" "{{ $iconSize }} icon-on-brand flex-shrink-0"
                 ) }}
             </div>
         </div>
