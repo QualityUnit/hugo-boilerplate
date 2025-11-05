@@ -92,7 +92,19 @@ Design Tokens:
 {{ $cta := .cta }}
 {{ $tags := .tags | default (slice) }}
 {{ $categories := .categories | default (slice) }}
-{{ $badges := .badges | default (slice) }}
+{{ $badgesRaw := .badges | default (slice) }}
+{{ $badges := slice }}
+{{ if $badgesRaw }}
+  {{ if eq (printf "%T" $badgesRaw) "string" }}
+    {{/* Convert comma-separated string to slice */}}
+    {{ $badgesList := split $badgesRaw "," }}
+    {{ range $badgesList }}
+      {{ $badges = $badges | append (trim . " ") }}
+    {{ end }}
+  {{ else }}
+    {{ $badges = $badgesRaw }}
+  {{ end }}
+{{ end }}
 {{ $resources := .resources | default (slice) }}
 {{ $typewriter := .typewriter | default dict }}
 {{ $search := .search | default dict }}

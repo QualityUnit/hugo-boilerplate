@@ -4,6 +4,19 @@
 {{ $tags := .tags | default (slice) }}
 {{ $resources := .resources | default (slice) }}
 {{ $categories := .categories }}
+{{ $badgesRaw := .badges | default (slice) }}
+{{ $badges := slice }}
+{{ if $badgesRaw }}
+  {{ if eq (printf "%T" $badgesRaw) "string" }}
+    {{/* Convert comma-separated string to slice */}}
+    {{ $badgesList := split $badgesRaw "," }}
+    {{ range $badgesList }}
+      {{ $badges = $badges | append (trim . " ") }}
+    {{ end }}
+  {{ else }}
+    {{ $badges = $badgesRaw }}
+  {{ end }}
+{{ end }}
 {{ $typewriter := .typewriter | default dict }}
 {{ $search := .search | default dict }}
 
@@ -65,9 +78,20 @@
     <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
     {{ end }}
 
-    <!-- Tags and Categories -->
-    {{ if or $categories $tags $resources }}
+    <!-- Tags, Categories, Badges and Resources -->
+    {{ if or $categories $tags $badges $resources }}
     <div class="mt-6 flex flex-col gap-4">
+        {{ if $badges }}
+        <div class="flex flex-wrap gap-2">
+          {{ range $badges }}
+            {{ partial "components/label/label.html" (dict 
+              "text" . 
+              "badgeClass" "badge-base badge-gray badge-with-border"
+            ) }}
+          {{ end }}
+        </div>
+        {{ end }}
+
         {{ if $categories }}
             {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
             <div class="flex flex-wrap gap-2">
