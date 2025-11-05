@@ -135,14 +135,8 @@ Parameters:
   "color" $typewriterColor
 }}
 
-{{/* Process badges into slice */}}
-{{ $badgeSlice := slice }}
-{{ if $badges }}
-  {{ $badgeList := split $badges "," }}
-  {{ range $badgeList }}
-    {{ $badgeSlice = $badgeSlice | append (trim . " ") }}
-  {{ end }}
-{{ end }}
+{{/* Process badges into slice using reusable partial */}}
+{{ $badgeSlice := partial "helpers/process-badges.html" $badges }}
 
 {{ partial "sections/hero/split_with_image.html" (dict 
   "logo" $logo

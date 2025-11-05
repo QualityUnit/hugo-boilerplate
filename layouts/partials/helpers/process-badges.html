@@ -1,0 +1,33 @@
+{{/*
+  Badge Processing Partial
+  
+  Processes badges from either a comma-separated string or slice and returns a slice.
+  
+  Usage:
+  {{ $badges := partial "helpers/process-badges.html" .badges }}
+  
+  Input: 
+  - String: "Badge 1, Badge 2, Badge 3"
+  - Slice: ["Badge 1", "Badge 2", "Badge 3"]
+  - Empty/nil: returns empty slice
+  
+  Output: Always returns a slice of trimmed badge strings
+*/}}
+
+{{ $badgesRaw := . | default (slice) }}
+{{ $badges := slice }}
+
+{{ if $badgesRaw }}
+  {{ if eq (printf "%T" $badgesRaw) "string" }}
+    {{/* Convert comma-separated string to slice */}}
+    {{ $badgesList := split $badgesRaw "," }}
+    {{ range $badgesList }}
+      {{ $badges = $badges | append (trim . " ") }}
+    {{ end }}
+  {{ else }}
+    {{/* Already a slice, just return it */}}
+    {{ $badges = $badgesRaw }}
+  {{ end }}
+{{ end }}
+
+{{ return $badges }}
