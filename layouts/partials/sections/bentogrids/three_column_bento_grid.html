@@ -79,7 +79,7 @@
       {{ if $description }}
         <p class="mt-6 mx-auto max-w-2xl text-center text-lg/9 text-secondary prose-links">{{ $description | safeHTML }}</p>
       {{ end }}
-      <div class="mt-20 grid gap-8 lg:gap-16 md:grid-cols-3">
+      <div class="mt-20 grid gap-8 lg:gap-16 md:grid-cols-3 [&_picture]:my-0">
         {{ range $index, $card := $cards }}
         {{ $imagePosition := $card.imagePosition | default "top" }}
         <div class="relative">
@@ -90,27 +90,29 @@
                     {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")) }}
                   </div>
                 {{ end }}
-                
-                <div class="p-4 lg:p-8">
-                  {{ if $card.title }}
-                    <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center">{{ $card.title }}</p>
-                  {{ end }}
 
-                {{ if $card.description }}
-                  <p class="max-w-lg text-sm/8 text-secondary max-md:text-center prose-links">{{ $card.description | safeHTML }}</p>
-                {{ end }}
+                {{ if or $card.title $card.description $card.url }}
+                  <div class="p-4 lg:p-8">
+                    {{ if $card.title }}
+                      <p class="text-base/8 font-medium tracking-tight text-heading max-md:text-center">{{ $card.title }}</p>
+                    {{ end }}
 
-                {{ if $card.url }}
-                  <div class="mt-5 flex items-center justify-center md:justify-start">
-                    {{ partial "components/buttons/buttons.html" (dict
-                        "text" $card.linkText
-                        "url" ($card.url)
-                        "variant" "secondary"
-                        "showArrow" false
-                    ) }}
+                    {{ if $card.description }}
+                      <p class="max-w-lg text-sm/8 text-secondary max-md:text-center prose-links">{{ $card.description | safeHTML }}</p>
+                    {{ end }}
+
+                    {{ if $card.url }}
+                      <div class="mt-5 flex items-center justify-center md:justify-start">
+                        {{ partial "components/buttons/buttons.html" (dict
+                            "text" $card.linkText
+                            "url" ($card.url)
+                            "variant" "secondary"
+                            "showArrow" false
+                        ) }}
+                      </div>
+                    {{ end }}
                   </div>
                 {{ end }}
-              </div>
 
               {{ if and $card.image (eq $imagePosition "bottom") }}
                 <div class="flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
