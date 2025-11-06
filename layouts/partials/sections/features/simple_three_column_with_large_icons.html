@@ -7,6 +7,7 @@
   - description: Section description text (optional, default: "Lorem ipsum dolor sit amet consect adipisicing elit...")
   - theme: "light" (default) or "dark" — add class="dark" for section
   - maxWidthHeading: Maximum width for the heading (optional, default: "max-w-2xl")
+  - gridGap: CSS classes for grid gap spacing (optional, default: "gap-x-16 gap-y-12 lg:gap-y-24")
   - features: Array of feature objects (optional, includes defaults)
     - icon: SVG path for the icon (as HTML string)
     - title: Feature title
@@ -20,6 +21,7 @@
       "description" "Our platform offers powerful features to streamline your workflow and boost productivity."
       "theme" "light"
       "maxWidthHeading" "max-w-2xl"
+      "gridGap" "gap-x-8 gap-y-8 lg:gap-y-16"
       "features" (slice
           (dict
               "icon" "map"
@@ -57,6 +59,7 @@
 {{ $isDark := eq $theme "dark" }}
 {{ $isAlternate := eq $theme "alternate" }}
 {{ $darkClass := cond $isDark "dark" "" }}
+{{ $gridGap := .gridGap | default "gap-x-16 gap-y-12 lg:gap-y-24" }}
 
 {{ $iconClass := "w-7 h-7 p-1 rounded-lg flex-shrink-0 product-icon" }}
 {{ $iconWrapperClass := "size-10 p-2 surface-brand rounded-lg flex items-center justify-center" }}
@@ -78,7 +81,7 @@
         </div>
       {{ end }}
       <div class="mx-auto {{ if or $eyebrow $heading $description }}mt-16{{ else }}mt-0{{ end }} max-w-2-xl sm:mt-12 lg:mt-24 lg:max-w-none">
-        <dl class="grid max-w-xl grid-cols-1 gap-x-16 gap-y-12 lg:gap-y-24 md:max-w-none lg:grid-cols-3">
+        <dl class="grid max-w-xl grid-cols-1 {{ $gridGap }} md:max-w-none lg:grid-cols-3">
           {{ range $features }}
           <div class="relative pl-0">
             {{ if .icon }}
