@@ -7,6 +7,7 @@
   - heading: Main heading text (default: "Stay on top of customer support")
   - description: Description text below the main heading
   - theme: Color theme for the section (default: "light")
+  - gridGap: CSS classes for grid gap spacing (default: "gap-x-16 gap-y-12 lg:gap-y-24")
   
   Inner Content (optional JSON array):
   - Array of feature objects with the following structure:
@@ -21,6 +22,7 @@
       eyebrow="FEATURES"
       heading="Our Key Features"
       description="Discover the powerful features that make our product stand out from the competition."
+      gridGap="gap-x-8 gap-y-8 lg:gap-y-16"
   >}}
     [
       {
@@ -51,6 +53,7 @@
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
 {{ $theme := .Get "theme" | default "light" }}
+{{ $gridGap := .Get "gridGap" | default "gap-x-16 gap-y-12 lg:gap-y-24" }}
 
 {{ $defaultFeatures := slice }}
 
@@ -66,6 +69,7 @@
     "heading" $heading
     "description" $description
     "theme" $theme
+    "gridGap" $gridGap
     "features" $features
     "page" $.Page
 ) }}

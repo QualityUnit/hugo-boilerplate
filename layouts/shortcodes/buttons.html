@@ -1,0 +1,80 @@
+{{/*
+@shortcode: buttons
+@description: Renders customizable buttons with flexible parameters
+@params:
+  - buttons: Array of button objects with properties: text, url, variant, size, classes, target
+  - containerClasses: Additional classes for the container (optional)
+  - layout: Layout type - "horizontal", "vertical", "grid" (optional, default: "vertical")
+@example:
+  {{< buttons layout="vertical" containerClasses="mt-8" >}}
+    [
+      {
+        "text": "Download logos",
+        "url": "/branding-assets/logos.zip",
+        "variant": "primary",
+        "size": "lg",
+        "target": "_blank"
+      },
+      {
+        "text": "View Guidelines",
+        "url": "/brand-guidelines/",
+        "variant": "secondary",
+        "size": "lg"
+      }
+    ]
+  {{< /buttons >}}
+
+  Or with inline parameters:
+  {{< buttons 
+      buttons='[{"text":"Download","url":"/download","variant":"primary"}]'
+      layout="horizontal"
+  />}}
+*/}}
+
+{{/* Get parameters */}}
+{{ $layout := .Get "layout" | default "vertical" }}
+{{ $containerClasses := .Get "containerClasses" | default "" }}
+{{ $buttons := .Get "buttons" }}
+
+{{/* Try to parse buttons from inner content if not provided as parameter */}}
+{{ if not $buttons }}
+  {{ $buttons = .Inner | strings.TrimSpace }}
+{{ end }}
+
+{{/* Parse buttons JSON */}}
+{{ $buttonsData := slice }}
+{{ if $buttons }}
+  {{ $buttonsData = $buttons | unmarshal }}
+{{ end }}
+
+{{/* Set layout classes */}}
+{{ $layoutClasses := "" }}
+{{ if eq $layout "horizontal" }}
+  {{ $layoutClasses = "flex flex-wrap gap-4" }}
+{{ else if eq $layout "grid" }}
+  {{ $layoutClasses = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" }}
+{{ else }}
+  {{ $layoutClasses = "space-y-4" }}
+{{ end }}
+
+<div class="buttons-container {{ $layoutClasses }} {{ $containerClasses }}">
+  {{ range $buttonsData }}
+    <div class="button-wrapper">
+      {{ partial "components/buttons/buttons.html" (dict
+          "text" (.text | default "Button")
+          "url" (.url | default "#")
+          "variant" (.variant | default "primary")
+          "size" (.size | default "lg")
+          "classes" (.classes | default "")
+          "target" (.target | default "_self")
+          "rel" (.rel | default "")
+          "id" (.id | default "")
+          "ariaLabel" (.ariaLabel | default "")
+          "showArrow" (.showArrow | default false)
+          "dataAttributes" (.dataAttributes | default "")
+          "type" (.type | default "button")
+          "element" (.element | default "link")
+      ) }}
+    </div>
+  {{ end }}
+</div>
