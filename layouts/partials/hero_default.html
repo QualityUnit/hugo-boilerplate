@@ -14,6 +14,7 @@
 {{ $eyebrow := .Params.eyebrow | default "" }}
 {{ $tags := .Params.tags | default (slice) }}
 {{ $resources := .Params.resources | default (slice) }}
+{{ $badges := .Params.badges | default "" }}
 {{ $title := .Params.heading | default .Params.title | default .Title | default "" }}
 {{ $shortDescription := .Params.shortDescription | default .Params.description | default "" }}
 {{ $typewriter := .Params.typewriter | default dict }}
@@ -45,6 +46,7 @@
     "videoID" .Params.youtubeVideoID
     "typewriter" $typewriter
     "tags" $tags
+    "badges" $badges
     "resources" $resources
     "search" $search
     "cta" (dict
@@ -59,6 +61,7 @@
     "chatbotId" .Params.chatbotId
     "workspaceId" .Params.workspaceId
     "tags" $tags
+    "badges" $badges
     "resources" $resources
     "search" $search
     "cta" (dict
@@ -76,6 +79,7 @@
         "icon" (.Params.icon | default "")
         "image" $image
         "tags" $tags
+        "badges" $badges
         "resources" $resources
         "typewriter" $typewriter
         "search" $search
@@ -98,6 +102,7 @@
     "eyebrow"  (.Params.eyebrow | default (i18n "eyebrow") | default "")
     "typewriter" $typewriter
     "tags" $tags
+    "badges" $badges
     "resources" $resources
     "cta" (dict
     "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
