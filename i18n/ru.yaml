@@ -127,3 +127,8 @@ search_results_found_plural: "Найдено %d результатов для %s
 copy_code: "Копировать код"
 copy_success: "Скопировано!"
 copy_error: "Ошибка копирования"
+
+# Publication info
+published_on_by: "Опубликовано %s автором %s."
+published_on: "Опубликовано %s."
+last_modified_on_at: "Последнее изменение %s в %s"

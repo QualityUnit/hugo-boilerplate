@@ -127,3 +127,8 @@ search_results_found_plural: "%d resultaten gevonden voor %s"
 copy_code: "Code kopiëren"
 copy_success: "Gekopieerd!"
 copy_error: "Kopieerfout"
+
+# Publication info
+published_on_by: "Gepubliceerd op %s door %s."
+published_on: "Gepubliceerd op %s."
+last_modified_on_at: "Laatst gewijzigd op %s om %s"

@@ -125,3 +125,7 @@ search_results_found_plural: "Najdenih %d rezultatov za %s"
 copy_code: "Kopiraj kodo"
 copy_success: "Kopirano!"
 copy_error: "Napaka pri kopiranju"
+# Publication info
+published_on_by: "Published on %s by %s."
+published_on: "Published on %s."
+last_modified_on_at: "Last modified on %s at %s"

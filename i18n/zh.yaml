@@ -127,3 +127,8 @@ search_results_found_plural: "为 %s 找到 %d 个结果"
 copy_code: "复制代码"
 copy_success: "已复制！"
 copy_error: "复制时出错"
+
+# Publication info
+published_on_by: "发表于 %s，作者 %s。"
+published_on: "发表于 %s。"
+last_modified_on_at: "最后修改于 %s %s"

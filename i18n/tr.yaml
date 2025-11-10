@@ -126,3 +126,8 @@ search_results_found_plural: "%s için %d sonuç bulundu"
 copy_code: "Kodu kopyala"
 copy_success: "Kopyalandı!"
 copy_error: "Kopyalama hatası"
+
+# Publication info
+published_on_by: "%s tarihinde %s tarafından yayınlandı."
+published_on: "%s tarihinde yayınlandı."
+last_modified_on_at: "Son güncelleme: %s saat %s"

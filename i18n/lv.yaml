@@ -125,3 +125,7 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Kopēt kodu"
 copy_success: "Nokopēts!"
 copy_error: "Kopēšanas kļūda"
+# Publication info
+published_on_by: "Published on %s by %s."
+published_on: "Published on %s."
+last_modified_on_at: "Last modified on %s at %s"

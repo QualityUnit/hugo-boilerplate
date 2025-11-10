@@ -127,3 +127,8 @@ search_results_found_plural: "%s에 대한 %d개의 결과를 찾았습니다"
 copy_code: "코드 복사"
 copy_success: "복사됨!"
 copy_error: "복사 오류"
+
+# Publication info
+published_on_by: "%s에 %s에 의해 게시됨."
+published_on: "%s에 게시됨."
+last_modified_on_at: "%s %s에 마지막 수정됨"

@@ -127,3 +127,8 @@ search_results_found_plural: "Encontrados %d resultados para %s"
 copy_code: "Copiar código"
 copy_success: "Copiado!"
 copy_error: "Erro ao copiar"
+
+# Publication info
+published_on_by: "Publicado em %s por %s."
+published_on: "Publicado em %s."
+last_modified_on_at: "Última modificação em %s às %s"

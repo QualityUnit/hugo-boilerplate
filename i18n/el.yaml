@@ -127,3 +127,8 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Αντιγραφή κώδικα"
 copy_success: "Αντιγράφηκε!"
 copy_error: "Σφάλμα αντιγραφής"
+
+# Publication info
+published_on_by: "Δημοσιεύτηκε στις %s από %s."
+published_on: "Δημοσιεύτηκε στις %s."
+last_modified_on_at: "Τελευταία τροποποίηση στις %s στις %s"

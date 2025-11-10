@@ -115,3 +115,7 @@ search_results_found_plural: "Пронађено %d резултата за %s"
 copy_code: "Копирај код"
 copy_success: "Копирано!"
 copy_error: "Грешка при копирању"
+# Publication info
+published_on_by: "Published on %s by %s."
+published_on: "Published on %s."
+last_modified_on_at: "Last modified on %s at %s"

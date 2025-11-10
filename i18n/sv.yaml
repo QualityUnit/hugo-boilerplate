@@ -127,3 +127,8 @@ search_results_found_plural: "Hittade %d resultat för %s"
 copy_code: "Kopiera kod"
 copy_success: "Kopierat!"
 copy_error: "Fel vid kopiering"
+
+# Publication info
+published_on_by: "Publicerat %s av %s."
+published_on: "Publicerat %s."
+last_modified_on_at: "Senast ändrat %s kl. %s"

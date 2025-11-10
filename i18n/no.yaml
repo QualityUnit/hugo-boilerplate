@@ -126,3 +126,8 @@ search_results_found_plural: "Fant %d resultater for %s"
 copy_code: "Kopier kode"
 copy_success: "Kopiert!"
 copy_error: "Kopieringsfeil"
+
+# Publication info
+published_on_by: "Publisert %s av %s."
+published_on: "Publisert %s."
+last_modified_on_at: "Sist endret %s kl. %s"

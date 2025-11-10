@@ -113,3 +113,7 @@ search_results_found_plural: "%s के लिए %d परिणाम मि�
 copy_code: "कोड कॉपी करें"
 copy_success: "कॉपी हो गया!"
 copy_error: "कॉपी त्रुटि"
+# Publication info
+published_on_by: "Published on %s by %s."
+published_on: "Published on %s."
+last_modified_on_at: "Last modified on %s at %s"

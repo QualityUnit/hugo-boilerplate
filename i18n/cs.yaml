@@ -126,3 +126,8 @@ search_results_found_plural: "Nalezeno %d výsledků pro %s"
 copy_code: "Kopírovat kód"
 copy_success: "Zkopírováno!"
 copy_error: "Chyba při kopírování"
+
+# Publication info
+published_on_by: "Publikováno %s od %s."
+published_on: "Publikováno %s."
+last_modified_on_at: "Naposledy upraveno %s v %s"

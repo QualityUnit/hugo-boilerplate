@@ -124,3 +124,7 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Afrita kóða"
 copy_success: "Afritað!"
 copy_error: "Villa við afritun"
+# Publication info
+published_on_by: "Published on %s by %s."
+published_on: "Published on %s."
+last_modified_on_at: "Last modified on %s at %s"

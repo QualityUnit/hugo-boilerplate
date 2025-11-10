@@ -125,3 +125,8 @@ search_results_found_plural: "Löytyi %d tulosta haulle %s"
 copy_code: "Kopioi koodi"
 copy_success: "Kopioitu!"
 copy_error: "Kopiointivirhe"
+
+# Publication info
+published_on_by: "Julkaistu %s, kirjoittaja %s."
+published_on: "Julkaistu %s."
+last_modified_on_at: "Viimeksi muokattu %s klo %s"

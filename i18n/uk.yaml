@@ -126,3 +126,8 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Копіювати код"
 copy_success: "Скопійовано!"
 copy_error: "Помилка копіювання"
+
+# Publication info
+published_on_by: "Опубліковано %s від %s."
+published_on: "Опубліковано %s."
+last_modified_on_at: "Останнє оновлення %s о %s"

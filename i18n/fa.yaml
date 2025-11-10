@@ -126,3 +126,7 @@ search_results_found_plural: "%d نتیجه برای %s یافت شد"
 copy_code: "کپی کد"
 copy_success: "کپی شد!"
 copy_error: "خطا در کپی"
+# Publication info
+published_on_by: "Published on %s by %s."
+published_on: "Published on %s."
+last_modified_on_at: "Last modified on %s at %s"

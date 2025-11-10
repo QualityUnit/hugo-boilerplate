@@ -126,3 +126,8 @@ search_results_found_plural: "%d találat erre: %s"
 copy_code: "Kód másolása"
 copy_success: "Másolva!"
 copy_error: "Másolási hiba"
+
+# Publication info
+published_on_by: "Közzétéve: %s, szerző: %s."
+published_on: "Közzétéve: %s."
+last_modified_on_at: "Utolsó módosítás: %s %s"

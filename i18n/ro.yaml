@@ -125,3 +125,8 @@ search_results_found_plural: "S-au găsit %d rezultate pentru %s"
 copy_code: "Copiază codul"
 copy_success: "Copiat!"
 copy_error: "Eroare la copiere"
+
+# Publication info
+published_on_by: "Publicat pe %s de %s."
+published_on: "Publicat pe %s."
+last_modified_on_at: "Ultima modificare pe %s la %s"
