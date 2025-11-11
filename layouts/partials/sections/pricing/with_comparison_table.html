@@ -53,6 +53,7 @@
   - checkColorComparison: Color for the checkmark icons (default: "primary")
   - dashColorComparison: Color for the dash icons (default: "gray-400")
   - togglePrice: Boolean to control monthly/annual pricing toggle (default: false)
+  - promo: Boolean to enable promotional pricing (default: false)
   
   Centralized Data Structure:
   - tiersComparison: Auto-loaded from data/pricing.yaml with:
@@ -85,6 +86,7 @@
 {{ $toggleActiveBgColor := .toggleActiveBgColor }}
 {{ $toggleBorderColor := .toggleBorderColor }}
 {{ $togglePrice := .togglePrice }}
+{{ $promo := .promo | default site.Params.promotional.enabled | default false }}
 {{ $tiersComparison := .tiersComparison }}
 {{ $featureCategories := .featureCategories }}
 
@@ -158,36 +160,60 @@
                                 {{ $hasFunctionality := or (or $tier.monthlyPrice $tier.annualPrice) (and $tier.cta $tier.cta.url $tier.cta.text) }}
                                 {{ if $hasFunctionality }}
                                 <td class="not-prose px-6 pt-0 xl:px-8">
-                                    <p class="mt-0 lg:flex items-baseline gap-x-1">
+                                    <div class="mt-0 flex flex-col">
                                         {{ if $togglePrice }}
                                             <!-- Monthly price (default visible) -->
                                             {{ if $tier.monthlyPrice }}
-                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading monthly-price">{{ $tier.monthlyPrice }}</span>
+                                            <div class="monthly-price flex flex-col">
+                                                {{ if and $promo $tier.promoMonthlyPrice }}
+                                                    <div class="flex items-baseline gap-x-2 mb-1">
+                                                        <span class="text-lg line-through text-tertiary"><sup class="text-md">$</sup>{{ $tier.monthlyPrice }}</span>
+                                                        <span class="text-xl md:text-4xl font-semibold tracking-tight text-red-600"><sup class="text-lg">$</sup>{{ $tier.promoMonthlyPrice }}</span>
+                                                    </div>
+                                                {{ else }}
+                                                    <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading mb-1"><sup class="text-lg">$</sup>{{ $tier.monthlyPrice }}</span>
+                                                {{ end }}
+                                                {{ with $tier.intervalMonthly }}
+                                                <span class="text-sm/6 font-semibold text-heading">{{ i18n . }}</span>
+                                                {{ end }}
+                                            </div>
                                             {{ end }}
                                             <!-- Annual price (hidden by default) -->
                                             {{ if $tier.annualPrice }}
-                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading annual-price hidden">{{ $tier.annualPrice }}</span>
+                                            <div class="annual-price hidden"
+                                                 style="display: none; flex-direction: column;">
+                                                {{ if and $promo $tier.promoAnnualPrice }}
+                                                    <div class="flex items-baseline gap-x-2 mb-1">
+                                                        <span class="text-lg line-through text-tertiary"><sup class="text-md">$</sup>{{ $tier.annualPrice }}</span>
+                                                        <span class="text-xl md:text-4xl font-semibold tracking-tight text-red-600"><sup class="text-lg">$</sup>{{ $tier.promoAnnualPrice }}</span>
+                                                    </div>
+                                                {{ else }}
+                                                    <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading mb-1"><sup class="text-lg">$</sup>{{ $tier.annualPrice }}</span>
+                                                {{ end }}
+                                                {{ with $tier.intervalAnnual }}
+                                                <span class="text-sm/6 font-semibold text-heading">{{ i18n . }}</span>
+                                                {{ end }}
+                                            </div>
                                             {{ end }}
                                         {{ else }}
-                                            <!-- Only monthly price when toggle is disabled -->
-                                            {{ if $tier.monthlyPrice }}
-                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading">{{ $tier.monthlyPrice }}</span>
+                                            <!-- Only annual price when toggle is disabled -->
+                                            {{ if $tier.annualPrice }}
+                                                <div class="flex flex-col">
+                                                    {{ if and $promo $tier.promoAnnualPrice }}
+                                                        <div class="flex items-baseline gap-x-2 mb-1">
+                                                            <span class="text-lg line-through text-tertiary"><sup class="text-md">$</sup>{{ $tier.annualPrice }}</span>
+                                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-red-600"><sup class="text-lg">$</sup>{{ $tier.promoAnnualPrice }}</span>
+                                                        </div>
+                                                    {{ else }}
+                                                        <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading mb-1"><sup class="text-lg">$</sup>{{ $tier.annualPrice }}</span>
+                                                    {{ end }}
+                                                    {{ with $tier.intervalAnnual }}
+                                                    <span class="text-sm/6 font-semibold text-heading">{{ i18n . }}</span>
+                                                    {{ end }}
+                                                </div>
                                             {{ end }}
                                         {{ end }}
-                                        <!-- Interval -->
-                                        {{ if $togglePrice }}
-                                            {{ with $tier.intervalMonthly }}
-                                            <span class="text-sm/6 font-semibold text-heading monthly-interval">{{ i18n . }}</span>
-                                            {{ end }}
-                                            {{ with $tier.intervalAnnual }}
-                                            <span class="text-sm/6 font-semibold text-heading annual-interval hidden">{{ i18n . }}</span>
-                                            {{ end }}
-                                        {{ else }}
-                                            {{ with $tier.intervalMonthly }}
-                                            <span class="text-sm/6 font-semibold text-heading">{{ i18n . }}</span>
-                                            {{ end }}
-                                        {{ end }}
-                                    </p>
+                                    </div>
                                     {{ if and $tier.cta $tier.cta.url $tier.cta.text }}
                                         {{ $ctaUrl := $tier.cta.url }}
                                         {{ $translatedUrl := i18n $ctaUrl }}
@@ -237,18 +263,36 @@
 
                                     {{ range $tierIndex, $tier := $tiersComparison }}
                                         {{ $tierValue := "" }}
+                                        {{ $promoKey := printf "%sPromo" $tier.name }}
+                                        {{ $promoValue := "" }}
+                                        
                                         {{ if and $feature.tiersComparison (isset $feature.tiersComparison $tier.name) }}
                                             {{ $tierValue = index $feature.tiersComparison $tier.name }}
+                                        {{ end }}
+                                        
+                                        {{ if and $feature.tiersComparison (isset $feature.tiersComparison $promoKey) }}
+                                            {{ $promoValue = index $feature.tiersComparison $promoKey }}
                                         {{ end }}
                                         <td class="px-6 py-4 xl:px-8">
                                             {{ if eq $tierValue true }}
                                                 {{ partial "icons/check" "mx-auto size-5 text-primary" }}
                                             {{ else if eq $tierValue false }}
-                                                {{ partial "icons/minus" "mx-auto size-5 text-gray-400" }}
+                                                {{ partial "icons/minus" "mx-auto size-5 text-tertiary" }}
                                             {{ else if $tierValue }}
                                                 <div class="text-center text-sm/6 text-tertiary">
                                                     {{ if (hasPrefix $tierValue "pricing_") }}
                                                         {{ i18n $tierValue | default $tierValue }}
+                                                    {{ else if or (eq $feature.name "pricing_per_month_annual") (eq $feature.name "pricing_per_month_monthly") }}
+                                                       {{ if and $promo $promoValue }}
+                                                            <!-- Show promo price with strikethrough regular price -->
+                                                            <div class="flex flex-wrap justify-center gap-1">
+                                                                <span class="line-through text-tertiary"><sup>$</sup>{{ $tierValue }}</span>
+                                                                <span class="text-red-600 font-semibold"><sup>$</sup>{{ $promoValue }}</span>
+                                                            </div>
+                                                        {{ else }}
+                                                            <!-- Show regular price -->
+                                                            <sup>$</sup>{{ $tierValue }}
+                                                        {{ end }}
                                                     {{ else }}
                                                         {{ $tierValue }}
                                                     {{ end }}
@@ -404,8 +448,15 @@
                     inactiveLabel.classList.add('text-{{ $toggleTextColor }}');
 
                     // Toggle element visibility
-                    showElements.forEach(el => el.classList.remove('hidden'));
-                    hideElements.forEach(el => el.classList.add('hidden'));
+                    showElements.forEach(el => {
+                        el.classList.remove('hidden');
+                        el.style.display = 'flex';
+                        el.style.flexDirection = 'column';
+                    });
+                    hideElements.forEach(el => {
+                        el.classList.add('hidden');
+                        el.style.display = 'none';
+                    });
                 }
 
                 // Set up event listeners for the toggle
