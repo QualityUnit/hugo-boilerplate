@@ -113,3 +113,6 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "کوڈ کو کاپی کریں"
 copy_success: "کاپی ہو گیا!"
 copy_error: "کاپی کرنے میں خرابی"
+
+# Promotional offers
+promo_offer: "محدود پیشکش"

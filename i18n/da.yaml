@@ -127,3 +127,6 @@ search_results_found_plural: "Fandt %d resultater for %s"
 copy_code: "Kopiér kode"
 copy_success: "Kopieret!"
 copy_error: "Kopieringsfejl"
+
+# Promotional offers
+promo_offer: "Begrænset tilbud"

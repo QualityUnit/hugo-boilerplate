@@ -124,3 +124,6 @@ search_results_found_plural: "พบ %d ผลลัพธ์สำหรับ 
 copy_code: "คัดลอกโค้ด"
 copy_success: "คัดลอกแล้ว!"
 copy_error: "ข้อผิดพลาดในการคัดลอก"
+
+# Promotional offers
+promo_offer: "ข้อเสนอจำกัด"

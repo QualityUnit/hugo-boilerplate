@@ -126,3 +126,6 @@ search_results_found_plural: "Nalezeno %d výsledků pro %s"
 copy_code: "Kopírovat kód"
 copy_success: "Zkopírováno!"
 copy_error: "Chyba při kopírování"
+
+# Promotional offers
+promo_offer: "Limitovaná nabídka"

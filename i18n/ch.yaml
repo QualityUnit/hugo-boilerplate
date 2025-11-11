@@ -113,3 +113,6 @@ copy_error: "Kopierfehler"
 
 search_results_found: "Found %d result for %s"
 search_results_found_plural: "Found %d results for %s"
+
+# Promotional offers
+promo_offer: "Begrenztes Angebot"

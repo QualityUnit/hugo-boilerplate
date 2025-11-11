@@ -125,3 +125,6 @@ search_results_found_plural: "Najdenih %d rezultatov za %s"
 copy_code: "Kopiraj kodo"
 copy_success: "Kopirano!"
 copy_error: "Napaka pri kopiranju"
+
+# Promotional offers
+promo_offer: "Omejena ponudba"

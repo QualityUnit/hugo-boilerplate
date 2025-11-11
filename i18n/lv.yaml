@@ -125,3 +125,6 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Kopēt kodu"
 copy_success: "Nokopēts!"
 copy_error: "Kopēšanas kļūda"
+
+# Promotional offers
+promo_offer: "Ierobežots piedāvājums"

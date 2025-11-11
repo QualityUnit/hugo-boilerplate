@@ -115,3 +115,6 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Kodea kopiatu"
 copy_success: "Kopiatu da!"
 copy_error: "Kopiatzeko errorea"
+
+# Promotional offers
+promo_offer: "Eskaintza mugatua"

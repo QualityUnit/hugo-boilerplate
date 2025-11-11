@@ -127,3 +127,6 @@ search_results_found_plural: "%d resultaten gevonden voor %s"
 copy_code: "Code kopiëren"
 copy_success: "Gekopieerd!"
 copy_error: "Kopieerfout"
+
+# Promotional offers
+promo_offer: "Beperkte aanbieding"

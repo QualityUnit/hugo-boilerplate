@@ -125,3 +125,6 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Salin kod"
 copy_success: "Disalin!"
 copy_error: "Ralat penyalinan"
+
+# Promotional offers
+promo_offer: "Tawaran terhad"

@@ -124,3 +124,6 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Afrita kóða"
 copy_success: "Afritað!"
 copy_error: "Villa við afritun"
+
+# Promotional offers
+promo_offer: "Takmörkuð tilboð"

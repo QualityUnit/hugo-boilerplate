@@ -125,3 +125,6 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Kopijuoti kodą"
 copy_success: "Nukopijuota!"
 copy_error: "Kopijavimo klaida"
+
+# Promotional offers
+promo_offer: "Ribotas pasiūlymas"

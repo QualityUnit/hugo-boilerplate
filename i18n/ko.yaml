@@ -127,3 +127,6 @@ search_results_found_plural: "%s에 대한 %d개의 결과를 찾았습니다"
 copy_code: "코드 복사"
 copy_success: "복사됨!"
 copy_error: "복사 오류"
+
+# Promotional offers
+promo_offer: "한정 혜택"

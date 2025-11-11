@@ -124,3 +124,6 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Copia el codi"
 copy_success: "Copiat!"
 copy_error: "Error en copiar"
+
+# Promotional offers
+promo_offer: "Oferta limitada"

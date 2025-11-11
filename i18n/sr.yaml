@@ -115,3 +115,6 @@ search_results_found_plural: "Пронађено %d резултата за %s"
 copy_code: "Копирај код"
 copy_success: "Копирано!"
 copy_error: "Грешка при копирању"
+
+# Promotional offers
+promo_offer: "Ограничена понуда"
