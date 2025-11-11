@@ -90,6 +90,9 @@
 {{ $tiersComparison := .tiersComparison }}
 {{ $featureCategories := .featureCategories }}
 
+{{ $pricingFeatureAnnual := "pricing_per_month_annual" }}
+{{ $pricingFeatureMonthly := "pricing_per_month_monthly" }}
+
 {{ if (gt (len $tiersComparison) 0) }}
     
     <div id="comparison-table" class="bg-{{ $backgroundColorComparison }} py-20">
@@ -282,7 +285,7 @@
                                                 <div class="text-center text-sm/6 text-tertiary">
                                                     {{ if (hasPrefix $tierValue "pricing_") }}
                                                         {{ i18n $tierValue | default $tierValue }}
-                                                    {{ else if or (eq $feature.name "pricing_per_month_annual") (eq $feature.name "pricing_per_month_monthly") }}
+                                                    {{ else if or (eq $feature.name $pricingFeatureAnnual) (eq $feature.name $pricingFeatureMonthly) }}
                                                        {{ if and $promo $promoValue }}
                                                             <!-- Show promo price with strikethrough regular price -->
                                                             <div class="flex flex-wrap justify-center gap-1">
