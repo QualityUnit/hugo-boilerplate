@@ -167,7 +167,7 @@
                                             <div class="monthly-price flex flex-col">
                                                 {{ if and $promo $tier.promoMonthlyPrice }}
                                                     <div class="flex items-baseline gap-x-2 mb-1">
-                                                        <span class="text-lg line-through text-tertiary"><sup class="text-md">$</sup>{{ $tier.monthlyPrice }}</span>
+                                                        <span class="text-lg line-through text-tertiary"><sup class="text-base">$</sup>{{ $tier.monthlyPrice }}</span>
                                                         <span class="text-xl md:text-4xl font-semibold tracking-tight text-red-600"><sup class="text-lg">$</sup>{{ $tier.promoMonthlyPrice }}</span>
                                                     </div>
                                                 {{ else }}
@@ -184,7 +184,7 @@
                                                  style="display: none; flex-direction: column;">
                                                 {{ if and $promo $tier.promoAnnualPrice }}
                                                     <div class="flex items-baseline gap-x-2 mb-1">
-                                                        <span class="text-lg line-through text-tertiary"><sup class="text-md">$</sup>{{ $tier.annualPrice }}</span>
+                                                        <span class="text-lg line-through text-tertiary"><sup class="text-base">$</sup>{{ $tier.annualPrice }}</span>
                                                         <span class="text-xl md:text-4xl font-semibold tracking-tight text-red-600"><sup class="text-lg">$</sup>{{ $tier.promoAnnualPrice }}</span>
                                                     </div>
                                                 {{ else }}
@@ -201,7 +201,7 @@
                                                 <div class="flex flex-col">
                                                     {{ if and $promo $tier.promoAnnualPrice }}
                                                         <div class="flex items-baseline gap-x-2 mb-1">
-                                                            <span class="text-lg line-through text-tertiary"><sup class="text-md">$</sup>{{ $tier.annualPrice }}</span>
+                                                            <span class="text-lg line-through text-tertiary"><sup class="text-base">$</sup>{{ $tier.annualPrice }}</span>
                                                             <span class="text-xl md:text-4xl font-semibold tracking-tight text-red-600"><sup class="text-lg">$</sup>{{ $tier.promoAnnualPrice }}</span>
                                                         </div>
                                                     {{ else }}
