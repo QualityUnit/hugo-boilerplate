@@ -4,6 +4,23 @@
   {{ partialCached "head.html" . .Permalink }}
 </head>
 <body class="antialiased bg-white">
+
+{{ $showPromoBanner := and 
+    site.Params.promoBanner.enable 
+    (eq .Layout "landing-page") 
+    (ne (.Params.showPromoHeaderBanner | default true) false)
+}}
+
+{{ if $showPromoBanner }}
+  <!-- Promo Banner -->
+  {{ partial "components/banners/promo-header" (dict 
+      "image" "/images/promo/black-friday-25_LP_man_img.png"
+      "image_alt" "Black Friday promotion banner"
+      "sticky" true
+      "Page" .
+  ) }}
+{{ end }}
+
 {{ partialCached "header.html" . (printf "header-%s" site.Language.Lang) }}
 <main class="w-full">
   {{ block "main" . }}{{ end }}

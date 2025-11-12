@@ -54,6 +54,7 @@
 {{ $ariaHidden := .ariaHidden | default false }}
 {{ $showArrow := .showArrow | default false }}
 {{ $iconArrow := "arrow-up-right" }}
+{{ $icon := .icon | default "" }}
 {{ $dataAttributes := .dataAttributes | default "" }}
 {{ $type := .type | default "button" }}
 {{ $element := .element | default "link" }}
@@ -79,6 +80,7 @@
 {{ $sizeClasses := dict
   "lg" "px-3 py-2"
   "xl" "px-3.5 py-2.5"
+  "empty" "p-0"
 }}
 
 {{ $sizeClass := index $sizeClasses $size | default "px-3 py-2" }}
@@ -100,6 +102,11 @@
           {{ partial "components/media/icon.html" (dict "icon" $iconArrow "class" "w-5 h-5 p-0.5") }}
         </span>
       {{ end }}
+      {{ if $icon }}
+        <span aria-hidden="true" class="ml-0.5">
+          {{ partial "components/media/icon.html" (dict "icon" $icon "class" "w-5 h-5") }}
+        </span>
+      {{ end }}
     </button>
   {{ else if $url }}
     <a
@@ -116,6 +123,11 @@
       {{ if $showArrow }}
         <span aria-hidden="true" class="ml-1.5 btn-arrow">
           {{ partial "components/media/icon.html" (dict "icon" $iconArrow "class" "w-5 h-5 p-0.5") }}
+        </span>
+      {{ end }}
+      {{ if $icon }}
+        <span aria-hidden="true" class="ml-0.5">
+          {{ partial "components/media/icon.html" (dict "icon" $icon "class" "w-5 h-5") }}
         </span>
       {{ end }}
     </a>
