@@ -171,6 +171,50 @@
                         });
                     }
 
+                    /**
+                     * Prioritizes search results based on exact phrase matches and word presence
+                     * @param {Array} results - Fuse.js search results
+                     * @param {string} query - The search query
+                     * @returns {Array} Sorted results with exact matches first
+                     */
+                    function prioritizeResults(results, query) {
+                        const lowerQuery = query.toLowerCase().trim();
+                        const queryWords = lowerQuery.split(/\s+/).filter(w => w.length > 0);
+
+                        return results.map(result => {
+                            const item = result.item;
+                            const title = (item.title || '').toLowerCase();
+                            const content = (item.content || '').toLowerCase();
+                            const tags = Array.isArray(item.tags) ? item.tags.join(' ').toLowerCase() : '';
+                            const fullText = `${title} ${content} ${tags}`;
+
+                            // Calculate priority score (lower is better)
+                            let priorityScore = result.score || 0;
+
+                            // Boost 1: Exact phrase match in title (highest priority)
+                            if (title.includes(lowerQuery)) {
+                                priorityScore -= 1000;
+                            }
+
+                            // Boost 2: Exact phrase match in content
+                            if (content.includes(lowerQuery)) {
+                                priorityScore -= 500;
+                            }
+
+                            // Boost 3: All words present
+                            if (queryWords.length > 1) {
+                                const wordsPresent = queryWords.filter(word => fullText.includes(word)).length;
+                                const wordRatio = wordsPresent / queryWords.length;
+                                priorityScore -= wordRatio * 100;
+                            }
+
+                            return {
+                                ...result,
+                                priorityScore
+                            };
+                        }).sort((a, b) => a.priorityScore - b.priorityScore);
+                    }
+
                     let lastQuery = '';
                     function performSearch(query, page = 1) {
                         lastQuery = query;
@@ -189,7 +233,32 @@
                             return;
                         }
 
-                        const results = fuse.search(query);
+                        // Perform multi-token search: search for whole phrase AND individual words
+                        let results = fuse.search(query);
+
+                        // If query has multiple words, also search for individual words
+                        const queryWords = query.trim().split(/\s+/).filter(w => w.length >= 2);
+                        if (queryWords.length > 1) {
+                            // Search for each word individually and merge results
+                            const wordResults = [];
+                            queryWords.forEach(word => {
+                                const wordMatches = fuse.search(word);
+                                wordResults.push(...wordMatches);
+                            });
+
+                            // Merge results, avoiding duplicates
+                            const seenPermalinks = new Set(results.map(r => r.item.permalink));
+                            wordResults.forEach(result => {
+                                if (!seenPermalinks.has(result.item.permalink)) {
+                                    results.push(result);
+                                    seenPermalinks.add(result.item.permalink);
+                                }
+                            });
+                        }
+
+                        // Prioritize exact matches and multi-word presence
+                        results = prioritizeResults(results, query);
+
                         const total = results.length;
                         const start = (page - 1) * perPage;
                         const end = start + perPage;
@@ -305,11 +374,17 @@
                         .then(data => {
                             searchIndex = data;
                             fuse = new Fuse(data, {
-                                keys: ['title', 'content', 'tags'],
+                                keys: [
+                                    { name: 'title', weight: 2 },
+                                    { name: 'content', weight: 1 },
+                                    { name: 'tags', weight: 1.5 }
+                                ],
                                 includeScore: true,
                                 includeMatches: true,
                                 minMatchCharLength: 2,
-                                threshold: 0.4,
+                                threshold: 0.2,
+                                ignoreLocation: true,
+                                distance: 200
                             });
 
                             loadingIndicator.style.display = 'none';

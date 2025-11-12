@@ -17,7 +17,23 @@
   </div>
 {{ else }}
 
-  {{ $paginator := .Paginate .Pages.ByDate.Reverse 60 }}
+  {{/* Custom sorting: posts without dates first, then by date (newest first) */}}
+  {{ $sortedPages := .Pages }}
+  {{ $pagesWithoutDate := slice }}
+  {{ $pagesWithDate := slice }}
+
+  {{ range .Pages }}
+    {{ if .Date.IsZero }}
+      {{ $pagesWithoutDate = $pagesWithoutDate | append . }}
+    {{ else }}
+      {{ $pagesWithDate = $pagesWithDate | append . }}
+    {{ end }}
+  {{ end }}
+
+  {{ $pagesWithDate = $pagesWithDate.ByDate.Reverse }}
+  {{ $sortedPages = $pagesWithoutDate | append $pagesWithDate }}
+
+  {{ $paginator := .Paginate $sortedPages 60 }}
 
   <div class="wrapper grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
     {{ range $paginator.Pages }}
