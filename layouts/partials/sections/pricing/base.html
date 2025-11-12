@@ -153,32 +153,36 @@
             <p class="rounded-full not-prose bg-indigo-50 px-2.5 py-1 text-xs/4 font-semibold text-center text-primary">{{ i18n ($tier.popularText | default "pricing_popular_badge") }}</p>
             {{ end }}
           </div>
-          <p class="mt-auto mb-4 text-sm/6 {{ if $tier.darkTheme }}text-gray-300{{ else }}text-gray-600{{ end }} sm:min-h-[5rem]">{{ i18n $tier.description }}</p>
+          <p class="mt-auto mb-6 text-sm/6 {{ if $tier.darkTheme }}text-gray-300{{ else }}text-gray-600{{ end }} sm:min-h-[5rem]">{{ i18n $tier.description }}</p>
           {{ if $promo }}
-            <div>
-              <span class="inline-flex bg-red-600 text-white text-xs font-bold rounded-lg mb-4 py-1 px-8 shadow-md">{{ i18n "promo_offer" }}</span>
+            <div class="mb-2.5">
+              <span class="inline-flex bg-red-500 text-white text-xs font-bold rounded-[100px] py-1 px-2.5 backdrop-blur-sm">{{ i18n "promo_offer" }}</span>
             </div>
           {{ end }}
           <div class="mt-auto mb-6">
             {{ if and $promo $tier.promoPrice }}
               <p class="flex items-baseline gap-x-2 mb-1">
-                {{ if $tier.priceBeforeText }}<span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }} ring-gray-200">{{ i18n $tier.priceBeforeText }}</span>{{ end }}
+                {{ if $tier.priceBeforeText }}
+                  <span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }} ring-gray-200">{{ i18n $tier.priceBeforeText }}</span>
+                {{ end }}
                 {{ $originalPrice := $tier.price }}
-                <span class="text-lg font-medium line-through {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }}">
-                  <sup class="text-sm">$</sup>{{ $originalPrice }}
+                <span class="text-2xl font-bold line-through text-heading">
+                  ${{ $originalPrice }}
                 </span>
                 {{ $currentPrice := cond (and $promo $tier.promoPrice) $tier.promoPrice $tier.price }}
-                <span class="text-4xl font-semibold tracking-tight {{ if and $promo $tier.promoPrice }}text-red-600{{ else if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2">
-                  <sup class="text-lg font-medium">$</sup>{{ $currentPrice }}
+                <span class="text-xl md:text-3xl font-semibold tracking-tight {{ if and $promo $tier.promoPrice }}text-red-500{{ else if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2.5">
+                  ${{ $currentPrice }}
                 </span>
               </p>
               <p class="text-sm font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }}">{{ i18n $tier.interval }}</p>
             {{ else }}
               <p class="flex items-baseline gap-y-2 h-9">
-                {{ if $tier.priceBeforeText }}<span class="text-sm font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }} ring-gray-200 mr-1">{{ i18n $tier.priceBeforeText }}</span>{{ end }}
+                {{ if $tier.priceBeforeText }}
+                  <span class="text-sm font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }} ring-gray-200 mr-1">{{ i18n $tier.priceBeforeText }}</span>
+                {{ end }}
                 {{ $currentPrice := cond (and $promo $tier.promoPrice) $tier.promoPrice $tier.price }}
-                <span class="text-4xl font-semibold tracking-tight {{ if and $promo $tier.promoPrice }}text-red-600{{ else if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2">
-                  <sup class="text-lg font-medium">$</sup>{{ $currentPrice }}
+                <span class="text-xl md:text-4xl font-semibold tracking-tight {{ if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2">
+                  ${{ $currentPrice }}
                 </span>
                 <span class="text-sm font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }}">{{ i18n $tier.interval }}</span>
               </p>

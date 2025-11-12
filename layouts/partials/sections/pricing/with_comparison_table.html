@@ -170,11 +170,11 @@
                                             <div class="monthly-price flex flex-col">
                                                 {{ if and $promo $tier.promoMonthlyPrice }}
                                                     <div class="flex items-baseline gap-x-2 mb-1">
-                                                        <span class="text-lg line-through text-tertiary"><sup class="text-base">$</sup>{{ $tier.monthlyPrice }}</span>
-                                                        <span class="text-xl md:text-4xl font-semibold tracking-tight text-red-600"><sup class="text-lg">$</sup>{{ $tier.promoMonthlyPrice }}</span>
+                                                        <span class="text-2xl font-bold line-through text-heading">${{ $tier.monthlyPrice }}</span>
+                                                        <span class="text-xl md:text-3xl font-semibold tracking-tight {{ if and $promo $tier.promoMonthlyPrice }}text-red-500{{ else if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2.5">${{ $tier.promoMonthlyPrice }}</span>
                                                     </div>
                                                 {{ else }}
-                                                    <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading mb-1"><sup class="text-lg">$</sup>{{ $tier.monthlyPrice }}</span>
+                                                    <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading mb-1">${{ $tier.monthlyPrice }}</span>
                                                 {{ end }}
                                                 {{ with $tier.intervalMonthly }}
                                                 <span class="text-sm/6 font-semibold text-heading">{{ i18n . }}</span>
@@ -187,11 +187,11 @@
                                                  style="display: none; flex-direction: column;">
                                                 {{ if and $promo $tier.promoAnnualPrice }}
                                                     <div class="flex items-baseline gap-x-2 mb-1">
-                                                        <span class="text-lg line-through text-tertiary"><sup class="text-base">$</sup>{{ $tier.annualPrice }}</span>
-                                                        <span class="text-xl md:text-4xl font-semibold tracking-tight text-red-600"><sup class="text-lg">$</sup>{{ $tier.promoAnnualPrice }}</span>
+                                                        <span class="text-lg line-through text-tertiary">${{ $tier.annualPrice }}</span>
+                                                        <span class="text-xl md:text-3xl font-semibold tracking-tight text-red-500">${{ $tier.promoAnnualPrice }}</span>
                                                     </div>
                                                 {{ else }}
-                                                    <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading mb-1"><sup class="text-lg">$</sup>{{ $tier.annualPrice }}</span>
+                                                    <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading mb-1">${{ $tier.annualPrice }}</span>
                                                 {{ end }}
                                                 {{ with $tier.intervalAnnual }}
                                                 <span class="text-sm/6 font-semibold text-heading">{{ i18n . }}</span>
@@ -204,11 +204,11 @@
                                                 <div class="flex flex-col">
                                                     {{ if and $promo $tier.promoAnnualPrice }}
                                                         <div class="flex items-baseline gap-x-2 mb-1">
-                                                            <span class="text-lg line-through text-tertiary"><sup class="text-base">$</sup>{{ $tier.annualPrice }}</span>
-                                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-red-600"><sup class="text-lg">$</sup>{{ $tier.promoAnnualPrice }}</span>
+                                                            <span class="text-lg line-through text-tertiary">${{ $tier.annualPrice }}</span>
+                                                            <span class="text-xl md:text-4xl font-semibold tracking-tight text-red-500">${{ $tier.promoAnnualPrice }}</span>
                                                         </div>
                                                     {{ else }}
-                                                        <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading mb-1"><sup class="text-lg">$</sup>{{ $tier.annualPrice }}</span>
+                                                        <span class="text-xl md:text-4xl font-semibold tracking-tight text-heading mb-1">${{ $tier.annualPrice }}</span>
                                                     {{ end }}
                                                     {{ with $tier.intervalAnnual }}
                                                     <span class="text-sm/6 font-semibold text-heading">{{ i18n . }}</span>
@@ -289,12 +289,12 @@
                                                        {{ if and $promo $promoValue }}
                                                             <!-- Show promo price with strikethrough regular price -->
                                                             <div class="flex flex-wrap justify-center gap-1">
-                                                                <span class="line-through text-tertiary"><sup>$</sup>{{ $tierValue }}</span>
-                                                                <span class="text-red-600 font-semibold"><sup>$</sup>{{ $promoValue }}</span>
+                                                                <span class="line-through text-tertiary">${{ $tierValue }}</span>
+                                                                <span class="text-red-500 font-bold">${{ $promoValue }}</span>
                                                             </div>
                                                         {{ else }}
                                                             <!-- Show regular price -->
-                                                            <sup>$</sup>{{ $tierValue }}
+                                                            ${{ $tierValue }}
                                                         {{ end }}
                                                     {{ else }}
                                                         {{ $tierValue }}

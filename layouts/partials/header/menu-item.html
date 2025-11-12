@@ -40,13 +40,13 @@
 {{- $title := partial $renderTextPartial (dict "text" $item.Name) -}}
 
 <a href="{{- $url -}}"
-  class="flex items-center gap-x-1 text-base lg:text-sm/6 font-semibold text-heading {{ if and site.Params.promotional.enabled $promo }} border border-red-600 rounded-full px-2 py-1{{ end }}"
+  class="flex items-center gap-x-1 text-base lg:text-sm/6 font-semibold text-heading"
   {{$targetAttr}}{{$relAttr}}{{$ariaAttr}}{{$dataAttr}}>
   {{- if $icon -}}
     {{- partial (printf "icons/%s" $icon) "w-5 h-5 mr-2 text-tertiary" -}}
   {{- end -}}
 
-  <div class="flex items-center gap-x-1">
+  <div class="flex items-center gap-x-1.5">
     {{- $title -}}
     {{- if eq $item.Params.target "_blank" -}}
       {{- partial "icons/arrow-top-right-on-square" "inline-block ml-1 h-4 w-4" -}}
@@ -54,8 +54,8 @@
     
     {{- /* Show Limited Offer badge if enabled globally and for this specific menu item */ -}}
     {{- if and site.Params.promotional.enabled $promo -}}
-      {{- $limitedOfferText := i18n "promo_offer" | default "Limited Offer" -}}
-      <span class="inline-block ml-2 px-2 py-1 bg-red-600 text-white text-xs font-semibold rounded-full tracking-wide">{{- $limitedOfferText -}}</span>
+      {{- $limitedOfferText := i18n "promo_offer_in_menu" | default "-75% OFF" -}}
+      <span class="inline-block ml-1.5 px-2 py-0.5 bg-red-500 text-white text-sm font-bold rounded-[100px] tracking-wide backdrop-blur-sm">{{- $limitedOfferText -}}</span>
     {{- end -}}
   </div>
 </a>

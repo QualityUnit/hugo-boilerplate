@@ -112,14 +112,14 @@
           
           {{ if and $promo $tier.promoPrice }}
             <!-- Promo pricing display -->
-            <div class="flex items-baseline gap-x-2">
-              <span class="text-lg font-semibold line-through {{ if $tier.darkTheme }}text-secondary{{ else }}text-tertiary{{ end }}"><sup>$</sup>{{ $tier.price }}</span>
-              <span class="text-4xl font-semibold tracking-tight text-red-600 mr-2"><sup>$</sup>{{ $tier.promoPrice }}</span>
+            <div class="flex items-baseline gap-x-1.5">
+              <span class="text-lg font-semibold line-through text-heading">${{ $tier.price }}</span>
+              <span class="text-3xl font-semibold tracking-tight text-red-500 mr-2">${{ $tier.promoPrice }}</span>
             </div>
           {{ else }}
             <!-- Regular pricing display -->
             <div class="flex items-baseline gap-x-2">
-              <span class="text-4xl font-semibold tracking-tight {{ if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2"><sup>$</sup>{{ $tier.price }}</span>
+              <span class="text-4xl font-semibold tracking-tight {{ if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2">${{ $tier.price }}</span>
             </div>
           {{ end }}
           
