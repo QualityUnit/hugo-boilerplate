@@ -167,11 +167,11 @@
                 {{ end }}
                 {{ $originalPrice := $tier.price }}
                 <span class="text-2xl font-bold line-through text-heading">
-                  ${{ $originalPrice }}
+                  {{ $originalPrice }}
                 </span>
                 {{ $currentPrice := cond (and $promo $tier.promoPrice) $tier.promoPrice $tier.price }}
                 <span class="text-xl md:text-3xl font-semibold tracking-tight {{ if and $promo $tier.promoPrice }}text-red-500{{ else if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2.5">
-                  ${{ $currentPrice }}
+                  {{ $currentPrice }}
                 </span>
               </p>
               <p class="mb-2 text-sm font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }}">{{ i18n $tier.promoText }}</p>
@@ -183,7 +183,7 @@
                 {{ end }}
                 {{ $currentPrice := cond (and $promo $tier.promoPrice) $tier.promoPrice $tier.price }}
                 <span class="text-xl md:text-4xl font-semibold tracking-tight {{ if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2">
-                  ${{ $currentPrice }}
+                  {{ $currentPrice }}
                 </span>
                 <span class="text-sm font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }}">{{ i18n $tier.interval }}</span>
               </p>
