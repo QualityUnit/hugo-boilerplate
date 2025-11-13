@@ -127,3 +127,7 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Αντιγραφή κώδικα"
 copy_success: "Αντιγράφηκε!"
 copy_error: "Σφάλμα αντιγραφής"
+
+# Promotional offers
+promo_offer: "Περιορισμένη προσφορά"
+promo_offer_in_menu: "-75% OFF"

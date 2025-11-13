@@ -115,3 +115,7 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Copïo cod"
 copy_success: "Wedi'i gopïo!"
 copy_error: "Gwall copïo"
+
+# Promotional offers
+promo_offer: "Cynnig Cyfyngedig"
+promo_offer_in_menu: "-75% OFF"

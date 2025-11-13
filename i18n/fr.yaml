@@ -126,3 +126,7 @@ search_results_found_plural: "Trouvé %d résultats pour %s"
 copy_code: "Copier le code"
 copy_success: "Copié !"
 copy_error: "Erreur de copie"
+
+# Promotional offers
+promo_offer: "Offre limitée"
+promo_offer_in_menu: "-75% OFF"

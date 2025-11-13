@@ -14,6 +14,7 @@
 {{ $position := .Get "position" | default $params.position }}
 {{ $priceBeforeText := .Get "priceBeforeText" | default $params.priceBeforeText | default "" }}
 {{ $darkTheme := .Get "darkTheme" | default $params.darkTheme | default false }}
+{{ $promo := site.Params.promotional.enabled | default false }}
 
 {{/* Try to use centralized data first, fallback to page params */}}
 {{ $tiers := slice }}
@@ -54,6 +55,7 @@
   "darkTheme" $darkTheme
   "position" $position
   "showCheckbox" $showCheckbox
+  "promo" $promo
 ) }}
 
 {{/*

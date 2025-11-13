@@ -125,3 +125,7 @@ search_results_found_plural: "S-au găsit %d rezultate pentru %s"
 copy_code: "Copiază codul"
 copy_success: "Copiat!"
 copy_error: "Eroare la copiere"
+
+# Promotional offers
+promo_offer: "Ofertă limitată"
+promo_offer_in_menu: "-75% OFF"

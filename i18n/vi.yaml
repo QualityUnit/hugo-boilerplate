@@ -113,3 +113,7 @@ search_results_found_plural: "Tìm thấy %d kết quả cho %s"
 copy_code: "Sao chép mã"
 copy_success: "Đã sao chép!"
 copy_error: "Lỗi khi sao chép"
+
+# Promotional offers
+promo_offer: "Ưu đãi có hạn"
+promo_offer_in_menu: "-75% OFF"

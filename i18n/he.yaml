@@ -125,3 +125,7 @@ search_results_found_plural: "נמצאו %d תוצאות עבור %s"
 copy_code: "העתק קוד"
 copy_success: "הועתק!"
 copy_error: "שגיאת העתקה"
+
+# Promotional offers
+promo_offer: "הצעה מוגבלת"
+promo_offer_in_menu: "-75% OFF"

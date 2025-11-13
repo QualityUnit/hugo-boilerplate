@@ -125,3 +125,7 @@ search_results_found_plural: "Leiti %d tulemust päringule %s"
 copy_code: "Kopeeri kood"
 copy_success: "Kopeeritud!"
 copy_error: "Kopeerimisviga"
+
+# Promotional offers
+promo_offer: "Piiratud pakkumine"
+promo_offer_in_menu: "-75% OFF"

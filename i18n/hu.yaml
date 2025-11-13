@@ -126,3 +126,7 @@ search_results_found_plural: "%d találat erre: %s"
 copy_code: "Kód másolása"
 copy_success: "Másolva!"
 copy_error: "Másolási hiba"
+
+# Promotional offers
+promo_offer: "Akció"
+promo_offer_in_menu: "-75% OFF"

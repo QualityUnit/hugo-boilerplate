@@ -11,6 +11,7 @@
 {{ $toggleActiveBgColor := .Get "toggleActiveBgColor" | default $params.toggleActiveBgColor | default "primary" }}
 {{ $toggleBorderColor := .Get "toggleBorderColor" | default $params.toggleBorderColor | default "primary" }}
 {{ $togglePrice := .Get "togglePrice" | default $params.togglePrice | default true }}
+{{ $promo := site.Params.promotional.enabled | default false }}
 
 {{/* Try to use centralized data first, fallback to page params */}}
 {{ $tiersComparison := slice }}
@@ -41,6 +42,7 @@
   "toggleActiveBgColor" $toggleActiveBgColor
   "toggleBorderColor" $toggleBorderColor
   "togglePrice" $togglePrice
+  "promo" $promo
 ) }}
 
 {{/*

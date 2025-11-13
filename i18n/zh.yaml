@@ -127,3 +127,7 @@ search_results_found_plural: "为 %s 找到 %d 个结果"
 copy_code: "复制代码"
 copy_success: "已复制！"
 copy_error: "复制时出错"
+
+# Promotional offers
+promo_offer: "限时优惠"
+promo_offer_in_menu: "-75% OFF"
