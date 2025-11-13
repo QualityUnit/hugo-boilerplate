@@ -479,15 +479,15 @@
   * Text shadow primary styles
   */
   .text-glow-primary {
-   -webkit-filter: drop-shadow(-1px -1px 0 #8CC8FD)
-          drop-shadow(1px -1px 0 #8CC8FD)
-          drop-shadow(-1px 1px 0 #8CC8FD)
-          drop-shadow(1px 1px 0 #8CC8FD)
-          drop-shadow(0 0 9px rgba(87, 171, 250, 0.5));
-  filter: drop-shadow(-1px -1px 0 #8CC8FD)
-      drop-shadow(1px -1px 0 #8CC8FD)
-      drop-shadow(-1px 1px 0 #8CC8FD)
-      drop-shadow(1px 1px 0 #8CC8FD)
+    -webkit-filter: drop-shadow(-1px -1px 0 rgba(140, 200, 253, 0.8))
+      drop-shadow(1px -1px 0 rgba(140, 200, 253, 0.8))
+      drop-shadow(-1px 1px 0 rgba(140, 200, 253, 0.8))
+      drop-shadow(1px 1px 0 rgba(140, 200, 253, 0.8))
+      drop-shadow(0 0 9px rgba(87, 171, 250, 0.5));
+    filter: drop-shadow(-1px -1px 0 rgba(140, 200, 253, 0.8))
+      drop-shadow(1px -1px 0 rgba(140, 200, 253, 0.8))
+      drop-shadow(-1px 1px 0 rgba(140, 200, 253, 0.8))
+      drop-shadow(1px 1px 0 rgba(140, 200, 253, 0.8))
       drop-shadow(0 0 9px rgba(87, 171, 250, 0.5));
   }
 }
