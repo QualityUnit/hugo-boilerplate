@@ -1,0 +1,61 @@
+{{/*
+@component: Header Menu Item
+@description: Universal menu item component with promotional support. Renders a single top-level menu item with language-specific URL support and optional promotional badges.
+@params:
+  - MenuItem (object): The menu item object to render.
+  - Lang (string): Current language code (e.g., "en", "uk").
+@features:
+  - Language-specific URL support
+  - Promotional badge support (controlled by site.Params.promotional.enabled and item.Params.promo)
+  - Icon support
+  - External link indicators
+  - Accessibility attributes
+@example:
+{{ partial "header/menu-item.html" (dict "MenuItem" . "Lang" $curLang) }}
+@requirements:
+  - site.Params.promotional.enabled (boolean): Global promotional mode toggle
+  - item.Params.promo (boolean): Individual menu item promotional flag
+  - i18n "promo_offer": Translation for promotional badge text
+*/}}
+
+{{- $curLang := .Lang -}}
+{{- $item := .MenuItem -}}
+{{- $site := site -}}
+
+{{- $url := $item.URL | default "#" -}}
+{{- $renderTextPartial := "header/helpers/render-text.html" -}}
+
+{{- /* Get properly translated URL */ -}}
+{{- $url = partial "helpers/get-translated-url.html" (dict "url" $url "lang" $curLang) -}}
+
+{{- /* Extract other attributes directly from item.Params */ -}}
+{{- $targetAttr := "" -}} {{- with $item.Params.target -}} {{- $targetAttr = printf " target=\"%s\"" . -}} {{- end -}}
+{{- $relAttr := "" -}} {{- with $item.Params.rel -}} {{- $relAttr = printf " rel=\"%s\"" . -}} {{- end -}}
+{{- $ariaAttr := "" -}} {{- with $item.Params.ariaLabel -}} {{- $ariaAttr = printf " aria-label=\"%s\"" . -}} {{- end -}}
+{{- $dataAttr := $item.Params.dataAttr | default "" -}}
+
+{{- $icon := $item.Params.icon -}}
+{{- $promo := $item.Params.promo | default false -}}
+
+{{- $title := partial $renderTextPartial (dict "text" $item.Name) -}}
+
+<a href="{{- $url -}}"
+  class="flex items-center gap-x-1 text-base lg:text-sm/6 font-semibold text-heading"
+  {{$targetAttr}}{{$relAttr}}{{$ariaAttr}}{{$dataAttr}}>
+  {{- if $icon -}}
+    {{- partial (printf "icons/%s" $icon) "w-5 h-5 mr-2 text-tertiary" -}}
+  {{- end -}}
+
+  <div class="flex items-center gap-x-1.5">
+    {{- $title -}}
+    {{- if eq $item.Params.target "_blank" -}}
+      {{- partial "icons/arrow-top-right-on-square" "inline-block ml-1 h-4 w-4" -}}
+    {{- end -}}
+    
+    {{- /* Show Limited Offer badge if enabled globally and for this specific menu item */ -}}
+    {{- if and site.Params.promotional.enabled $promo -}}
+      {{- $limitedOfferText := i18n "promo_offer_in_menu" | default "-75% OFF" -}}
+      <span class="inline-block ml-1.5 px-2 py-0.5 bg-red-500 text-white text-sm font-bold rounded-[100px] tracking-wide backdrop-blur-sm">{{- $limitedOfferText -}}</span>
+    {{- end -}}
+  </div>
+</a>

@@ -125,3 +125,7 @@ search_results_found_plural: "Löytyi %d tulosta haulle %s"
 copy_code: "Kopioi koodi"
 copy_success: "Kopioitu!"
 copy_error: "Kopiointivirhe"
+
+# Promotional offers
+promo_offer: "Rajoitettu tarjous"
+promo_offer_in_menu: "-75% OFF"

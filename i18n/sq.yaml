@@ -115,3 +115,7 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Kopjo kodin"
 copy_success: "Kopjuar!"
 copy_error: "Gabim në kopjim"
+
+# Promotional offers
+promo_offer: "Ofertë e kufizuar"
+promo_offer_in_menu: "-75% OFF"

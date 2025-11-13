@@ -112,3 +112,7 @@ search_results_found_plural: "Imepata matokeo %d ya %s"
 copy_code: "Nakili msimbo"
 copy_success: "Imenakiliwa!"
 copy_error: "Hitilafu ya kunakili"
+
+# Promotional offers
+promo_offer: "Ombi la Muda"
+promo_offer_in_menu: "-75% OFF"

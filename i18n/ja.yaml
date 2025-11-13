@@ -127,3 +127,7 @@ search_results_found_plural: "%s に対して %d 件の結果が見つかりま�
 copy_code: "コードをコピー"
 copy_success: "コピーしました！"
 copy_error: "コピーエラー"
+
+# Promotional offers
+promo_offer: "限定オファー"
+promo_offer_in_menu: "-75% OFF"

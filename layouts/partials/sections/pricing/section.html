@@ -9,6 +9,7 @@
   - taglineColor: Tagline text color (optional, default: "indigo-600")
   - headingColor: Heading text color (optional, default: "gray-900")
   - descriptionColor: Description text color (optional, default: "gray-600")
+  - promo: Boolean to enable promotional pricing (optional, default: site.Params.promotional.enabled)
 
   - .tiers: Array of pricing tier objects, each containing tier configuration
   - .startColumn: (optional, default: 0) Integer specifying which column index to start rendering from.
@@ -22,7 +23,8 @@
   - .id: Unique identifier for the tier
   - .name: Internationalization key for tier name
   - .description: Internationalization key for tier description
-  - .price: Price value to display
+  - .price: Regular price value to display
+  - .promoPrice: (optional) Promotional price value - shown when promo=true
   - .interval: Internationalization key for billing interval
   - .popular: (optional) Boolean to mark tier as popular
   - .darkTheme: (optional) Boolean to apply dark theme styling
@@ -50,6 +52,7 @@
 {{ $descriptionColor := .descriptionColor | default "black" }}
 {{ $position := .position | default "right" }}
 {{ $showCheckbox := .showCheckbox | default false }}
+{{ $promo := .promo | default site.Params.promotional.enabled | default false }}
 
 {{ $tiers := .tiers }}
 
@@ -98,17 +101,30 @@
         <div class='flex flex-col h-full rounded-3xl p-8 {{ if $tier.darkTheme }}bg-slate-900 ring-1 ring-slate-700{{ else }}bg-white ring-1 ring-gray-200{{ end }} {{ if $tier.popular }}ring-2 ring-primary{{ end }} xl:p-10 w-full'>
           <div class="flex flex-col flex-grow">
         <div class="flex items-start justify-between gap-x-4">
-          <h3 id="{{ $tier.id }}" class="mb-5 not-prose text-lg/8 font-semibold {{ if $tier.darkTheme }}text-white{{ else }}text-gray-900{{ end }} {{ if $tier.popular }}text-primary{{ end }}">{{ i18n $tier.name }}</h3>
+          <h3 id="{{ $tier.id }}" class="mb-5 not-prose text-lg/8 font-semibold {{ if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} {{ if $tier.popular }}text-primary{{ end }}">{{ i18n $tier.name }}</h3>
           {{ if $tier.popular }}
           <p class="rounded-full not-prose bg-indigo-50 px-2.5 py-1 text-xs/4 font-semibold text-center text-primary">{{ i18n ($tier.popularText | default "pricing_popular_badge") }}</p>
           {{ end }}
         </div>
         <p class="mt-auto mb-4 text-sm/6 {{ if $tier.darkTheme }}text-gray-300{{ else }}text-gray-600{{ end }} sm:min-h-[5rem]">{{ i18n $tier.description }}</p>
-        <p class="mt-auto mb-6 flex items-baseline gap-y-2 h-9">
-          {{ if $tier.priceBeforeText }}<span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-gray-400{{ else }}text-gray-500{{ end }} ring-gray-200 mr-1">{{ i18n $tier.priceBeforeText }}</span>{{ end }}
-          <span class="text-4xl font-semibold tracking-tight {{ if $tier.darkTheme }}text-white{{ else }}text-gray-900{{ end }} mr-2">{{ $tier.price }}</span>
-         <span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-gray-400{{ else }}text-gray-500{{ end }}">{{ i18n $tier.interval }}</span>
-        </p>
+        <div class="mt-auto mb-6 h-9">
+          {{ if $tier.priceBeforeText }}<span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }} ring-gray-200 mr-1">{{ i18n $tier.priceBeforeText }}</span>{{ end }}
+          
+          {{ if and $promo $tier.promoPrice }}
+            <!-- Promo pricing display -->
+            <div class="flex items-baseline gap-x-1.5">
+              <span class="text-lg font-semibold line-through text-heading">${{ $tier.price }}</span>
+              <span class="text-3xl font-semibold tracking-tight text-red-500 mr-2">${{ $tier.promoPrice }}</span>
+            </div>
+          {{ else }}
+            <!-- Regular pricing display -->
+            <div class="flex items-baseline gap-x-2">
+              <span class="text-4xl font-semibold tracking-tight {{ if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2">${{ $tier.price }}</span>
+            </div>
+          {{ end }}
+          
+          <span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }}">{{ i18n $tier.interval }}</span>
+        </div>
         <div class="my-6">
           {{ $ctaUrl := $tier.cta.url }}
           {{ $translatedUrl := i18n $ctaUrl }}
