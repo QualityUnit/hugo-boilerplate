@@ -7,8 +7,7 @@
 
 {{ $showPromoBanner := and 
     site.Params.promoBanner.enable 
-    (eq .Layout "landing-page") 
-    (ne (.Params.showPromoHeaderBanner | default true) false)
+    ((partial "helpers/show-promo-banner" .).showBanner)
 }}
 
 {{ if $showPromoBanner }}
