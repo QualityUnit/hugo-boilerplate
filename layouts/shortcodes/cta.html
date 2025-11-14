@@ -1,0 +1,44 @@
+{{/*
+@shortcode: cta
+@description: A shortcode wrapper for the simple centered CTA on dark background partial section. Creates a clean, centered call-to-action section with dark background, gradient effect, and two CTA buttons.
+@parameters:
+  - heading: Main section heading (optional, default: i18n "cta_default_heading")
+  - description: Description text below heading (optional, default: i18n "cta_default_description")
+  - primaryText: Primary CTA button text (optional, default: i18n "cta_default_primary_text")
+  - primaryURL: Primary CTA button URL (optional)
+  - secondaryText: Secondary CTA button text (optional, default: i18n "cta_default_secondary_text")
+  - secondaryURL: Secondary CTA button URL (optional)
+@example:
+  {{< cta 
+      heading="Boost your productivity. Start using our app today."
+      description="Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim id veniam aliqua proident excepteur commodo do ea."
+      primaryText="Get started"
+      primaryURL="/signup"
+      secondaryText="Live demo"
+      secondaryURL="/demo"
+  >}}
+*/}}
+
+{{ $ctaHeading := .Get "heading" | default (i18n "cta_default_heading") }}
+{{ $ctaDescription := .Get "description" | default (i18n "cta_default_description") }}
+{{ $ctaPrimaryText := .Get "primaryText" | default (i18n "cta_default_primary_text") }}
+{{ $ctaPrimaryURL := .Get "primaryURL" | default "" }}
+{{ $ctaSecondaryText := .Get "secondaryText" | default (i18n "cta_default_secondary_text") }}
+{{ $ctaSecondaryURL := .Get "secondaryURL" | default "" }}
+
+{{/* Get translated URLs */}}
+{{ $ctaPrimaryURL = partial "helpers/get-translated-url.html" (dict "url" $ctaPrimaryURL "lang" site.Language.Lang) }}
+{{ $ctaSecondaryURL = partial "helpers/get-translated-url.html" (dict "url" $ctaSecondaryURL "lang" site.Language.Lang) }}
+
+{{ partial "sections/cta/simple_centered_on_dark.html" (dict
+    "heading" $ctaHeading
+    "description" $ctaDescription
+    "primaryCta" (dict
+        "text" $ctaPrimaryText
+        "url" $ctaPrimaryURL
+    )
+    "secondaryCta" (dict
+        "text" $ctaSecondaryText
+        "url" $ctaSecondaryURL
+    )
+) }}
