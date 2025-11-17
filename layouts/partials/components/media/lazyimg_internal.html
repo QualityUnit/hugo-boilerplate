@@ -309,11 +309,17 @@
 
     {{ if and (not $webpSrcset) $useOriginalWebp }}
       {{ $webpPathWithDomain := partial "functions/get-static-url.html" (dict "path" $originalWebpPath) }}
-      {{ $webpSrcset = printf "%s %dw" $webpPathWithDomain $originalWidth }}
+      {{ if gt $originalWidth 0 }}
+        {{ $webpSrcset = printf "%s %dw" $webpPathWithDomain $originalWidth }}
+      {{ end }}
     {{ end }}
 
     {{ if not $origSrcset }}
-      {{ $origSrcset = printf "%s %dw" $fallbackSrcWithDomain $originalWidth }}
+      {{ if gt $originalWidth 0 }}
+        {{ $origSrcset = printf "%s %dw" $fallbackSrcWithDomain $originalWidth }}
+      {{ else }}
+        {{ $origSrcset = printf "%s 800w" $fallbackSrcWithDomain }}
+      {{ end }}
     {{ end }}
 
     {{ $fileExt := strings.ToLower (path.Ext $src) }}
