@@ -133,6 +133,10 @@ copy_code: "Copy code"
 copy_success: "Copied!"
 copy_error: "Copy error"
 
+# Promotional offers
+promo_offer: "Black Friday"
+promo_offer_in_menu: "-75% OFF"
+
 # Publication info
 published_on_by: "Published on %s by %s."
 published_on: "Published on %s."

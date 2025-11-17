@@ -127,6 +127,11 @@ copy_code: "Копіювати код"
 copy_success: "Скопійовано!"
 copy_error: "Помилка копіювання"
 
+# Promotional offers
+promo_offer: "Обмежена пропозиція"
+promo_offer_in_menu: "-75% OFF"
+
+
 # Publication info
 published_on_by: "Опубліковано %s від %s."
 published_on: "Опубліковано %s."

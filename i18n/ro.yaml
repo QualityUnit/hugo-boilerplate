@@ -126,6 +126,11 @@ copy_code: "Copiază codul"
 copy_success: "Copiat!"
 copy_error: "Eroare la copiere"
 
+# Promotional offers
+promo_offer: "Ofertă limitată"
+promo_offer_in_menu: "-75% OFF"
+
+
 # Publication info
 published_on_by: "Publicat pe %s de %s."
 published_on: "Publicat pe %s."

@@ -128,6 +128,11 @@ copy_code: "Kopiera kod"
 copy_success: "Kopierat!"
 copy_error: "Fel vid kopiering"
 
+# Promotional offers
+promo_offer: "Begränsad erbjudande"
+promo_offer_in_menu: "-75% OFF"
+
+
 # Publication info
 published_on_by: "Publicerat %s av %s."
 published_on: "Publicerat %s."

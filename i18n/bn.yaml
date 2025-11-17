@@ -124,6 +124,11 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "কোড কপি করুন"
 copy_success: "কপি হয়েছে!"
 copy_error: "কপি করতে সমস্যা হয়েছে"
+
+# Promotional offers
+promo_offer: "সীমিত সময়ের অফার"
+promo_offer_in_menu: "-75% OFF"
+
 # Publication info
 published_on_by: "Published on %s by %s."
 published_on: "Published on %s."

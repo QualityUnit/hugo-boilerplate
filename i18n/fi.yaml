@@ -126,6 +126,11 @@ copy_code: "Kopioi koodi"
 copy_success: "Kopioitu!"
 copy_error: "Kopiointivirhe"
 
+# Promotional offers
+promo_offer: "Rajoitettu tarjous"
+promo_offer_in_menu: "-75% OFF"
+
+
 # Publication info
 published_on_by: "Julkaistu %s, kirjoittaja %s."
 published_on: "Julkaistu %s."

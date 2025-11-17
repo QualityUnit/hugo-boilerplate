@@ -127,6 +127,11 @@ copy_code: "Kód másolása"
 copy_success: "Másolva!"
 copy_error: "Másolási hiba"
 
+# Promotional offers
+promo_offer: "Akció"
+promo_offer_in_menu: "-75% OFF"
+
+
 # Publication info
 published_on_by: "Közzétéve: %s, szerző: %s."
 published_on: "Közzétéve: %s."

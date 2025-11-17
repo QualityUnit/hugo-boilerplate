@@ -124,6 +124,11 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "Copia el codi"
 copy_success: "Copiat!"
 copy_error: "Error en copiar"
+
+# Promotional offers
+promo_offer: "Oferta limitada"
+promo_offer_in_menu: "-75% OFF"
+
 # Publication info
 published_on_by: "Published on %s by %s."
 published_on: "Published on %s."

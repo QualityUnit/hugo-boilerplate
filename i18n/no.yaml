@@ -127,6 +127,11 @@ copy_code: "Kopier kode"
 copy_success: "Kopiert!"
 copy_error: "Kopieringsfeil"
 
+# Promotional offers
+promo_offer: "Begrenset tilbud"
+promo_offer_in_menu: "-75% OFF"
+
+
 # Publication info
 published_on_by: "Publisert %s av %s."
 published_on: "Publisert %s."

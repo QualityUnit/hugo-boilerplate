@@ -12,6 +12,9 @@
 {{ $priceBeforeText := .Get "priceBeforeText" | default $params.priceBeforeText | default "" }}
 {{ $darkTheme := .Get "darkTheme" | default $params.darkTheme | default false }}
 
+{{/* Promo parameters */}}
+{{ $promo := site.Params.promotional.enabled | default false }}
+
 {{/* Try to use centralized data first, fallback to page params */}}
 {{ $tiers := slice }}
 {{ $pricingData := .Site.Data.pricing }}
@@ -48,6 +51,7 @@
   "columns" $columns
   "priceBeforeText" $priceBeforeText
   "darkTheme" $darkTheme
+  "promo" $promo
 ) }}
 
 {{/*

@@ -111,6 +111,11 @@ search_results_found_plural: "%d resultate gevind vir \"%s\""
 copy_code: "Kopieer kode"
 copy_success: "Gekopieer!"
 copy_error: "Kopieer fout"
+
+# Promotional offers
+promo_offer: "Beperkte aanbod"
+promo_offer_in_menu: "-75% OFF"
+
 # Publication info
 published_on_by: "Published on %s by %s."
 published_on: "Published on %s."

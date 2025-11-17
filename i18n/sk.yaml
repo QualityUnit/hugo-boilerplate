@@ -127,6 +127,11 @@ copy_code: "Kopírovať kód"
 copy_success: "Skopírované!"
 copy_error: "Chyba kopírovania"
 
+# Promotional offers
+promo_offer: "Limitovaná ponuka"
+promo_offer_in_menu: "-75% OFF"
+
+
 # Publication info
 published_on_by: "Publikované %s od %s."
 published_on: "Publikované %s."

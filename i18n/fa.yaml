@@ -126,6 +126,11 @@ search_results_found_plural: "%d نتیجه برای %s یافت شد"
 copy_code: "کپی کد"
 copy_success: "کپی شد!"
 copy_error: "خطا در کپی"
+
+# Promotional offers
+promo_offer: "پیشنهاد محدود"
+promo_offer_in_menu: "-75% OFF"
+
 # Publication info
 published_on_by: "Published on %s by %s."
 published_on: "Published on %s."

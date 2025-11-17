@@ -113,6 +113,11 @@ search_results_found_plural: "%s के लिए %d परिणाम मि�
 copy_code: "कोड कॉपी करें"
 copy_success: "कॉपी हो गया!"
 copy_error: "कॉपी त्रुटि"
+
+# Promotional offers
+promo_offer: "सीमित प्रस्ताव"
+promo_offer_in_menu: "-75% OFF"
+
 # Publication info
 published_on_by: "Published on %s by %s."
 published_on: "Published on %s."

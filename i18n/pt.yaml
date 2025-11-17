@@ -128,6 +128,11 @@ copy_code: "Copiar código"
 copy_success: "Copiado!"
 copy_error: "Erro ao copiar"
 
+# Promotional offers
+promo_offer: "Oferta limitada"
+promo_offer_in_menu: "-75% OFF"
+
+
 # Publication info
 published_on_by: "Publicado em %s por %s."
 published_on: "Publicado em %s."

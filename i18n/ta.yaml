@@ -113,6 +113,11 @@ search_results_found_plural: "Found %d results for %s"
 copy_code: "கோடுகளை நகலெடுக்கவும்"
 copy_success: "நகலெடுக்கப்பட்டது!"
 copy_error: "நகலெடுக்கும்போது பிழை"
+
+# Promotional offers
+promo_offer: "வரையறுக்கப்பட்ட சலுகை"
+promo_offer_in_menu: "-75% OFF"
+
 # Publication info
 published_on_by: "Published on %s by %s."
 published_on: "Published on %s."

@@ -131,3 +131,7 @@ copy_error: "خطأ في النسخ"
 published_on_by: "نُشر في %s بواسطة %s."
 published_on: "نُشر في %s."
 last_modified_on_at: "آخر تعديل في %s الساعة %s"
+
+# Promotional offers
+promo_offer: "عرض محدود"
+promo_offer_in_menu: "-75% OFF"
