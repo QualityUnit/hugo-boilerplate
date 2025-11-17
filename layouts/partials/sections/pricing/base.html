@@ -166,12 +166,16 @@
                   <span class="text-sm/6 font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }} ring-gray-200">{{ i18n $tier.priceBeforeText }}</span>
                 {{ end }}
                 {{ $originalPrice := $tier.price }}
+                {{ $translatedOriginalPrice := i18n $originalPrice }}
+                {{ $displayOriginalPrice := cond $translatedOriginalPrice $translatedOriginalPrice $originalPrice }}
                 <span class="text-2xl font-bold line-through text-heading">
-                  {{ $originalPrice }}
+                  {{ $displayOriginalPrice }}
                 </span>
                 {{ $currentPrice := cond (and $promo $tier.promoPrice) $tier.promoPrice $tier.price }}
+                {{ $translatedCurrentPrice := i18n $currentPrice }}
+                {{ $displayCurrentPrice := cond $translatedCurrentPrice $translatedCurrentPrice $currentPrice }}
                 <span class="text-xl md:text-3xl font-semibold tracking-tight {{ if and $promo $tier.promoPrice }}text-red-500{{ else if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2.5">
-                  {{ $currentPrice }}
+                  {{ $displayCurrentPrice }}
                 </span>
               </p>
               <p class="mb-2 text-sm font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }}">{{ i18n $tier.promoText }}</p>
@@ -182,8 +186,10 @@
                   <span class="text-sm font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }} ring-gray-200 mr-1">{{ i18n $tier.priceBeforeText }}</span>
                 {{ end }}
                 {{ $currentPrice := cond (and $promo $tier.promoPrice) $tier.promoPrice $tier.price }}
+                {{ $translatedPrice := i18n $currentPrice }}
+                {{ $displayPrice := cond $translatedPrice $translatedPrice $currentPrice }}
                 <span class="text-xl md:text-4xl font-semibold tracking-tight {{ if $tier.darkTheme }}text-white{{ else }}text-heading{{ end }} mr-2">
-                  {{ $currentPrice }}
+                  {{ $displayPrice }}
                 </span>
                 <span class="text-sm font-semibold {{ if $tier.darkTheme }}text-tertiary{{ else }}text-secondary{{ end }}">{{ i18n $tier.interval }}</span>
               </p>

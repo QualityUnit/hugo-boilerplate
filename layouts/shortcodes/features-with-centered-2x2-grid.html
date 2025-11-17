@@ -1,6 +1,6 @@
-{{/* 
+{{/*
   Features with Centered 2x2 Grid shortcode
-  
+
   Parameters:
   - tagline: Short text displayed above the main heading
   - taglineColor: Color class for the tagline
@@ -10,16 +10,16 @@
   - iconBgColor: Background color class for feature icons (default: "indigo-600")
   - feature1Title: Title for the first feature
   - feature1Description: Description for the first feature
-  - feature1Icon: Icon URL for the first feature (path to SVG file in assets)
+  - feature1Icon: Icon name (e.g., "currency-dollar", "shield-check")
   - feature2Title: Title for the second feature
   - feature2Description: Description for the second feature
-  - feature2Icon: Icon URL for the second feature (path to SVG file in assets)
+  - feature2Icon: Icon name (e.g., "currency-dollar", "shield-check")
   - feature3Title: Title for the third feature
   - feature3Description: Description for the third feature
-  - feature3Icon: Icon URL for the third feature (path to SVG file in assets)
+  - feature3Icon: Icon name (e.g., "currency-dollar", "shield-check")
   - feature4Title: Title for the fourth feature
   - feature4Description: Description for the fourth feature
-  - feature4Icon: Icon URL for the fourth feature (path to SVG file in assets)
+  - feature4Icon: Icon name (e.g., "currency-dollar", "shield-check")
 */}}
 
 {{ $backgroundColor := .Get "backgroundColor" | default "bg-white" }}
@@ -29,10 +29,10 @@
 {{ $description := .Get "description" | default "Quis tellus eget adipiscing convallis sit sit eget aliquet quis. Suspendisse eget egestas a elementum pulvinar et feugiat blandit at. In mi viverra elit nunc." }}
 {{ $iconBgColor := .Get "iconBgColor" | default "indigo-600" }}
 
-{{ $feature1Icon := .Get "feature1Icon" | default "/images/icons/document.svg" }}
-{{ $feature2Icon := .Get "feature2Icon" | default "/images/icons/list.svg" }}
-{{ $feature3Icon := .Get "feature3Icon" | default "/images/icons/lightning.svg" }}
-{{ $feature4Icon := .Get "feature4Icon" | default "/images/icons/sparkles.svg" }}
+{{ $feature1Icon := .Get "feature1Icon" | default "document" }}
+{{ $feature2Icon := .Get "feature2Icon" | default "list-bullet" }}
+{{ $feature3Icon := .Get "feature3Icon" | default "bolt" }}
+{{ $feature4Icon := .Get "feature4Icon" | default "sparkles" }}
 
 <div class="{{ $backgroundColor }} py-24 sm:py-32">
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
@@ -48,7 +48,7 @@
         <div class="relative pl-16">
           <dt class="text-base/7 font-semibold text-gray-900">
             <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-{{ $iconBgColor }}">
-              <img src="{{ $feature1Icon }}" class="size-6 text-white" alt="{{ .Get "feature1Title" }} icon">
+              {{ partial "components/media/icon.html" (dict "icon" $feature1Icon "class" "size-6 text-white") }}
             </div>
             {{ .Get "feature1Title" }}
           </dt>
@@ -59,7 +59,7 @@
         <div class="relative pl-16">
           <dt class="text-base/7 font-semibold text-gray-900">
             <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-{{ $iconBgColor }}">
-              <img src="{{ $feature2Icon }}" class="size-6 text-white" alt="{{ .Get "feature2Title" }} icon">
+              {{ partial "components/media/icon.html" (dict "icon" $feature2Icon "class" "size-6 text-white") }}
             </div>
             {{ .Get "feature2Title" }}
           </dt>
@@ -70,7 +70,7 @@
         <div class="relative pl-16">
           <dt class="text-base/7 font-semibold text-gray-900">
             <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-{{ $iconBgColor }}">
-              <img src="{{ $feature3Icon }}" class="size-6 text-white" alt="{{ .Get "feature3Title" }} icon">
+              {{ partial "components/media/icon.html" (dict "icon" $feature3Icon "class" "size-6 text-white") }}
             </div>
             {{ .Get "feature3Title" }}
           </dt>
@@ -81,7 +81,7 @@
         <div class="relative pl-16">
           <dt class="text-base/7 font-semibold text-gray-900">
             <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-{{ $iconBgColor }}">
-              <img src="{{ $feature4Icon }}" class="size-6 text-white" alt="{{ .Get "feature4Title" }} icon">
+              {{ partial "components/media/icon.html" (dict "icon" $feature4Icon "class" "size-6 text-white") }}
             </div>
             {{ .Get "feature4Title" }}
           </dt>
