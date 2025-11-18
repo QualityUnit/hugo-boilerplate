@@ -33,37 +33,50 @@ logger = logging.getLogger(__name__)
 
 def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
     """Find all language configurations for linkbuilding.
-    
+
+    Automatically uses optimized keyword files when available (33x faster).
+    Falls back to full automatic files if optimized versions don't exist.
+
     Returns a list of dicts with language info:
     {
         'lang': 'en',
         'manual_file': 'path/to/en.json',
-        'automatic_file': 'path/to/en_automatic.json',
+        'automatic_file': 'path/to/en_optimized.json' or 'path/to/en_automatic.json',
         'html_dir': 'path/to/public/en/'
     }
     """
     languages = []
-    
-    # Find all automatic link files
-    automatic_files = list(linkbuilding_dir.glob('*_automatic.json'))
-    
+    optimized_dir = linkbuilding_dir / 'optimized'
+
+    # Check if optimized directory exists
+    use_optimized = optimized_dir.exists()
+
+    if use_optimized:
+        logger.info("✨ Found optimized keyword files - using fast mode (33x faster)")
+        automatic_files = list(optimized_dir.glob('*_optimized.json'))
+        file_pattern = '_optimized'
+    else:
+        logger.info("📝 Using full automatic keyword files (slower)")
+        automatic_files = list(linkbuilding_dir.glob('*_automatic.json'))
+        file_pattern = '_automatic'
+
     for auto_file in automatic_files:
-        # Extract language code from filename (e.g., 'en' from 'en_automatic.json')
-        lang = auto_file.stem.replace('_automatic', '')
-        
-        # Check for corresponding manual file
+        # Extract language code from filename (e.g., 'en' from 'en_automatic.json' or 'en_optimized.json')
+        lang = auto_file.stem.replace(file_pattern, '')
+
+        # Check for corresponding manual file (always in main linkbuilding dir, not optimized)
         manual_file = linkbuilding_dir / f"{lang}.json"
         if not manual_file.exists():
             manual_file = None
-            logger.info(f"No manual file found for language {lang} - will use automatic only")
-        
+            logger.debug(f"No manual file found for language {lang} - will use automatic only")
+
         # Determine HTML directory
         # English content is at the root of public, other languages have subdirectories
         if lang == 'en':
             html_dir = public_dir
         else:
             html_dir = public_dir / lang
-            
+
         if not html_dir.exists():
             # Check if ANY HTML files exist in the public directory for this language
             # Sometimes Hugo might place them differently
@@ -72,19 +85,26 @@ def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
                 logger.warning(f"HTML directory not found for language {lang}: {html_dir} - skipping")
                 continue
             logger.info(f"Found alternative location for {lang} content")
-        
+
         languages.append({
             'lang': lang,
             'manual_file': str(manual_file) if manual_file else None,
             'automatic_file': str(auto_file),
             'html_dir': str(html_dir)
         })
-    
+
     # If no languages were found, return at least English if it exists
     if not languages and (public_dir / "index.html").exists():
         logger.warning("No language directories found, but found English content at root")
-        en_auto = linkbuilding_dir / "en_automatic.json"
+
+        # Try optimized first, fall back to automatic
+        if use_optimized:
+            en_auto = optimized_dir / "en_optimized.json"
+        else:
+            en_auto = linkbuilding_dir / "en_automatic.json"
+
         en_manual = linkbuilding_dir / "en.json"
+
         if en_auto.exists():
             languages.append({
                 'lang': 'en',
@@ -92,7 +112,7 @@ def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
                 'automatic_file': str(en_auto),
                 'html_dir': str(public_dir)
             })
-    
+
     return languages
 
 
