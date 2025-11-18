@@ -31,19 +31,9 @@ search_suggestion_broaden: "Išplėskite savo raktažodžius."
 search_suggestion_terms: "Pabandykite kitus terminus arba peržiūrėkite kitas kategorijas."
 search_chat_link: "Arba susisiekite su mumis pokalbyje →"
 
-# Glossary translationsActivity
-3
-
-Files
-4
-
-Later
-5
-
-More
-0
-
-glossary_eyebrow: "Žodynėlis"
+# Glossary translations
+glossary_eyebrow: "Žodynas"
+no_terms_available: "Nėra galimų terminų"
 
 # Category page translations
 categories_title: "Kategorijos"
