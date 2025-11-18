@@ -119,3 +119,8 @@ copy_error: "Kopiatzeko errorea"
 # Promotional offers
 promo_offer: "Eskaintza mugatua"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "%s(e)an argitaratua %s(e)k."
+published_on: "%s(e)an argitaratua."
+last_modified_on_at: "Azken aldaketa %s(e)an, %s(e)tan"

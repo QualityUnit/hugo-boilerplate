@@ -31,7 +31,18 @@ search_suggestion_broaden: "Išplėskite savo raktažodžius."
 search_suggestion_terms: "Pabandykite kitus terminus arba peržiūrėkite kitas kategorijas."
 search_chat_link: "Arba susisiekite su mumis pokalbyje →"
 
-# Glossary translations
+# Glossary translationsActivity
+3
+
+Files
+4
+
+Later
+5
+
+More
+0
+
 glossary_eyebrow: "Žodynėlis"
 
 # Category page translations
@@ -129,3 +140,8 @@ copy_error: "Kopijavimo klaida"
 # Promotional offers
 promo_offer: "Ribotas pasiūlymas"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Paskelbta %s, autorius %s."
+published_on: "Paskelbta %s."
+last_modified_on_at: "Paskutinį kartą atnaujinta %s, %s"

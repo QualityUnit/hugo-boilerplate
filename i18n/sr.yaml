@@ -119,3 +119,8 @@ copy_error: "Грешка при копирању"
 # Promotional offers
 promo_offer: "Ограничена понуда"
 promo_offer_in_menu: "-75% OFF"
+
+# Informacije o objavljivanju
+published_on_by: "Objavljeno dana %s od strane %s."
+published_on: "Objavljeno dana %s."
+last_modified_on_at: "Poslednja izmena dana %s u %s"

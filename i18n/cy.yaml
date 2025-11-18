@@ -119,3 +119,8 @@ copy_error: "Gwall copïo"
 # Promotional offers
 promo_offer: "Cynnig Cyfyngedig"
 promo_offer_in_menu: "-75% OFF"
+
+# Gwybodaeth cyhoeddi
+published_on_by: "Cyhoeddwyd ar %s gan %s."
+published_on: "Cyhoeddwyd ar %s."
+last_modified_on_at: "Diweddarwyd ddiwethaf ar %s am %s"

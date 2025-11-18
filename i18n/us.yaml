@@ -119,3 +119,8 @@ copy_error: "Error copying"
 # Promotional offers
 promo_offer: "Limited Time Offer"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Published on %s by %s."
+published_on: "Published on %s."
+last_modified_on_at: "Last modified on %s at %s"

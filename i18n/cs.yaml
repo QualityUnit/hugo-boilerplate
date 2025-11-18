@@ -130,3 +130,8 @@ copy_error: "Chyba při kopírování"
 # Promotional offers
 promo_offer: "Limitovaná nabídka"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Publikováno dne %s od %s."
+published_on: "Publikováno dne %s."
+last_modified_on_at: "Naposledy upraveno dne %s v %s"

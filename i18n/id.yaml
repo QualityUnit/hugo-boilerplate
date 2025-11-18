@@ -129,3 +129,8 @@ copy_error: "Kesalahan penyalinan"
 # Promotional offers
 promo_offer: "Penawaran terbatas"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Diterbitkan pada %s oleh %s."
+published_on: "Diterbitkan pada %s."
+last_modified_on_at: "Terakhir diubah pada %s pukul %s"

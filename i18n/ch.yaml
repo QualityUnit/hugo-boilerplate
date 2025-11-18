@@ -117,3 +117,8 @@ search_results_found_plural: "Found %d results for %s"
 # Promotional offers
 promo_offer: "Begrenztes Angebot"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Veröffentlicht am %s vo %s."
+published_on: "Veröffentlicht am %s."
+last_modified_on_at: "Zletscht bearbeitet am %s um %s"

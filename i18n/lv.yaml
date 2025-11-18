@@ -129,3 +129,8 @@ copy_error: "Kopēšanas kļūda"
 # Promotional offers
 promo_offer: "Ierobežots piedāvājums"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Publicēts %s, autors %s."
+published_on: "Publicēts %s."
+last_modified_on_at: "Pēdējo reizi mainīts %s plkst. %s"

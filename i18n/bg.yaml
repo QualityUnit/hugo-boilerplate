@@ -129,3 +129,8 @@ copy_error: "Грешка при копиране"
 # Promotional offers
 promo_offer: "Ограничено предложение"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Публикувано на %s от %s."
+published_on: "Публикувано на %s."
+last_modified_on_at: "Последна промяна на %s в %s"

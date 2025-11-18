@@ -129,3 +129,8 @@ copy_error: "Kopeerimisviga"
 # Promotional offers
 promo_offer: "Piiratud pakkumine"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Avaldatud %s, autor %s."
+published_on: "Avaldatud %s."
+last_modified_on_at: "Viimati muudetud %s kell %s"

@@ -117,3 +117,8 @@ copy_error: "நகலெடுக்கும்போது பிழை"
 # Promotional offers
 promo_offer: "வரையறுக்கப்பட்ட சலுகை"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "%s அன்று %s மூலம் வெளியிடப்பட்டது."
+published_on: "%s அன்று வெளியிடப்பட்டது."
+last_modified_on_at: "%s அன்று %s மணிக்கு கடைசியாக மாற்றப்பட்டது"

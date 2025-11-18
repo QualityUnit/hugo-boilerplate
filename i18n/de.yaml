@@ -131,3 +131,8 @@ copy_error: "Fehler beim Kopieren"
 # Promotional offers
 promo_offer: "Aktion"
 promo_offer_in_menu: "-75% OFF"
+
+# Veröffentlichungsinformationen
+published_on_by: "Veröffentlicht am %s von %s."
+published_on: "Veröffentlicht am %s."
+last_modified_on_at: "Zuletzt geändert am %s um %s"

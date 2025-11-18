@@ -117,3 +117,8 @@ copy_error: "कॉपी त्रुटि"
 # Promotional offers
 promo_offer: "सीमित प्रस्ताव"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "%s द्वारा %s को प्रकाशित किया गया।"
+published_on: "%s को प्रकाशित किया गया।"
+last_modified_on_at: "%s को %s पर अंतिम बार संशोधित किया गया"

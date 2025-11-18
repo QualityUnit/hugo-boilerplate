@@ -130,3 +130,8 @@ copy_error: "Kopieringsfeil"
 # Promotional offers
 promo_offer: "Begrenset tilbud"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Publisert den %s av %s."
+published_on: "Publisert den %s."
+last_modified_on_at: "Sist endret den %s kl. %s"

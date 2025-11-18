@@ -119,3 +119,8 @@ copy_error: "Żball fil-kopjar"
 # Promotional offers
 promo_offer: "Offerta Limitata"
 promo_offer_in_menu: "-75% OFF"
+
+# Informazzjoni dwar il-pubblikazzjoni
+published_on_by: "Ippubblikat fil-%s minn %s."
+published_on: "Ippubblikat fil-%s."
+last_modified_on_at: "Aġġornat l-aħħar fil-%s fis-%s"
