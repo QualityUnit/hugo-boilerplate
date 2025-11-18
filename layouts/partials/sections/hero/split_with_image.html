@@ -23,6 +23,9 @@ Parameters:
 - cta: Call-to-action buttons
   - primary: Primary button (text, url)
   - secondary: Secondary button (text, url)
+- date: Publication date (Hugo time object)
+- lastmod: Last modification date (Hugo time object)  
+- author: Author key/identifier (string) - will create link to /author/{author}/ if page exists
 - tags: Array of tags (optional), will create tag links to /tags/[tag-name]/
 - categories: Array of categories (optional), will create category links to /categories/[category-name]
 - badges: Array of badge texts (optional), displayed as styled badges
@@ -109,6 +112,9 @@ Design Tokens:
 {{ $typewriter := .typewriter | default dict }}
 {{ $search := .search | default dict }}
 {{ $checklist := .checklist | default dict }}
+{{ $date := .date }}
+{{ $lastmod := .lastmod }}
+{{ $author := .author }}
 
 {{/* Typewriter configuration with defaults */}}
 {{ $typewriter := merge (dict "enabled" false) $typewriter }}
@@ -301,6 +307,39 @@ Design Tokens:
         {{ end }}
         {{ if $description }}
           <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
+        {{ end }}
+
+        {{ if or $date $lastmod $author }}
+          <div class="mt-6 text-sm text-secondary/8">
+            {{ $dateFormat := "Jan 2, 2006" }}
+            {{ $timeFormat := "3:04 pm" }}
+            
+            {{ with $date }}
+              {{ if $author }}
+                {{ $authorPath := printf "author/%s" $author }}
+                {{ $authorName := $author }}
+                {{ with site.GetPage $authorPath }}
+                  {{ $authorName = printf `<a href="%s" class="font-medium text-primary hover:text-primary-dark underline">%s</a>` .Permalink .Title }}
+                {{ else }}
+                  {{ $authorName = printf `<span class="font-medium">%s</span>` $author }}
+                {{ end }}
+                <span>{{ printf (i18n "published_on_by" | default "Published on %s by %s.") (.Format $dateFormat) $authorName | safeHTML }}</span>
+              {{ else }}
+                <span>{{ printf (i18n "published_on" | default "Published on %s.") (.Format $dateFormat) }}</span>
+              {{ end }}
+              <time datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" class="sr-only">
+                  {{ .Format $dateFormat }}
+              </time>
+            {{ end }}
+
+            {{ with $lastmod }}
+                <span> </span>
+                <span>{{ printf (i18n "last_modified_on_at" | default "Last modified on %s at %s") (.Format $dateFormat) (.Format $timeFormat) }}</span>
+                <time datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" class="sr-only">
+                    {{ .Format $dateFormat }} {{ .Format $timeFormat }}
+                </time>
+            {{ end }}
+          </div>
         {{ end }}
 
         {{/* Tags, Categories, Badges and Resources */}}
