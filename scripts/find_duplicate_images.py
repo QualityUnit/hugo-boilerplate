@@ -51,13 +51,8 @@ def find_image_files(directory):
 def load_model():
     """Loads the Vision Transformer model and image processor."""
     print(f"Loading model '{MODEL_NAME}'...")
-    # Prefer GPU if available, with support for Apple Silicon (MPS)
-    if torch.cuda.is_available():
-        device = "cuda"
-    elif torch.backends.mps.is_available():
-        device = "mps"
-    else:
-        device = "cpu"
+    # Force CPU to avoid MPS issues on macOS
+    device = "cpu"
     print(f"Using device: {device}")
 
     image_processor = ViTImageProcessor.from_pretrained(MODEL_NAME)
@@ -234,6 +229,25 @@ if __name__ == "__main__":
                         usages_html = "<br>".join(usages) if usages else "<i>Not used in content</i>"
                         html_content.append(f"<tr><td><img src='{html_img_path}'></td><td>{rel_path_project}</td><td>{size_str}</td><td>{usages_html}</td></tr>")
                     html_content.append("</table>")
+
+                    # Add sed commands to replace duplicate image paths with the first image in the group
+                    html_content.append("<h3>Replace Commands for This Group</h3>")
+                    html_content.append("<p>Copy and paste these commands to replace references to duplicate images with the first image:</p>")
+                    html_content.append("<pre style='background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto;'>")
+
+                    sorted_group = sorted(group)
+                    if len(sorted_group) > 1:
+                        # Get the filename of the first (primary) image
+                        first_image_filename = os.path.basename(sorted_group[0])
+                        for duplicate_path in sorted_group[1:]:
+                            duplicate_filename = os.path.basename(duplicate_path)
+                            # Escape special characters for sed (need to escape backslashes, dots, slashes, etc.)
+                            escaped_duplicate = duplicate_filename.replace('\\', '\\\\').replace('.', '\\.').replace('[', '\\[').replace(']', '\\]').replace('(', '\\(').replace(')', '\\)')
+                            escaped_first = first_image_filename.replace('\\', '\\\\').replace('.', '\\.').replace('[', '\\[').replace(']', '\\]').replace('(', '\\(').replace(')', '\\)')
+                            # Generate sed command that will replace duplicate filename with first filename in all .md files
+                            html_content.append(f"find content -name '*.md' -type f -exec sed -i '' 's/{escaped_duplicate}/{escaped_first}/g' {{}} +")
+
+                    html_content.append("</pre>")
 
                 # Add section for unused images
                 html_content.append(f"<h1>Unused Images ({len(unused_images)})</h1>")
