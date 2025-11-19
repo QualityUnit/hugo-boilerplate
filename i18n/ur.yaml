@@ -117,3 +117,8 @@ copy_error: "کاپی کرنے میں خرابی"
 # Promotional offers
 promo_offer: "محدود پیشکش"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "%s کو %s کے ذریعہ شائع کیا گیا۔"
+published_on: "%s کو شائع کیا گیا۔"
+last_modified_on_at: "%s کو %s پر آخری بار ترمیم کی گئی"

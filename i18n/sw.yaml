@@ -116,3 +116,8 @@ copy_error: "Hitilafu ya kunakili"
 # Promotional offers
 promo_offer: "Ombi la Muda"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Imechapishwa tarehe %s na %s."
+published_on: "Imechapishwa tarehe %s."
+last_modified_on_at: "Ilibadilishwa mwisho tarehe %s saa %s"

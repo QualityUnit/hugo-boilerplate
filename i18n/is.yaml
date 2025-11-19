@@ -128,3 +128,8 @@ copy_error: "Villa við afritun"
 # Promotional offers
 promo_offer: "Takmörkuð tilboð"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Birt þann %s af %s."
+published_on: "Birt þann %s."
+last_modified_on_at: "Síðast breytt þann %s kl. %s"

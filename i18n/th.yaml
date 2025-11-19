@@ -128,3 +128,8 @@ copy_error: "ข้อผิดพลาดในการคัดลอก"
 # Promotional offers
 promo_offer: "ข้อเสนอจำกัด"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "เผยแพร่เมื่อ %s โดย %s"
+published_on: "เผยแพร่เมื่อ %s"
+last_modified_on_at: "แก้ไขล่าสุดเมื่อ %s เวลา %s"

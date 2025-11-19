@@ -26,6 +26,9 @@ Example usage of Split Hero with Image Shortcode:
   "typewriterColor"="text-blue-600"
   "yPadding"="sm:py-0 lg:py-24"
   "badges"="No setup fee, Customer service, No credit card required, Cancel any time"
+  "date"="2025-05-30T14:48:00Z"
+  "lastmod"="2025-05-30T16:30:00Z"
+  "author"="lsavko"
 >}}
 
 Parameters:
@@ -54,6 +57,9 @@ Parameters:
 - typewriterColor: Tailwind CSS color class for animated text (default: "text-indigo-600")
 - yPadding: Custom y-padding value using Tailwind classes (default: "sm:py-0 lg:py-24")
 - badges: Comma-separated list of badge texts to display (optional)
+- date: Publication date in ISO format (e.g., "2025-05-30T14:48:00Z") (optional)
+- lastmod: Last modification date in ISO format (e.g., "2025-05-30T14:48:00Z") (optional)
+- author: Author key/identifier (string) - will create link to /author/{author}/ if page exists (optional)
 */}}
 
 {{/* Split Hero with Image Shortcode */}}
@@ -78,6 +84,23 @@ Parameters:
 {{ $announcementLinkText := .Get "announcementLinkText" | default "Read more" }}
 {{ $announcementLinkUrl := .Get "announcementLinkUrl" | default "#" }}
 {{ $badges := .Get "badges" | default "" }}
+
+{{/* Date and Last Modified parameters */}}
+{{ $dateString := .Get "date" }}
+{{ $lastmodString := .Get "lastmod" }}
+{{ $author := .Get "author" }}
+
+{{ $date := false }}
+{{ $lastmod := false }}
+
+{{/* Convert date strings to time objects if provided */}}
+{{ if $dateString }}
+  {{ $date = time $dateString }}
+{{ end }}
+
+{{ if $lastmodString }}
+  {{ $lastmod = time $lastmodString }}
+{{ end }}
 
 {{/* Typewriter parameters */}}
 {{ $typewriterEnabled := .Get "typewriterEnabled" | default false }}
@@ -150,4 +173,7 @@ Parameters:
   "yPadding" $yPadding
   "contentLeftPadding" $contentLeftPadding
   "badges" $badgeSlice
+  "date" $date
+  "lastmod" $lastmod
+  "author" $author
 ) }}

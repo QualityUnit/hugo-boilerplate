@@ -129,3 +129,8 @@ copy_error: "Eroare la copiere"
 # Promotional offers
 promo_offer: "Ofertă limitată"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Publicat la %s de %s."
+published_on: "Publicat la %s."
+last_modified_on_at: "Ultima modificare la %s la %s"

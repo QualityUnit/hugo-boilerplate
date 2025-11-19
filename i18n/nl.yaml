@@ -131,3 +131,8 @@ copy_error: "Kopieerfout"
 # Promotional offers
 promo_offer: "Beperkte aanbieding"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "Gepubliceerd op %s door %s."
+published_on: "Gepubliceerd op %s."
+last_modified_on_at: "Laatst gewijzigd op %s om %s"

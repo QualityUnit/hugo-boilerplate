@@ -131,3 +131,8 @@ copy_error: "복사 오류"
 # Promotional offers
 promo_offer: "한정 혜택"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "%s에 %s에 의해 게시됨."
+published_on: "%s에 게시됨."
+last_modified_on_at: "%s에 %s에서 마지막으로 수정됨"

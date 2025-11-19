@@ -131,3 +131,8 @@ copy_error: "コピーエラー"
 # Promotional offers
 promo_offer: "限定オファー"
 promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "%s によって %s に公開されました。"
+published_on: "%s に公開されました。"
+last_modified_on_at: "%s の %s に最終更新されました"
