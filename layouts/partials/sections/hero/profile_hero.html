@@ -1,14 +1,14 @@
 {{/*
 @section: Author Hero section
-@description: A responsive hero section split into two columns - one with text content and CTAs, the other with a featured rounded image.
+@description: A responsive hero section for profile pages.
 @params:
-  - heading: Main heading text (default: "Data to enrich your business")
+  - heading: Main heading text (default: "Name Surname")
   - description: Description text (default: "Anim aute id magna aliqua ad ad non deserunt sunt...")
   - image: Image URL string or object with url and alt properties (optional)
   - backgroundImage: Background image in right container
   - contact_info: Information about email, phone and linkedin (optional)
 @example:
-  {{ partial "sections/hero/split_with_rounded_image.html" (dict
+  {{ partial "/sections/hero/profile_hero.html" (dict
       "heading" "Powerful analytics for your business"
       "description" "Get insights from your data with our powerful analytics platform. Make better decisions and grow your business."
       "manager_bio" "Aida Sarkulova is an affiliate manager with expertise in the Arts, Entertainment and Recreation. Affstream Affiliate Program manager Aida Sarkulova primarily focuses her affiliate efforts Worldwide. Aida Sarkulova uses advanced tools for tracking, reporting, and automating affiliate operations on a daily basis. To contact Aida Sarkulova, feel free to reach out via email, phone calls, and social media for a prompt answer."
@@ -39,6 +39,9 @@
 {{ $email := .contact_info.email | default nil }}
 {{ $phone := .contact_info.phone | default nil }}
 {{ $linkedin := .contact_info.linkedin | default nil }}
+
+{{ $avatarContainerSize := "220px" }}
+{{ $avatarSize := "200px" }}
 
 <section class="wrapper my-16 lg:my-24">
   <div class="flex flex-col md:flex-row py-2.5">
@@ -91,8 +94,8 @@
       <!-- Right Column - Image -->
       <div class="mx-auto w-full md:w-1/2 order-1 md:order-2">
         <div class="relative max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
-          <div class="size-[220px] p-3 flex items-center justify-center absolute top-20 rounded-full bg-white/80 backdrop-blur-sm border ">
-            <div class="[&>picture]:object-fit rounded-full size-[200px] overflow-hidden">
+          <div class="{{ printf "size-[%s]" $avatarContainerSize }} p-3 flex items-center justify-center absolute top-20 rounded-full bg-white/80 backdrop-blur-sm border ">
+            <div class="[&>picture]:object-fit rounded-full {{ printf "size-[%s]" $avatarSize }} overflow-hidden">
               {{ partial "components/media/lazyimg.html" (dict
                   "src" $imageSrc
                   "alt" $heading

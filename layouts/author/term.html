@@ -12,7 +12,6 @@
 <div class="wrapper">
   {{/* Configuration variables */}}
   {{ $cardHeight := 540 }}
-  {{ $backgroundImage := "" }}
   {{ $paginator := .Paginate .Pages.ByDate.Reverse 60 }}
   <div class="my-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
     {{ range $paginator.Pages }}
