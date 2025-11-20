@@ -1,21 +1,19 @@
 {{ define "main" }}
 {{ partial "breadcrumbs_default.html" . }}
 
+<!-- Hero Section -->
+{{ partial "/sections/hero/profile_hero.html" (dict
+  "heading" .Title
+  "description" .Params.description
+  "image" .Params.image
+  "backgroundImage" "/images/author/author-detail.png"
+) }}
+
 <div class="wrapper">
-{{/* Configuration variables */}}
-{{ $cardHeight := 540 }}
-
-  <!-- Hero Section -->
-  {{ partial "sections/hero/split_with_rounded_image" (dict
-    "heading" .Title
-    "description" .Params.description
-    "image" .Params.image
-    "eyebrow" (i18n "author_eyebrow")
-    "search" (.Params.search | default dict)
-  ) }}
-
-   {{ $paginator := .Paginate .Pages.ByDate.Reverse 60 }}
-
+  {{/* Configuration variables */}}
+  {{ $cardHeight := 540 }}
+  {{ $backgroundImage := "" }}
+  {{ $paginator := .Paginate .Pages.ByDate.Reverse 60 }}
   <div class="my-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
     {{ range $paginator.Pages }}
       {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" $cardHeight) }}

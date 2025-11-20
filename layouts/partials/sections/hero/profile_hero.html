@@ -1,0 +1,111 @@
+{{/*
+@section: Author Hero section
+@description: A responsive hero section split into two columns - one with text content and CTAs, the other with a featured rounded image.
+@params:
+  - heading: Main heading text (default: "Data to enrich your business")
+  - description: Description text (default: "Anim aute id magna aliqua ad ad non deserunt sunt...")
+  - image: Image URL string or object with url and alt properties (optional)
+  - backgroundImage: Background image in right container
+  - contact_info: Information about email, phone and linkedin (optional)
+@example:
+  {{ partial "sections/hero/split_with_rounded_image.html" (dict
+      "heading" "Powerful analytics for your business"
+      "description" "Get insights from your data with our powerful analytics platform. Make better decisions and grow your business."
+      "manager_bio" "Aida Sarkulova is an affiliate manager with expertise in the Arts, Entertainment and Recreation. Affstream Affiliate Program manager Aida Sarkulova primarily focuses her affiliate efforts Worldwide. Aida Sarkulova uses advanced tools for tracking, reporting, and automating affiliate operations on a daily basis. To contact Aida Sarkulova, feel free to reach out via email, phone calls, and social media for a prompt answer."
+      "image" "/images/author/author-detail.png"
+      "backgroundImage" "/images/author/author-detail.png"
+      "contact_info" (dict 
+        "email" "aida.s@affstream.com" 
+        "phone" "+380 93 531 1952"
+        "linkedin" "https://www.linkedin.com/company/affstream/"
+      )
+  ) }}
+*/}}
+
+{{/* Split Hero with Image */}}
+{{ $heading := .heading | default .Title }}
+{{ $description := .description | default .Params.shortDescription | default .Params.description | default "" }}
+{{ if .manager_bio }}
+  {{ $description = .manager_bio }}
+{{ end }} 
+
+{{ $imageSrc := .image | default .Params.image | default "/images/default-avatar.png" }}
+{{ $imageAlt := $heading }}
+{{ $imageClass := .imageClass | default "w-full object-cover h-full max-h-full" }}
+{{ $backgroundImage := .backgroundImage | default "/placeholder-image.jpg" }}
+{{ $backgroundClass := .backgroundClass | default "h-[522px]" }}
+
+<!-- Contact info -->
+{{ $email := .contact_info.email | default nil }}
+{{ $phone := .contact_info.phone | default nil }}
+{{ $linkedin := .contact_info.linkedin | default nil }}
+
+<section class="wrapper my-16 lg:my-24">
+  <div class="flex flex-col md:flex-row py-2.5">
+      <!-- Left Column - Content -->
+      <div class="mx-auto py-8 pr-8 w-full md:w-1/2 flex items-center flex-shrink-0 order-2 md:order-1">
+        <div>
+          <h1 class="mb-[1.875rem] text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-heading">
+            {{ $heading }}
+          </h1>
+          {{ if $description }}
+            <p class="text-base lg:text-xl leading-8 font-medium text-tertiary">
+              {{ $description | markdownify }}
+            </p>
+          {{ end }}
+          
+          <!-- Contact Information -->
+          {{ if or $email $linkedin $phone }}
+            <div class="mt-10 flex items-center gap-x-6">
+              {{ if $email }}
+                {{ $emailUrl := cond (hasPrefix $email "mailto:") $email (printf "mailto:%s" $email) }}
+                {{ partial "components/buttons/buttons.html" (dict
+                    "text" "Mail"
+                    "url" $emailUrl
+                    "variant" "secondary"
+                ) }}
+              {{ end }}
+              
+              {{ if $linkedin }}
+                {{ partial "components/buttons/buttons.html" (dict
+                    "text" "LinkedIn"
+                    "url" $linkedin
+                    "variant" "secondary"
+                    "target" "_blank"
+                ) }}
+              {{ end }}
+
+              {{ if $phone }}
+                {{ $phoneUrl := cond (hasPrefix $phone "tel:") $phone (printf "tel:%s" $phone) }}
+                {{ partial "components/buttons/buttons.html" (dict
+                  "text" $phone
+                  "url" $phoneUrl
+                  "variant" "secondary"
+                ) }}
+              {{ end }}
+            </div>
+          {{ end }}
+        </div>
+      </div>
+      
+      <!-- Right Column - Image -->
+      <div class="mx-auto w-full md:w-1/2 order-1 md:order-2">
+        <div class="relative max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
+          <div class="size-[220px] p-3 flex items-center justify-center absolute top-20 rounded-full bg-white/80 backdrop-blur-sm border ">
+            <div class="[&>picture]:object-fit rounded-full size-[200px] overflow-hidden">
+              {{ partial "components/media/lazyimg.html" (dict
+                  "src" $imageSrc
+                  "alt" $heading
+                  "class" $imageClass
+              ) }}
+            </div>
+          </div>
+          {{ partial "components/media/lazyimg.html" (dict
+              "src" $backgroundImage
+              "alt" $heading
+              "class" $backgroundClass
+          ) }}
+        </div>
+      </div>
+    </div>
+</section>
