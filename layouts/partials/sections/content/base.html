@@ -1,0 +1,90 @@
+{{/*
+Responsive section with heading, description, image and cta
+
+Parameters:
+- heading: Main heading text
+- description: Description text
+- image: Image URL or image object with url and alt properties
+- imageAlt: Image alt text (optional)
+- cta: Call-to-action buttons
+  - primary: Primary button (text, url)
+  - secondary: Secondary button (text, url)
+- padding: Custom padding classes (optional, default: "py-12 lg:py-16")@example:
+{{ partial "sections/content/centered.html" (dict 
+      "heading" "Connect with your customers"
+      "description" "Discover our multi-channel help desk software with 130+ ticketing features and 200+ integrations with the tools you love."
+      "image" "/images/solutions/analytics.jpg"
+      "imageAlt" "Analytics dashboard"
+      "cta" (dict
+        "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
+        "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
+  ) }}
+*/}}
+
+{{/* Section parameters */}}
+{{ $image := .image }}
+{{ $heading := .heading }}
+{{ $description := .description }}
+{{ $cta := .cta }}
+{{ $imageAlt := .imageAlt | default $heading }}
+{{ $padding := .padding | default "py-16 lg:py-24" }}
+
+{{/* Image processing */}}
+{{ $imageSrc := "" }}
+{{ if $image }}
+  {{ if reflect.IsMap $image }}
+    {{ $imageSrc = $image.url }}
+    {{ $imageAlt = $image.alt | default $imageAlt }}
+  {{ else }}
+    {{ $imageSrc = $image }}
+  {{ end }}
+{{ end }}
+
+<div class="section-bg-light {{ $padding }}">
+  <div class="wrapper flex flex-wrap gap-y-[0.625rem] items-center text-center">
+    <div class="flex-col w-full">
+        <div class="flex flex-col gap-y-[1.875rem] max-w-2xl mx-auto">
+            {{ if $heading }}
+                <h1 class="text-4xl sm:text-5xl font-semibold lg:text-7xl text-heading leading-none text-pretty">{{ $heading }}</h1>
+            {{ end }}
+            {{ if $description }}
+                <p class="text-lg/8 text-tertiary font-medium sm:text-xl/8 prose-links prose-a:text-tertiary">{{ $description | safeHTML }}</p>
+            {{ end }}
+        </div>
+    </div>
+    <div class="flex flex-col rounded-xl justify-center w-full overflow-hidden mx-auto">
+        {{ partial "components/media/lazyimg.html" (dict
+            "src" $imageSrc
+            "alt" $imageAlt
+            "class" "object-contain"
+        ) }}
+    </div>
+    {{/* CTA Buttons */}}
+    {{ if $cta }}
+      {{ $showPrimaryCta := and (isset $cta "primary") (isset $cta.primary "url") (isset $cta.primary "text") (ne $cta.primary.url "") (ne $cta.primary.text "") }}
+      {{ $showSecondaryCta := and (isset $cta "secondary") (isset $cta.secondary "url") (isset $cta.secondary "text") (ne $cta.secondary.url "") (ne $cta.secondary.text "") }}
+      {{ if or $showPrimaryCta $showSecondaryCta }}
+      <div class="mx-auto w-full flex items-center justify-center flex-wrap gap-3">
+        {{ if $showPrimaryCta }}
+          {{ partial "components/buttons/buttons.html" (dict
+            "text" $cta.primary.text
+            "url" $cta.primary.url
+            "variant" "primary"
+            "showArrow" true
+            "size" "xl"
+          ) }}
+        {{ end }}
+        {{ if $showSecondaryCta }}
+          {{ partial "components/buttons/buttons.html" (dict
+            "text" $cta.secondary.text
+            "url" $cta.secondary.url
+            "variant" "secondary"
+            "size" "xl"
+          ) }}
+        {{ end }}
+      </div>
+      {{ end }}
+    {{ end }}
+  </div>
+</div>
+
