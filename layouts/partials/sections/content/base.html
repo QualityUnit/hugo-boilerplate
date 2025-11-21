@@ -9,7 +9,9 @@ Parameters:
 - cta: Call-to-action buttons
   - primary: Primary button (text, url)
   - secondary: Secondary button (text, url)
-- padding: Custom padding classes (optional, default: "py-12 lg:py-16")@example:
+- page: Page context for linkbuilding function (required)
+- padding: Custom padding classes (optional, default: "py-12 lg:py-16")
+@example:
 {{ partial "sections/content/centered.html" (dict 
       "heading" "Connect with your customers"
       "description" "Discover our multi-channel help desk software with 130+ ticketing features and 200+ integrations with the tools you love."
@@ -18,6 +20,7 @@ Parameters:
       "cta" (dict
         "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
         "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
+      "page" .
   ) }}
 */}}
 
@@ -28,6 +31,7 @@ Parameters:
 {{ $cta := .cta }}
 {{ $imageAlt := .imageAlt | default $heading }}
 {{ $padding := .padding | default "py-16 lg:py-24" }}
+{{ $page := .page }}
 
 {{/* Image processing */}}
 {{ $imageSrc := "" }}

@@ -13,6 +13,9 @@
     - title: Feature title
     - description: Feature description text
     - link: Object with text and url properties for the "Learn more" link (optional)
+  - cta: Object with CTA link configuration (optional)
+    - text: Link text
+    - url: Link URL
   - page: Page context for linkbuilding function (required)
 @example:
   {{ partial "sections/features/simple_three_column_with_large_icons.html" (dict
@@ -42,6 +45,7 @@
               "link" (dict "text" "Learn about security" "url" "/security")
           )
       )
+      "cta" (dict "text" "Contact support" "url" "/support")
       "page" .
   ) }}
 @note: The feature icons use Heroicons paths - provide just the path contents for the icon parameter.
@@ -54,6 +58,7 @@
 {{ $description := .description | default "" }}
 {{ $maxWidthHeading := .maxWidthHeading | default "max-w-none lg:max-w-2xl" }}
 {{ $features := .features | default (slice) }}
+{{ $cta := .cta }}
 {{ $page := .page }}
 {{ $theme := .theme | default "light" }}
 {{ $isDark := eq $theme "dark" }}
@@ -109,6 +114,17 @@
           {{ end }}
         </dl>
       </div>
+      {{ if $cta }}
+        <div class="mx-auto w-full flex items-center justify-center mt-16">
+          {{ partial "components/buttons/buttons.html" (dict
+            "text" $cta.text
+            "url" $cta.url
+            "variant" "primary"
+            "showArrow" true
+            "size" "xl"
+          ) }}
+        </div>
+      {{ end }}
     </div>
   </div>
 </div>
