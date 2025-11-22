@@ -16,8 +16,14 @@
   - Params.author: Post author name (optional)
   - Params.price (optional): Price of the product (if applicable) in EUR
   - showImages: Whether to display images (optional, default: true)
+  - defaultImage: Default image if we don't have use standard default image
   - cardHeight: Minimum height of the card in pixels (optional, default: 556)
+  - cardWrapperClasses: Additional CSS classes for wrapper card (optional, default "")
   - imageClasses: Additional CSS classes for the image (optional, default: "w-full h-full object-cover")
+  - imageWrapperClasses: Additional CSS classes for the image wrapper (optional, default: "h-48 min-h-[15.3125rem] overflow-hidden")
+  - descriptionLength: Maximum length of the description in characters (optional, default: 160)
+  - contentPadding: Padding of content path (optional, default "p-8")
+  - contentAlign: Alignment of the content within the card (optional, default: "left")
 @example:
 {{ partial "components/cards/post_card_with_image.html" . }}
 {{ partial "components/cards/post_card_with_image.html" (dict "cardHeight" 600 "page" .) }}
@@ -35,12 +41,28 @@
 {{ if .cardHeight }}
   {{ $cardHeight = printf "%.4frem" (div (float .cardHeight) 16) }}
 {{ end }}
-{{ $cardClasses := printf "h-full min-h-[%s]" $cardHeight }}
+{{ $cardWrapperClasses := "" }}
+{{ if .cardWrapperClasses }}
+  {{ $cardWrapperClasses = .cardWrapperClasses }}
+{{ end }}
+
+{{ $cardClasses := printf "h-full min-h-[%s] %s" $cardHeight $cardWrapperClasses }}
 {{ $imageWrapperClasses := .imageWrapperClasses | default "h-48 min-h-[15.3125rem] overflow-hidden" }}
-{{ $descriptionLength := 160 }}
+{{ $descriptionLength := .descriptionLength | default 160 }}
+
+{{ $contentPadding := .contentPadding | default "p-8" }}
+{{ $contentAlign := .contentAlign | default "left" }}
+{{ $contentAlignClass := "" }}
+{{ if eq $contentAlign "center" }}
+  {{ $contentAlignClass = "items-center text-center" }}
+{{ else if eq $contentAlign "right" }}
+  {{ $contentAlignClass = "items-end text-right" }}
+{{ else }}
+  {{ $contentAlignClass = "items-start text-left" }}
+{{ end }}
 
 {{/* Image URL */}}
-{{ $image := cond (isset $page.Params "image") $page.Params.image (cond $page.Params.youtubeVideoID (printf "https://img.youtube.com/vi/%s/hqdefault.jpg" $page.Params.youtubeVideoID) "/placeholder-image.jpg") }}
+{{ $image := cond (isset $page.Params "image") $page.Params.image (cond (isset . "defaultImage") .defaultImage (cond $page.Params.youtubeVideoID (printf "https://img.youtube.com/vi/%s/hqdefault.jpg" $page.Params.youtubeVideoID) "/placeholder-image.jpg")) }}
 {{ $imageClasses := .imageClasses | default "w-full h-full object-cover" }}
 {{ $classPicture := "w-full h-full object-cover" }}
 
@@ -73,7 +95,7 @@
     </div>
   {{ end }}
 
-  <div class="flex flex-col flex-grow p-8">
+  <div class="flex flex-col flex-grow {{ $contentPadding }} {{ $contentAlignClass }}">
     {{/* Title & Description */}}
     <h3 class="mt-2.5 text-lg/6 font-semibold text-heading group-hover:text-tertiary transition-colors duration-300">
       {{ $page.Title }}
@@ -89,7 +111,7 @@
         {{ end }}
         {{ if $page.ReadingTime }}
           {{ if $page.Date }}
-            <span class="inline-flex mx-1.5 w-0.5 h-0.5 rounded-full bg-gray-600"></span>
+            <span class="inline-flex mx-1.5 w-0.5 h-0.5 rounded-full surface-brand-secondary"></span>
           {{ end }}
           {{ printf "%d %s" $page.ReadingTime (i18n "minutes_read") }}
         {{ end }}
