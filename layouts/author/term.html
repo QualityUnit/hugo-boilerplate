@@ -6,7 +6,7 @@
   "heading" .Title
   "description" .Params.description
   "image" .Params.image
-  "backgroundImage" "/default-profile-detail-bg.png"
+  "backgroundImage" (.Params.backgroundImage | default "/default-profile-detail-bg.png")
 ) }}
 
 <div class="wrapper">
