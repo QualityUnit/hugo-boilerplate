@@ -9,17 +9,13 @@ image = ""
 tags = []
 categories = []
 
-faq = [
-  {
-    question = "What is {{ replace .File.ContentBaseName "-" " " | title }}?",
-    answer = ""
-  },
-  {
-    question = "How does {{ replace .File.ContentBaseName "-" " " | title }} work?",
-    answer = ""
-  }
-]
+[[faq]]
+question = "What is {{ replace .File.ContentBaseName "-" " " | title }}?"
+answer = ""
 
+[[faq]]
+question = "How does {{ replace .File.ContentBaseName "-" " " | title }} work?"
+answer = ""
 
 # CTA Section Configuration (optional)
 showCTA = false

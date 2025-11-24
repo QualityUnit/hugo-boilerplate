@@ -212,7 +212,7 @@ Design Tokens:
                   {{ partial "components/media/icon.html" (dict "icon" .icon) }}
                 </span>
               {{ end }}
-              {{ .title }}.
+              {{ .title }}{{ if .description }}: {{ end }}
             </dt>
             {{ if .description }}
               <dd class="inline prose-links">{{ .description }}</dd>
@@ -229,7 +229,7 @@ Design Tokens:
               <li class="relative pl-9">
                 <span class="inline-flex text-heading font-bold">
                   <span class="absolute left-1 top-1/2 -translate-y-1/2 w-5 h-5 text-[10px] flex justify-center items-center text-white rounded-full bg-primary">{{ add $index 1 }}</span>
-                  {{ .title }}.
+                  {{ .title }}{{ if .description }}: {{ end }}
                 </span>
                 <span class="inline prose-links">{{ .description }}</span>
               </li>

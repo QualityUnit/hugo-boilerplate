@@ -1,17 +1,18 @@
-{{/* 
+{{/*
   Blockquote Shortcode
-  
+
   This shortcode wraps the quote/blockquote partial template and can be used in three ways:
 
   1. Using named parameters:
-    {{< blockquote 
-      name="John Doe" 
-      image="/images/john-doe.jpg" 
-      text="Your quote text here" 
+    {{< blockquote
+      name="John Doe"
+      image="/images/john-doe.jpg"
+      logo="/images/company-logo.svg"
+      text="Your quote text here"
     >}}
 
   2. Using inner content for the quote:
-    {{< blockquote name="John Doe" image="/images/john-doe.jpg" >}}
+    {{< blockquote name="John Doe" image="/images/john-doe.jpg" logo="/images/company-logo.svg" >}}
     Your quote text here
     {{< /blockquote >}}
 
@@ -24,14 +25,17 @@
     - text: The quote text (optional if using inner content)
     - name: The author's name (optional)
     - image: URL to the author's image (optional)
+    - logo: URL to the company logo (optional)
 */}}
 
 {{ $text := .Get "text" | default .Inner }}
 {{ $name := .Get "name" }}
 {{ $imageUrl := .Get "image" }}
+{{ $logoUrl := .Get "logo" }}
 
 {{ partial "components/quote/blockquote.html" (dict
   "text" $text
   "name" $name
   "imageUrl" $imageUrl
+  "logoUrl" $logoUrl
 ) }}

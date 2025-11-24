@@ -1,0 +1,42 @@
+{{/*
+  Award Badge Shortcode
+
+  Displays an award badge image as a clickable link
+
+  Usage:
+  {{< award-badge
+    image="/path/to/badge.png"
+    alt="Award description"
+    link="https://link-to-award.com"
+    title="Award Title"
+  >}}
+
+  Parameters:
+    - image: URL to the badge image (required)
+    - alt: Alternative text for the image (required)
+    - link: URL to link to when badge is clicked (optional)
+    - title: Title attribute for the link (optional)
+*/}}
+
+{{ $image := .Get "image" }}
+{{ $alt := .Get "alt" | default "Award Badge" }}
+{{ $link := .Get "link" }}
+{{ $title := .Get "title" | default $alt }}
+
+<div class="award-badge inline-block m-2">
+  {{ if $link }}
+    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" title="{{ $title }}" class="block hover:opacity-80 transition-opacity">
+      {{ partial "components/media/lazyimg.html" (dict
+        "src" $image
+        "alt" $alt
+        "class" "rounded-lg shadow-md max-w-xs"
+      ) }}
+    </a>
+  {{ else }}
+    {{ partial "components/media/lazyimg.html" (dict
+      "src" $image
+      "alt" $alt
+      "class" "rounded-lg shadow-md max-w-xs"
+    ) }}
+  {{ end }}
+</div>
