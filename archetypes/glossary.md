@@ -10,16 +10,15 @@ term = "{{ replace .File.ContentBaseName "-" " " | title }}"
 shortDescription = ""
 category = "{{ substr (replace .File.ContentBaseName "-" " " | title) 0 1 | upper }}"
 tags = []
-faq = [
-  {
-    question = "What is {{ replace .File.ContentBaseName "-" " " | title }}?",
-    answer = ""
-  },
-  {
-    question = "How does {{ replace .File.ContentBaseName "-" " " | title }} work?",
-    answer = ""
-  }
-]
+
+[[faq]]
+question = "What is {{ replace .File.ContentBaseName "-" " " | title }}?"
+answer = ""
+
+[[faq]]
+question = "How does {{ replace .File.ContentBaseName "-" " " | title }} work?"
+answer = ""
+
 additionalImages = []
 
 # CTA Section Configuration (optional)

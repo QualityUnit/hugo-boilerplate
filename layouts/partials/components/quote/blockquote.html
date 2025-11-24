@@ -1,15 +1,17 @@
 {{/*
 @component: Blockquote
-@description: Displays a styled blockquote with optional author image and attribution.
+@description: Displays a styled blockquote with optional author image, attribution, and company logo.
 @params:
   - text: The quote text to display (required)
   - name: The name of the person being quoted (optional)
   - imageUrl: URL to the author's image (optional)
+  - logoUrl: URL to the company logo (optional)
 @example:
-  {{ partial "components/quote/blockquote.html" (dict 
-      "text" "The best way to predict the future is to invent it." 
+  {{ partial "components/quote/blockquote.html" (dict
+      "text" "The best way to predict the future is to invent it."
       "name" "Alan Kay"
       "imageUrl" "/images/people/alan-kay.jpg"
+      "logoUrl" "/images/company-logo.svg"
   ) }}
 @note: The component will automatically adjust layout based on whether an image is provided.
 */}}
@@ -17,6 +19,7 @@
 {{ $text := .text }}
 {{ $name := .name }}
 {{ $imageUrl := .imageUrl }}
+{{ $logoUrl := .logoUrl }}
 
 <div class="flex flex-col sm:flex-row items-center gap-4 p-6 bg-gray-50 rounded-lg shadow-sm my-8">
     {{ if $imageUrl }}
@@ -24,16 +27,22 @@
             <img src="{{ $imageUrl }}" alt="{{ $name }}" class="w-16 h-16 rounded-full object-cover shadow-sm">
         </div>
     {{ end }}
-    
+
     <div class="flex-1">
         <blockquote class="italic text-gray-800 mb-2">
-            "{{ $text }}"
+            {{ $text | safeHTML }}
         </blockquote>
-        
+
         {{ if $name }}
             <cite class="block text-right font-medium text-gray-600 not-italic">
                 {{ $name }}
             </cite>
         {{ end }}
     </div>
+
+    {{ if $logoUrl }}
+        <div class="flex-shrink-0">
+            <img src="{{ $logoUrl }}" alt="Company logo" class="h-12 object-contain">
+        </div>
+    {{ end }}
 </div>
