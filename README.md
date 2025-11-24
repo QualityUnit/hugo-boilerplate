@@ -511,7 +511,7 @@ Front matter example:
 +++
 title = 'My Post Title'
 date = 2025-04-03T07:43:16+02:00
-draft = false
+
 description = "A comprehensive description for SEO purposes"
 keywords = ["keyword1", "keyword2", "keyword3"]
 image = "/images/blog/featured-image.jpg"
@@ -538,7 +538,7 @@ Front matter example:
 +++
 title = 'Term Name'
 date = 2025-04-03T07:43:16+02:00
-draft = false
+
 url = "glossary/term-name"
 description = "A comprehensive description of the term for SEO purposes"
 keywords = ["keyword1", "keyword2", "keyword3"]
