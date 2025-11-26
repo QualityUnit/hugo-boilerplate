@@ -2,22 +2,32 @@
 @component: Icon Card
 @description: Displays a component card with icon, title, description and button. Designed for component listings.
 @params:
-- icon: Icon name/class, SVG file path, or inline SVG code
+- icon: Icon name (e.g., "light-bulb") for Hugo icon partials or SVG file path (e.g., "/images/icons/code.svg")
 - title: Card title
 - description: Card description text
 - buttonText: Text for the button (optional, default: "Learn More")
 - buttonLink: URL for the button link
 - cardClass: Additional CSS classes for the card container (optional)
-- iconColor: Color class for the icon (optional, default: text-primary)
+- iconColor: Color class for the icon (optional, default: text-gray-900)
 - iconBackground: Background class for the icon (optional)
+- iconSize: Size class for the icon (optional, default: w-5 h-5)
+- iconBackgroundSize: Size class for the icon background (optional, default: w-10 h-10)
+- headingLevel: HTML heading level for the title (optional, default: h3) - accepts h1, h2, h3, h4, h5, h6
 @example:
-{{ partial "components/cards/icon_card.html" (dict 
-    "icon" "/images/icons/code.svg" 
-    "title" "Code Generator" 
+{{ partial "components/cards/icon_card.html" (dict
+    "icon" "light-bulb"
+    "title" "Smart Solutions"
+    "description" "Innovative ideas for your business"
+    "url" "/solutions/"
+) }}
+{{ partial "components/cards/icon_card.html" (dict
+    "icon" "/images/icons/code.svg"
+    "title" "Code Generator"
     "description" "Generate clean, efficient code automatically"
     "url" "/tools/code-generator"
+    "headingLevel" "h2"
 ) }}
-@note: Supports Font Awesome icons, SVG file paths (uses lazysvg), and inline SVG code.
+@note: Supports Hugo icon partials (use icon name without path) and SVG file paths (use full path with /images/).
 */}}
 
 {{ $icon := .icon }}
@@ -37,24 +47,45 @@
   {{ $iconBackground = index $iconColors $iconCategory }}
 {{ end }}
 {{ $iconAlt := .iconAlt }}
+{{ $iconColor := .iconColor | default "text-gray-900" }}
+{{ $isIconName := and $icon (not (strings.Contains $icon "/")) (not (strings.Contains $icon ".")) }}
+{{ $headingLevel := .headingLevel | default "h3" }}
 
 <div class="surface-secondary border-gray-primary rounded-xl p-8 {{ $cardClass }}">
     {{ if $icon }}
         <div class="mb-4">
             <div class="{{ $iconBackgroundSize }} flex items-center justify-center rounded-lg {{ $iconBackground}}">
-                {{ partial "components/media/lazysvg.html" (dict
-                    "src" $icon
-                    "alt" $iconAlt
-                    "class" "{{ $iconSize }} icon-on-brand flex-shrink-0"
-                ) }}
+                {{ if $isIconName }}
+                    {{/* Use Hugo icon partial for icon names (e.g., "light-bulb") */}}
+                    {{ partial (printf "icons/%s" $icon) (printf "%s %s flex-shrink-0" $iconSize $iconColor) }}
+                {{ else }}
+                    {{/* Use lazysvg for file paths (e.g., "/images/icons/icon.svg") */}}
+                    {{ partial "components/media/lazysvg.html" (dict
+                        "src" $icon
+                        "alt" $iconAlt
+                        "class" (printf "%s %s flex-shrink-0" $iconSize $iconColor)
+                    ) }}
+                {{ end }}
             </div>
         </div>
     {{ end }}
 
     {{ if $title }}
-        <h3 class="mt-2 text-lg font-semibold text-heading">
-            {{ $title }}
-        </h3>
+        {{ if eq $headingLevel "h1" }}
+            <h1 class="mt-2 text-lg font-semibold text-heading">{{ $title }}</h1>
+        {{ else if eq $headingLevel "h2" }}
+            <h2 class="mt-2 text-lg font-semibold text-heading">{{ $title }}</h2>
+        {{ else if eq $headingLevel "h3" }}
+            <h3 class="mt-2 text-lg font-semibold text-heading">{{ $title }}</h3>
+        {{ else if eq $headingLevel "h4" }}
+            <h4 class="mt-2 text-lg font-semibold text-heading">{{ $title }}</h4>
+        {{ else if eq $headingLevel "h5" }}
+            <h5 class="mt-2 text-lg font-semibold text-heading">{{ $title }}</h5>
+        {{ else if eq $headingLevel "h6" }}
+            <h6 class="mt-2 text-lg font-semibold text-heading">{{ $title }}</h6>
+        {{ else }}
+            <h3 class="mt-2 text-lg font-semibold text-heading">{{ $title }}</h3>
+        {{ end }}
     {{ end }}
 
     {{ if $description }}
@@ -72,33 +103,4 @@
             ) }}
         </div>
     {{ end }}
-</div>
-
-{{/* Hidden div to ensure Tailwind includes icon background colors in the build */}}
-<div class="hidden">
-    <div class="bg-indigo-600"></div>
-    <div class="bg-pink-700"></div>
-    <div class="bg-teal-400"></div>
-    <div class="bg-pink-500"></div>
-    <div class="bg-purple-600"></div>
-    <div class="bg-blue-600"></div>
-    <div class="bg-orange-500"></div>
-    <div class="bg-orange-600"></div>
-    <div class="bg-orange-400"></div>
-    <div class="bg-green-500"></div>
-    <div class="bg-red-600"></div>
-    <div class="bg-blue-800"></div>
-    <div class="bg-yellow-500"></div>
-    <div class="bg-teal-600"></div>
-    <div class="bg-red-900"></div>
-    <div class="bg-green-700"></div>
-    <div class="bg-[#f59e0b]"></div>
-    <div class="bg-[#021049]"></div>
-    <div class="bg-[#b28b5d]"></div>
-    <div class="bg-[#611f69]"></div>
-    <div class="bg-[#95bf47]"></div>
-    <div class="bg-[#2684fc]"></div>
-    <div class="bg-[#00ac47]"></div>
-    <div class="bg-[#0066da]"></div>
-    <div class="bg-[#00749c]"></div>
 </div>

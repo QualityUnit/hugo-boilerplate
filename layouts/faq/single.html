@@ -20,16 +20,27 @@
     <div class="wrapper-content">
       <div class="mx-auto max-w-none prose">
         {{ if or .Params.glossaryTitle .Params.short_answer }}
-          {{ $definitionIcon := .Params.glossaryIcon | default "/images/glossary/icon-bulb.svg" }}
+          {{ $definitionIcon := "light-bulb" }}
           {{ $definitionTitle := .Params.question | default "" }}
           {{ $definitionDescription := .Params.short_answer | default "" }}
-          {{ partial "components/cards/icon_card.html" (dict 
+          {{ partial "components/cards/icon_card.html" (dict
               "iconBackground" "bg-transparent"
-              "icon" $definitionIcon 
+              "icon" $definitionIcon
               "iconSize" "w-10 h-10"
-              "title" $definitionTitle 
-              "description" $definitionDescription 
+              "title" $definitionTitle
+              "headingLevel" "h2"
+              "description" $definitionDescription
           ) }}
+
+          {{/* Add Schema.org FAQ markup */}}
+          {{ $faqAnswer := .Content }}
+          {{ if $definitionDescription }}
+            {{ $faqAnswer = printf "%s\n\n%s" $definitionDescription .Content }}
+          {{ end }}
+          {{ partial "schemaorg/faq.html" (dict "faqs" (slice (dict
+              "question" $definitionTitle
+              "answer" ($faqAnswer | plainify)
+          ))) }}
         {{ end }}
 
         {{ .Content | safeHTML }}
