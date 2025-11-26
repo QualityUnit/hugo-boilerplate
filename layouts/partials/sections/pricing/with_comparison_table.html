@@ -151,7 +151,7 @@
                             <td></td>
                             {{ range $tiersComparison }}
                                 <th scope="col" class="px-6 pt-6 xl:px-8 xl:pt-8">
-                                    <div class="text-sm/7 font-semibold text-heading">{{ i18n (.displayName | default .name) | default "Plan" }}</div>
+                                    <div class="text-sm/7 font-semibold text-heading">{{ i18n (.displayName | default .name) | default (.displayName | default .name) | default "Plan" }}</div>
                                 </th>
                             {{ end }}
                         </tr>
@@ -225,14 +225,14 @@
                                         {{ end }}
                                         {{ if $tier.emphasized }}
                                         {{ partial "components/buttons/buttons.html" (dict
-                                            "text" (i18n $tier.cta.text)
+                                            "text" (i18n $tier.cta.text | default $tier.cta.text)
                                             "url" $ctaUrl
                                             "variant" "primary"
                                             "classes" "mt-8 not-prose block text-center"
                                         )}}
                                         {{ else }}
                                         {{ partial "components/buttons/buttons.html" (dict
-                                            "text" (i18n $tier.cta.text)
+                                            "text" (i18n $tier.cta.text | default $tier.cta.text)
                                             "url" $ctaUrl
                                             "variant" "secondary"
                                             "classes" "mt-8 not-prose block text-center"
@@ -248,7 +248,7 @@
                             <tr>
                                 <th scope="colgroup" colspan="{{ add (len $tiersComparison) 1 }}"
                                     class="pt-{{ if eq $categoryIndex 0 }}8{{ else }}16{{ end }} pb-4 text-sm/6 font-semibold text-heading">
-                                    {{ i18n $category.name }}
+                                    {{ i18n $category.name | default $category.name }}
                                     <div class="max-lg:hidden absolute inset-x-8 mt-4 h-px bg-gray-900/10"></div>
                                 </th>
                             </tr>
@@ -257,9 +257,9 @@
                                 <tr>
                                     <th scope="row" class="not-prose py-4 text-sm/6 font-normal text-heading">
                                         {{ if $feature.tooltip }}
-                                            {{ partial "components/tooltip/tooltip.html" (dict "content" (i18n $feature.name) "text" (i18n $feature.tooltip)) }}
+                                            {{ partial "components/tooltip/tooltip.html" (dict "content" (i18n $feature.name | default $feature.name) "text" (i18n $feature.tooltip | default $feature.tooltip)) }}
                                         {{ else }}
-                                            {{ i18n $feature.name }}
+                                            {{ i18n $feature.name | default $feature.name }}
                                         {{ end }}
                                         <div class="max-lg:hidden absolute inset-x-8 mt-4 h-px bg-gray-900/5"></div>
                                     </th>
