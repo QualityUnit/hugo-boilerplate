@@ -1,16 +1,254 @@
 {{ define "main" }}
-<div class="bg-white">
-  <div class="wrapper px-4 my-16 sm:px-6 lg:px-8">
-    <div class="text-center">
-      <h1 class="text-4xl font-bold tracking-tight text-heading sm:text-5xl">{{ i18n "authors_title" | default "Authors" }}</h1>
-      <p class="mx-auto mt-4 max-w-2xl text-xl text-tertiary">{{ i18n "authors_browse_all" | default "This is our team of authors building content for you." }}</p>
-    </div>
+{{ partial "breadcrumbs_default.html" . }}
 
-    <div class="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-      {{ range $term, $taxonomy := .Site.Taxonomies.author }}
-          {{ partial "components/cards/post_card_with_image.html" (dict "page" $taxonomy.Page "cardHeight" 540) }}
+  <div class="bg-white mt-[4.625rem]">
+
+    {{ partial "hero_default.html" . }}
+    {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
+    {{ $authorSection := site.GetPage "/author" }}
+    {{ $authors := $authorSection.Pages }}
+    {{ $cardHeight := 26.875 }}
+    {{ $cardWrapperClasses := "py-10 px-8 min-h-[26.875rem]" }}
+    {{ $imageWrapperClasses := "mx-auto w-56 h-56 overflow-hidden" }}
+    {{ $imageClasses := "w-full h-full object-cover rounded-full" }}
+    {{ $descriptionLength := 70 }}
+    {{ $contentPadding := "py-6" }}
+    {{ $contentAlign := "center" }}
+    {{ $defaultImage := "/images/default-avatar.png" }}
+    
+    {{/* Find first letter that has authors */}}
+    {{ $activeLetter := "" }}
+    {{ range $letters }}
+      {{ $letter := . }}
+      {{ if not $activeLetter }}
+        {{ range $authors }}
+          {{ $authorCategory := .Params.category }}
+          {{ if not $authorCategory }}
+            {{ $authorName := .Title | default .Params.title }}
+            {{ $firstChar := substr $authorName 0 1 | upper }}
+            {{ if in $letters $firstChar }}
+              {{ $authorCategory = $firstChar }}
+            {{ else }}
+              {{ $authorCategory = "0-9" }}
+            {{ end }}
+          {{ end }}
+          {{ if eq $authorCategory $letter }}
+            {{ $activeLetter = $letter }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+    <div id="alphabetNav" class="w-full bg-white mt-5 sticky top-20 md:top-[5.25rem] z-[45] transition-all duration-300">
+      <div class="wrapper">
+        <div class="grid grid-cols-2 lg:hidden">
+          <select class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pl-3 pr-8 text-base " id="alphabetSelect">
+            {{ range $letters }}
+              <option value="{{ . }}" {{ if eq . $activeLetter }}selected{{ end }}>{{ . }}</option>
+            {{ end }}
+          </select>
+        </div>
+
+        <div class="hidden lg:block">
+          <nav class="flex flex-wrap gap-2 py-6 justify-between">
+            {{ range $letters }}
+              {{ $letter := . }}
+              {{ $hasAuthors := false }}
+              {{ range $authors }}
+                {{ $authorCategory := .Params.category }}
+                {{ if not $authorCategory }}
+                  {{ $authorName := .Title | default .Params.title }}
+                  {{ $firstChar := substr $authorName 0 1 | upper }}
+                  {{ if in $letters $firstChar }}
+                    {{ $authorCategory = $firstChar }}
+                  {{ else }}
+                    {{ $authorCategory = "0-9" }}
+                  {{ end }}
+                {{ end }}
+                {{ if eq $authorCategory $letter }}
+                  {{ $hasAuthors = true }}
+                {{ end }}
+              {{ end }}
+              <a href="#{{ $letter }}"
+                 class="rounded-md px-2 py-2 text-sm font-medium
+                 {{ if eq $letter $activeLetter }}bg-indigo-100 text-primary aria-current='page'
+                 {{ else if $hasAuthors }}text-tertiary hover:text-primary hover:bg-indigo-100
+                 {{ else }}text-tertiary opacity-30 pointer-events-none{{ end }}">
+                {{ $letter }}
+              </a>
+            {{ end }}
+          </nav>
+        </div>
+
+      </div>
+    </div>
+    <div class="wrapper mt-10">
+      {{ range $letters }}
+        {{ $letter := . }}
+        {{ $authorsInCategory := slice }}
+        {{ range $authors }}
+          {{ $authorCategory := .Params.category }}
+          {{ if not $authorCategory }}
+            {{ $authorName := .Title | default .Params.title }}
+            {{ $firstChar := substr $authorName 0 1 | upper }}
+            {{ if in $letters $firstChar }}
+              {{ $authorCategory = $firstChar }}
+            {{ else }}
+              {{ $authorCategory = "0-9" }}
+            {{ end }}
+          {{ end }}
+          {{ if eq $authorCategory $letter }}
+            {{ $authorsInCategory = $authorsInCategory | append . }}
+          {{ end }}
+        {{ end }}
+        {{ if $authorsInCategory }}
+          <div id="{{ $letter }}" class="py-10">
+            <h2 class="text-5xl font-semibold text-heading">{{ $letter }}</h2>
+            <ul class="mt-8 grid gap-16 sm:grid-cols-2 lg:grid-cols-3">
+              {{ range sort $authorsInCategory "Title" }}
+                {{ partial "components/cards/post_card_with_image.html" (
+                  dict "page" .
+                  "cardHeight" $cardHeight
+                  "showImages" true
+                  "showDateReadingTime" false
+                  "imageWrapperClasses" $imageWrapperClasses
+                  "imageClasses" $imageClasses
+                  "cardWrapperClasses" $cardWrapperClasses
+                  "contentPadding" $contentPadding
+                  "contentAlign" $contentAlign
+                  "defaultImage" $defaultImage
+                  "descriptionLength" $descriptionLength
+                ) }}
+              {{ end }}
+            </ul>
+          </div>
+        {{ end }}
       {{ end }}
     </div>
+  </div>
 
-</div>
+  {{ if .Content }}
+    {{ partial "sections/content/centered.html" (dict
+        "content" (.Content | safeHTML)
+        "bgColor" "bg-gray-50"
+        "page" .
+    ) }}
+  {{ end }}
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const select = document.getElementById("alphabetSelect");
+      const tabsContainer = document.querySelector('#alphabetNav nav');
+      const sections = document.querySelectorAll('.wrapper > div[id]');
+      const alphabetNav = document.getElementById('alphabetNav');
+      const header = document.querySelector('header');
+
+      const activeClasses = ['bg-indigo-100', 'text-primary'];
+      const defaultClasses = ['text-tertiary', 'hover:text-primary', 'hover:bg-indigo-100'];
+      const disabledClasses = ['text-tertiary', 'opacity-30', 'pointer-events-none']; 
+      const allDynamicClasses = [...activeClasses, ...defaultClasses, ...disabledClasses];
+
+      const scrollThreshold = 31.5 * 16;
+      const borderClasses = ['border-b', 'border-gray-300'];
+      
+      // Offset adjustment to account for visual spacing between the sticky navigation and content sections
+      const SCROLL_OFFSET_ADJUSTMENT = 16;
+
+      function setActiveTab(letterToActivate) {
+        if (!tabsContainer) return;
+
+        const tabs = tabsContainer.querySelectorAll('a');
+        tabs.forEach(tab => {
+          const tabLetter = tab.getAttribute('href').replace('#', '');
+          tab.classList.remove(...allDynamicClasses);
+          tab.removeAttribute('aria-current');
+
+          const hasTermsForThisLetter = Array.from(sections).some(section => section.id === tabLetter);
+
+          if (tabLetter === letterToActivate) {
+            tab.classList.add(...activeClasses);
+            tab.setAttribute('aria-current', 'page');
+          } else if (hasTermsForThisLetter) {
+            tab.classList.add(...defaultClasses);
+          } else {
+            tab.classList.add(...disabledClasses);
+          }
+        });
+
+        if (select) {
+          select.value = letterToActivate;
+        }
+      }
+
+      function handleScroll() {
+        // Only apply border logic for desktop screens (sm: 640px and up)
+        if (window.innerWidth >= 1024) {
+          if (window.scrollY > scrollThreshold) {
+            alphabetNav?.classList.add(...borderClasses);
+          } else {
+            alphabetNav?.classList.remove(...borderClasses);
+          }
+        } else {
+          // Remove border classes on mobile
+          alphabetNav?.classList.remove(...borderClasses);
+        }
+      }
+
+      const initialActiveLetter = "{{ $activeLetter }}";
+      if (initialActiveLetter) {
+        setActiveTab(initialActiveLetter);
+        // Scroll intentionally disabled to avoid unexpected jumps on page load.
+      }
+
+      if (select) {
+        select.addEventListener("change", function() {
+          const sectionId = this.value;
+          document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+          setActiveTab(sectionId);
+        });
+      }
+
+      if (tabsContainer) {
+        tabsContainer.addEventListener('click', function(e) {
+          const targetTab = e.target.closest('a');
+          if (targetTab && !targetTab.classList.contains('pointer-events-none')) {
+            e.preventDefault();
+            const letter = targetTab.getAttribute('href').replace('#', '');
+            setActiveTab(letter);
+            const section = document.getElementById(letter);
+            if (section) {
+              const header = document.querySelector('header');
+              const alphabetNav = document.getElementById('alphabetNav');
+              const offset = (header?.offsetHeight || 0) + (alphabetNav?.offsetHeight || 0) + SCROLL_OFFSET_ADJUSTMENT;
+              const sectionTop = section.getBoundingClientRect().top + window.pageYOffset;
+              window.scrollTo({
+                top: sectionTop - offset,
+                left: 0,
+                behavior: 'smooth'
+              });
+            }
+          }
+        });
+      }
+
+      const observerOptions = {
+        root: null,
+        rootMargin: "-20% 0px -80% 0px",
+        threshold: 0
+      };
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActiveTab(entry.target.id);
+          }
+        });
+      }, observerOptions);
+
+      sections.forEach(section => observer.observe(section));
+
+      window.addEventListener('scroll', handleScroll);
+      handleScroll();
+    });
+  </script>
+  
 {{ end }}

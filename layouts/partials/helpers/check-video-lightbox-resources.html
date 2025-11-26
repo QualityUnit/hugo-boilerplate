@@ -1,0 +1,31 @@
+{{/*
+@helper: Check Video Lightbox Resources
+@description: Checks if the page or site menus contain video data attributes and loads resources if needed
+@note: This should be called once per page, typically in baseof.html
+*/}}
+
+{{/* Check if content or menus contain video-related data attributes */}}
+{{ $hasVideoData := false }}
+
+{{/* Check page content */}}
+{{ $content := .Content }}
+{{ if or (in $content "data-video-url") (in $content "data-video-id") (in $content "data-video-embed") }}
+  {{ $hasVideoData = true }}
+{{ end }}
+
+{{/* Check site menus for video data attributes */}}
+{{ if not $hasVideoData }}
+  {{ range site.Menus }}
+    {{ range . }}
+      {{ $dataAttr := .Params.dataAttr | default "" }}
+      {{ if or (in $dataAttr "data-video-url") (in $dataAttr "data-video-id") (in $dataAttr "data-video-embed") }}
+        {{ $hasVideoData = true }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{/* Load video lightbox resources if needed */}}
+{{ if $hasVideoData }}
+  {{ partial "components/media/helpers/load-resources.html" (dict "provider" "youtube") }}
+{{ end }}
