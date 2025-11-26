@@ -1,0 +1,46 @@
+{{ define "main" }}
+
+{{ partial "breadcrumbs_default.html" . }}
+
+<!-- Hero Section with Split Image -->
+{{ $shortDescription := default .Params.description | default "" }}
+
+{{ partial "sections/hero/split_with_image.html" (dict
+"heading" (.Params.term | default .Title)
+"description" (markdownify $shortDescription)
+
+"backgroundColor" "bg-gray-100"
+"sectionPaddingY" "py-4"
+) }}
+
+
+<!-- Main Content -->
+<div class="mt-8 bg-white">
+  <div  class=" wrapper">
+    <div class="wrapper-content">
+      <div class="mx-auto max-w-none prose">
+        {{ if or .Params.glossaryTitle .Params.short_answer }}
+          {{ $definitionIcon := .Params.glossaryIcon | default "/images/glossary/icon-bulb.svg" }}
+          {{ $definitionTitle := .Params.question | default "" }}
+          {{ $definitionDescription := .Params.short_answer | default "" }}
+          {{ partial "components/cards/icon_card.html" (dict 
+              "iconBackground" "bg-transparent"
+              "icon" $definitionIcon 
+              "iconSize" "w-10 h-10"
+              "title" $definitionTitle 
+              "description" $definitionDescription 
+          ) }}
+        {{ end }}
+
+        {{ .Content | safeHTML }}
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ partial "cta.html" . }}
+
+{{ partial "related_content.html" . }}
+
+{{ end }}
