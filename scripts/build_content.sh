@@ -310,11 +310,64 @@ run_step() {
             echo -e "${YELLOW}[DEBUG] Step generate_linkbuilding_keywords finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_related_content)
-            echo -e "${BLUE}=== Step 4: Generating Related Content ===${NC}"
+            echo -e "${BLUE}=== Step 4: Generating Related Content and Clustering Data ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/generate_related_content.py --path ${HUGO_ROOT}/content --hugo-root ${HUGO_ROOT} --exclude-sections author${NC}"
             python "${SCRIPT_DIR}/generate_related_content.py" --path "${HUGO_ROOT}/content" --hugo-root "${HUGO_ROOT}" --exclude-sections "author"
-            echo -e "${GREEN}Related content generation completed!${NC}"
+            echo -e "${GREEN}Related content and clustering data generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_related_content finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
+        generate_clustering)
+            echo -e "${BLUE}=== Step 4.2: Generating Website Clustering Visualization ===${NC}"
+            echo -e "${YELLOW}Running clustering generation for all languages...${NC}"
+
+            # Start all language clustering in parallel
+            echo -e "${YELLOW}Starting parallel clustering generation for all languages...${NC}"
+            pids=()
+
+            for lang_dir in "${HUGO_ROOT}/content"/*; do
+                if [ -d "$lang_dir" ]; then
+                    lang=$(basename "$lang_dir")
+                    echo -e "${YELLOW}[DEBUG] Starting clustering generation for language: $lang${NC}"
+
+                    # Run clustering in background (with virtual environment)
+                    (
+                        "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_clustering.py" \
+                            --lang "$lang" \
+                            --hugo-root "${HUGO_ROOT}" \
+                            --exclude-sections author 2>&1 | \
+                            sed "s/^/[$lang] /"
+
+                        if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                            echo -e "${GREEN}[$lang] Clustering generated successfully${NC}"
+                        else
+                            echo -e "${YELLOW}[$lang] Warning: Failed to generate clustering${NC}"
+                        fi
+                    ) &
+
+                    # Store the PID
+                    pids+=($!)
+                fi
+            done
+
+            # Wait for all background processes to complete
+            echo -e "${YELLOW}Waiting for all language clustering to complete...${NC}"
+            failed_langs=()
+            for pid in "${pids[@]}"; do
+                wait $pid
+                if [ $? -ne 0 ]; then
+                    failed_langs+=("$pid")
+                fi
+            done
+
+            # Report results
+            if [ ${#failed_langs[@]} -eq 0 ]; then
+                echo -e "${GREEN}All clustering generations completed successfully!${NC}"
+            else
+                echo -e "${YELLOW}Some clustering generations failed, but continuing...${NC}"
+            fi
+
+            echo -e "${GREEN}Clustering generation completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step generate_clustering finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         extract_automatic_links)
             echo -e "${BLUE}=== Step 4.5: Extracting Automatic Links ===${NC}"

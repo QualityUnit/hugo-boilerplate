@@ -22,6 +22,7 @@ import os
 import re
 import argparse
 import yaml
+import json
 import gc
 import frontmatter
 from frontmatter import TOMLHandler # Changed import
@@ -30,6 +31,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 from collections import defaultdict
 import numpy as np
+from sklearn.preprocessing import normalize
 
 # Constants
 MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"  # Smaller model that works well with sentence-transformers
@@ -318,20 +320,158 @@ def convert_defaultdict_to_dict(d):
 def generate_yaml(related_content, hugo_root, output_dir, lang):
     """Generate YAML file with related content structure."""
     print(f"Generating YAML file for language: {lang}")
-    
+
     # Create output directory if it doesn't exist
     output_path = os.path.join(hugo_root, output_dir)
     os.makedirs(output_path, exist_ok=True)
-    
+
     # Convert defaultdict to regular dict for YAML serialization
     yaml_data = convert_defaultdict_to_dict(related_content)
-    
+
     # Write YAML file
     output_file = os.path.join(output_path, f"{lang}.yaml")
     with open(output_file, 'w', encoding='utf-8') as f:
         yaml.dump(yaml_data, f, default_flow_style=False, allow_unicode=True)
-        
+
     print(f"YAML file generated: {output_file}")
+
+def create_clusters(embeddings, max_cluster_size=50):
+    """Create clusters using FAISS index with maximum cluster size constraint."""
+    import faiss
+
+    n_samples = len(embeddings)
+
+    # Calculate optimal number of clusters to ensure max 50 items per cluster
+    n_clusters = max(int(np.ceil(n_samples / max_cluster_size)), 1)
+
+    print(f"Creating {n_clusters} clusters using FAISS (max {max_cluster_size} items per cluster)...")
+    print(f"Total items: {n_samples}")
+
+    try:
+        # Normalize embeddings for cosine similarity
+        normalized_embeddings = normalize(embeddings.astype('float32'))
+
+        # Get embedding dimension
+        d = normalized_embeddings.shape[1]
+
+        # Use a simpler approach: select k random centroids and assign points to nearest
+        # This avoids the memory-intensive k-means training
+        np.random.seed(42)  # For reproducibility
+        centroid_indices = np.random.choice(n_samples, size=min(n_clusters, n_samples), replace=False)
+        centroids = normalized_embeddings[centroid_indices]
+
+        # Create FAISS index for centroids
+        index = faiss.IndexFlatIP(d)  # Inner product for cosine similarity
+        index.add(centroids)
+
+        # Assign each point to nearest centroid
+        _, labels = index.search(normalized_embeddings, 1)
+        labels = labels.flatten()
+
+        # Calculate cluster sizes
+        unique_labels, counts = np.unique(labels, return_counts=True)
+
+        print(f"Created {len(unique_labels)} clusters")
+        print(f"Cluster sizes: min={min(counts)}, max={max(counts)}, avg={np.mean(counts):.1f}")
+
+        # If any cluster is too large, we need to split it
+        max_actual_size = max(counts)
+        if max_actual_size > max_cluster_size:
+            print(f"Warning: Some clusters exceed max size ({max_actual_size} > {max_cluster_size})")
+            print(f"Adjusting cluster count...")
+            # Recursively increase cluster count if needed
+            return create_clusters(embeddings, max_cluster_size=max_cluster_size // 2)
+
+        return labels
+
+    except Exception as e:
+        print(f"Error during clustering: {e}")
+        print("Falling back to simple sequential clustering...")
+        # Fallback: simple sequential clusters
+        labels = np.array([i // max_cluster_size for i in range(n_samples)])
+        return labels
+
+def build_hierarchy_data(file_data, labels, lang):
+    """Build hierarchical data structure for D3.js pack layout."""
+    print("Building hierarchy data for clustering visualization...")
+
+    # Group files by cluster
+    clusters = defaultdict(list)
+    for idx, label in enumerate(labels):
+        clusters[int(label)].append(idx)
+
+    # Build D3-compatible hierarchy
+    children = []
+
+    # Sort clusters by ID for consistent ordering
+    sorted_clusters = sorted(clusters.items())
+
+    # Process each cluster
+    for cluster_id, indices in sorted_clusters:
+        # Create cluster node
+        cluster_children = []
+        cluster_name = f"Cluster {cluster_id + 1}"
+
+        # Find a representative name for the cluster (most common section)
+        sections = [file_data[idx]["section"] for idx in indices if file_data[idx]["section"]]
+        if sections:
+            most_common_section = max(set(sections), key=sections.count)
+            if most_common_section:
+                cluster_name = most_common_section.replace("-", " ").replace("_", " ").title()
+
+        for idx in indices:
+            file_info = file_data[idx]
+            section = file_info["section"]
+            slug = file_info["slug"]
+            is_index = file_info.get("is_index", False)
+
+            # Build URL path
+            if is_index:
+                url_path = f"/{section}/" if section else "/"
+            else:
+                url_path = f"/{section}/{slug}/" if section else f"/{slug}/"
+
+            # Add language prefix for non-English
+            if lang != "en":
+                url_path = f"/{lang}{url_path}"
+
+            cluster_children.append({
+                "name": file_info["title"] or file_info["slug"],
+                "title": file_info["title"],
+                "url": url_path,
+                "section": file_info["section"],
+                "value": 1,
+                "cluster": int(cluster_id)
+            })
+
+        children.append({
+            "name": cluster_name,
+            "cluster": int(cluster_id),
+            "children": cluster_children,
+            "size": len(cluster_children)
+        })
+
+    # Root node
+    root = {
+        "name": "Website Pages",
+        "children": children
+    }
+
+    return root
+
+def save_clustering_data(data, hugo_root, lang):
+    """Save clustering data as JSON file."""
+    output_dir = os.path.join(hugo_root, "data", "clustering")
+    os.makedirs(output_dir, exist_ok=True)
+
+    output_file = os.path.join(output_dir, f"{lang}.json")
+
+    print(f"Saving clustering data to: {output_file}")
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    print(f"Clustering data saved successfully")
 
 def process_language(args, lang):
     """Process a single language."""
@@ -363,23 +503,30 @@ def process_language(args, lang):
     print(f"[DEBUG] Finding related content...")
     related_content = find_related_content(file_data, embeddings)
     print(f"[DEBUG] Related content found")
-    
+
     # Convert defaultdict to regular dict for clean YAML output
     print(f"[DEBUG] Converting data structure...")
     related_content_dict = convert_defaultdict_to_dict(related_content)
-    
+
     # Generate YAML file
     yaml_dir = os.path.join(args.hugo_root, "data", "related_content")
     os.makedirs(yaml_dir, exist_ok=True)
     yaml_file = os.path.join(yaml_dir, f"{lang}.yaml")
-    
+
     print(f"[DEBUG] Generating YAML file for language: {lang}")
     print(f"[DEBUG] YAML path: {yaml_file}")
     with open(yaml_file, "w") as f:
         yaml.dump(related_content_dict, f, default_flow_style=False)
-    
+
     print(f"[DEBUG] YAML file generated: {yaml_file}")
-    
+
+    # Generate clustering data (reusing the same embeddings)
+    print(f"[DEBUG] Generating clustering data for visualization...")
+    labels = create_clusters(embeddings, max_cluster_size=50)
+    hierarchy_data = build_hierarchy_data(file_data, labels, lang)
+    save_clustering_data(hierarchy_data, args.hugo_root, lang)
+    print(f"[DEBUG] Clustering data generated successfully")
+
     # Clean up memory for this language
     print(f"[DEBUG] Cleaning up memory...")
     gc.collect()
