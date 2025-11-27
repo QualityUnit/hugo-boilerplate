@@ -196,7 +196,12 @@
         if (d.children) return color(d.data.cluster);
         return d3.color(color(d.data.cluster)).brighter(0.5);
       })
-      .attr('pointer-events', d => !d.children ? 'none' : null)
+      .attr('pointer-events', d => {
+        // Leaf nodes (pages) should always be clickable
+        if (!d.children) return 'all';
+        // Parent nodes only clickable when visible
+        return null;
+      })
       .style('cursor', d => {
         if (d.data.url && !d.children) return 'pointer';
         if (d.children) return 'pointer';
@@ -224,7 +229,11 @@
         if (focus !== d && d.children) {
           zoom(event, d);
         }
-      });
+      })
+      .raise(); // Bring to front initially
+
+    // Reorder nodes so leaf nodes are on top
+    node.filter(d => !d.children).raise();
 
     // Add labels
     const label = g.selectAll('text')
