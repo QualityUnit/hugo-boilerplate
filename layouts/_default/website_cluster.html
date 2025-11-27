@@ -157,9 +157,9 @@
       .attr('viewBox', [-width / 2, -height / 2, width, height])
       .attr('style', 'max-width: 100%; height: auto; cursor: pointer;')
       .on('click', (event) => {
-        // Click on background to zoom out
+        // Click on background to zoom out one level
         if (zoomStack.length > 0) {
-          zoomOut();
+          window.zoomOutFunc();
         }
       });
 
@@ -375,10 +375,45 @@
     }
   }
 
+  // Zoom to root function
+  window.zoomToRoot = function() {
+    if (focus !== root) {
+      zoomStack = [];
+      focus = root;
+
+      const transition = svg.transition()
+        .duration(750)
+        .tween('zoom', () => {
+          const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
+          return t => {
+            const v = i(t);
+            const k = width / v[2];
+            view = v;
+
+            const label = svg.selectAll('text');
+            const node = svg.selectAll('circle');
+
+            label.attr('transform', d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
+            node.attr('transform', d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`)
+              .attr('r', d => d.r * k);
+          };
+        });
+
+      const label = svg.selectAll('text');
+      label
+        .filter(function(d) { return d.parent === focus || this.style.display === 'inline'; })
+        .transition(transition)
+        .style('fill-opacity', d => d.parent === focus ? 1 : 0)
+        .on('start', function(d) { if (d.parent === focus) this.style.display = 'inline'; })
+        .on('end', function(d) { if (d.parent !== focus) this.style.display = 'none'; });
+
+      updateBreadcrumb();
+    }
+  };
+
   // Set up button click handlers
   document.getElementById('breadcrumb-root').addEventListener('click', () => {
-    zoomStack = [];
-    window.zoomOutFunc();
+    window.zoomToRoot();
   });
 
   document.getElementById('zoom-out-btn').addEventListener('click', () => {
