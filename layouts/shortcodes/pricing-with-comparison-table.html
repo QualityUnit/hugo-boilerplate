@@ -13,19 +13,19 @@
 {{ $togglePrice := .Get "togglePrice" | default $params.togglePrice | default true }}
 {{ $promo := site.Params.promotional.enabled | default false }}
 
-{{/* Try to use centralized data first, fallback to page params */}}
-{{ $tiersComparison := slice }}
-{{ $featureCategories := slice }}
+{{/* Try to use page params first, fallback to centralized data */}}
+{{ $tiersComparison := .Get "tiersComparison" | default $params.tiersComparison }}
+{{ $featureCategories := .Get "featureCategories" | default $params.featureCategories }}
+
 {{ $pricingData := .Site.Data.pricing }}
 {{ if and $pricingData $pricingData.tiersComparison $pricingData.featureCategories }}
-  {{/* Use centralized data */}}
-  {{ $tiersComparison = $pricingData.tiersComparison }}
-  {{ $featureCategories = $pricingData.featureCategories }}
-{{ else }}
-  {{/* Fallback to page parameters for backward compatibility */}}
-  {{ $tiersComparison = .Get "tiersComparison" | default $params.tiersComparison | default slice }}
-  {{ $featureCategories = .Get "featureCategories" | default $params.featureCategories | default slice }}
+  {{/* Use centralized data as fallback */}}
+  {{ $tiersComparison = $tiersComparison | default $pricingData.tiersComparison }}
+  {{ $featureCategories = $featureCategories | default $pricingData.featureCategories }}
 {{ end }}
+
+{{ $tiersComparison = $tiersComparison | default slice }}
+{{ $featureCategories = $featureCategories | default slice }}
 
 {{ partial "sections/pricing/with_comparison_table.html" (dict
   "taglineComparison" $taglineComparison
@@ -53,12 +53,12 @@
   data from data/pricing.yaml with full multilingual support via i18n translations.
   
   FEATURES:
-  - Auto-loads pricing data from data/pricing.yaml (single source of truth)
+  - Auto-loads pricing data from data/pricing.yaml (fallback)
   - Detailed feature comparison matrix with 9 categories
   - Multilingual support with i18n keys for all text content
   - Monthly/annual pricing toggle
   - Responsive design with mobile optimization
-  - Backward compatibility with page-level parameters
+  - Priority support for page-level parameters
   
   USAGE:
   {{< pricing-with-comparison-table >}}                    # Uses centralized data

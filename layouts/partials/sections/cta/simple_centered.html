@@ -10,17 +10,22 @@
   - secondaryCta: Object with secondary CTA button configuration (optional)
     - text: Button text
     - url: Button URL
-  - primaryCtaColor: Primary button color (optional, default: "indigo-600")
-  - primaryCtaHoverColor: Primary button hover color (optional, default: "indigo-500")
+  - primaryCtaVariant: Primary button variant (optional, default: "primary")
+  - secondaryCtaVariant: Secondary button variant (optional, default: "text")
+  - primaryCtaColor: DEPRECATED - Use primaryCtaVariant instead. Custom color class (optional, for backward compatibility)
+  - primaryCtaHoverColor: DEPRECATED - Custom hover color class (optional, for backward compatibility)
+  - badges: Slice of badge texts to display below CTAs (optional)
   - page: Page context for linkbuilding function (required)
+  - backgroundColor: Background color class (optional, default: "bg-white")
 @example:
   {{ partial "sections/cta/simple_centered.html" (dict 
       "heading" "Start using our product today" 
       "description" "Our solution will help you optimize your business and increase profits. Try it now."
       "primaryCta" (dict "text" "Get started" "url" "/signup") 
       "secondaryCta" (dict "text" "Learn more" "url" "/features")
-      "primaryCtaColor" "indigo-600"
-      "primaryCtaHoverColor" "indigo-500"
+      "primaryCtaVariant" "primary"
+      "secondaryCtaVariant" "text"
+      "badges" (slice "Trusted by 10,000+ users" "Free 14-day trial")
       "page" .
   ) }}
 */}}
@@ -35,20 +40,62 @@
   "text" ((i18n "learnMore") | default "Learn more")
   "url" "#"
 ) }}
-{{ $primaryCtaColor := .primaryCtaColor | default "indigo-600" }}
-{{ $primaryCtaHoverColor := .primaryCtaHoverColor | default "indigo-500" }}
+
+{{/* New approach: use button variants */}}
+{{ $primaryCtaVariant := .primaryCtaVariant | default "primary" }}
+{{ $secondaryCtaVariant := .secondaryCtaVariant | default "text" }}
+
+{{/* Backward compatibility: support old color parameters */}}
+{{ $primaryCtaColor := .primaryCtaColor | default "" }}
+{{ $primaryCtaHoverColor := .primaryCtaHoverColor | default "" }}
+{{ $useLegacyColors := and $primaryCtaColor (ne $primaryCtaColor "surface-brand") }}
+
+{{ $badges := .badges | default (slice) }}
+{{ $backgroundColor := .backgroundColor | default "bg-white" }}
+
 {{/* Page context for linkbuilding */}}
 {{ $page := .page }}
 
-<div class="bg-white">
+<div class="{{ $backgroundColor }} cta-simple-centered">
   <div class="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
     <div class="mx-auto max-w-2xl text-center">
       <h2 class="text-4xl font-semibold tracking-tight text-balance text-heading sm:text-5xl">{{ $heading }}</h2>
       <p class="mx-auto mt-6 max-w-xl text-lg/8 text-pretty text-secondary prose-links">{{ $description | safeHTML }}</p>
       <div class="mt-10 flex items-center justify-center gap-x-6">
-        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $primaryCta.url) }}" class="rounded-md bg-{{ $primaryCtaColor }} px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-{{ $primaryCtaHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $primaryCtaColor }}">{{ $primaryCta.text }}</a>
-        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $secondaryCta.url) }}" class="text-sm/6 font-semibold text-heading">{{ $secondaryCta.text }} <span aria-hidden="true">→</span></a>
+        {{/* Primary CTA Button */}}
+        {{ if $useLegacyColors }}
+          {{/* Legacy mode: use custom color classes for backward compatibility */}}
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $primaryCta.url) }}" class="rounded-md bg-{{ $primaryCtaColor }} px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-{{ $primaryCtaHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $primaryCtaColor }}">{{ $primaryCta.text }}</a>
+        {{ else }}
+          {{/* Modern mode: use buttons partial */}}
+          {{ partial "components/buttons/buttons.html" (dict
+            "text" $primaryCta.text
+            "url" $primaryCta.url
+            "variant" $primaryCtaVariant
+            "size" "xl"
+          ) }}
+        {{ end }}
+        
+        {{/* Secondary CTA Button */}}
+        {{ partial "components/buttons/buttons.html" (dict
+          "text" $secondaryCta.text
+          "url" $secondaryCta.url
+          "variant" $secondaryCtaVariant
+          "showArrow" true
+          "classes" "flex items-center"
+          "size" "xl"
+        ) }}
       </div>
+      {{ if $badges }}
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+          {{ range $badges }}
+            {{ partial "components/label/label.html" (dict 
+              "text" . 
+              "badgeClass" "badge-base badge-gray badge-with-border"
+            ) }}
+          {{ end }}
+        </div>
+      {{ end }}
     </div>
   </div>
 </div>

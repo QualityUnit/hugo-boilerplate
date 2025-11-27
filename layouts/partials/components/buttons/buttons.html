@@ -39,6 +39,13 @@
       "type" "submit"
       "classes" "w-full"
   ) }}
+
+  {{ partial "components/buttons/buttons.html" (dict
+      "text" "Watch Video"
+      "url" "#"
+      "variant" "primary"
+      "dataAttributes" "data-video-url=\"/videos/demo.mp4\" data-video-id=\"dQw4w9WgXcQ\" data-video-title=\"Demo Video\" data-video-provider=\"youtube\" data-video-autoplay=\"true\""
+  ) }}
 */}}
 
 {{/* Define variables */}}

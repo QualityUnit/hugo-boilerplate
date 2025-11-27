@@ -82,12 +82,102 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Function to check for duplicate IDs in i18n YAML files
+check_duplicate_i18n_ids() {
+    echo -e "${BLUE}=== Checking for duplicate IDs in i18n files ===${NC}"
+
+    local has_duplicates=false
+    local RED='\033[0;31m'
+    local YELLOW='\033[1;33m'
+    local GREEN='\033[0;32m'
+    local NC='\033[0m'
+
+    # Check both i18n directories
+    local i18n_dirs=(
+        "${HUGO_ROOT}/i18n"
+        "${THEME_DIR}/i18n"
+    )
+
+    for i18n_dir in "${i18n_dirs[@]}"; do
+        if [ ! -d "$i18n_dir" ]; then
+            echo -e "${YELLOW}Warning: i18n directory not found: $i18n_dir${NC}"
+            continue
+        fi
+
+        echo -e "${YELLOW}Checking: $i18n_dir${NC}"
+
+        # Find all .yaml files in the i18n directory
+        while IFS= read -r yaml_file; do
+            if [ -f "$yaml_file" ]; then
+                local filename=$(basename "$yaml_file")
+
+                # Extract all keys (lines that match the pattern: key: "value")
+                # Using awk to find duplicate keys
+                local duplicates=$(awk -F':' '
+                    /^[a-zA-Z_][a-zA-Z0-9_.]*:/ {
+                        # Extract the key (everything before the first colon)
+                        key = $1
+                        # Trim whitespace
+                        gsub(/^[ \t]+|[ \t]+$/, "", key)
+
+                        # Count occurrences
+                        if (key in seen) {
+                            if (!printed[key]) {
+                                duplicates[key] = seen[key]
+                                printed[key] = 1
+                            }
+                            duplicates[key] = duplicates[key] " " NR
+                        } else {
+                            seen[key] = NR
+                        }
+                    }
+                    END {
+                        for (key in duplicates) {
+                            print key ":" duplicates[key]
+                        }
+                    }
+                ' "$yaml_file")
+
+                if [ -n "$duplicates" ]; then
+                    has_duplicates=true
+                    echo -e "${RED}✗ Found duplicate IDs in: $filename${NC}"
+                    echo -e "${RED}  File: $yaml_file${NC}"
+                    echo -e "${RED}  Duplicate IDs (key: line numbers):${NC}"
+                    while IFS= read -r dup_line; do
+                        echo -e "${RED}    - $dup_line${NC}"
+                    done <<< "$duplicates"
+                    echo ""
+                fi
+            fi
+        done < <(find "$i18n_dir" -name "*.yaml" -type f)
+    done
+
+    if [ "$has_duplicates" = true ]; then
+        echo -e "${RED}========================================${NC}"
+        echo -e "${RED}ERROR: Duplicate IDs found in i18n files!${NC}"
+        echo -e "${RED}Please fix the duplicate IDs listed above before continuing.${NC}"
+        echo -e "${RED}Each ID must be unique within its file.${NC}"
+        echo -e "${RED}========================================${NC}"
+        return 1
+    else
+        echo -e "${GREEN}✓ No duplicate IDs found in i18n files${NC}"
+        return 0
+    fi
+}
+
 run_step() {
     step_name="$1"
     echo -e "${YELLOW}[DEBUG] Starting step: $step_name at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
     case "$step_name" in
         sync_translations)
             echo -e "${BLUE}=== Step 0: Syncing Translation Keys ===${NC}"
+
+            # Check for duplicate IDs before syncing
+            if ! check_duplicate_i18n_ids; then
+                echo -e "${RED}Aborting sync_translations due to duplicate IDs${NC}"
+                exit 1
+            fi
+
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/sync_translations.py${NC}"
             python "${SCRIPT_DIR}/sync_translations.py"
             echo -e "${GREEN}Translation key sync completed!${NC}"

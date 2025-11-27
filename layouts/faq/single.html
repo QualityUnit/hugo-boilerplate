@@ -1,0 +1,57 @@
+{{ define "main" }}
+
+{{ partial "breadcrumbs_default.html" . }}
+
+<!-- Hero Section with Split Image -->
+{{ $shortDescription := default .Params.description | default "" }}
+
+{{ partial "sections/hero/split_with_image.html" (dict
+"heading" (.Params.term | default .Title)
+"description" (markdownify $shortDescription)
+
+"backgroundColor" "bg-gray-100"
+"sectionPaddingY" "py-4"
+) }}
+
+
+<!-- Main Content -->
+<div class="mt-8 bg-white">
+  <div  class=" wrapper">
+    <div class="wrapper-content">
+      <div class="mx-auto max-w-none prose">
+        {{ if or .Params.glossaryTitle .Params.short_answer }}
+          {{ $definitionIcon := "light-bulb" }}
+          {{ $definitionTitle := .Params.question | default "" }}
+          {{ $definitionDescription := .Params.short_answer | default "" }}
+          {{ partial "components/cards/icon_card.html" (dict
+              "iconBackground" "bg-transparent"
+              "icon" $definitionIcon
+              "iconSize" "w-10 h-10"
+              "title" $definitionTitle
+              "headingLevel" "h2"
+              "description" $definitionDescription
+          ) }}
+
+          {{/* Add Schema.org FAQ markup */}}
+          {{ $faqAnswer := .Content }}
+          {{ if $definitionDescription }}
+            {{ $faqAnswer = printf "%s\n\n%s" $definitionDescription .Content }}
+          {{ end }}
+          {{ partial "schemaorg/faq.html" (dict "faqs" (slice (dict
+              "question" $definitionTitle
+              "answer" ($faqAnswer | plainify)
+          ))) }}
+        {{ end }}
+
+        {{ .Content | safeHTML }}
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ partial "cta.html" . }}
+
+{{ partial "related_content.html" . }}
+
+{{ end }}

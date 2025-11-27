@@ -1,0 +1,56 @@
+{{/*
+Visual Section Shortcode
+
+Creates a responsive section with heading, description, large image/video and CTA buttons.
+
+@usage:
+{{< visual-section 
+    heading="Connect with your customers" 
+    description="Discover our multi-channel help desk software with 130+ ticketing features." 
+    image="/images/analytics.jpg" 
+    imageAlt="Analytics dashboard"
+    ctaPrimaryText="Start Free Trial"
+    ctaPrimaryURL="/trial/"
+    ctaSecondaryText="Learn More"
+    ctaSecondaryURL="/features/"
+    padding="py-16 lg:py-24" >}}
+
+@parameters:
+- heading: Main heading text (required)
+- description: Description text (optional)
+- image: Image URL (optional)
+- imageAlt: Image alt text (optional, defaults to heading)
+- ctaPrimaryText: Primary button text (optional)
+- ctaPrimaryURL: Primary button URL (optional)
+- ctaSecondaryText: Secondary button text (optional)
+- ctaSecondaryURL: Secondary button URL (optional)
+- padding: Custom padding classes (optional, default: "py-16 lg:py-24")
+*/}}
+
+{{ $heading := .Get "heading" }}
+{{ $description := .Get "description" }}
+{{ $image := .Get "image" }}
+{{ $imageAlt := .Get "imageAlt" | default $heading }}
+{{ $ctaPrimaryText := .Get "ctaPrimaryText" }}
+{{ $ctaPrimaryURL := .Get "ctaPrimaryURL" }}
+{{ $ctaSecondaryText := .Get "ctaSecondaryText" }}
+{{ $ctaSecondaryURL := .Get "ctaSecondaryURL" }}
+{{ $padding := .Get "padding" | default "py-16 lg:py-24" }}
+
+{{ $cta := dict }}
+{{ if and $ctaPrimaryText $ctaPrimaryURL }}
+  {{ $cta = merge $cta (dict "primary" (dict "text" $ctaPrimaryText "url" $ctaPrimaryURL)) }}
+{{ end }}
+{{ if and $ctaSecondaryText $ctaSecondaryURL }}
+  {{ $cta = merge $cta (dict "secondary" (dict "text" $ctaSecondaryText "url" $ctaSecondaryURL)) }}
+{{ end }}
+
+{{ partial "sections/content/visual-section.html" (dict 
+    "heading" $heading
+    "description" $description
+    "image" $image
+    "imageAlt" $imageAlt
+    "cta" $cta
+    "padding" $padding
+    "page" .Page
+) }}

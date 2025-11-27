@@ -1,45 +1,18 @@
 {{ define "main" }}
-{{ partial "breadcrumbs_default.html" . }}
 
-  <div class="bg-white mt-[4.625rem]">
+{{/* Configuration variables */}}
+{{ $cardHeight := 252 }}
 
+  <div class="bg-white dark:bg-gray-900 py-16">
     {{ partial "hero_default.html" . }}
     {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
-    {{ $authorSection := site.GetPage "/author" }}
-    {{ $authors := $authorSection.Pages }}
-    {{ $cardHeight := 26.875 }}
-    {{ $cardWrapperClasses := "py-10 px-8 min-h-[26.875rem]" }}
-    {{ $imageWrapperClasses := "mx-auto w-56 h-56 overflow-hidden" }}
-    {{ $imageClasses := "w-full h-full object-cover rounded-full" }}
-    {{ $descriptionLength := 70 }}
-    {{ $contentPadding := "py-6" }}
-    {{ $contentAlign := "center" }}
-    {{ $defaultImage := "/images/default-avatar.png" }}
-    
-    {{/* Find first letter that has authors */}}
     {{ $activeLetter := "" }}
-    {{ range $letters }}
-      {{ $letter := . }}
-      {{ if not $activeLetter }}
-        {{ range $authors }}
-          {{ $authorCategory := .Params.category }}
-          {{ if not $authorCategory }}
-            {{ $authorName := .Title | default .Params.title }}
-            {{ $firstChar := substr $authorName 0 1 | upper }}
-            {{ if in $letters $firstChar }}
-              {{ $authorCategory = $firstChar }}
-            {{ else }}
-              {{ $authorCategory = "0-9" }}
-            {{ end }}
-          {{ end }}
-          {{ if eq $authorCategory $letter }}
-            {{ $activeLetter = $letter }}
-          {{ end }}
-        {{ end }}
-      {{ end }}
+    {{ with .Title }}
+      {{ $activeLetter = substr . 0 1 | upper }}
     {{ end }}
-    <div id="alphabetNav" class="w-full bg-white mt-5 sticky top-20 md:top-[5.25rem] z-[45] transition-all duration-300">
-      <div class="wrapper">
+    {{ $glossaryTerms := where .Site.RegularPages "Section" "faq" }}
+    <div id="alphabetNav" class="w-full bg-white sticky top-20 md:top-[5.25rem] z-[45] transition-all duration-300">
+      <div class="wrapper px-8 ">
         <div class="grid grid-cols-2 lg:hidden">
           <select class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pl-3 pr-8 text-base " id="alphabetSelect">
             {{ range $letters }}
@@ -52,26 +25,26 @@
           <nav class="flex flex-wrap gap-2 py-6 justify-between">
             {{ range $letters }}
               {{ $letter := . }}
-              {{ $hasAuthors := false }}
-              {{ range $authors }}
-                {{ $authorCategory := .Params.category }}
-                {{ if not $authorCategory }}
-                  {{ $authorName := .Title | default .Params.title }}
-                  {{ $firstChar := substr $authorName 0 1 | upper }}
+              {{ $hasTerms := false }}
+              {{ range $glossaryTerms }}
+                {{ $termCategory := .Params.category }}
+                {{ if not $termCategory }}
+                  {{ $termName := .Params.term | default .Title }}
+                  {{ $firstChar := substr $termName 0 1 | upper }}
                   {{ if in $letters $firstChar }}
-                    {{ $authorCategory = $firstChar }}
+                    {{ $termCategory = $firstChar }}
                   {{ else }}
-                    {{ $authorCategory = "0-9" }}
+                    {{ $termCategory = "0-9" }}
                   {{ end }}
                 {{ end }}
-                {{ if eq $authorCategory $letter }}
-                  {{ $hasAuthors = true }}
+                {{ if eq $termCategory $letter }}
+                  {{ $hasTerms = true }}
                 {{ end }}
               {{ end }}
               <a href="#{{ $letter }}"
                  class="rounded-md px-2 py-2 text-sm font-medium
                  {{ if eq $letter $activeLetter }}bg-indigo-100 text-primary aria-current='page'
-                 {{ else if $hasAuthors }}text-tertiary hover:text-primary hover:bg-indigo-100
+                 {{ else if $hasTerms }}text-tertiary hover:text-primary hover:bg-indigo-100
                  {{ else }}text-tertiary opacity-30 pointer-events-none{{ end }}">
                 {{ $letter }}
               </a>
@@ -84,39 +57,31 @@
     <div class="wrapper mt-10">
       {{ range $letters }}
         {{ $letter := . }}
-        {{ $authorsInCategory := slice }}
-        {{ range $authors }}
-          {{ $authorCategory := .Params.category }}
-          {{ if not $authorCategory }}
-            {{ $authorName := .Title | default .Params.title }}
-            {{ $firstChar := substr $authorName 0 1 | upper }}
+        {{ $termsInCategory := slice }}
+        {{ range $glossaryTerms }}
+          {{ $termCategory := .Params.category }}
+          {{ if not $termCategory }}
+            {{ $termName := .Params.term | default .Title }}
+            {{ $firstChar := substr $termName 0 1 | upper }}
             {{ if in $letters $firstChar }}
-              {{ $authorCategory = $firstChar }}
+              {{ $termCategory = $firstChar }}
             {{ else }}
-              {{ $authorCategory = "0-9" }}
+              {{ $termCategory = "0-9" }}
             {{ end }}
           {{ end }}
-          {{ if eq $authorCategory $letter }}
-            {{ $authorsInCategory = $authorsInCategory | append . }}
+          {{ if eq $termCategory $letter }}
+            {{ $termsInCategory = $termsInCategory | append . }}
           {{ end }}
         {{ end }}
-        {{ if $authorsInCategory }}
-          <div id="{{ $letter }}" class="py-10">
+        {{ if $termsInCategory }}
+          <div id="{{ $letter }}" class="my-10">
             <h2 class="text-5xl font-semibold text-heading">{{ $letter }}</h2>
-            <ul class="mt-8 grid gap-16 sm:grid-cols-2 lg:grid-cols-3">
-              {{ range sort $authorsInCategory "Title" }}
+            <ul class="mt-8 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+              {{ range sort $termsInCategory "Title" }}
                 {{ partial "components/cards/post_card_with_image.html" (
-                  dict "page" .
-                  "cardHeight" $cardHeight
-                  "showImages" true
+                  dict "page" . "cardHeight" $cardHeight
+                  "showImages" false
                   "showDateReadingTime" false
-                  "imageWrapperClasses" $imageWrapperClasses
-                  "imageClasses" $imageClasses
-                  "cardWrapperClasses" $cardWrapperClasses
-                  "contentPadding" $contentPadding
-                  "contentAlign" $contentAlign
-                  "defaultImage" $defaultImage
-                  "descriptionLength" $descriptionLength
                 ) }}
               {{ end }}
             </ul>
@@ -128,7 +93,7 @@
 
   {{ if .Content }}
     {{ partial "sections/content/centered.html" (dict
-        "content" (.Content | safeHTML)
+        "content" .Content
         "bgColor" "bg-gray-50"
         "page" .
     ) }}
@@ -143,15 +108,12 @@
       const header = document.querySelector('header');
 
       const activeClasses = ['bg-indigo-100', 'text-primary'];
-      const defaultClasses = ['text-tertiary', 'hover:text-primary', 'hover:bg-indigo-100'];
-      const disabledClasses = ['text-tertiary', 'opacity-30', 'pointer-events-none']; 
+      const defaultClasses = ['text-secondary', 'hover:text-primary', 'hover:bg-indigo-100'];
+      const disabledClasses = ['text-gray-500', 'opacity-30', 'pointer-events-none']; 
       const allDynamicClasses = [...activeClasses, ...defaultClasses, ...disabledClasses];
 
       const scrollThreshold = 31.5 * 16;
       const borderClasses = ['border-b', 'border-gray-300'];
-      
-      // Offset adjustment to account for visual spacing between the sticky navigation and content sections
-      const SCROLL_OFFSET_ADJUSTMENT = 16;
 
       function setActiveTab(letterToActivate) {
         if (!tabsContainer) return;
@@ -196,7 +158,7 @@
       const initialActiveLetter = "{{ $activeLetter }}";
       if (initialActiveLetter) {
         setActiveTab(initialActiveLetter);
-        // Scroll intentionally disabled to avoid unexpected jumps on page load.
+        document.getElementById(initialActiveLetter)?.scrollIntoView({ behavior: "auto", block: "start" });
       }
 
       if (select) {
@@ -218,7 +180,8 @@
             if (section) {
               const header = document.querySelector('header');
               const alphabetNav = document.getElementById('alphabetNav');
-              const offset = (header?.offsetHeight || 0) + (alphabetNav?.offsetHeight || 0) + SCROLL_OFFSET_ADJUSTMENT;
+              const extraSpace = -16; // px navyše pod headerom a abecedou
+              const offset = (header?.offsetHeight || 0) + (alphabetNav?.offsetHeight || 0) - extraSpace;
               const sectionTop = section.getBoundingClientRect().top + window.pageYOffset;
               window.scrollTo({
                 top: sectionTop - offset,

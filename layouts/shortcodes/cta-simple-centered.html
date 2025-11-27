@@ -1,5 +1,18 @@
 {{/* Simple Centered CTA Shortcode
-Usage:
+Usage (Modern - recommended):
+{{< cta-simple-centered 
+  heading="Boost your productivity with our app!" 
+  description="Discover how our app can help you achieve more in less time." 
+  primaryCtaText="Sign Up Now" 
+  primaryCtaUrl="/signup" 
+  secondaryCtaText="Learn More" 
+  secondaryCtaUrl="/learn-more" 
+  primaryCtaVariant="primary"
+  secondaryCtaVariant="text"
+  backgroundColor="bg-white"
+>}}
+
+Usage (Legacy - for backward compatibility):
 {{< cta-simple-centered 
   heading="Boost your productivity with our app!" 
   description="Discover how our app can help you achieve more in less time." 
@@ -17,8 +30,17 @@ Usage:
 {{ $primaryCtaUrl := .Get "primaryCtaUrl" | default "#" }}
 {{ $secondaryCtaText := .Get "secondaryCtaText" | default "Learn more" }}
 {{ $secondaryCtaUrl := .Get "secondaryCtaUrl" | default "#" }}
-{{ $primaryCtaColor := .Get "primaryCtaColor" | default "indigo-600" }}
-{{ $primaryCtaHoverColor := .Get "primaryCtaHoverColor" | default "indigo-500" }}
+
+{{/* New variant-based approach */}}
+{{ $primaryCtaVariant := .Get "primaryCtaVariant" | default "primary" }}
+{{ $secondaryCtaVariant := .Get "secondaryCtaVariant" | default "text" }}
+
+{{/* Legacy color parameters for backward compatibility */}}
+{{ $primaryCtaColor := .Get "primaryCtaColor" | default "" }}
+{{ $primaryCtaHoverColor := .Get "primaryCtaHoverColor" | default "" }}
+
+{{ $badges := .Get "badges" | default (slice) }}
+{{ $backgroundColor := .Get "backgroundColor" | default "bg-white" }}
 
 {{ $primaryCta := dict 
   "text" $primaryCtaText
@@ -35,6 +57,10 @@ Usage:
   "description" $description
   "primaryCta" $primaryCta
   "secondaryCta" $secondaryCta
+  "primaryCtaVariant" $primaryCtaVariant
+  "secondaryCtaVariant" $secondaryCtaVariant
   "primaryCtaColor" $primaryCtaColor
   "primaryCtaHoverColor" $primaryCtaHoverColor
+  "badges" $badges
+  "backgroundColor" $backgroundColor
 ) }}

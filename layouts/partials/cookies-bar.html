@@ -23,7 +23,7 @@
 {{- $settingsText := i18n "cookie_consent_settings" -}}
 {{- $bannerId := "cookie-consent-banner" -}}
 
-<div id="{{ $bannerId }}" data-cookie-consent-banner class="pointer-events-none fixed inset-x-0 bottom-0 px-6 pb-6 z-50 {{ $darkClass }}">
+<div id="{{ $bannerId }}" data-cookie-consent-banner class="pointer-events-none fixed inset-x-0 bottom-0 px-6 pb-6 z-[99999] {{ $darkClass }}">
     <div class="pointer-events-auto max-w-xl rounded-xl section-bg-light dark:section-bg-dark p-6 ring-1 shadow-lg ring-gray-900/10">
         <p class="text-secondary text-sm/6"><strong class="text-heading text-md mb-4 font-semibold">{{ $title }}</strong><br> {{ $message }} See our <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $policyUrl) }}" class="font-semibold text-primary hover:text-primary-500">{{ $policyText }}</a>.</p>
         <div class="mt-4 flex items-center gap-x-3 flex-wrap">
