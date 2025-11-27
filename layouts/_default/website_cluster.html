@@ -1,0 +1,396 @@
+{{ define "main" }}
+
+<!-- Website Cluster Visualization -->
+<div class="bg-white py-12">
+  <div class="wrapper">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ .Title }}</h1>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+          {{ .Description }}
+        </p>
+        <p class="text-sm text-gray-500 mt-2">
+          Click on clusters to zoom in and explore their contents. Click on pages to open them. Use the "Zoom Out" button or click the background to navigate back. Circles are grouped by semantic similarity.
+        </p>
+      </div>
+
+      <!-- Navigation Controls -->
+      <div class="mb-4 flex items-center justify-between">
+        <!-- Breadcrumb Navigation -->
+        <div id="breadcrumb-nav" class="hidden">
+          <nav class="flex items-center space-x-2 text-sm">
+            <button id="breadcrumb-root" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+              🏠 All Clusters
+            </button>
+            <span id="breadcrumb-current" class="text-gray-500"></span>
+          </nav>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="flex items-center gap-2">
+          <button id="zoom-out-btn" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Zoom Out
+          </button>
+        </div>
+      </div>
+
+      <!-- Visualization Container -->
+      <div class="bg-gray-50 rounded-lg shadow-lg p-8">
+        <div id="cluster-visualization" class="w-full" style="min-height: 800px;">
+          <!-- D3.js chart will be rendered here -->
+          <div class="flex items-center justify-center h-96">
+            <div class="text-center">
+              <svg class="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="text-gray-600">Loading visualization...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="mt-8 bg-blue-50 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Legend</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div class="flex items-start">
+            <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <circle cx="10" cy="10" r="8" />
+            </svg>
+            <div>
+              <strong>Individual Pages:</strong> Each small circle represents a single page on the website.
+            </div>
+          </div>
+          <div class="flex items-start">
+            <svg class="w-5 h-5 text-blue-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+            <div>
+              <strong>Clusters:</strong> Larger circles group semantically similar pages together.
+            </div>
+          </div>
+          <div class="flex items-start">
+            <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd" />
+            </svg>
+            <div>
+              <strong>Zoom Navigation:</strong> Click clusters to zoom in with smooth animation. Use "Zoom Out" button, click background, or use breadcrumb to navigate back. Click pages to open them.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- D3.js Library -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<!-- Clustering Visualization Script -->
+<script>
+  // Get current language
+  const currentLang = '{{ .Language.Lang }}' || 'en';
+  const dataUrl = `/data/clustering/${currentLang}.json`;
+
+  // Load and render the visualization
+  async function loadVisualization() {
+    try {
+      // Fetch the clustering data
+      const response = await fetch(dataUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to load clustering data: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Render the visualization
+      renderClusterVisualization(data);
+    } catch (error) {
+      console.error('Error loading visualization:', error);
+      document.getElementById('cluster-visualization').innerHTML = `
+        <div class="text-center py-12">
+          <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p class="text-gray-600 mb-2">Failed to load visualization data</p>
+          <p class="text-sm text-gray-500">${error.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  // Global state for navigation
+  let fullData = null;
+  let view = null;
+  let svg = null;
+  let root = null;
+  let focus = null;
+  let zoomStack = [];
+
+  function renderClusterVisualization(data) {
+    // Store full data on first load
+    if (!fullData) {
+      fullData = data;
+    }
+
+    // Clear container
+    const container = document.getElementById('cluster-visualization');
+    container.innerHTML = '';
+
+    // Set up dimensions
+    const containerWidth = container.offsetWidth;
+    const width = containerWidth;
+    const height = 800;
+
+    // Create SVG
+    svg = d3.select('#cluster-visualization')
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height)
+      .attr('viewBox', [-width / 2, -height / 2, width, height])
+      .attr('style', 'max-width: 100%; height: auto; cursor: pointer;')
+      .on('click', (event) => {
+        // Click on background to zoom out
+        if (zoomStack.length > 0) {
+          zoomOut();
+        }
+      });
+
+    // Create main group for zoom
+    const g = svg.append('g');
+
+    // Create hierarchy
+    root = d3.hierarchy(fullData)
+      .sum(d => d.value || 1)
+      .sort((a, b) => b.value - a.value);
+
+    // Create pack layout
+    const pack = d3.pack()
+      .size([width, height])
+      .padding(3);
+
+    pack(root);
+
+    // Set initial focus to root
+    focus = root;
+    view = [focus.x, focus.y, focus.r * 2];
+
+    // Color scale
+    const color = d3.scaleOrdinal()
+      .domain([...new Set(root.descendants().map(d => d.data.cluster || -1))])
+      .range(d3.schemeCategory10);
+
+    // Create nodes
+    const node = g.selectAll('circle')
+      .data(root.descendants())
+      .join('circle')
+      .attr('fill', d => {
+        if (d === root) return '#e5e7eb';
+        if (d.children) return color(d.data.cluster);
+        return d3.color(color(d.data.cluster)).brighter(0.5);
+      })
+      .attr('pointer-events', d => !d.children ? 'none' : null)
+      .style('cursor', d => {
+        if (d.data.url && !d.children) return 'pointer';
+        if (d.children) return 'pointer';
+        return 'default';
+      })
+      .on('mouseover', function(event, d) {
+        d3.select(this)
+          .attr('stroke', '#2563eb')
+          .attr('stroke-width', 2);
+      })
+      .on('mouseout', function(event, d) {
+        d3.select(this)
+          .attr('stroke', null);
+      })
+      .on('click', function(event, d) {
+        event.stopPropagation();
+
+        // If it's a page with URL, navigate to it
+        if (d.data.url && !d.children) {
+          window.location.href = d.data.url;
+          return;
+        }
+
+        // If it's a cluster with children, zoom into it
+        if (focus !== d && d.children) {
+          zoom(event, d);
+        }
+      });
+
+    // Add labels
+    const label = g.selectAll('text')
+      .data(root.descendants())
+      .join('text')
+      .style('fill-opacity', d => d.parent === focus ? 1 : 0)
+      .style('display', d => d.parent === focus ? 'inline' : 'none')
+      .style('font-size', d => Math.min(d.r / 3, 16) + 'px')
+      .style('font-weight', d => d.children ? 'bold' : 'normal')
+      .style('pointer-events', 'none')
+      .attr('text-anchor', 'middle')
+      .text(d => {
+        const name = d.data.title || d.data.name;
+        if (!name) return '';
+        const maxLength = Math.floor(d.r / 4);
+        return name.length > maxLength ? name.substring(0, maxLength) + '...' : name;
+      });
+
+    // Initial zoom
+    zoomTo([focus.x, focus.y, focus.r * 2]);
+
+    function zoomTo(v) {
+      const k = width / v[2];
+
+      view = v;
+
+      label.attr('transform', d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
+      node.attr('transform', d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`)
+        .attr('r', d => d.r * k);
+    }
+
+    function zoom(event, d) {
+      focus = d;
+      zoomStack.push(d);
+
+      const transition = svg.transition()
+        .duration(750)
+        .tween('zoom', () => {
+          const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
+          return t => zoomTo(i(t));
+        });
+
+      label
+        .filter(function(d) { return d.parent === focus || this.style.display === 'inline'; })
+        .transition(transition)
+        .style('fill-opacity', d => d.parent === focus ? 1 : 0)
+        .on('start', function(d) { if (d.parent === focus) this.style.display = 'inline'; })
+        .on('end', function(d) { if (d.parent !== focus) this.style.display = 'none'; });
+
+      updateBreadcrumb();
+    }
+
+    window.zoomOutFunc = function() {
+      if (zoomStack.length > 0) {
+        zoomStack.pop(); // Remove current
+        const target = zoomStack.length > 0 ? zoomStack[zoomStack.length - 1] : root;
+        zoomStack.pop(); // Remove target (will be re-added by zoom)
+
+        if (target === root) {
+          zoomStack = [];
+        }
+
+        focus = target;
+
+        const transition = svg.transition()
+          .duration(750)
+          .tween('zoom', () => {
+            const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
+            return t => zoomTo(i(t));
+          });
+
+        label
+          .filter(function(d) { return d.parent === focus || this.style.display === 'inline'; })
+          .transition(transition)
+          .style('fill-opacity', d => d.parent === focus ? 1 : 0)
+          .on('start', function(d) { if (d.parent === focus) this.style.display = 'inline'; })
+          .on('end', function(d) { if (d.parent !== focus) this.style.display = 'none'; });
+
+        updateBreadcrumb();
+      }
+    };
+
+    // Add tooltip
+    const tooltip = d3.select('body')
+      .append('div')
+      .attr('class', 'cluster-tooltip')
+      .style('position', 'absolute')
+      .style('visibility', 'hidden')
+      .style('background-color', 'rgba(0, 0, 0, 0.9)')
+      .style('color', 'white')
+      .style('padding', '8px 12px')
+      .style('border-radius', '6px')
+      .style('font-size', '14px')
+      .style('pointer-events', 'none')
+      .style('z-index', '1000')
+      .style('max-width', '300px');
+
+    node
+      .on('mouseover', function(event, d) {
+        if (d.data.title || d.data.name) {
+          const childCount = d.children ? d.children.length : 0;
+          const actionText = d.data.url && !d.children
+            ? 'Click to open page'
+            : d.children
+              ? `Click to zoom into ${childCount} items`
+              : '';
+
+          tooltip.style('visibility', 'visible')
+            .html(`
+              <strong>${d.data.title || d.data.name}</strong>
+              ${d.data.section ? `<br><span style="font-size: 12px; color: #9ca3af;">Section: ${d.data.section}</span>` : ''}
+              ${childCount > 0 ? `<br><span style="font-size: 12px; color: #9ca3af;">Contains: ${childCount} items</span>` : ''}
+              ${actionText ? `<br><span style="font-size: 11px; color: #60a5fa;">${actionText}</span>` : ''}
+            `);
+
+          d3.select(this)
+            .attr('stroke', '#2563eb')
+            .attr('stroke-width', 2);
+        }
+      })
+      .on('mousemove', function(event) {
+        tooltip.style('top', (event.pageY - 10) + 'px')
+          .style('left', (event.pageX + 10) + 'px');
+      })
+      .on('mouseout', function() {
+        tooltip.style('visibility', 'hidden');
+        d3.select(this).attr('stroke', null);
+      });
+
+    // Update breadcrumb
+    updateBreadcrumb();
+  }
+
+  function updateBreadcrumb() {
+    const breadcrumbNav = document.getElementById('breadcrumb-nav');
+    const breadcrumbCurrent = document.getElementById('breadcrumb-current');
+    const zoomOutBtn = document.getElementById('zoom-out-btn');
+
+    if (zoomStack.length > 0) {
+      breadcrumbNav.classList.remove('hidden');
+      zoomOutBtn.classList.remove('hidden');
+      const currentName = focus.data.title || focus.data.name || 'Cluster';
+      breadcrumbCurrent.innerHTML = ` → <span class="font-semibold text-gray-900">${currentName}</span>`;
+    } else {
+      breadcrumbNav.classList.add('hidden');
+      zoomOutBtn.classList.add('hidden');
+      breadcrumbCurrent.innerHTML = '';
+    }
+  }
+
+  // Set up button click handlers
+  document.getElementById('breadcrumb-root').addEventListener('click', () => {
+    zoomStack = [];
+    window.zoomOutFunc();
+  });
+
+  document.getElementById('zoom-out-btn').addEventListener('click', () => {
+    window.zoomOutFunc();
+  });
+
+  // Load visualization when page is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadVisualization);
+  } else {
+    loadVisualization();
+  }
+</script>
+
+{{ end }}
