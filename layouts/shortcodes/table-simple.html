@@ -50,7 +50,7 @@
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
 {{ $headingAlign := .Get "headingAlign" | default "left" }}
-{{ $classTable := .Get "classTable" | default "w-full text-left ring-1 ring-gray-300 sm:mx-0 sm:rounded-lg overflow-hidden" }}
+{{ $classTable := .Get "classTable" | default "w-full text-left ring-1 ring-gray-300 sm:mx-0 sm:rounded-lg" }}
 {{ $classTitleRow := .Get "classTitleRow" | default "bg-gray-100 text-secondary font-semibold" }}
 {{ $classFirstRows := .Get "classFirstRows" | default "py-4 px-6" }}
 {{ $classSecondRows := .Get "classSecondRows" | default "py-4 px-6 surface-secondary" }}
@@ -86,14 +86,16 @@
     {{ end }}
     
     <div class="mx-auto mt-8 w-full lg:max-w-none">
-      {{ partial "components/tables/simple.html" (dict 
-          "columnTitles" $columnTitles
-          "rows" $rows
-          "classTable" $classTable
-          "classTitleRow" $classTitleRow
-          "classFirstRows" $classFirstRows
-          "classSecondRows" $classSecondRows
-      ) }}
+      <div class="overflow-x-auto">
+        {{ partial "components/tables/simple.html" (dict 
+            "columnTitles" $columnTitles
+            "rows" $rows
+            "classTable" $classTable
+            "classTitleRow" $classTitleRow
+            "classFirstRows" $classFirstRows
+            "classSecondRows" $classSecondRows
+        ) }}
+      </div>
     </div>
   </div>
 </div>
