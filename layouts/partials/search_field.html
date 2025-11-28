@@ -159,6 +159,16 @@ document.addEventListener('DOMContentLoaded', function() {
         searchResultsPopup.classList.add('hidden');
         clearButton.classList.add('hidden');
         searchInput.focus();
+
+        // Restore original content and show alphabet nav (for FAQ/glossary pages)
+        if (resultsContainer) {
+            const container = document.getElementById(resultsContainer);
+            if (container && container.hasAttribute('data-original-content')) {
+                container.innerHTML = container.getAttribute('data-original-content');
+            }
+            const alphabetNav = document.getElementById('alphabetNav');
+            if (alphabetNav) alphabetNav.style.display = '';
+        }
     });
 
     // Show/hide clear button based on input content
@@ -182,6 +192,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (query.length < 2) {
             searchResultsPopup.classList.add('hidden');
+            // Restore original content when query is cleared (for FAQ/glossary pages)
+            if (resultsContainer) {
+                const container = document.getElementById(resultsContainer);
+                if (container && container.hasAttribute('data-original-content')) {
+                    container.innerHTML = container.getAttribute('data-original-content');
+                }
+                const alphabetNav = document.getElementById('alphabetNav');
+                if (alphabetNav) alphabetNav.style.display = '';
+            }
             return;
         }
 
@@ -448,12 +467,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container.hasAttribute('data-original-content')) {
             container.setAttribute('data-original-content', container.innerHTML);
         }
-        
+
+        // Hide alphabet navigation when searching (for FAQ/glossary pages)
+        const alphabetNav = document.getElementById('alphabetNav');
+
         if (query.length < 2) {
             // Restore original content
             container.innerHTML = container.getAttribute('data-original-content');
+            // Show alphabet nav again
+            if (alphabetNav) alphabetNav.style.display = '';
             return;
         }
+
+        // Hide alphabet nav during search
+        if (alphabetNav) alphabetNav.style.display = 'none';
         
         if (results.length === 0) {
             container.innerHTML = `
@@ -468,50 +495,34 @@ document.addEventListener('DOMContentLoaded', function() {
         // Filter out duplicates based on permalink
         const uniqueResults = [];
         const seenPermalinks = new Set();
-        
+
         for (const result of results) {
             if (!seenPermalinks.has(result.item.permalink)) {
                 uniqueResults.push(result);
                 seenPermalinks.add(result.item.permalink);
             }
         }
-        
-        // Check if we're in a grid container
-        const gridContainer = container.querySelector('.grid');
-        
-        if (gridContainer) {
-            // Preserve grid structure, just replace the content
-            const resultsHTML = uniqueResults.map(result => {
-                const item = result.item;
-                return createResultCard(item);
-            }).join('');
-            
-            gridContainer.innerHTML = resultsHTML;
-            
-            // Add search info if not already present
-            let searchInfo = container.querySelector('.search-info');
-            if (!searchInfo) {
-                searchInfo = document.createElement('div');
-                searchInfo.className = 'search-info wrapper mb-4';
-                // Insert before the wrapper that contains the grid
-                const wrapperDiv = gridContainer.closest('.wrapper');
-                if (wrapperDiv && wrapperDiv.parentElement) {
-                    wrapperDiv.parentElement.insertBefore(searchInfo, wrapperDiv);
-                } else if (container.firstChild) {
-                    container.insertBefore(searchInfo, container.firstChild);
-                } else {
-                    container.appendChild(searchInfo);
-                }
-            }
-            const resultText = uniqueResults.length === 1 
-                ? searchTranslations.searchResultsFound.replace('%d', uniqueResults.length).replace('"%s"', `"${query}"`)
-                : searchTranslations.searchResultsFoundPlural.replace('%d', uniqueResults.length).replace('"%s"', `"${query}"`);
-            searchInfo.innerHTML = `
-                <p class="text-sm text-gray-600">
-                    ${resultText}
-                </p>
-            `;
-        }
+
+        // Build search results HTML - completely replace container content
+        const resultsHTML = uniqueResults.map(result => {
+            const item = result.item;
+            return createResultCard(item);
+        }).join('');
+
+        const resultText = uniqueResults.length === 1
+            ? searchTranslations.searchResultsFound.replace('%d', uniqueResults.length).replace('%s', `"${query}"`)
+            : searchTranslations.searchResultsFoundPlural.replace('%d', uniqueResults.length).replace('%s', `"${query}"`);
+
+        container.innerHTML = `
+            <div class="wrapper mt-10">
+                <div class="search-info mb-4">
+                    <p class="text-sm text-gray-600">${resultText}</p>
+                </div>
+                <ul class="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+                    ${resultsHTML}
+                </ul>
+            </div>
+        `;
     }
     
     /**
@@ -594,31 +605,28 @@ document.addEventListener('DOMContentLoaded', function() {
      * Create result card matching existing design (for grid layouts)
      */
     function createResultCard(item) {
-        const imageUrl = item.image || '/images/default-integration.png';
-        const truncatedContent = item.content ? 
-            item.content.substring(0, 150) + '...' : '';
-        
+        const truncatedContent = item.content ?
+            item.content.substring(0, 160) + '...' : '';
+
+        // Show light-bulb icon for FAQ pages
+        const isFaq = directories && directories.includes('faq');
+        const iconHtml = isFaq ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 text-gray-900 shrink-0" fill="none"><path d="M12 18V12.75M12 12.75C12.5179 12.75 13.0206 12.6844 13.5 12.561M12 12.75C11.4821 12.75 10.9794 12.6844 10.5 12.561M14.25 20.0394C13.5212 20.1777 12.769 20.25 12 20.25C11.231 20.25 10.4788 20.1777 9.75 20.0394M13.5 22.422C13.007 22.4736 12.5066 22.5 12 22.5C11.4934 22.5 10.993 22.4736 10.5 22.422M14.25 18V17.8083C14.25 16.8254 14.9083 15.985 15.7585 15.4917C17.9955 14.1938 19.5 11.7726 19.5 9C19.5 4.85786 16.1421 1.5 12 1.5C7.85786 1.5 4.5 4.85786 4.5 9C4.5 11.7726 6.00446 14.1938 8.24155 15.4917C9.09173 15.985 9.75 16.8254 9.75 17.8083V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : '';
+
         return `
-            <div>
-                <div class="flex h-[540px] flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-lg">
-                    <div class="flex h-48 items-center justify-center bg-gray-50 p-8">
-                        <img src="${imageUrl}" alt="${item.title}" class="w-full h-full p-8 object-contain" loading="lazy">
-                    </div>
-                    <div class="flex flex-1 flex-col p-6">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">
-                            <a href="${item.permalink}" class="hover:text-blue-600">
-                                ${item.title}
-                            </a>
+            <li>
+                <article class="group relative rounded-2xl flex flex-col surface-secondary shadow-lg border border-gray-primary overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-1 h-full min-h-[15.75rem]">
+                    <a href="${item.permalink}" class="absolute inset-0" aria-label="Read more: ${item.title}">
+                        <span class="sr-only">${item.title}</span>
+                    </a>
+                    <div class="flex flex-col flex-grow p-8 items-start text-left">
+                        ${isFaq ? `<div class="mb-2">${iconHtml}</div>` : ''}
+                        <h3 class="text-lg/6 font-semibold text-heading group-hover:text-tertiary transition-colors duration-300">
+                            ${item.title}
                         </h3>
-                        <p class="text-gray-600 text-sm flex-1">${truncatedContent}</p>
-                        <div class="mt-4 flex items-center justify-between">
-                            <a href="${item.permalink}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                Learn more →
-                            </a>
-                        </div>
+                        <p class="mt-5 text-sm leading-6 text-secondary font-normal line-clamp-3 flex-grow overflow-hidden">${truncatedContent}</p>
                     </div>
-                </div>
-            </div>
+                </article>
+            </li>
         `;
     }
 });
