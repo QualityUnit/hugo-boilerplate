@@ -5,6 +5,8 @@
   - heading: Main heading text (optional)
   - description: Description text below the main heading (optional)
   - headingAlign: Alignment for heading and description ("left", "center", "right") (default: "left")
+  - headingMaxWidth: Maximum width for heading container (default: "max-w-2xl")
+  - classContainer: CSS classes for container spacing (default: "py-16 lg:py-24")
   - classTable: CSS classes for the table (default: "w-full text-left ring-1 ring-gray-300 sm:mx-0 sm:rounded-lg")
   - classTitleRow: CSS classes for the title row (default: "bg-gray-100 text-secondary font-semibold")
   - classFirstRows: CSS classes for odd rows (default: "py-4 px-6")
@@ -23,6 +25,8 @@
       heading="Pricing Comparison"
       description="Compare our different plans and features"
       headingAlign="center"
+      headingMaxWidth="max-w-4xl"
+      classContainer="py-12 lg:py-20"
       allowHeaderWrap="true"
       allowCellWrap="false"
   >}}
@@ -55,6 +59,8 @@
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
 {{ $headingAlign := .Get "headingAlign" | default "left" }}
+{{ $headingMaxWidth := .Get "headingMaxWidth" | default "max-w-2xl" }}
+{{ $classContainer := .Get "classContainer" | default "py-16 lg:py-24" }}
 {{ $classTable := .Get "classTable" | default "w-full text-left ring-1 ring-gray-300 sm:mx-0 sm:rounded-lg" }}
 {{ $classTitleRow := .Get "classTitleRow" | default "bg-gray-100 text-secondary font-semibold" }}
 {{ $classFirstRows := .Get "classFirstRows" | default "py-4 px-6" }}
@@ -87,10 +93,10 @@
   {{ $alignmentClass = "text-right" }}
 {{ end }}
 
-<div class="py-16 lg:py-24">
+<div class="{{ $classContainer }} table-simple">
   <div class="wrapper">
     {{ if or $heading $description }}
-      <div class="mx-auto max-w-2xl {{ $alignmentClass }}">
+      <div class="mx-auto {{ $headingMaxWidth }} {{ $alignmentClass }}">
         {{ if $heading }}
           <h2 class="text-3xl font-bold tracking-tight text-heading sm:text-4xl">{{ $heading | markdownify }}</h2>
         {{ end }}
