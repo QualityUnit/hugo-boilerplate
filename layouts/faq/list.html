@@ -5,6 +5,20 @@
 
   <div class="bg-white dark:bg-gray-900 py-16">
     {{ partial "hero_default.html" . }}
+
+    {{/* Search field for FAQ */}}
+    <div class="wrapper px-8 mt-4">
+      <div class="max-w-xl mx-auto">
+        {{ partial "search_field.html" (dict
+          "type" "faq-search"
+          "placeholder" (i18n "search_faq_placeholder" | default "Search FAQ...")
+          "directories" (slice "faq")
+          "resultsContainer" "faq-results-container"
+          "context" .
+        ) }}
+      </div>
+    </div>
+
     {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
     {{ $activeLetter := "" }}
     {{ with .Title }}
@@ -54,6 +68,7 @@
 
       </div>
     </div>
+    <div id="faq-results-container">
     <div class="wrapper mt-10">
       {{ range $letters }}
         {{ $letter := . }}
@@ -82,12 +97,15 @@
                   dict "page" . "cardHeight" $cardHeight
                   "showImages" false
                   "showDateReadingTime" false
+                  "icon" "light-bulb"
+                  "iconClass" "w-5 h-5 text-gray-900 shrink-0"
                 ) }}
               {{ end }}
             </ul>
           </div>
         {{ end }}
       {{ end }}
+    </div>
     </div>
   </div>
 
