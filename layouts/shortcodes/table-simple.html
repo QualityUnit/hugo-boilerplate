@@ -1,0 +1,99 @@
+{{/* 
+  Simple Table Shortcode
+  
+ Parameters:
+  - heading: Main heading text (optional)
+  - description: Description text below the main heading (optional)
+  - headingAlign: Alignment for heading and description ("left", "center", "right") (default: "left")
+  - classTable: CSS classes for the table (default: "w-full text-left rounded-lg overflow-hidden")
+  - classTitleRow: CSS classes for the title row (default: "bg-gray-100 text-gray-700 font-semibold")
+  - classFirstRows: CSS classes for odd rows (default: "py-4 px-6")
+  - classSecondRows: CSS classes for even rows (default: "py-4 px-6 bg-gray-50")
+  
+  Inner Content (required JSON object):
+  - Object with the following structure:
+    - columnTitles: Array of column header titles
+    - rows: Array of row objects where each object has numbered keys ("0", "1", "2", etc.) corresponding to column data
+  
+  Example usage:
+  {{< table-simple 
+      heading="Pricing Comparison"
+      description="Compare our different plans and features"
+      headingAlign="center"
+  >}}
+    {
+      "columnTitles": ["Feature", "Basic", "Pro", "Enterprise"],
+      "rows": [
+        {
+          "0": "**Users**",
+          "1": "5 users",
+          "2": "25 users", 
+          "3": "Unlimited"
+        },
+        {
+          "0": "**Storage**",
+          "1": "10GB",
+          "2": "100GB",
+          "3": "1TB"
+        },
+        {
+          "0": "**Support**",
+          "1": "Email",
+          "2": "Email + Chat",
+          "3": "24/7 Phone + Chat"
+        }
+      ]
+    }
+  {{< /table-simple >}}
+*/}}
+
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $headingAlign := .Get "headingAlign" | default "left" }}
+{{ $classTable := .Get "classTable" | default "w-full text-left ring-1 ring-gray-300 sm:mx-0 sm:rounded-lg overflow-hidden" }}
+{{ $classTitleRow := .Get "classTitleRow" | default "bg-gray-100 text-secondary font-semibold" }}
+{{ $classFirstRows := .Get "classFirstRows" | default "py-4 px-6" }}
+{{ $classSecondRows := .Get "classSecondRows" | default "py-4 px-6 surface-secondary" }}
+
+{{ $tableData := dict }}
+{{ with .Inner }}
+  {{ if . }}
+    {{ $tableData = . | unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{ $columnTitles := $tableData.columnTitles | default (slice) }}
+{{ $rows := $tableData.rows | default (slice) }}
+
+{{ $alignmentClass := "text-left" }}
+{{ if eq $headingAlign "center" }}
+  {{ $alignmentClass = "text-center" }}
+{{ else if eq $headingAlign "right" }}
+  {{ $alignmentClass = "text-right" }}
+{{ end }}
+
+<div class="py-16 lg:py-24">
+  <div class="wrapper">
+    {{ if or $heading $description }}
+      <div class="mx-auto max-w-2xl {{ $alignmentClass }}">
+        {{ if $heading }}
+          <h2 class="text-3xl font-bold tracking-tight text-heading sm:text-4xl">{{ $heading | markdownify }}</h2>
+        {{ end }}
+        {{ if $description }}
+          <p class="mt-6 text-lg leading-8 text-secondary">{{ $description | markdownify }}</p>
+        {{ end }}
+      </div>
+    {{ end }}
+    
+    <div class="mx-auto mt-8 w-full lg:max-w-none">
+      {{ partial "components/tables/simple.html" (dict 
+          "columnTitles" $columnTitles
+          "rows" $rows
+          "classTable" $classTable
+          "classTitleRow" $classTitleRow
+          "classFirstRows" $classFirstRows
+          "classSecondRows" $classSecondRows
+      ) }}
+    </div>
+  </div>
+</div>
