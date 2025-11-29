@@ -356,44 +356,43 @@ def generate_yaml(related_content, hugo_root, output_dir, lang):
 
     print(f"YAML file generated: {output_file}")
 
-def create_clusters(embeddings, max_cluster_size=50, _prev_max_size=None):
-    """Create clusters using FAISS index with maximum cluster size constraint."""
-    import faiss
+def create_clusters(embeddings, target_clusters=40):
+    """Create semantic clusters using sklearn k-means clustering.
+
+    Args:
+        embeddings: numpy array of embeddings
+        target_clusters: target number of clusters (default 40 for good visualization)
+
+    Returns:
+        numpy array of cluster labels
+    """
+    from sklearn.cluster import MiniBatchKMeans
 
     n_samples = len(embeddings)
 
-    # Prevent infinite recursion and division by zero
-    if max_cluster_size < 1:
-        print("Warning: max_cluster_size reached minimum, falling back to sequential clustering...")
-        labels = np.array([i // 50 for i in range(n_samples)])
-        return labels
+    # Adjust target clusters based on sample size
+    # For small datasets, use fewer clusters
+    n_clusters = min(target_clusters, max(n_samples // 10, 5))
 
-    # Calculate optimal number of clusters to ensure max items per cluster
-    n_clusters = max(int(np.ceil(n_samples / max_cluster_size)), 1)
-
-    print(f"Creating {n_clusters} clusters using FAISS (max {max_cluster_size} items per cluster)...")
+    print(f"Creating {n_clusters} semantic clusters using sklearn MiniBatchKMeans...")
     print(f"Total items: {n_samples}")
 
     try:
         # Normalize embeddings for cosine similarity
         normalized_embeddings = normalize(embeddings.astype('float32'))
 
-        # Get embedding dimension
-        d = normalized_embeddings.shape[1]
+        # Use MiniBatchKMeans for memory efficiency with large datasets
+        kmeans = MiniBatchKMeans(
+            n_clusters=n_clusters,
+            random_state=42,
+            batch_size=1000,
+            n_init=3,
+            max_iter=100,
+            verbose=0
+        )
 
-        # Use a simpler approach: select k random centroids and assign points to nearest
-        # This avoids the memory-intensive k-means training
-        np.random.seed(42)  # For reproducibility
-        centroid_indices = np.random.choice(n_samples, size=min(n_clusters, n_samples), replace=False)
-        centroids = normalized_embeddings[centroid_indices]
-
-        # Create FAISS index for centroids
-        index = faiss.IndexFlatIP(d)  # Inner product for cosine similarity
-        index.add(centroids)
-
-        # Assign each point to nearest centroid
-        _, labels = index.search(normalized_embeddings, 1)
-        labels = labels.flatten()
+        # Fit and predict cluster labels
+        labels = kmeans.fit_predict(normalized_embeddings)
 
         # Calculate cluster sizes
         unique_labels, counts = np.unique(labels, return_counts=True)
@@ -401,31 +400,104 @@ def create_clusters(embeddings, max_cluster_size=50, _prev_max_size=None):
         print(f"Created {len(unique_labels)} clusters")
         print(f"Cluster sizes: min={min(counts)}, max={max(counts)}, avg={np.mean(counts):.1f}")
 
-        # If any cluster is too large, we need to split it
-        max_actual_size = max(counts)
-        if max_actual_size > max_cluster_size:
-            # Check if we're making progress - if max size didn't change, items have identical embeddings
-            if _prev_max_size is not None and max_actual_size >= _prev_max_size:
-                print(f"Warning: Clustering not improving (likely identical embeddings). Using sequential fallback...")
-                labels = np.array([i // 50 for i in range(n_samples)])
-                return labels
-
-            print(f"Warning: Some clusters exceed max size ({max_actual_size} > {max_cluster_size})")
-            print(f"Adjusting cluster count...")
-            # Recursively increase cluster count if needed, tracking previous max size
-            return create_clusters(embeddings, max_cluster_size=max_cluster_size // 2, _prev_max_size=max_actual_size)
-
         return labels
 
     except Exception as e:
         print(f"Error during clustering: {e}")
         print("Falling back to simple sequential clustering...")
         # Fallback: simple sequential clusters
-        labels = np.array([i // 50 for i in range(n_samples)])
+        labels = np.array([i // (n_samples // n_clusters + 1) for i in range(n_samples)])
         return labels
 
+def extract_ngrams(text, min_n=2, max_n=4):
+    """Extract n-grams (2-4 words) from text.
+
+    Args:
+        text: Input text string
+        min_n: Minimum n-gram size (default: 2)
+        max_n: Maximum n-gram size (default: 4)
+
+    Returns:
+        List of n-gram strings
+    """
+    import re
+
+    # Clean and tokenize text
+    # Remove special characters but keep spaces
+    text = re.sub(r'[^\w\s]', ' ', text.lower())
+    # Split into words and filter empty strings
+    words = [w for w in text.split() if len(w) > 2]  # Skip very short words
+
+    ngrams = []
+    for n in range(min_n, max_n + 1):
+        for i in range(len(words) - n + 1):
+            ngram = ' '.join(words[i:i + n])
+            ngrams.append(ngram)
+
+    return ngrams
+
+def get_cluster_keywords(file_data, indices, top_k=20):
+    """Extract top keywords (n-grams) from cluster content.
+
+    Args:
+        file_data: List of file data dictionaries
+        indices: List of indices for files in this cluster
+        top_k: Number of top keywords to return (default: 20)
+
+    Returns:
+        List of (keyword, count) tuples
+    """
+    from collections import Counter
+
+    # Common stopwords to filter out
+    stopwords = {
+        'the', 'and', 'for', 'with', 'that', 'this', 'from', 'are', 'was', 'were',
+        'have', 'has', 'had', 'been', 'will', 'would', 'could', 'should', 'can',
+        'may', 'might', 'must', 'shall', 'into', 'onto', 'upon', 'about', 'your',
+        'you', 'they', 'them', 'their', 'our', 'its', 'his', 'her', 'what', 'which',
+        'who', 'whom', 'when', 'where', 'how', 'why', 'all', 'each', 'every', 'both',
+        'few', 'more', 'most', 'other', 'some', 'such', 'than', 'too', 'very', 'just',
+        'also', 'now', 'here', 'there', 'then', 'once', 'only', 'own', 'same', 'any'
+    }
+
+    # HTML/technical terms to filter out
+    html_noise = {
+        'lazyimg', 'src', 'images', 'webp', 'alt', 'href', 'class', 'div', 'span',
+        'img', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'http', 'https', 'www', 'com',
+        'html', 'css', 'width', 'height', 'style', 'data', 'icon', 'button'
+    }
+
+    all_ngrams = []
+
+    for idx in indices:
+        file_info = file_data[idx]
+        # Combine title and text for keyword extraction
+        text = f"{file_info.get('title', '')} {file_info.get('text', '')}"
+        ngrams = extract_ngrams(text)
+        all_ngrams.extend(ngrams)
+
+    # Count frequencies
+    ngram_counts = Counter(all_ngrams)
+
+    # Filter out n-grams that contain stopwords or HTML noise
+    filtered_counts = {}
+    all_noise = stopwords | html_noise
+    for ngram, count in ngram_counts.items():
+        words = ngram.split()
+        # Skip if any word is HTML noise
+        if any(w in html_noise for w in words):
+            continue
+        # Keep if at least one word is not a stopword
+        if any(w not in all_noise for w in words):
+            filtered_counts[ngram] = count
+
+    # Get top keywords
+    top_keywords = sorted(filtered_counts.items(), key=lambda x: x[1], reverse=True)[:top_k]
+
+    return top_keywords
+
 def build_hierarchy_data(file_data, labels, lang):
-    """Build hierarchical data structure for D3.js pack layout."""
+    """Build hierarchical data structure for D3.js pack layout with subclusters by directory."""
     print("Building hierarchy data for clustering visualization...")
 
     # Group files by cluster
@@ -441,34 +513,35 @@ def build_hierarchy_data(file_data, labels, lang):
 
     # Process each cluster
     for cluster_id, indices in sorted_clusters:
-        # Create cluster node
-        cluster_children = []
-        cluster_name = f"Cluster {cluster_id + 1}"
+        # Extract top keywords for this cluster (2-4 word n-grams)
+        keywords = get_cluster_keywords(file_data, indices, top_k=20)
+        keywords_list = [{"keyword": kw, "count": count} for kw, count in keywords]
 
-        # Find a representative name for the cluster (most common section)
-        sections = [file_data[idx]["section"] for idx in indices if file_data[idx]["section"]]
-        if sections:
-            most_common_section = max(set(sections), key=sections.count)
-            if most_common_section:
-                cluster_name = most_common_section.replace("-", " ").replace("_", " ").title()
+        # Name the cluster by the top keyword (n-gram)
+        if keywords:
+            cluster_name = keywords[0][0].title()  # Use top keyword as cluster name
+        else:
+            cluster_name = f"Cluster {cluster_id + 1}"
 
+        # Group items within cluster by section (directory)
+        section_groups = defaultdict(list)
         for idx in indices:
             file_info = file_data[idx]
-            section = file_info["section"]
+            section = file_info["section"] or "root"
             slug = file_info["slug"]
             is_index = file_info.get("is_index", False)
 
             # Build URL path
             if is_index:
-                url_path = f"/{section}/" if section else "/"
+                url_path = f"/{file_info['section']}/" if file_info["section"] else "/"
             else:
-                url_path = f"/{section}/{slug}/" if section else f"/{slug}/"
+                url_path = f"/{file_info['section']}/{slug}/" if file_info["section"] else f"/{slug}/"
 
             # Add language prefix for non-English
             if lang != "en":
                 url_path = f"/{lang}{url_path}"
 
-            cluster_children.append({
+            section_groups[section].append({
                 "name": file_info["title"] or file_info["slug"],
                 "title": file_info["title"],
                 "url": url_path,
@@ -477,11 +550,24 @@ def build_hierarchy_data(file_data, labels, lang):
                 "cluster": int(cluster_id)
             })
 
+        # Build subclusters (one per section/directory)
+        subclusters = []
+        for section_name, items in sorted(section_groups.items()):
+            subcluster_display_name = section_name.replace("-", " ").replace("_", " ").title()
+            subclusters.append({
+                "name": subcluster_display_name,
+                "section": section_name,
+                "cluster": int(cluster_id),
+                "children": items,
+                "size": len(items)
+            })
+
         children.append({
             "name": cluster_name,
             "cluster": int(cluster_id),
-            "children": cluster_children,
-            "size": len(cluster_children)
+            "keywords": keywords_list,
+            "children": subclusters,
+            "size": len(indices)
         })
 
     # Root node
@@ -494,7 +580,7 @@ def build_hierarchy_data(file_data, labels, lang):
 
 def save_clustering_data(data, hugo_root, lang):
     """Save clustering data as JSON file."""
-    output_dir = os.path.join(hugo_root, "data", "clustering")
+    output_dir = os.path.join(hugo_root, "static", "data", "clustering")
     os.makedirs(output_dir, exist_ok=True)
 
     output_file = os.path.join(output_dir, f"{lang}.json")
@@ -555,7 +641,7 @@ def process_language(args, lang):
 
     # Generate clustering data (reusing the same embeddings)
     print(f"[DEBUG] Generating clustering data for visualization...")
-    labels = create_clusters(embeddings, max_cluster_size=50)
+    labels = create_clusters(embeddings, target_clusters=40)
     hierarchy_data = build_hierarchy_data(file_data, labels, lang)
     save_clustering_data(hierarchy_data, args.hugo_root, lang)
     print(f"[DEBUG] Clustering data generated successfully")
