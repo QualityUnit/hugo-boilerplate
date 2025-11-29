@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 # build_content.sh
 #
 # This script creates a virtual environment, installs requirements,
@@ -125,7 +125,7 @@ show_interactive_menu() {
                 desc="${desc:0:37}..."
             fi
 
-            printf "  %-45s ${YELLOW}%s${NC}\n" "$step_display" "$desc"
+            printf "  %-45b ${YELLOW}%s${NC}\n" "$step_display" "$desc"
         done
 
         echo ""
@@ -134,7 +134,7 @@ show_interactive_menu() {
         # Count selected
         local count=0
         for s in "${selected[@]}"; do
-            ((count += s))
+            ((count += s)) || true
         done
         echo -e "  ${GREEN}${count}${NC} of ${num_steps} steps selected"
         echo ""
@@ -144,13 +144,13 @@ show_interactive_menu() {
 
         # Handle arrow keys (escape sequences)
         if [[ "$key" == $'\x1b' ]]; then
-            read -rsn2 -t 0.1 key
+            read -rsn2 -t 0.1 key || true
             case "$key" in
                 '[A') # Up arrow
-                    ((current > 0)) && ((current--))
+                    ((current > 0)) && ((current--)) || true
                     ;;
                 '[B') # Down arrow
-                    ((current < num_steps - 1)) && ((current++))
+                    ((current < num_steps - 1)) && ((current++)) || true
                     ;;
             esac
         else
