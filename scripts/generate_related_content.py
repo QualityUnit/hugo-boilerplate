@@ -176,10 +176,31 @@ def process_content_files(hugo_root=None, lang=None, content_dir=None, exclude_s
                     
                     # Extract title from frontmatter
                     title = post.get("title", "")
-                    
+
                     # Extract text from content
-                    text = extract_text_from_markdown(post.content)
-                    
+                    body_text = extract_text_from_markdown(post.content)
+
+                    # If body is empty, use frontmatter fields for embedding
+                    # This handles files where content is stored in frontmatter (e.g., affiliate directories)
+                    if not body_text.strip():
+                        frontmatter_texts = []
+                        # Add title and description
+                        if title:
+                            frontmatter_texts.append(title)
+                        if post.get("description"):
+                            frontmatter_texts.append(post.get("description"))
+                        if post.get("shortDescription"):
+                            frontmatter_texts.append(post.get("shortDescription"))
+                        # Check for nested frontmatter sections (like program_overview)
+                        for key, value in post.metadata.items():
+                            if isinstance(value, dict):
+                                for sub_key, sub_value in value.items():
+                                    if sub_key in ("description", "title") and isinstance(sub_value, str):
+                                        frontmatter_texts.append(sub_value)
+                        text = " ".join(frontmatter_texts)
+                    else:
+                        text = body_text
+
                     # Limit text length to avoid memory issues
                     if len(text) > MAX_TEXT_LENGTH:
                         text = text[:MAX_TEXT_LENGTH]
@@ -335,13 +356,19 @@ def generate_yaml(related_content, hugo_root, output_dir, lang):
 
     print(f"YAML file generated: {output_file}")
 
-def create_clusters(embeddings, max_cluster_size=50):
+def create_clusters(embeddings, max_cluster_size=50, _prev_max_size=None):
     """Create clusters using FAISS index with maximum cluster size constraint."""
     import faiss
 
     n_samples = len(embeddings)
 
-    # Calculate optimal number of clusters to ensure max 50 items per cluster
+    # Prevent infinite recursion and division by zero
+    if max_cluster_size < 1:
+        print("Warning: max_cluster_size reached minimum, falling back to sequential clustering...")
+        labels = np.array([i // 50 for i in range(n_samples)])
+        return labels
+
+    # Calculate optimal number of clusters to ensure max items per cluster
     n_clusters = max(int(np.ceil(n_samples / max_cluster_size)), 1)
 
     print(f"Creating {n_clusters} clusters using FAISS (max {max_cluster_size} items per cluster)...")
@@ -377,10 +404,16 @@ def create_clusters(embeddings, max_cluster_size=50):
         # If any cluster is too large, we need to split it
         max_actual_size = max(counts)
         if max_actual_size > max_cluster_size:
+            # Check if we're making progress - if max size didn't change, items have identical embeddings
+            if _prev_max_size is not None and max_actual_size >= _prev_max_size:
+                print(f"Warning: Clustering not improving (likely identical embeddings). Using sequential fallback...")
+                labels = np.array([i // 50 for i in range(n_samples)])
+                return labels
+
             print(f"Warning: Some clusters exceed max size ({max_actual_size} > {max_cluster_size})")
             print(f"Adjusting cluster count...")
-            # Recursively increase cluster count if needed
-            return create_clusters(embeddings, max_cluster_size=max_cluster_size // 2)
+            # Recursively increase cluster count if needed, tracking previous max size
+            return create_clusters(embeddings, max_cluster_size=max_cluster_size // 2, _prev_max_size=max_actual_size)
 
         return labels
 
@@ -388,7 +421,7 @@ def create_clusters(embeddings, max_cluster_size=50):
         print(f"Error during clustering: {e}")
         print("Falling back to simple sequential clustering...")
         # Fallback: simple sequential clusters
-        labels = np.array([i // max_cluster_size for i in range(n_samples)])
+        labels = np.array([i // 50 for i in range(n_samples)])
         return labels
 
 def build_hierarchy_data(file_data, labels, lang):

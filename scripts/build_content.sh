@@ -18,7 +18,190 @@ HUGO_ROOT="$(dirname "$(dirname "$THEME_DIR")")"
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
 NC='\033[0m' # No Color
+
+# All available steps
+ALL_STEPS=(
+    "sync_translations"
+    "build_hugo"
+    "offload_images"
+    "find_duplicate_images"
+    "translate"
+    "sync_content_attributes"
+    "sync_translation_urls"
+    "generate_translation_urls"
+    "generate_amplify_redirects"
+    "generate_related_content"
+    "generate_linkbuilding_keywords"
+    "extract_automatic_links"
+    "precompute_linkbuilding"
+    "preprocess_images"
+)
+
+# Step descriptions for the menu
+declare -A STEP_DESCRIPTIONS=(
+    ["sync_translations"]="Sync translation keys across i18n files"
+    ["build_hugo"]="Build Hugo site with minification"
+    ["offload_images"]="Offload images from Replicate"
+    ["find_duplicate_images"]="Find duplicate images in content"
+    ["translate"]="Translate missing content via FlowHunt API"
+    ["sync_content_attributes"]="Sync content attributes across languages"
+    ["sync_translation_urls"]="Sync translation URLs"
+    ["generate_translation_urls"]="Generate translation URL mappings"
+    ["generate_amplify_redirects"]="Generate AWS Amplify redirects"
+    ["generate_related_content"]="Generate related content data"
+    ["generate_linkbuilding_keywords"]="Generate linkbuilding keywords"
+    ["extract_automatic_links"]="Extract automatic links from content"
+    ["precompute_linkbuilding"]="Precompute optimized linkbuilding"
+    ["preprocess_images"]="Preprocess images for web delivery"
+)
+
+# Steps that should be unchecked by default
+UNCHECKED_BY_DEFAULT=("find_duplicate_images")
+
+# Interactive checkbox menu function
+show_interactive_menu() {
+    local num_steps=${#ALL_STEPS[@]}
+    declare -a selected
+
+    # Initialize selection state (1=selected, 0=not selected)
+    for i in "${!ALL_STEPS[@]}"; do
+        local step="${ALL_STEPS[$i]}"
+        # Check if step should be unchecked by default
+        if [[ " ${UNCHECKED_BY_DEFAULT[*]} " =~ " ${step} " ]]; then
+            selected[$i]=0
+        else
+            selected[$i]=1
+        fi
+    done
+
+    local current=0
+    local key=""
+
+    # Hide cursor
+    tput civis 2>/dev/null || true
+
+    # Trap to restore cursor on exit
+    trap 'tput cnorm 2>/dev/null || true; tput sgr0 2>/dev/null || true' EXIT
+
+    while true; do
+        # Clear screen and move to top
+        clear
+
+        echo -e "${BOLD}${BLUE}╔══════════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${BOLD}${BLUE}║           Build Content - Select Steps to Execute                ║${NC}"
+        echo -e "${BOLD}${BLUE}╠══════════════════════════════════════════════════════════════════╣${NC}"
+        echo -e "${BOLD}${BLUE}║${NC}  Use ${CYAN}↑/↓${NC} to navigate, ${CYAN}Space${NC} to toggle, ${CYAN}Enter${NC} to confirm         ${BOLD}${BLUE}║${NC}"
+        echo -e "${BOLD}${BLUE}║${NC}  Press ${CYAN}a${NC} to select all, ${CYAN}n${NC} to select none, ${CYAN}q${NC} to quit            ${BOLD}${BLUE}║${NC}"
+        echo -e "${BOLD}${BLUE}╚══════════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+
+        for i in "${!ALL_STEPS[@]}"; do
+            local step="${ALL_STEPS[$i]}"
+            local desc="${STEP_DESCRIPTIONS[$step]}"
+            local checkbox
+            local line_color=""
+            local step_display
+
+            if [ "${selected[$i]}" -eq 1 ]; then
+                checkbox="${GREEN}[✓]${NC}"
+            else
+                checkbox="${RED}[ ]${NC}"
+            fi
+
+            # Highlight current selection
+            if [ "$i" -eq "$current" ]; then
+                line_color="${BOLD}${CYAN}"
+                step_display="${line_color}► ${checkbox} ${step}${NC}"
+            else
+                step_display="  ${checkbox} ${step}"
+            fi
+
+            # Truncate description if too long
+            if [ ${#desc} -gt 40 ]; then
+                desc="${desc:0:37}..."
+            fi
+
+            printf "  %-45s ${YELLOW}%s${NC}\n" "$step_display" "$desc"
+        done
+
+        echo ""
+        echo -e "${BLUE}────────────────────────────────────────────────────────────────────${NC}"
+
+        # Count selected
+        local count=0
+        for s in "${selected[@]}"; do
+            ((count += s))
+        done
+        echo -e "  ${GREEN}${count}${NC} of ${num_steps} steps selected"
+        echo ""
+
+        # Read key
+        IFS= read -rsn1 key
+
+        # Handle arrow keys (escape sequences)
+        if [[ "$key" == $'\x1b' ]]; then
+            read -rsn2 -t 0.1 key
+            case "$key" in
+                '[A') # Up arrow
+                    ((current > 0)) && ((current--))
+                    ;;
+                '[B') # Down arrow
+                    ((current < num_steps - 1)) && ((current++))
+                    ;;
+            esac
+        else
+            case "$key" in
+                ' ') # Space - toggle selection
+                    if [ "${selected[$current]}" -eq 1 ]; then
+                        selected[$current]=0
+                    else
+                        selected[$current]=1
+                    fi
+                    ;;
+                '') # Enter - confirm
+                    break
+                    ;;
+                'a'|'A') # Select all
+                    for i in "${!selected[@]}"; do
+                        selected[$i]=1
+                    done
+                    ;;
+                'n'|'N') # Select none
+                    for i in "${!selected[@]}"; do
+                        selected[$i]=0
+                    done
+                    ;;
+                'q'|'Q') # Quit
+                    tput cnorm 2>/dev/null || true
+                    echo -e "${YELLOW}Cancelled by user.${NC}"
+                    exit 0
+                    ;;
+            esac
+        fi
+    done
+
+    # Restore cursor
+    tput cnorm 2>/dev/null || true
+
+    # Build the list of selected steps
+    MENU_SELECTED_STEPS=()
+    for i in "${!ALL_STEPS[@]}"; do
+        if [ "${selected[$i]}" -eq 1 ]; then
+            MENU_SELECTED_STEPS+=("${ALL_STEPS[$i]}")
+        fi
+    done
+
+    clear
+    echo -e "${GREEN}Selected steps:${NC}"
+    for step in "${MENU_SELECTED_STEPS[@]}"; do
+        echo -e "  ${GREEN}✓${NC} $step"
+    done
+    echo ""
+}
 
 #print directories
 echo -e "${BLUE}=== Directories ===${NC}"
@@ -70,17 +253,49 @@ fi
 
 # Parse arguments for step selection
 STEPS_TO_RUN=()
+SKIP_MENU=false
 while [[ $# -gt 0 ]]; do
     case $1 in
         --step|--steps)
             IFS=',' read -ra STEPS_TO_RUN <<< "$2"
+            SKIP_MENU=true
             shift 2
+            ;;
+        --no-menu)
+            # Skip menu and run all default steps
+            SKIP_MENU=true
+            shift
+            ;;
+        --help|-h)
+            echo -e "${BLUE}Usage: $0 [OPTIONS]${NC}"
+            echo ""
+            echo "Options:"
+            echo "  --step, --steps STEPS   Comma-separated list of steps to run"
+            echo "  --no-menu               Skip interactive menu, run all default steps"
+            echo "  --help, -h              Show this help message"
+            echo ""
+            echo "Available steps:"
+            for step in "${ALL_STEPS[@]}"; do
+                printf "  %-30s %s\n" "$step" "${STEP_DESCRIPTIONS[$step]}"
+            done
+            echo ""
+            echo "Examples:"
+            echo "  $0                                    # Show interactive menu"
+            echo "  $0 --steps sync_translations,build_hugo"
+            echo "  $0 --no-menu                          # Run all steps without menu"
+            exit 0
             ;;
         *)
             shift
             ;;
     esac
 done
+
+# Show interactive menu if running in a terminal and no steps specified via args
+if [ ${#STEPS_TO_RUN[@]} -eq 0 ] && [ "$SKIP_MENU" = false ] && [ -t 0 ] && [ -t 1 ]; then
+    show_interactive_menu
+    STEPS_TO_RUN=("${MENU_SELECTED_STEPS[@]}")
+fi
 
 # Function to check for duplicate IDs in i18n YAML files
 check_duplicate_i18n_ids() {
@@ -637,13 +852,25 @@ with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json'
     esac
 }
 
-# If no steps specified, run all steps
+# If no steps specified (non-interactive mode), run default steps (excluding find_duplicate_images)
 if [ ${#STEPS_TO_RUN[@]} -eq 0 ]; then
-    STEPS_TO_RUN=(sync_translations build_hugo offload_images find_duplicate_images translate sync_content_attributes sync_translation_urls generate_translation_urls generate_amplify_redirects generate_related_content generate_linkbuilding_keywords extract_automatic_links precompute_linkbuilding preprocess_images)
-    echo -e "${YELLOW}[DEBUG] No steps specified, running all steps: ${STEPS_TO_RUN[@]}${NC}"
+    # In non-interactive mode, run all steps except those in UNCHECKED_BY_DEFAULT
+    for step in "${ALL_STEPS[@]}"; do
+        if [[ ! " ${UNCHECKED_BY_DEFAULT[*]} " =~ " ${step} " ]]; then
+            STEPS_TO_RUN+=("$step")
+        fi
+    done
+    echo -e "${YELLOW}[DEBUG] No steps specified, running default steps: ${STEPS_TO_RUN[@]}${NC}"
 else
     echo -e "${YELLOW}[DEBUG] Running specified steps: ${STEPS_TO_RUN[@]}${NC}"
 fi
+
+# Show confirmation of steps to run
+echo -e "${BLUE}=== Steps to execute ===${NC}"
+for step in "${STEPS_TO_RUN[@]}"; do
+    echo -e "  ${GREEN}✓${NC} $step - ${STEP_DESCRIPTIONS[$step]}"
+done
+echo ""
 
 echo -e "${YELLOW}[DEBUG] Starting main processing loop at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
 for step in "${STEPS_TO_RUN[@]}"; do
