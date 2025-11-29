@@ -84,7 +84,7 @@
 {{- end }}
 
 <div class="bg-{{ $backgroundColor }} py-20">
-  <div class="wrapper flex flex-col lg:flex-row {{ $wrapperClass }}">
+  <div class="wrapper flex flex-col {{ if gt (int $columnsParam) 2 }}lg:flex-col{{ else }}lg:flex-row{{ end }} {{ $wrapperClass }}">
     <div data-col="text" class="textBlock">
       <div class="mx-auto max-w-4xl">
         <p class="text-base/7 font-semibold text-{{ $taglineColor }}">{{ $tagline }}</p>
