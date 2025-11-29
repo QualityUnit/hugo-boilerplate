@@ -35,7 +35,9 @@ ALL_STEPS=(
     "generate_translation_urls"
     "generate_amplify_redirects"
     "generate_related_content"
+    "generate_clustering"
     "generate_linkbuilding_keywords"
+    "regenerate_linkbuilding_keywords"
     "extract_automatic_links"
     "precompute_linkbuilding"
     "preprocess_images"
@@ -53,14 +55,16 @@ declare -A STEP_DESCRIPTIONS=(
     ["generate_translation_urls"]="Generate translation URL mappings"
     ["generate_amplify_redirects"]="Generate AWS Amplify redirects"
     ["generate_related_content"]="Generate related content data"
+    ["generate_clustering"]="Generate website clustering visualization"
     ["generate_linkbuilding_keywords"]="Generate linkbuilding keywords"
+    ["regenerate_linkbuilding_keywords"]="REGENERATE linkbuilding (clears existing first)"
     ["extract_automatic_links"]="Extract automatic links from content"
     ["precompute_linkbuilding"]="Precompute optimized linkbuilding"
     ["preprocess_images"]="Preprocess images for web delivery"
 )
 
 # Steps that should be unchecked by default
-UNCHECKED_BY_DEFAULT=("find_duplicate_images")
+UNCHECKED_BY_DEFAULT=("offload_images" "find_duplicate_images" "generate_clustering" "preprocess_images" "regenerate_linkbuilding_keywords")
 
 # Interactive checkbox menu function
 show_interactive_menu() {
@@ -523,6 +527,100 @@ run_step() {
             
             echo -e "${GREEN}Linkbuilding keyword generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_linkbuilding_keywords finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
+        regenerate_linkbuilding_keywords)
+            echo -e "${BLUE}=== Step: REGENERATING Linkbuilding Keywords (Clear + Generate) ===${NC}"
+            echo -e "${YELLOW}This will clear ALL existing linkbuilding attributes and regenerate them.${NC}"
+
+            # Step 1: Clear all existing linkbuilding attributes
+            echo -e "${YELLOW}Clearing existing linkbuilding attributes from all content files...${NC}"
+            "${VENV_DIR}/bin/python" << 'PYTHON_SCRIPT'
+import os
+import frontmatter
+from frontmatter import TOMLHandler
+
+content_dir = os.environ.get('HUGO_ROOT', '.') + '/content'
+removed_count = 0
+total_files = 0
+
+for root, dirs, files in os.walk(content_dir):
+    for file in files:
+        if file.endswith(".md"):
+            total_files += 1
+            file_path = os.path.join(root, file)
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+
+                try:
+                    post = frontmatter.loads(content, handler=TOMLHandler())
+                except:
+                    post = frontmatter.loads(content)
+
+                if hasattr(post, 'metadata') and post.metadata and 'linkbuilding' in post.metadata:
+                    del post.metadata['linkbuilding']
+
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        f.write(frontmatter.dumps(post, handler=TOMLHandler()))
+
+                    removed_count += 1
+
+            except Exception as e:
+                print(f"Error processing {file_path}: {e}")
+
+print(f"Processed {total_files} markdown files")
+print(f"Removed linkbuilding from {removed_count} files")
+PYTHON_SCRIPT
+
+            echo -e "${GREEN}Cleared existing linkbuilding attributes!${NC}"
+
+            # Step 2: Generate new linkbuilding keywords (same as generate_linkbuilding_keywords)
+            echo -e "${YELLOW}Generating new linkbuilding keywords for all languages...${NC}"
+            pids=()
+
+            for lang_dir in "${HUGO_ROOT}/content"/*; do
+                if [ -d "$lang_dir" ]; then
+                    lang=$(basename "$lang_dir")
+                    echo -e "${YELLOW}[DEBUG] Starting linkbuilding keyword generation for language: $lang${NC}"
+
+                    (
+                        "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_linkbuilding_keywords.py" \
+                            --lang "$lang" \
+                            --top-k 10 \
+                            --min-keyword-freq 3 \
+                            --min-files 5 \
+                            --min-ngram 2 \
+                            --max-ngram 4 2>&1 | \
+                            sed "s/^/[$lang] /"
+
+                        if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                            echo -e "${GREEN}[$lang] Linkbuilding keywords regenerated successfully${NC}"
+                        else
+                            echo -e "${YELLOW}[$lang] Warning: Failed to regenerate linkbuilding keywords${NC}"
+                        fi
+                    ) &
+
+                    pids+=($!)
+                fi
+            done
+
+            echo -e "${YELLOW}Waiting for all language regenerations to complete...${NC}"
+            failed_langs=()
+            for pid in "${pids[@]}"; do
+                wait $pid
+                if [ $? -ne 0 ]; then
+                    failed_langs+=("$pid")
+                fi
+            done
+
+            if [ ${#failed_langs[@]} -eq 0 ]; then
+                echo -e "${GREEN}All linkbuilding keyword regenerations completed successfully!${NC}"
+            else
+                echo -e "${YELLOW}Some regenerations failed, but continuing...${NC}"
+            fi
+
+            echo -e "${GREEN}Linkbuilding keyword REGENERATION completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step regenerate_linkbuilding_keywords finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_related_content)
             echo -e "${BLUE}=== Step 4: Generating Related Content and Clustering Data ===${NC}"

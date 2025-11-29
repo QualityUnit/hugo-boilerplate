@@ -140,12 +140,18 @@ def process_content_files(content_dir, lang, exclude_sections):
             # This focuses on structure and key concepts rather than full content
             combined_text = f"{url_semantic} {title}"
 
+            # Get linkbuilding keywords from frontmatter
+            linkbuilding = post.get('linkbuilding', [])
+            if linkbuilding is None:
+                linkbuilding = []
+
             pages.append({
                 'title': title,
                 'url': url,
                 'section': section,
                 'text': combined_text,
-                'file_path': str(rel_path)
+                'file_path': str(rel_path),
+                'keywords': linkbuilding
             })
 
         except Exception as e:
@@ -360,7 +366,8 @@ def create_recursive_subclusters(pages, embeddings, depth=0):
                     "url": page['url'],
                     "section": page['section'],
                     "value": 1,
-                    "cluster": hash(f"{page['url']}") % 100000
+                    "cluster": hash(f"{page['url']}") % 100000,
+                    "keywords": page.get('keywords', [])
                 }
                 subcluster_node["children"].append(page_node)
 
@@ -406,7 +413,8 @@ def create_hierarchical_structure(section_clusters, embeddings, lang):
                         "url": page['url'],
                         "section": page['section'],
                         "value": 1,
-                        "cluster": cluster_id
+                        "cluster": cluster_id,
+                        "keywords": page.get('keywords', [])
                     }
                     section_node["children"].append(page_node)
                 continue
@@ -445,7 +453,8 @@ def create_hierarchical_structure(section_clusters, embeddings, lang):
                             "url": page['url'],
                             "section": page['section'],
                             "value": 1,
-                            "cluster": cluster_id
+                            "cluster": cluster_id,
+                            "keywords": page.get('keywords', [])
                         }
                         cluster_node["children"].append(page_node)
             else:
@@ -464,7 +473,8 @@ def create_hierarchical_structure(section_clusters, embeddings, lang):
                         "url": page['url'],
                         "section": page['section'],
                         "value": 1,
-                        "cluster": cluster_id
+                        "cluster": cluster_id,
+                        "keywords": page.get('keywords', [])
                     }
                     cluster_node["children"].append(page_node)
 
