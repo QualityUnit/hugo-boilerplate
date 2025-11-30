@@ -4,15 +4,27 @@
 {{ $classSecondRows := .classSecondRows | default "py-4 px-6 bg-gray-50" }}
 {{ $classTable := .classTable | default "w-full text-left rounded-lg overflow-hidden" }}
 {{ $classTitleRow := .classTitleRow | default "bg-gray-100 text-gray-700 font-semibold" }}
+{{ $allowHeaderWrap := .allowHeaderWrap | default "false" }}
+{{ $allowCellWrap := .allowCellWrap | default "false" }}
+
+{{ $headerWrapClass := "whitespace-nowrap" }}
+{{ if eq $allowHeaderWrap "true" }}
+  {{ $headerWrapClass = "" }}
+{{ end }}
+
+{{ $cellWrapClass := "whitespace-nowrap" }}
+{{ if eq $allowCellWrap "true" }}
+  {{ $cellWrapClass = "" }}
+{{ end }}
 
 
-<div class="table-responsive">
-    <table class="{{ $classTable }}">
+<div class="table-responsive overflow-x-auto">
+    <table class="{{ $classTable }} min-w-full">
         {{ if gt (len $columnTitles) 0 }}
             <thead>
                 <tr class="{{ $classTitleRow }}">
                     {{ range $columnTitles }}
-                        <th class="py-3 px-6">{{ . | markdownify }}</th>
+                        <th class="py-3 px-6 {{ $headerWrapClass }}">{{ . | markdownify }}</th>
                     {{ end }}
                 </tr>
             </thead>
@@ -25,7 +37,7 @@
                         {{ range $colIndex, $title := $columnTitles }}
                             {{ $columnIndex := printf "%d" $colIndex }}
                             {{ if isset $row $columnIndex }}
-                                <td class="{{ if eq (mod $index 2) 0 }}{{ $classFirstRows }}{{ else }}{{ $classSecondRows }}{{ end }}">
+                                <td class="{{ if eq (mod $index 2) 0 }}{{ $classFirstRows }}{{ else }}{{ $classSecondRows }}{{ end }} {{ $cellWrapClass }}">
                                     {{ index $row $columnIndex | markdownify }}
                                 </td>
                             {{ end }}

@@ -1,0 +1,148 @@
+{{/* 
+  Simple Table Shortcode
+  
+  Parameters:
+  - heading: Main heading text (optional)
+  - description: Description text below the main heading (optional)
+  - headingAlign: Alignment for heading and description ("left", "center", "right") (default: "left")
+  - headingMaxWidth: Maximum width for heading container (default: "max-w-2xl")
+  - classContainer: CSS classes for container spacing (default: "py-16 lg:py-24")
+  - classTable: CSS classes for the table (default: "w-full text-left ring-1 ring-gray-300 sm:mx-0 sm:rounded-lg")
+  - classTitleRow: CSS classes for the title row (default: "bg-gray-100 text-secondary font-semibold")
+  - classFirstRows: CSS classes for odd rows (default: "py-4 px-6")
+  - classSecondRows: CSS classes for even rows (default: "py-4 px-6 surface-secondary")
+  - allowHeaderWrap: Allow text wrapping in headers ("true"/"false") (default: "false")
+  - allowCellWrap: Allow text wrapping in cells ("true"/"false") (default: "false")
+  - showJsonError: Show JSON parsing errors in output ("true"/"false") (default: "false")
+  
+  Inner Content (required JSON object):
+  - Object with the following structure:
+    - columnTitles: Array of column header titles
+    - rows: Array of row objects where each object has numbered keys ("0", "1", "2", etc.) corresponding to column data
+  
+  Example usage:
+  {{< table-simple 
+      heading="Pricing Comparison"
+      description="Compare our different plans and features"
+      headingAlign="center"
+      headingMaxWidth="max-w-4xl"
+      classContainer="py-12 lg:py-20"
+      allowHeaderWrap="true"
+      allowCellWrap="false"
+  >}}
+    {
+      "columnTitles": ["Feature", "Basic", "Pro", "Enterprise"],
+      "rows": [
+        {
+          "0": "**Users**",
+          "1": "5 users",
+          "2": "25 users",
+          "3": "Unlimited"
+        },
+        {
+          "0": "**Storage**",
+          "1": "10GB",
+          "2": "100GB",
+          "3": "1TB"
+        },
+        {
+          "0": "**Support**",
+          "1": "Email",
+          "2": "Email + Chat",
+          "3": "24/7 Phone + Chat"
+        }
+      ]
+    }
+  {{< /table-simple >}}
+*/}}
+
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $headingAlign := .Get "headingAlign" | default "left" }}
+{{ $headingMaxWidth := .Get "headingMaxWidth" | default "max-w-2xl" }}
+{{ $classContainer := .Get "classContainer" | default "py-16 lg:py-24" }}
+{{ $classTable := .Get "classTable" | default "w-full text-left ring-1 ring-gray-300 sm:mx-0 sm:rounded-lg" }}
+{{ $classTitleRow := .Get "classTitleRow" | default "bg-gray-100 text-secondary font-semibold" }}
+{{ $classFirstRows := .Get "classFirstRows" | default "py-4 px-6" }}
+{{ $classSecondRows := .Get "classSecondRows" | default "py-4 px-6 surface-secondary" }}
+{{ $allowHeaderWrap := .Get "allowHeaderWrap" | default "false" }}
+{{ $allowCellWrap := .Get "allowCellWrap" | default "false" }}
+{{ $showJsonError := .Get "showJsonError" | default "false" }}
+
+{{ $tableData := dict }}
+{{ $parseError := "" }}
+{{ with .Inner }}
+  {{ if . }}
+    {{ with . | unmarshal }}
+      {{ $tableData = . }}
+    {{ else }}
+      {{ $parseError = "Failed to parse JSON data. Please check your table data format." }}
+    {{ end }}
+  {{ else }}
+    {{ $parseError = "No table data provided. Please add JSON data inside the shortcode." }}
+  {{ end }}
+{{ end }}
+
+{{ $columnTitles := $tableData.columnTitles | default (slice) }}
+{{ $rows := $tableData.rows | default (slice) }}
+
+{{ $alignmentClass := "text-left" }}
+{{ if eq $headingAlign "center" }}
+  {{ $alignmentClass = "text-center" }}
+{{ else if eq $headingAlign "right" }}
+  {{ $alignmentClass = "text-right" }}
+{{ end }}
+
+<div class="{{ $classContainer }} table-simple">
+  <div class="wrapper">
+    {{ if or $heading $description }}
+      <div class="mx-auto {{ $headingMaxWidth }} {{ $alignmentClass }}">
+        {{ if $heading }}
+          <h2 class="text-3xl font-bold tracking-tight text-heading sm:text-4xl">{{ $heading | markdownify }}</h2>
+        {{ end }}
+        {{ if $description }}
+          <p class="mt-6 text-lg leading-8 text-secondary">{{ $description | markdownify }}</p>
+        {{ end }}
+      </div>
+    {{ end }}
+    
+    <div class="mx-auto mt-8 w-full lg:max-w-none">
+      {{ if and $parseError (eq $showJsonError "true") }}
+        <div class="rounded-md bg-red-50 p-4">
+          <div class="flex">
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Table Error</h3>
+              <div class="mt-2 text-sm text-red-700">
+                <p>{{ $parseError }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      {{ else if and (not $parseError) (or (gt (len $columnTitles) 0) (gt (len $rows) 0)) }}
+        <div class="overflow-x-auto">
+          {{ partial "components/tables/simple.html" (dict 
+              "columnTitles" $columnTitles
+              "rows" $rows
+              "classTable" $classTable
+              "classTitleRow" $classTitleRow
+              "classFirstRows" $classFirstRows
+              "classSecondRows" $classSecondRows
+              "allowHeaderWrap" $allowHeaderWrap
+              "allowCellWrap" $allowCellWrap
+          ) }}
+        </div>
+      {{ else if not $parseError }}
+        <div class="rounded-md bg-yellow-50 p-4">
+          <div class="flex">
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-yellow-800">No Table Data</h3>
+              <div class="mt-2 text-sm text-yellow-700">
+                <p>No table data found. Please provide columnTitles and rows in the JSON data.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      {{ end }}
+    </div>
+  </div>
+</div>
