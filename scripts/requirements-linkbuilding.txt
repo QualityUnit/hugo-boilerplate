@@ -1,0 +1,4 @@
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+psutil>=5.9.0
+pyahocorasick>=2.0.0
