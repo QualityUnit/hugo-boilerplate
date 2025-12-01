@@ -29,8 +29,22 @@
 {{- $url = partial "helpers/get-translated-url.html" (dict "url" $url "lang" $curLang) -}}
 
 {{- /* Extract other attributes directly from item.Params */ -}}
-{{- $targetAttr := "" -}} {{- with $item.Params.target -}} {{- $targetAttr = printf " target=\"%s\"" . -}} {{- end -}}
-{{- $relAttr := "" -}} {{- with $item.Params.rel -}} {{- $relAttr = printf " rel=\"%s\"" . -}} {{- end -}}
+{{- $target := $item.Params.target | default "_self" -}}
+{{- $rel := $item.Params.rel | default "" -}}
+{{- if eq $target "_blank" -}}
+  {{- if not $rel -}}
+    {{- $rel = "noopener noreferrer" -}}
+  {{- else -}}
+    {{- if not (strings.Contains $rel "noopener") -}}
+      {{- $rel = printf "%s noopener" $rel | strings.TrimSpace -}}
+    {{- end -}}
+    {{- if not (strings.Contains $rel "noreferrer") -}}
+      {{- $rel = printf "%s noreferrer" $rel | strings.TrimSpace -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $targetAttr := "" -}} {{- if ne $target "_self" -}} {{- $targetAttr = printf " target=\"%s\"" $target -}} {{- end -}}
+{{- $relAttr := "" -}} {{- with $rel -}} {{- $relAttr = printf " rel=\"%s\"" . -}} {{- end -}}
 {{- $ariaAttr := "" -}} {{- with $item.Params.ariaLabel -}} {{- $ariaAttr = printf " aria-label=\"%s\"" . -}} {{- end -}}
 {{- $dataAttr := $item.Params.dataAttr | default "" -}}
 

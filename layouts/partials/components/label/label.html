@@ -105,7 +105,7 @@
 
 {{/* Render the label with conditional link wrapper */}}
 {{ if $url }}
-  <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $url) }}" target="{{ $target }}" class="{{ $badgeClass }} {{ $classes }} {{ $linkClasses }} no-underline">
+  <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $url) }}" target="{{ $target }}"{{ if eq $target "_blank" }} rel="noopener noreferrer"{{ end }} class="{{ $badgeClass }} {{ $classes }} {{ $linkClasses }} no-underline">
     {{ $content | safeHTML }}
   </a>
 {{ else }}
