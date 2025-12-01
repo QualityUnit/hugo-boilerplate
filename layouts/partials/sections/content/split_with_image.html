@@ -11,7 +11,7 @@ Parameters:
 - videoDescription: Video description text (default: "")
 - videoLinkUrl: Link to page on site from video overlay (default: "")
 - eyebrow, heading, description: Text content
-- link, linkText, buttonStyle: CTA button
+- link, linkText, buttonStyle: CTA button, showArrow (default: false)
 - markdownContent, contentAsHTML: Main content
 - features: [{icon, title, description}]
 - numbered_features: [{title, description}] (features with numbers instead of icons)
@@ -73,6 +73,7 @@ Design Tokens:
 {{ $linkText := .linkText }}
 {{ $linkTarget := .linkTarget | default "_self" }}
 {{ $buttonStyle := .buttonStyle | default "primary" }}
+{{ $showArrow := .showArrow | default false }}
 {{ $markdownContent := .markdownContent }}
 {{ $contentAsHTML := .contentAsHTML | default false }}
 {{ $features := .features | default (slice) }}
@@ -255,6 +256,7 @@ Design Tokens:
             "url" $link
             "target" $linkTarget
             "variant" $buttonStyle
+            "showArrow" $showArrow
           ) }}
         </div>
         {{ end }}

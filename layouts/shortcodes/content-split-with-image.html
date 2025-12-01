@@ -329,6 +329,7 @@
 {{ $linkText := .Get "linkText" | default (i18n "learnMore") | default "Learn more" }}
 {{ $linkTarget := .Get "linkTarget" | default "_self" }}
 {{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
+{{ $showArrow := .Get "showArrow" | default false }}
 {{ $theme := .Get "theme" | default "light" }}
 {{ $backgroundColor := .Get "backgroundColor" | default "" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
@@ -545,6 +546,7 @@
   "linkText" $linkText
   "linkTarget" $linkTarget
   "buttonStyle" $buttonStyle
+  "showArrow" $showArrow
   "image" $image
   "imageAlt" $imageAlt
   "videoUrl" $videoUrl
