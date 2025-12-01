@@ -3,6 +3,13 @@
 Linkbuilding Module for Hugo Static Sites
 Processes HTML files and adds internal links based on keyword definitions.
 Supports multilingual sites with different link definitions per language.
+
+Optimized version with:
+- lxml parser (2-3x faster than html.parser)
+- Aho-Corasick algorithm for multi-pattern matching
+- Parallel file processing within each language
+- Early file skip optimization
+- Reduced console output
 """
 
 import os
@@ -12,13 +19,23 @@ import csv
 import re
 import argparse
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Set
 from dataclasses import dataclass, field
 from collections import defaultdict
 from datetime import datetime
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup, NavigableString, Tag
 import html
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+
+# Try to import ahocorasick for fast multi-pattern matching
+try:
+    import ahocorasick
+    AHOCORASICK_AVAILABLE = True
+except ImportError:
+    AHOCORASICK_AVAILABLE = False
+    print("Warning: pyahocorasick not installed, using fallback regex matching (slower)")
 
 
 @dataclass
@@ -90,109 +107,11 @@ class LinkStatistics:
         self.links_per_keyword[keyword] = self.links_per_keyword.get(keyword, 0) + 1
         self.links_per_url[url] = self.links_per_url.get(url, 0) + 1
         self.links_per_file[file_path] = self.links_per_file.get(file_path, 0) + 1
-    
-    def to_html(self) -> str:
-        """Generate HTML report"""
-        html_parts = [
-            '<!DOCTYPE html>',
-            '<html lang="en">',
-            '<head>',
-            '<meta charset="UTF-8">',
-            '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
-            '<title>Linkbuilding Report</title>',
-            '<style>',
-            'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 20px; background: #f5f5f5; }',
-            '.container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }',
-            'h1 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }',
-            'h2 { color: #555; margin-top: 30px; }',
-            '.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }',
-            '.stat-card { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #007bff; }',
-            '.stat-value { font-size: 2em; font-weight: bold; color: #007bff; }',
-            '.stat-label { color: #666; margin-top: 5px; }',
-            'table { width: 100%; border-collapse: collapse; margin: 20px 0; }',
-            'th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }',
-            'th { background: #007bff; color: white; position: sticky; top: 0; }',
-            'tr:hover { background: #f8f9fa; }',
-            '.error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0; }',
-            '.success { background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0; }',
-            '</style>',
-            '</head>',
-            '<body>',
-            '<div class="container">',
-            f'<h1>Linkbuilding Report - {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</h1>',
-            
-            '<div class="stats">',
-            '<div class="stat-card">',
-            f'<div class="stat-value">{self.total_files_processed}</div>',
-            '<div class="stat-label">Files Processed</div>',
-            '</div>',
-            '<div class="stat-card">',
-            f'<div class="stat-value">{self.total_files_modified}</div>',
-            '<div class="stat-label">Files Modified</div>',
-            '</div>',
-            '<div class="stat-card">',
-            f'<div class="stat-value">{self.total_links_added}</div>',
-            '<div class="stat-label">Links Added</div>',
-            '</div>',
-            '<div class="stat-card">',
-            f'<div class="stat-value">{len(self.links_per_keyword)}</div>',
-            '<div class="stat-label">Keywords Used</div>',
-            '</div>',
-            '</div>',
-        ]
-        
-        if self.total_links_added > 0:
-            html_parts.append('<div class="success">✓ Successfully added links to content</div>')
-        
-        # Links per keyword table
-        if self.links_per_keyword:
-            html_parts.extend([
-                '<h2>Links Added per Keyword</h2>',
-                '<table>',
-                '<thead><tr><th>Keyword</th><th>Count</th></tr></thead>',
-                '<tbody>'
-            ])
-            for keyword, count in sorted(self.links_per_keyword.items(), key=lambda x: x[1], reverse=True):
-                html_parts.append(f'<tr><td>{html.escape(keyword)}</td><td>{count}</td></tr>')
-            html_parts.extend(['</tbody>', '</table>'])
-        
-        # Links per URL table
-        if self.links_per_url:
-            html_parts.extend([
-                '<h2>Links Added per URL</h2>',
-                '<table>',
-                '<thead><tr><th>URL</th><th>Count</th></tr></thead>',
-                '<tbody>'
-            ])
-            for url, count in sorted(self.links_per_url.items(), key=lambda x: x[1], reverse=True):
-                html_parts.append(f'<tr><td>{html.escape(url)}</td><td>{count}</td></tr>')
-            html_parts.extend(['</tbody>', '</table>'])
-        
-        # Modified files table
-        if self.links_per_file:
-            html_parts.extend([
-                '<h2>Modified Files</h2>',
-                '<table>',
-                '<thead><tr><th>File</th><th>Links Added</th></tr></thead>',
-                '<tbody>'
-            ])
-            for file_path, count in sorted(self.links_per_file.items(), key=lambda x: x[1], reverse=True):
-                html_parts.append(f'<tr><td>{html.escape(file_path)}</td><td>{count}</td></tr>')
-            html_parts.extend(['</tbody>', '</table>'])
-        
-        # Errors
-        if self.errors:
-            html_parts.append('<h2>Errors</h2>')
-            for error in self.errors:
-                html_parts.append(f'<div class="error">{html.escape(error)}</div>')
-        
-        html_parts.extend(['</div>', '</body>', '</html>'])
-        return '\n'.join(html_parts)
 
 
 class LinkBuilder:
-    """Main linkbuilding processor"""
-    
+    """Main linkbuilding processor - Optimized version"""
+
     # Elements to skip when processing
     SKIP_TAGS = {
         'a', 'script', 'style', 'code', 'pre', 'button', 'input', 'textarea',
@@ -201,21 +120,42 @@ class LinkBuilder:
         'iframe', 'video', 'audio', 'canvas', 'map', 'area', 'form', 'title',
         'head', 'footer'
     }
-    
+
     # Paths to skip (taxonomy pages, pagination, etc.) - same as precompute_linkbuilding.py
     SKIP_PATHS = {
         '/tags/', '/categories/', '/page/', '/author/',
         '/search/', '/404.html', '/index.xml', '/sitemap.xml'
     }
-    
+
     def __init__(self, keywords: List[Keyword], config: LinkConfig = None, language: str = None):
         self.keywords = sorted(keywords, key=lambda k: (-k.priority, -len(k.keyword)))
         self.config = config or LinkConfig()
         self.stats = LinkStatistics()
+        self.stats_lock = threading.Lock()  # Thread-safe stats updates
         self.current_file = None
         self.language = language or ''  # Language code for progress reporting
         self.reset_page_counters()
+
+        # Build Aho-Corasick automaton for fast keyword matching
+        self.automaton = None
+        self.keyword_lookup = {}  # Map lowercase keyword to Keyword object
+        self._build_automaton()
     
+    def _build_automaton(self):
+        """Build Aho-Corasick automaton for fast multi-pattern matching"""
+        if not AHOCORASICK_AVAILABLE:
+            return
+
+        self.automaton = ahocorasick.Automaton()
+
+        for keyword in self.keywords:
+            keyword_lower = keyword.keyword.lower()
+            self.keyword_lookup[keyword_lower] = keyword
+            # Add to automaton with keyword as value
+            self.automaton.add_word(keyword_lower, keyword)
+
+        self.automaton.make_automaton()
+
     def reset_page_counters(self):
         """Reset counters for a new page"""
         self.page_keyword_counts = defaultdict(int)
@@ -264,105 +204,186 @@ class LinkBuilder:
         
         return False
     
-    def process_directory(self, directory: str, exclude_dirs: List[str] = None, is_english: bool = False) -> LinkStatistics:
-        """Process all HTML files in a directory
-        
+    def _quick_keyword_check(self, content: str) -> bool:
+        """Quick check if content might contain any keywords (optimization).
+
+        Uses Aho-Corasick if available for O(n) check, otherwise samples keywords.
+        Returns True if keywords might be present, False if definitely not.
+        """
+        content_lower = content.lower()
+
+        if AHOCORASICK_AVAILABLE and self.automaton:
+            # Use automaton for fast check - just need to find one match
+            for _ in self.automaton.iter(content_lower):
+                return True
+            return False
+        else:
+            # Fallback: check first 50 keywords (most common/priority)
+            for keyword in self.keywords[:50]:
+                if keyword.keyword_lower in content_lower:
+                    return True
+            return False
+
+    def process_directory(self, directory: str, exclude_dirs: List[str] = None,
+                         is_english: bool = False, max_workers: int = 4) -> LinkStatistics:
+        """Process all HTML files in a directory with parallel processing
+
         Args:
             directory: Directory to process
             exclude_dirs: List of directory names to exclude
             is_english: True if processing English content (to skip language subdirs)
+            max_workers: Number of parallel workers for file processing
         """
         directory = Path(directory)
         exclude_dirs = exclude_dirs or []
-        
+
         # Find all HTML files
         all_html_files = []
         for root, dirs, files in os.walk(directory):
             # Remove excluded directories from dirs to prevent walking into them
             dirs[:] = [d for d in dirs if d not in exclude_dirs]
-            
+
             for file in files:
                 if file.endswith('.html'):
                     all_html_files.append(Path(root) / file)
-        
+
         # Filter out unwanted files
         html_files = []
         skipped_lang = 0
         skipped_other = 0
-        
+
         for file_path in all_html_files:
             # Skip based on path patterns
             if self.should_skip_file(file_path):
                 skipped_other += 1
                 continue
-            
+
             # For English, also skip language subdirectories
             if is_english and self.should_skip_for_english(file_path, directory):
                 skipped_lang += 1
                 continue
-            
+
             html_files.append(file_path)
-        
-        print(f"Found {len(html_files)} HTML files to process")
-        if skipped_lang > 0:
-            print(f"  Skipped {skipped_lang} files from other language directories")
-        if skipped_other > 0:
-            print(f"  Skipped {skipped_other} files (categories, tags, pagination, etc.)")
-        
-        # Process each file with progress reporting
+
         total_files = len(html_files)
-        for index, html_file in enumerate(html_files, 1):
-            self.process_file(html_file)
-            
-            # Report progress every 100 files
-            if index % 100 == 0:
-                lang_prefix = f"[{self.language}] " if self.language else ""
-                print(f"{lang_prefix}Processed {index}/{total_files} files...")
-        
-        # Final progress if not already shown
-        if total_files > 0 and total_files % 100 != 0:
-            lang_prefix = f"[{self.language}] " if self.language else ""
-            print(f"{lang_prefix}Processed {total_files}/{total_files} files - completed")
-        
+        lang_prefix = f"[{self.language}] " if self.language else ""
+        print(f"{lang_prefix}Found {total_files} HTML files to process")
+        if skipped_lang > 0:
+            print(f"{lang_prefix}  Skipped {skipped_lang} files from other language directories")
+        if skipped_other > 0:
+            print(f"{lang_prefix}  Skipped {skipped_other} files (categories, tags, pagination, etc.)")
+
+        # Progress tracking
+        processed_count = [0]  # Use list for mutable closure
+        modified_count = [0]
+        skipped_no_keywords = [0]
+        progress_lock = threading.Lock()
+
+        def process_with_progress(file_path: Path) -> Tuple[bool, bool]:
+            """Process a file and update progress. Returns (was_processed, was_modified)"""
+            # Early skip: quick check if file might contain keywords
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+
+                if not self._quick_keyword_check(content):
+                    with progress_lock:
+                        skipped_no_keywords[0] += 1
+                        processed_count[0] += 1
+                        # Update stats
+                        with self.stats_lock:
+                            self.stats.total_files_processed += 1
+                    return (True, False)
+
+                # Process file with pre-read content
+                modified = self._process_file_content(file_path, content)
+
+                with progress_lock:
+                    processed_count[0] += 1
+                    if modified:
+                        modified_count[0] += 1
+
+                    # Progress update every 500 files (reduced verbosity)
+                    if processed_count[0] % 500 == 0:
+                        print(f"{lang_prefix}Progress: {processed_count[0]}/{total_files} files "
+                              f"({modified_count[0]} modified, {skipped_no_keywords[0]} skipped)")
+
+                return (True, modified)
+
+            except Exception as e:
+                with self.stats_lock:
+                    self.stats.errors.append(f"Error processing {file_path}: {str(e)}")
+                return (False, False)
+
+        # Process files in parallel
+        if max_workers > 1 and total_files > 10:
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                futures = {executor.submit(process_with_progress, f): f for f in html_files}
+                for future in as_completed(futures):
+                    try:
+                        future.result()
+                    except Exception as e:
+                        file_path = futures[future]
+                        with self.stats_lock:
+                            self.stats.errors.append(f"Error processing {file_path}: {str(e)}")
+        else:
+            # Sequential processing for small file counts
+            for html_file in html_files:
+                process_with_progress(html_file)
+
+        # Final summary (reduced verbosity - single line)
+        print(f"{lang_prefix}Completed: {total_files} files processed, "
+              f"{modified_count[0]} modified, {skipped_no_keywords[0]} skipped (no keywords)")
+
         return self.stats
     
     def process_file(self, file_path: Path) -> bool:
-        """Process a single HTML file"""
-        self.current_file = str(file_path)
-        self.reset_page_counters()
-        
+        """Process a single HTML file (legacy method for compatibility)"""
         try:
-            # Read file
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-            
-            # Parse HTML
-            soup = BeautifulSoup(content, 'html.parser')
-            
+            return self._process_file_content(file_path, content)
+        except Exception as e:
+            error_msg = f"Error processing {file_path}: {str(e)}"
+            with self.stats_lock:
+                self.stats.errors.append(error_msg)
+            return False
+
+    def _process_file_content(self, file_path: Path, content: str) -> bool:
+        """Process a single HTML file with pre-read content (optimized version)"""
+        self.current_file = str(file_path)
+        self.reset_page_counters()
+
+        try:
+            # Parse HTML using lxml (2-3x faster than html.parser)
+            soup = BeautifulSoup(content, 'lxml')
+
             # Count existing links
             self.existing_links = len(soup.find_all('a'))
-            
+
             # Process the document
             modified = self.process_element(soup)
-            
-            self.stats.total_files_processed += 1
-            
+
+            with self.stats_lock:
+                self.stats.total_files_processed += 1
+
             if modified and self.page_replacements > 0:
                 # Write back modified content
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(str(soup))
-                
-                self.stats.total_files_modified += 1
-                print(f"✓ {file_path}: Added {self.page_replacements} links")
+
+                with self.stats_lock:
+                    self.stats.total_files_modified += 1
+                # Removed per-file output for reduced verbosity
                 return True
             else:
-                print(f"  {file_path}: No changes")
+                # Removed "No changes" output for reduced verbosity
                 return False
-                
+
         except Exception as e:
             error_msg = f"Error processing {file_path}: {str(e)}"
-            self.stats.errors.append(error_msg)
-            print(f"✗ {error_msg}")
+            with self.stats_lock:
+                self.stats.errors.append(error_msg)
             return False
     
     def process_element(self, element) -> bool:
@@ -407,93 +428,213 @@ class LinkBuilder:
         return modified
     
     def process_text_node(self, text_node: NavigableString, parent_element) -> str:
-        """Process a text node and add links"""
+        """Process a text node and add links - Optimized with Aho-Corasick"""
         text = str(text_node)
-        
+
         # Skip short text
         if len(text.strip()) < self.config.min_paragraph_length:
             return text
-        
+
         # Calculate paragraph density limit
         text_length = len(text)
         max_links_density = max(1, text_length // self.config.max_paragraph_density)
         paragraph_links = 0
-        
+
         # Track positions where we've added links to maintain minimum distance
         link_positions = []
-        
-        # Process each keyword
+
+        # Process using Aho-Corasick if available (much faster for many keywords)
+        if AHOCORASICK_AVAILABLE and self.automaton:
+            return self._process_text_with_automaton(text, max_links_density)
+        else:
+            return self._process_text_with_regex(text, max_links_density)
+
+    def _process_text_with_automaton(self, text: str, max_links_density: int) -> str:
+        """Process text using Aho-Corasick automaton (fast path)"""
+        text_lower = text.lower()
+        paragraph_links = 0
+
+        # Find all keyword matches in one pass using Aho-Corasick
+        matches = []  # List of (start, end, keyword)
+        for end_idx, keyword in self.automaton.iter(text_lower):
+            start_idx = end_idx - len(keyword.keyword) + 1
+
+            # Verify word boundaries
+            if start_idx > 0 and text_lower[start_idx - 1].isalnum():
+                continue
+            if end_idx + 1 < len(text_lower) and text_lower[end_idx + 1].isalnum():
+                continue
+
+            matches.append((start_idx, end_idx + 1, keyword))
+
+        # Sort by priority (higher first), then by position
+        matches.sort(key=lambda m: (-m[2].priority, m[0]))
+
+        # Process matches, avoiding overlaps
+        used_ranges = []  # List of (start, end) ranges already used
+        replacements = []  # List of (start, end, link_html)
+
+        for start, end, keyword in matches:
+            # Check page limits
+            if (self.page_replacements >= self.config.max_replacements_per_page or
+                paragraph_links >= self.config.max_replacements_per_paragraph or
+                paragraph_links >= max_links_density):
+                break
+
+            # Check keyword-specific limits
+            if (self.page_keyword_counts[keyword.keyword] >= self.config.max_replacements_per_keyword or
+                self.page_url_counts[keyword.url] >= self.config.max_replacements_per_url):
+                continue
+
+            keyword_url_key = f"{keyword.keyword}|{keyword.url}"
+            if self.page_keyword_url_counts[keyword_url_key] >= self.config.max_replacements_per_keyword_url:
+                continue
+
+            # Check for overlaps with already used ranges
+            overlaps = False
+            for used_start, used_end in used_ranges:
+                if not (end <= used_start or start >= used_end):
+                    overlaps = True
+                    break
+                # Check minimum distance
+                if abs(start - used_end) < self.config.min_chars_between_links or \
+                   abs(used_start - end) < self.config.min_chars_between_links:
+                    overlaps = True
+                    break
+
+            if overlaps:
+                continue
+
+            # Get original case text
+            matched_text = text[start:end]
+
+            # Build link HTML
+            link_attrs = [f'href="{keyword.url}"']
+            if self.config.add_title_attribute and keyword.title:
+                link_attrs.append(f'title="{html.escape(keyword.title)}"')
+            link_attrs.append('data-lb="1"')
+
+            # Determine if external link
+            if keyword.url.startswith(('http://', 'https://', '//')):
+                parsed = urlparse(keyword.url)
+                if parsed.netloc and parsed.netloc != urlparse(self.current_file).netloc:
+                    if self.config.external_link_target:
+                        link_attrs.append(f'target="{self.config.external_link_target}"')
+                    if self.config.nofollow_external:
+                        link_attrs.append('rel="nofollow noopener"')
+            elif self.config.internal_link_target:
+                link_attrs.append(f'target="{self.config.internal_link_target}"')
+
+            link_html = f'<a {" ".join(link_attrs)}>{html.escape(matched_text)}</a>'
+
+            # Record this replacement
+            replacements.append((start, end, link_html))
+            used_ranges.append((start, end))
+
+            # Update counters
+            self.page_keyword_counts[keyword.keyword] += 1
+            self.page_url_counts[keyword.url] += 1
+            self.page_keyword_url_counts[keyword_url_key] += 1
+            self.page_replacements += 1
+            self.page_total_links += 1
+            paragraph_links += 1
+
+            # Update statistics (thread-safe)
+            with self.stats_lock:
+                self.stats.add_link(keyword.keyword, keyword.url, self.current_file)
+
+        # Build result string
+        if not replacements:
+            return text
+
+        # Sort replacements by position for building result
+        replacements.sort(key=lambda r: r[0])
+
         result_parts = []
         last_end = 0
-        
+        for start, end, link_html in replacements:
+            if start > last_end:
+                result_parts.append(html.escape(text[last_end:start]))
+            result_parts.append(link_html)
+            last_end = end
+
+        if last_end < len(text):
+            result_parts.append(html.escape(text[last_end:]))
+
+        return ''.join(result_parts)
+
+    def _process_text_with_regex(self, text: str, max_links_density: int) -> str:
+        """Process text using regex (fallback when Aho-Corasick not available)"""
+        paragraph_links = 0
+        link_positions = []
+        result_parts = []
+        last_end = 0
+
         for keyword in self.keywords:
             # Check if we can add more links
             if (self.page_replacements >= self.config.max_replacements_per_page or
                 paragraph_links >= self.config.max_replacements_per_paragraph or
                 paragraph_links >= max_links_density):
                 break
-            
+
             # Check keyword-specific limits
             if (self.page_keyword_counts[keyword.keyword] >= self.config.max_replacements_per_keyword or
                 self.page_url_counts[keyword.url] >= self.config.max_replacements_per_url):
                 continue
-            
+
             keyword_url_key = f"{keyword.keyword}|{keyword.url}"
             if self.page_keyword_url_counts[keyword_url_key] >= self.config.max_replacements_per_keyword_url:
                 continue
-            
+
             # Find keyword in text
             matches = list(keyword.keyword_pattern.finditer(text))
-            
+
             for match in matches:
                 start, end = match.span()
-                
+
                 # Check if this position conflicts with existing links
                 too_close = False
                 for pos in link_positions:
                     if abs(start - pos) < self.config.min_chars_between_links:
                         too_close = True
                         break
-                
+
                 if too_close:
                     continue
-                
+
                 # Check if we're not overlapping with already processed text
                 if start < last_end:
                     continue
-                
+
                 # Add the link
                 matched_text = match.group(0)
-                
+
                 # Build link HTML
                 link_attrs = [f'href="{keyword.url}"']
                 if self.config.add_title_attribute and keyword.title:
                     link_attrs.append(f'title="{html.escape(keyword.title)}"')
-                
-                # Add marker attribute for linkbuilding-generated links (short to save space)
                 link_attrs.append('data-lb="1"')
-                
+
                 # Determine if external link
                 if keyword.url.startswith(('http://', 'https://', '//')):
                     parsed = urlparse(keyword.url)
                     if parsed.netloc and parsed.netloc != urlparse(self.current_file).netloc:
-                        # External link
                         if self.config.external_link_target:
                             link_attrs.append(f'target="{self.config.external_link_target}"')
                         if self.config.nofollow_external:
                             link_attrs.append('rel="nofollow noopener"')
                 elif self.config.internal_link_target:
                     link_attrs.append(f'target="{self.config.internal_link_target}"')
-                
+
                 link_html = f'<a {" ".join(link_attrs)}>{html.escape(matched_text)}</a>'
-                
+
                 # Add text before the link
                 if start > last_end:
                     result_parts.append(html.escape(text[last_end:start]))
-                
+
                 result_parts.append(link_html)
                 last_end = end
-                
+
                 # Update counters
                 self.page_keyword_counts[keyword.keyword] += 1
                 self.page_url_counts[keyword.url] += 1
@@ -502,17 +643,18 @@ class LinkBuilder:
                 self.page_total_links += 1
                 paragraph_links += 1
                 link_positions.append(start)
-                
-                # Update statistics
-                self.stats.add_link(keyword.keyword, keyword.url, self.current_file)
-                
+
+                # Update statistics (thread-safe)
+                with self.stats_lock:
+                    self.stats.add_link(keyword.keyword, keyword.url, self.current_file)
+
                 # Move to next keyword after successful replacement
                 break
-        
+
         # Add remaining text
         if last_end < len(text):
             result_parts.append(html.escape(text[last_end:]))
-        
+
         # Return the result
         if result_parts:
             return ''.join(result_parts)
@@ -733,7 +875,9 @@ Note: Field names are capitalized (Keyword, URL, Title, Priority, Exact) but low
                        help='Override max replacements per URL')
     parser.add_argument('--manual-priority-boost', type=int, default=10,
                        help='Priority boost for manual keywords over automatic (default: 10)')
-    
+    parser.add_argument('--file-workers', type=int, default=4,
+                       help='Number of parallel workers for file processing (default: 4)')
+
     args = parser.parse_args()
     
     # Validate that at least one keyword source is provided
@@ -799,8 +943,13 @@ Note: Field names are capitalized (Keyword, URL, Title, Priority, Exact) but low
     is_english = (language == 'en')
     if is_english:
         print("  Processing English content - will skip 2-letter language subdirectories")
-    
-    stats = builder.process_directory(args.directory, args.exclude, is_english)
+
+    # Show optimization status
+    if AHOCORASICK_AVAILABLE:
+        print("  Using Aho-Corasick algorithm for fast keyword matching")
+    print(f"  Using {args.file_workers} parallel workers for file processing")
+
+    stats = builder.process_directory(args.directory, args.exclude, is_english, max_workers=args.file_workers)
     
     # Don't generate HTML report file, just output to console
     
