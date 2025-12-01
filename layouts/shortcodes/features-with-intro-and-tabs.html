@@ -1,7 +1,7 @@
 {{- /*
   Usage in markdown:
   
-  IMPORTANT: This component supports a maximum of three tabs.
+  IMPORTANT: This component supports a maximum of four tabs.
   
   {{< features-with-intro-and-tabs
     eyebrow="Optional Eyebrow Text"
@@ -94,10 +94,10 @@
 {{ if $rawInnerContent }}
     {{ $tabs = $rawInnerContent | unmarshal }}
     
-    {{/* Limit to maximum 3 tabs */}}
-    {{ if gt (len $tabs) 3 }}
-        {{ $tabs = first 3 $tabs }}
-        {{ warnf "features-with-intro-and-tabs shortcode: More than 3 tabs provided. Only the first 3 will be used." }}
+    {{/* Limit to maximum 4 tabs */}}
+    {{ if gt (len $tabs) 4 }}
+        {{ $tabs = first 4 $tabs }}
+        {{ warnf "features-with-intro-and-tabs shortcode: More than 4 tabs provided. Only the first 4 will be used." }}
     {{ end }}
 {{ end }}
 
