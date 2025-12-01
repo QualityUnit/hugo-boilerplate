@@ -36,10 +36,10 @@
     {{- $rel = "noopener noreferrer" -}}
   {{- else -}}
     {{- if not (strings.Contains $rel "noopener") -}}
-      {{- $rel = printf "%s noopener" $rel | strings.TrimSpace -}}
+      {{- $rel = printf "%s noopener" (strings.TrimSpace $rel) -}}
     {{- end -}}
     {{- if not (strings.Contains $rel "noreferrer") -}}
-      {{- $rel = printf "%s noreferrer" $rel | strings.TrimSpace -}}
+      {{- $rel = printf "%s noreferrer" (strings.TrimSpace $rel) -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
