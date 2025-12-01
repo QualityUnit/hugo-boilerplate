@@ -58,6 +58,13 @@
         <p class="mt-6 text-lg/7 text-secondary prose-links">{{ $description | safeHTML }}</p>
       </div>
     {{ end }}
+
+    {{/* Hidden safelist to ensure Tailwind includes md:gap-y utilities in the final build */}}
+    {{ $verticalSpacingClasses := slice "md:gap-y-12" "md:gap-y-16" "md:gap-y-20" "md:gap-y-24" "md:gap-y-28" "md:gap-y-32" "md:gap-y-36" "md:gap-y-40" "md:gap-y-44" "md:gap-y-48" "md:gap-y-52" "md:gap-y-56" "md:gap-y-60" "md:gap-y-64" "md:gap-y-72" "md:gap-y-80" "md:gap-y-96" }}
+    <div class="hidden">
+      {{ range $verticalSpacingClasses }}<div class="{{ . }}"></div>{{ end }}
+    </div>
+
     <div class="mx-auto mt-16 flex flex-col gap-8 md:mx-0 md:mt-20 md:max-w-none md:flex-row md:items-end">
       {{ range $index, $stat := $stats }}
         {{ $width := $stat.width | default "w-full md:w-1/3" }}
@@ -68,11 +75,11 @@
           {{ $verticalSpacing = $stat.verticalSpacing | default $stat.spacing }}
         {{ else }}
           {{ if eq $index 0 }}
-            {{ $verticalSpacing = "md:gap-y-[5.5rem]" }}
+            {{ $verticalSpacing = "md:gap-y-20" }}
           {{ else if eq $index 1 }}
             {{ $verticalSpacing = "md:gap-y-40" }}
           {{ else if eq $index 2 }}
-            {{ $verticalSpacing = "md:gap-y-[4.5rem]" }}
+            {{ $verticalSpacing = "md:gap-y-16" }}
           {{ else }}
             {{ $verticalSpacing = "md:gap-y-12" }}
           {{ end }}
