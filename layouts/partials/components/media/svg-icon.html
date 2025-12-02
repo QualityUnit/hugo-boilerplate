@@ -28,7 +28,7 @@
   {{ end }}
   
   {{/* Use Resources API for safer file access on all platforms */}}
-  {{ $resourcePath := strings.TrimPrefix "/static" $src }}
+  {{ $resourcePath := strings.TrimPrefix "/" $src }}
   {{ $resource := resources.Get $resourcePath }}
   {{ if $resource }}
     {{ $svgContent := $resource.Content }}
