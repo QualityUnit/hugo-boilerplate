@@ -26,9 +26,12 @@
   {{ if not (hasPrefix $src "/") }}
     {{ $src = printf "/%s" $src }}
   {{ end }}
-  {{ $svgPath := printf "static%s" $src }}
-  {{ if fileExists $svgPath }}
-    {{ $svgContent := readFile $svgPath }}
+  
+  {{/* Use Resources API for safer file access on all platforms */}}
+  {{ $resourcePath := strings.TrimPrefix "/static" $src }}
+  {{ $resource := resources.Get $resourcePath }}
+  {{ if $resource }}
+    {{ $svgContent := $resource.Content }}
     {{/* First preserve none values by temporarily replacing them */}}
     {{ $svgContent = replace $svgContent `fill="none"` `FILL_NONE_PLACEHOLDER` }}
     {{ $svgContent = replace $svgContent `stroke="none"` `STROKE_NONE_PLACEHOLDER` }}
