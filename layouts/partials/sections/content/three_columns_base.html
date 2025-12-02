@@ -110,7 +110,7 @@
         {{ range $index, $card := $cards }}
           <div class="relative {{ if $card.url }}group{{ end }} flex flex-col overflow-hidden">
             {{ if $card.url }}
-              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $card.url) }}" target="{{ $card.target | default "_self" }}" class="absolute inset-0 z-10 hover:opacity-90 transition-opacity">
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $card.url) }}" target="{{ $card.target | default "_self" }}"{{ if eq ($card.target | default "_self") "_blank" }} rel="noopener noreferrer"{{ end }} class="absolute inset-0 z-10 hover:opacity-90 transition-opacity">
                 <span class="sr-only">{{ $card.title }}</span>
               </a>
             {{ end }}
