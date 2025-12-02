@@ -177,6 +177,14 @@ def get_empty_linkbuilding_directories():
     """Get directories that should have empty linkbuilding from configuration."""
     return get_config('empty_linkbuilding_directories', [])
 
+
+def get_forbidden_ngram_keywords():
+    """Get forbidden n-gram keywords from configuration.
+
+    If any n-gram contains one of these keywords, it will be skipped.
+    """
+    return get_config('forbidden_ngram_keywords', [])
+
 # Global variables for model
 _model = None
 
@@ -233,7 +241,10 @@ def extract_text_from_markdown(content):
         return ""
 
 def generate_ngrams(text, min_n, max_n, lang='english'):
-    """Generate n-grams from text."""
+    """Generate n-grams from text.
+
+    Filters out n-grams containing any forbidden keywords defined in config.
+    """
     try:
         # Get stopwords for the language
         try:
@@ -241,6 +252,9 @@ def generate_ngrams(text, min_n, max_n, lang='english'):
         except:
             # Fallback to English if language not supported
             stop_words = set(stopwords.words('english'))
+
+        # Get forbidden keywords from config
+        forbidden_keywords = get_forbidden_ngram_keywords()
 
         # Tokenize and clean text
         tokens = word_tokenize(text.lower())
@@ -250,7 +264,16 @@ def generate_ngrams(text, min_n, max_n, lang='english'):
         for n in range(min_n, max_n + 1):
             for i in range(len(tokens) - n + 1):
                 ngram = ' '.join(tokens[i:i+n])
-                ngrams.append(ngram)
+
+                # Skip n-gram if it contains any forbidden keyword
+                skip_ngram = False
+                for forbidden in forbidden_keywords:
+                    if forbidden.lower() in ngram:
+                        skip_ngram = True
+                        break
+
+                if not skip_ngram:
+                    ngrams.append(ngram)
 
         return ngrams
     except Exception as e:
