@@ -155,7 +155,7 @@ Design Tokens:
         {{ else if $image }}
           {{/* Display image */}}
           {{ if $link }}
-            <a href="{{ $link }}" target="{{ $linkTarget }}" class="w-full flex items-center justify-center">
+            <a href="{{ $link }}" target="{{ $linkTarget }}"{{ if eq $linkTarget "_blank" }} rel="noopener noreferrer"{{ end }} class="w-full flex items-center justify-center">
           {{ end }}
               {{ partial "components/media/lazyimg.html" (dict
                 "src" $image
