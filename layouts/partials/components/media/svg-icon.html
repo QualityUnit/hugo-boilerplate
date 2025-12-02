@@ -23,12 +23,18 @@
 {{ $alt := .alt | default "" }}
 
 {{ if $src }}
-  {{ if not (hasPrefix $src "/") }}
-    {{ $src = printf "/%s" $src }}
-  {{ end }}
-  {{ $svgPath := printf "static%s" $src }}
-  {{ if fileExists $svgPath }}
-    {{ $svgContent := readFile $svgPath }}
+  {{/* Check if src is external URL */}}
+  {{ if or (hasPrefix $src "http://") (hasPrefix $src "https://") }}
+    {{/* External URL - render as IMG tag */}}
+    <img src="{{ $src }}" alt="{{ $alt }}" class="{{ $class }}" />
+  {{ else }}
+    {{/* Local file processing */}}
+    {{ if not (hasPrefix $src "/") }}
+      {{ $src = printf "/%s" $src }}
+    {{ end }}
+    {{ $svgPath := printf "static%s" $src }}
+    {{ if fileExists $svgPath }}
+      {{ $svgContent := readFile $svgPath }}
     {{/* First preserve none values by temporarily replacing them */}}
     {{ $svgContent = replace $svgContent `fill="none"` `FILL_NONE_PLACEHOLDER` }}
     {{ $svgContent = replace $svgContent `stroke="none"` `STROKE_NONE_PLACEHOLDER` }}
@@ -36,28 +42,29 @@
     {{ $svgContent = replaceRE `fill="(#[0-9a-fA-F]{3,8}|rgba?\\([^)]*\\)|hsla?\\([^)]*\\))"` `fill="currentColor"` $svgContent }}
     {{ $svgContent = replaceRE `stroke="(#[0-9a-fA-F]{3,8}|rgba?\\([^)]*\\)|hsla?\\([^)]*\\))"` `stroke="currentColor"` $svgContent }}
     {{/* Restore none values */}}
-    {{ $svgContent = replace $svgContent `FILL_NONE_PLACEHOLDER` `fill="none"` }}
-    {{ $svgContent = replace $svgContent `STROKE_NONE_PLACEHOLDER` `stroke="none"` }}
-    
-    {{/* Build attributes string */}}
-    {{ $attrs := printf `class="%s"` $class }}
-    {{ if $alt }}
-      {{ $attrs = printf `%s role="img" aria-label="%s"` $attrs $alt }}
-    {{ else }}
-      {{ $attrs = printf `%s aria-hidden="true"` $attrs }}
-    {{ end }}
+      {{ $svgContent = replace $svgContent `FILL_NONE_PLACEHOLDER` `fill="none"` }}
+      {{ $svgContent = replace $svgContent `STROKE_NONE_PLACEHOLDER` `stroke="none"` }}
+      
+      {{/* Build attributes string */}}
+      {{ $attrs := printf `class="%s"` $class }}
+      {{ if $alt }}
+        {{ $attrs = printf `%s role="img" aria-label="%s"` $attrs $alt }}
+      {{ else }}
+        {{ $attrs = printf `%s aria-hidden="true"` $attrs }}
+      {{ end }}
 
-    {{/* Replace SVG opening tag with our attributes */}}
-    {{ $svgContent = replaceRE `<svg([^>]*)>` (printf `<svg$1 %s>` $attrs) $svgContent }}
-    {{ $svgContent | safeHTML }}
-  {{ else }}
-    {{/* Fallback icon */}}
-    <div class="{{ $class }}" role="img" aria-label="{{ $alt }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-    </div>
+      {{/* Replace SVG opening tag with our attributes */}}
+      {{ $svgContent = replaceRE `<svg([^>]*)>` (printf `<svg$1 %s>` $attrs) $svgContent }}
+      {{ $svgContent | safeHTML }}
+    {{ else }}
+      {{/* Fallback icon */}}
+      <div class="{{ $class }}" role="img" aria-label="{{ $alt }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+    {{ end }}
   {{ end }}
 {{ end }}
