@@ -73,7 +73,7 @@
         window.videoHandlerLoading = true;
         
         var script = document.createElement('script');
-        script.src = '/js/video-handler.js{{ with partialCached "helpers/build-timestamp.html" . }}?v={{ . }}{{ end }}';
+        script.src = '/js/video-handler.js';
         script.onload = function() {
           window.videoHandlerLoaded = true;
           window.videoHandlerLoading = false;

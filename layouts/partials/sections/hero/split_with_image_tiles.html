@@ -59,7 +59,7 @@
 {{ $search := .search | default dict }}
 
 {{ $typewriter := merge (dict "enabled" false) $typewriter }}
-{{ $typewriter := merge (dict "words" 1) $typewriter }}
+{{ $typewriter := merge (dict "words" "1") $typewriter }}
 {{ $typewriter := merge (dict "speed" 100) $typewriter }}
 {{ $typewriter := merge (dict "deleteSpeed" 50) $typewriter }}
 {{ $typewriter := merge (dict "pause" 2000) $typewriter }}

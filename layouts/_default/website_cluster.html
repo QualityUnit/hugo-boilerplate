@@ -55,6 +55,45 @@
         </div>
       </div>
 
+      <!-- Cluster Details Panel -->
+      <div id="cluster-details" class="mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 id="cluster-title" class="text-2xl font-bold text-gray-900"></h3>
+            <p id="cluster-stats" class="text-sm text-gray-500 mt-1"></p>
+          </div>
+          <button id="close-details" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Keywords Section -->
+        <div id="cluster-keywords-section" class="mb-6">
+          <h4 class="text-lg font-semibold text-gray-800 mb-3">Top Keywords</h4>
+          <div id="cluster-keywords" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <!-- Pages Table -->
+        <div>
+          <h4 class="text-lg font-semibold text-gray-800 mb-3">Pages in Cluster (<span id="pages-count">0</span>)</h4>
+          <div class="overflow-x-auto max-h-96 overflow-y-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keywords</th>
+                </tr>
+              </thead>
+              <tbody id="pages-table-body" class="bg-white divide-y divide-gray-200">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- Legend -->
       <div class="mt-8 bg-blue-50 rounded-lg p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-3">Legend</h3>
@@ -225,9 +264,11 @@
           return;
         }
 
-        // If it's a cluster with children, zoom into it
+        // If it's a cluster with children, zoom into it and show details
         if (focus !== d && d.children) {
           zoom(event, d);
+          // Show cluster details panel
+          window.showClusterDetails(d);
         }
       })
       .raise(); // Bring to front initially
@@ -316,6 +357,34 @@
       }
     };
 
+    // Helper function to collect all keywords from a node and its descendants
+    function collectKeywords(node, maxKeywords = 20) {
+      const keywordCounts = {};
+
+      function traverse(n) {
+        // If this node has keywords directly
+        if (n.data.keywords && Array.isArray(n.data.keywords)) {
+          n.data.keywords.forEach(kw => {
+            keywordCounts[kw] = (keywordCounts[kw] || 0) + 1;
+          });
+        }
+        // Recursively traverse children
+        if (n.children) {
+          n.children.forEach(child => traverse(child));
+        }
+      }
+
+      traverse(node);
+
+      // Sort by frequency and return top keywords
+      const sorted = Object.entries(keywordCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, maxKeywords)
+        .map(([kw, count]) => ({ keyword: kw, count }));
+
+      return sorted;
+    }
+
     // Add tooltip
     const tooltip = d3.select('body')
       .append('div')
@@ -329,7 +398,7 @@
       .style('font-size', '14px')
       .style('pointer-events', 'none')
       .style('z-index', '1000')
-      .style('max-width', '300px');
+      .style('max-width', '400px');
 
     node
       .on('mouseover', function(event, d) {
@@ -341,12 +410,23 @@
               ? `Click to zoom into ${childCount} items`
               : '';
 
+          // Collect keywords for this node
+          const keywords = collectKeywords(d, 15);
+          let keywordsHtml = '';
+          if (keywords.length > 0) {
+            const keywordTags = keywords.map(k =>
+              `<span style="display: inline-block; background: #374151; padding: 2px 6px; margin: 2px; border-radius: 4px; font-size: 11px;">${k.keyword}${k.count > 1 ? ` (${k.count})` : ''}</span>`
+            ).join('');
+            keywordsHtml = `<br><div style="margin-top: 6px;"><span style="font-size: 11px; color: #9ca3af;">Keywords:</span><br>${keywordTags}</div>`;
+          }
+
           tooltip.style('visibility', 'visible')
             .html(`
               <strong>${d.data.title || d.data.name}</strong>
               ${d.data.section ? `<br><span style="font-size: 12px; color: #9ca3af;">Section: ${d.data.section}</span>` : ''}
               ${childCount > 0 ? `<br><span style="font-size: 12px; color: #9ca3af;">Contains: ${childCount} items</span>` : ''}
-              ${actionText ? `<br><span style="font-size: 11px; color: #60a5fa;">${actionText}</span>` : ''}
+              ${keywordsHtml}
+              ${actionText ? `<br><span style="font-size: 11px; color: #60a5fa; margin-top: 4px; display: inline-block;">${actionText}</span>` : ''}
             `);
 
           d3.select(this)
@@ -363,8 +443,95 @@
         d3.select(this).attr('stroke', null);
       });
 
+    // Helper function to collect all pages (leaf nodes) from a node
+    function collectPages(node) {
+      const pages = [];
+
+      function traverse(n) {
+        // If this is a leaf node (page), add it
+        if (!n.children && n.data.url) {
+          pages.push({
+            title: n.data.title || n.data.name,
+            url: n.data.url,
+            section: n.data.section || '',
+            keywords: n.data.keywords || []
+          });
+        }
+        // Recursively traverse children
+        if (n.children) {
+          n.children.forEach(child => traverse(child));
+        }
+      }
+
+      traverse(node);
+      return pages;
+    }
+
+    // Function to show cluster details panel
+    window.showClusterDetails = function(d, scrollToPanel = true) {
+      const detailsPanel = document.getElementById('cluster-details');
+      const titleEl = document.getElementById('cluster-title');
+      const statsEl = document.getElementById('cluster-stats');
+      const keywordsEl = document.getElementById('cluster-keywords');
+      const pagesCountEl = document.getElementById('pages-count');
+      const tableBody = document.getElementById('pages-table-body');
+
+      // Get cluster info
+      const clusterName = d.data.title || d.data.name;
+      const pages = collectPages(d);
+      const keywords = collectKeywords(d, 30);
+
+      // Update title and stats
+      titleEl.textContent = clusterName;
+      statsEl.textContent = `${pages.length} pages · ${keywords.length} unique keywords`;
+
+      // Update keywords
+      keywordsEl.innerHTML = keywords.map(k =>
+        `<span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+          ${k.keyword}${k.count > 1 ? ` <span class="text-blue-500">(${k.count})</span>` : ''}
+        </span>`
+      ).join('');
+
+      // Update pages count
+      pagesCountEl.textContent = pages.length;
+
+      // Update table
+      tableBody.innerHTML = pages.map(page => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3">
+            <a href="${page.url}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
+              ${page.title}
+            </a>
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-500">${page.section}</td>
+          <td class="px-4 py-3">
+            <div class="flex flex-wrap gap-1 max-w-md">
+              ${page.keywords.slice(0, 5).map(kw =>
+                `<span class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">${kw}</span>`
+              ).join('')}
+              ${page.keywords.length > 5 ? `<span class="text-gray-400 text-xs">+${page.keywords.length - 5} more</span>` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Show panel and scroll to it
+      detailsPanel.classList.remove('hidden');
+      if (scrollToPanel) {
+        detailsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+
+    // Close details panel handler
+    document.getElementById('close-details').addEventListener('click', () => {
+      document.getElementById('cluster-details').classList.add('hidden');
+    });
+
     // Update breadcrumb
     updateBreadcrumb();
+
+    // Show root cluster details on initial load (without scrolling)
+    window.showClusterDetails(root, false);
   }
 
   function updateBreadcrumb() {
