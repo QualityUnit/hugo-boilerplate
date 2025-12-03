@@ -87,7 +87,7 @@
               <div class="relative flex flex-col overflow-hidden">
                 {{ if and $card.image (eq $imagePosition "top") }}
                   <div class="flex items-center justify-center">
-                    {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")) }}
+                    {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "class" "rounded-t-2xl") }}
                   </div>
                 {{ end }}
 
@@ -117,7 +117,7 @@
 
               {{ if and $card.image (eq $imagePosition "bottom") }}
                 <div class="flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
-                  {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") ) }}
+                  {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "class" "rounded-b-2xl" ) }}
                 </div>
               {{ else if not $card.image }}
                 <div class="pb-6"></div> <!-- Empty space at bottom if no link and no image -->
