@@ -11,7 +11,7 @@ Parameters:
 - videoDescription: Video description text (default: "")
 - videoLinkUrl: Link to page on site from video overlay (default: "")
 - eyebrow, heading, description: Text content
-- link, linkText, buttonStyle: CTA button
+- link, linkText, buttonStyle: CTA button, showArrow (default: false)
 - markdownContent, contentAsHTML: Main content
 - features: [{icon, title, description}]
 - numbered_features: [{title, description}] (features with numbers instead of icons)
@@ -73,12 +73,14 @@ Design Tokens:
 {{ $linkText := .linkText }}
 {{ $linkTarget := .linkTarget | default "_self" }}
 {{ $buttonStyle := .buttonStyle | default "primary" }}
+{{ $showArrow := .showArrow | default false }}
 {{ $markdownContent := .markdownContent }}
 {{ $contentAsHTML := .contentAsHTML | default false }}
 {{ $features := .features | default (slice) }}
 {{ $numbered_features := .numbered_features | default (slice) }}
 {{ $stats := .stats | default (slice) }}
 {{ $quote := .quote }}
+{{ $imageGallery := .imageGallery | default (dict) }}
 
 {{/* Header parameters */}}
 {{ $headerEyebrow := .headerEyebrow | default "" }}
@@ -178,29 +180,6 @@ Design Tokens:
           <p class="mt-6 text-lg/7 text-secondary prose-links">{{ $description | safeHTML }}</p>
         {{ end }}
 
-        {{/* Button */}}
-        {{ if $link }}
-        <div class="mt-6">
-          {{ partial "components/buttons/buttons.html" (dict
-            "text" $linkText
-            "url" $link
-            "target" $linkTarget
-            "variant" $buttonStyle
-          ) }}
-        </div>
-        {{ end }}
-
-        {{/* Main content */}}
-        {{ if $markdownContent }}
-          <div class="mt-10 max-w-full text-secondary prose-links lg:max-w-full [&_p]:mb-5 [&_h1]:mb-5 [&_h2]:mb-5 [&_h3]:mb-5 [&_h4]:mb-5 [&_h5]:mb-5 [&_h6]:mb-5 [&_ul]:mb-5 [&_ol]:mb-5 [&_*:last-child]:mb-0 [&_pre]:overflow-x-hidden [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:font-sans [&_code]:whitespace-pre-wrap [&_code]:break-words [&_code]:font-sans">
-            {{ if $contentAsHTML }}
-                {{ $markdownContent | safeHTML }}
-            {{ else }}
-                {{ $markdownContent | markdownify }}
-            {{ end }}
-          </div>
-        {{ end }}
-
         {{/* Features */}}
         {{ if $features }}
         <dl class="mt-6 max-w-full space-y-3 text-normal text-secondary lg:max-w-full">
@@ -266,6 +245,54 @@ Design Tokens:
                 </div>
               </figcaption>
             </figure>
+          </div>
+        {{ end }}
+
+        {{/* Button */}}
+        {{ if $link }}
+        <div class="mt-6">
+          {{ partial "components/buttons/buttons.html" (dict
+            "text" $linkText
+            "url" $link
+            "target" $linkTarget
+            "variant" $buttonStyle
+            "showArrow" $showArrow
+          ) }}
+        </div>
+        {{ end }}
+
+        {{/* Image Gallery */}}
+        {{ if $imageGallery }}
+          {{ if or $imageGallery.title $imageGallery.images }}
+            <div class="mt-6">
+              {{ if $imageGallery.images }}
+                {{ if $imageGallery.title }}
+                  <h4 class="font-semibold text-secondary mb-6">{{ $imageGallery.title }}</h4>
+                {{ end }}
+                <div class="flex flex-wrap gap-2 opacity-70 max-h-9">
+                  {{ range $imageGallery.images }}
+                    <div class="relative overflow-hidden">
+                      {{ partial "components/media/lazyimg.html" (dict
+                        "src" .src
+                        "alt" (.alt | default "Gallery image")
+                        "class" "object-contain w-auto h-8"
+                      ) }}
+                    </div>
+                  {{ end }}
+                </div>
+              {{ end }}
+            </div>
+          {{ end }}
+        {{ end }}
+
+        {{/* Main content */}}
+        {{ if $markdownContent }}
+          <div class="mt-10 max-w-full text-secondary prose-links lg:max-w-full [&_p]:mb-5 [&_h1]:mb-5 [&_h2]:mb-5 [&_h3]:mb-5 [&_h4]:mb-5 [&_h5]:mb-5 [&_h6]:mb-5 [&_ul]:mb-5 [&_ol]:mb-5 [&_*:last-child]:mb-0 [&_pre]:overflow-x-hidden [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:font-sans [&_code]:whitespace-pre-wrap [&_code]:break-words [&_code]:font-sans">
+            {{ if $contentAsHTML }}
+                {{ $markdownContent | safeHTML }}
+            {{ else }}
+                {{ $markdownContent | markdownify }}
+            {{ end }}
           </div>
         {{ end }}
       </div>

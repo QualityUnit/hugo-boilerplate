@@ -11,6 +11,7 @@
   - headingColor: Color class for the heading text (default: "text-gray-900")
   - descriptionColor: Color class for the description text (default: "text-gray-700")
   - contentColor: Color class for the main content (default: "text-gray-700")
+  - contentType: Content processing type - "markdown" (default) or "html" for safeHTML processing
   
   Inner Content:
   - HTML content to be displayed in the centered layout
@@ -21,8 +22,10 @@
       heading="Introducing Our Latest Tool" 
       description="A powerful new tool designed to enhance your workflow."
       bgColor="bg-gray-50"
+      contentType="html"
   >}}
     <p>This is the main content of the centered section. You can include <strong>HTML formatting</strong>, lists, and other elements.</p>
+    {{< lazyimg src="/images/example.jpg" alt="Example image" >}}
     <ul>
       <li>Feature one with detailed explanation</li>
       <li>Feature two with examples</li>
@@ -40,8 +43,14 @@
 {{ $headingColor := .Get "headingColor" | default "text-gray-900" }}
 {{ $descriptionColor := .Get "descriptionColor" | default "text-gray-700" }}
 {{ $contentColor := .Get "contentColor" | default "text-gray-700" }}
+{{ $contentType := .Get "contentType" | default "markdown" }}
 
-{{ $content := .Inner | markdownify | default "" }}
+{{ $content := "" }}
+{{ if eq $contentType "html" }}
+  {{ $content = .Inner | safeHTML }}
+{{ else }}
+  {{ $content = .Inner | markdownify }}
+{{ end }}
 
 {{ partial "sections/content/centered.html" (dict
   "eyebrow" $eyebrow

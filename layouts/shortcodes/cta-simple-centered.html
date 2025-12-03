@@ -39,8 +39,11 @@ Usage (Legacy - for backward compatibility):
 {{ $primaryCtaColor := .Get "primaryCtaColor" | default "" }}
 {{ $primaryCtaHoverColor := .Get "primaryCtaHoverColor" | default "" }}
 
-{{ $badges := .Get "badges" | default (slice) }}
+{{ $badges := .Get "badges" | default "" }}
 {{ $backgroundColor := .Get "backgroundColor" | default "bg-white" }}
+
+{{/* Process badges into slice using reusable partial */}}
+{{ $badgeSlice := partial "helpers/process-badges.html" $badges }}
 
 {{ $primaryCta := dict 
   "text" $primaryCtaText
@@ -61,6 +64,6 @@ Usage (Legacy - for backward compatibility):
   "secondaryCtaVariant" $secondaryCtaVariant
   "primaryCtaColor" $primaryCtaColor
   "primaryCtaHoverColor" $primaryCtaHoverColor
-  "badges" $badges
+  "badges" $badgeSlice
   "backgroundColor" $backgroundColor
 ) }}

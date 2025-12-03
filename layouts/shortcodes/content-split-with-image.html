@@ -38,6 +38,7 @@
     - stats: JSON string or "stats" to use page params
     - quote: JSON string or "quote" to use page params
     - sectionMarginY: Custom vertical margin using Tailwind classes (default: "my-24 lg:my-32")
+    - imageGallery: JSON string with gallery data {"title": "Gallery Title", "images": [{"src": "/path/to/image.jpg", "alt": "Image description"}]}
 
 
     Header Parameters (optional - header only renders if at least one is provided):
@@ -280,13 +281,31 @@
       }
     }
 
+    Image Gallery Object:
+    {
+      "imageGallery": {
+        "title": "Gallery Title",    // Gallery heading (optional)
+        "images": [                   // Array of images (required)
+          {
+            "src": "/path/to/image1.jpg",  // Image path (required)
+            "alt": "Image description"     // Alt text (optional)
+          },
+          {
+            "src": "/path/to/image2.jpg",
+            "alt": "Another image"
+          }
+        ]
+      }
+    }
+
     NOTES:
     - Use START_JSON_BLOCK/END_JSON_BLOCK markers ONLY when mixing JSON with markdown/HTML content
     - For pure JSON content (no markdown/HTML), markers are not needed - just use the JSON directly
     - For pure markdown/HTML content (no JSON), markers are not needed
-    - If you don't need certain data blocks (features, numbered_features, stats, quote), simply omit them
+    - If you don't need certain data blocks (features, numbered_features, stats, quote, imageGallery), simply omit them
     - Content can be pure markdown, pure HTML, pure JSON, or mixed
     - numbered_features work the same as features but display numbers (1, 2, 3...) instead of icons
+    - imageGallery displays after the CTA button with inline flex layout that wraps as needed
 */}}
 
 {{ $currentPage := .Page }}
@@ -310,6 +329,7 @@
 {{ $linkText := .Get "linkText" | default (i18n "learnMore") | default "Learn more" }}
 {{ $linkTarget := .Get "linkTarget" | default "_self" }}
 {{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
+{{ $showArrow := .Get "showArrow" | default false }}
 {{ $theme := .Get "theme" | default "light" }}
 {{ $backgroundColor := .Get "backgroundColor" | default "" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
@@ -328,6 +348,7 @@
 {{ $numbered_features := slice }}
 {{ $stats := slice }}
 {{ $quote := dict }}
+{{ $imageGallery := dict }}
 {{ $markdownContent := "" }}
 {{ $innerData := dict }}
 
@@ -407,6 +428,7 @@
 {{ $numbered_features = $innerData.numbered_features | default $numbered_features }}
 {{ $stats = $innerData.stats | default $stats }}
 {{ $quote = $innerData.quote | default $quote }}
+{{ $imageGallery = $innerData.imageGallery | default $imageGallery }}
 
 {{/* Override with shortcode parameters */}}
 {{ with .Get "features" }}
@@ -477,6 +499,23 @@
   {{ end }}
 {{ end }}
 
+{{ with .Get "imageGallery" }}
+  {{ if eq . "imageGallery" }}
+    {{ $imageGallery = $currentPage.Params.imageGallery | default $imageGallery }}
+  {{ else }}
+    {{ $jsonString := trim . " \n\r\t" }}
+    {{ if $jsonString }}
+      {{ $unmarshalResult := dict }}
+      {{ $unmarshalResult = unmarshal $jsonString }}
+      {{ if $unmarshalResult }}
+        {{ $imageGallery = $unmarshalResult }}
+      {{ else }}
+        {{ warnf "Failed to parse imageGallery JSON from shortcode parameter. JSON content (first 200 chars): %s. Using fallback." (substr $jsonString 0 200) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
 {{/* Handle additional content from JSON */}}
 {{ if $innerData.markdownContent }}
   {{ $markdownContent = printf "%s\n\n%s" $markdownContent $innerData.markdownContent }}
@@ -507,6 +546,7 @@
   "linkText" $linkText
   "linkTarget" $linkTarget
   "buttonStyle" $buttonStyle
+  "showArrow" $showArrow
   "image" $image
   "imageAlt" $imageAlt
   "videoUrl" $videoUrl
@@ -522,6 +562,7 @@
   "numbered_features" $numbered_features
   "stats" $stats
   "quote" $quote
+  "imageGallery" $imageGallery
   "sectionMarginY" $sectionMarginY
   "headerEyebrow" $headerEyebrow
   "headerHeading" $headerHeading
