@@ -1,18 +1,26 @@
 {{/*
-Responsive section with heading, description, image and cta
+Responsive section with heading, description, image/video and cta
 
 Parameters:
 - heading: Main heading text
 - description: Description text
 - image: Image URL or image object with url and alt properties
 - imageAlt: Image alt text (optional)
+- videoUrl: Video URL for embedding (YouTube or custom video)
+- poster: Video poster image URL (optional)
+- posterHeight: Video poster height classes (optional, default: "h-[522px]")
+- videoTitle: Video title text (optional)
+- videoDescription: Video description text (optional)
+- videoLinkUrl: Link to page on site from video overlay (optional)
+- provider: Video provider "youtube" or "custom" (optional, auto-detected)
+- pureVideo: Boolean for pure video display (optional, default: false)
 - cta: Call-to-action buttons
   - primary: Primary button (text, url)
   - secondary: Secondary button (text, url)
 - page: Page context for linkbuilding function (required)
 - padding: Custom padding classes (optional, default: "py-12 lg:py-16")
 @example:
-{{ partial "sections/content/base.html" (dict 
+{{ partial "sections/content/visual-section.html" (dict 
       "heading" "Connect with your customers"
       "description" "Discover our multi-channel help desk software with 130+ ticketing features and 200+ integrations with the tools you love."
       "image" "/images/solutions/analytics.jpg"
@@ -20,6 +28,17 @@ Parameters:
       "cta" (dict
         "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
         "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
+      "page" .
+  ) }}
+  
+@example with video:
+{{ partial "sections/content/visual-section.html" (dict 
+      "heading" "Watch our demo"
+      "description" "See how LiveAgent works in action"
+      "videoUrl" "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+      "poster" "/images/video-poster.jpg"
+      "videoTitle" "LiveAgent Demo"
+      "videoDescription" "Complete walkthrough"
       "page" .
   ) }}
 */}}
@@ -32,6 +51,16 @@ Parameters:
 {{ $imageAlt := .imageAlt | default $heading }}
 {{ $padding := .padding | default "py-16 lg:py-24" }}
 {{ $page := .page }}
+
+{{/* Video parameters */}}
+{{ $videoUrl := .videoUrl | default "" }}
+{{ $poster := .poster | default "" }}
+{{ $posterHeight := .posterHeight | default "h-[522px]" }}
+{{ $videoTitle := .videoTitle | default "" }}
+{{ $videoDescription := .videoDescription | default "" }}
+{{ $videoLinkUrl := .videoLinkUrl | default "" }}
+{{ $provider := .provider | default "youtube" }}
+{{ $pureVideo := .pureVideo | default false }}
 
 {{/* Image processing */}}
 {{ $imageSrc := "" }}
@@ -57,11 +86,55 @@ Parameters:
         </div>
     </div>
     <div class="flex flex-col rounded-xl justify-center w-full overflow-hidden mx-auto">
-        {{ partial "components/media/lazyimg.html" (dict
-            "src" $imageSrc
-            "alt" $imageAlt
-            "class" "object-contain"
-        ) }}
+        {{ if $videoUrl }}
+          {{/* Display video */}}
+          <div class="relative flex w-full h-full">
+            {{ partial "components/media/video.html" (dict 
+                  "src" $videoUrl 
+                  "poster" $poster
+                  "posterHeight" $posterHeight
+                  "title" $videoTitle
+                  "class" "rounded-xl h-full"
+                  "provider" $provider
+                  "pureVideo" $pureVideo
+                  "useLightbox" true
+                  "showPlayOverlay" true
+                  "playBtnClass" "white-circle-bounce w-[7.75rem] h-[7.75rem] rounded-full backdrop-blur-[3px]"
+                  "playBtnInnerClass" "bg-white relative w-24 h-24 rounded-full hover:scale-105 transition-transform duration-300"
+                  "svgClass" "size-14 ml-1 text-[#4F46E5] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              ) }}
+              {{ if or $videoTitle $videoDescription }}
+              <div class="absolute left-5 bottom-5 flex items-end z-30">
+                  <div class="text-white">
+                  {{ if $videoTitle }}
+                      <h3 class="font-semibold text-opacity-75">{{ $videoTitle }}</h3>
+                  {{ end }}
+                  {{ if $videoDescription }}
+                      <p class="text-sm mt-1.5 tracking-[-0.28px] group-hover/video:underline">
+                          {{ if $videoLinkUrl }}
+                          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $videoLinkUrl) }}" class="flex items-center text-white ">
+                              {{ $videoDescription }}
+                              <span class="ml-1 btn-arrow">
+                                  {{ partial "components/media/icon.html" (dict "icon" "arrow-up-right" "class" "w-5 h-5 p-0.5") }}
+                              </span>
+                          </a>
+                          {{ else }}
+                              {{ $videoDescription }}
+                          {{ end }}
+                      </p>
+                  {{ end }}
+                  </div>
+              </div>
+              {{ end }}
+          </div>
+        {{ else if $imageSrc }}
+          {{/* Display image */}}
+          {{ partial "components/media/lazyimg.html" (dict
+              "src" $imageSrc
+              "alt" $imageAlt
+              "class" "object-contain"
+          ) }}
+        {{ end }}
     </div>
     {{/* CTA Buttons */}}
     {{ if $cta }}
