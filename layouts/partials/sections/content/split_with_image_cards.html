@@ -16,6 +16,7 @@ Example:
       "description" "Create & manage your affiliate programs with the right tools and features for the job."
       "backgroundImage" "/images/landing-pages/affiliate-program-hero-bg.png"
       "schemaImage" "/images/landing-pages/affiliate-program-hero-schema.png"
+      "imageClass" "w-full h-auto"
       "cta" (dict "text" "Select" "url" "/affiliate-program/")
     )
     (dict
@@ -67,6 +68,7 @@ Example:
                     {{ $cardBackgroundImage := .backgroundImage }}
                     {{ $cardSchemaImage := .schemaImage }}
                     {{ $cardImageAlt := .imageAlt | default .title }}
+                    {{ $cardImageClass := .imageClass | default "w-full h-auto" }}
 
                     <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center {{ if $simple }} shadow-lg{{ end }}"{{ if not .cta.url }} aria-label="{{ .title }}" {{ end }} {{ with $cardBackgroundImage }}style="background-image: url('{{ partial "functions/get-static-url.html" (dict "path" .) }}');"{{ end }}>
                         {{ if .cta.url }}
@@ -81,7 +83,7 @@ Example:
                                     {{ partial "components/media/lazyimg.html" (dict
                                         "src" .
                                         "alt" $cardImageAlt
-                                        "class" "w-full h-auto"
+                                        "class" $cardImageClass
                                         "noLazy" false
                                     ) }}
                                 </div>
