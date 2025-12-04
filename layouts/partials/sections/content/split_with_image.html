@@ -4,7 +4,7 @@ Responsive two-column layout with image and rich content.
 Parameters:
 - theme: "light" | "dark" | "alternate" (default: "light")
 - layout: "image-left" | "image-right" (default: "image-left")
-- image, imageAlt: Image settings
+- image, imageAlt, imageClass: Image settings 
 - videoUrl: Video URL for embedding (default: "")
 - poster: Video poster image URL (default: "")
 - videoTitle: Video title text (default: "")
@@ -54,6 +54,9 @@ Design Tokens:
 {{ $layout := .layout | default "image-left" }}
 {{ $image := .image }}
 {{ $imageAlt := .imageAlt }}
+{{ $imageClass := .imageClass | default "object-contain rounded-lg" }}
+{{ $mediaContainerPaddingY := .mediaContainerPaddingY | default "py-6" }}
+
 {{ $videoUrl := .videoUrl | default "" }}
 {{ $poster := .poster | default "" }}
 {{ $posterHeight := .posterHeight | default "h-[522px]" }}
@@ -92,7 +95,7 @@ Design Tokens:
 
 {{/* Design tokens and configurable dimensions */}}
 {{ $sectionMarginY := .sectionMarginY | default "my-24 lg:my-32" }}
-{{ $mediaContainerPaddingY := "py-6" }}
+{{ $mediaContainerPaddingY := .mediaContainerPaddingY | default "py-6" }}
 {{ $contentPaddingY := "py-4" }}
 {{ $contentLeftPadding := "lg:pl-20" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
@@ -160,7 +163,7 @@ Design Tokens:
               {{ partial "components/media/lazyimg.html" (dict
                 "src" $image
                 "alt" $imageAlt
-                "class" "object-contain rounded-lg"
+                "class" $imageClass
               ) }}
           {{ if $link }}
             </a>
