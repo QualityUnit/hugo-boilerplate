@@ -18,6 +18,7 @@
     - layout: "image-left" or "image-right" (default: "image-left")
     - image: Image path (default: "")
     - imageAlt: Alt text for image (default: "")
+    - imageClass: Additional CSS classes for image (default: "")
     - mediaContainerPaddingY: Additional CSS classes for media container padding (default: "py-6")
     - videoUrl: Video URL for embedding (default: "")
     - poster: Video poster image URL (default: "")
@@ -67,6 +68,7 @@
         description="Discover the power of automation"
         image="/images/workflow-automation.jpg"
         imageAlt="Workflow automation dashboard"
+        imageClass="rounded-lg shadow-lg"
         layout="image-left"
         alignment="center"
         link="/get-started"
@@ -91,6 +93,7 @@
         description="Discover the power of automation"
         image="/images/workflow-automation.jpg"
         imageAlt="Workflow automation dashboard"
+        imageClass="rounded-lg shadow-lg"
         layout="image-left"
         link="/get-started"
         linkText="Start Free Trial"
@@ -133,6 +136,7 @@
         backgroundColor="bg-gradient-to-br from-blue-50 to-indigo-100"
         image="/images/statistics.jpg"
         imageAlt="Platform statistics"
+        imageClass="rounded-lg shadow-lg"
         layout="image-right"
     >}}
     {
@@ -185,6 +189,7 @@
         eyebrow="All-in-One Platform"
         image="/images/ai-platform.jpg"
         imageAlt="AI platform interface"
+        imageClass="rounded-lg shadow-lg"
         layout="image-left"
         link="/demo"
         linkText="Book a Demo"
@@ -317,6 +322,8 @@
 {{ $layout := .Get "layout" | default "image-left" }}
 {{ $image := .Get "image" | default "" }}
 {{ $imageAlt := .Get "imageAlt" | default "" }}
+{{ $imageClass := .Get "imageClass" | default "" }}
+{{ $mediaContainerPaddingY := .Get "mediaContainerPaddingY" | default "py-6" }}
 {{ $videoUrl := .Get "videoUrl" | default "" }}
 {{ $poster := .Get "poster" | default "" }}
 {{ $posterHeight := .Get "posterHeight" | default "h-[522px]" }}
@@ -549,6 +556,8 @@
   "showArrow" $showArrow
   "image" $image
   "imageAlt" $imageAlt
+  "imageClass" $imageClass
+  "mediaContainerPaddingY" $mediaContainerPaddingY
   "videoUrl" $videoUrl
   "poster" $poster
   "videoTitle" $videoTitle

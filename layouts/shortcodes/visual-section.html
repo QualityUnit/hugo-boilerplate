@@ -3,7 +3,7 @@ Visual Section Shortcode
 
 Creates a responsive section with heading, description, large image/video and CTA buttons.
 
-@usage:
+@usage with image:
 {{< visual-section 
     heading="Connect with your customers" 
     description="Discover our multi-channel help desk software with 130+ ticketing features." 
@@ -15,11 +15,32 @@ Creates a responsive section with heading, description, large image/video and CT
     ctaSecondaryURL="/features/"
     padding="py-16 lg:py-24" >}}
 
+@usage with video:
+{{< visual-section 
+    heading="Watch our demo" 
+    description="See how LiveAgent works in action" 
+    videoUrl="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    poster="/images/video-poster.jpg"
+    videoTitle="LiveAgent Demo"
+    videoDescription="Complete walkthrough"
+    videoLinkUrl="/demo/"
+    provider="youtube"
+    ctaPrimaryText="Start Free Trial"
+    ctaPrimaryURL="/trial/" >}}
+
 @parameters:
 - heading: Main heading text (required)
 - description: Description text (optional)
 - image: Image URL (optional)
 - imageAlt: Image alt text (optional, defaults to heading)
+- videoUrl: Video URL for embedding (YouTube or custom video) (optional)
+- poster: Video poster image URL (optional)
+- posterHeight: Video poster height classes (optional, default: "h-[522px]")
+- videoTitle: Video title text (optional)
+- videoDescription: Video description text (optional)
+- videoLinkUrl: Link to page on site from video overlay (optional)
+- provider: Video provider "youtube" or "custom" (optional, auto-detected)
+- pureVideo: Boolean for pure video display (optional, default: false)
 - ctaPrimaryText: Primary button text (optional)
 - ctaPrimaryURL: Primary button URL (optional)
 - ctaSecondaryText: Secondary button text (optional)
@@ -31,6 +52,14 @@ Creates a responsive section with heading, description, large image/video and CT
 {{ $description := .Get "description" }}
 {{ $image := .Get "image" }}
 {{ $imageAlt := .Get "imageAlt" | default $heading }}
+{{ $videoUrl := .Get "videoUrl" }}
+{{ $poster := .Get "poster" }}
+{{ $posterHeight := .Get "posterHeight" | default "h-[522px]" }}
+{{ $videoTitle := .Get "videoTitle" }}
+{{ $videoDescription := .Get "videoDescription" }}
+{{ $videoLinkUrl := .Get "videoLinkUrl" }}
+{{ $provider := .Get "provider" | default "youtube" }}
+{{ $pureVideo := .Get "pureVideo" | default false }}
 {{ $ctaPrimaryText := .Get "ctaPrimaryText" }}
 {{ $ctaPrimaryURL := .Get "ctaPrimaryURL" }}
 {{ $ctaSecondaryText := .Get "ctaSecondaryText" }}
@@ -50,6 +79,14 @@ Creates a responsive section with heading, description, large image/video and CT
     "description" $description
     "image" $image
     "imageAlt" $imageAlt
+    "videoUrl" $videoUrl
+    "poster" $poster
+    "posterHeight" $posterHeight
+    "videoTitle" $videoTitle
+    "videoDescription" $videoDescription
+    "videoLinkUrl" $videoLinkUrl
+    "provider" $provider
+    "pureVideo" $pureVideo
     "cta" $cta
     "padding" $padding
     "page" .Page

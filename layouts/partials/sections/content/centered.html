@@ -12,6 +12,7 @@
   - descriptionColor: Color class for description (optional, default: "text-gray-700")
   - content: Main content HTML/Markdown (optional)
   - contentColor: Color class for main content (optional, default: "text-gray-700")
+  - alignment: Text alignment for all content - "left", "center", or "right" (optional, default: "left")
   - page: Page context for linkbuilding function (required)
 @example:
   {{ partial "sections/content/centered.html" (dict 
@@ -52,8 +53,19 @@
 {{ $content := .content | default "" }}
 {{ $page := .page }}
 
+{{/* Alignment setup */}}
+{{ $alignment := .alignment | default "left" }}
+{{ $alignmentClass := "" }}
+{{ if eq $alignment "center" }}
+  {{ $alignmentClass = "text-center" }}
+{{ else if eq $alignment "right" }}
+  {{ $alignmentClass = "text-right" }}
+{{ else }}
+  {{ $alignmentClass = "text-left" }}
+{{ end }}
+
 <div class="{{ $bgColor }} {{ $padding }} rounded-xl wrapper">
-  <div class="text-base/7 {{ $contentColor }}">
+  <div class="text-base/7 {{ $contentColor }} {{ $alignmentClass }}">
     {{ if $eyebrow }}
     <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ $eyebrow }}</p>
     {{ end }}
@@ -67,7 +79,7 @@
     {{ end }}
     
     <!-- Apply Tailwind typography with custom processing for better heading styles -->
-    <div class=" mt-10 prose prose-lg prose-indigo prose-links max-w-none">
+    <div class="mt-10 prose prose-lg prose-indigo prose-links max-w-none {{ if eq $alignment "center" }}mx-auto{{ else if eq $alignment "right" }}ml-auto{{ end }}">
       {{ $content }}
     </div>
   </div>

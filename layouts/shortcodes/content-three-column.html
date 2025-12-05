@@ -52,6 +52,7 @@
   - headerWrapperPadding: Padding classes for the wrapper div (optional, default: "p-0")
   - headingMargin: Margin classes for the heading (optional, default: "mt-2.5")
   - descriptionMargin: Margin classes for the description (optional, default: "mt-6")
+  - imageClasses: Additional CSS classes for card images (optional, default: "rounded-xl")
 
   Inner Content (optional JSON array):
   - Array of card objects with the following properties:
@@ -75,6 +76,7 @@
 {{ $headingMargin := .Get "headingMargin" | default "mt-2.5" }}
 {{ $descriptionMargin := .Get "descriptionMargin" | default "mt-6" }}
 {{ $contentAlignment := .Get "contentAlignment" | default "left" }}
+{{ $imageClasses := .Get "imageClasses" | default "rounded-xl" }}
 
 {{/* Parse inner content as JSON if provided */}}
 
@@ -96,5 +98,6 @@
   "headingMargin" $headingMargin
   "descriptionMargin" $descriptionMargin
   "contentAlignment" $contentAlignment
+  "imageClasses" $imageClasses
   "cards" $cards
 ) }}

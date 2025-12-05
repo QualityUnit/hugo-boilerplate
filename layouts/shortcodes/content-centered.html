@@ -12,6 +12,7 @@
   - descriptionColor: Color class for the description text (default: "text-gray-700")
   - contentColor: Color class for the main content (default: "text-gray-700")
   - contentType: Content processing type - "markdown" (default) or "html" for safeHTML processing
+  - alignment: Text alignment for all content - "left", "center", or "right" (default: "left")
   
   Inner Content:
   - HTML content to be displayed in the centered layout
@@ -44,6 +45,7 @@
 {{ $descriptionColor := .Get "descriptionColor" | default "text-gray-700" }}
 {{ $contentColor := .Get "contentColor" | default "text-gray-700" }}
 {{ $contentType := .Get "contentType" | default "markdown" }}
+{{ $alignment := .Get "alignment" | default "left" }}
 
 {{ $content := "" }}
 {{ if eq $contentType "html" }}
@@ -62,6 +64,7 @@
   "headingColor" $headingColor
   "descriptionColor" $descriptionColor
   "contentColor" $contentColor
+  "alignment" $alignment
   "content" $content
   "page" $.Page
 ) }}
