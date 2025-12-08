@@ -17,7 +17,7 @@ Usage:
 {{ $width := .Get "width" | default "" }}
 {{ $height := .Get "height" | default "" }}
 
-{{- $imgHtml := partial "components/media/lazyimg.html" (dict 
+{{- $imageHtml := partial "components/media/lazyimg.html" (dict 
   "src" $src 
   "alt" $alt 
   "class" $class
@@ -25,4 +25,5 @@ Usage:
   "width" $width
   "height" $height
 ) -}}
-{{- $imgHtml | replaceRE `\s+` " " | replaceRE `>\s+<` "><" | safeHTML -}}
+{{/* Normalize whitespace to prevent markdown interpreting indented HTML as code blocks */}}
+{{- $imageHtml | replaceRE `\s+` " " | replaceRE `>\s+<` "><" | safeHTML -}}
