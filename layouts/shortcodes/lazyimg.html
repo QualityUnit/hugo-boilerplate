@@ -17,11 +17,13 @@ Usage:
 {{ $width := .Get "width" | default "" }}
 {{ $height := .Get "height" | default "" }}
 
-{{ partial "components/media/lazyimg.html" (dict 
+{{- $imageHtml := partial "components/media/lazyimg.html" (dict 
   "src" $src 
   "alt" $alt 
   "class" $class
   "id" $id
   "width" $width
   "height" $height
-) }}
+) -}}
+{{/* Normalize whitespace to prevent markdown interpreting indented HTML as code blocks */}}
+{{- $imageHtml | replaceRE `\s+` " " | replaceRE `>\s+<` "><" | safeHTML -}}

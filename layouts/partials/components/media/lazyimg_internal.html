@@ -31,32 +31,22 @@
 {{ $noLazy := .noLazy | default false }}
 
 
-{{ if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") }}
-  <!-- SVGs: skip <picture> and srcset logic, just use <img> with lazy loading -->
-  {{ $imgClassSvg := "lazy-image" }}
-  {{ if $class }}{{ $imgClassSvg = printf "%s %s" $imgClassSvg $class }}{{ end }}
-  {{/* Get URL with static domain if configured */}}
-  {{ $svgSrc := partial "functions/get-static-url.html" (dict "path" $src) }}
+{{- if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") -}}
+  {{- /* SVGs: skip <picture> and srcset logic, just use <img> with lazy loading */ -}}
+  {{- $imgClassSvg := "lazy-image" -}}
+  {{- if $class }}{{ $imgClassSvg = printf "%s %s" $imgClassSvg $class }}{{ end -}}
+  {{- /* Get URL with static domain if configured */ -}}
+  {{- $svgSrc := partial "functions/get-static-url.html" (dict "path" $src) -}}
   <img
-    {{ if $noLazy }}
-    src="{{ $svgSrc }}"
-    class="{{ $imgClassSvg }} loaded"
-    {{ else }}
-    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" {{/* Placeholder for linters */}}
-    class="{{ $imgClassSvg }}"
-    data-src="{{ $svgSrc }}"
-    {{ end }}
-    alt="{{ $alt }}"{{ if $id }}
-    id="{{ $id }}"{{ end }}{{ if $width }}
-    width="{{ $width }}"{{ end }}{{ if $height }}
-    height="{{ $height }}"{{ end }}
-    {{ if not $noLazy }}loading="lazy"{{ end }}
-    decoding="async"
-    data-original-src="{{ $src }}"
-  >
-{{ else }}
-
-    {{ $availableWidths := slice 300 1024 }}
+    {{- if $noLazy }} src="{{ $svgSrc }}" class="{{ $imgClassSvg }} loaded"
+    {{- else }} src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="{{ $imgClassSvg }}" data-src="{{ $svgSrc }}"
+    {{- end }} alt="{{ $alt }}"
+    {{- if $id }} id="{{ $id }}"{{ end -}}
+    {{- if $width }} width="{{ $width }}"{{ end -}}
+    {{- if $height }} height="{{ $height }}"{{ end -}}
+    {{- if not $noLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
+{{- else -}}
+{{- $availableWidths := slice 300 1024 -}}
 
     <!-- Extract paths for processed images -->
     {{ $filename := path.Base $src }}
@@ -332,52 +322,27 @@
     {{ else if eq $fileExt ".avif" }}{{ $mimeType = "image/avif" }}
     {{ end }}
 
-    {{ $pictureFinalClass := "lazy-picture" }}
-    {{ if $classPicture }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass $classPicture }}{{ end }}
-    {{ if $noLazy }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass "loaded" }}{{ end }}
-    <picture
-      class="{{ $pictureFinalClass }}"{{ if $maxWidth }}
-      data-maxWidth="{{ $maxWidth }}"{{ end }}
-    >
-      {{ if and $webpSrcset (ne $fileExt ".webp") }}
-      <source
-        type="image/webp"
-        {{ if $noLazy }}
-        srcset="{{ $webpSrcset }}"
-        {{ else }}
-        data-srcset="{{ $webpSrcset }}"
-        {{ end }}
-        sizes="{{ $sizesAttr }}"
-        data-original-src="{{ $src }}"
-      >
-      {{ end }}
-      <source
-        type="{{ $mimeType }}"
-        {{ if $noLazy }}
-        srcset="{{ $origSrcset }}"
-        {{ else }}
-        data-srcset="{{ $origSrcset }}"
-        {{ end }}
-        sizes="{{ $sizesAttr }}"
-        data-original-src="{{ $src }}"
-      >
-      {{ $imgClassFallback := "lazy-image" }}
-      {{ if $class }}{{ $imgClassFallback = printf "%s %s" $imgClassFallback $class }}{{ end }}
-      {{ if $noLazy }}{{ $imgClassFallback = printf "%s %s" $imgClassFallback "loaded" }}{{ end }}
+    {{- $pictureFinalClass := "lazy-picture" -}}
+    {{- if $classPicture }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass $classPicture }}{{ end -}}
+    {{- if $noLazy }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass "loaded" }}{{ end -}}
+    {{- $imgClassFallback := "lazy-image" -}}
+    {{- if $class }}{{ $imgClassFallback = printf "%s %s" $imgClassFallback $class }}{{ end -}}
+    {{- if $noLazy }}{{ $imgClassFallback = printf "%s %s" $imgClassFallback "loaded" }}{{ end -}}
+    <picture class="{{ $pictureFinalClass }}"{{- if $maxWidth }} data-maxWidth="{{ $maxWidth }}"{{- end }}>
+      {{- if and $webpSrcset (ne $fileExt ".webp") -}}
+      <source type="image/webp"
+        {{- if $noLazy }} srcset="{{ $webpSrcset }}"{{ else }} data-srcset="{{ $webpSrcset }}"{{ end }}
+        sizes="{{ $sizesAttr }}" data-original-src="{{ $src }}">
+      {{- end -}}
+      <source type="{{ $mimeType }}"
+        {{- if $noLazy }} srcset="{{ $origSrcset }}"{{ else }} data-srcset="{{ $origSrcset }}"{{ end }}
+        sizes="{{ $sizesAttr }}" data-original-src="{{ $src }}">
       <img
-        {{ if $noLazy }}
-        src="{{ $fallbackSrcWithDomain }}"
-        {{ else }}
-        data-src="{{ $fallbackSrcWithDomain }}"
-        {{ end }}
-        alt="{{ $alt }}"
-        class="{{ $imgClassFallback }}"{{ if $id }}
-        id="{{ $id }}"{{ end }}
-        {{ if $width }}width="{{ $width }}"{{ end }}
-        {{ if $height }}height="{{ $height }}"{{ end }}
-        {{ if not $noLazy }}loading="lazy"{{ end }}
-        decoding="async"
-        data-original-src="{{ $src }}"
-      >
+        {{- if $noLazy }} src="{{ $fallbackSrcWithDomain }}"{{ else }} data-src="{{ $fallbackSrcWithDomain }}"{{ end }}
+        alt="{{ $alt }}" class="{{ $imgClassFallback }}"
+        {{- if $id }} id="{{ $id }}"{{ end -}}
+        {{- if $width }} width="{{ $width }}"{{ end -}}
+        {{- if $height }} height="{{ $height }}"{{ end -}}
+        {{- if not $noLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
     </picture>
-{{ end }}
+{{- end -}}
