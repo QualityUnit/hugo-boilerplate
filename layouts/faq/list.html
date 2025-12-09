@@ -21,9 +21,6 @@
 
     {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
     {{ $activeLetter := "" }}
-    {{ with .Title }}
-      {{ $activeLetter = substr . 0 1 | upper }}
-    {{ end }}
     {{ $glossaryTerms := where .Site.RegularPages "Section" "faq" }}
     <div id="alphabetNav" class="w-full bg-white sticky top-20 md:top-[5.25rem] z-[45] transition-all duration-300">
       <div class="wrapper px-8 ">
@@ -176,7 +173,6 @@
       const initialActiveLetter = "{{ $activeLetter }}";
       if (initialActiveLetter) {
         setActiveTab(initialActiveLetter);
-        document.getElementById(initialActiveLetter)?.scrollIntoView({ behavior: "auto", block: "start" });
       }
 
       if (select) {
