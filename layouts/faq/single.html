@@ -17,8 +17,7 @@
 <!-- Main Content -->
 <div class="mt-8 bg-white">
   <div  class=" wrapper">
-    <div class="wrapper-content">
-      <div class="mx-auto max-w-none prose">
+    <div class="wrapper-content prose">
         {{ if or .Params.glossaryTitle .Params.short_answer }}
           {{ $definitionIcon := "light-bulb" }}
           {{ $definitionTitle := .Params.question | default "" }}
@@ -46,7 +45,6 @@
 
         {{ .Content | safeHTML }}
 
-      </div>
     </div>
   </div>
 </div>
