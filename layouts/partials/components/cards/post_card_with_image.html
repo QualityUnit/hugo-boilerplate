@@ -6,6 +6,7 @@
 @params:
   This component expects a page context (.) that has the following properties:
   - Title: The title of the post
+  - Params.title_for_list: Optional title to use in lists/archives instead of main title (falls back to Title if not provided)
   - Params.image: Featured image URL (uses a placeholder if not provided youtubeVideoID, if youtubeVideoID provided, uses YouTube thumbnail)
   - Params.description or .Description or .Summary: Post description/summary
   - Date: Publication date
@@ -110,7 +111,7 @@
     {{ end }}
     {{/* Title & Description */}}
     <h3 class="text-lg/6 font-semibold text-heading group-hover:text-tertiary transition-colors duration-300">
-      {{ $page.Title }}
+      {{ $page.Params.title_for_list | default $page.Title }}
     </h3>
     <p class="mt-5 text-sm leading-6 text-secondary font-normal line-clamp-3 flex-grow overflow-hidden">{{ $description }}</p>
     
