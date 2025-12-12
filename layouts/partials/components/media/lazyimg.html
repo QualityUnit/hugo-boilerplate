@@ -4,6 +4,7 @@
 @params:
   - src: Path to the source image (required)
   - alt: Alternative text for accessibility (required)
+  - description: Text under the image
   - class: Additional CSS classes (optional)
   - id: Image ID (optional)
   - width: Image width (optional)
@@ -14,6 +15,7 @@
   {{ partial "components/media/lazyimg.html" (dict 
       "src" "/images/example.jpg" 
       "alt" "Example image" 
+      "description" "Source: <a href='https://www.shutterstock.com/'>Shutterstock</a>"
       "class" "rounded-lg shadow-md"
   ) }}
   
@@ -26,11 +28,17 @@
 */}}
 
 {{ $src := .src }}
+{{ $description := .description }}
 
-{{ if $src }}
-  {{ if or (hasPrefix $src "http://") (hasPrefix $src "https://") }}
-    {{ partial "components/media/lazyimg_external.html" . }}
-  {{ else }}
-    {{ partial "components/media/lazyimg_internal.html" . }}
+<figure class="text-center">
+  {{ if $src }}
+    {{ if or (hasPrefix $src "http://") (hasPrefix $src "https://") }}
+      {{ partial "components/media/lazyimg_external.html" . }}
+    {{ else }}
+      {{ partial "components/media/lazyimg_internal.html" . }}
+    {{ end }}
   {{ end }}
-{{ end }}
+  {{ if $description }}
+    <figcaption>{{ $description | safeHTML }}</figcaption>
+  {{ end }}
+</figure>
