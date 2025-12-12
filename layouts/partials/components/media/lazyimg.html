@@ -15,7 +15,7 @@
   {{ partial "components/media/lazyimg.html" (dict 
       "src" "/images/example.jpg" 
       "alt" "Example image" 
-      "description" "Source: Shutterstock"
+      "description" "Source: <a href='https://www.shutterstock.com/'>Shutterstock</a>"
       "class" "rounded-lg shadow-md"
   ) }}
   
@@ -39,6 +39,6 @@
     {{ end }}
   {{ end }}
   {{ if $description }}
-    <figcaption>{{ $description }}</figcaption>
+    <figcaption>{{ $description | safeHTML }}</figcaption>
   {{ end }}
 </figure>
