@@ -60,4 +60,13 @@
     --color-brand-dark-icon: var(--color-primary-500);              /* #118AF7 */
     --color-brand-dark-underlight: var(--color-primary-900);        /* #0F4176 */
   }
+  
 }
+/* PROJECT VARIABLES - Custom colors for this project */
+
+@layer base {
+  :root {
+  }
+}
+
+/* END OF VARIABLES FILE */
