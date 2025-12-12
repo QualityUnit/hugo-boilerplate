@@ -12,6 +12,7 @@ Usage:
 */}}
 {{ $src := .Get "src" }}
 {{ $alt := .Get "alt" | default "" }}
+{{ $description := .Get "description" | default "" }}
 {{ $class := .Get "class" | default "" }}
 {{ $id := .Get "id" | default "" }}
 {{ $width := .Get "width" | default "" }}
@@ -19,7 +20,8 @@ Usage:
 
 {{- $imageHtml := partial "components/media/lazyimg.html" (dict 
   "src" $src 
-  "alt" $alt 
+  "alt" $alt
+  "description" $description 
   "class" $class
   "id" $id
   "width" $width
