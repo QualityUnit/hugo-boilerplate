@@ -11,6 +11,7 @@
   - height: Image height (optional)
   - maxWidth: Maximum image width for loading (optional)
   - noLazy: Set to true to disable lazy loading (for hero images, above-the-fold content) (optional)
+  - link: URL to wrap the image in a clickable link (optional)
 @example:
   {{ partial "components/media/lazyimg.html" (dict 
       "src" "/images/example.jpg" 
@@ -29,8 +30,10 @@
 
 {{ $src := .src }}
 {{ $description := .description }}
+{{ $link := .link | default "" }}
 
 <figure class="text-center">
+  {{ if $link }}<a href="{{ $link }}">{{ end }}
   {{ if $src }}
     {{ if or (hasPrefix $src "http://") (hasPrefix $src "https://") }}
       {{ partial "components/media/lazyimg_external.html" . }}
@@ -38,6 +41,7 @@
       {{ partial "components/media/lazyimg_internal.html" . }}
     {{ end }}
   {{ end }}
+  {{ if $link }}</a>{{ end }}
   {{ if $description }}
     <figcaption>{{ $description | safeHTML }}</figcaption>
   {{ end }}

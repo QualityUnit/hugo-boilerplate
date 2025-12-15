@@ -8,6 +8,7 @@ Usage:
   id="product-image"
   width="640"
   height="480"
+  link="https://example.com"
 >}}
 */}}
 {{ $src := .Get "src" }}
@@ -17,6 +18,7 @@ Usage:
 {{ $id := .Get "id" | default "" }}
 {{ $width := .Get "width" | default "" }}
 {{ $height := .Get "height" | default "" }}
+{{ $link := .Get "link" | default "" }}
 
 {{- $imageHtml := partial "components/media/lazyimg.html" (dict 
   "src" $src 
@@ -26,6 +28,7 @@ Usage:
   "id" $id
   "width" $width
   "height" $height
+  "link" $link
 ) -}}
 {{/* Normalize whitespace to prevent markdown interpreting indented HTML as code blocks */}}
 {{- $imageHtml | replaceRE `\s+` " " | replaceRE `>\s+<` "><" | safeHTML -}}
