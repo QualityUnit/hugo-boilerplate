@@ -30,7 +30,7 @@
 {{ $src := .src }}
 {{ $description := .description }}
 
-<figure class="text-center">
+<figure class="flex flex-col items-center text-center">
   {{ if $src }}
     {{ if or (hasPrefix $src "http://") (hasPrefix $src "https://") }}
       {{ partial "components/media/lazyimg_external.html" . }}

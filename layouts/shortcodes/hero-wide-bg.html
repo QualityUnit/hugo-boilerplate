@@ -1,0 +1,53 @@
+{{/* Hero Wide with background image Shortcode */}}
+{{/*
+Usage:
+{{< hero-wide-bg heading="Page Title" description="A short description of the page." eyebrow="Optional Eyebrow"
+  image="path/to/image.jpg" imageAlt="Alt text for image"
+>}}
+  <p>This is the main content of the centered section. You can include <strong>HTML formatting</strong>, lists, and other
+    elements.</p>
+  {{< lazyimg src="/images/example.jpg" alt="Example image">}}
+    <ul>
+      <li>Feature one with detailed explanation</li>
+      <li>Feature two with examples</li>
+    </ul>
+    <p>Add as much content as needed in this section.</p>
+{{< /hero-wide-bg>}}
+
+*/}}
+
+
+{{ $imageAlt := .Get "imageAlt" | default "" }}
+{{ $image := .Get "image" | default "" }}
+{{ $backgroundClass := .Get "backgroundClass" | default "" }}
+
+{{ $contentColor := .Get "contentColor" | default "!text-white" }}
+{{ $padding := .Get "padding" | default "px-6 py-32 lg:px-8" }}
+
+{{ $contentType := .Get "contentType" | default "html" }}
+{{ $alignment := .Get "alignment" | default "center" }}
+
+{{ $content := "" }}
+{{ if eq $contentType "html" }}
+{{ $content = .Inner | safeHTML }}
+{{ else }}
+{{ $content = .Inner | markdownify }}
+{{ end }}
+
+<div class="w-full relative mb-8 lg:mb-32">
+  <div class="absolute flex items-center size-full top-0 left-0">
+    {{ partial "sections/content/centered.html" (dict
+    "padding" $padding
+    "contentColor" $contentColor
+    "alignment" $alignment
+    "content" $content
+    "page" $.Page
+    ) }}
+  </div>
+  {{ partial "components/media/lazyimg.html" (dict
+  "src" $image
+  "alt" $imageAlt
+  "class" $backgroundClass
+  "noLazy" true
+  ) }}
+</div>
