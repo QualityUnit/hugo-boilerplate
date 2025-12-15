@@ -12,6 +12,9 @@
   - maxWidth: Maximum image width for loading (optional)
   - noLazy: Set to true to disable lazy loading (for hero images, above-the-fold content) (optional)
   - link: URL to wrap the image in a clickable link (optional)
+  - linkTarget: Target attribute for link, e.g. "_blank" (optional, defaults to "_self" if link is set)
+  - linkRel: Rel attribute for link, e.g. "nofollow" (optional, auto-adds "noopener noreferrer" for _blank)
+  - linkTitle: Title attribute for link (optional)
 @example:
   {{ partial "components/media/lazyimg.html" (dict 
       "src" "/images/example.jpg" 
@@ -31,9 +34,22 @@
 {{ $src := .src }}
 {{ $description := .description }}
 {{ $link := .link | default "" }}
+{{ $linkTarget := .linkTarget | default "" }}
+{{ $linkRel := .linkRel | default "" }}
+{{ $linkTitle := .linkTitle | default "" }}
+
+{{/* Build rel attribute: user-provided rel + auto noopener noreferrer for _blank */}}
+{{ $finalRel := $linkRel }}
+{{ if eq $linkTarget "_blank" }}
+  {{ if $finalRel }}
+    {{ $finalRel = printf "%s noopener noreferrer" $finalRel }}
+  {{ else }}
+    {{ $finalRel = "noopener noreferrer" }}
+  {{ end }}
+{{ end }}
 
 <figure class="text-center">
-  {{ if $link }}<a href="{{ $link }}">{{ end }}
+  {{ if $link }}<a href="{{ $link }}"{{ if $linkTarget }} target="{{ $linkTarget }}"{{ end }}{{ if $finalRel }} rel="{{ $finalRel }}"{{ end }}{{ if $linkTitle }} title="{{ $linkTitle }}"{{ end }}>{{ end }}
   {{ if $src }}
     {{ if or (hasPrefix $src "http://") (hasPrefix $src "https://") }}
       {{ partial "components/media/lazyimg_external.html" . }}
