@@ -29,7 +29,56 @@ MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"
 MIN_CLUSTER_SIZE = 5  # Minimum pages per cluster
 MIN_SAMPLES = 3  # Minimum samples for core point
 MAX_CLUSTER_SIZE = 5  # Maximum pages before creating subclusters (recursive subdivision)
-DOMAIN_NAME = "Post Affiliate Pro"  # Domain name for root cluster
+
+def get_site_title(hugo_root, lang='en'):
+    """Read site title from Hugo config files."""
+    import toml
+
+    # Try multiple config locations
+    config_paths = [
+        hugo_root / "config" / "_default" / "languages.toml",
+        hugo_root / f"config_{lang}" / "_default" / "languages.toml",
+        hugo_root / "config.toml",
+    ]
+
+    for config_path in config_paths:
+        if config_path.exists():
+            try:
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config = toml.load(f)
+
+                # Try to find title in various locations
+                if 'title' in config:
+                    return config['title']
+                if lang in config and 'title' in config[lang]:
+                    return config[lang]['title']
+                if 'languages' in config and lang in config['languages']:
+                    if 'title' in config['languages'][lang]:
+                        return config['languages'][lang]['title']
+            except Exception as e:
+                print(f"Warning: Could not parse {config_path}: {e}")
+                continue
+
+    # Fallback to site name from all_languages.yaml
+    all_langs_path = hugo_root / "data" / "all_languages.yaml"
+    if all_langs_path.exists():
+        try:
+            import yaml
+            with open(all_langs_path, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+            if 'languages' in data and lang in data['languages']:
+                if 'baseDomainName' in data['languages'][lang]:
+                    # Extract domain name from URL
+                    domain = data['languages'][lang]['baseDomainName']
+                    # Remove https:// and www.
+                    domain = domain.replace('https://', '').replace('http://', '').replace('www.', '')
+                    # Remove trailing slash and .com/.io etc
+                    domain = domain.rstrip('/').split('.')[0]
+                    return domain.title()
+        except Exception as e:
+            print(f"Warning: Could not parse {all_langs_path}: {e}")
+
+    return "Website"  # Final fallback
 
 # Note: We use URL path + title for embeddings rather than full content
 # This provides better semantic clustering based on page structure and purpose
@@ -212,7 +261,8 @@ def cluster_pages_by_section(pages, embeddings, min_cluster_size, min_samples):
             min_cluster_size=min_cluster_size,
             min_samples=min_samples,
             metric='euclidean',
-            cluster_selection_method='eom'
+            cluster_selection_method='eom',
+            copy=True
         )
         cluster_labels = clusterer.fit_predict(sec_embeddings)
 
@@ -294,7 +344,8 @@ def create_recursive_subclusters(pages, embeddings, depth=0):
         min_cluster_size=sub_min_cluster_size,
         min_samples=sub_min_samples,
         metric='euclidean',
-        cluster_selection_method='eom'
+        cluster_selection_method='eom',
+        copy=True
     )
     sub_labels = clusterer.fit_predict(page_embeddings)
 
@@ -375,7 +426,7 @@ def create_recursive_subclusters(pages, embeddings, depth=0):
 
     return subcluster_nodes
 
-def create_hierarchical_structure(section_clusters, embeddings, lang):
+def create_hierarchical_structure(section_clusters, embeddings, lang, hugo_root):
     """Create hierarchical JSON structure for D3.js visualization."""
     children = []
 
@@ -499,8 +550,9 @@ def create_hierarchical_structure(section_clusters, embeddings, lang):
     }
 
     lang_name = lang_names.get(lang, lang.upper())
+    site_title = get_site_title(hugo_root, lang)
     root = {
-        "name": f"{DOMAIN_NAME} - {lang_name}",
+        "name": f"{site_title} - {lang_name}",
         "children": children
     }
 
@@ -528,7 +580,7 @@ def main():
     section_clusters = cluster_pages_by_section(pages, embeddings, args.min_cluster_size, args.min_samples)
 
     # Create hierarchical structure
-    hierarchy = create_hierarchical_structure(section_clusters, embeddings, args.lang)
+    hierarchy = create_hierarchical_structure(section_clusters, embeddings, args.lang, hugo_root)
 
     # Save to static directory only
     static_output_dir.mkdir(parents=True, exist_ok=True)

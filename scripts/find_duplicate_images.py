@@ -48,8 +48,14 @@ def find_image_files(directory):
 def load_model():
     """Loads the Vision Transformer model and image processor."""
     print(f"Loading model '{MODEL_NAME}'...")
-    # Force CPU to avoid MPS issues on macOS
-    device = "cpu"
+
+    # Detect best available device
+    if torch.cuda.is_available():
+        device = "cuda"
+    elif torch.backends.mps.is_available():
+        device = "mps"  # Apple Silicon GPU
+    else:
+        device = "cpu"
     print(f"Using device: {device}")
 
     image_processor = ViTImageProcessor.from_pretrained(MODEL_NAME)
