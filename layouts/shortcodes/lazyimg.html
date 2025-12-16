@@ -8,6 +8,10 @@ Usage:
   id="product-image"
   width="640"
   height="480"
+  link="https://www.liveagent.com/"
+  linkTarget="_blank"
+  linkRel="nofollow"
+  linkTitle="Visit LiveAgent"
 >}}
 */}}
 {{ $src := .Get "src" }}
@@ -17,6 +21,10 @@ Usage:
 {{ $id := .Get "id" | default "" }}
 {{ $width := .Get "width" | default "" }}
 {{ $height := .Get "height" | default "" }}
+{{ $link := .Get "link" | default "" }}
+{{ $linkTarget := .Get "linkTarget" | default "" }}
+{{ $linkRel := .Get "linkRel" | default "" }}
+{{ $linkTitle := .Get "linkTitle" | default "" }}
 
 {{- $imageHtml := partial "components/media/lazyimg.html" (dict 
   "src" $src 
@@ -26,6 +34,10 @@ Usage:
   "id" $id
   "width" $width
   "height" $height
+  "link" $link
+  "linkTarget" $linkTarget
+  "linkRel" $linkRel
+  "linkTitle" $linkTitle
 ) -}}
 {{/* Normalize whitespace to prevent markdown interpreting indented HTML as code blocks */}}
 {{- $imageHtml | replaceRE `\s+` " " | replaceRE `>\s+<` "><" | safeHTML -}}
