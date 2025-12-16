@@ -226,12 +226,34 @@ if [ ! -d "$VENV_DIR" ]; then
     NEED_INSTALL=true
 else
     echo -e "${YELLOW}Using existing virtual environment at $VENV_DIR${NC}"
-    # Check if beautifulsoup4 is installed (as a proxy for all deps)
+    # Check if key dependencies are installed
+    MISSING_DEPS=false
     if ! "${VENV_DIR}/bin/python" -c "import bs4" 2>/dev/null; then
-        echo -e "${YELLOW}Virtual environment exists but dependencies are missing${NC}"
+        echo -e "${YELLOW}Missing: beautifulsoup4${NC}"
+        MISSING_DEPS=true
+    fi
+    if ! "${VENV_DIR}/bin/python" -c "from PIL import Image" 2>/dev/null; then
+        echo -e "${YELLOW}Missing: Pillow${NC}"
+        MISSING_DEPS=true
+    fi
+    if ! "${VENV_DIR}/bin/python" -c "import frontmatter" 2>/dev/null; then
+        echo -e "${YELLOW}Missing: python-frontmatter${NC}"
+        MISSING_DEPS=true
+    fi
+    if ! "${VENV_DIR}/bin/python" -c "import yaml" 2>/dev/null; then
+        echo -e "${YELLOW}Missing: pyyaml${NC}"
+        MISSING_DEPS=true
+    fi
+    if ! "${VENV_DIR}/bin/python" -c "import sklearn" 2>/dev/null; then
+        echo -e "${YELLOW}Missing: scikit-learn${NC}"
+        MISSING_DEPS=true
+    fi
+
+    if [ "$MISSING_DEPS" = true ]; then
+        echo -e "${YELLOW}Virtual environment exists but some dependencies are missing${NC}"
         NEED_INSTALL=true
     else
-        echo -e "${GREEN}Virtual environment has required dependencies${NC}"
+        echo -e "${GREEN}Virtual environment has all required dependencies${NC}"
         NEED_INSTALL=false
     fi
 fi
