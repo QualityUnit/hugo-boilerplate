@@ -34,8 +34,10 @@
   "theme" "dark"
 ) }}
 
-<!-- App JavaScript - non-critical interactions -->
+<!-- App JavaScript - non-critical interactions (only if exists) -->
+{{ if fileExists "static/js/app.js" }}
 <script src="/js/app.js?v={{ partialCached "helpers/build-timestamp.html" . }}"></script>
+{{ end }}
 
 <!-- Check and load video lightbox resources if needed -->
 {{ partial "helpers/check-video-lightbox-resources.html" . }}
