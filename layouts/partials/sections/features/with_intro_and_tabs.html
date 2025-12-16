@@ -29,6 +29,8 @@
       - description: Enhanced description (same format as main description)
       - imageUrl: URL to content image
       - imageAlt: Alt text for content image
+      - imageValue: Value that is shown in animated “rainbox” chart (icontabs_chart.svg)
+      - imageText: Bubble text in animated “rainbox” chart (icontabs_chart.svg)
 */}}
 
 {{/* --- Params --- */}}
@@ -200,14 +202,20 @@
               tabindex="0">
               {{ if or ($tab.content.title) ($tab.content.description) }}
                 {{ if eq $widthContainer "narrow" }}
-                  <div class="flex flex-col w-full">
+                  <div class="flex flex-col items-center w-full">
                     {{ if $tab.content.imageUrl }}
-                      <div class="flex items-center justify-center my-8">
+                      <div class="relative flex items-center justify-center my-8">
                         {{ partial "components/media/lazyimg.html" (dict 
                           "src" $tab.content.imageUrl
                           "alt" $tab.content.imageAlt
                           "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
                         ) }}
+                        {{ if $tab.content.imageValue }}
+                        <span class="-mt-32 text-9xl text-primary-400 mb-2">{{ $tab.content.imageValue }}</span>
+                        {{ end }}
+                        {{ if $tab.content.imageText }}
+                        <div class="bg-white max-w-[32.25em] rounded-xl p-4 shadow-lg text-center">{{ $tab.content.imageText | safeHTML }}</div>
+                        {{ end }}
                       </div>
                     {{ end }}
                     <div>
@@ -234,12 +242,18 @@
                       {{ end }}
                     </div>
                     {{ if $tab.content.imageUrl }}
-                      <div class="lg:col-span-6 my-8 md:my-0">
+                      <div class="relative flex flex-col items-center lg:col-span-6 my-8 md:my-0">
                         {{ partial "components/media/lazyimg.html" (dict 
                           "src" $tab.content.imageUrl
                           "alt" $tab.content.imageAlt
                           "class" "aspect-2/1 w-full rounded-lg object-cover sm:aspect-5/2"
                         ) }}
+                        {{ if $tab.content.imageValue }}
+                          <span class="-mt-32 text-9xl text-primary-400 mb-2">{{ $tab.content.imageValue }}</span>
+                        {{ end }}
+                        {{ if $tab.content.imageText }}
+                          <div class="bg-white max-w-[32.25em] rounded-xl p-4 shadow-lg text-center">{{ $tab.content.imageText | safeHTML }}</div>
+                        {{ end }}
                       </div>
                     {{ end }}
                   </div>

@@ -14,6 +14,7 @@ Usage:
 {{ $alt := .Get "alt" | default "" }}
 {{ $description := .Get "description" | default "" }}
 {{ $class := .Get "class" | default "" }}
+{{ $wrapperClass := .Get "wrapperClass" | default "" }}
 {{ $id := .Get "id" | default "" }}
 {{ $width := .Get "width" | default "" }}
 {{ $height := .Get "height" | default "" }}
@@ -23,6 +24,7 @@ Usage:
   "alt" $alt
   "description" $description 
   "class" $class
+  "wrapperClass" $wrapperClass
   "id" $id
   "width" $width
   "height" $height
