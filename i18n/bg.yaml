@@ -66,7 +66,7 @@ tag_pagination_previous: "Предишна"
 tag_pagination_next: "Следваща"
 tag_other_tags: "Други етикети"
 show_less: "Показвай по-малко"
-show_more: "more"
+show_more: "Повече"
 # Cookie consent translations
 cookie_consent_title: "Съгласие за бисквитки"
 cookie_consent_message: "Използваме бисквитки, за да подобрим вашето сърфиране и да анализираме нашия трафик."

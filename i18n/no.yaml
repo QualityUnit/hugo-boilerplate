@@ -65,7 +65,7 @@ tag_pagination_previous: "Forrige"
 tag_pagination_next: "Neste"
 tag_other_tags: "Andre tags"
 show_less: "Vis mindre"
-show_more: "more"
+show_more: "mer"
 # Cookie consent translations
 cookie_consent_title: "Informasjonskapselsamtykke"
 cookie_consent_message: "Vi bruker informasjonskapsler for å forbedre din surfeopplevelse og analysere vår trafikk."

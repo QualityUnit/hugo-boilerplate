@@ -66,7 +66,7 @@ tag_pagination_previous: "前へ"
 tag_pagination_next: "次へ"
 tag_other_tags: "その他のタグ"
 show_less: "表示を減らす"
-show_more: "more"
+show_more: "もっと"
 
 # クッキー同意の翻訳
 cookie_consent_title: "クッキーの同意"
