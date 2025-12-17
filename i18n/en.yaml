@@ -66,7 +66,8 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "Previous"
 tag_pagination_next: "Next"
 tag_other_tags: "Other Tags"
-tag_show_less: "Show less"
+show_less: "Show less"
+show_more: "more"
 
 # Cookie consent translations
 cookie_consent_title: "Cookie Consent"
