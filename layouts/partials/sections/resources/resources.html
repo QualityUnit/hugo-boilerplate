@@ -71,13 +71,13 @@ Features:
         {{ if gt $resourcesCount $maxItems }}
             <button type="button" class="show-more-btn text-secondary font-semibold text-xs tracking-[0.216px] cursor-pointer" data-container="{{ $containerId }}" data-container-type="resources">
                 <div class="flex items-center gap-2">
-                    <span>{{ (printf "+%d more" (sub $resourcesCount $maxItems)) }}</span>
+                    <span>{{ (printf "+%d %s" (sub $resourcesCount $maxItems) (i18n "show_more" | default "more")) }}</span>
                     {{ partial "icons/chevron-down" "size-5 text-secondary" }}
                 </div>
             </button>
             <button type="button" class="show-less-btn text-secondary font-semibold text-xs tracking-[0.216px] cursor-pointer hidden" data-container="{{ $containerId }}" data-container-type="resources">
                 <div class="flex items-center gap-2">
-                    <span>{{ i18n "resource_show_less" | default "Show less" }}</span>
+                    <span>{{ i18n "show_less" | default "Show less" }}</span>
                     {{ partial "icons/chevron-up" "size-5 text-secondary" }}
                 </div>
             </button>
