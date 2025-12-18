@@ -1,0 +1,75 @@
+{{ define "main" }}
+
+{{/* Set page context for shortcodes to know about wrapper-narrower-content usage */}}
+{{ .Scratch.Set "hasWrapperNarrower" true }}
+
+{{ partial "breadcrumbs_default.html" . }}
+
+<!-- Hero Section with Term -->
+{{ $termTitle := .Params.term | default .Title }}
+{{ $shortDefinition := .Params.short_definition | default .Params.description | default "" }}
+{{ $heroImage := .Params.image | default "" }}
+
+{{ partial "sections/hero/split_with_image.html" (dict
+"heading" $termTitle
+"description" (markdownify $shortDefinition)
+"image" $heroImage
+"imageAlt" $termTitle
+"backgroundColor" "bg-gray-100"
+"sectionPaddingY" "py-4"
+) }}
+
+<!-- Main Content -->
+<div class="mt-8 bg-white">
+  <div class="wrapper">
+    <div class="wrapper-content prose">
+        <!-- Term Definition Card -->
+        {{ if or .Params.term .Params.short_definition }}
+          {{ $definitionIcon := "academic-cap" }}
+          {{ $definitionTitle := .Params.term | default .Title }}
+          {{ $definitionDescription := .Params.short_definition | default "" }}
+          {{ partial "components/cards/icon_card.html" (dict
+              "iconBackground" "bg-transparent"
+              "icon" $definitionIcon
+              "iconSize" "w-10 h-10"
+              "title" $definitionTitle
+              "headingLevel" "h2"
+              "description" $definitionDescription
+              "descriptionLines" 6
+          ) }}
+
+          {{/* Add Schema.org DefinedTerm markup */}}
+          <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "DefinedTerm",
+            "name": {{ $definitionTitle | jsonify }},
+            "description": {{ $definitionDescription | jsonify }},
+            "url": {{ .Permalink | jsonify }}
+          }
+          </script>
+        {{ end }}
+
+        {{ .Content | safeHTML }}
+
+    </div>
+  </div>
+</div>
+
+<!-- FAQ Section if available -->
+{{ if .Params.faq }}
+{{ partial "sections/faq/side-by-side" (dict
+"title" (i18n "faq_heading" | default "Frequently Asked Questions")
+"description" (printf "%s %s" (i18n "faq_description_prefix" | default "Common questions about") (.Params.term | default .Title))
+"items" .Params.faq
+) }}
+
+{{/* Add Schema.org FAQ markup */}}
+{{ partial "schemaorg/faq.html" (dict "faqs" .Params.faq) }}
+{{ end }}
+
+{{ partial "cta.html" . }}
+
+{{ partial "related_content.html" . }}
+
+{{ end }}

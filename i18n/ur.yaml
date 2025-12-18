@@ -33,7 +33,8 @@ tag_pagination_page: "%d / %d (%d)"
 tag_pagination_previous: "پچھلا"
 tag_pagination_next: "اگلا"
 tag_other_tags: "دیگر ٹیگز"
-tag_show_less: "کم دکھائیں"
+show_less: "کم دکھائیں"
+show_more: "مزید"
 
 # کوکیز کی رضامندی کے تراجم
 cookie_consent_title: "کوکیز کی رضامندی"
