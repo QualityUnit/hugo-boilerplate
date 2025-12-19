@@ -12,20 +12,18 @@
 <!-- Image selection logic -->
 {{ $ogImage := "" }}
 {{ if .Params.image }}
-  {{ $ogImage = .Params.image | absURL }}
+  {{ $ogImage = partial "functions/get-static-url.html" (dict "path" .Params.image) }}
 {{ else if .Params.youtubeVideoID }}
-  {{ $ogImage = printf "https://img.youtube.com/vi/%s/maxresdefault.jpg" .Params.youtubeVideoID | absURL }}
+  {{ $ogImage = printf "https://img.youtube.com/vi/%s/maxresdefault.jpg" .Params.youtubeVideoID }}
 {{ end }}
 
 <!-- Default image fallback with existence check -->
 {{ if eq $ogImage "" }}
   {{ $defaultImage := "/images/social-share.jpg" }}
   {{ if fileExists (printf "static%s" $defaultImage) }}
-    {{ $defaultImageWithCDN := partial "functions/get-static-url.html" (dict "path" $defaultImage) }}
-    {{ $ogImage = $defaultImageWithCDN | absURL }}
+    {{ $ogImage = partial "functions/get-static-url.html" (dict "path" $defaultImage) }}
   {{ else if fileExists (printf "static/images/placeholder.webp") }}
-    {{ $placeholderWithCDN := partial "functions/get-static-url.html" (dict "path" "/images/placeholder.webp") }}
-    {{ $ogImage = $placeholderWithCDN | absURL }}
+    {{ $ogImage = partial "functions/get-static-url.html" (dict "path" "/images/placeholder.webp") }}
   {{ end }}
 {{ end }}
 
