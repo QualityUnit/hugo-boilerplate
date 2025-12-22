@@ -1,0 +1,20 @@
+{{/*
+@function: Get Background Image Style
+@description: Returns a CSS background-image style with CDN-aware URL if configured
+@params:
+  - path: Path to the image (required, should start with /)
+@returns: CSS style string like "background-image: url(https://cdn.example.com/images/bg.png);"
+          or "background-image: url(/images/bg.png);" if CDN is not enabled
+@example:
+  <div style="{{ partial "functions/get-bg-image-style.html" (dict "path" "/images/bg/hero.png") }}">
+*/}}
+
+{{- $path := .path -}}
+{{- $result := "" -}}
+
+{{- if $path -}}
+  {{- $url := partial "functions/get-static-url.html" (dict "path" $path) -}}
+  {{- $result = printf "background-image: url(%s);" $url -}}
+{{- end -}}
+
+{{- return (safeCSS $result) -}}
