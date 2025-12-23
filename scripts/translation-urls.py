@@ -18,8 +18,8 @@ Requirements:
 """
 
 import os
-import frontmatter
-from frontmatter import TOMLHandler
+import toml_frontmatter as frontmatter  # Use robust TOML parser
+from toml_frontmatter import TOMLHandler
 import json
 import argparse
 from pathlib import Path

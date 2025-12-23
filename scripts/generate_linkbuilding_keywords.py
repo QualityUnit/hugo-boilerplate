@@ -27,8 +27,8 @@ import argparse
 import yaml
 import gc
 import math
-import frontmatter
-from frontmatter import TOMLHandler
+import toml_frontmatter as frontmatter  # Use robust TOML parser
+from toml_frontmatter import TOMLHandler, update_frontmatter_attribute
 import markdown
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -694,20 +694,21 @@ def find_best_keywords_for_document(
 def update_file_frontmatter(file_info, keywords):
     """Update file with linkbuilding keywords in frontmatter."""
     try:
-        post = file_info['post']
-        post.metadata['linkbuilding'] = keywords
-        
-        # Write back to file with proper TOML formatting
+        # Read original content to preserve formatting
+        with open(file_info['path'], 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Use safe line-based update that preserves all other content
+        updated_content = update_frontmatter_attribute(content, 'linkbuilding', keywords)
+
+        # Write back
         with open(file_info['path'], 'w', encoding='utf-8') as f:
-            # Use frontmatter.dumps with TOMLHandler and ensure proper format
-            content = frontmatter.dumps(post, handler=TOMLHandler())
-            f.write(content)
-        
+            f.write(updated_content)
+
         print(f"Updated {file_info['rel_path']} with {len(keywords)} keywords")
         return True
     except Exception as e:
         print(f"Error updating {file_info['rel_path']}: {e}")
-        # Provide more detailed error info
         import traceback
         traceback.print_exc()
         return False

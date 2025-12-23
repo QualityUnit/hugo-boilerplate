@@ -1,8 +1,9 @@
 import os
 import re
 import requests
-import toml
+import tomllib
 from pathlib import Path
+from toml_frontmatter import safe_toml_dumps
 from urllib.parse import urlparse
 import random
 
@@ -163,8 +164,8 @@ def process_md_file(md_path):
     # Parse TOML frontmatter
     if toml_section:
         try:
-            data = toml.loads(toml_section)
-        except toml.TomlDecodeError as e:
+            data = tomllib.loads(toml_section)
+        except tomllib.TOMLDecodeError as e:
             print(f"!!! ERROR decoding TOML in {md_path}: {e}")
             return
         # Generic image attribute offloading
@@ -215,7 +216,7 @@ def process_md_file(md_path):
                                 toml_changed = True
                                 changed = True
         if toml_changed:
-            new_toml = toml.dumps(data)
+            new_toml = safe_toml_dumps(data)
         else:
             new_toml = toml_section
     else:

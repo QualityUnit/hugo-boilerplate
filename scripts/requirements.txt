@@ -17,3 +17,5 @@ numpy>=1.21.0
 scikit-learn>=1.0.0
 hdbscan>=0.8.33
 Pillow>=10.0.0
+yake>=0.4.8
+tomli_w>=1.0.0

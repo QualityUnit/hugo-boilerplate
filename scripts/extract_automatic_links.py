@@ -22,7 +22,7 @@ import os
 import sys
 import json
 import argparse
-import frontmatter
+import toml_frontmatter as frontmatter  # Use robust TOML parser
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import urljoin

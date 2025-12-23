@@ -24,8 +24,8 @@ import argparse
 import yaml
 import json
 import gc
-import frontmatter
-from frontmatter import TOMLHandler # Changed import
+import toml_frontmatter as frontmatter  # Use robust TOML parser
+from toml_frontmatter import TOMLHandler
 import markdown
 from bs4 import BeautifulSoup
 from tqdm import tqdm

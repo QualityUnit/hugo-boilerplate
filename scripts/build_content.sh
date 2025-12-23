@@ -25,12 +25,14 @@ NC='\033[0m' # No Color
 
 # All available steps
 ALL_STEPS=(
+    "drop_all_keywords"
     "sync_translations"
     "build_hugo"
     "offload_images"
     "find_duplicate_images"
     "translate"
     "sync_content_attributes"
+    "extract_keywords"
     "sync_translation_urls"
     "generate_translation_urls"
     "generate_amplify_redirects"
@@ -51,6 +53,8 @@ declare -A STEP_DESCRIPTIONS=(
     ["find_duplicate_images"]="Find duplicate images in content"
     ["translate"]="Translate missing content via FlowHunt API"
     ["sync_content_attributes"]="Sync content attributes across languages"
+    ["drop_all_keywords"]="DROP ALL keywords (requires regeneration after)"
+    ["extract_keywords"]="Extract keywords for files missing them"
     ["sync_translation_urls"]="Sync translation URLs"
     ["generate_translation_urls"]="Generate translation URL mappings"
     ["generate_amplify_redirects"]="Generate AWS Amplify redirects"
@@ -64,7 +68,7 @@ declare -A STEP_DESCRIPTIONS=(
 )
 
 # Steps that should be unchecked by default
-UNCHECKED_BY_DEFAULT=("offload_images" "find_duplicate_images" "generate_clustering" "preprocess_images" "regenerate_linkbuilding_keywords")
+UNCHECKED_BY_DEFAULT=("offload_images" "find_duplicate_images" "generate_clustering" "preprocess_images" "regenerate_linkbuilding_keywords" "drop_all_keywords")
 
 # Interactive checkbox menu function
 show_interactive_menu() {
@@ -323,6 +327,21 @@ if [ ${#STEPS_TO_RUN[@]} -eq 0 ] && [ "$SKIP_MENU" = false ] && [ -t 0 ] && [ -t
     STEPS_TO_RUN=("${MENU_SELECTED_STEPS[@]}")
 fi
 
+# Pre-execution confirmation for dangerous steps (ask immediately after menu selection)
+for step in "${STEPS_TO_RUN[@]}"; do
+    if [ "$step" = "regenerate_linkbuilding_keywords" ]; then
+        echo -e "${RED}WARNING: You selected 'regenerate_linkbuilding_keywords'${NC}"
+        echo -e "${YELLOW}This will clear ALL existing linkbuilding attributes and regenerate them.${NC}"
+        echo ""
+        read -p "Are you sure you want to regenerate all linkbuilding keywords? (yes/no): " confirm
+        if [ "$confirm" != "yes" ]; then
+            echo -e "${YELLOW}Removing 'regenerate_linkbuilding_keywords' from steps to run.${NC}"
+            STEPS_TO_RUN=("${STEPS_TO_RUN[@]/regenerate_linkbuilding_keywords}")
+        fi
+        echo ""
+    fi
+done
+
 # Function to check for duplicate IDs in i18n YAML files
 check_duplicate_i18n_ids() {
     echo -e "${BLUE}=== Checking for duplicate IDs in i18n files ===${NC}"
@@ -473,6 +492,38 @@ run_step() {
             echo -e "${GREEN}Content attributes sync completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step sync_content_attributes finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
+        extract_keywords)
+            echo -e "${BLUE}=== Step 3.55: Extracting Keywords for Files Missing Them ===${NC}"
+            echo -e "${YELLOW}Running YAKE keyword extraction (only files without keywords)...${NC}"
+
+            # Run once for all content - script handles parallelism internally
+            # YAKE is fast, can use more workers
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/extract_keywords.py" \
+                "${HUGO_ROOT}/content" \
+                --recursive \
+                --workers 8
+
+            echo -e "${GREEN}Keyword extraction completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step extract_keywords finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
+        drop_all_keywords)
+            echo -e "${BLUE}=== Step: DROP ALL Keywords ===${NC}"
+            echo -e "${YELLOW}Dropping keywords from all markdown files using Python...${NC}"
+            # Use the Python function from extract_keywords.py for reliable TOML handling
+            "${VENV_DIR}/bin/python" -c "
+import sys
+sys.path.insert(0, '${SCRIPT_DIR}')
+from pathlib import Path
+from extract_keywords import drop_all_keywords
+
+content_path = Path('${HUGO_ROOT}/content')
+files = list(content_path.rglob('*.md'))
+dropped = drop_all_keywords(files)
+print(f'Done. Dropped keywords from {dropped} files.')
+"
+            echo -e "${GREEN}All keywords dropped! Run extract_keywords to regenerate.${NC}"
+            echo -e "${YELLOW}[DEBUG] Step drop_all_keywords finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
         sync_translation_urls)
             echo -e "${BLUE}=== Step 3.6: Syncing Translation URLs ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/sync_translation_urls.py --hugo-root ${HUGO_ROOT}${NC}"
@@ -554,16 +605,39 @@ run_step() {
             echo -e "${BLUE}=== Step: REGENERATING Linkbuilding Keywords (Clear + Generate) ===${NC}"
             echo -e "${YELLOW}This will clear ALL existing linkbuilding attributes and regenerate them.${NC}"
 
-            # Step 1: Clear all existing linkbuilding attributes
+            # Step 1: Clear all existing linkbuilding attributes using line-based approach
             echo -e "${YELLOW}Clearing existing linkbuilding attributes from all content files...${NC}"
             "${VENV_DIR}/bin/python" << 'PYTHON_SCRIPT'
 import os
-import frontmatter
-from frontmatter import TOMLHandler
+import re
 
 content_dir = os.environ.get('HUGO_ROOT', '.') + '/content'
 removed_count = 0
 total_files = 0
+
+def remove_linkbuilding(content):
+    """Remove linkbuilding line from frontmatter using line-based approach."""
+    if not content.startswith('+++'):
+        return content, False
+
+    match = re.match(r'^(\+\+\+\s*\n)(.*?)(\n\+\+\+\s*\n?)(.*)', content, re.DOTALL)
+    if not match:
+        return content, False
+
+    opening, raw_fm, closing, body = match.groups()
+
+    if 'linkbuilding' not in raw_fm:
+        return content, False
+
+    # Remove linkbuilding line(s)
+    lines = raw_fm.split('\n')
+    filtered = [l for l in lines if not (l.strip().startswith('linkbuilding') and '=' in l)]
+
+    if len(filtered) == len(lines):
+        return content, False
+
+    new_fm = '\n'.join(filtered)
+    return f"{opening}{new_fm}{closing}{body}", True
 
 for root, dirs, files in os.walk(content_dir):
     for file in files:
@@ -574,17 +648,10 @@ for root, dirs, files in os.walk(content_dir):
                 with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
 
-                try:
-                    post = frontmatter.loads(content, handler=TOMLHandler())
-                except:
-                    post = frontmatter.loads(content)
-
-                if hasattr(post, 'metadata') and post.metadata and 'linkbuilding' in post.metadata:
-                    del post.metadata['linkbuilding']
-
+                new_content, removed = remove_linkbuilding(content)
+                if removed:
                     with open(file_path, 'w', encoding='utf-8') as f:
-                        f.write(frontmatter.dumps(post, handler=TOMLHandler()))
-
+                        f.write(new_content)
                     removed_count += 1
 
             except Exception as e:

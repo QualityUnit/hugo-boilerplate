@@ -40,9 +40,10 @@ unset_attributes = [  ]
 
 import os
 import re
-import toml
+import tomllib
 from pathlib import Path
 import datetime
+from toml_frontmatter import safe_toml_dumps
 
 # Base content directory
 content_dir = Path(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../content')))
@@ -58,10 +59,10 @@ def extract_front_matter(file_path):
     if match:
         front_matter_text = match.group(1)
         try:
-            front_matter = toml.loads(front_matter_text)
+            front_matter = tomllib.loads(front_matter_text)
             remaining_content = content[match.end():]
             return front_matter, remaining_content
-        except toml.TomlDecodeError as e:
+        except tomllib.TOMLDecodeError as e:
             print(f"Error parsing front matter in {file_path}: {e}")
             raise e
     return {}, content
@@ -70,8 +71,8 @@ def update_front_matter(file_path, updated_front_matter, remaining_content):
     """Update TOML front matter in markdown file"""
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write('+++\n')
-        f.write(toml.dumps(updated_front_matter))
-        f.write('+++\n')
+        f.write(safe_toml_dumps(updated_front_matter))
+        f.write('\n+++\n')
         f.write(remaining_content)
     
 def process_file(en_file_path):
@@ -82,7 +83,7 @@ def process_file(en_file_path):
     # Extract front matter from English file
     try:
         en_front_matter, remaining_content = extract_front_matter(en_file_path)
-    except toml.TomlDecodeError as e:
+    except tomllib.TOMLDecodeError as e:
         print(f"!!!!! Error processing {en_file_path}: {e}")
         return
 

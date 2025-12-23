@@ -13,7 +13,7 @@ import json
 import yaml
 import re
 from pathlib import Path
-import frontmatter
+import toml_frontmatter as frontmatter  # Use robust TOML parser
 import argparse
 
 def extract_url_from_content(file_path):

@@ -13,7 +13,7 @@ Usage:
 import os
 import json
 import argparse
-import frontmatter
+import toml_frontmatter as frontmatter  # Use robust TOML parser
 from pathlib import Path
 from collections import defaultdict
 import numpy as np
