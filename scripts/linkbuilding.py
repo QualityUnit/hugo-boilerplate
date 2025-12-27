@@ -164,6 +164,53 @@ class LinkBuilder:
         self.page_total_links = 0
         self.page_replacements = 0
         self.existing_links = 0
+        self.current_page_url = None  # URL path of current page
+
+    def _extract_page_url_from_canonical(self, soup) -> Optional[str]:
+        """Extract the URL path from the canonical link in the HTML.
+
+        Looks for <link rel="canonical" href="..."> and extracts the path.
+        Returns the URL path that can be compared with keyword URLs.
+        """
+        canonical = soup.find('link', rel='canonical')
+        if not canonical or not canonical.get('href'):
+            return None
+
+        href = canonical.get('href', '').strip()
+        if not href:
+            return None
+
+        # Parse the URL to get just the path
+        parsed = urlparse(href)
+        url_path = parsed.path
+
+        # Ensure it ends with /
+        if url_path and not url_path.endswith('/'):
+            url_path = url_path + '/'
+
+        return url_path if url_path else None
+
+    def _is_self_reference(self, keyword_url: str) -> bool:
+        """Check if a keyword URL points to the current page (self-reference).
+
+        Returns True if the link would point to the same page, False otherwise.
+        """
+        if not self.current_page_url or not keyword_url:
+            return False
+
+        # Normalize keyword URL
+        normalized_keyword_url = keyword_url.strip()
+        if not normalized_keyword_url.startswith('/'):
+            # Skip external URLs - they're not self-references
+            if normalized_keyword_url.startswith(('http://', 'https://', '//')):
+                return False
+            normalized_keyword_url = '/' + normalized_keyword_url
+
+        if not normalized_keyword_url.endswith('/'):
+            normalized_keyword_url = normalized_keyword_url + '/'
+
+        # Compare URLs
+        return self.current_page_url == normalized_keyword_url
     
     def should_skip_file(self, file_path: Path) -> bool:
         """Check if a file should be skipped based on its path."""
@@ -358,6 +405,9 @@ class LinkBuilder:
             # Parse HTML using lxml (2-3x faster than html.parser)
             soup = BeautifulSoup(content, 'lxml')
 
+            # Extract current page URL from canonical link for self-reference detection
+            self.current_page_url = self._extract_page_url_from_canonical(soup)
+
             # Count existing links
             self.existing_links = len(soup.find_all('a'))
 
@@ -490,6 +540,10 @@ class LinkBuilder:
             if self.page_keyword_url_counts[keyword_url_key] >= self.config.max_replacements_per_keyword_url:
                 continue
 
+            # Skip self-references (don't link a page to itself)
+            if self._is_self_reference(keyword.url):
+                continue
+
             # Check for overlaps with already used ranges
             overlaps = False
             for used_start, used_end in used_ranges:
@@ -584,6 +638,10 @@ class LinkBuilder:
 
             keyword_url_key = f"{keyword.keyword}|{keyword.url}"
             if self.page_keyword_url_counts[keyword_url_key] >= self.config.max_replacements_per_keyword_url:
+                continue
+
+            # Skip self-references (don't link a page to itself)
+            if self._is_self_reference(keyword.url):
                 continue
 
             # Find keyword in text
