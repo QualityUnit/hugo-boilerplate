@@ -23,6 +23,8 @@ import markdown
 from bs4 import BeautifulSoup
 import re
 import html
+import faiss
+import umap
 
 # Constants
 MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"
@@ -91,6 +93,12 @@ def parse_args():
     parser.add_argument("--min-cluster-size", type=int, default=MIN_CLUSTER_SIZE, help="Minimum pages per cluster")
     parser.add_argument("--min-samples", type=int, default=MIN_SAMPLES, help="Minimum samples for core point")
     parser.add_argument("--exclude-sections", type=str, nargs="+", default=["author"], help="Sections to exclude")
+    parser.add_argument("--num-clusters", type=int, default=50, help="Number of global clusters for scatterplot (default: 50)")
+    parser.add_argument("--similarity-threshold", type=float, default=0.90, help="Similarity threshold for duplicate detection (default: 0.90)")
+    parser.add_argument("--k-neighbors", type=int, default=15, help="Number of neighbors to check for similarity (default: 15)")
+    parser.add_argument("--exclude-similarity-sections", type=str, nargs="+",
+                        default=["affiliate-manager", "affiliate-program-directory"],
+                        help="Sections to exclude from similarity report (default: affiliate-manager, affiliate-program-directory)")
     return parser.parse_args()
 
 def clean_title(title):
@@ -150,7 +158,8 @@ def process_content_files(content_dir, lang, exclude_sections):
 
         try:
             # Parse frontmatter
-            post = frontmatter.load(md_file)
+            with open(md_file, 'r', encoding='utf-8') as f:
+                post = frontmatter.load(f)
 
             # Extract metadata
             title = post.get('title', '')
@@ -262,7 +271,8 @@ def cluster_pages_by_section(pages, embeddings, min_cluster_size, min_samples):
             min_samples=min_samples,
             metric='euclidean',
             cluster_selection_method='eom',
-            copy=True
+            copy=True,
+            n_jobs=1  # Single-threaded to avoid semaphore leaks
         )
         cluster_labels = clusterer.fit_predict(sec_embeddings)
 
@@ -308,6 +318,636 @@ def cluster_pages_by_section(pages, embeddings, min_cluster_size, min_samples):
 
     return section_clusters
 
+
+def cluster_all_pages_global(pages, embeddings, num_clusters=50):
+    """Cluster all pages globally using FAISS k-means.
+
+    Args:
+        pages: List of page dictionaries
+        embeddings: Numpy array of embeddings (n_pages x embedding_dim)
+        num_clusters: Number of clusters to create
+
+    Returns:
+        Tuple of (cluster_labels, cluster_centroids)
+    """
+    print(f"\nPerforming global clustering with FAISS k-means ({num_clusters} clusters)...")
+
+    # Ensure embeddings are float32 for FAISS
+    embeddings_float32 = embeddings.astype(np.float32)
+
+    # Get embedding dimension
+    d = embeddings_float32.shape[1]
+
+    # Create FAISS k-means
+    kmeans = faiss.Kmeans(d=d, k=num_clusters, niter=50, verbose=True, seed=42)
+    kmeans.train(embeddings_float32)
+
+    # Get cluster assignments
+    _, cluster_labels = kmeans.index.search(embeddings_float32, 1)
+    cluster_labels = cluster_labels.flatten()
+
+    # Get centroids
+    centroids = kmeans.centroids
+
+    # Count pages per cluster
+    unique, counts = np.unique(cluster_labels, return_counts=True)
+
+    print(f"  Cluster sizes: min={min(counts)}, max={max(counts)}, avg={np.mean(counts):.1f}")
+
+    return cluster_labels, centroids
+
+
+def generate_2d_projections(embeddings, n_neighbors=15, min_dist=0.1, random_state=42):
+    """Generate 2D projections using UMAP.
+
+    Args:
+        embeddings: Numpy array of embeddings
+        n_neighbors: UMAP n_neighbors parameter
+        min_dist: UMAP min_dist parameter
+        random_state: Random seed for reproducibility
+
+    Returns:
+        Numpy array of shape (n_pages, 2) with x, y coordinates
+    """
+    print(f"\nGenerating 2D projections with UMAP...")
+    print(f"  n_neighbors={n_neighbors}, min_dist={min_dist}")
+
+    reducer = umap.UMAP(
+        n_components=2,
+        n_neighbors=n_neighbors,
+        min_dist=min_dist,
+        metric='cosine',
+        random_state=random_state,
+        verbose=True,
+        n_jobs=1  # Single-threaded to avoid semaphore leaks
+    )
+
+    projections = reducer.fit_transform(embeddings)
+
+    # Normalize to roughly [-1, 1] range for consistent display
+    # Use 5th and 95th percentile to avoid outlier influence
+    for i in range(2):
+        p5, p95 = np.percentile(projections[:, i], [5, 95])
+        center = (p5 + p95) / 2
+        scale = (p95 - p5) / 2 if p95 != p5 else 1
+        projections[:, i] = (projections[:, i] - center) / scale
+
+    print(f"  Projection range: x=[{projections[:, 0].min():.2f}, {projections[:, 0].max():.2f}], "
+          f"y=[{projections[:, 1].min():.2f}, {projections[:, 1].max():.2f}]")
+
+    return projections
+
+
+def generate_scatterplot_data(pages, embeddings, projections, cluster_labels, centroids):
+    """Generate scatterplot data structure for visualization.
+
+    Args:
+        pages: List of page dictionaries
+        embeddings: Numpy array of embeddings
+        projections: 2D projections (n_pages x 2)
+        cluster_labels: Cluster assignment for each page
+        centroids: Cluster centroids in embedding space
+
+    Returns:
+        Dictionary with scatterplot data
+    """
+    print(f"\nGenerating scatterplot data structure...")
+
+    # Build page data with coordinates
+    page_data = []
+    for i, page in enumerate(pages):
+        page_data.append({
+            "title": page['title'],
+            "url": page['url'],
+            "section": page['section'],
+            "x": float(projections[i, 0]),
+            "y": float(projections[i, 1]),
+            "cluster": int(cluster_labels[i]),
+            "keywords": page.get('keywords', [])[:10]  # Limit keywords
+        })
+
+    # Project centroids to 2D (approximate using mean of cluster points)
+    num_clusters = len(centroids)
+    cluster_data = []
+
+    for cluster_id in range(num_clusters):
+        # Find pages in this cluster
+        mask = cluster_labels == cluster_id
+        if np.any(mask):
+            cluster_points = projections[mask]
+            centroid_x = float(np.mean(cluster_points[:, 0]))
+            centroid_y = float(np.mean(cluster_points[:, 1]))
+            size = int(np.sum(mask))
+        else:
+            centroid_x = 0.0
+            centroid_y = 0.0
+            size = 0
+
+        cluster_data.append({
+            "id": cluster_id,
+            "centroid_x": centroid_x,
+            "centroid_y": centroid_y,
+            "size": size
+        })
+
+    scatterplot_data = {
+        "pages": page_data,
+        "clusters": cluster_data,
+        "num_clusters": num_clusters,
+        "total_pages": len(pages)
+    }
+
+    return scatterplot_data
+
+
+def find_similar_articles(pages, embeddings, similarity_threshold=0.90, k_neighbors=10):
+    """Find groups of articles that are too similar using FAISS.
+
+    Uses FAISS k-NN search to efficiently find similar articles, then groups
+    connected similar articles using Union-Find algorithm.
+
+    Args:
+        pages: List of page dictionaries
+        embeddings: Numpy array of embeddings
+        similarity_threshold: Cosine similarity threshold (0-1). Default 0.90 means
+                             articles with >90% similarity are flagged.
+        k_neighbors: Number of nearest neighbors to check per article
+
+    Returns:
+        List of similarity groups, each containing:
+        - pages: List of (page_index, page_info) tuples
+        - pairs: List of (idx1, idx2, similarity) tuples showing connections
+    """
+    print(f"\nFinding similar articles (threshold: {similarity_threshold:.0%})...")
+
+    n_pages = len(pages)
+    if n_pages < 2:
+        return []
+
+    # Normalize embeddings for cosine similarity (FAISS uses L2, so we normalize)
+    embeddings_float32 = embeddings.astype(np.float32)
+    faiss.normalize_L2(embeddings_float32)
+
+    # Build FAISS index
+    d = embeddings_float32.shape[1]
+    index = faiss.IndexFlatIP(d)  # Inner product = cosine similarity after normalization
+    index.add(embeddings_float32)
+
+    # Search for k nearest neighbors for each vector
+    k = min(k_neighbors + 1, n_pages)  # +1 because each vector is its own neighbor
+    similarities, indices = index.search(embeddings_float32, k)
+
+    # Find all pairs above threshold
+    similar_pairs = []
+    for i in range(n_pages):
+        for j_idx in range(1, k):  # Skip first (self)
+            neighbor_idx = indices[i, j_idx]
+            sim = similarities[i, j_idx]
+
+            if sim >= similarity_threshold and i < neighbor_idx:  # Avoid duplicates
+                similar_pairs.append((i, neighbor_idx, float(sim)))
+
+    print(f"  Found {len(similar_pairs)} similar pairs above threshold")
+
+    if not similar_pairs:
+        return []
+
+    # Use Union-Find to group connected similar articles
+    parent = list(range(n_pages))
+
+    def find(x):
+        if parent[x] != x:
+            parent[x] = find(parent[x])
+        return parent[x]
+
+    def union(x, y):
+        px, py = find(x), find(y)
+        if px != py:
+            parent[px] = py
+
+    # Union all similar pairs
+    for i, j, _ in similar_pairs:
+        union(i, j)
+
+    # Group pages by their root
+    groups_dict = {}
+    for i in range(n_pages):
+        root = find(i)
+        if root not in groups_dict:
+            groups_dict[root] = []
+        groups_dict[root].append(i)
+
+    # Filter to only groups with multiple pages
+    similarity_groups = []
+    for root, members in groups_dict.items():
+        if len(members) > 1:
+            # Get pairs within this group
+            group_pairs = [(i, j, sim) for i, j, sim in similar_pairs
+                          if find(i) == root]
+            group_pairs.sort(key=lambda x: -x[2])  # Sort by similarity desc
+
+            # Sort members by most connections
+            member_connections = {m: 0 for m in members}
+            for i, j, _ in group_pairs:
+                member_connections[i] = member_connections.get(i, 0) + 1
+                member_connections[j] = member_connections.get(j, 0) + 1
+
+            sorted_members = sorted(members, key=lambda m: -member_connections[m])
+
+            similarity_groups.append({
+                'pages': [(idx, pages[idx]) for idx in sorted_members],
+                'pairs': group_pairs,
+                'max_similarity': max(sim for _, _, sim in group_pairs) if group_pairs else 0
+            })
+
+    # Sort groups by max similarity (most similar first)
+    similarity_groups.sort(key=lambda g: -g['max_similarity'])
+
+    print(f"  Found {len(similarity_groups)} groups of similar articles")
+    total_affected = sum(len(g['pages']) for g in similarity_groups)
+    print(f"  Total affected pages: {total_affected}")
+
+    return similarity_groups
+
+
+def generate_similarity_report_html(similarity_groups, pages, output_path, lang):
+    """Generate an HTML report of similar articles.
+
+    Args:
+        similarity_groups: Output from find_similar_articles()
+        pages: List of page dictionaries
+        output_path: Path to write HTML file
+        lang: Language code for the report
+    """
+    print(f"\nGenerating similarity report: {output_path}")
+
+    total_groups = len(similarity_groups)
+    total_pages = sum(len(g['pages']) for g in similarity_groups)
+    total_pairs = sum(len(g['pairs']) for g in similarity_groups)
+
+    html_content = f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Similar Articles Report - {lang.upper()}</title>
+    <style>
+        * {{ box-sizing: border-box; }}
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }}
+        h1 {{ color: #1a1a1a; border-bottom: 3px solid #3b82f6; padding-bottom: 10px; }}
+        h2 {{ color: #374151; margin-top: 30px; }}
+        .summary {{
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }}
+        .summary-stats {{
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }}
+        .stat {{
+            text-align: center;
+        }}
+        .stat-value {{
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #dc2626;
+        }}
+        .stat-label {{
+            color: #6b7280;
+            font-size: 0.9em;
+        }}
+        .group {{
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }}
+        .group-header {{
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+        .group-header:hover {{ background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }}
+        .group-header h3 {{ margin: 0; font-size: 1.1em; }}
+        .group-meta {{ font-size: 0.9em; opacity: 0.9; }}
+        .group-content {{ padding: 20px; display: none; }}
+        .group.expanded .group-content {{ display: block; }}
+        .similarity-badge {{
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }}
+        .sim-high {{ background: #fecaca; color: #991b1b; }}
+        .sim-medium {{ background: #fed7aa; color: #9a3412; }}
+        .sim-low {{ background: #fef3c7; color: #92400e; }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }}
+        th, td {{
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }}
+        th {{
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }}
+        tr:hover {{ background: #f9fafb; }}
+        a {{
+            color: #2563eb;
+            text-decoration: none;
+        }}
+        a:hover {{ text-decoration: underline; }}
+        .section-tag {{
+            display: inline-block;
+            background: #e5e7eb;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: #4b5563;
+        }}
+        .pairs-section {{ margin-top: 20px; }}
+        .pairs-section h4 {{ color: #6b7280; margin-bottom: 10px; }}
+        .pair {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #fef2f2;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }}
+        .pair-arrow {{ color: #9ca3af; }}
+        .expand-icon {{
+            transition: transform 0.2s;
+        }}
+        .group.expanded .expand-icon {{
+            transform: rotate(180deg);
+        }}
+        .legend {{
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }}
+        .legend-item {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }}
+        .filter-controls {{
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }}
+        .filter-controls label {{ font-weight: 500; }}
+        .filter-controls input, .filter-controls select {{
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+        }}
+        #expand-all {{
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }}
+        #expand-all:hover {{ background: #2563eb; }}
+    </style>
+</head>
+<body>
+    <h1>🔍 Similar Articles Report - {lang.upper()}</h1>
+
+    <div class="summary">
+        <div class="summary-stats">
+            <div class="stat">
+                <div class="stat-value">{total_groups}</div>
+                <div class="stat-label">Similar Groups</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">{total_pages}</div>
+                <div class="stat-label">Affected Pages</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">{total_pairs}</div>
+                <div class="stat-label">Similar Pairs</div>
+            </div>
+        </div>
+        <p style="margin-top: 15px; color: #6b7280;">
+            This report identifies pages with potentially duplicate or very similar content.
+            Consider consolidating, differentiating, or adding canonical tags to these pages.
+        </p>
+    </div>
+
+    <div class="legend">
+        <span style="font-weight: 600;">Similarity Levels:</span>
+        <div class="legend-item">
+            <span class="similarity-badge sim-high">≥95%</span>
+            <span>Nearly identical</span>
+        </div>
+        <div class="legend-item">
+            <span class="similarity-badge sim-medium">90-95%</span>
+            <span>Very similar</span>
+        </div>
+        <div class="legend-item">
+            <span class="similarity-badge sim-low">85-90%</span>
+            <span>Similar</span>
+        </div>
+    </div>
+
+    <div class="filter-controls">
+        <label>Filter by section:</label>
+        <select id="section-filter">
+            <option value="">All sections</option>
+        </select>
+        <label>Min similarity:</label>
+        <input type="range" id="sim-filter" min="85" max="99" value="90" style="width: 150px;">
+        <span id="sim-filter-value">90%</span>
+        <button id="expand-all">Expand All</button>
+    </div>
+
+    <div id="groups-container">
+'''
+
+    # Generate group HTML
+    for group_idx, group in enumerate(similarity_groups):
+        max_sim = group['max_similarity']
+        sim_class = 'sim-high' if max_sim >= 0.95 else 'sim-medium' if max_sim >= 0.90 else 'sim-low'
+        pages_in_group = group['pages']
+        pairs = group['pairs']
+
+        # Get sections in this group
+        sections = list(set(p['section'] for _, p in pages_in_group))
+        sections_str = ', '.join(sections[:3]) + ('...' if len(sections) > 3 else '')
+
+        html_content += f'''
+        <div class="group" data-max-sim="{max_sim:.2f}" data-sections="{','.join(sections)}">
+            <div class="group-header" onclick="toggleGroup(this.parentElement)">
+                <h3>
+                    Group {group_idx + 1}: {len(pages_in_group)} similar pages
+                    <span class="similarity-badge {sim_class}">{max_sim:.1%} max</span>
+                </h3>
+                <div class="group-meta">
+                    {sections_str}
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            <div class="group-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Section</th>
+                            <th>URL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+'''
+
+        for idx, page in pages_in_group:
+            html_content += f'''
+                        <tr>
+                            <td><strong>{html.escape(page["title"])}</strong></td>
+                            <td><span class="section-tag">{html.escape(page["section"])}</span></td>
+                            <td><a href="{html.escape(page["url"])}" target="_blank">{html.escape(page["url"])}</a></td>
+                        </tr>
+'''
+
+        html_content += '''
+                    </tbody>
+                </table>
+
+                <div class="pairs-section">
+                    <h4>Similarity Connections</h4>
+'''
+
+        # Show top pairs (limit to avoid huge reports)
+        for i, j, sim in pairs[:20]:
+            page_i = pages[i]
+            page_j = pages[j]
+            sim_class = 'sim-high' if sim >= 0.95 else 'sim-medium' if sim >= 0.90 else 'sim-low'
+            html_content += f'''
+                    <div class="pair">
+                        <span class="similarity-badge {sim_class}">{sim:.1%}</span>
+                        <a href="{html.escape(page_i["url"])}" target="_blank">{html.escape(page_i["title"][:50])}</a>
+                        <span class="pair-arrow">↔</span>
+                        <a href="{html.escape(page_j["url"])}" target="_blank">{html.escape(page_j["title"][:50])}</a>
+                    </div>
+'''
+
+        if len(pairs) > 20:
+            html_content += f'<p style="color: #6b7280; font-size: 0.9em;">... and {len(pairs) - 20} more pairs</p>'
+
+        html_content += '''
+                </div>
+            </div>
+        </div>
+'''
+
+    # Close HTML
+    html_content += '''
+    </div>
+
+    <script>
+        function toggleGroup(el) {
+            el.classList.toggle('expanded');
+        }
+
+        // Section filter
+        const sections = new Set();
+        document.querySelectorAll('.group').forEach(g => {
+            g.dataset.sections.split(',').forEach(s => sections.add(s));
+        });
+        const sectionSelect = document.getElementById('section-filter');
+        [...sections].sort().forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s || '(root)';
+            sectionSelect.appendChild(opt);
+        });
+
+        sectionSelect.addEventListener('change', filterGroups);
+
+        // Similarity filter
+        const simFilter = document.getElementById('sim-filter');
+        const simValue = document.getElementById('sim-filter-value');
+        simFilter.addEventListener('input', () => {
+            simValue.textContent = simFilter.value + '%';
+            filterGroups();
+        });
+
+        function filterGroups() {
+            const section = sectionSelect.value;
+            const minSim = parseInt(simFilter.value) / 100;
+
+            document.querySelectorAll('.group').forEach(g => {
+                const groupSim = parseFloat(g.dataset.maxSim);
+                const groupSections = g.dataset.sections.split(',');
+
+                const matchSection = !section || groupSections.includes(section);
+                const matchSim = groupSim >= minSim;
+
+                g.style.display = matchSection && matchSim ? '' : 'none';
+            });
+        }
+
+        // Expand all
+        document.getElementById('expand-all').addEventListener('click', () => {
+            const groups = document.querySelectorAll('.group');
+            const allExpanded = [...groups].every(g => g.classList.contains('expanded'));
+            groups.forEach(g => {
+                if (allExpanded) {
+                    g.classList.remove('expanded');
+                } else {
+                    g.classList.add('expanded');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+'''
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+
+    print(f"  Report saved: {output_path}")
+
+
 def create_recursive_subclusters(pages, embeddings, depth=0):
     """Recursively create subclusters until each cluster has <= MAX_CLUSTER_SIZE pages.
 
@@ -345,7 +985,8 @@ def create_recursive_subclusters(pages, embeddings, depth=0):
         min_samples=sub_min_samples,
         metric='euclidean',
         cluster_selection_method='eom',
-        copy=True
+        copy=True,
+        n_jobs=1  # Single-threaded to avoid semaphore leaks
     )
     sub_labels = clusterer.fit_predict(page_embeddings)
 
@@ -590,13 +1231,66 @@ def main():
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(hierarchy, f, ensure_ascii=False, indent=2)
 
+    # Generate scatterplot data with global clustering
+    print("\n" + "="*60)
+    print("Generating scatterplot visualization data...")
+    print("="*60)
+
+    # Global clustering with FAISS k-means
+    cluster_labels, centroids = cluster_all_pages_global(pages, embeddings, args.num_clusters)
+
+    # Generate 2D projections with UMAP
+    projections = generate_2d_projections(embeddings)
+
+    # Create scatterplot data structure
+    scatterplot_data = generate_scatterplot_data(pages, embeddings, projections, cluster_labels, centroids)
+
+    # Save scatterplot data to separate file
+    scatterplot_file = static_output_dir / f"{args.lang}_scatterplot.json"
+    print(f"\nWriting scatterplot data to: {scatterplot_file}")
+    with open(scatterplot_file, 'w', encoding='utf-8') as f:
+        json.dump(scatterplot_data, f, ensure_ascii=False, indent=2)
+
     print(f"\nSuccessfully generated clustering data for {args.lang}")
     print(f"Total pages: {len(pages)}")
     print(f"Total sections: {len(section_clusters)}")
 
     # Count total clusters across all sections
     total_clusters = sum(len(section_clusters[s]['clusters']) for s in section_clusters)
-    print(f"Total semantic clusters: {total_clusters}")
+    print(f"Total semantic clusters (hierarchical): {total_clusters}")
+    print(f"Global clusters (scatterplot): {args.num_clusters}")
+
+    # Generate similarity report
+    print("\n" + "="*60)
+    print("Generating similar articles report...")
+    print("="*60)
+
+    # Filter pages for similarity check (exclude specified sections)
+    if args.exclude_similarity_sections:
+        print(f"Excluding sections from similarity check: {', '.join(args.exclude_similarity_sections)}")
+        similarity_indices = [
+            i for i, page in enumerate(pages)
+            if page.get('section', '') not in args.exclude_similarity_sections
+        ]
+        similarity_pages = [pages[i] for i in similarity_indices]
+        similarity_embeddings = embeddings[similarity_indices]
+        print(f"Pages for similarity check: {len(similarity_pages)} (excluded {len(pages) - len(similarity_pages)})")
+    else:
+        similarity_pages = pages
+        similarity_embeddings = embeddings
+
+    similarity_groups = find_similar_articles(
+        similarity_pages, similarity_embeddings,
+        similarity_threshold=args.similarity_threshold,
+        k_neighbors=args.k_neighbors
+    )
+
+    if similarity_groups:
+        report_file = static_output_dir / f"{args.lang}_similar_articles.html"
+        generate_similarity_report_html(similarity_groups, similarity_pages, report_file, args.lang)
+        print(f"\nSimilar articles report saved to: {report_file}")
+    else:
+        print(f"\nNo similar articles found above {args.similarity_threshold:.0%} threshold")
 
 if __name__ == "__main__":
     main()

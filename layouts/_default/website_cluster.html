@@ -55,6 +55,38 @@
         </div>
       </div>
 
+      <!-- Scatterplot Visualization -->
+      <div class="mt-8 bg-gray-50 rounded-lg shadow-lg p-8">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">Semantic Scatterplot</h2>
+            <p class="text-sm text-gray-500 mt-1">
+              Each dot represents a page. Colors indicate semantic clusters. Drag to select pages.
+            </p>
+          </div>
+          <div class="flex items-center gap-4">
+            <div id="scatterplot-selection-info" class="text-sm text-gray-600 hidden">
+              <span id="selection-count">0</span> pages selected
+              <button id="clear-selection-btn" class="ml-2 text-blue-600 hover:text-blue-800 underline">Clear</button>
+            </div>
+          </div>
+        </div>
+        <div id="scatterplot-container" class="w-full" style="min-height: 600px;">
+          <!-- D3.js scatterplot will be rendered here -->
+          <div class="flex items-center justify-center h-96">
+            <div class="text-center">
+              <svg class="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="text-gray-600">Loading scatterplot...</p>
+            </div>
+          </div>
+        </div>
+        <!-- Cluster Legend -->
+        <div id="cluster-legend" class="mt-4 flex flex-wrap gap-2"></div>
+      </div>
+
       <!-- Legend -->
       <div class="mt-8 bg-blue-50 rounded-lg p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-3">Legend</h3>
@@ -360,7 +392,18 @@
         // If this node has keywords directly
         if (n.data.keywords && Array.isArray(n.data.keywords)) {
           n.data.keywords.forEach(kw => {
-            keywordCounts[kw] = (keywordCounts[kw] || 0) + 1;
+            // Handle both string and object formats
+            // Object format: {keyword: "...", count: N}
+            // String format: "keyword"
+            let keywordStr, keywordCount;
+            if (typeof kw === 'object' && kw.keyword) {
+              keywordStr = kw.keyword;
+              keywordCount = kw.count || 1;
+            } else {
+              keywordStr = String(kw);
+              keywordCount = 1;
+            }
+            keywordCounts[keywordStr] = (keywordCounts[keywordStr] || 0) + keywordCount;
           });
         }
         // Recursively traverse children
@@ -591,6 +634,384 @@
     document.addEventListener('DOMContentLoaded', loadVisualization);
   } else {
     loadVisualization();
+  }
+
+  // ============================================================
+  // SCATTERPLOT VISUALIZATION
+  // ============================================================
+
+  const scatterplotDataUrl = `/data/clustering/${currentLang}_scatterplot.json`;
+
+  // Global state for scatterplot
+  let scatterplotData = null;
+  let selectedPages = new Set();
+
+  async function loadScatterplot() {
+    try {
+      const response = await fetch(scatterplotDataUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to load scatterplot data: ${response.statusText}`);
+      }
+
+      scatterplotData = await response.json();
+      renderScatterplot(scatterplotData);
+    } catch (error) {
+      console.error('Error loading scatterplot:', error);
+      document.getElementById('scatterplot-container').innerHTML = `
+        <div class="text-center py-12">
+          <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p class="text-gray-600 mb-2">Failed to load scatterplot data</p>
+          <p class="text-sm text-gray-500">${error.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  function renderScatterplot(data) {
+    const container = document.getElementById('scatterplot-container');
+    container.innerHTML = '';
+
+    const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+    const containerWidth = container.offsetWidth;
+    const width = containerWidth - margin.left - margin.right;
+    const height = 600 - margin.top - margin.bottom;
+
+    // Create SVG with outer container for zoom
+    const svgOuter = d3.select('#scatterplot-container')
+      .append('svg')
+      .attr('width', containerWidth)
+      .attr('height', 600);
+
+    const svg = svgOuter.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Get data extents
+    const xExtent = d3.extent(data.pages, d => d.x);
+    const yExtent = d3.extent(data.pages, d => d.y);
+
+    // Add padding to extents
+    const xPadding = (xExtent[1] - xExtent[0]) * 0.05;
+    const yPadding = (yExtent[1] - yExtent[0]) * 0.05;
+
+    // Create scales
+    const xScale = d3.scaleLinear()
+      .domain([xExtent[0] - xPadding, xExtent[1] + xPadding])
+      .range([0, width]);
+
+    const yScale = d3.scaleLinear()
+      .domain([yExtent[0] - yPadding, yExtent[1] + yPadding])
+      .range([height, 0]);
+
+    // Color scale for clusters (use extended color palette for 50 clusters)
+    const colorPalette = [
+      '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+      '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+      '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5',
+      '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d', '#9edae5',
+      '#393b79', '#637939', '#8c6d31', '#843c39', '#7b4173',
+      '#5254a3', '#8ca252', '#bd9e39', '#ad494a', '#a55194',
+      '#6b6ecf', '#b5cf6b', '#e7ba52', '#d6616b', '#ce6dbd',
+      '#9c9ede', '#cedb9c', '#e7cb94', '#e7969c', '#de9ed6',
+      '#3182bd', '#e6550d', '#31a354', '#756bb1', '#636363',
+      '#6baed6', '#fd8d3c', '#74c476', '#9e9ac8', '#969696'
+    ];
+
+    const colorScale = d3.scaleOrdinal()
+      .domain(d3.range(data.num_clusters))
+      .range(colorPalette);
+
+    // Create clip path for dots
+    svg.append('defs')
+      .append('clipPath')
+      .attr('id', 'scatter-clip')
+      .append('rect')
+      .attr('width', width)
+      .attr('height', height);
+
+    // Create group for dots with clip path
+    const dotsGroup = svg.append('g')
+      .attr('clip-path', 'url(#scatter-clip)');
+
+    // Draw dots
+    const dots = dotsGroup.selectAll('circle')
+      .data(data.pages)
+      .join('circle')
+      .attr('cx', d => xScale(d.x))
+      .attr('cy', d => yScale(d.y))
+      .attr('r', 4)
+      .attr('fill', d => colorScale(d.cluster))
+      .attr('fill-opacity', 0.7)
+      .attr('stroke', 'white')
+      .attr('stroke-width', 0.5)
+      .style('cursor', 'pointer')
+      .on('click', function(event, d) {
+        event.stopPropagation();
+        window.location.href = d.url;
+      });
+
+    // Add tooltip
+    const tooltip = d3.select('body')
+      .append('div')
+      .attr('class', 'scatterplot-tooltip')
+      .style('position', 'absolute')
+      .style('visibility', 'hidden')
+      .style('background-color', 'rgba(0, 0, 0, 0.9)')
+      .style('color', 'white')
+      .style('padding', '8px 12px')
+      .style('border-radius', '6px')
+      .style('font-size', '14px')
+      .style('pointer-events', 'none')
+      .style('z-index', '1000')
+      .style('max-width', '300px');
+
+    dots
+      .on('mouseover', function(event, d) {
+        d3.select(this)
+          .attr('r', 6)
+          .attr('stroke', '#000')
+          .attr('stroke-width', 2);
+
+        tooltip.style('visibility', 'visible')
+          .html(`
+            <strong>${d.title}</strong>
+            <br><span style="font-size: 12px; color: #9ca3af;">Section: ${d.section}</span>
+            <br><span style="font-size: 12px; color: #9ca3af;">Cluster: ${d.cluster}</span>
+            ${d.keywords && d.keywords.length > 0 ?
+              `<br><span style="font-size: 11px; color: #9ca3af;">Keywords: ${d.keywords.slice(0, 5).join(', ')}</span>` : ''}
+            <br><span style="font-size: 11px; color: #60a5fa;">Click to open page</span>
+          `);
+      })
+      .on('mousemove', function(event) {
+        tooltip.style('top', (event.pageY - 10) + 'px')
+          .style('left', (event.pageX + 10) + 'px');
+      })
+      .on('mouseout', function() {
+        d3.select(this)
+          .attr('r', 4)
+          .attr('stroke', 'white')
+          .attr('stroke-width', 0.5);
+        tooltip.style('visibility', 'hidden');
+      });
+
+    // Store original scales for zoom reset
+    const xScaleOriginal = xScale.copy();
+    const yScaleOriginal = yScale.copy();
+
+    // Create axes groups for zoom updates
+    const xAxisGroup = svg.append('g')
+      .attr('transform', `translate(0,${height})`)
+      .attr('class', 'axis x-axis')
+      .call(d3.axisBottom(xScale).ticks(10));
+
+    const yAxisGroup = svg.append('g')
+      .attr('class', 'axis y-axis')
+      .call(d3.axisLeft(yScale).ticks(10));
+
+    // Remove the duplicate axis creation (already added above)
+    // Add brush for selection
+    const brush = d3.brush()
+      .extent([[0, 0], [width, height]])
+      .on('start brush end', brushed);
+
+    const brushGroup = svg.append('g')
+      .attr('class', 'brush')
+      .call(brush);
+
+    // Zoom behavior - only scroll wheel, no drag (drag is for brush selection)
+    const zoom = d3.zoom()
+      .scaleExtent([0.5, 20])
+      .extent([[0, 0], [width, height]])
+      .filter(event => {
+        // Only allow scroll wheel zoom, not drag
+        return event.type === 'wheel' || event.type === 'dblclick';
+      })
+      .on('zoom', zoomed);
+
+    // Apply zoom to the outer SVG
+    svgOuter.call(zoom);
+
+    // Double-click to reset zoom
+    svgOuter.on('dblclick.zoom', () => {
+      svgOuter.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+    });
+
+    function zoomed(event) {
+      // Update scales based on zoom transform
+      const newXScale = event.transform.rescaleX(xScaleOriginal);
+      const newYScale = event.transform.rescaleY(yScaleOriginal);
+
+      // Update axes
+      xAxisGroup.call(d3.axisBottom(newXScale).ticks(10));
+      yAxisGroup.call(d3.axisLeft(newYScale).ticks(10));
+
+      // Update dot positions
+      dots.attr('cx', d => newXScale(d.x))
+        .attr('cy', d => newYScale(d.y));
+
+      // Store current scales for brush
+      xScale.domain(newXScale.domain());
+      yScale.domain(newYScale.domain());
+    }
+
+    function brushed(event) {
+      const selection = event.selection;
+
+      if (selection) {
+        const [[x0, y0], [x1, y1]] = selection;
+
+        // Find selected pages using current scales
+        selectedPages.clear();
+        data.pages.forEach((page, i) => {
+          const px = xScale(page.x);
+          const py = yScale(page.y);
+          if (px >= x0 && px <= x1 && py >= y0 && py <= y1) {
+            selectedPages.add(i);
+          }
+        });
+
+        // Update dot styles
+        dots.attr('fill-opacity', (d, i) => selectedPages.has(i) ? 1 : 0.2)
+          .attr('r', (d, i) => selectedPages.has(i) ? 5 : 3);
+
+        // Update selection info
+        updateSelectionInfo();
+
+        // Update table with selected pages
+        if (event.type === 'end' && selectedPages.size > 0) {
+          updateTableWithSelection();
+        }
+      } else {
+        // No selection - reset
+        selectedPages.clear();
+        dots.attr('fill-opacity', 0.7).attr('r', 4);
+        updateSelectionInfo();
+      }
+    }
+
+    // Clear selection button handler
+    document.getElementById('clear-selection-btn').addEventListener('click', () => {
+      brushGroup.call(brush.move, null);
+      selectedPages.clear();
+      dots.attr('fill-opacity', 0.7).attr('r', 4);
+      updateSelectionInfo();
+      // Reset table to show all from current cluster view
+      if (focus && focus !== root) {
+        window.showClusterDetails(focus, false);
+      }
+    });
+
+    // Add zoom instructions
+    const zoomInstructions = document.createElement('div');
+    zoomInstructions.className = 'text-xs text-gray-500 mt-2';
+    zoomInstructions.innerHTML = 'Scroll to zoom • Double-click to reset zoom • Draw rectangle to select pages';
+    container.appendChild(zoomInstructions);
+
+    // Render cluster legend
+    renderClusterLegend(data, colorScale);
+  }
+
+  function updateSelectionInfo() {
+    const infoEl = document.getElementById('scatterplot-selection-info');
+    const countEl = document.getElementById('selection-count');
+
+    if (selectedPages.size > 0) {
+      infoEl.classList.remove('hidden');
+      countEl.textContent = selectedPages.size;
+    } else {
+      infoEl.classList.add('hidden');
+    }
+  }
+
+  function updateTableWithSelection() {
+    if (!scatterplotData || selectedPages.size === 0) return;
+
+    const detailsPanel = document.getElementById('cluster-details');
+    const titleEl = document.getElementById('cluster-title');
+    const statsEl = document.getElementById('cluster-stats');
+    const keywordsEl = document.getElementById('cluster-keywords');
+    const pagesCountEl = document.getElementById('pages-count');
+    const tableBody = document.getElementById('pages-table-body');
+
+    // Get selected pages
+    const pages = Array.from(selectedPages).map(i => scatterplotData.pages[i]);
+
+    // Update title and stats
+    titleEl.textContent = 'Selected Pages';
+    statsEl.textContent = `${pages.length} pages selected from scatterplot`;
+
+    // Collect keywords from selected pages
+    const keywordCounts = {};
+    pages.forEach(page => {
+      if (page.keywords) {
+        page.keywords.forEach(kw => {
+          keywordCounts[kw] = (keywordCounts[kw] || 0) + 1;
+        });
+      }
+    });
+
+    const topKeywords = Object.entries(keywordCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 20);
+
+    // Update keywords
+    keywordsEl.innerHTML = topKeywords.map(([kw, count]) =>
+      `<span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+        ${kw}${count > 1 ? ` <span class="text-blue-500">(${count})</span>` : ''}
+      </span>`
+    ).join('');
+
+    // Update pages count
+    pagesCountEl.textContent = pages.length;
+
+    // Update table
+    tableBody.innerHTML = pages.map(page => `
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-3">
+          <a href="${page.url}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
+            ${page.title}
+          </a>
+        </td>
+        <td class="px-4 py-3 text-sm text-gray-500">${page.section}</td>
+        <td class="px-4 py-3">
+          <div class="flex flex-wrap gap-1 max-w-md">
+            ${page.keywords ? page.keywords.slice(0, 5).map(kw =>
+              `<span class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">${kw}</span>`
+            ).join('') : ''}
+            ${page.keywords && page.keywords.length > 5 ? `<span class="text-gray-400 text-xs">+${page.keywords.length - 5} more</span>` : ''}
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    // Show panel and scroll to it
+    detailsPanel.classList.remove('hidden');
+    detailsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderClusterLegend(data, colorScale) {
+    const legendEl = document.getElementById('cluster-legend');
+
+    // Group clusters by size and show top clusters
+    const sortedClusters = data.clusters
+      .filter(c => c.size > 0)
+      .sort((a, b) => b.size - a.size)
+      .slice(0, 20);
+
+    legendEl.innerHTML = sortedClusters.map(cluster =>
+      `<div class="flex items-center gap-1 text-xs">
+        <span class="w-3 h-3 rounded-full" style="background-color: ${colorScale(cluster.id)}"></span>
+        <span class="text-gray-600">Cluster ${cluster.id} (${cluster.size})</span>
+      </div>`
+    ).join('');
+  }
+
+  // Load scatterplot after main visualization
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadScatterplot);
+  } else {
+    loadScatterplot();
   }
 </script>
 

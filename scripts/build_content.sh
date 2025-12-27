@@ -732,7 +732,9 @@ PYTHON_SCRIPT
                     echo -e "${YELLOW}[DEBUG] Starting clustering generation for language: $lang${NC}"
 
                     # Run clustering in background (with virtual environment)
+                    # Set env vars to avoid multiprocessing semaphore leaks
                     (
+                        TOKENIZERS_PARALLELISM=false OMP_NUM_THREADS=1 \
                         "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_clustering.py" \
                             --lang "$lang" \
                             --hugo-root "${HUGO_ROOT}" \
