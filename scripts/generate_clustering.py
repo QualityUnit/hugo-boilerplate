@@ -94,7 +94,7 @@ def parse_args():
     parser.add_argument("--min-samples", type=int, default=MIN_SAMPLES, help="Minimum samples for core point")
     parser.add_argument("--exclude-sections", type=str, nargs="+", default=["author"], help="Sections to exclude")
     parser.add_argument("--num-clusters", type=int, default=50, help="Number of global clusters for scatterplot (default: 50)")
-    parser.add_argument("--similarity-threshold", type=float, default=0.90, help="Similarity threshold for duplicate detection (default: 0.90)")
+    parser.add_argument("--similarity-threshold", type=float, default=0.85, help="Similarity threshold for duplicate detection (default: 0.85)")
     parser.add_argument("--k-neighbors", type=int, default=15, help="Number of neighbors to check for similarity (default: 15)")
     parser.add_argument("--exclude-similarity-sections", type=str, nargs="+",
                         default=["affiliate-manager", "affiliate-program-directory"],
@@ -460,7 +460,7 @@ def generate_scatterplot_data(pages, embeddings, projections, cluster_labels, ce
     return scatterplot_data
 
 
-def find_similar_articles(pages, embeddings, similarity_threshold=0.90, k_neighbors=10):
+def find_similar_articles(pages, embeddings, similarity_threshold=0.85, k_neighbors=10):
     """Find groups of articles that are too similar using FAISS.
 
     Uses FAISS k-NN search to efficiently find similar articles, then groups
@@ -469,8 +469,8 @@ def find_similar_articles(pages, embeddings, similarity_threshold=0.90, k_neighb
     Args:
         pages: List of page dictionaries
         embeddings: Numpy array of embeddings
-        similarity_threshold: Cosine similarity threshold (0-1). Default 0.90 means
-                             articles with >90% similarity are flagged.
+        similarity_threshold: Cosine similarity threshold (0-1). Default 0.85 means
+                             articles with >85% similarity are flagged.
         k_neighbors: Number of nearest neighbors to check per article
 
     Returns:
@@ -570,13 +570,13 @@ def find_similar_articles(pages, embeddings, similarity_threshold=0.90, k_neighb
     return similarity_groups
 
 
-def generate_similarity_report_html(similarity_groups, pages, output_path, lang):
-    """Generate an HTML report of similar articles.
+def generate_similarity_report_txt(similarity_groups, pages, output_path, lang):
+    """Generate a plain text report of similar articles.
 
     Args:
         similarity_groups: Output from find_similar_articles()
         pages: List of page dictionaries
-        output_path: Path to write HTML file
+        output_path: Path to write text file
         lang: Language code for the report
     """
     print(f"\nGenerating similarity report: {output_path}")
@@ -585,365 +585,59 @@ def generate_similarity_report_html(similarity_groups, pages, output_path, lang)
     total_pages = sum(len(g['pages']) for g in similarity_groups)
     total_pairs = sum(len(g['pairs']) for g in similarity_groups)
 
-    html_content = f'''<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Similar Articles Report - {lang.upper()}</title>
-    <style>
-        * {{ box-sizing: border-box; }}
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }}
-        h1 {{ color: #1a1a1a; border-bottom: 3px solid #3b82f6; padding-bottom: 10px; }}
-        h2 {{ color: #374151; margin-top: 30px; }}
-        .summary {{
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }}
-        .summary-stats {{
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-        }}
-        .stat {{
-            text-align: center;
-        }}
-        .stat-value {{
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #dc2626;
-        }}
-        .stat-label {{
-            color: #6b7280;
-            font-size: 0.9em;
-        }}
-        .group {{
-            background: #fff;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }}
-        .group-header {{
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            padding: 15px 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }}
-        .group-header:hover {{ background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }}
-        .group-header h3 {{ margin: 0; font-size: 1.1em; }}
-        .group-meta {{ font-size: 0.9em; opacity: 0.9; }}
-        .group-content {{ padding: 20px; display: none; }}
-        .group.expanded .group-content {{ display: block; }}
-        .similarity-badge {{
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }}
-        .sim-high {{ background: #fecaca; color: #991b1b; }}
-        .sim-medium {{ background: #fed7aa; color: #9a3412; }}
-        .sim-low {{ background: #fef3c7; color: #92400e; }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }}
-        th, td {{
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }}
-        th {{
-            background: #f9fafb;
-            font-weight: 600;
-            color: #374151;
-        }}
-        tr:hover {{ background: #f9fafb; }}
-        a {{
-            color: #2563eb;
-            text-decoration: none;
-        }}
-        a:hover {{ text-decoration: underline; }}
-        .section-tag {{
-            display: inline-block;
-            background: #e5e7eb;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            color: #4b5563;
-        }}
-        .pairs-section {{ margin-top: 20px; }}
-        .pairs-section h4 {{ color: #6b7280; margin-bottom: 10px; }}
-        .pair {{
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            background: #fef2f2;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-        }}
-        .pair-arrow {{ color: #9ca3af; }}
-        .expand-icon {{
-            transition: transform 0.2s;
-        }}
-        .group.expanded .expand-icon {{
-            transform: rotate(180deg);
-        }}
-        .legend {{
-            background: #fff;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            align-items: center;
-        }}
-        .legend-item {{
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9em;
-        }}
-        .filter-controls {{
-            background: #fff;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-        }}
-        .filter-controls label {{ font-weight: 500; }}
-        .filter-controls input, .filter-controls select {{
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-        }}
-        #expand-all {{
-            padding: 8px 16px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }}
-        #expand-all:hover {{ background: #2563eb; }}
-    </style>
-</head>
-<body>
-    <h1>🔍 Similar Articles Report - {lang.upper()}</h1>
+    lines = []
+    lines.append("=" * 70)
+    lines.append(f"SIMILAR ARTICLES REPORT - {lang.upper()}")
+    lines.append("=" * 70)
+    lines.append("")
+    lines.append("SUMMARY")
+    lines.append("-" * 70)
+    lines.append(f"Similar Groups: {total_groups}")
+    lines.append(f"Affected Pages: {total_pages}")
+    lines.append(f"Similar Pairs:  {total_pairs}")
+    lines.append("")
+    lines.append("SIMILARITY LEVELS:")
+    lines.append("  95-100% = Nearly identical")
+    lines.append("  90-95%  = Very similar")
+    lines.append("  85-90%  = Similar")
+    lines.append("")
+    lines.append("=" * 70)
+    lines.append("")
 
-    <div class="summary">
-        <div class="summary-stats">
-            <div class="stat">
-                <div class="stat-value">{total_groups}</div>
-                <div class="stat-label">Similar Groups</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value">{total_pages}</div>
-                <div class="stat-label">Affected Pages</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value">{total_pairs}</div>
-                <div class="stat-label">Similar Pairs</div>
-            </div>
-        </div>
-        <p style="margin-top: 15px; color: #6b7280;">
-            This report identifies pages with potentially duplicate or very similar content.
-            Consider consolidating, differentiating, or adding canonical tags to these pages.
-        </p>
-    </div>
-
-    <div class="legend">
-        <span style="font-weight: 600;">Similarity Levels:</span>
-        <div class="legend-item">
-            <span class="similarity-badge sim-high">≥95%</span>
-            <span>Nearly identical</span>
-        </div>
-        <div class="legend-item">
-            <span class="similarity-badge sim-medium">90-95%</span>
-            <span>Very similar</span>
-        </div>
-        <div class="legend-item">
-            <span class="similarity-badge sim-low">85-90%</span>
-            <span>Similar</span>
-        </div>
-    </div>
-
-    <div class="filter-controls">
-        <label>Filter by section:</label>
-        <select id="section-filter">
-            <option value="">All sections</option>
-        </select>
-        <label>Min similarity:</label>
-        <input type="range" id="sim-filter" min="85" max="99" value="90" style="width: 150px;">
-        <span id="sim-filter-value">90%</span>
-        <button id="expand-all">Expand All</button>
-    </div>
-
-    <div id="groups-container">
-'''
-
-    # Generate group HTML
+    # Generate group text
     for group_idx, group in enumerate(similarity_groups):
         max_sim = group['max_similarity']
-        sim_class = 'sim-high' if max_sim >= 0.95 else 'sim-medium' if max_sim >= 0.90 else 'sim-low'
         pages_in_group = group['pages']
         pairs = group['pairs']
 
         # Get sections in this group
         sections = list(set(p['section'] for _, p in pages_in_group))
-        sections_str = ', '.join(sections[:3]) + ('...' if len(sections) > 3 else '')
+        sections_str = ', '.join(sections) if sections else 'root'
 
-        html_content += f'''
-        <div class="group" data-max-sim="{max_sim:.2f}" data-sections="{','.join(sections)}">
-            <div class="group-header" onclick="toggleGroup(this.parentElement)">
-                <h3>
-                    Group {group_idx + 1}: {len(pages_in_group)} similar pages
-                    <span class="similarity-badge {sim_class}">{max_sim:.1%} max</span>
-                </h3>
-                <div class="group-meta">
-                    {sections_str}
-                    <span class="expand-icon">▼</span>
-                </div>
-            </div>
-            <div class="group-content">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Section</th>
-                            <th>URL</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-'''
+        lines.append(f"Group {group_idx + 1}: {len(pages_in_group)} pages | {max_sim:.1%} max | Sections: {sections_str}")
+        lines.append("-" * 70)
 
+        # List pages in group
         for idx, page in pages_in_group:
-            html_content += f'''
-                        <tr>
-                            <td><strong>{html.escape(page["title"])}</strong></td>
-                            <td><span class="section-tag">{html.escape(page["section"])}</span></td>
-                            <td><a href="{html.escape(page["url"])}" target="_blank">{html.escape(page["url"])}</a></td>
-                        </tr>
-'''
+            lines.append(f"  [{page['section']}] {page['url']}")
+            lines.append(f"    Title: {page['title']}")
 
-        html_content += '''
-                    </tbody>
-                </table>
+        # Show similarity pairs
+        if pairs:
+            lines.append("")
+            lines.append("  Similarity Pairs:")
+            for i, j, sim in pairs[:10]:
+                page_i = pages[i]
+                page_j = pages[j]
+                lines.append(f"    {sim:.1%}: {page_i['url']} <-> {page_j['url']}")
+            if len(pairs) > 10:
+                lines.append(f"    ... and {len(pairs) - 10} more pairs")
 
-                <div class="pairs-section">
-                    <h4>Similarity Connections</h4>
-'''
+        lines.append("")
 
-        # Show top pairs (limit to avoid huge reports)
-        for i, j, sim in pairs[:20]:
-            page_i = pages[i]
-            page_j = pages[j]
-            sim_class = 'sim-high' if sim >= 0.95 else 'sim-medium' if sim >= 0.90 else 'sim-low'
-            html_content += f'''
-                    <div class="pair">
-                        <span class="similarity-badge {sim_class}">{sim:.1%}</span>
-                        <a href="{html.escape(page_i["url"])}" target="_blank">{html.escape(page_i["title"][:50])}</a>
-                        <span class="pair-arrow">↔</span>
-                        <a href="{html.escape(page_j["url"])}" target="_blank">{html.escape(page_j["title"][:50])}</a>
-                    </div>
-'''
-
-        if len(pairs) > 20:
-            html_content += f'<p style="color: #6b7280; font-size: 0.9em;">... and {len(pairs) - 20} more pairs</p>'
-
-        html_content += '''
-                </div>
-            </div>
-        </div>
-'''
-
-    # Close HTML
-    html_content += '''
-    </div>
-
-    <script>
-        function toggleGroup(el) {
-            el.classList.toggle('expanded');
-        }
-
-        // Section filter
-        const sections = new Set();
-        document.querySelectorAll('.group').forEach(g => {
-            g.dataset.sections.split(',').forEach(s => sections.add(s));
-        });
-        const sectionSelect = document.getElementById('section-filter');
-        [...sections].sort().forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s;
-            opt.textContent = s || '(root)';
-            sectionSelect.appendChild(opt);
-        });
-
-        sectionSelect.addEventListener('change', filterGroups);
-
-        // Similarity filter
-        const simFilter = document.getElementById('sim-filter');
-        const simValue = document.getElementById('sim-filter-value');
-        simFilter.addEventListener('input', () => {
-            simValue.textContent = simFilter.value + '%';
-            filterGroups();
-        });
-
-        function filterGroups() {
-            const section = sectionSelect.value;
-            const minSim = parseInt(simFilter.value) / 100;
-
-            document.querySelectorAll('.group').forEach(g => {
-                const groupSim = parseFloat(g.dataset.maxSim);
-                const groupSections = g.dataset.sections.split(',');
-
-                const matchSection = !section || groupSections.includes(section);
-                const matchSim = groupSim >= minSim;
-
-                g.style.display = matchSection && matchSim ? '' : 'none';
-            });
-        }
-
-        // Expand all
-        document.getElementById('expand-all').addEventListener('click', () => {
-            const groups = document.querySelectorAll('.group');
-            const allExpanded = [...groups].every(g => g.classList.contains('expanded'));
-            groups.forEach(g => {
-                if (allExpanded) {
-                    g.classList.remove('expanded');
-                } else {
-                    g.classList.add('expanded');
-                }
-            });
-        });
-    </script>
-</body>
-</html>
-'''
-
+    # Write to file
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(html_content)
+        f.write('\n'.join(lines))
 
     print(f"  Report saved: {output_path}")
 
@@ -1286,8 +980,8 @@ def main():
     )
 
     if similarity_groups:
-        report_file = static_output_dir / f"{args.lang}_similar_articles.html"
-        generate_similarity_report_html(similarity_groups, similarity_pages, report_file, args.lang)
+        report_file = static_output_dir / f"{args.lang}_similar_articles.txt"
+        generate_similarity_report_txt(similarity_groups, similarity_pages, report_file, args.lang)
         print(f"\nSimilar articles report saved to: {report_file}")
     else:
         print(f"\nNo similar articles found above {args.similarity_threshold:.0%} threshold")
