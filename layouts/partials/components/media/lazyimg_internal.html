@@ -338,7 +338,7 @@
         {{- if $noLazy }} srcset="{{ $origSrcset }}"{{ else }} data-srcset="{{ $origSrcset }}"{{ end }}
         sizes="{{ $sizesAttr }}" data-original-src="{{ $src }}">
       <img
-        {{- if $noLazy }} src="{{ $fallbackSrcWithDomain }}"{{ else }} data-src="{{ $fallbackSrcWithDomain }}"{{ end }}
+        {{- if $noLazy }} src="{{ $fallbackSrcWithDomain }}"{{ else }} src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="{{ $fallbackSrcWithDomain }}"{{ end }}
         alt="{{ $alt }}" class="{{ $imgClassFallback }}"
         {{- if $id }} id="{{ $id }}"{{ end -}}
         {{- if $width }} width="{{ $width }}"{{ end -}}

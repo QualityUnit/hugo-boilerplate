@@ -4,6 +4,7 @@
 @import "./typewriter.css";
 @import "./lazy-images.css";
 @import "./lazy-videos.css";
+@import "./components/floating-cta.css";
 
 /* 🎯 TAILWIND LAYERS */
 @tailwind base;

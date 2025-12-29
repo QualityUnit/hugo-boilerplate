@@ -19,39 +19,47 @@
 "sectionPaddingY" "py-4"
 ) }}
 
-<!-- Main Content -->
+<!-- Main Content with Floating CTA -->
 <div class="mt-8 bg-white">
   <div class="wrapper">
-    <div class="wrapper-content prose">
-        <!-- Term Definition Card -->
-        {{ if or .Params.term .Params.short_definition }}
-          {{ $definitionIcon := "academic-cap" }}
-          {{ $definitionTitle := .Params.term | default .Title }}
-          {{ $definitionDescription := .Params.short_definition | default "" }}
-          {{ partial "components/cards/icon_card.html" (dict
-              "iconBackground" "bg-transparent"
-              "icon" $definitionIcon
-              "iconSize" "w-10 h-10"
-              "title" $definitionTitle
-              "headingLevel" "h2"
-              "description" $definitionDescription
-              "descriptionLines" 6
-          ) }}
+    <div class="blog-content-with-cta">
+      <!-- Main Content -->
+      <div class="blog-main-content">
+        <div class="wrapper-content prose">
+            <!-- Term Definition Card -->
+            {{ if or .Params.term .Params.short_definition }}
+              {{ $definitionIcon := "academic-cap" }}
+              {{ $definitionTitle := .Params.term | default .Title }}
+              {{ $definitionDescription := .Params.short_definition | default "" }}
+              {{ partial "components/cards/icon_card.html" (dict
+                  "iconBackground" "bg-transparent"
+                  "icon" $definitionIcon
+                  "iconSize" "w-10 h-10"
+                  "title" $definitionTitle
+                  "headingLevel" "h2"
+                  "description" $definitionDescription
+                  "descriptionLines" 6
+              ) }}
 
-          {{/* Add Schema.org DefinedTerm markup */}}
-          <script type="application/ld+json">
-          {
-            "@context": "https://schema.org",
-            "@type": "DefinedTerm",
-            "name": {{ $definitionTitle | jsonify }},
-            "description": {{ $definitionDescription | jsonify }},
-            "url": {{ .Permalink | jsonify }}
-          }
-          </script>
-        {{ end }}
+              {{/* Add Schema.org DefinedTerm markup */}}
+              <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "DefinedTerm",
+                "name": {{ $definitionTitle | jsonify }},
+                "description": {{ $definitionDescription | jsonify }},
+                "url": {{ .Permalink | jsonify }}
+              }
+              </script>
+            {{ end }}
 
-        {{ .Content | safeHTML }}
+            {{ .Content | safeHTML }}
 
+        </div>
+      </div>
+
+      <!-- Floating CTA (hidden on mobile, visible on xl screens) -->
+      {{ partial "components/floating-cta.html" . }}
     </div>
   </div>
 </div>

@@ -1,0 +1,83 @@
+{{/*
+@component: Floating CTA
+@description: A floating call-to-action element that sticks to the right side of blog content.
+              Floats next to content, stays sticky while scrolling, and stops when reaching the FAQ section.
+@params:
+  Page-level (front matter):
+  - floatingCta.heading: CTA heading text
+  - floatingCta.description: CTA description text
+  - floatingCta.buttonText: CTA button text
+  - floatingCta.buttonUrl: CTA button URL
+  - floatingCta.buttonVariant: Button style variant (primary, secondary, primary-alternate)
+  - floatingCta.image: CTA image path
+  - floatingCta.imageAlt: CTA image alt text
+
+  Site-level (params.toml):
+  - floatingCta.heading: Default heading
+  - floatingCta.description: Default description
+  - floatingCta.buttonText: Default button text
+  - floatingCta.buttonUrl: Default button URL
+  - floatingCta.buttonVariant: Default button variant (defaults to "primary")
+  - floatingCta.image: Default image
+  - floatingCta.imageAlt: Default image alt text
+  - floatingCta.enable: Enable/disable floating CTA globally
+@example:
+  {{ partial "components/floating-cta.html" . }}
+*/}}
+
+{{/* Check if floating CTA is enabled globally (Hugo lowercases config keys) */}}
+{{ $globalEnable := site.Params.floatingcta.enable | default true }}
+
+{{/* Check if this page explicitly disables the floating CTA */}}
+{{ $pageDisable := .Params.floatingCtaDisable | default false }}
+
+{{/* Only render if enabled globally and not disabled on this page */}}
+{{ if and $globalEnable (not $pageDisable) }}
+
+{{/* Get page-level settings with site-level fallbacks (Hugo lowercases config keys) */}}
+{{ $heading := .Params.floatingCta.heading | default site.Params.floatingcta.heading | default (i18n "floating_cta_heading") | default "Build Your Affiliate Program" }}
+{{ $description := .Params.floatingCta.description | default site.Params.floatingcta.description | default (i18n "floating_cta_description") | default "Launch and scale your custom affiliate program with the industry's most trusted affiliate software." }}
+{{ $buttonText := .Params.floatingCta.buttonText | default site.Params.floatingcta.buttontext | default (i18n "floating_cta_button") | default "Start Free Trial" }}
+{{ $buttonUrl := .Params.floatingCta.buttonUrl | default site.Params.floatingcta.buttonurl | default "/trial/" }}
+{{ $buttonVariant := .Params.floatingCta.buttonVariant | default site.Params.floatingcta.buttonvariant | default "primary" }}
+{{ $image := .Params.floatingCta.image | default site.Params.floatingcta.image | default "" }}
+{{ $imageAlt := .Params.floatingCta.imageAlt | default site.Params.floatingcta.imagealt | default $heading }}
+{{ $bgColor := .Params.floatingCta.bgColor | default site.Params.floatingcta.bgcolor | default "" }}
+
+{{/* Translate URL if needed */}}
+{{ $buttonUrl = partial "helpers/get-translated-url.html" (dict "url" $buttonUrl "lang" site.Language.Lang) }}
+
+<aside class="floating-cta" aria-label="Call to action">
+  <div class="floating-cta__inner{{ if $bgColor }} bg-[{{ $bgColor }}]{{ end }}">
+    {{/* Content */}}
+    <div class="floating-cta__content">
+      <h3 class="floating-cta__heading">{{ $heading }}</h3>
+
+      {{/* Image between title and description */}}
+      {{ if $image }}
+      <div class="floating-cta__image">
+        {{ partial "components/media/lazyimg.html" (dict
+          "src" $image
+          "alt" $imageAlt
+          "maxWidth" 280
+        ) }}
+      </div>
+      {{ end }}
+
+      <p class="floating-cta__description">{{ $description }}</p>
+    </div>
+
+    {{/* Button */}}
+    <div class="floating-cta__action">
+      {{ partial "components/buttons/buttons.html" (dict
+        "text" $buttonText
+        "url" $buttonUrl
+        "variant" $buttonVariant
+        "size" "lg"
+        "classes" "w-full justify-center"
+      ) }}
+    </div>
+  </div>
+</aside>
+
+{{ end }}

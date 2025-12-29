@@ -1,0 +1,94 @@
+/* ================================================================ */
+/* FLOATING CTA COMPONENT */
+/* A sticky CTA that floats next to blog content on the right side */
+/* Uses pure CSS position: sticky - automatically stops at parent boundary */
+/* ================================================================ */
+
+.floating-cta {
+  position: sticky;
+  top: 6rem; /* Account for header height */
+  width: 280px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  z-index: 10;
+}
+
+/* Inner container with styling */
+.floating-cta__inner {
+  @apply bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden;
+}
+
+/* Dark mode support */
+.dark .floating-cta__inner {
+  @apply bg-gray-800 border-gray-700;
+}
+
+/* Image section */
+.floating-cta__image {
+  @apply w-full my-4;
+}
+
+.floating-cta__image figure {
+  @apply m-0;
+}
+
+.floating-cta__image picture {
+  @apply block w-full;
+}
+
+.floating-cta__image img {
+  @apply w-full h-auto min-h-[100px];
+}
+
+/* Content section */
+.floating-cta__content {
+  @apply p-5;
+}
+
+.floating-cta__heading {
+  @apply text-lg font-semibold text-gray-900 mb-2;
+}
+
+.dark .floating-cta__heading {
+  @apply text-white;
+}
+
+.floating-cta__description {
+  @apply text-sm text-gray-600 leading-relaxed;
+}
+
+.dark .floating-cta__description {
+  @apply text-gray-300;
+}
+
+/* Action/Button section */
+.floating-cta__action {
+  @apply px-5 pb-5;
+}
+
+/* Blog content wrapper - modified to accommodate floating CTA */
+.blog-content-with-cta {
+  @apply flex gap-8;
+}
+
+.blog-content-with-cta .blog-main-content {
+  @apply flex-1 min-w-0;
+}
+
+/* Hide floating CTA on smaller screens */
+@media (max-width: 1279px) {
+  .floating-cta {
+    display: none;
+  }
+
+  .blog-content-with-cta {
+    display: block;
+  }
+}
+
+/* Adjust for very large screens */
+@media (min-width: 1536px) {
+  .floating-cta {
+    width: 320px;
+  }
+}

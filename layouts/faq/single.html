@@ -14,37 +14,44 @@
 ) }}
 
 
-<!-- Main Content -->
+<!-- Main Content with Floating CTA -->
 <div class="mt-8 bg-white">
-  <div  class=" wrapper">
-    <div class="wrapper-content prose">
-        {{ if or .Params.glossaryTitle .Params.short_answer }}
-          {{ $definitionIcon := "light-bulb" }}
-          {{ $definitionTitle := .Params.question | default "" }}
-          {{ $definitionDescription := .Params.short_answer | default "" }}
-          {{ partial "components/cards/icon_card.html" (dict
-              "iconBackground" "bg-transparent"
-              "icon" $definitionIcon
-              "iconSize" "w-10 h-10"
-              "title" $definitionTitle
-              "headingLevel" "h2"
-              "description" $definitionDescription
-              "descriptionLines" 6
-          ) }}
+  <div class="wrapper">
+    <div class="blog-content-with-cta">
+      <!-- Main Content -->
+      <div class="blog-main-content">
+        <div class="wrapper-content prose">
+          {{ if or .Params.glossaryTitle .Params.short_answer }}
+            {{ $definitionIcon := "light-bulb" }}
+            {{ $definitionTitle := .Params.question | default "" }}
+            {{ $definitionDescription := .Params.short_answer | default "" }}
+            {{ partial "components/cards/icon_card.html" (dict
+                "iconBackground" "bg-transparent"
+                "icon" $definitionIcon
+                "iconSize" "w-10 h-10"
+                "title" $definitionTitle
+                "headingLevel" "h2"
+                "description" $definitionDescription
+                "descriptionLines" 6
+            ) }}
 
-          {{/* Add Schema.org FAQ markup */}}
-          {{ $faqAnswer := .Content }}
-          {{ if $definitionDescription }}
-            {{ $faqAnswer = printf "%s\n\n%s" $definitionDescription .Content }}
+            {{/* Add Schema.org FAQ markup */}}
+            {{ $faqAnswer := .Content }}
+            {{ if $definitionDescription }}
+              {{ $faqAnswer = printf "%s\n\n%s" $definitionDescription .Content }}
+            {{ end }}
+            {{ partial "schemaorg/faq.html" (dict "faqs" (slice (dict
+                "question" $definitionTitle
+                "answer" ($faqAnswer | plainify)
+            ))) }}
           {{ end }}
-          {{ partial "schemaorg/faq.html" (dict "faqs" (slice (dict
-              "question" $definitionTitle
-              "answer" ($faqAnswer | plainify)
-          ))) }}
-        {{ end }}
 
-        {{ .Content | safeHTML }}
+          {{ .Content | safeHTML }}
+        </div>
+      </div>
 
+      <!-- Floating CTA (hidden on mobile, visible on xl screens) -->
+      {{ partial "components/floating-cta.html" . }}
     </div>
   </div>
 </div>
