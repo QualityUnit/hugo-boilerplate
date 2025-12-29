@@ -91,6 +91,15 @@
 {{ $linkUrl := .linkUrl | default "" }}
 {{ $taglineColor := .taglineColor | default "primary" }}
 {{ $backgroundColor := .backgroundColor | default "gray-50" }}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+
+{{/* Theme-based text colors */}}
+{{ $headingTextColor := cond $isDark "text-white" "text-heading" }}
+{{ $descriptionTextColor := cond $isDark "text-gray-300" "text-secondary" }}
+{{ $cardRingColor := cond $isDark "ring-white/10" "ring-black/5" }}
+{{ $cardShadow := cond $isDark "shadow-lg shadow-black/30" "shadow-lg shadow-gray-200/80" }}
+{{ $cardHoverShadow := cond $isDark "hover:shadow-xl hover:shadow-black/40" "hover:shadow-xl hover:shadow-gray-300" }}
 
 {{/* Default cards if none provided */}}
 
@@ -99,15 +108,15 @@
 <div class="bg-{{ $backgroundColor }} py-24 sm:py-32">
   <div class="wrapper">
     {{ if $tagline }}
-      <h2 class="text-base/7 font-semibold text-{{ $taglineColor }} mb-4">{{ $tagline }}</h2>
+      <h2 class="text-base/7 font-semibold mb-4 text-{{ $taglineColor }}"{{ if $isDark }} style="color: #fbbf24;"{{ end }}>{{ $tagline }}</h2>
     {{ end }}
 
     {{ if $heading }}
-      <p class="max-w-lg text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</p>
+      <p class="max-w-lg text-4xl font-semibold tracking-tight text-pretty {{ $headingTextColor }} sm:text-5xl">{{ $heading }}</p>
     {{ end }}
 
     {{ if $description }}
-      <p class="mt-1 text-lg/8 text-secondary">{{ $description | safeHTML }}</p>
+      <p class="mt-1 text-lg/8 {{ $descriptionTextColor }}">{{ $description | safeHTML }}</p>
     {{ end }}
 
     {{ if $linkUrl }}
@@ -148,20 +157,20 @@
           {{ $borderRadius = "rounded-[10px] lg:rounded-[10px_10px_32px_10px]" }}
         {{ end }}
         {{ $url := $card.url | default "" }}
-        {{ $cardImageClasses := $card.cardImageClasses | default "h-80 object-cover object-left" }}
+        {{ $cardImageClasses := $card.cardImageClasses | default "w-full h-80 object-cover object-center" }}
         {{ $backgroundColorImage := $card.backgroundColorImage | default "bg-gray-200" }}
-        <div class="relative {{ $colSpan }} {{ $borderRadius }}">
-          <div class="absolute inset-px {{ $borderRadius }} bg-white"></div>
+        <div class="relative {{ $colSpan }} {{ $borderRadius }} {{ $cardShadow }} {{ $cardHoverShadow }} transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] group/card">
+          <div class="absolute inset-0 {{ $borderRadius }} bg-white"></div>
           {{ if $url }}
-            {{ $cardImageClasses = $card.cardImageClasses | default "h-80 object-cover object-left transition-transform group-hover:scale-105" }}
+            {{ $cardImageClasses = $card.cardImageClasses | default "w-full h-80 object-cover object-center transition-transform group-hover:scale-105" }}
 
             <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $url) }}" class="relative block h-full group">
               <div class="relative flex h-full flex-col overflow-hidden {{ $borderRadius }}">
-                <div class="{{ $backgroundColorImage }}">
+                <div class="{{ $backgroundColorImage }} overflow-hidden">
                   {{ partial "components/media/lazyimg.html" (dict
                     "src" $card.image
                     "alt" $card.imageAlt
-                    "class" $card.cardImageClasses
+                    "class" $cardImageClasses
                     "maxWidth" 600
                   ) }}
                 </div>
@@ -173,17 +182,17 @@
                 </div>
                 {{ end }}
               </div>
-              <div class="pointer-events-none absolute inset-px {{ $borderRadius }} ring-1 shadow-sm ring-black/5 group-hover:ring-2 group-hover:ring-{{ $card.categoryColor | default "primary" }}/30"></div>
+              <div class="pointer-events-none absolute inset-0 {{ $borderRadius }} ring-1 {{ $cardRingColor }} transition-all duration-300 group-hover/card:ring-2 group-hover/card:ring-primary/40"></div>
             </a>
           {{ else }}
             <div class="relative flex h-full flex-col overflow-hidden {{ $borderRadius }}">
-              <div class="{{ $backgroundColorImage }}">
+              <div class="{{ $backgroundColorImage }} overflow-hidden">
                 {{ partial "components/media/lazyimg.html" (dict
-                "src" $card.image
-                "alt" $card.imageAlt
-                "class" $cardImageClasses
-                "maxWidth" 600
-              ) }}
+                  "src" $card.image
+                  "alt" $card.imageAlt
+                  "class" $cardImageClasses
+                  "maxWidth" 600
+                ) }}
               </div>
               {{ if or $card.category $card.title $card.description }}
               <div class="p-10 pt-8 flex flex-col gap-y-2">
@@ -193,7 +202,7 @@
               </div>
               {{ end }}
             </div>
-            <div class="pointer-events-none absolute inset-px {{ $borderRadius }} ring-1 shadow-sm ring-black/5"></div>
+            <div class="pointer-events-none absolute inset-0 {{ $borderRadius }} ring-1 {{ $cardRingColor }} transition-all duration-300 group-hover/card:ring-2 group-hover/card:ring-primary/40"></div>
           {{ end }}
         </div>
       {{ end }}

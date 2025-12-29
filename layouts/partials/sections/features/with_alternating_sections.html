@@ -98,12 +98,15 @@
       {{ end }}
     </div>
 
-    <div class="mt-16 space-y-16">
+    <div class="mt-16">
       {{ range $index, $feature := $features }}
-        <div class="flex flex-col-reverse lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-8">
+        {{ $isEven := eq (mod $index 2) 0 }}
+        {{ $sectionBg := cond $isEven "bg-white" "bg-gray-50" }}
+        <div class="{{ $sectionBg }} py-12 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 rounded-xl">
+        <div class="flex flex-col-reverse lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-8">
           {{ if eq $feature.imagePosition "right" }}
-            <div class="mt-6 {{ $textColClasses }} lg:col-start-1 lg:row-start-1 lg:mt-0">
-              <h2 class="{{ $headingClasses }} font-medium text-gray-900">{{ $feature.title }}</h2>
+            <div class="mt-6 {{ $textColClasses }} lg:col-start-1 lg:row-start-1 lg:mt-0 lg:pt-2">
+              <h2 class="{{ $headingClasses }} font-medium text-gray-900 mt-0">{{ $feature.title }}</h2>
               <p class="mt-2 {{ $textClasses }} text-gray-500">{{ $feature.description | safeHTML }}</p>
               {{ if $feature.listItems }}
                 <ul class="mt-4 pl-0 space-y-2">
@@ -147,15 +150,21 @@
               {{ end }}
             </div>
             <div class="flex-auto {{ $imageColClasses }} {{ if eq $layoutSize "balanced" }}lg:col-start-7{{ else if eq $layoutSize "wide-text" }}lg:col-start-8 xl:col-start-9{{ else }}lg:col-start-6 xl:col-start-5{{ end }} lg:row-start-1">
-              {{ partial "components/media/lazyimg.html" (dict 
-                "src" $feature.imageUrl
-                "alt" $feature.imageAlt
-                "class" "aspect-5/2 w-full rounded-lg object-cover"
-              ) }}
+              <!-- Image with frame, shadow and decorative gradient -->
+              <div class="relative">
+                <div class="absolute -inset-x-4 -bottom-4 top-8 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent rounded-2xl blur-xl"></div>
+                <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10">
+                  {{ partial "components/media/lazyimg.html" (dict
+                    "src" $feature.imageUrl
+                    "alt" $feature.imageAlt
+                    "class" "aspect-5/2 w-full rounded-lg object-cover"
+                  ) }}
+                </div>
+              </div>
             </div>
           {{ else }}
-            <div class="mt-6 {{ $textColClasses }} {{ $textColStartClasses }} lg:row-start-1 lg:mt-0">
-              <h2 class="{{ $headingClasses }} font-medium text-gray-900">{{ $feature.title }}</h2>
+            <div class="mt-6 {{ $textColClasses }} {{ $textColStartClasses }} lg:row-start-1 lg:mt-0 lg:pt-2">
+              <h2 class="{{ $headingClasses }} font-medium text-gray-900 mt-0">{{ $feature.title }}</h2>
               <p class="mt-2 {{ $textClasses }} text-gray-500">{{ $feature.description | safeHTML }}</p>
               {{ if $feature.listItems }}
                 <ul class="mt-4 pl-0 space-y-2">
@@ -197,13 +206,20 @@
               {{ end }}
             </div>
             <div class="flex-auto {{ $imageColClasses }} {{ $imageColStartClasses }} lg:row-start-1">
-              {{ partial "components/media/lazyimg.html" (dict 
-                "src" $feature.imageUrl
-                "alt" $feature.imageAlt
-                "class" "aspect-5/2 w-full rounded-lg object-cover"
-              ) }}
+              <!-- Image with frame, shadow and decorative gradient -->
+              <div class="relative">
+                <div class="absolute -inset-x-4 -bottom-4 top-8 bg-gradient-to-l from-primary/20 via-primary/10 to-transparent rounded-2xl blur-xl"></div>
+                <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10">
+                  {{ partial "components/media/lazyimg.html" (dict
+                    "src" $feature.imageUrl
+                    "alt" $feature.imageAlt
+                    "class" "aspect-5/2 w-full rounded-lg object-cover"
+                  ) }}
+                </div>
+              </div>
             </div>
           {{ end }}
+        </div>
         </div>
       {{ end }}
     </div>

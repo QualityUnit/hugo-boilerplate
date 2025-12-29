@@ -98,6 +98,7 @@
 {{ $linkText := .Get "linkText" | default "" }}
 {{ $linkUrl := .Get "linkUrl" | default "" }}
 {{ $cardImageClasses := .Get "cardImageClasses" | default "h-80 object-cover object-left" }}
+{{ $theme := .Get "theme" | default "light" }}
 
 {{ $cards := slice }}
 {{ with .Inner }}
@@ -106,7 +107,7 @@
   {{ end }}
 {{ end }}
 
-{{ partial "sections/bentogrids/two_row_bento_grid.html" (dict 
+{{ partial "sections/bentogrids/two_row_bento_grid.html" (dict
   "tagline" $tagline
   "heading" $heading
   "description" $description
@@ -114,5 +115,6 @@
   "linkUrl" $linkUrl
   "backgroundColor" $backgroundColor
   "taglineColor" $taglineColor
+  "theme" $theme
   "cards" $cards
 ) }}

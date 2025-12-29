@@ -113,7 +113,7 @@ Design Tokens:
   {{ end }}
   <div class="wrapper flex flex-col lg:flex-row lg:justify-between lg:items-stretch {{ if not $videoUrl }}gap-x-8{{ end }}{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
-      <div class="group/video relative rounded-lg {{ $mediaContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem] {{ if $videoUrl }}h-full{{ end }}">
+      <div class="group/video relative rounded-lg {{ $mediaContainerPaddingY }} flex items-start justify-center w-full mx-auto max-w-[38rem] {{ if $videoUrl }}h-full overflow-hidden max-h-[35rem]{{ end }}">
         {{ if $videoUrl }}
           <div class="relative flex w-full h-full">
             {{/* Display video */}}
@@ -156,18 +156,25 @@ Design Tokens:
             {{ end }}
           </div>
         {{ else if $image }}
-          {{/* Display image */}}
-          {{ if $link }}
-            <a href="{{ $link }}" target="{{ $linkTarget }}"{{ if eq $linkTarget "_blank" }} rel="noopener noreferrer"{{ end }} class="w-full flex items-center justify-center">
-          {{ end }}
-              {{ partial "components/media/lazyimg.html" (dict
-                "src" $image
-                "alt" $imageAlt
-                "class" $imageClass
-              ) }}
-          {{ if $link }}
-            </a>
-          {{ end }}
+          {{/* Display image with decorative frame */}}
+          <div class="relative w-full p-4">
+            <!-- Decorative background gradient -->
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent rounded-2xl blur-2xl"></div>
+            <!-- Image with frame -->
+            <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10">
+              {{ if $link }}
+                <a href="{{ $link }}" target="{{ $linkTarget }}"{{ if eq $linkTarget "_blank" }} rel="noopener noreferrer"{{ end }} class="block">
+              {{ end }}
+                  {{ partial "components/media/lazyimg.html" (dict
+                    "src" $image
+                    "alt" $imageAlt
+                    "class" (printf "%s rounded-lg" $imageClass)
+                  ) }}
+              {{ if $link }}
+                </a>
+              {{ end }}
+            </div>
+          </div>
         {{ end }}
       </div>
     </div>

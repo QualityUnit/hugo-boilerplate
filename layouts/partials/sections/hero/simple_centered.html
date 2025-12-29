@@ -175,13 +175,19 @@
 
           {{ if $image.src }}
             <div class="max-md:hidden mt-16 flow-root sm:mt-[4.5rem]">
-              <div class="rounded-xl {{ $imgBgClass }}">
-                {{ partial "components/media/lazyimg.html" (dict
-                  "src" $image.src
-                  "alt" $image.alt
-                  "class" (cond (and (isset $image "class") (ne $image.class "")) $image.class "w-full mx-auto max-w-[1145px] h-auto object-cover rounded-lg shadow-md")
-                  "noLazy" true
-                ) }}
+              <div class="relative mx-auto max-w-[1145px]">
+                <!-- Decorative background gradient -->
+                <div class="absolute -inset-4 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-2xl blur-xl"></div>
+                <div class="absolute -inset-1 bg-gradient-to-br from-primary/30 via-transparent to-primary/30 rounded-xl"></div>
+                <!-- Image with frame -->
+                <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10 {{ $imgBgClass }}">
+                  {{ partial "components/media/lazyimg.html" (dict
+                    "src" $image.src
+                    "alt" $image.alt
+                    "class" (cond (and (isset $image "class") (ne $image.class "")) $image.class "w-full h-auto object-cover rounded-lg")
+                    "noLazy" true
+                  ) }}
+                </div>
               </div>
             </div>
           {{ end }}
