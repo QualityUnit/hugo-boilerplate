@@ -1,0 +1,71 @@
+{{- /*
+  Usage:
+  {{< features-grid-with-cards
+    heading="Control your AI search visibility"
+    highlightText="AI search visibility"
+    description="Understand how and when AI is recommending your brand and what you can do about it."
+    theme="light"
+    bgColor="gray"
+  >}}
+  [
+    {
+      "number": "1",
+      "title": "Track",
+      "description": "Track specific prompts to see when AI mentions your brand in its responses.",
+      "imageSrc": "/images/features/track-card.png",
+      "imageAlt": "Track feature"
+    },
+    {
+      "number": "2",
+      "title": "Analyze",
+      "description": "See when these responses mention your brand or competitors.",
+      "imageSrc": "/images/features/analyze-card.png",
+      "imageAlt": "Analyze feature"
+    },
+    {
+      "number": "3",
+      "title": "Optimize",
+      "description": "Know where to publish content to boost your search visibility.",
+      "imageSrc": "/images/features/optimize-card.png",
+      "imageAlt": "Optimize feature"
+    }
+  ]
+  {{< /features-grid-with-cards >}}
+
+  Parameters:
+  - heading: Main heading text
+  - highlightText: Text to highlight with dashed underline (should be part of heading)
+  - description: Description text below the heading
+  - theme: "light" (default) or "dark"
+  - bgColor: "white", "gray" (default), or "dark"
+  - padding: Padding classes (default: "py-16 sm:py-24")
+  - Inner content: JSON array of feature cards [{number, title, description, imageSrc, imageAlt}]
+*/ -}}
+
+{{/* Features Grid with Cards Shortcode */}}
+{{ $heading := .Get "heading" | default "" }}
+{{ $highlightText := .Get "highlightText" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $theme := .Get "theme" | default "light" }}
+{{ $bgColor := .Get "bgColor" | default "gray" }}
+{{ $padding := .Get "padding" | default "py-16 sm:py-24" }}
+
+{{/* Parse feature cards from inner content */}}
+{{ $cards := slice }}
+{{ with .Inner }}
+  {{ $trimmed := . | strings.TrimSpace }}
+  {{ if $trimmed }}
+    {{ $cards = $trimmed | transform.Unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{/* Invoke the partial */}}
+{{ partial "sections/features/grid_with_cards.html" (dict
+  "heading" $heading
+  "highlightText" $highlightText
+  "description" $description
+  "cards" $cards
+  "theme" $theme
+  "bgColor" $bgColor
+  "padding" $padding
+) }}

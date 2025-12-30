@@ -3,7 +3,7 @@
 <head>
   {{ partialCached "head.html" . .Permalink }}
 </head>
-<body class="antialiased bg-white">
+<body class="antialiased bg-white dark:bg-gray-900">
 
 {{ $showPromoBanner := and 
     site.Params.promoBanner.enable 

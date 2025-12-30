@@ -1,0 +1,43 @@
+{{/*
+@component: Grid Hero Feature Icons
+@description: Horizontal row of feature icons with labels for the grid hero section.
+@params:
+  - icons: Array of icon objects [{icon, label}]
+  - theme: "light" (default) or "dark"
+@example:
+  {{ partial "sections/hero/grid_with_assets_feature_icons.html" (dict
+      "icons" (slice
+          (dict "icon" "chart-bar-solid" "label" "Analytics")
+          (dict "icon" "globe-alt-solid" "label" "Multi-Platform")
+          (dict "icon" "shield-check-solid" "label" "Security")
+      )
+      "theme" "light"
+  ) }}
+*/}}
+
+{{ $icons := .icons | default (slice) }}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+
+{{ $iconBgClass := cond $isDark "bg-gray-800" "bg-gray-100" }}
+{{ $iconColorClass := cond $isDark "text-primary-400" "text-primary-600" }}
+
+<div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 sm:gap-x-12">
+  {{ range $icons }}
+  <div class="flex items-center gap-x-3">
+    {{/* Icon */}}
+    {{ with .icon }}
+    <div class="flex h-10 w-10 items-center justify-center rounded-lg {{ $iconBgClass }} dark:bg-gray-800">
+      {{ partial "components/media/icon.html" (dict
+        "icon" .
+        "class" (printf "h-5 w-5 %s dark:text-primary-400" $iconColorClass)
+      ) }}
+    </div>
+    {{ end }}
+    {{/* Label */}}
+    {{ with .label }}
+    <span class="text-sm font-medium text-secondary">{{ . }}</span>
+    {{ end }}
+  </div>
+  {{ end }}
+</div>

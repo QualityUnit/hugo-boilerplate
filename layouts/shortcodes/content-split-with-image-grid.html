@@ -1,0 +1,70 @@
+{{/*
+  Shortcode: content-split-with-image-grid
+  Purpose: A content section with image and text in a grid layout with decorative border lines.
+
+  Parameters:
+  - theme: "light" | "dark" | "alternate" (default: "light")
+  - layout: "image-left" or "image-right" (default: "image-left")
+  - image: Image path
+  - imageAlt: Alt text for image
+  - eyebrow: Small text above heading
+  - heading: Main title for the section
+  - description: Text below heading
+  - link: CTA link URL
+  - linkText: CTA button text
+  - linkTarget: Link target "_self" or "_blank" (default: "_self")
+  - buttonStyle: "primary" or "secondary" (default: "primary")
+  - showArrow: Show arrow on button (default: false)
+
+  Usage:
+  {{< content-split-with-image-grid
+      eyebrow="For Businesses & SEO Teams"
+      heading="The ultimate toolkit for AI visibility"
+      description="Everything you need to monitor, analyze, and optimize your brand's presence."
+      image="/images/dashboard.png"
+      imageAlt="Dashboard screenshot"
+      layout="image-right"
+      link="/features/"
+      linkText="Learn More"
+  >}}
+  {{< /content-split-with-image-grid >}}
+*/}}
+
+{{ $theme := .Get "theme" | default "light" }}
+{{ $layout := .Get "layout" | default "image-left" }}
+{{ $image := .Get "image" | default "" }}
+{{ $imageAlt := .Get "imageAlt" | default "" }}
+{{ $eyebrow := .Get "eyebrow" | default "" }}
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $link := .Get "link" | default "" }}
+{{ $linkText := .Get "linkText" | default (i18n "learnMore") | default "Learn more" }}
+{{ $linkTarget := .Get "linkTarget" | default "_self" }}
+{{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
+{{ $showArrow := .Get "showArrow" | default false }}
+
+{{/* Parse features from inner content if provided */}}
+{{ $features := slice }}
+{{ with .Inner }}
+  {{ $trimmed := . | strings.TrimSpace }}
+  {{ if $trimmed }}
+    {{ $features = $trimmed | transform.Unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{/* Render partial */}}
+{{ partial "sections/content/split_with_image_grid.html" (dict
+  "theme" $theme
+  "layout" $layout
+  "image" $image
+  "imageAlt" $imageAlt
+  "eyebrow" $eyebrow
+  "heading" $heading
+  "description" $description
+  "link" $link
+  "linkText" $linkText
+  "linkTarget" $linkTarget
+  "buttonStyle" $buttonStyle
+  "showArrow" $showArrow
+  "features" $features
+) }}

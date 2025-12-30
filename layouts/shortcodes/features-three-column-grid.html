@@ -1,0 +1,64 @@
+{{/*
+  Features Three Column Grid Shortcode
+
+  A three-column layout showcasing features with decorative border lines and intersection circles.
+
+  Named Parameters:
+  - theme: "light" (default) or "dark" for section theme
+  - eyebrow: Optional text displayed above the heading
+  - heading: Main heading text
+  - description: Description text below the main heading
+
+  Inner Content (JSON array):
+  - Array of feature objects with the following structure:
+    - icon: Icon name for the feature
+    - title: Feature title
+    - description: Feature description
+    - link: Object with text and url properties (optional)
+
+  Example usage:
+  {{< features-three-column-grid
+      theme="light"
+      eyebrow="Key Features"
+      heading="Monitor Your AI Presence"
+      description="Get real-time insights into how AI chatbots mention your brand."
+  >}}
+    [
+      {
+        "icon": "eye-solid",
+        "title": "Brand Visibility",
+        "description": "Track your brand's position in AI responses.",
+        "link": {
+          "text": "Learn more",
+          "url": "/features/visibility"
+        }
+      },
+      {
+        "icon": "scale-solid",
+        "title": "Competitor Analysis",
+        "description": "See who AI recommends instead of you."
+      }
+    ]
+  {{< /features-three-column-grid >}}
+*/}}
+
+{{ $eyebrow := .Get "eyebrow" | default "" }}
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $theme := .Get "theme" | default "light" }}
+
+{{ $features := slice }}
+{{ with .Inner }}
+  {{ $trimmed := . | strings.TrimSpace }}
+  {{ if $trimmed }}
+    {{ $features = $trimmed | transform.Unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{ partial "sections/features/three_column_grid.html" (dict
+    "eyebrow" $eyebrow
+    "heading" $heading
+    "description" $description
+    "theme" $theme
+    "features" $features
+) }}

@@ -1,0 +1,130 @@
+{{/*
+@section: Content Split with Image - Grid Version
+@description: A content section with image and text in a grid layout with decorative border lines.
+@params:
+  - theme: "light" (default) or "dark" or "alternate"
+  - layout: "image-left" | "image-right" (default: "image-left")
+  - image, imageAlt: Image settings
+  - eyebrow, heading, description: Text content
+  - link, linkText: CTA button
+  - features: [{icon, title, description}]
+*/}}
+
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $isAlternate := eq $theme "alternate" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+
+{{ $layout := .layout | default "image-left" }}
+{{ $image := .image }}
+{{ $imageAlt := .imageAlt }}
+{{ $eyebrow := .eyebrow }}
+{{ $heading := .heading }}
+{{ $description := .description }}
+{{ $link := "" }}
+{{ if .link }}
+  {{ $link = partial "helpers/get-translated-url.html" (dict "url" .link) }}
+{{ end }}
+{{ $linkText := .linkText }}
+{{ $linkTarget := .linkTarget | default "_self" }}
+{{ $buttonStyle := .buttonStyle | default "primary" }}
+{{ $showArrow := .showArrow | default false }}
+{{ $features := .features | default (slice) }}
+
+<div class="{{ $darkClass }}">
+  <section class="{{ if $isDark }}section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}bg-white dark:bg-gray-900{{ end }} relative overflow-hidden">
+
+    {{/* Full-height vertical lines at wrapper edges */}}
+    <div class="wrapper absolute inset-0 pointer-events-none">
+      <div class="absolute top-0 bottom-0 left-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+      <div class="absolute top-0 bottom-0 right-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+    </div>
+
+    {{/* Content area with borders */}}
+    <div class="wrapper">
+      <div class="relative border-t border-b border-gray-200 dark:border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+        {{/* Intersection circles at corners */}}
+        <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+
+        {{/* Two column layout */}}
+        <div class="py-16 sm:py-24 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-8 lg:gap-16 {{ if eq $layout "image-right" }}lg:flex-row-reverse{{ end }}">
+
+          {{/* Image column */}}
+          <div class="lg:w-1/2 lg:shrink-0">
+            {{ if $image }}
+            <div class="relative">
+              {{/* Decorative background gradient */}}
+              <div class="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent rounded-2xl blur-2xl"></div>
+              {{/* Image with frame */}}
+              <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10 dark:bg-gray-800 dark:ring-white/10">
+                {{ if $link }}
+                  <a href="{{ $link }}" target="{{ $linkTarget }}"{{ if eq $linkTarget "_blank" }} rel="noopener noreferrer"{{ end }} class="block">
+                {{ end }}
+                    {{ partial "components/media/lazyimg.html" (dict
+                      "src" $image
+                      "alt" $imageAlt
+                      "class" "object-contain rounded-lg w-full"
+                    ) }}
+                {{ if $link }}
+                  </a>
+                {{ end }}
+              </div>
+            </div>
+            {{ end }}
+          </div>
+
+          {{/* Content column */}}
+          <div class="lg:w-1/2">
+            {{ if $eyebrow }}
+              <p class="text-base/7 font-semibold product-text">{{ $eyebrow }}</p>
+            {{ end }}
+            {{ if $heading }}
+              <h2 class="mt-3 mb-0 text-4xl font-semibold tracking-[-2.832px] text-heading leading-none text-pretty sm:text-5xl">{{ $heading }}</h2>
+            {{ end }}
+            {{ if $description }}
+              <p class="mt-6 text-lg/7 text-secondary prose-links">{{ $description | safeHTML }}</p>
+            {{ end }}
+
+            {{/* Features list */}}
+            {{ if $features }}
+            <dl class="mt-6 max-w-full space-y-3 text-normal text-secondary lg:max-w-full">
+              {{ range $features }}
+              <div class="relative pl-9">
+                <dt class="inline {{ if .description }}font-bold{{ end }} text-heading">
+                  {{ if .icon }}
+                    <span class="absolute left-1 top-1 size-5 text-primary">
+                      {{ partial "components/media/icon.html" (dict "icon" .icon) }}
+                    </span>
+                  {{ end }}
+                  {{ .title }}{{ if .description }}: {{ end }}
+                </dt>
+                {{ if .description }}
+                  <dd class="inline prose-links">{{ .description }}</dd>
+                {{ end }}
+              </div>
+              {{ end }}
+            </dl>
+            {{ end }}
+
+            {{/* Button */}}
+            {{ if $link }}
+            <div class="mt-6">
+              {{ partial "components/buttons/buttons.html" (dict
+                "text" $linkText
+                "url" $link
+                "target" $linkTarget
+                "variant" $buttonStyle
+                "showArrow" $showArrow
+              ) }}
+            </div>
+            {{ end }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>

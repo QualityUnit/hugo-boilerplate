@@ -1,0 +1,121 @@
+{{/*
+@section: Three Column Features with Grid Lines
+@description: A three-column layout showcasing features with large icons, decorative border lines and intersection circles.
+@params:
+  - eyebrow: Text displayed above the heading (optional)
+  - heading: Main section heading
+  - description: Section description text
+  - theme: "light" (default) or "dark"
+  - features: Array of feature objects [{icon, title, description, link}]
+*/}}
+
+{{ $eyebrow := .eyebrow | default "" }}
+{{ $eyebrowColor := .eyebrowColor | default "text-primary" }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $features := .features | default (slice) }}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+
+{{ $iconClass := "w-7 h-7 p-1 rounded-lg flex-shrink-0 product-icon" }}
+{{ $iconWrapperClass := "size-10 p-2 surface-brand rounded-lg flex items-center justify-center" }}
+
+<div class="{{ $darkClass }}">
+  <section class="{{ if $isDark }}section-bg-dark{{ else }}bg-white dark:bg-gray-900{{ end }} relative overflow-hidden">
+
+    {{/* Full-height vertical lines at wrapper edges */}}
+    <div class="wrapper absolute inset-0 pointer-events-none">
+      <div class="absolute top-0 bottom-0 left-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+      <div class="absolute top-0 bottom-0 right-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+    </div>
+
+    {{/* Top Line Grid Section */}}
+    <div class="relative h-8 sm:h-12">
+      <div class="absolute top-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700"></div>
+      <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700"></div>
+
+      <div class="wrapper relative h-full">
+        {{/* 1/3 vertical line */}}
+        <div class="absolute top-0 bottom-0 left-1/3 w-px bg-gray-200 dark:bg-gray-700 hidden lg:block"></div>
+        {{/* 2/3 vertical line */}}
+        <div class="absolute top-0 bottom-0 left-2/3 w-px bg-gray-200 dark:bg-gray-700 hidden lg:block"></div>
+
+        {{/* Intersection circles - top row */}}
+        <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute top-0 left-1/3 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden lg:block"></div>
+        <div class="absolute top-0 left-2/3 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden lg:block"></div>
+        <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+
+        {{/* Intersection circles - bottom row */}}
+        <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute bottom-0 left-1/3 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden lg:block"></div>
+        <div class="absolute bottom-0 left-2/3 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden lg:block"></div>
+        <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      </div>
+    </div>
+
+    {{/* Centered Heading */}}
+    <div class="wrapper pt-16 sm:pt-24">
+      {{ if or $eyebrow $heading $description }}
+      <div class="mx-auto max-w-3xl text-center mb-12 sm:mb-16">
+        {{ if $eyebrow }}
+          <p class="text-base font-semibold leading-7 {{ $eyebrowColor }}">{{ $eyebrow }}</p>
+        {{ end }}
+        {{ if $heading }}
+          <h2 class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-heading sm:text-5xl">{{ $heading }}</h2>
+        {{ end }}
+        {{ if $description }}
+          <p class="mt-6 text-lg/9 text-secondary prose-links">{{ $description | safeHTML }}</p>
+        {{ end }}
+      </div>
+      {{ end }}
+    </div>
+
+    {{/* Features Grid */}}
+    {{ if $features }}
+    <div class="wrapper">
+      <div class="relative border-t border-b border-gray-200 dark:border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+        {{/* Intersection circles at corners */}}
+        <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {{ $featuresLen := len $features }}
+          {{ range $index, $feature := $features }}
+          <div class="relative px-6 lg:px-8 py-8 {{ if lt $index (sub $featuresLen 1) }}lg:border-r border-gray-200 dark:border-gray-700{{ end }} {{ if ge $index 3 }}border-t border-gray-200 dark:border-gray-700{{ end }}">
+            {{ if .icon }}
+              <div class="{{ $iconWrapperClass }} mb-6 flex-shrink-0">
+                {{ partial "components/media/icon.html" (dict "icon" .icon "class" (printf "%s icon-on-brand" $iconClass)) }}
+              </div>
+            {{ end }}
+            <dt class="font-semibold text-lg text-heading flex items-center">
+              <span>{{ .title }}</span>
+            </dt>
+            <dd class="mt-1 pl-0 text-base/7 text-secondary">
+              <p class="prose-links">{{ .description | safeHTML }}</p>
+              {{ if .link }}
+              <p class="mt-4">
+                {{ partial "components/buttons/buttons.html" (dict
+                  "text" .link.text
+                  "url" .link.url
+                  "variant" "secondary"
+                  "showArrow" false
+                ) }}
+              </p>
+              {{ end }}
+            </dd>
+          </div>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+    {{ end }}
+
+    {{/* Bottom padding */}}
+    <div class="h-16 sm:h-24"></div>
+
+  </section>
+</div>

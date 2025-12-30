@@ -1,0 +1,123 @@
+{{- /*
+  Usage:
+  {{< hero-grid-with-assets
+    heading="Make [AI Search] your next revenue channel"
+    headingBadge="AI Search"
+    headingBadgeColor="primary"
+    description="Description text"
+    primaryCTAText="Get Started"
+    primaryCTAUrl="/signup"
+    secondaryCTAText="Book a Demo"
+    secondaryCTAUrl="/demo"
+    screenshotSrc="/images/dashboard.png"
+    screenshotAlt="Dashboard screenshot"
+    promoCardSrc="/images/promo.png"
+    promoCardAlt="Promo image"
+    promoCardTitle="Free Report"
+    promoCardDescription="Get your free AI visibility report"
+    promoCardLink="/report/"
+    backgroundPattern="bg-gradient-to-b from-primary-50/50 to-white"
+    theme="light"
+    padding="py-24 sm:py-32"
+  >}}
+  [
+    {"icon": "chart-bar-solid", "label": "Analytics"},
+    {"icon": "globe-alt-solid", "label": "Multi-Platform"}
+  ]
+  {{< /hero-grid-with-assets >}}
+
+  Parameters:
+  - heading: Main heading text (use [text] to mark badge position)
+  - headingBadge: Text to display in the badge
+  - headingBadgeColor: Badge color variant (primary, success, warning, info)
+  - description: Description text below the heading
+  - primaryCTAText: Text for the primary call-to-action button
+  - primaryCTAUrl: URL for the primary call-to-action button
+  - secondaryCTAText: Text for the secondary call-to-action button
+  - secondaryCTAUrl: URL for the secondary call-to-action button
+  - screenshotSrc: Source URL for the large screenshot image
+  - screenshotAlt: Alt text for the screenshot
+  - promoCardSrc: Source URL for the promo card image
+  - promoCardAlt: Alt text for the promo card image
+  - promoCardTitle: Title for the promo card
+  - promoCardDescription: Description for the promo card
+  - promoCardLink: Link URL for the promo card
+  - backgroundImage: Background image URL (optional)
+  - backgroundPattern: Background CSS class/pattern (optional)
+  - theme: "light" (default) or "dark"
+  - padding: Padding classes (default: "py-24 sm:py-32")
+  - Inner content: JSON array of feature icons [{icon, label}]
+*/ -}}
+
+{{/* Hero Grid with Assets Shortcode */}}
+{{ $heading := .Get "heading" | default "" }}
+{{ $headingBadge := .Get "headingBadge" | default "" }}
+{{ $headingBadgeColor := .Get "headingBadgeColor" | default "primary" }}
+{{ $headingBadgeIcon := .Get "headingBadgeIcon" | default "" }}
+{{ $highlightWord := .Get "highlightWord" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $primaryCTAText := .Get "primaryCTAText" | default "" }}
+{{ $primaryCTAUrl := .Get "primaryCTAUrl" | default "" }}
+{{ $secondaryCTAText := .Get "secondaryCTAText" | default "" }}
+{{ $secondaryCTAUrl := .Get "secondaryCTAUrl" | default "" }}
+{{ $screenshotSrc := .Get "screenshotSrc" | default "" }}
+{{ $screenshotAlt := .Get "screenshotAlt" | default "" }}
+{{ $promoCardSrc := .Get "promoCardSrc" | default "" }}
+{{ $promoCardAlt := .Get "promoCardAlt" | default "" }}
+{{ $promoCardTitle := .Get "promoCardTitle" | default "" }}
+{{ $promoCardDescription := .Get "promoCardDescription" | default "" }}
+{{ $promoCardLink := .Get "promoCardLink" | default "" }}
+{{ $backgroundImage := .Get "backgroundImage" | default "" }}
+{{ $backgroundPattern := .Get "backgroundPattern" | default "" }}
+{{ $theme := .Get "theme" | default "light" }}
+{{ $padding := .Get "padding" | default "py-24 sm:py-32" }}
+
+{{/* Parse feature icons from inner content */}}
+{{ $featureIcons := slice }}
+{{ with .Inner }}
+  {{ $trimmed := . | strings.TrimSpace }}
+  {{ if $trimmed }}
+    {{ $featureIcons = $trimmed | transform.Unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{/* Build data dictionaries */}}
+{{ $cta := dict
+  "primary" (dict "text" $primaryCTAText "url" $primaryCTAUrl)
+  "secondary" (dict "text" $secondaryCTAText "url" $secondaryCTAUrl)
+}}
+
+{{ $screenshot := dict
+  "src" $screenshotSrc
+  "alt" $screenshotAlt
+}}
+
+{{ $promoCard := dict
+  "src" $promoCardSrc
+  "alt" $promoCardAlt
+  "title" $promoCardTitle
+  "description" $promoCardDescription
+  "link" $promoCardLink
+}}
+
+{{ $background := dict
+  "image" $backgroundImage
+  "pattern" $backgroundPattern
+}}
+
+{{/* Invoke the partial */}}
+{{ partial "sections/hero/grid_with_assets.html" (dict
+  "heading" $heading
+  "headingBadge" $headingBadge
+  "headingBadgeColor" $headingBadgeColor
+  "headingBadgeIcon" $headingBadgeIcon
+  "highlightWord" $highlightWord
+  "description" $description
+  "cta" $cta
+  "screenshot" $screenshot
+  "promoCard" $promoCard
+  "featureIcons" $featureIcons
+  "background" $background
+  "theme" $theme
+  "padding" $padding
+) }}
