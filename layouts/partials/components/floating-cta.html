@@ -2,6 +2,7 @@
 @component: Floating CTA
 @description: A floating call-to-action element that sticks to the right side of blog content.
               Floats next to content, stays sticky while scrolling, and stops when reaching the FAQ section.
+              Optimized design with dark theme styling.
 @params:
   Page-level (front matter):
   - floatingCta.heading: CTA heading text
@@ -11,6 +12,10 @@
   - floatingCta.buttonVariant: Button style variant (primary, secondary, primary-alternate)
   - floatingCta.image: CTA image path
   - floatingCta.imageAlt: CTA image alt text
+  - floatingCta.badge: Badge text (optional)
+  - floatingCta.features: Array of feature strings (optional)
+  - floatingCta.secondaryText: Secondary link text (optional)
+  - floatingCta.secondaryUrl: Secondary link URL (optional)
 
   Site-level (params.toml):
   - floatingCta.heading: Default heading
@@ -20,6 +25,10 @@
   - floatingCta.buttonVariant: Default button variant (defaults to "primary")
   - floatingCta.image: Default image
   - floatingCta.imageAlt: Default image alt text
+  - floatingCta.badge: Default badge text
+  - floatingCta.features: Default features array
+  - floatingCta.secondaryText: Default secondary link text
+  - floatingCta.secondaryUrl: Default secondary link URL
   - floatingCta.enable: Enable/disable floating CTA globally
 @example:
   {{ partial "components/floating-cta.html" . }}
@@ -35,22 +44,43 @@
 {{ if and $globalEnable (not $pageDisable) }}
 
 {{/* Get page-level settings with site-level fallbacks (Hugo lowercases config keys) */}}
-{{ $heading := .Params.floatingCta.heading | default site.Params.floatingcta.heading | default (i18n "floating_cta_heading") | default "Build Your Affiliate Program" }}
-{{ $description := .Params.floatingCta.description | default site.Params.floatingcta.description | default (i18n "floating_cta_description") | default "Launch and scale your custom affiliate program with the industry's most trusted affiliate software." }}
-{{ $buttonText := .Params.floatingCta.buttonText | default site.Params.floatingcta.buttontext | default (i18n "floating_cta_button") | default "Start Free Trial" }}
-{{ $buttonUrl := .Params.floatingCta.buttonUrl | default site.Params.floatingcta.buttonurl | default "/trial/" }}
+{{/* Theme defaults are generic placeholders - override in site config or page front matter */}}
+{{ $heading := .Params.floatingCta.heading | default site.Params.floatingcta.heading | default (i18n "floating_cta_heading") | default "Get Started Today" }}
+{{ $description := .Params.floatingCta.description | default site.Params.floatingcta.description | default (i18n "floating_cta_description") | default "Start your journey with our platform. Easy setup, powerful features." }}
+{{ $buttonText := .Params.floatingCta.buttonText | default site.Params.floatingcta.buttontext | default (i18n "floating_cta_button") | default "Get Started" }}
+{{ $buttonUrl := .Params.floatingCta.buttonUrl | default site.Params.floatingcta.buttonurl | default "/contact/" }}
 {{ $buttonVariant := .Params.floatingCta.buttonVariant | default site.Params.floatingcta.buttonvariant | default "primary" }}
 {{ $image := .Params.floatingCta.image | default site.Params.floatingcta.image | default "" }}
 {{ $imageAlt := .Params.floatingCta.imageAlt | default site.Params.floatingcta.imagealt | default $heading }}
-{{ $bgColor := .Params.floatingCta.bgColor | default site.Params.floatingcta.bgcolor | default "" }}
+{{ $badge := .Params.floatingCta.badge | default site.Params.floatingcta.badge | default "" }}
+{{ $secondaryText := .Params.floatingCta.secondaryText | default site.Params.floatingcta.secondarytext | default "" }}
+{{ $secondaryUrl := .Params.floatingCta.secondaryUrl | default site.Params.floatingcta.secondaryurl | default "" }}
 
-{{/* Translate URL if needed */}}
+{{/* Default features if not specified - empty by default, configure in site params */}}
+{{ $defaultFeatures := slice }}
+{{ $features := .Params.floatingCta.features | default site.Params.floatingcta.features | default $defaultFeatures }}
+
+{{/* Translate URLs if needed */}}
 {{ $buttonUrl = partial "helpers/get-translated-url.html" (dict "url" $buttonUrl "lang" site.Language.Lang) }}
+{{ $secondaryUrl = partial "helpers/get-translated-url.html" (dict "url" $secondaryUrl "lang" site.Language.Lang) }}
 
 <aside class="floating-cta" aria-label="Call to action">
-  <div class="floating-cta__inner{{ if $bgColor }} bg-[{{ $bgColor }}]{{ end }}">
+  <div class="floating-cta__inner">
+    {{/* Accent bar */}}
+    <div class="floating-cta__accent"></div>
+
     {{/* Content */}}
     <div class="floating-cta__content">
+      {{/* Badge */}}
+      {{ if $badge }}
+      <div class="floating-cta__badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+        </svg>
+        {{ $badge }}
+      </div>
+      {{ end }}
+
       <h3 class="floating-cta__heading">{{ $heading }}</h3>
 
       {{/* Image between title and description */}}
@@ -65,6 +95,20 @@
       {{ end }}
 
       <p class="floating-cta__description">{{ $description }}</p>
+
+      {{/* Feature list */}}
+      {{ if $features }}
+      <ul class="floating-cta__features">
+        {{ range $features }}
+        <li class="floating-cta__feature">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+          {{ . }}
+        </li>
+        {{ end }}
+      </ul>
+      {{ end }}
     </div>
 
     {{/* Button */}}
@@ -76,6 +120,13 @@
         "size" "lg"
         "classes" "w-full justify-center"
       ) }}
+
+      {{/* Secondary link */}}
+      {{ if and $secondaryText $secondaryUrl }}
+      <div class="floating-cta__secondary">
+        <a href="{{ $secondaryUrl }}">{{ $secondaryText }} →</a>
+      </div>
+      {{ end }}
     </div>
   </div>
 </aside>
