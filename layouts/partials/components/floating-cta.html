@@ -2,7 +2,7 @@
 @component: Floating CTA
 @description: A floating call-to-action element that sticks to the right side of blog content.
               Floats next to content, stays sticky while scrolling, and stops when reaching the FAQ section.
-              Optimized design with dark theme and FlowHunt branding.
+              Optimized design with dark theme styling.
 @params:
   Page-level (front matter):
   - floatingCta.heading: CTA heading text
@@ -44,19 +44,20 @@
 {{ if and $globalEnable (not $pageDisable) }}
 
 {{/* Get page-level settings with site-level fallbacks (Hugo lowercases config keys) */}}
-{{ $heading := .Params.floatingCta.heading | default site.Params.floatingcta.heading | default (i18n "floating_cta_heading") | default "Build Your AI Agent" }}
-{{ $description := .Params.floatingCta.description | default site.Params.floatingcta.description | default (i18n "floating_cta_description") | default "Create powerful AI agents and automations without code. Connect your data, deploy anywhere." }}
-{{ $buttonText := .Params.floatingCta.buttonText | default site.Params.floatingcta.buttontext | default (i18n "floating_cta_button") | default "Book a Demo" }}
-{{ $buttonUrl := .Params.floatingCta.buttonUrl | default site.Params.floatingcta.buttonurl | default "/demo/" }}
+{{/* Theme defaults are generic placeholders - override in site config or page front matter */}}
+{{ $heading := .Params.floatingCta.heading | default site.Params.floatingcta.heading | default (i18n "floating_cta_heading") | default "Get Started Today" }}
+{{ $description := .Params.floatingCta.description | default site.Params.floatingcta.description | default (i18n "floating_cta_description") | default "Start your journey with our platform. Easy setup, powerful features." }}
+{{ $buttonText := .Params.floatingCta.buttonText | default site.Params.floatingcta.buttontext | default (i18n "floating_cta_button") | default "Get Started" }}
+{{ $buttonUrl := .Params.floatingCta.buttonUrl | default site.Params.floatingcta.buttonurl | default "/contact/" }}
 {{ $buttonVariant := .Params.floatingCta.buttonVariant | default site.Params.floatingcta.buttonvariant | default "primary" }}
-{{ $image := .Params.floatingCta.image | default site.Params.floatingcta.image | default "/images/blog/cta-flowhunt-flow.png" }}
+{{ $image := .Params.floatingCta.image | default site.Params.floatingcta.image | default "" }}
 {{ $imageAlt := .Params.floatingCta.imageAlt | default site.Params.floatingcta.imagealt | default $heading }}
-{{ $badge := .Params.floatingCta.badge | default site.Params.floatingcta.badge | default "No Code Required" }}
-{{ $secondaryText := .Params.floatingCta.secondaryText | default site.Params.floatingcta.secondarytext | default "Try it Free" }}
-{{ $secondaryUrl := .Params.floatingCta.secondaryUrl | default site.Params.floatingcta.secondaryurl | default "https://app.flowhunt.io/sign-in" }}
+{{ $badge := .Params.floatingCta.badge | default site.Params.floatingcta.badge | default "" }}
+{{ $secondaryText := .Params.floatingCta.secondaryText | default site.Params.floatingcta.secondarytext | default "" }}
+{{ $secondaryUrl := .Params.floatingCta.secondaryUrl | default site.Params.floatingcta.secondaryurl | default "" }}
 
-{{/* Default features if not specified */}}
-{{ $defaultFeatures := slice "Visual drag-and-drop builder" "100+ integrations" "Deploy in minutes" }}
+{{/* Default features if not specified - empty by default, configure in site params */}}
+{{ $defaultFeatures := slice }}
 {{ $features := .Params.floatingCta.features | default site.Params.floatingcta.features | default $defaultFeatures }}
 
 {{/* Translate URLs if needed */}}
