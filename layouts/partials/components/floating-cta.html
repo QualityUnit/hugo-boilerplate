@@ -18,7 +18,8 @@
   - floatingCta.secondaryText: Secondary link text (optional)
   - floatingCta.secondaryUrl: Secondary link URL (optional)
   - floatingCta.theme: Theme variant - "dark" (default) or "light"
-  - floatingCta.showLogo: Show logo at top (optional, default: false)
+  - floatingCta.showLogo: Show logo at top (optional, default: false) - uses site logo
+  - floatingCta.logoUrl: Custom logo URL (optional) - if provided, shows this logo instead of site logo
 
   Site-level (params.toml):
   - floatingCta.heading: Default heading
@@ -35,6 +36,7 @@
   - floatingCta.secondaryUrl: Default secondary link URL
   - floatingCta.theme: Default theme variant
   - floatingCta.showLogo: Default show logo setting
+  - floatingCta.logoUrl: Custom logo URL (if provided, logo is shown)
   - floatingCta.enable: Enable/disable floating CTA globally
 @example:
   {{ partial "components/floating-cta.html" . }}
@@ -64,6 +66,7 @@
 {{ $secondaryUrl := .Params.floatingCta.secondaryUrl | default site.Params.floatingcta.secondaryurl | default "" }}
 {{ $theme := .Params.floatingCta.theme | default site.Params.floatingcta.theme | default "dark" }}
 {{ $showLogo := .Params.floatingCta.showLogo | default site.Params.floatingcta.showlogo | default false }}
+{{ $logoUrl := .Params.floatingCta.logoUrl | default site.Params.floatingcta.logourl | default "" }}
 
 {{/* Default features if not specified - empty by default, configure in site params */}}
 {{ $defaultFeatures := slice }}
@@ -86,16 +89,20 @@
   <div class="floating-cta__inner">
     {{/* Content */}}
     <div class="floating-cta__content">
-      {{/* Logo - optional */}}
-      {{ if $showLogo }}
+      {{/* Logo - optional. If logoUrl is provided, use custom logo; otherwise use site logo if showLogo is true */}}
+      {{ if or $logoUrl $showLogo }}
       <div class="floating-cta__logo">
-        {{ partialCached "header/logo_section" (dict
-          "logoUrl" (site.Params.logo | default "/images/logo.svg")
-          "logoAlt" site.Title
-          "logoHeight" "h-8"
-          "siteTitle" site.Title
-          "class" "inline-block"
-        ) "floating-cta-logo" }}
+        {{ if $logoUrl }}
+          <img src="{{ $logoUrl }}" alt="{{ site.Title }}" class="h-8" loading="lazy" />
+        {{ else }}
+          {{ partialCached "header/logo_section" (dict
+            "logoUrl" (site.Params.logo | default "/images/logo.svg")
+            "logoAlt" site.Title
+            "logoHeight" "h-8"
+            "siteTitle" site.Title
+            "class" "inline-block"
+          ) "floating-cta-logo" }}
+        {{ end }}
       </div>
       {{ end }}
 

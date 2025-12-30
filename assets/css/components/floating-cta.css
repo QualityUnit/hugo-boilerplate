@@ -168,7 +168,7 @@
 /* ================================================================ */
 
 .floating-cta__logo {
-  @apply mb-4;
+  @apply mb-4 pt-3 pb-2;
 }
 
 /* ================================================================ */
@@ -213,7 +213,7 @@
 
 /* Image section */
 .floating-cta__image {
-  @apply w-full my-4 px-5;
+  @apply w-full my-4;
 }
 
 .floating-cta__image figure {
@@ -234,7 +234,7 @@
 }
 
 .floating-cta__heading {
-  @apply text-lg font-bold mb-2 leading-tight text-center;
+  @apply text-lg font-bold mb-2 leading-tight;
   color: #ffffff;
 }
 
