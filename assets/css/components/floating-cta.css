@@ -3,6 +3,7 @@
 /* A sticky CTA that floats next to blog content on the right side */
 /* Uses pure CSS position: sticky - automatically stops at parent boundary */
 /* Grid aligns with header: logo (left) to Contact Us button (right) */
+/* Supports dark and light themes with optional background image */
 /* ================================================================ */
 
 .floating-cta {
@@ -15,7 +16,134 @@
   margin-left: auto; /* Push to the right edge */
 }
 
-/* Inner container with styling */
+/* ================================================================ */
+/* DARK THEME (default) */
+/* ================================================================ */
+
+.floating-cta--dark .floating-cta__inner {
+  @apply rounded-2xl overflow-hidden transition-all duration-300;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -2px rgba(0, 0, 0, 0.1),
+              0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.floating-cta--dark .floating-cta__inner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2),
+              0 8px 10px -6px rgba(0, 0, 0, 0.1),
+              0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.floating-cta--dark .floating-cta__heading {
+  color: #ffffff;
+}
+
+.floating-cta--dark .floating-cta__description {
+  color: #cbd5e1;
+}
+
+.floating-cta--dark .floating-cta__feature {
+  color: #e2e8f0;
+}
+
+.floating-cta--dark .floating-cta__secondary a {
+  color: #94a3b8;
+}
+
+.floating-cta--dark .floating-cta__secondary a:hover {
+  color: #e2e8f0;
+}
+
+/* Dark theme button override - white on dark */
+.floating-cta--dark .floating-cta__action .btn-primary {
+  @apply bg-white text-gray-900 hover:bg-gray-100;
+}
+
+/* ================================================================ */
+/* LIGHT THEME */
+/* ================================================================ */
+
+.floating-cta--light .floating-cta__inner {
+  @apply rounded-lg overflow-hidden transition-all duration-300 relative;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.floating-cta--light .floating-cta__inner:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.floating-cta--light .floating-cta__heading {
+  @apply text-gray-900;
+}
+
+.floating-cta--light .floating-cta__description {
+  @apply text-gray-600;
+}
+
+.floating-cta--light .floating-cta__feature {
+  @apply text-gray-700;
+}
+
+.floating-cta--light .floating-cta__badge {
+  @apply bg-primary-50 text-primary-700;
+}
+
+.floating-cta--light .floating-cta__secondary a {
+  @apply text-gray-500;
+}
+
+.floating-cta--light .floating-cta__secondary a:hover {
+  @apply text-gray-700;
+}
+
+/* ================================================================ */
+/* BACKGROUND IMAGE VARIANT */
+/* ================================================================ */
+
+.floating-cta--has-bg .floating-cta__inner {
+  @apply pb-0; /* Remove bottom padding, background image will add space */
+  position: relative;
+}
+
+.floating-cta--has-bg .floating-cta__action {
+  @apply pb-0 mb-4; /* Reduce bottom padding when bg image is present */
+}
+
+/* Background image container */
+.floating-cta__bg-image {
+  @apply w-full relative;
+  margin-top: auto;
+}
+
+.floating-cta__bg-image figure {
+  @apply m-0;
+}
+
+.floating-cta__bg-image picture {
+  @apply block w-full;
+}
+
+.floating-cta__bg-image img,
+.floating-cta__bg-img {
+  @apply w-full h-auto block;
+}
+
+/* ================================================================ */
+/* LOGO SECTION */
+/* ================================================================ */
+
+.floating-cta__logo {
+  @apply mb-4;
+}
+
+/* ================================================================ */
+/* BACKWARDS COMPATIBILITY - default inner styles */
+/* ================================================================ */
+
+/* Inner container with styling - fallback for unthemed usage */
 .floating-cta__inner {
   @apply rounded-2xl overflow-hidden transition-all duration-300;
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -31,7 +159,7 @@
               0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-/* Light mode - gradient style */
+/* Light mode - gradient style (legacy class) */
 .floating-cta__inner--gradient {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
 }
@@ -76,28 +204,33 @@
 }
 
 .floating-cta__heading {
-  @apply text-lg font-bold mb-2 leading-tight text-center;
+  @apply text-lg font-bold mb-2 leading-tight;
   color: #ffffff;
 }
 
 .floating-cta__description {
-  @apply text-sm leading-relaxed;
-  color: #ffffff;
+  @apply text-sm leading-relaxed mb-4;
+  color: #cbd5e1;
 }
 
 /* Feature list */
 .floating-cta__features {
-  @apply mt-4 space-y-2;
+  @apply mt-0 space-y-2;
 }
 
 .floating-cta__feature {
   @apply flex items-center gap-2 text-xs;
-  color: #ffffff;
+  color: #e2e8f0;
 }
 
 .floating-cta__feature svg {
   @apply w-4 h-4 flex-shrink-0;
   color: #22c55e;
+}
+
+/* Light theme feature checkmark */
+.floating-cta--light .floating-cta__feature svg {
+  @apply text-primary-600;
 }
 
 /* Action/Button section */
@@ -108,10 +241,6 @@
 /* Custom button styling for floating CTA */
 .floating-cta__action .btn {
   @apply w-full justify-center font-semibold;
-}
-
-.floating-cta__action .btn-primary {
-  @apply bg-white text-gray-900 hover:bg-gray-100;
 }
 
 /* Secondary link */

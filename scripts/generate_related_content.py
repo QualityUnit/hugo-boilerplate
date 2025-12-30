@@ -78,9 +78,11 @@ def parse_args():
                         help="List of section (directory) names or specific file paths (relative to language content directory) to exclude. For example, 'author' will exclude all content under the 'author/' directory. 'path/to/file.md' will exclude that specific file.")
     parser.add_argument("--model", type=str, default=MODEL_NAME,
                         help=f"Model name to use (default: {MODEL_NAME})")
-    parser.add_argument("--hugo-root", type=str, 
+    parser.add_argument("--hugo-root", type=str,
                         default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")),
                         help="Hugo root directory (default: two levels up from script location)")
+    parser.add_argument("--domain", type=str, default="Website Pages",
+                        help="Domain name to use as root node label in clustering visualization (default: Website Pages)")
     return parser.parse_args()
 
 def extract_text_from_markdown(content):
@@ -496,9 +498,9 @@ def get_cluster_keywords(file_data, indices, top_k=20):
 
     return top_keywords
 
-def build_hierarchy_data(file_data, labels, lang):
+def build_hierarchy_data(file_data, labels, lang, domain="Website Pages"):
     """Build hierarchical data structure for D3.js pack layout with subclusters by directory."""
-    print("Building hierarchy data for clustering visualization...")
+    print(f"Building hierarchy data for clustering visualization (root: {domain})...")
 
     # Group files by cluster
     clusters = defaultdict(list)
@@ -572,7 +574,7 @@ def build_hierarchy_data(file_data, labels, lang):
 
     # Root node
     root = {
-        "name": "Website Pages",
+        "name": domain,
         "children": children
     }
 
@@ -642,7 +644,7 @@ def process_language(args, lang):
     # Generate clustering data (reusing the same embeddings)
     print(f"[DEBUG] Generating clustering data for visualization...")
     labels = create_clusters(embeddings, target_clusters=40)
-    hierarchy_data = build_hierarchy_data(file_data, labels, lang)
+    hierarchy_data = build_hierarchy_data(file_data, labels, lang, domain=args.domain)
     save_clustering_data(hierarchy_data, args.hugo_root, lang)
     print(f"[DEBUG] Clustering data generated successfully")
 

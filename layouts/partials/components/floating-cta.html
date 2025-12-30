@@ -2,7 +2,7 @@
 @component: Floating CTA
 @description: A floating call-to-action element that sticks to the right side of blog content.
               Floats next to content, stays sticky while scrolling, and stops when reaching the FAQ section.
-              Optimized design with dark theme styling.
+              Supports both dark and light themes with optional background image.
 @params:
   Page-level (front matter):
   - floatingCta.heading: CTA heading text
@@ -10,12 +10,15 @@
   - floatingCta.buttonText: CTA button text
   - floatingCta.buttonUrl: CTA button URL
   - floatingCta.buttonVariant: Button style variant (primary, secondary, primary-alternate)
-  - floatingCta.image: CTA image path
+  - floatingCta.image: CTA image path (displayed in content area)
   - floatingCta.imageAlt: CTA image alt text
+  - floatingCta.backgroundImage: Background image path (displayed at bottom of CTA)
   - floatingCta.badge: Badge text (optional)
   - floatingCta.features: Array of feature strings (optional)
   - floatingCta.secondaryText: Secondary link text (optional)
   - floatingCta.secondaryUrl: Secondary link URL (optional)
+  - floatingCta.theme: Theme variant - "dark" (default) or "light"
+  - floatingCta.showLogo: Show logo at top (optional, default: false)
 
   Site-level (params.toml):
   - floatingCta.heading: Default heading
@@ -25,10 +28,13 @@
   - floatingCta.buttonVariant: Default button variant (defaults to "primary")
   - floatingCta.image: Default image
   - floatingCta.imageAlt: Default image alt text
+  - floatingCta.backgroundImage: Default background image
   - floatingCta.badge: Default badge text
   - floatingCta.features: Default features array
   - floatingCta.secondaryText: Default secondary link text
   - floatingCta.secondaryUrl: Default secondary link URL
+  - floatingCta.theme: Default theme variant
+  - floatingCta.showLogo: Default show logo setting
   - floatingCta.enable: Enable/disable floating CTA globally
 @example:
   {{ partial "components/floating-cta.html" . }}
@@ -52,25 +58,52 @@
 {{ $buttonVariant := .Params.floatingCta.buttonVariant | default site.Params.floatingcta.buttonvariant | default "primary" }}
 {{ $image := .Params.floatingCta.image | default site.Params.floatingcta.image | default "" }}
 {{ $imageAlt := .Params.floatingCta.imageAlt | default site.Params.floatingcta.imagealt | default $heading }}
+{{ $backgroundImage := .Params.floatingCta.backgroundImage | default site.Params.floatingcta.backgroundimage | default "" }}
 {{ $badge := .Params.floatingCta.badge | default site.Params.floatingcta.badge | default "" }}
 {{ $secondaryText := .Params.floatingCta.secondaryText | default site.Params.floatingcta.secondarytext | default "" }}
 {{ $secondaryUrl := .Params.floatingCta.secondaryUrl | default site.Params.floatingcta.secondaryurl | default "" }}
+{{ $theme := .Params.floatingCta.theme | default site.Params.floatingcta.theme | default "dark" }}
+{{ $showLogo := .Params.floatingCta.showLogo | default site.Params.floatingcta.showlogo | default false }}
 
 {{/* Default features if not specified - empty by default, configure in site params */}}
 {{ $defaultFeatures := slice }}
 {{ $features := .Params.floatingCta.features | default site.Params.floatingcta.features | default $defaultFeatures }}
 
+{{/* Determine theme classes */}}
+{{ $themeClass := "floating-cta--dark" }}
+{{ if eq $theme "light" }}
+  {{ $themeClass = "floating-cta--light" }}
+{{ end }}
+
+{{/* Calculate if we need extra padding for background image */}}
+{{ $hasBackgroundImage := ne $backgroundImage "" }}
+
 {{/* Translate URLs if needed */}}
 {{ $buttonUrl = partial "helpers/get-translated-url.html" (dict "url" $buttonUrl "lang" site.Language.Lang) }}
 {{ $secondaryUrl = partial "helpers/get-translated-url.html" (dict "url" $secondaryUrl "lang" site.Language.Lang) }}
 
-<aside class="floating-cta" aria-label="Call to action">
+<aside class="floating-cta {{ $themeClass }}{{ if $hasBackgroundImage }} floating-cta--has-bg{{ end }}" aria-label="Call to action">
   <div class="floating-cta__inner">
-    {{/* Accent bar */}}
+    {{/* Accent bar - only show for dark theme without background image */}}
+    {{ if and (eq $theme "dark") (not $hasBackgroundImage) }}
     <div class="floating-cta__accent"></div>
+    {{ end }}
 
     {{/* Content */}}
     <div class="floating-cta__content">
+      {{/* Logo - optional */}}
+      {{ if $showLogo }}
+      <div class="floating-cta__logo">
+        {{ partialCached "header/logo_section" (dict
+          "logoUrl" (site.Params.logo | default "/images/logo.svg")
+          "logoAlt" site.Title
+          "logoHeight" "h-8"
+          "siteTitle" site.Title
+          "class" "inline-block"
+        ) "floating-cta-logo" }}
+      </div>
+      {{ end }}
+
       {{/* Badge */}}
       {{ if $badge }}
       <div class="floating-cta__badge">
@@ -128,6 +161,18 @@
       </div>
       {{ end }}
     </div>
+
+    {{/* Background image - displayed at bottom */}}
+    {{ if $hasBackgroundImage }}
+    <div class="floating-cta__bg-image">
+      {{ partial "components/media/lazyimg.html" (dict
+        "src" $backgroundImage
+        "alt" ""
+        "class" "floating-cta__bg-img"
+        "maxWidth" 340
+      ) }}
+    </div>
+    {{ end }}
   </div>
 </aside>
 
