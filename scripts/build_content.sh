@@ -252,6 +252,10 @@ else
         echo -e "${YELLOW}Missing: scikit-learn${NC}"
         MISSING_DEPS=true
     fi
+    if ! "${VENV_DIR}/bin/python" -c "import boto3" 2>/dev/null; then
+        echo -e "${YELLOW}Missing: boto3${NC}"
+        MISSING_DEPS=true
+    fi
 
     if [ "$MISSING_DEPS" = true ]; then
         echo -e "${YELLOW}Virtual environment exists but some dependencies are missing${NC}"

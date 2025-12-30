@@ -20,3 +20,4 @@ umap-learn>=0.5.0
 Pillow>=10.0.0
 yake>=0.4.8
 tomli_w>=1.0.0
+boto3>=1.28.0

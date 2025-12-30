@@ -4,8 +4,111 @@ import requests
 import tomllib
 from pathlib import Path
 from toml_frontmatter import safe_toml_dumps
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 import random
+from dotenv import load_dotenv
+
+# Load environment variables from .env file in the same directory as this script
+env_path = Path(__file__).parent / '.env'
+load_dotenv(env_path)
+
+# FlowHunt S3 configuration
+FLOWHUNT_S3_BUCKET = os.getenv('FLOWHUNT_S3_BUCKET')
+FLOWHUNT_AWS_ACCESS_KEY_ID = os.getenv('FLOWHUNT_AWS_ACCESS_KEY_ID')
+FLOWHUNT_AWS_SECRET_ACCESS_KEY = os.getenv('FLOWHUNT_AWS_SECRET_ACCESS_KEY')
+FLOWHUNT_AWS_REGION = os.getenv('FLOWHUNT_AWS_REGION', 'eu-central-1')
+
+# Global flag to track user's choice for FlowHunt images
+_flowhunt_user_choice = None  # None = not asked, 'skip' = skip all, 'configure' = user wants to configure
+
+# FlowHunt S3 URL pattern
+FLOWHUNT_S3_PATTERN = re.compile(r'https?://flowhunt-photo-ai\.s3\.amazonaws\.com/(.+?)(?:\?|$)')
+
+
+def is_flowhunt_s3_url(url):
+    """Check if URL is from FloatHunt S3 bucket."""
+    return 'flowhunt-photo-ai.s3.amazonaws.com' in url
+
+
+def extract_s3_path(url):
+    """Extract the S3 object path from a FlowHunt S3 URL."""
+    match = FLOWHUNT_S3_PATTERN.match(url)
+    if match:
+        return unquote(match.group(1))
+    return None
+
+
+def flowhunt_credentials_configured():
+    """Check if FlowHunt S3 credentials are properly configured."""
+    return all([
+        FLOWHUNT_S3_BUCKET,
+        FLOWHUNT_AWS_ACCESS_KEY_ID,
+        FLOWHUNT_AWS_SECRET_ACCESS_KEY
+    ])
+
+
+def ask_user_flowhunt_config():
+    """Ask user what to do when FlowHunt credentials are not configured."""
+    global _flowhunt_user_choice
+
+    if _flowhunt_user_choice is not None:
+        return _flowhunt_user_choice
+
+    print("\n" + "=" * 60)
+    print("FlowHunt S3 credentials not configured!")
+    print("=" * 60)
+    print("\nImages from flowhunt-photo-ai.s3.amazonaws.com cannot be")
+    print("downloaded because they have expired signed URLs.")
+    print("\nTo fix this, add the following to your .env file:")
+    print("  FLOWHUNT_S3_BUCKET=flowhunt-photo-ai")
+    print("  FLOWHUNT_AWS_ACCESS_KEY_ID=your-access-key")
+    print("  FLOWHUNT_AWS_SECRET_ACCESS_KEY=your-secret-key")
+    print("  FLOWHUNT_AWS_REGION=eu-central-1")
+    print("\nWhat would you like to do?")
+    print("  [s] Skip all FlowHunt images for now")
+    print("  [q] Quit so I can configure credentials")
+
+    while True:
+        choice = input("\nYour choice (s/q): ").strip().lower()
+        if choice == 's':
+            _flowhunt_user_choice = 'skip'
+            print("Skipping FlowHunt images...")
+            return 'skip'
+        elif choice == 'q':
+            _flowhunt_user_choice = 'configure'
+            return 'configure'
+        else:
+            print("Please enter 's' to skip or 'q' to quit.")
+
+
+def download_from_flowhunt_s3(s3_path, out_path):
+    """Download a file directly from FlowHunt S3 bucket using boto3."""
+    try:
+        import boto3
+        from botocore.exceptions import ClientError
+    except ImportError:
+        print("!!! ERROR: boto3 not installed. Run: pip install boto3")
+        return False
+
+    try:
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=FLOWHUNT_AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=FLOWHUNT_AWS_SECRET_ACCESS_KEY,
+            region_name=FLOWHUNT_AWS_REGION
+        )
+
+        s3_client.download_file(FLOWHUNT_S3_BUCKET, s3_path, str(out_path))
+        print(f"    Downloaded from S3: {s3_path}")
+        return True
+    except ClientError as e:
+        error_code = e.response.get('Error', {}).get('Code', 'Unknown')
+        print(f"!!! ERROR downloading from S3 ({error_code}): {s3_path}")
+        return False
+    except Exception as e:
+        print(f"!!! ERROR downloading from S3: {e}")
+        return False
+
 
 CONTENT_DIR = Path(__file__).parents[3] / 'content'
 STATIC_IMAGES_DIR = Path(__file__).parents[3] / 'static' / 'images'
@@ -56,11 +159,20 @@ SHORTCODE_IMAGE_ATTRIBUTES = [
 def url_matches_prefix(url):
     return any(url.startswith(prefix) for prefix in IMG_URL_PREFIXES)
 
+def get_language_directories():
+    """Get list of language directories in content folder."""
+    if not CONTENT_DIR.exists():
+        return set()
+    return {d.name for d in CONTENT_DIR.iterdir() if d.is_dir()}
+
+# Cache language directories at module load
+LANGUAGE_DIRS = get_language_directories()
+
 def get_effective_rel_folder(md_path):
     rel_folder = md_path.parent.relative_to(CONTENT_DIR)
     parts = list(rel_folder.parts)
-    # Remove language directory if present (e.g., 'en')
-    if parts and len(parts[0]) == 2:  # crude check for language code
+    # Remove language directory if present (e.g., 'en', 'pt-br', etc.)
+    if parts and parts[0] in LANGUAGE_DIRS:
         parts = parts[1:]
     return Path(*parts)
 
@@ -87,51 +199,73 @@ def process_image_url(url, out_dir, title, md_stem, idx=None):
             print(f"!!! ERROR getting extension for image {url}: {e}")
             ext = '.jpg'
 
-    # 2. Try to use filename from URL if it's unique
+    # 2. Generate filename from URL
     out_filename = None
     url_filename_str = os.path.basename(urlparse(url).path)
     if url_filename_str:
         # Sanitize filename from URL
         base, _ = os.path.splitext(url_filename_str)
         safe_base = re.sub(r'[^a-zA-Z0-9_-]', '_', base)
-        candidate_filename = f"{safe_base}{ext}"
-        if not (out_dir / candidate_filename).exists():
-            out_filename = candidate_filename
+        out_filename = f"{safe_base}{ext}"
 
-    # 3. If filename from URL is not used, create a fallback name using page context
+    # 3. If no filename from URL, create a fallback name using page context
     if not out_filename:
         safe_title = re.sub(r'[^a-zA-Z0-9_-]', '_', title)
         if idx is not None:
             out_filename = f"{md_stem}_{safe_title}_{idx}{ext}"
         else:
             out_filename = f"{md_stem}_{safe_title}{ext}"
-    #if filename contains more dash symbols, replace them with one ... e.g. --- > -
+
+    # Normalize filename: replace multiple dashes with one, limit length
     out_filename = re.sub(r'-+', '-', out_filename)[-100:]
 
-    # 4. Download image if it doesn't exist
+    # 4. Check if file already exists - if so, just return the path (no download needed)
     out_path = out_dir / out_filename
-    if not out_path.exists():
-        try:
-            resp = requests.get(url, timeout=5)
-            resp.raise_for_status()
-            
-            # Check if the response is actually an image
-            content_type = resp.headers.get('Content-Type', '')
-            if 'text/html' in content_type:
-                print(f"!!! ERROR: URL {url} returned HTML instead of an image")
-                return None
-            
-            # Additional check: verify the content starts with image magic bytes
-            content = resp.content
-            if content.startswith(b'<!DOCTYPE') or content.startswith(b'<html'):
-                print(f"!!! ERROR: URL {url} returned HTML content instead of an image")
-                return None
-            
+    if out_path.exists():
+        return out_filename
+
+    # 5. Download image since it doesn't exist locally
+    download_success = False
+
+    # First, try regular HTTP download
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+
+        # Check if the response is actually an image
+        content_type = resp.headers.get('Content-Type', '')
+        if 'text/html' in content_type:
+            print(f"!!! ERROR: URL {url} returned HTML instead of an image")
+        elif resp.content.startswith(b'<!DOCTYPE') or resp.content.startswith(b'<html'):
+            print(f"!!! ERROR: URL {url} returned HTML content instead of an image")
+        else:
             with open(out_path, 'wb') as imgf:
-                imgf.write(content)
-        except Exception as e:
+                imgf.write(resp.content)
+            download_success = True
+    except requests.exceptions.HTTPError as e:
+        # Check if it's a 403 error from FlowHunt S3
+        if e.response.status_code == 403 and is_flowhunt_s3_url(url):
+            print(f"    FlowHunt S3 URL returned 403, attempting S3 direct download...")
+
+            if flowhunt_credentials_configured():
+                s3_path = extract_s3_path(url)
+                if s3_path:
+                    download_success = download_from_flowhunt_s3(s3_path, out_path)
+            else:
+                # Ask user what to do
+                user_choice = ask_user_flowhunt_config()
+                if user_choice == 'configure':
+                    print("\nExiting. Please configure FlowHunt credentials and run again.")
+                    import sys
+                    sys.exit(1)
+                # 'skip' - just continue without downloading
+        else:
             print(f"!!! ERROR downloading image from {url}: {e}")
-            return None
+    except Exception as e:
+        print(f"!!! ERROR downloading image from {url}: {e}")
+
+    if not download_success:
+        return None
     return out_filename
 
 def process_md_file(md_path):
