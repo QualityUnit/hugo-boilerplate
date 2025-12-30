@@ -61,15 +61,21 @@
 {{ $image := .Params.floatingCta.image | default site.Params.floatingcta.image | default "" }}
 {{ $imageAlt := .Params.floatingCta.imageAlt | default site.Params.floatingcta.imagealt | default $heading }}
 {{ $backgroundImage := .Params.floatingCta.backgroundImage | default site.Params.floatingcta.backgroundimage | default "" }}
-{{ $badge := .Params.floatingCta.badge | default site.Params.floatingcta.badge | default "" }}
-{{ $secondaryText := .Params.floatingCta.secondaryText | default site.Params.floatingcta.secondarytext | default "" }}
+{{ $badge := .Params.floatingCta.badge | default site.Params.floatingcta.badge | default (i18n "floating_cta_badge") | default "" }}
+{{ $secondaryText := .Params.floatingCta.secondaryText | default site.Params.floatingcta.secondarytext | default (i18n "floating_cta_secondary") | default "" }}
 {{ $secondaryUrl := .Params.floatingCta.secondaryUrl | default site.Params.floatingcta.secondaryurl | default "" }}
 {{ $theme := .Params.floatingCta.theme | default site.Params.floatingcta.theme | default "dark" }}
 {{ $showLogo := .Params.floatingCta.showLogo | default site.Params.floatingcta.showlogo | default false }}
 {{ $logoUrl := .Params.floatingCta.logoUrl | default site.Params.floatingcta.logourl | default "" }}
 
-{{/* Default features if not specified - empty by default, configure in site params */}}
+{{/* Default features if not specified - use i18n strings */}}
 {{ $defaultFeatures := slice }}
+{{ $i18nFeature1 := i18n "floating_cta_feature_1" }}
+{{ $i18nFeature2 := i18n "floating_cta_feature_2" }}
+{{ $i18nFeature3 := i18n "floating_cta_feature_3" }}
+{{ if and $i18nFeature1 $i18nFeature2 $i18nFeature3 }}
+  {{ $defaultFeatures = slice $i18nFeature1 $i18nFeature2 $i18nFeature3 }}
+{{ end }}
 {{ $features := .Params.floatingCta.features | default site.Params.floatingcta.features | default $defaultFeatures }}
 
 {{/* Determine theme classes */}}
