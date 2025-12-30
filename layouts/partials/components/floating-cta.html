@@ -84,11 +84,6 @@
 
 <aside class="floating-cta {{ $themeClass }}{{ if $hasBackgroundImage }} floating-cta--has-bg{{ end }}" aria-label="Call to action">
   <div class="floating-cta__inner">
-    {{/* Accent bar - only show for dark theme without background image */}}
-    {{ if and (eq $theme "dark") (not $hasBackgroundImage) }}
-    <div class="floating-cta__accent"></div>
-    {{ end }}
-
     {{/* Content */}}
     <div class="floating-cta__content">
       {{/* Logo - optional */}}
