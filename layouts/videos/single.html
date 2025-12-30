@@ -1,0 +1,42 @@
+{{ define "main" }}
+
+{{ partial "breadcrumbs_default.html" . }}
+{{ partial "hero_default.html" . }}
+
+<!-- Main Content with Floating CTA -->
+<div class="bg-white">
+  <div class="wrapper">
+    <div class="blog-content-with-cta">
+      <!-- Main Content -->
+      <div class="blog-main-content">
+        <div class="wrapper-content prose">
+          {{ .Content }}
+        </div>
+      </div>
+
+      <!-- Floating CTA (hidden on mobile, visible on xl screens) -->
+      {{ partial "components/floating-cta.html" . }}
+    </div>
+  </div>
+</div>
+
+<!-- FAQ Section if available -->
+{{ if .Params.faq }}
+{{ partial "sections/faq/side-by-side" (dict
+"title" (i18n "faq_heading")
+"description" (i18n "faq_description")
+"items" .Params.faq
+) }}
+{{ end }}
+
+
+<!-- Author Section -->
+{{ if .Params.author }}
+  {{ partial "author.html" (dict "authorKey" .Params.author "page" .) }}
+{{ end }}
+
+{{ partial "cta.html" . }}
+
+{{ partial "related_content.html" . }}
+
+{{ end }}
