@@ -31,7 +31,38 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
+def get_default_lang_in_subdir(hugo_root: Path) -> bool:
+    """Read defaultContentLanguageInSubdir from Hugo config."""
+    # Check config/_default/hugo.toml first
+    config_file = hugo_root / 'config' / '_default' / 'hugo.toml'
+    if config_file.exists():
+        try:
+            with open(config_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    if 'defaultContentLanguageInSubdir' in line and '=' in line:
+                        value = line.split('=', 1)[1].strip().lower()
+                        return value == 'true'
+        except Exception:
+            pass
+
+    # Fallback: check config.toml at root
+    for config_name in ['config.toml', 'hugo.toml']:
+        config_file = hugo_root / config_name
+        if config_file.exists():
+            try:
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        if 'defaultContentLanguageInSubdir' in line and '=' in line:
+                            value = line.split('=', 1)[1].strip().lower()
+                            return value == 'true'
+            except Exception:
+                pass
+
+    # Default: assume English in subdirectory
+    return True
+
+
+def find_language_files(linkbuilding_dir: Path, public_dir: Path, default_lang_in_subdir: bool = True) -> List[Dict]:
     """Find all language configurations for linkbuilding.
 
     Priority order:
@@ -77,8 +108,8 @@ def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
             if not manual_file.exists():
                 manual_file = None
 
-            # Determine HTML directory
-            if lang == 'en':
+            # Determine HTML directory based on Hugo config
+            if lang == 'en' and not default_lang_in_subdir:
                 html_dir = public_dir
             else:
                 html_dir = public_dir / lang
@@ -112,8 +143,8 @@ def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
             manual_file = None
             logger.debug(f"No manual file found for language {lang} - will use automatic only")
 
-        # Determine HTML directory
-        if lang == 'en':
+        # Determine HTML directory based on Hugo config
+        if lang == 'en' and not default_lang_in_subdir:
             html_dir = public_dir
         else:
             html_dir = public_dir / lang
@@ -132,8 +163,8 @@ def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
             'html_dir': str(html_dir)
         })
 
-    # If no languages were found, return at least English if it exists
-    if not languages and (public_dir / "index.html").exists():
+    # If no languages were found, check for English at root (only if config says so)
+    if not languages and not default_lang_in_subdir and (public_dir / "index.html").exists():
         logger.warning("No language directories found, but found English content at root")
 
         en_auto = linkbuilding_dir / 'automatic' / "en_automatic.json"
@@ -378,9 +409,14 @@ Examples:
         script_path = Path(args.script_path)
         logger.info(f"Using linkbuilding.py at: {script_path.absolute()}")
     
+    # Read Hugo config for language directory structure
+    hugo_root = public_dir.parent  # Assume public_dir is inside Hugo root
+    default_lang_in_subdir = get_default_lang_in_subdir(hugo_root)
+    logger.info(f"Hugo config: defaultContentLanguageInSubdir = {default_lang_in_subdir}")
+
     # Find all language configurations
     logger.info("Discovering language configurations...")
-    languages = find_language_files(linkbuilding_dir, public_dir)
+    languages = find_language_files(linkbuilding_dir, public_dir, default_lang_in_subdir)
     
     if not languages:
         logger.error("ERROR: No language configurations found")

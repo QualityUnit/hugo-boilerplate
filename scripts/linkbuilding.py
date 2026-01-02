@@ -175,8 +175,9 @@ class LinkBuilder:
         if not self.precomputed_dir or not self.precomputed_dir.exists():
             return False
 
-        # Find language-specific directory
-        lang_dir = self.precomputed_dir / self.language if self.language else self.precomputed_dir
+        # Find language-specific directory (use lowercase for directory name)
+        lang = self.language.lower() if self.language else None
+        lang_dir = self.precomputed_dir / lang if lang else self.precomputed_dir
 
         if not lang_dir.exists():
             return False
@@ -556,9 +557,12 @@ class LinkBuilder:
                                             keywords_to_use: List[Keyword]) -> bool:
         """Process a file using only the specified keywords (precomputed mode).
 
-        This temporarily switches to using only the specified keywords,
-        processes the file, then restores the original state.
+        Builds a small Aho-Corasick automaton for this file's keywords.
+        This is fast because we only have ~50-100 keywords per file.
         """
+        if not keywords_to_use:
+            return False
+
         # Save original state
         original_keywords = self.keywords
         original_automaton = self.automaton
@@ -567,16 +571,17 @@ class LinkBuilder:
         try:
             # Set up for specific keywords only
             self.keywords = keywords_to_use
+            self.keyword_lookup = {kw.keyword.lower(): kw for kw in keywords_to_use}
 
-            # Build temporary automaton for just these keywords
-            if AHOCORASICK_AVAILABLE:
+            # Build small automaton for this file's keywords (fast for 50-100 keywords)
+            if AHOCORASICK_AVAILABLE and len(keywords_to_use) > 0:
                 self.automaton = ahocorasick.Automaton()
-                self.keyword_lookup = {}
                 for keyword in keywords_to_use:
                     keyword_lower = keyword.keyword.lower()
-                    self.keyword_lookup[keyword_lower] = keyword
                     self.automaton.add_word(keyword_lower, keyword)
                 self.automaton.make_automaton()
+            else:
+                self.automaton = None
 
             # Process the file
             result = self._process_file_content(file_path, content)
