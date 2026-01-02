@@ -26,6 +26,7 @@ import json
 import re
 import argparse
 import logging
+import hashlib
 from pathlib import Path
 from typing import Dict, List, Set, Tuple, Optional
 from collections import defaultdict
@@ -293,19 +294,33 @@ def load_keywords(linkbuilding_dir: Path, lang: str) -> Dict[str, Dict]:
     return keywords
 
 
-def get_keywords_mtime(linkbuilding_dir: Path, lang: str) -> float:
-    """Get the latest mtime of keyword source files."""
-    mtime = 0.0
+def get_keywords_hash(linkbuilding_dir: Path, lang: str) -> str:
+    """Compute a hash of keyword file contents to detect actual changes.
 
+    Returns a hash string that changes only when keyword content changes,
+    not when files are regenerated with the same content.
+    """
+    hasher = hashlib.md5()
+
+    # Hash automatic keywords file content
     auto_file = linkbuilding_dir / 'automatic' / f"{lang}_automatic.json"
     if auto_file.exists():
-        mtime = max(mtime, auto_file.stat().st_mtime)
+        try:
+            with open(auto_file, 'rb') as f:
+                hasher.update(f.read())
+        except:
+            pass
 
+    # Hash manual keywords file content
     manual_file = linkbuilding_dir / f"{lang}.json"
     if manual_file.exists():
-        mtime = max(mtime, manual_file.stat().st_mtime)
+        try:
+            with open(manual_file, 'rb') as f:
+                hasher.update(f.read())
+        except:
+            pass
 
-    return mtime
+    return hasher.hexdigest()
 
 
 def load_cache(cache_file: Path) -> Dict:
@@ -316,7 +331,7 @@ def load_cache(cache_file: Path) -> Dict:
                 return json.load(f)
         except:
             pass
-    return {'file_mtimes': {}, 'keywords_mtime': 0.0}
+    return {'file_mtimes': {}, 'keywords_hash': ''}
 
 
 def save_cache(cache_file: Path, cache: Dict):
@@ -421,14 +436,6 @@ def process_language(lang: str,
         logger.warning(f"HTML directory not found: {html_dir}")
         return {}
 
-    # Load keywords
-    keywords = load_keywords(linkbuilding_dir, lang)
-    if not keywords:
-        logger.warning(f"No keywords found for {lang}")
-        return {}
-
-    logger.info(f"  Total keywords: {len(keywords)}")
-
     # Create output directory
     lang_output_dir = output_dir / lang
     lang_output_dir.mkdir(parents=True, exist_ok=True)
@@ -437,26 +444,51 @@ def process_language(lang: str,
     cache_file = lang_output_dir / '.cache.json'
     cache = load_cache(cache_file)
 
-    # Check if keywords source changed
-    keywords_mtime = get_keywords_mtime(linkbuilding_dir, lang)
-    keywords_changed = keywords_mtime > cache.get('keywords_mtime', 0.0)
+    # Check if keywords source changed using content hash (not mtime)
+    keywords_hash = get_keywords_hash(linkbuilding_dir, lang)
+    cached_hash = cache.get('keywords_hash', '')
+    keywords_changed = keywords_hash != cached_hash
 
     if keywords_changed:
-        logger.info("  Keywords source changed - full recomputation required")
-        cache = {'file_mtimes': {}, 'keywords_mtime': keywords_mtime}
+        logger.info("  Keywords content changed - full recomputation required")
+        cache = {'file_mtimes': {}, 'keywords_hash': keywords_hash}
+    else:
+        logger.info("  Keywords unchanged (hash match)")
+
+    # Load keywords
+    keywords = load_keywords(linkbuilding_dir, lang)
+    if not keywords:
+        logger.warning(f"No keywords found for {lang}")
+        return {}
+
+    logger.info(f"  Total keywords: {len(keywords)}")
 
     # Find HTML files
     all_html_files = list(html_dir.rglob('*.html'))
-    matcher = KeywordMatcher(keywords)
 
-    # Filter files
+    # Filter files (use class method for filtering before creating matcher)
     html_files = []
     for f in all_html_files:
-        if matcher.should_skip_file(f):
+        # Check skip paths
+        path_str = str(f).replace('\\', '/')
+        skip = False
+        for skip_pattern in KeywordMatcher.SKIP_PATHS:
+            if skip_pattern in path_str:
+                skip = True
+                break
+        if skip:
             continue
         # When English is at root, skip other language subdirectories
-        if english_at_root and matcher.should_skip_for_english_at_root(f, public_dir):
-            continue
+        if english_at_root:
+            try:
+                rel_path = f.relative_to(public_dir)
+                first_part = rel_path.parts[0] if rel_path.parts else ''
+                if first_part and len(first_part) <= 5 and first_part.islower() and first_part.isalpha():
+                    lang_index = public_dir / first_part / 'index.html'
+                    if lang_index.exists():
+                        continue
+            except ValueError:
+                pass
         html_files.append(f)
 
     logger.info(f"  Found {len(html_files)} HTML files to process")
@@ -480,6 +512,22 @@ def process_language(lang: str,
             # We'll load existing results later
 
     logger.info(f"  Files to process: {len(files_to_process)} (skipping {len(html_files) - len(files_to_process)} cached)")
+
+    # Fast path: if nothing to process and keywords unchanged, skip entirely
+    if not files_to_process and not keywords_changed:
+        logger.info("  Nothing changed - skipping (cached)")
+        return {
+            'language': lang,
+            'html_files': len(html_files),
+            'json_files': len(list(lang_output_dir.glob('*.json'))) - 1,  # Exclude .cache.json
+            'total_keywords': 0,  # Not recounting, but exists
+            'files_processed': 0,
+            'files_cached': len(html_files),
+            'skipped': True
+        }
+
+    # Build keyword matcher only when needed (expensive operation)
+    matcher = KeywordMatcher(keywords)
 
     # Load existing JSON files for cached files
     existing_jsons = {}
@@ -560,7 +608,7 @@ def process_language(lang: str,
 
     # Update and save cache
     cache['file_mtimes'].update(new_mtimes)
-    cache['keywords_mtime'] = keywords_mtime
+    cache['keywords_hash'] = keywords_hash
     save_cache(cache_file, cache)
 
     logger.info(f"  Output: {len(results_by_folder)} JSON files, {total_files} HTML files, {total_keywords} keyword matches")
@@ -700,8 +748,9 @@ Examples:
     logger.info("\nPer-language results:")
     logger.info("-" * 40)
     for r in sorted(results, key=lambda x: x.get('total_keywords', 0), reverse=True):
+        status = "(cached)" if r.get('skipped') else ""
         logger.info(f"  {r['language'].upper():3} | {r['html_files']:5,} files | "
-                   f"{r['json_files']:3} JSONs | {r['total_keywords']:6,} keywords")
+                   f"{r['json_files']:3} JSONs | {r.get('files_processed', 0):5,} processed {status}")
 
     # Save summary
     summary_file = output_dir / 'precomputation_summary.json'
