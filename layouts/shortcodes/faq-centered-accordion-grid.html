@@ -1,0 +1,33 @@
+{{/*
+  FAQ Two Column with Decorative Lines Shortcode
+*/}}
+
+{{ $heading := .Get "heading" | default (i18n "faq_heading") | default "Frequently Asked Questions" }}
+{{ $description := .Get "description" }}
+{{ $ctaText := .Get "ctaText" | default "" }}
+{{ $ctaUrl := .Get "ctaUrl" | default "" }}
+{{ $ctaLinkText := .Get "ctaLinkText" | default "" }}
+{{ $bgColor := .Get "bgColor" | default "bg-white" }}
+{{ $questionColor := .Get "questionColor" | default "text-gray-900" }}
+{{ $answerColor := .Get "answerColor" | default "text-gray-600" }}
+
+{{ $faqs := slice }}
+{{ with .Inner }}
+  {{ $trimmed := . | strings.TrimSpace }}
+  {{ if $trimmed }}
+    {{ $faqs = $trimmed | transform.Unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{ partial "sections/faq/centered_accordion_grid.html" (dict
+  "heading" $heading
+  "description" $description
+  "ctaText" $ctaText
+  "ctaUrl" $ctaUrl
+  "ctaLinkText" $ctaLinkText
+  "bgColor" $bgColor
+  "questionColor" $questionColor
+  "answerColor" $answerColor
+  "faqs" $faqs
+  "page" .Page
+) }}

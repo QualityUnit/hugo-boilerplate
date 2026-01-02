@@ -1,0 +1,42 @@
+{{/*
+  Features Vertical with Image Grid Shortcode
+
+  Split layout with image on left and vertical features list on right.
+
+  Parameters:
+  - eyebrow: Small text above heading
+  - heading: Main heading
+  - highlightText: Text to highlight in primary color
+  - description: Description below heading
+  - image: Image path
+  - imageAlt: Alt text for image
+
+  Inner content: JSON array of features [{icon, title, description}]
+*/}}
+
+{{ $eyebrow := .Get "eyebrow" | default "" }}
+{{ $heading := .Get "heading" | default "" }}
+{{ $highlightText := .Get "highlightText" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $image := .Get "image" | default "" }}
+{{ $imageAlt := .Get "imageAlt" | default "" }}
+{{ $theme := .Get "theme" | default "light" }}
+
+{{ $features := slice }}
+{{ with .Inner }}
+  {{ $trimmed := . | strings.TrimSpace }}
+  {{ if $trimmed }}
+    {{ $features = $trimmed | transform.Unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{ partial "sections/features/vertical_with_image_grid.html" (dict
+  "eyebrow" $eyebrow
+  "heading" $heading
+  "highlightText" $highlightText
+  "description" $description
+  "image" $image
+  "imageAlt" $imageAlt
+  "features" $features
+  "theme" $theme
+) }}

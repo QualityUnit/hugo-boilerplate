@@ -1,0 +1,26 @@
+{{/*
+  CTA with Decorative Lines Shortcode
+*/}}
+
+{{ $ctaHeading := .Get "heading" | default (i18n "cta_default_heading") }}
+{{ $ctaDescription := .Get "description" | default (i18n "cta_default_description") }}
+{{ $ctaPrimaryText := .Get "primaryText" | default (i18n "cta_default_primary_text") }}
+{{ $ctaPrimaryURL := .Get "primaryURL" | default "" }}
+{{ $ctaSecondaryText := .Get "secondaryText" | default (i18n "cta_default_secondary_text") }}
+{{ $ctaSecondaryURL := .Get "secondaryURL" | default "" }}
+
+{{ $ctaPrimaryURL = partial "helpers/get-translated-url.html" (dict "url" $ctaPrimaryURL "lang" site.Language.Lang) }}
+{{ $ctaSecondaryURL = partial "helpers/get-translated-url.html" (dict "url" $ctaSecondaryURL "lang" site.Language.Lang) }}
+
+{{ partial "sections/cta/simple_centered_grid.html" (dict
+    "heading" $ctaHeading
+    "description" $ctaDescription
+    "primaryCta" (dict
+        "text" $ctaPrimaryText
+        "url" $ctaPrimaryURL
+    )
+    "secondaryCta" (dict
+        "text" $ctaSecondaryText
+        "url" $ctaSecondaryURL
+    )
+) }}

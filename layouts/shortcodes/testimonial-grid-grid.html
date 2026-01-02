@@ -1,0 +1,22 @@
+{{/*
+  Testimonial Grid with Decorative Lines Shortcode
+*/}}
+
+{{ $headingTag := (.Get "headingTag") | default "" }}
+{{ $heading := (.Get "heading") | default "" }}
+{{ $showHeading := (.Get "showHeading") | default "true" }}
+
+{{ $testimonials := slice }}
+{{ with .Inner }}
+  {{ $trimmed := . | strings.TrimSpace }}
+  {{ if $trimmed }}
+    {{ $testimonials = $trimmed | transform.Unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{ partial "sections/testimonials/grid_with_lines.html" (dict
+  "headingTag" $headingTag
+  "heading" $heading
+  "showHeading" (eq $showHeading "true")
+  "testimonials" $testimonials
+) }}

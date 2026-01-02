@@ -1,0 +1,36 @@
+{{/*
+  CTA Centered with Icons Grid Shortcode
+
+  Light CTA section with floating AI platform icons and grid lines.
+
+  Parameters:
+  - heading: Main heading text
+  - highlightText: Text to highlight with dashed underline
+  - description: Description below heading
+  - primaryText: Primary button text
+  - primaryURL: Primary button URL
+  - secondaryText: Secondary button text
+  - secondaryURL: Secondary button URL
+  - bottomText: Small text at bottom
+*/}}
+
+{{ $heading := .Get "heading" | default "" }}
+{{ $highlightText := .Get "highlightText" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $primaryText := .Get "primaryText" | default "Get Started" }}
+{{ $primaryURL := .Get "primaryURL" | default "" }}
+{{ $secondaryText := .Get "secondaryText" | default "Book a demo" }}
+{{ $secondaryURL := .Get "secondaryURL" | default "" }}
+{{ $bottomText := .Get "bottomText" | default "" }}
+
+{{ $primaryURL = partial "helpers/get-translated-url.html" (dict "url" $primaryURL "lang" site.Language.Lang) }}
+{{ $secondaryURL = partial "helpers/get-translated-url.html" (dict "url" $secondaryURL "lang" site.Language.Lang) }}
+
+{{ partial "sections/cta/centered_with_icons_grid.html" (dict
+  "heading" $heading
+  "highlightText" $highlightText
+  "description" $description
+  "primaryCta" (dict "text" $primaryText "url" $primaryURL)
+  "secondaryCta" (dict "text" $secondaryText "url" $secondaryURL)
+  "bottomText" $bottomText
+) }}

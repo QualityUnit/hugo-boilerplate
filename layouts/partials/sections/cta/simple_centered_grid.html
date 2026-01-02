@@ -1,0 +1,73 @@
+{{/*
+@section: Simple Centered CTA with Decorative Lines
+@description: CTA section with decorative border lines and intersection circles.
+*/}}
+
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $primaryCta := .primaryCta | default (dict "text" (i18n "get_started") "url" "#") }}
+{{ $secondaryCta := .secondaryCta | default (dict "text" ((i18n "learnMore") | default "") "url" "#") }}
+{{ $gradientStartColor := .gradientStartColor | default "#0084ff" }}
+{{ $gradientEndColor := .gradientEndColor | default "#1a56db" }}
+
+<section class="bg-white dark:bg-gray-900 relative overflow-hidden">
+
+  {{/* Full-height vertical lines at wrapper edges */}}
+  <div class="wrapper absolute inset-0 pointer-events-none">
+    <div class="absolute top-0 bottom-0 left-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+    <div class="absolute top-0 bottom-0 right-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+  </div>
+
+  {{/* Top border with circles */}}
+  <div class="relative border-t border-gray-200 dark:border-gray-700">
+    <div class="wrapper relative">
+      <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+    </div>
+  </div>
+
+  {{/* CTA content */}}
+  <div class="wrapper py-16 sm:py-24">
+    <div class="relative border border-gray-200 dark:border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8 rounded-xl overflow-hidden">
+      {{/* Intersection circles */}}
+      <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 z-10"></div>
+      <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 z-10"></div>
+      <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 z-10"></div>
+      <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 z-10"></div>
+
+      <div class="dark relative isolate overflow-hidden section-bg-dark">
+        <div class="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
+          <div class="mx-auto max-w-2xl text-center">
+            <h2 class="text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl">{{ $heading }}</h2>
+            <p class="mx-auto mt-6 max-w-xl text-lg/8 text-pretty text-gray-300">{{ $description }}</p>
+            <div class="mt-10 flex items-center justify-center gap-x-6">
+              {{ partial "components/buttons/buttons.html" (dict
+                "text" $primaryCta.text
+                "url" $primaryCta.url
+                "variant" "primary-alternate"
+                "target" $primaryCta.target
+              ) }}
+              {{ partial "components/buttons/buttons.html" (dict
+                "text" $secondaryCta.text
+                "url" $secondaryCta.url
+                "variant" "secondary"
+                "showArrow" true
+                "target" $secondaryCta.target
+              ) }}
+            </div>
+          </div>
+        </div>
+        <div class="absolute top-1/2 left-1/2 -z-10 size-[64rem] -translate-x-1/2 translate-y-0 rounded-full opacity-70 [mask-image:radial-gradient(closest-side,white,transparent)]" style="background: radial-gradient(circle, {{ $gradientStartColor }} 0%, {{ $gradientEndColor }} 100%)" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+
+  {{/* Bottom border with circles */}}
+  <div class="relative border-b border-gray-200 dark:border-gray-700">
+    <div class="wrapper relative">
+      <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+    </div>
+  </div>
+
+</section>
