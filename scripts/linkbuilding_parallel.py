@@ -62,13 +62,17 @@ def get_default_lang_in_subdir(hugo_root: Path) -> bool:
     return True
 
 
-def find_language_files(linkbuilding_dir: Path, public_dir: Path, default_lang_in_subdir: bool = True) -> List[Dict]:
+def find_language_files(linkbuilding_dir: Path, public_dir: Path, default_lang_in_subdir: bool = True, content_at_root: bool = False) -> List[Dict]:
     """Find all language configurations for linkbuilding.
 
     Priority order:
     1. Precomputed JSON files (file-centric mode - fastest)
     2. Optimized JSON files (keyword-centric - fast)
     3. Full automatic JSON files (slowest)
+
+    Args:
+        content_at_root: If True, all language content is at public/ root
+                        (used when each language is built as default with HUGO_DEFAULTCONTENTLANGUAGE)
 
     Returns a list of dicts with language info:
     {
@@ -108,8 +112,11 @@ def find_language_files(linkbuilding_dir: Path, public_dir: Path, default_lang_i
             if not manual_file.exists():
                 manual_file = None
 
-            # Determine HTML directory based on Hugo config
-            if lang == 'en' and not default_lang_in_subdir:
+            # Determine HTML directory
+            # If content_at_root is True, all languages are at public/ root
+            if content_at_root:
+                html_dir = public_dir
+            elif lang == 'en' and not default_lang_in_subdir:
                 html_dir = public_dir
             else:
                 html_dir = public_dir / lang
@@ -143,8 +150,11 @@ def find_language_files(linkbuilding_dir: Path, public_dir: Path, default_lang_i
             manual_file = None
             logger.debug(f"No manual file found for language {lang} - will use automatic only")
 
-        # Determine HTML directory based on Hugo config
-        if lang == 'en' and not default_lang_in_subdir:
+        # Determine HTML directory
+        # If content_at_root is True, all languages are at public/ root
+        if content_at_root:
+            html_dir = public_dir
+        elif lang == 'en' and not default_lang_in_subdir:
             html_dir = public_dir
         else:
             html_dir = public_dir / lang
@@ -356,7 +366,9 @@ Examples:
                        help='Override max replacements per keyword')
     parser.add_argument('--max-url', type=int,
                        help='Override max replacements per URL')
-    
+    parser.add_argument('--content-at-root', action='store_true',
+                       help='All language content is at public/ root (used when each lang is built as default)')
+
     args = parser.parse_args()
     
     # Convert paths
@@ -414,9 +426,14 @@ Examples:
     default_lang_in_subdir = get_default_lang_in_subdir(hugo_root)
     logger.info(f"Hugo config: defaultContentLanguageInSubdir = {default_lang_in_subdir}")
 
+    # Check if content is at root (used when each language is built as default)
+    content_at_root = getattr(args, 'content_at_root', False)
+    if content_at_root:
+        logger.info("Content at root mode: All language content is at public/ root")
+
     # Find all language configurations
     logger.info("Discovering language configurations...")
-    languages = find_language_files(linkbuilding_dir, public_dir, default_lang_in_subdir)
+    languages = find_language_files(linkbuilding_dir, public_dir, default_lang_in_subdir, content_at_root)
     
     if not languages:
         logger.error("ERROR: No language configurations found")

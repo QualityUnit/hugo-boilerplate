@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Image preprocessing script for Wachman
-# This script preprocesses images and stores them in the static/images/processed directory
+# This script preprocesses images and stores them in the cdn-assets/processed directory
 # Images are only processed if they are larger than the size limits
 # For WebP images, only size alternatives are created, no format conversion
 # If the processed image is larger than the original, it is not used
@@ -18,8 +18,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 THEME_DIR="$(dirname "$SCRIPT_DIR")"
 HUGO_ROOT="$(dirname "$(dirname "$THEME_DIR")")"
 
-SOURCE_DIR="$HUGO_ROOT/static/images"
-TARGET_DIR="$HUGO_ROOT/static/images/processed"
+SOURCE_DIR="$HUGO_ROOT/cdn-assets"
+TARGET_DIR="$HUGO_ROOT/cdn-assets/processed"
 CACHE_FILE="$HUGO_ROOT/data/image_processing_cache.json"
 
 # Create the processed directory if it doesn't exist

@@ -1,5 +1,5 @@
 # Goal of this script is to identify duplicate images in the projects's images directory.
-# This is default path from position of this script: ../../../static/images/*
+# This is default path from position of this script: ../../../cdn-assets/*
 #
 # Features:
 # - Find all duplicate images even if they are in subdirectories or filenames don't match
@@ -24,7 +24,7 @@ import datetime
 
 # --- Configuration ---
 SCRIPT_DIR = Path(__file__).parent.resolve()
-IMAGE_DIR = SCRIPT_DIR / "../../../static/images"
+IMAGE_DIR = SCRIPT_DIR / "../../../cdn-assets"
 MODEL_NAME = 'google/vit-base-patch16-224-in21k'
 DUPLICATE_LIMIT = 1000
 # Threshold for considering images as duplicates. Lower is stricter.

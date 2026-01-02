@@ -111,7 +111,7 @@ def download_from_flowhunt_s3(s3_path, out_path):
 
 
 CONTENT_DIR = Path(__file__).parents[3] / 'content'
-STATIC_IMAGES_DIR = Path(__file__).parents[3] / 'static' / 'images'
+STATIC_IMAGES_DIR = Path(__file__).parents[3] / 'cdn-assets'
 
 IMG_URL_PREFIXES = [
     'http://',
