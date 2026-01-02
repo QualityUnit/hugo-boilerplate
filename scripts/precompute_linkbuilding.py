@@ -374,7 +374,7 @@ def process_language(lang: str,
     
     # Determine paths
     manual_file = linkbuilding_dir / f"{lang}.json"
-    automatic_file = linkbuilding_dir / f"{lang}_automatic.json"
+    automatic_file = linkbuilding_dir / 'automatic' / f"{lang}_automatic.json"
     
     # English is at root, others in subdirectories
     if lang == 'en':
@@ -504,7 +504,7 @@ Examples:
         languages = args.languages
     else:
         # Find all automatic linkbuilding files
-        auto_files = list(linkbuilding_dir.glob('*_automatic.json'))
+        auto_files = list((linkbuilding_dir / 'automatic').glob('*_automatic.json'))
         languages = [f.stem.replace('_automatic', '') for f in auto_files]
     
     if not languages:

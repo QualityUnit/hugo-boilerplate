@@ -63,7 +63,7 @@ declare -A STEP_DESCRIPTIONS=(
     ["generate_linkbuilding_keywords"]="Generate linkbuilding keywords"
     ["regenerate_linkbuilding_keywords"]="REGENERATE linkbuilding (clears existing first)"
     ["extract_automatic_links"]="Extract automatic links from content"
-    ["precompute_linkbuilding"]="Precompute optimized linkbuilding"
+    ["precompute_linkbuilding"]="Precompute file-centric linkbuilding (JSON)"
     ["preprocess_images"]="Preprocess images for web delivery"
 )
 
@@ -256,6 +256,10 @@ else
         echo -e "${YELLOW}Missing: boto3${NC}"
         MISSING_DEPS=true
     fi
+    if ! "${VENV_DIR}/bin/python" -c "import ahocorasick" 2>/dev/null; then
+        echo -e "${YELLOW}Missing: pyahocorasick${NC}"
+        MISSING_DEPS=true
+    fi
 
     if [ "$MISSING_DEPS" = true ]; then
         echo -e "${YELLOW}Virtual environment exists but some dependencies are missing${NC}"
@@ -275,10 +279,16 @@ if [ "$NEED_INSTALL" = true ]; then
     # Install or upgrade pip
     echo -e "${YELLOW}Upgrading pip...${NC}"
     pip install --upgrade pip
-    
+
     # Install requirements
     echo -e "${YELLOW}Installing requirements...${NC}"
     pip install -r "${SCRIPT_DIR}/requirements.txt"
+
+    # Install linkbuilding requirements (includes pyahocorasick for fast keyword matching)
+    if [ -f "${SCRIPT_DIR}/requirements-linkbuilding.txt" ]; then
+        echo -e "${YELLOW}Installing linkbuilding requirements...${NC}"
+        pip install -r "${SCRIPT_DIR}/requirements-linkbuilding.txt"
+    fi
 else
     echo -e "${GREEN}Skipping dependency installation - already installed${NC}"
 fi
@@ -782,7 +792,7 @@ PYTHON_SCRIPT
             echo -e "${YELLOW}Extracting keywords from markdown frontmatter for linkbuilding...${NC}"
             
             # Create linkbuilding directory if it doesn't exist
-            mkdir -p "${HUGO_ROOT}/data/linkbuilding"
+            mkdir -p "${HUGO_ROOT}/data/linkbuilding/automatic"
             
             # Start all language extractions in parallel
             echo -e "${YELLOW}Starting parallel extraction for all languages...${NC}"
@@ -797,7 +807,7 @@ PYTHON_SCRIPT
                     (
                         "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/extract_automatic_links.py" \
                             --content-dir "${lang_dir}/" \
-                            --output "${HUGO_ROOT}/data/linkbuilding/${lang}_automatic.json" 2>&1 | \
+                            --output "${HUGO_ROOT}/data/linkbuilding/automatic/${lang}_automatic.json" 2>&1 | \
                             sed "s/^/[$lang] /"
                         
                         if [ ${PIPESTATUS[0]} -eq 0 ]; then
@@ -869,9 +879,9 @@ PYTHON_SCRIPT
             echo -e "${YELLOW}[DEBUG] Step build_hugo finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         precompute_linkbuilding)
-            echo -e "${BLUE}=== Step 4.8: Precomputing Optimized Linkbuilding ===${NC}"
-            echo -e "${YELLOW}Analyzing content to optimize linkbuilding keywords...${NC}"
-            
+            echo -e "${BLUE}=== Step 4.8: Precomputing File-Centric Linkbuilding ===${NC}"
+            echo -e "${YELLOW}Analyzing content to create file-centric keyword mappings...${NC}"
+
             # Ensure Hugo has been built
             if [ ! -d "${HUGO_ROOT}/public" ]; then
                 echo -e "${YELLOW}Warning: Public directory not found. Building Hugo first...${NC}"
@@ -879,7 +889,7 @@ PYTHON_SCRIPT
                 cd "${HUGO_ROOT}"
                 hugo --minify --buildFuture
                 if [ $? -ne 0 ]; then
-                    echo -e "${YELLOW}Error: Hugo build failed. Cannot proceed with linkbuilding optimization.${NC}"
+                    echo -e "${YELLOW}Error: Hugo build failed. Cannot proceed with linkbuilding precomputation.${NC}"
                     exit 1
                 fi
             else
@@ -895,40 +905,41 @@ PYTHON_SCRIPT
                     fi
                 fi
             fi
-            
+
             if [ -d "${HUGO_ROOT}/public" ]; then
-                # Create optimized directory
-                mkdir -p "${HUGO_ROOT}/data/linkbuilding/optimized"
-                
-                echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/precompute_linkbuilding.py${NC}"
-                
-                "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/precompute_linkbuilding.py" \
+                # Create precomputed directory for file-centric YAML files
+                mkdir -p "${HUGO_ROOT}/data/linkbuilding/precomputed"
+
+                echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/precompute_linkbuilding_files.py${NC}"
+
+                "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/precompute_linkbuilding_files.py" \
                     --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
                     --public-dir "${HUGO_ROOT}/public" \
-                    --output-dir "${HUGO_ROOT}/data/linkbuilding/optimized" \
-                    --max-workers 4
-                
+                    --output-dir "${HUGO_ROOT}/data/linkbuilding/precomputed" \
+                    --max-workers 8
+
                 if [ $? -eq 0 ]; then
-                    echo -e "${GREEN}Linkbuilding optimization completed!${NC}"
-                    
+                    echo -e "${GREEN}Linkbuilding precomputation completed!${NC}"
+
                     # Show summary
-                    if [ -f "${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json" ]; then
-                        echo -e "${YELLOW}Optimization summary:${NC}"
+                    if [ -f "${HUGO_ROOT}/data/linkbuilding/precomputed/precomputation_summary.json" ]; then
+                        echo -e "${YELLOW}Precomputation summary:${NC}"
                         "${VENV_DIR}/bin/python" -c "
 import json
-with open('${HUGO_ROOT}/data/linkbuilding/optimized/precomputation_summary.json', 'r') as f:
+with open('${HUGO_ROOT}/data/linkbuilding/precomputed/precomputation_summary.json', 'r') as f:
     data = json.load(f)
     summary = data.get('summary', {})
-    print(f'  Original keywords: {summary.get(\"total_original_keywords\", 0):,}')
-    print(f'  Keywords found in content: {summary.get(\"total_found_keywords\", 0):,}')
-    print(f'  Average reduction: {summary.get(\"average_reduction_percent\", 0):.1f}%')
+    print(f'  Languages processed: {summary.get(\"total_languages\", 0)}')
+    print(f'  HTML files indexed: {summary.get(\"total_html_files\", 0):,}')
+    print(f'  YAML files created: {summary.get(\"total_yaml_files\", 0)}')
+    print(f'  Keyword matches: {summary.get(\"total_keyword_matches\", 0):,}')
 "
                     fi
                 else
-                    echo -e "${YELLOW}Warning: Linkbuilding optimization failed${NC}"
+                    echo -e "${YELLOW}Warning: Linkbuilding precomputation failed${NC}"
                 fi
             fi
-            
+
             echo -e "${YELLOW}[DEBUG] Step precompute_linkbuilding finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         apply_linkbuilding)

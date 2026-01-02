@@ -6,7 +6,7 @@ This script extracts keywords from markdown frontmatter across content directori
 and generates automatic link definition files for the linkbuilding system.
 
 Usage:
-    python extract_automatic_links.py --content-dir content/en/ --output data/linkbuilding/en_automatic.json
+    python extract_automatic_links.py --content-dir content/en/ --output data/linkbuilding/automatic/en_automatic.json
 
 Features:
 - Parses TOML frontmatter from markdown files
@@ -304,10 +304,10 @@ def main():
         epilog="""
 Examples:
   # Extract links from English content
-  python extract_automatic_links.py --content-dir content/en/ --output data/linkbuilding/en_automatic.json
-  
+  python extract_automatic_links.py --content-dir content/en/ --output data/linkbuilding/automatic/en_automatic.json
+
   # Extract links from Spanish content with base URL
-  python extract_automatic_links.py --content-dir content/es/ --output data/linkbuilding/es_automatic.json --base-url "https://example.com"
+  python extract_automatic_links.py --content-dir content/es/ --output data/linkbuilding/automatic/es_automatic.json --base-url "https://example.com"
 
 Output Format:
   [
@@ -328,7 +328,7 @@ Output Format:
     parser.add_argument('--content-dir', required=True,
                        help='Path to content directory (e.g., content/en/)')
     parser.add_argument('--output', required=True,
-                       help='Output JSON file path (e.g., data/linkbuilding/en_automatic.json)')
+                       help='Output JSON file path (e.g., data/linkbuilding/automatic/en_automatic.json)')
     parser.add_argument('--base-url', default="",
                        help='Base URL for relative links (optional)')
     parser.add_argument('-v', '--verbose', action='store_true',

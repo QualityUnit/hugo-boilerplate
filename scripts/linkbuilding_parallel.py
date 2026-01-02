@@ -34,53 +34,92 @@ logger = logging.getLogger(__name__)
 def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
     """Find all language configurations for linkbuilding.
 
-    Automatically uses optimized keyword files when available (33x faster).
-    Falls back to full automatic files if optimized versions don't exist.
+    Priority order:
+    1. Precomputed JSON files (file-centric mode - fastest)
+    2. Optimized JSON files (keyword-centric - fast)
+    3. Full automatic JSON files (slowest)
 
     Returns a list of dicts with language info:
     {
         'lang': 'en',
         'manual_file': 'path/to/en.json',
-        'automatic_file': 'path/to/en_optimized.json' or 'path/to/en_automatic.json',
-        'html_dir': 'path/to/public/en/'
+        'automatic_file': 'path/to/automatic/en_automatic.json',
+        'html_dir': 'path/to/public/en/',
+        'precomputed_dir': 'path/to/precomputed' (optional)
     }
     """
     languages = []
+    precomputed_dir = linkbuilding_dir / 'precomputed'
     optimized_dir = linkbuilding_dir / 'optimized'
 
-    # Check if optimized directory exists
-    use_optimized = optimized_dir.exists()
+    # Check for precomputed JSON files first (file-centric mode - fastest)
+    use_precomputed = precomputed_dir.exists() and any(precomputed_dir.glob('*/'))
 
-    if use_optimized:
-        logger.info("✨ Found optimized keyword files - using fast mode (33x faster)")
-        automatic_files = list(optimized_dir.glob('*_optimized.json'))
-        file_pattern = '_optimized'
-    else:
-        logger.info("📝 Using full automatic keyword files (slower)")
-        automatic_files = list(linkbuilding_dir.glob('*_automatic.json'))
-        file_pattern = '_automatic'
+    if use_precomputed:
+        logger.info("Using precomputed file-centric mode (O(1) keyword lookup)")
+        # Find languages from precomputed subdirectories
+        lang_dirs = [d for d in precomputed_dir.iterdir() if d.is_dir() and not d.name.startswith('.')]
+
+        for lang_dir in lang_dirs:
+            lang = lang_dir.name
+            # Check for JSON files in this language directory
+            json_files = list(lang_dir.glob('*.json'))
+            if not json_files:
+                continue
+
+            # Need automatic.json as source for keyword metadata
+            auto_file = linkbuilding_dir / 'automatic' / f"{lang}_automatic.json"
+            if not auto_file.exists():
+                logger.warning(f"No automatic file for {lang} - skipping")
+                continue
+
+            manual_file = linkbuilding_dir / f"{lang}.json"
+            if not manual_file.exists():
+                manual_file = None
+
+            # Determine HTML directory
+            if lang == 'en':
+                html_dir = public_dir
+            else:
+                html_dir = public_dir / lang
+
+            if not html_dir.exists():
+                potential_files = list(public_dir.glob(f"**/{lang}/*.html"))[:1]
+                if not potential_files:
+                    logger.warning(f"HTML directory not found for {lang}: {html_dir} - skipping")
+                    continue
+
+            languages.append({
+                'lang': lang,
+                'manual_file': str(manual_file) if manual_file else None,
+                'automatic_file': str(auto_file),
+                'html_dir': str(html_dir),
+                'precomputed_dir': str(precomputed_dir)
+            })
+
+        if languages:
+            return languages
+
+    # Fall back to automatic files (precomputed not available)
+    logger.info("Using automatic keyword files")
+    automatic_files = list((linkbuilding_dir / 'automatic').glob('*_automatic.json'))
 
     for auto_file in automatic_files:
-        # Extract language code from filename (e.g., 'en' from 'en_automatic.json' or 'en_optimized.json')
-        lang = auto_file.stem.replace(file_pattern, '')
+        lang = auto_file.stem.replace('_automatic', '')
 
-        # Check for corresponding manual file (always in main linkbuilding dir, not optimized)
         manual_file = linkbuilding_dir / f"{lang}.json"
         if not manual_file.exists():
             manual_file = None
             logger.debug(f"No manual file found for language {lang} - will use automatic only")
 
         # Determine HTML directory
-        # English content is at the root of public, other languages have subdirectories
         if lang == 'en':
             html_dir = public_dir
         else:
             html_dir = public_dir / lang
 
         if not html_dir.exists():
-            # Check if ANY HTML files exist in the public directory for this language
-            # Sometimes Hugo might place them differently
-            potential_files = list(public_dir.glob(f"**/{lang}/*.html"))[:1]  # Check for at least one file
+            potential_files = list(public_dir.glob(f"**/{lang}/*.html"))[:1]
             if not potential_files:
                 logger.warning(f"HTML directory not found for language {lang}: {html_dir} - skipping")
                 continue
@@ -97,12 +136,7 @@ def find_language_files(linkbuilding_dir: Path, public_dir: Path) -> List[Dict]:
     if not languages and (public_dir / "index.html").exists():
         logger.warning("No language directories found, but found English content at root")
 
-        # Try optimized first, fall back to automatic
-        if use_optimized:
-            en_auto = optimized_dir / "en_optimized.json"
-        else:
-            en_auto = linkbuilding_dir / "en_automatic.json"
-
+        en_auto = linkbuilding_dir / 'automatic' / "en_automatic.json"
         en_manual = linkbuilding_dir / "en.json"
 
         if en_auto.exists():
@@ -148,9 +182,11 @@ def run_linkbuilding(lang_config: Dict,
         exclude_langs = ['ar', 'cs', 'da', 'de', 'es', 'fi', 'fr', 'it', 'ja', 'ko',
                         'nl', 'no', 'pl', 'pt', 'ro', 'sk', 'sv', 'tr', 'vi', 'zh']
         cmd.extend(['--exclude'] + exclude_langs)
-    
-    # Don't add output report file parameter - reports will go to stdout only
-    
+
+    # Add precomputed directory if available (file-centric mode)
+    if lang_config.get('precomputed_dir'):
+        cmd.extend(['--precomputed-dir', lang_config['precomputed_dir']])
+
     # Add optional arguments
     if config_file:
         cmd.extend(['-c', config_file])
@@ -352,15 +388,15 @@ Examples:
         logger.error(f"  Public directory: {public_dir.absolute()}")
         logger.error("Possible causes:")
         logger.error("  1. Hugo hasn't built the public directory yet")
-        logger.error("  2. Linkbuilding data files (*_automatic.json) are missing")
+        logger.error("  2. Linkbuilding data files (automatic/*_automatic.json) are missing")
         logger.error("  3. Language directories don't match between data and public folders")
         
         # Show what's actually in the directories for debugging
-        auto_files = list(linkbuilding_dir.glob('*_automatic.json'))
+        auto_files = list((linkbuilding_dir / 'automatic').glob('*_automatic.json'))
         if auto_files:
             logger.error(f"Found automatic files: {', '.join(f.name for f in auto_files)}")
         else:
-            logger.error("No *_automatic.json files found in linkbuilding directory")
+            logger.error("No automatic/*_automatic.json files found in linkbuilding directory")
         
         # Check public directory structure
         subdirs = [d for d in public_dir.iterdir() if d.is_dir()]

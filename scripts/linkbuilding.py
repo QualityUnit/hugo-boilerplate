@@ -127,7 +127,8 @@ class LinkBuilder:
         '/search/', '/404.html', '/index.xml', '/sitemap.xml'
     }
 
-    def __init__(self, keywords: List[Keyword], config: LinkConfig = None, language: str = None):
+    def __init__(self, keywords: List[Keyword], config: LinkConfig = None, language: str = None,
+                 precomputed_dir: str = None):
         self.keywords = sorted(keywords, key=lambda k: (-k.priority, -len(k.keyword)))
         self.config = config or LinkConfig()
         self.stats = LinkStatistics()
@@ -136,7 +137,17 @@ class LinkBuilder:
         self.language = language or ''  # Language code for progress reporting
         self.reset_page_counters()
 
-        # Build Aho-Corasick automaton for fast keyword matching
+        # Build keyword lookup by name (case-insensitive)
+        self.keyword_by_name = {}  # Map lowercase keyword to Keyword object
+        for kw in self.keywords:
+            self.keyword_by_name[kw.keyword.lower()] = kw
+
+        # Precomputed mode support
+        self.precomputed_dir = Path(precomputed_dir) if precomputed_dir else None
+        self.precomputed_data = {}  # folder -> {file_path: [keywords]}
+        self.using_precomputed = False
+
+        # Build Aho-Corasick automaton for fast keyword matching (fallback mode)
         self.automaton = None
         self.keyword_lookup = {}  # Map lowercase keyword to Keyword object
         self._build_automaton()
@@ -155,6 +166,89 @@ class LinkBuilder:
             self.automaton.add_word(keyword_lower, keyword)
 
         self.automaton.make_automaton()
+
+    def load_precomputed(self):
+        """Load precomputed keyword mappings from JSON files.
+
+        Returns True if precomputed data was loaded successfully.
+        """
+        if not self.precomputed_dir or not self.precomputed_dir.exists():
+            return False
+
+        # Find language-specific directory
+        lang_dir = self.precomputed_dir / self.language if self.language else self.precomputed_dir
+
+        if not lang_dir.exists():
+            return False
+
+        json_files = list(lang_dir.glob('*.json'))
+        if not json_files:
+            return False
+
+        loaded_files = 0
+        for json_file in json_files:
+            if json_file.name.startswith('.'):
+                continue
+            try:
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f) or {}
+                folder = json_file.stem
+                self.precomputed_data[folder] = data
+                loaded_files += 1
+            except Exception as e:
+                print(f"Warning: Failed to load {json_file}: {e}")
+
+        if loaded_files > 0:
+            self.using_precomputed = True
+            total_mappings = sum(len(d) for d in self.precomputed_data.values())
+            print(f"  Loaded precomputed data: {loaded_files} files, {total_mappings} file mappings")
+            return True
+
+        return False
+
+    def get_precomputed_keywords_for_file(self, file_path: Path, base_dir: Path) -> Optional[List[Keyword]]:
+        """Get precomputed keywords for a specific file.
+
+        Returns list of Keyword objects, or None if not found in precomputed data.
+        """
+        if not self.using_precomputed:
+            return None
+
+        try:
+            rel_path = file_path.relative_to(base_dir)
+            rel_path_str = '/' + str(rel_path).replace('\\', '/')
+        except ValueError:
+            return None
+
+        # Determine folder
+        parts = rel_path.parts
+        if len(parts) <= 1:
+            folder = '_root'
+        else:
+            folder = parts[0]
+
+        # Look up in precomputed data
+        folder_data = self.precomputed_data.get(folder, {})
+        keyword_names = folder_data.get(rel_path_str)
+
+        if keyword_names is None:
+            # Try alternative path format
+            alt_path = rel_path_str.replace('/index.html', '/')
+            keyword_names = folder_data.get(alt_path)
+
+        if keyword_names is None:
+            return None
+
+        # Convert keyword names to Keyword objects
+        keywords = []
+        for name in keyword_names:
+            name_lower = name.lower()
+            if name_lower in self.keyword_by_name:
+                keywords.append(self.keyword_by_name[name_lower])
+
+        # Sort by priority (descending) then by length (descending)
+        keywords.sort(key=lambda k: (-k.priority, -len(k.keyword)))
+        return keywords
 
     def reset_page_counters(self):
         """Reset counters for a new page"""
@@ -284,6 +378,12 @@ class LinkBuilder:
         directory = Path(directory)
         exclude_dirs = exclude_dirs or []
 
+        # Try to load precomputed keyword mappings
+        if self.precomputed_dir:
+            self.load_precomputed()
+            if self.using_precomputed:
+                print(f"  Using precomputed mode (O(1) keyword lookup)")
+
         # Find all HTML files
         all_html_files = []
         for root, dirs, files in os.walk(directory):
@@ -328,22 +428,38 @@ class LinkBuilder:
 
         def process_with_progress(file_path: Path) -> Tuple[bool, bool]:
             """Process a file and update progress. Returns (was_processed, was_modified)"""
-            # Early skip: quick check if file might contain keywords
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
+                # In precomputed mode, check if file has any keywords
+                if self.using_precomputed:
+                    precomputed_keywords = self.get_precomputed_keywords_for_file(file_path, directory)
+                    if precomputed_keywords is None or len(precomputed_keywords) == 0:
+                        # No keywords for this file - skip
+                        with progress_lock:
+                            skipped_no_keywords[0] += 1
+                            processed_count[0] += 1
+                            with self.stats_lock:
+                                self.stats.total_files_processed += 1
+                        return (True, False)
 
-                if not self._quick_keyword_check(content):
-                    with progress_lock:
-                        skipped_no_keywords[0] += 1
-                        processed_count[0] += 1
-                        # Update stats
-                        with self.stats_lock:
-                            self.stats.total_files_processed += 1
-                    return (True, False)
+                    # Process with specific keywords only
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    modified = self._process_file_content_with_keywords(file_path, content, precomputed_keywords)
+                else:
+                    # Original mode: quick check and process with all keywords
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
 
-                # Process file with pre-read content
-                modified = self._process_file_content(file_path, content)
+                    if not self._quick_keyword_check(content):
+                        with progress_lock:
+                            skipped_no_keywords[0] += 1
+                            processed_count[0] += 1
+                            with self.stats_lock:
+                                self.stats.total_files_processed += 1
+                        return (True, False)
+
+                    # Process file with pre-read content
+                    modified = self._process_file_content(file_path, content)
 
                 with progress_lock:
                     processed_count[0] += 1
@@ -435,7 +551,44 @@ class LinkBuilder:
             with self.stats_lock:
                 self.stats.errors.append(error_msg)
             return False
-    
+
+    def _process_file_content_with_keywords(self, file_path: Path, content: str,
+                                            keywords_to_use: List[Keyword]) -> bool:
+        """Process a file using only the specified keywords (precomputed mode).
+
+        This temporarily switches to using only the specified keywords,
+        processes the file, then restores the original state.
+        """
+        # Save original state
+        original_keywords = self.keywords
+        original_automaton = self.automaton
+        original_keyword_lookup = self.keyword_lookup
+
+        try:
+            # Set up for specific keywords only
+            self.keywords = keywords_to_use
+
+            # Build temporary automaton for just these keywords
+            if AHOCORASICK_AVAILABLE:
+                self.automaton = ahocorasick.Automaton()
+                self.keyword_lookup = {}
+                for keyword in keywords_to_use:
+                    keyword_lower = keyword.keyword.lower()
+                    self.keyword_lookup[keyword_lower] = keyword
+                    self.automaton.add_word(keyword_lower, keyword)
+                self.automaton.make_automaton()
+
+            # Process the file
+            result = self._process_file_content(file_path, content)
+
+            return result
+
+        finally:
+            # Restore original state
+            self.keywords = original_keywords
+            self.automaton = original_automaton
+            self.keyword_lookup = original_keyword_lookup
+
     def process_element(self, element) -> bool:
         """Process an HTML element recursively"""
         if not element:
@@ -868,13 +1021,13 @@ Examples:
   python linkbuilding.py -k keywords_en.csv -d public/
   
   # Process with both manual and automatic keywords
-  python linkbuilding.py -k keywords_en.csv -a en_automatic.json -d public/en/
-  
+  python linkbuilding.py -k keywords_en.csv -a automatic/en_automatic.json -d public/en/
+
   # Process with automatic keywords only
-  python linkbuilding.py -a en_automatic.json -d public/en/
-  
+  python linkbuilding.py -a automatic/en_automatic.json -d public/en/
+
   # Process German content with German keywords, excluding other languages
-  python linkbuilding.py -k keywords_de.csv -a de_automatic.json -d public/de/ --exclude en es fr
+  python linkbuilding.py -k keywords_de.csv -a automatic/de_automatic.json -d public/de/ --exclude en es fr
   
   # Use JSON configuration
   python linkbuilding.py -k keywords.json -d public/ -c config.json
@@ -935,6 +1088,8 @@ Note: Field names are capitalized (Keyword, URL, Title, Priority, Exact) but low
                        help='Priority boost for manual keywords over automatic (default: 10)')
     parser.add_argument('--file-workers', type=int, default=4,
                        help='Number of parallel workers for file processing (default: 4)')
+    parser.add_argument('--precomputed-dir',
+                       help='Directory containing precomputed JSON files (file-centric mode)')
 
     args = parser.parse_args()
     
@@ -989,21 +1144,24 @@ Note: Field names are capitalized (Keyword, URL, Title, Priority, Exact) but low
                 if len(excluded_set.intersection(common_langs)) >= 10:
                     language = 'en'
     
-    # Create link builder with language info
-    builder = LinkBuilder(keywords, config, language=language)
-    
+    # Create link builder with language info and precomputed dir
+    builder = LinkBuilder(keywords, config, language=language,
+                         precomputed_dir=args.precomputed_dir)
+
     # Process directory
     print(f"Processing directory: {args.directory}")
     if args.exclude:
         print(f"Excluding: {', '.join(args.exclude)}")
-    
+    if args.precomputed_dir:
+        print(f"Precomputed directory: {args.precomputed_dir}")
+
     # Determine if we're processing English content
     is_english = (language == 'en')
     if is_english:
         print("  Processing English content - will skip 2-letter language subdirectories")
 
     # Show optimization status
-    if AHOCORASICK_AVAILABLE:
+    if AHOCORASICK_AVAILABLE and not args.precomputed_dir:
         print("  Using Aho-Corasick algorithm for fast keyword matching")
     print(f"  Using {args.file_workers} parallel workers for file processing")
 
