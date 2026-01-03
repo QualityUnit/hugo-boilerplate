@@ -1,0 +1,113 @@
+{{/*
+@section: Vertical Features with Image - Grid Version
+@description: Split layout with image/card on left and vertical features list on right, with decorative border lines.
+*/}}
+
+{{ $eyebrow := .eyebrow | default "" }}
+{{ $heading := .heading | default "" }}
+{{ $highlightText := .highlightText | default "" }}
+{{ $description := .description | default "" }}
+{{ $image := .image | default "" }}
+{{ $imageAlt := .imageAlt | default "" }}
+{{ $features := .features | default (slice) }}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+
+{{ $iconClass := "w-5 h-5 flex-shrink-0" }}
+{{ $iconWrapperClass := "size-10 p-2 surface-brand rounded-lg flex items-center justify-center flex-shrink-0" }}
+
+<section class="bg-white dark:bg-gray-900 relative overflow-hidden">
+
+  {{/* Full-height vertical lines at wrapper edges */}}
+  <div class="wrapper absolute inset-0 pointer-events-none">
+    <div class="absolute top-0 bottom-0 left-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+    <div class="absolute top-0 bottom-0 right-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+  </div>
+
+  {{/* Top border with circles */}}
+  <div class="relative border-t border-gray-200 dark:border-gray-700">
+    <div class="wrapper relative">
+      <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+    </div>
+  </div>
+
+  {{/* Header */}}
+  <div class="wrapper py-16 sm:py-20">
+    <div class="max-w-3xl">
+      {{ if $eyebrow }}
+        <p class="text-base font-semibold text-primary mb-2">{{ $eyebrow }}</p>
+      {{ end }}
+      {{ if $heading }}
+        <h2 class="text-4xl font-semibold tracking-tight text-heading sm:text-5xl">
+          {{ if $highlightText }}
+            {{ $parts := split $heading $highlightText }}
+            {{ index $parts 0 }}<span class="text-primary">{{ $highlightText }}</span>{{ if gt (len $parts) 1 }}{{ index $parts 1 }}{{ end }}
+          {{ else }}
+            {{ $heading }}
+          {{ end }}
+        </h2>
+      {{ end }}
+      {{ if $description }}
+        <p class="mt-4 text-lg text-secondary">{{ $description | safeHTML }}</p>
+      {{ end }}
+    </div>
+  </div>
+
+  {{/* Content with borders */}}
+  <div class="wrapper">
+    <div class="relative border-t border-gray-200 dark:border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8">
+      <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+    </div>
+
+    <div class="relative -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <div class="flex flex-col lg:flex-row gap-8 lg:gap-16">
+
+        {{/* Left side - Image/Card */}}
+        <div class="lg:w-1/2">
+          {{ if $image }}
+          <div class="rounded-xl shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 overflow-hidden bg-white">
+            {{ partial "components/media/lazyimg.html" (dict
+              "src" $image
+              "alt" $imageAlt
+              "class" "w-full h-auto"
+            ) }}
+          </div>
+          {{ end }}
+        </div>
+
+        {{/* Right side - Features list */}}
+        <div class="lg:w-1/2">
+          <div class="space-y-0">
+            {{ range $index, $feature := $features }}
+            <div class="flex gap-4 py-6 {{ if gt $index 0 }}border-t border-gray-200 dark:border-gray-700{{ end }}">
+              {{ if .icon }}
+              <div class="{{ $iconWrapperClass }}">
+                {{ partial "components/media/icon.html" (dict "icon" .icon "class" (printf "%s icon-on-brand" $iconClass)) }}
+              </div>
+              {{ end }}
+              <div class="flex-1">
+                <h3 class="font-semibold text-lg text-heading">{{ .title }}</h3>
+                {{ if .description }}
+                <p class="mt-1 text-sm text-secondary">{{ .description | safeHTML }}</p>
+                {{ end }}
+              </div>
+            </div>
+            {{ end }}
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="relative border-b border-gray-200 dark:border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8">
+      <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+    </div>
+  </div>
+
+  {{/* Bottom padding */}}
+  <div class="h-16 sm:h-24"></div>
+
+</section>

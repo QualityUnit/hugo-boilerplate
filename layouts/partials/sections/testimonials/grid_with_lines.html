@@ -1,0 +1,100 @@
+{{/*
+@section: Testimonials with Decorative Lines
+@description: A centered testimonial layout with decorative border lines.
+*/}}
+
+{{ $showHeading := .showHeading | default false }}
+{{ $headingTag := .headingTag | default "Testimonials" }}
+{{ $heading := .heading | default "" }}
+{{ $testimonials := .testimonials | default slice }}
+
+<section class="bg-white dark:bg-gray-900 relative overflow-hidden">
+
+  {{/* Full-height vertical lines at wrapper edges */}}
+  <div class="wrapper absolute inset-0 pointer-events-none">
+    <div class="absolute top-0 bottom-0 left-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+    <div class="absolute top-0 bottom-0 right-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+  </div>
+
+  {{/* Top grid lines */}}
+  <div class="relative h-8 sm:h-12">
+    <div class="absolute top-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700"></div>
+
+    <div class="wrapper relative h-full">
+      {{/* Vertical grid lines */}}
+      <div class="absolute top-0 bottom-0 left-1/4 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
+      <div class="absolute top-0 bottom-0 left-1/2 w-px bg-gray-200 dark:bg-gray-700"></div>
+      <div class="absolute top-0 bottom-0 left-3/4 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
+
+      {{/* Intersection circles - top */}}
+      <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute top-0 left-1/4 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden sm:block"></div>
+      <div class="absolute top-0 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute top-0 left-3/4 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden sm:block"></div>
+      <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+
+      {{/* Intersection circles - bottom */}}
+      <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute bottom-0 left-1/4 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden sm:block"></div>
+      <div class="absolute bottom-0 left-1/2 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute bottom-0 left-3/4 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden sm:block"></div>
+      <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+    </div>
+  </div>
+
+  {{/* Testimonial content */}}
+  <div class="wrapper py-20 sm:py-28 lg:py-36">
+    {{ range $index, $testimonial := $testimonials }}
+      {{ if eq $index 0 }}
+      <div class="max-w-4xl mx-auto">
+        <blockquote class="text-2xl sm:text-3xl lg:text-4xl font-normal text-gray-600 dark:text-gray-300 leading-relaxed">
+          <p class="prose-links">"{{ $testimonial.quote | safeHTML }}"</p>
+        </blockquote>
+        <footer class="mt-8 flex items-center justify-end gap-x-4">
+          {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
+            {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-12 rounded-full bg-gray-50") }}
+          {{ else }}
+            <div class="size-12 rounded-full bg-gray-100 flex items-center justify-center">
+              {{ partial "icons/user-circle-solid.html" (dict "class" "w-8 h-8 text-gray-400") }}
+            </div>
+          {{ end }}
+          <div class="text-right">
+            <cite class="font-semibold text-heading not-italic">{{ $testimonial.personName }}</cite>
+            <div class="text-sm text-secondary">{{ $testimonial.personHandle }}</div>
+          </div>
+        </footer>
+      </div>
+      {{ end }}
+    {{ end }}
+  </div>
+
+  {{/* Bottom grid lines */}}
+  <div class="relative h-8 sm:h-12">
+    <div class="absolute top-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700"></div>
+
+    <div class="wrapper relative h-full">
+      {{/* Vertical grid lines */}}
+      <div class="absolute top-0 bottom-0 left-1/4 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
+      <div class="absolute top-0 bottom-0 left-1/2 w-px bg-gray-200 dark:bg-gray-700"></div>
+      <div class="absolute top-0 bottom-0 left-3/4 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
+
+      {{/* Intersection circles - top */}}
+      <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute top-0 left-1/4 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden sm:block"></div>
+      <div class="absolute top-0 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute top-0 left-3/4 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden sm:block"></div>
+      <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+
+      {{/* Intersection circles - bottom */}}
+      <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute bottom-0 left-1/4 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden sm:block"></div>
+      <div class="absolute bottom-0 left-1/2 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      <div class="absolute bottom-0 left-3/4 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden sm:block"></div>
+      <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+    </div>
+  </div>
+
+  {{ partial "schemaorg/reviews.html" (dict "testimonials" $testimonials) }}
+</section>

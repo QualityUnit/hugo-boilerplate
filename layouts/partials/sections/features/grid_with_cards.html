@@ -1,0 +1,132 @@
+{{/*
+@section: Features Grid with Cards
+@description: A features section with line grid at top/bottom, centered heading with highlight, and numbered feature cards with vertical dividers.
+*/}}
+
+{{ $heading := .heading | default "" }}
+{{ $highlightText := .highlightText | default "" }}
+{{ $description := .description | default "" }}
+{{ $cards := .cards | default (slice) }}
+{{ $theme := .theme | default "light" }}
+{{ $padding := .padding | default "py-16 sm:py-24" }}
+
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+
+<div class="{{ $darkClass }}">
+  <section class="bg-white dark:bg-gray-900 relative overflow-hidden">
+
+    {{/* Full-height vertical lines at wrapper edges */}}
+    <div class="wrapper absolute inset-0 pointer-events-none">
+      {{/* Left vertical line - full height */}}
+      <div class="absolute top-0 bottom-0 left-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+      {{/* Right vertical line - full height */}}
+      <div class="absolute top-0 bottom-0 right-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+    </div>
+
+    {{/* Top Line Grid Section - Full width horizontal lines */}}
+    <div class="relative h-8 sm:h-12">
+      {{/* Full-width horizontal lines */}}
+      <div class="absolute top-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700"></div>
+      <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700"></div>
+
+      {{/* Vertical lines within wrapper - creating intersections */}}
+      <div class="wrapper relative h-full">
+        {{/* 1/3 vertical line */}}
+        <div class="absolute top-0 bottom-0 left-1/3 w-px bg-gray-200 dark:bg-gray-700 hidden lg:block"></div>
+        {{/* 2/3 vertical line */}}
+        <div class="absolute top-0 bottom-0 left-2/3 w-px bg-gray-200 dark:bg-gray-700 hidden lg:block"></div>
+
+        {{/* Intersection circles - top row */}}
+        <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute top-0 left-1/3 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden lg:block"></div>
+        <div class="absolute top-0 left-2/3 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden lg:block"></div>
+        <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+
+        {{/* Intersection circles - bottom row */}}
+        <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute bottom-0 left-1/3 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden lg:block"></div>
+        <div class="absolute bottom-0 left-2/3 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 hidden lg:block"></div>
+        <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+      </div>
+    </div>
+
+    {{/* Centered Heading - with wrapper padding */}}
+    <div class="wrapper pt-16 sm:pt-24">
+      <div class="mx-auto max-w-3xl text-center mb-12 sm:mb-16">
+        {{ if $heading }}
+        <h2 class="text-3xl font-semibold tracking-tight text-heading sm:text-4xl lg:text-5xl text-balance">
+          {{ if $highlightText }}
+            {{ $highlightHTML := printf `<span class="text-primary decoration-primary decoration-dashed underline underline-offset-8 decoration-2">%s</span>` $highlightText }}
+            {{ replace $heading $highlightText $highlightHTML | safeHTML }}
+          {{ else }}
+            {{ $heading }}
+          {{ end }}
+        </h2>
+        {{ end }}
+
+        {{ with $description }}
+        <p class="mt-6 text-lg leading-8 text-gray-500 dark:text-gray-400 text-pretty">
+          {{ . | markdownify }}
+        </p>
+        {{ end }}
+      </div>
+    </div>
+
+    {{/* Feature Cards Grid - Full width within wrapper, with connecting borders */}}
+    {{ if $cards }}
+    <div class="wrapper">
+      <div class="relative border-t border-b border-gray-200 dark:border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+        {{/* Intersection circles at corners where card borders meet vertical lines */}}
+        <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+        <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3">
+          {{ $cardsLen := len $cards }}
+          {{ range $index, $card := $cards }}
+          <div class="relative px-6 lg:px-8 py-8 {{ if lt $index (sub $cardsLen 1) }}lg:border-r border-gray-200 dark:border-gray-700{{ end }}">
+            {{/* Number Badge */}}
+            {{ with $card.number }}
+            <div class="mb-4">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white text-sm font-semibold shadow-sm">
+                {{ . }}
+              </span>
+            </div>
+            {{ end }}
+
+            {{/* Title */}}
+            {{ with $card.title }}
+            <h3 class="text-xl font-bold text-heading mb-3">{{ . }}</h3>
+            {{ end }}
+
+            {{/* Description */}}
+            {{ with $card.description }}
+            <p class="text-gray-500 dark:text-gray-400 text-base mb-6 leading-relaxed">{{ . | markdownify }}</p>
+            {{ end }}
+
+            {{/* Card Image/Content */}}
+            {{ with $card.imageSrc }}
+            <div class="mt-auto">
+              <div class="relative overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
+                {{ partial "components/media/lazyimg.html" (dict
+                  "src" .
+                  "alt" $card.imageAlt
+                  "class" "w-full h-auto"
+                ) }}
+              </div>
+            </div>
+            {{ end }}
+          </div>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+    {{ end }}
+
+    {{/* Bottom padding */}}
+    <div class="h-16 sm:h-24"></div>
+
+  </section>
+</div>

@@ -1,0 +1,40 @@
+{{/*
+  Bento Grid Two Row with Decorative Lines Shortcode
+
+  Parameters:
+  - tagline: Text above heading
+  - heading: Main heading
+  - description: Description text
+  - backgroundColor: Background color class (default: "gray-50")
+  - taglineColor: Color for tagline (default: "primary")
+  - theme: "light" or "dark" (default: "light")
+*/}}
+
+{{ $tagline := .Get "tagline" | default "" }}
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $backgroundColor := .Get "backgroundColor" | default "gray-50" }}
+{{ $taglineColor := .Get "taglineColor" | default "primary" }}
+{{ $linkText := .Get "linkText" | default "" }}
+{{ $linkUrl := .Get "linkUrl" | default "" }}
+{{ $theme := .Get "theme" | default "light" }}
+
+{{ $cards := slice }}
+{{ with .Inner }}
+  {{ $trimmed := . | strings.TrimSpace }}
+  {{ if $trimmed }}
+    {{ $cards = $trimmed | transform.Unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{ partial "sections/bentogrids/two_row_bento_grid_grid.html" (dict
+  "tagline" $tagline
+  "heading" $heading
+  "description" $description
+  "linkText" $linkText
+  "linkUrl" $linkUrl
+  "backgroundColor" $backgroundColor
+  "taglineColor" $taglineColor
+  "theme" $theme
+  "cards" $cards
+) }}

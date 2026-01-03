@@ -1,0 +1,289 @@
+{{/*
+@section: Grid Hero with Assets
+@description: A centered hero section with headline (with optional inline badge), description, two CTA buttons, feature icons row, and an asymmetric 70/30 grid with screenshot and promo card.
+@params:
+  - theme: "light" (default) or "dark"
+  - padding: Padding classes (default: "py-24 sm:py-32")
+  - heading: Main section heading
+  - headingBadge: Text to display in inline badge (use [badge] in heading to position)
+  - headingBadgeColor: Badge color variant (primary, success, warning, info)
+  - description: Description below the heading
+  - cta: Object with CTA buttons information
+    - primary: Primary CTA button (text, url)
+    - secondary: Secondary CTA button (text, url)
+  - featureIcons: Array of feature icon objects [{icon, label}]
+  - screenshot: Object with screenshot information
+    - src: Image source URL
+    - alt: Alt text for accessibility
+    - videoYoutubeUrl: YouTube video URL or video ID (optional)
+    - videoTitle: Title text for video preview (default: "See it in action")
+    - videoSubtitle: Subtitle text for video preview (default: "Watch demo")
+  - promoCard: Object with promo card information
+    - src: Image source URL
+    - alt: Alt text for accessibility
+    - title: Card title
+    - description: Card description
+    - link: Card link URL
+  - background: Object with background configuration
+    - image: Background image URL
+    - pattern: Background CSS class/pattern
+@example:
+  {{ partial "sections/hero/grid_with_assets.html" (dict
+      "heading" "Make [AI Search] your next revenue channel"
+      "headingBadge" "AI Search"
+      "headingBadgeColor" "primary"
+      "description" "Track your brand visibility across AI platforms."
+      "cta" (dict
+          "primary" (dict "text" "Get Started" "url" "/signup")
+          "secondary" (dict "text" "Book a Demo" "url" "/demo")
+      )
+      "featureIcons" (slice
+          (dict "icon" "chart-bar-solid" "label" "Analytics")
+          (dict "icon" "globe-alt-solid" "label" "Multi-Platform")
+      )
+      "screenshot" (dict
+          "src" "/images/dashboard.png"
+          "alt" "Dashboard screenshot"
+      )
+      "promoCard" (dict
+          "src" "/images/promo.png"
+          "alt" "Promo image"
+          "title" "Free Report"
+          "description" "Get your free visibility report"
+          "link" "/report/"
+      )
+  ) }}
+*/}}
+
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+
+{{ $heading := .heading | default "" }}
+{{ $headingBadge := .headingBadge | default "" }}
+{{ $headingBadgeColor := .headingBadgeColor | default "primary" }}
+{{ $headingBadgeIcon := .headingBadgeIcon | default "" }}
+{{ $highlightWord := .highlightWord | default "" }}
+{{ $description := .description | default "" }}
+{{ $cta := .cta | default dict }}
+{{ $featureIcons := .featureIcons | default (slice) }}
+{{ $screenshot := .screenshot | default dict }}
+{{ $promoCard := .promoCard | default dict }}
+{{ $background := .background | default dict }}
+{{ $padding := .padding | default "py-24 sm:py-32" }}
+
+{{/* Badge color mapping */}}
+{{ $badgeColors := dict
+  "primary" "bg-primary-100 text-primary-700 ring-primary-600/20 dark:bg-primary-900/30 dark:text-primary-300 dark:ring-primary-500/30"
+  "success" "bg-green-100 text-green-700 ring-green-600/20 dark:bg-green-900/30 dark:text-green-300 dark:ring-green-500/30"
+  "warning" "bg-amber-100 text-amber-700 ring-amber-600/20 dark:bg-amber-900/30 dark:text-amber-300 dark:ring-amber-500/30"
+  "info" "bg-blue-100 text-blue-700 ring-blue-600/20 dark:bg-blue-900/30 dark:text-blue-300 dark:ring-blue-500/30"
+}}
+{{ $badgeColorClass := index $badgeColors $headingBadgeColor | default (index $badgeColors "primary") }}
+
+<div class="{{ $darkClass }}">
+  <div class="section-bg-light dark:section-bg-dark relative z-[1]">
+    <div class="relative isolate overflow-hidden">
+
+      {{/* Full-height vertical lines at wrapper edges */}}
+      <div class="wrapper absolute inset-0 pointer-events-none z-10">
+        {{/* Left vertical line - full height */}}
+        <div class="absolute top-0 bottom-0 left-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+        {{/* Right vertical line - full height */}}
+        <div class="absolute top-0 bottom-0 right-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+
+      {{/* Additional Background Pattern/Image */}}
+      {{ with $background.pattern }}
+      <div class="absolute inset-0 -z-10 {{ . }}"></div>
+      {{ end }}
+      {{ with $background.image }}
+      <div class="absolute inset-0 -z-10">
+        {{ partial "components/media/lazyimg.html" (dict
+          "src" .
+          "alt" ""
+          "class" "w-full h-full object-cover opacity-10"
+        ) }}
+      </div>
+      {{ end }}
+
+      {{/* Grid Pattern Container - Extends from top of section */}}
+      <div class="wrapper relative">
+        {{/* Decorative Grid Pattern - extends from top (rectangular cells: wider than tall) */}}
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+          <svg class="absolute inset-0 h-full w-full" aria-hidden="true">
+            <defs>
+              <pattern id="hero-grid-pattern" width="80" height="50" x="0" y="0" patternUnits="userSpaceOnUse">
+                <path d="M80 0V50H0" fill="none" stroke="#d1d5db" stroke-width="1" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" stroke-width="0" fill="url(#hero-grid-pattern)" />
+          </svg>
+          {{/* Bottom gradient fade - center */}}
+          <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white dark:from-gray-900 to-transparent"></div>
+          {{/* Bottom left corner gradient */}}
+          <div class="absolute bottom-0 left-0 w-1/3 h-32 bg-gradient-to-tr from-white dark:from-gray-900 to-transparent"></div>
+          {{/* Bottom right corner gradient */}}
+          <div class="absolute bottom-0 right-0 w-1/3 h-32 bg-gradient-to-tl from-white dark:from-gray-900 to-transparent"></div>
+        </div>
+
+        {{/* Content area with top/bottom padding */}}
+        <div class="relative {{ $padding }}">
+          {{/* Centered Text Content - with gradient transition to grid */}}
+          {{/* Padding around the white box to show grid on all sides */}}
+          <div class="relative pb-4 sm:pb-6 px-8 sm:px-16">
+            <div class="relative mx-auto max-w-3xl">
+              {{/* Gradient blur behind the content box for smooth transition */}}
+              <div class="absolute -inset-4 bg-white/80 dark:bg-gray-900/80 blur-xl"></div>
+              <div class="relative bg-white dark:bg-gray-900 text-center py-12 px-8 sm:px-12">
+
+          {{/* Headline with Inline Badge/Icon and Highlighted Word */}}
+          {{ if $heading }}
+          <h1 class="text-4xl font-semibold tracking-tight text-balance text-heading sm:text-5xl lg:text-6xl">
+            {{/* Process heading text */}}
+            {{ $processedHeading := $heading }}
+
+            {{/* Replace badge placeholder with icon or text badge */}}
+            {{ if $headingBadge }}
+              {{ $placeholder := printf "[%s]" $headingBadge }}
+              {{ if $headingBadgeIcon }}
+                {{/* Icon badge - rounded box with icon */}}
+                {{ $badgeHTML := printf `<span class="inline-flex items-center justify-center rounded-xl %s p-2 align-middle mx-2 shadow-sm ring-1 ring-inset ring-gray-900/10"><svg class="h-6 w-6 sm:h-8 sm:w-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" /></svg></span>` $badgeColorClass }}
+                {{ $processedHeading = replace $processedHeading $placeholder $badgeHTML }}
+              {{ else }}
+                {{/* Text badge - pill style */}}
+                {{ $badgeHTML := printf `<span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium %s ring-1 ring-inset align-middle mx-1">%s</span>` $badgeColorClass $headingBadge }}
+                {{ $processedHeading = replace $processedHeading $placeholder $badgeHTML }}
+              {{ end }}
+            {{ end }}
+
+            {{/* Replace highlighted word with dashed underline style */}}
+            {{ if $highlightWord }}
+              {{ $highlightHTML := printf `<span class="text-primary decoration-primary decoration-dashed underline underline-offset-8 decoration-2">%s</span>` $highlightWord }}
+              {{ $processedHeading = replace $processedHeading $highlightWord $highlightHTML }}
+            {{ end }}
+
+            {{ $processedHeading | safeHTML }}
+          </h1>
+          {{ end }}
+
+          {{/* Description */}}
+          {{ with $description }}
+          <p class="mt-6 text-lg leading-8 text-secondary sm:text-xl/8 text-pretty">
+            {{ . | markdownify }}
+          </p>
+          {{ end }}
+
+          {{/* CTA Buttons */}}
+          {{ $primaryCTA := $cta.primary | default dict }}
+          {{ $secondaryCTA := $cta.secondary | default dict }}
+          {{ if or $primaryCTA.text $secondaryCTA.text }}
+          <div class="mt-10 flex flex-wrap items-center justify-center gap-4 sm:gap-x-6">
+            {{ if $secondaryCTA.text }}
+              {{ partial "components/buttons/buttons.html" (dict
+                "text" $secondaryCTA.text
+                "url" $secondaryCTA.url
+                "variant" "secondary"
+              ) }}
+            {{ end }}
+            {{ if $primaryCTA.text }}
+              {{ partial "components/buttons/buttons.html" (dict
+                "text" $primaryCTA.text
+                "url" $primaryCTA.url
+                "variant" "primary"
+              ) }}
+            {{ end }}
+          </div>
+          {{ end }}
+
+              </div>{{/* End bg-white text-center */}}
+            </div>{{/* End max-w-3xl */}}
+          </div>{{/* End padding wrapper */}}
+        </div>{{/* End content area with padding */}}
+      </div>{{/* End grid wrapper */}}
+
+      {{/* Feature Icons Row - with borders connecting to vertical lines */}}
+      {{ if $featureIcons }}
+      <div class="wrapper">
+        <div class="relative border-t border-b border-gray-200 dark:border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+          {{/* Intersection circles at corners */}}
+          <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+          <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+          <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+          <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"></div>
+
+          <div class="py-4 mx-auto max-w-4xl">
+            {{ partial "sections/hero/grid_with_assets_feature_icons.html" (dict
+              "icons" $featureIcons
+              "theme" $theme
+            ) }}
+          </div>
+        </div>
+      </div>
+      {{ end }}
+
+      {{/* Screenshot Section - extends to vertical lines */}}
+      {{ if $screenshot.src }}
+      <div class="wrapper">
+        <div class="-mx-4 sm:-mx-6 lg:-mx-8 p-3">
+          {{/* Background container - full width with reasonable padding */}}
+          <div class="relative bg-cover bg-center p-10 rounded-lg" style="background-image: url('/images/bg.webp');">
+            {{/* Dashboard image with 16:9 aspect ratio */}}
+            <div class="relative aspect-video overflow-hidden rounded-xl shadow-2xl ring-1 ring-gray-900/10 dark:ring-white/10">
+              {{ partial "components/media/lazyimg.html" (dict
+                "src" $screenshot.src
+                "alt" $screenshot.alt
+                "class" "w-full h-full object-cover object-top"
+                "loading" "lazy"
+              ) }}
+
+              {{/* Video Preview Overlay - shown when videoYoutubeUrl is provided */}}
+              {{ with $screenshot.videoYoutubeUrl }}
+                {{/* Extract YouTube video ID from various URL formats */}}
+                {{ $videoID := . }}
+                {{ if findRE `youtube\.com/watch\?v=` . }}
+                  {{ $videoID = replaceRE `.*youtube\.com/watch\?v=([a-zA-Z0-9_-]+).*` "$1" . }}
+                {{ else if findRE `youtu\.be/` . }}
+                  {{ $videoID = replaceRE `.*youtu\.be/([a-zA-Z0-9_-]+).*` "$1" . }}
+                {{ else if findRE `youtube\.com/embed/` . }}
+                  {{ $videoID = replaceRE `.*youtube\.com/embed/([a-zA-Z0-9_-]+).*` "$1" . }}
+                {{ end }}
+
+                {{ $videoTitle := $screenshot.videoTitle | default "See it in action" }}
+                {{ $videoSubtitle := $screenshot.videoSubtitle | default "Watch demo" }}
+
+                <div class="absolute bottom-4 right-4 z-20"
+                     data-video-id="{{ $videoID }}"
+                     data-video-title="{{ $videoTitle }}"
+                     data-video-provider="youtube"
+                     data-video-use-lightbox="true"
+                     data-video-fallback-url="https://www.youtube.com/watch?v={{ $videoID }}">
+                  {{/* Video preview card - no thumbnail, just play icon and text */}}
+                  <div class="lazy-video-thumbnail bg-gray-900 backdrop-blur rounded-lg shadow-xl cursor-pointer hover:scale-105 transition-transform p-3" data-video-trigger="true">
+                    <div class="flex gap-3 items-center">
+                      {{/* Play icon in frame */}}
+                      <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-primary-600 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      </div>
+                      {{/* Title and description */}}
+                      <div class="flex-1 min-w-0 pr-2">
+                        <p class="text-white text-sm font-medium">{{ $videoTitle }}</p>
+                        <p class="text-gray-400 text-xs">{{ $videoSubtitle }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {{/* Load video resources for lightbox */}}
+                {{ partial "components/media/helpers/load-resources.html" (dict "provider" "youtube") }}
+              {{ end }}
+            </div>
+          </div>
+        </div>
+      </div>
+      {{ end }}
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,165 @@
+{{/*
+@section: Two Row Bento Grid with Decorative Lines
+@description: A bento grid layout with decorative border lines and intersection circles.
+*/}}
+
+{{ $tagline := .tagline | default "" }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $linkText := .linkText | default "" }}
+{{ $linkUrl := .linkUrl | default "" }}
+{{ $taglineColor := .taglineColor | default "primary" }}
+{{ $backgroundColor := .backgroundColor | default "gray-50" }}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+
+{{ $headingTextColor := cond $isDark "text-white" "text-heading" }}
+{{ $descriptionTextColor := cond $isDark "text-gray-300" "text-secondary" }}
+{{ $cardRingColor := cond $isDark "ring-white/10" "ring-black/5" }}
+{{ $cardShadow := cond $isDark "shadow-lg shadow-black/30" "shadow-lg shadow-gray-200/80" }}
+{{ $cardHoverShadow := cond $isDark "hover:shadow-xl hover:shadow-black/40" "hover:shadow-xl hover:shadow-gray-300" }}
+{{ $borderColor := cond $isDark "border-gray-700" "border-gray-200" }}
+{{ $bgWhite := cond $isDark "bg-gray-900" "bg-white" }}
+{{ $circleBorder := cond $isDark "border-gray-700" "border-gray-200" }}
+{{ $circleBg := cond $isDark "bg-gray-900" "bg-white" }}
+
+{{ $cards := .cards | default (slice) }}
+
+<div class="{{ $theme }}">
+  <section class="bg-{{ $backgroundColor }} relative overflow-hidden">
+
+    {{/* Full-height vertical lines at wrapper edges */}}
+    <div class="wrapper absolute inset-0 pointer-events-none">
+      <div class="absolute top-0 bottom-0 left-0 w-px {{ $borderColor }} bg-current"></div>
+      <div class="absolute top-0 bottom-0 right-0 w-px {{ $borderColor }} bg-current"></div>
+    </div>
+
+    {{/* Top border with circles */}}
+    <div class="relative border-t {{ $borderColor }} -mx-4 sm:-mx-6 lg:-mx-8">
+      <div class="wrapper relative">
+        <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border {{ $circleBorder }} {{ $circleBg }}"></div>
+        <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border {{ $circleBorder }} {{ $circleBg }}"></div>
+      </div>
+    </div>
+
+    {{/* Header content */}}
+    <div class="wrapper py-16 sm:py-24">
+      {{ if $tagline }}
+        <h2 class="text-base/7 font-semibold mb-4 text-{{ $taglineColor }}"{{ if $isDark }} style="color: #fbbf24;"{{ end }}>{{ $tagline }}</h2>
+      {{ end }}
+
+      {{ if $heading }}
+        <p class="max-w-lg text-4xl font-semibold tracking-tight text-pretty {{ $headingTextColor }} sm:text-5xl">{{ $heading }}</p>
+      {{ end }}
+
+      {{ if $description }}
+        <p class="mt-1 text-lg/8 {{ $descriptionTextColor }}">{{ $description | safeHTML }}</p>
+      {{ end }}
+
+      {{ if $linkUrl }}
+        <div class="mt-1">
+          {{ partial "components/buttons/buttons.html" (dict
+            "text" $linkText
+            "url" $linkUrl
+            "variant" "primary"
+          ) }}
+        </div>
+      {{ end }}
+    </div>
+
+    {{/* Cards section with borders */}}
+    {{ if $cards }}
+    <div class="wrapper">
+      <div class="relative border-t {{ $borderColor }} -mx-4 sm:-mx-6 lg:-mx-8">
+        <div class="absolute top-0 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full border {{ $circleBorder }} {{ $circleBg }}"></div>
+        <div class="absolute top-0 right-0 w-2 h-2 translate-x-1/2 -translate-y-1/2 rounded-full border {{ $circleBorder }} {{ $circleBg }}"></div>
+      </div>
+
+      <div class="relative -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-6">
+          {{ range $index, $card := $cards }}
+            {{ $rowIndex := div $index 2 }}
+            {{ $positionInRow := mod $index 2 }}
+            {{ $isEvenRow := eq (mod $rowIndex 2) 0 }}
+            {{ $colSpan := "" }}
+            {{ if $isEvenRow }}
+              {{ $colSpan = cond (eq $positionInRow 0) "lg:col-span-4" "lg:col-span-2" }}
+            {{ else }}
+              {{ $colSpan = cond (eq $positionInRow 0) "lg:col-span-2" "lg:col-span-4" }}
+            {{ end }}
+            {{ $borderRadius := "" }}
+            {{ if eq $rowIndex 0 }}
+              {{ if eq $positionInRow 0 }}
+                {{ $borderRadius = "rounded-[10px] lg:rounded-[32px_10px_10px_10px]" }}
+              {{ else }}
+                {{ $borderRadius = "rounded-[10px] lg:rounded-[10px_32px_10px_10px]" }}
+              {{ end }}
+            {{ else if eq $positionInRow 0 }}
+              {{ $borderRadius = "rounded-[10px] lg:rounded-[10px_10px_10px_32px]" }}
+            {{ else }}
+              {{ $borderRadius = "rounded-[10px] lg:rounded-[10px_10px_32px_10px]" }}
+            {{ end }}
+            {{ $url := $card.url | default "" }}
+            {{ $cardImageClasses := $card.cardImageClasses | default "w-full h-80 object-cover object-center" }}
+            {{ $backgroundColorImage := $card.backgroundColorImage | default "bg-gray-200" }}
+            <div class="relative {{ $colSpan }} {{ $borderRadius }} {{ $cardShadow }} {{ $cardHoverShadow }} transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] group/card">
+              <div class="absolute inset-0 {{ $borderRadius }} {{ $bgWhite }}"></div>
+              {{ if $url }}
+                {{ $cardImageClasses = $card.cardImageClasses | default "w-full h-80 object-cover object-center transition-transform group-hover:scale-105" }}
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $url) }}" class="relative block h-full group">
+                  <div class="relative flex h-full flex-col overflow-hidden {{ $borderRadius }}">
+                    <div class="{{ $backgroundColorImage }} overflow-hidden">
+                      {{ partial "components/media/lazyimg.html" (dict
+                        "src" $card.image
+                        "alt" $card.imageAlt
+                        "class" $cardImageClasses
+                        "maxWidth" 600
+                      ) }}
+                    </div>
+                    {{ if or $card.category $card.title $card.description }}
+                    <div class="p-10 pt-4">
+                      <h3 class="text-sm/4 font-semibold text-{{ $card.categoryColor }}">{{ $card.category }}</h3>
+                      <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 group-hover:underline">{{ $card.title }}</p>
+                      <p class="mt-2 max-w-lg text-sm/6 text-gray-600">{{ $card.description }}</p>
+                    </div>
+                    {{ end }}
+                  </div>
+                  <div class="pointer-events-none absolute inset-0 {{ $borderRadius }} ring-1 {{ $cardRingColor }} transition-all duration-300 group-hover/card:ring-2 group-hover/card:ring-primary/40"></div>
+                </a>
+              {{ else }}
+                <div class="relative flex h-full flex-col overflow-hidden {{ $borderRadius }}">
+                  <div class="{{ $backgroundColorImage }} overflow-hidden">
+                    {{ partial "components/media/lazyimg.html" (dict
+                      "src" $card.image
+                      "alt" $card.imageAlt
+                      "class" $cardImageClasses
+                      "maxWidth" 600
+                    ) }}
+                  </div>
+                  {{ if or $card.category $card.title $card.description }}
+                  <div class="p-10 pt-8 flex flex-col gap-y-2">
+                    <h3 class="font-semibold text-base text-{{ $card.categoryColor }}">{{ $card.category }}</h3>
+                    <p class="font-semibold text-lg {{ $headingTextColor }}">{{ $card.title }}</p>
+                    <p class="text-sm/8 {{ $descriptionTextColor }}">{{ $card.description }}</p>
+                  </div>
+                  {{ end }}
+                </div>
+                <div class="pointer-events-none absolute inset-0 {{ $borderRadius }} ring-1 {{ $cardRingColor }} transition-all duration-300 group-hover/card:ring-2 group-hover/card:ring-primary/40"></div>
+              {{ end }}
+            </div>
+          {{ end }}
+        </div>
+      </div>
+
+      <div class="relative border-b {{ $borderColor }} -mx-4 sm:-mx-6 lg:-mx-8">
+        <div class="absolute bottom-0 left-0 w-2 h-2 -translate-x-1/2 translate-y-1/2 rounded-full border {{ $circleBorder }} {{ $circleBg }}"></div>
+        <div class="absolute bottom-0 right-0 w-2 h-2 translate-x-1/2 translate-y-1/2 rounded-full border {{ $circleBorder }} {{ $circleBg }}"></div>
+      </div>
+    </div>
+    {{ end }}
+
+    {{/* Bottom padding */}}
+    <div class="h-16 sm:h-24"></div>
+
+  </section>
+</div>
