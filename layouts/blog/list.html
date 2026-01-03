@@ -30,7 +30,7 @@
     {{ end }}
   {{ end }}
 
-  {{ $pagesWithDate = $pagesWithDate.ByDate.Reverse }}
+  {{ $pagesWithDate = sort $pagesWithDate "Date" "desc" }}
   {{ $sortedPages = $pagesWithoutDate | append $pagesWithDate }}
 
   {{ $paginator := .Paginate $sortedPages 60 }}
