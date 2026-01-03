@@ -37,6 +37,9 @@
   - secondaryCTAUrl: URL for the secondary call-to-action button
   - screenshotSrc: Source URL for the large screenshot image
   - screenshotAlt: Alt text for the screenshot
+  - videoYoutubeUrl: YouTube video URL or video ID (optional, shows video preview overlay)
+  - videoTitle: Title text for video preview (default: "See it in action")
+  - videoSubtitle: Subtitle text for video preview (default: "Watch demo")
   - promoCardSrc: Source URL for the promo card image
   - promoCardAlt: Alt text for the promo card image
   - promoCardTitle: Title for the promo card
@@ -62,6 +65,9 @@
 {{ $secondaryCTAUrl := .Get "secondaryCTAUrl" | default "" }}
 {{ $screenshotSrc := .Get "screenshotSrc" | default "" }}
 {{ $screenshotAlt := .Get "screenshotAlt" | default "" }}
+{{ $videoYoutubeUrl := .Get "videoYoutubeUrl" | default "" }}
+{{ $videoTitle := .Get "videoTitle" | default "See it in action" }}
+{{ $videoSubtitle := .Get "videoSubtitle" | default "Watch demo" }}
 {{ $promoCardSrc := .Get "promoCardSrc" | default "" }}
 {{ $promoCardAlt := .Get "promoCardAlt" | default "" }}
 {{ $promoCardTitle := .Get "promoCardTitle" | default "" }}
@@ -90,6 +96,9 @@
 {{ $screenshot := dict
   "src" $screenshotSrc
   "alt" $screenshotAlt
+  "videoYoutubeUrl" $videoYoutubeUrl
+  "videoTitle" $videoTitle
+  "videoSubtitle" $videoSubtitle
 }}
 
 {{ $promoCard := dict
