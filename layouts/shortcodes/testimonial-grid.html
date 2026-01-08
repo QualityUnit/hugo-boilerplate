@@ -3,7 +3,10 @@
   {{< testimonial-grid 
     headingTag="Heading tag text" 
     heading="Main heading" 
-    showHeading="true" 
+    showHeading="true"
+    limited="true"
+    limit="6"
+
   >}}
   [
     {
@@ -42,7 +45,8 @@
 
 {{ $headingTag := (.Get "headingTag") | default "" }}
 {{ $heading := (.Get "heading") | default "" }}
-{{ $showHeading := (.Get "showHeading") | default "true" }}
+{{ $showHeading := (.Get "showHeading") | default "true" }}{{ $limited := (.Get "limited") | default "" }}{{ $limited := (.Get "limited") | default "" }}
+{{ $limit := (.Get "limit") | default "" }}
 
 {{/* 
   Note: This shortcode uses a fixed design with primary colors and consistent styling.
@@ -72,5 +76,7 @@
   "headingTag" $headingTag
   "heading" $heading
   "showHeading" (eq $showHeading "true")
+  "limited" (eq $limited "true")
+  "limit" (cond (ne $limit "") (int $limit) nil)
   "testimonials" $testimonials
 ) }}

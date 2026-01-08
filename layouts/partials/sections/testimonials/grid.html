@@ -5,6 +5,8 @@
   - showHeading: Whether to display the heading section (optional, default: true)
   - headingTag: Small text displayed above the main heading (optional, default: "Testimonials")
   - heading: Main section heading (optional, default: "We have worked with thousands of amazing people")
+  - limited: Enable testimonial limitation (optional, default: false)
+  - limit: Maximum number of testimonials to display when limited=true (optional, default: 6, validates against negative values and overflow)
   - testimonials: Array of testimonial objects (optional, includes defaults)
     - quote: Testimonial text
     - personImage: URL to the person's avatar image
@@ -22,6 +24,8 @@
   {{ partial "sections/testimonials/grid.html" (dict 
       "heading" "What our clients say" 
       "headingTag" "Customer Testimonials"
+      "limited" true
+      "limit" 6
       "testimonials" (slice
           (dict 
               "quote" "This product transformed our workflow completely. The interface is intuitive and the features are exactly what we needed."
@@ -46,7 +50,7 @@
           )
       )
   ) }}
-@note: The masonry layout automatically adjusts based on screen size, and one testimonial can be marked as "featured" to receive greater visual emphasis. Features a beautiful blue gradient background using the project's primary colors.
+@note: The masonry layout automatically adjusts based on screen size, and one testimonial can be marked as "featured" to receive greater visual emphasis. Features a beautiful blue gradient background using the project's primary colors. Testimonials are randomized on each page load using client-side JavaScript with Fisher-Yates shuffle algorithm. Use 'limited=true' to enable limitation (default: 6 testimonials) and 'limit' parameter to specify custom count with automatic validation.
 */}}
 
 {{/* Configurable variables */}}
@@ -54,8 +58,23 @@
 {{ $headingTag := .headingTag | default "Testimonials" }}
 {{ $heading := .heading | default "We have worked with thousands of amazing people" }}
 
-{{/* Testimonials */}}
-{{ $testimonials := .testimonials | default slice }}
+{{/* Testimonials - will be randomized by JavaScript and optionally limited with validation */}}
+{{ $allTestimonials := .testimonials | default slice }}
+{{ $testimonials := $allTestimonials }}
+{{ $limited := .limited | default false }}
+{{ if $limited }}
+  {{ $defaultLimit := 6 }}
+  {{ $requestedLimit := .limit | default $defaultLimit }}
+  {{ $totalCount := len $allTestimonials }}
+  {{ $validLimit := $requestedLimit }}
+  
+  {{/* Validate limit: negative values or greater than total count = show all */}}
+  {{ if or (lt $requestedLimit 1) (gt $requestedLimit $totalCount) }}
+    {{ $validLimit = $totalCount }}
+  {{ end }}
+  
+  {{ $testimonials = $allTestimonials | first $validLimit }}
+{{ end }}
 
 <section class="relative mx-auto max-w-7xl isolate py-24 sm:py-32" aria-label="Customer testimonials section">
   <div class="absolute inset-x-0 top-1/2 -z-10 -translate-y-1/2 transform-gpu overflow-hidden opacity-20 blur-3xl" aria-hidden="true">
@@ -72,7 +91,7 @@
     {{ end }}
     
     <!-- Masonry layout using Flexbox (better control) -->
-    <div class="wrapper flex flex-col gap-8 mt-12 sm:mt-20 sm:flex-row sm:items-start sm:gap-8 lg:gap-8">
+    <div class="wrapper flex flex-col gap-8 mt-12 sm:mt-20 sm:flex-row sm:items-start sm:gap-8 lg:gap-8" id="testimonials-wrapper">
       <!-- Column 1 -->
       <div class="flex-1 flex flex-col gap-8">
         {{ range $index, $testimonial := $testimonials }}
@@ -410,4 +429,9 @@
     </div>
   
   {{ partial "schemaorg/reviews.html" (dict "testimonials" $testimonials) }}
+  
+  {{/* Load testimonials randomizer script only when limited mode is enabled */}}
+  {{ if $limited }}
+  <script src="/js/testimonials.js"></script>
+  {{ end }}
 </section>
