@@ -50,7 +50,12 @@
           )
       )
   ) }}
-@note: The masonry layout automatically adjusts based on screen size, and one testimonial can be marked as "featured" to receive greater visual emphasis. Features a beautiful blue gradient background using the project's primary colors. Testimonials are randomized on each page load using client-side JavaScript with Fisher-Yates shuffle algorithm. Use 'limited=true' to enable limitation (default: 6 testimonials) and 'limit' parameter to specify custom count with automatic validation.
+@note:
+  - The masonry layout automatically adjusts based on screen size.
+  - One testimonial can be marked as "featured" to receive greater visual emphasis.
+  - Features a beautiful blue gradient background using the project's primary colors.
+  - Testimonials are randomized on each page load using client-side JavaScript with Fisher-Yates shuffle algorithm.
+  - Use 'limited=true' to enable limitation (default: 6 testimonials) and the 'limit' parameter to specify a custom count with automatic validation.
 */}}
 
 {{/* Configurable variables */}}
@@ -68,8 +73,13 @@
   {{ $totalCount := len $allTestimonials }}
   {{ $validLimit := $requestedLimit }}
   
-  {{/* Validate limit: negative values or greater than total count = show all */}}
-  {{ if or (lt $requestedLimit 1) (gt $requestedLimit $totalCount) }}
+  {{/* Validate limit:
+       - negative or zero values => fall back to default limit (6)
+       - values greater than total count => clamp to total count */}}
+  {{ if lt $requestedLimit 1 }}
+    {{ $validLimit = $defaultLimit }}
+  {{ end }}
+  {{ if gt $validLimit $totalCount }}
     {{ $validLimit = $totalCount }}
   {{ end }}
   
