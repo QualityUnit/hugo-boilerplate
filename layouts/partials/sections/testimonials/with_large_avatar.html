@@ -3,7 +3,7 @@
 @description: A clean, light-themed testimonial section featuring a large avatar of the testimonial author alongside a quote, with subtle gradient and geometric background elements.
 @params:
   - bgColor: Background color class for the section (optional, default: "bg-white")
-  - padding: Padding classes for the container (optional, default: "px-6 lg:px-8")
+  - padding: Padding classes for the container (optional, default: "")
   - gradientColor: Color value for the background gradient (optional, default: "var(--color-indigo-100)")
   - gradientOpacity: Opacity class for the gradient (optional, default: "opacity-20")
   - skewBgColor: Background color class for the skewed background element (optional, default: "bg-white")
@@ -56,8 +56,8 @@
 {{ $personRole := .personRole | default "CEO of Workcation" }}
 {{ $personRoleColor := .personRoleColor | default "text-gray-500" }}
 
-<section class="wrapper isolate overflow-hidden {{ $bgColor }} {{ $padding }}">
-  <div class="relative wrapper">
+<section class="wrapper isolate {{ $bgColor }} {{ $padding }}">
+  <div class="relative wrapper overflow-hidden">
     <div class="absolute top-0 left-1/2 -z-10 h-[50rem] w-[90rem] -translate-x-1/2 bg-[radial-gradient(50%_100%_at_top,{{ $gradientColor }},white)] {{ $gradientOpacity }} lg:left-36"></div>
     <div class="absolute inset-y-0 right-1/2 -z-10 mr-12 w-[150vw] origin-bottom-left skew-x-[-30deg] {{ $skewBgColor }} ring-1 shadow-xl {{ $skewShadowColor }} {{ $skewRingColor }} sm:mr-20 md:mr-0 lg:right-full lg:-mr-36 lg:origin-center"></div>
     <figure class="grid grid-cols-1 items-center gap-x-6 gap-y-8 lg:gap-x-10">

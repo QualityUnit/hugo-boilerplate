@@ -22,6 +22,7 @@
     "personImage" $authorData.image
     "personImageAlt" $authorData.name
     "quote" $authorData.description
+    "padding" (.padding | default "")
   ) }}
   {{ partial "schemaorg/author.html" . }}
 {{ end }}
