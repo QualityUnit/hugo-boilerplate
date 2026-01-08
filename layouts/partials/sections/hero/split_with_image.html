@@ -46,6 +46,7 @@ Parameters:
 - overlayIconSizeFeatures: Size of feature icons (default: "w-[4.25rem] h-[4.25rem]")
 - overlayShadowClass: CSS class for overlay shadow (default: "hero-overlay-shadow")
 - contentLeftPadding: Left padding for content area (default: "lg:pr-0")
+- integrationCustomBackground: Shorthand for setting custom background for integrations (optional)
 
 Image Handling by Type:
 - type="default": Uses image parameter for background, no overlay square
@@ -115,6 +116,7 @@ Design Tokens:
 {{ $date := .date }}
 {{ $lastmod := .lastmod }}
 {{ $author := .author }}
+{{ $integrationCustomBackground := .integrationCustomBackground }}
 
 {{/* Typewriter configuration with defaults */}}
 {{ $typewriter := merge (dict "enabled" false) $typewriter }}
@@ -165,12 +167,18 @@ Design Tokens:
 }}
 
 {{/* Base config for Integrations (Image Overlay mode) */}}
-{{ $integrationConfig := dict 
+{{ $integrationConfigDefault := dict 
     "customBackground" "/images/integration-methods/integration-detail.png"
     "showOverlay" true 
     "overlayMode" "image"
     "overlayColor" ""
 }}
+
+{{/* Use integrationCustomBackground if provided */}}
+{{ $integrationConfig := $integrationConfigDefault }}
+{{ if $integrationCustomBackground }}
+  {{ $integrationConfig = merge $integrationConfigDefault (dict "customBackground" $integrationCustomBackground) }}
+{{ end }}
 
 {{ $academyConfig := dict 
     "customBackground" ""
