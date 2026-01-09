@@ -43,6 +43,7 @@
                 </article>
             </script>
 
+            {{ partial "js/security-utils.html" . }}
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     const searchInput = document.getElementById('search-query');
@@ -55,6 +56,7 @@
                     let debounceTimer;
 
                     const minReadTranslatedText = document.getElementById('min-read-translation').textContent;
+
 
                     // Initialize with URL parameters if present
                     const searchQuery = new URLSearchParams(window.location.search).get('q');
@@ -342,7 +344,7 @@
                               <div class="w-96 pt-6 not-prose">
                                 <div class="flex gap-1 text-base text-heading">
                                   <span>{{ i18n "search_no_results_for" }}:</span>
-                                  <span class="font-bold">${query}</span>
+                                  <span class="font-bold">${SecurityUtils.escapeHtml(query)}</span>
                                 </div>
                                 <div class="border-t border-secondary mt-3"></div>
                                 <div class="py-3">
@@ -403,6 +405,17 @@
                     // Listen for input changes
                     searchInput.addEventListener('input', function() {
                         debounce(() => performSearch(this.value), 300);
+                    });
+
+                    // Handle Enter key to trigger search immediately
+                    searchInput.addEventListener('keydown', function(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            const query = this.value.trim();
+                            if (query.length > 0) {
+                                performSearch(query);
+                            }
+                        }
                     });
                 });
             </script>

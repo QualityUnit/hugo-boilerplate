@@ -5,6 +5,7 @@
 {{- $directories := .directories | default (slice) -}}
 {{- $placeholder := .placeholder | default (i18n "search_placeholder") -}}
 {{- $resultsContainer := .resultsContainer | default "" -}}
+{{ partial "js/security-utils.html" . }}
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js" integrity="sha512-Nqw1tH3mpavka9cQCc5zWWEZNfIPdOYyQFjlV1NvflEtQ0/XI6ZQ+H/D3YgJdqSUJlMLAPRj/oXlaHCFbFCjoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
@@ -28,7 +29,7 @@
         <div id="popup-search-results-{{ $searchId }}" class="p-2"></div>
         <div class="search-loading-{{ $searchId }} text-center px-3 py-4 text-secondary hidden">{{ i18n "search_loading" }}</div>
         <div class="search-view-all-{{ $searchId }} text-center py-3 border-t border-gray-200 dark:border-gray-700 hidden">
-            <a href="/search/" id="view-all-results-{{ $searchId }}" class="text-heading text-sm font-medium hover:underline hover:text-primary">{{ i18n "search_view_all_results" }}</a>
+            <a href="{{ "/search/" | relURL }}" id="view-all-results-{{ $searchId }}" class="text-heading text-sm font-medium hover:underline hover:text-primary">{{ i18n "search_view_all_results" }}</a>
         </div>
     </div>
 </div>
@@ -76,6 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedResultIndex = -1;
     const directories = {{ $directories | jsonify | safeJS }};
     const resultsContainer = {{ $resultsContainer | jsonify | safeJS }};
+    const searchBasePath = {{ "/search" | relURL | jsonify }};
+
 
     // --- Event Listeners ---
 
@@ -98,6 +101,27 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Enter key handling
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            
+            // If popup is visible and a result is selected, navigate to it
+            if (isPopupVisible && selectedResultIndex >= 0) {
+                const resultItems = searchResults.querySelectorAll('a[href]');
+                if (resultItems[selectedResultIndex]) {
+                    window.location.href = resultItems[selectedResultIndex].getAttribute('href');
+                    return;
+                }
+            }
+            
+            // Otherwise, navigate to search page with current query
+            const query = this.value.trim();
+            if (query.length > 0) {
+                window.location.href = searchBasePath + '?q=' + encodeURIComponent(query);
+            }
+            return;
+        }
+
         if (!isPopupVisible) return;
 
         const resultItems = searchResults.querySelectorAll('a[href]');
@@ -116,14 +140,6 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             selectedResultIndex = selectedResultIndex <= 0 ? resultItems.length - 1 : selectedResultIndex - 1;
             updateSelectedResult(resultItems);
-        }
-
-        // Enter: Navigate to selected result
-        else if (event.key === 'Enter' && selectedResultIndex >= 0) {
-            event.preventDefault();
-            if (resultItems[selectedResultIndex]) {
-                window.location.href = resultItems[selectedResultIndex].getAttribute('href');
-            }
         }
     });
 
@@ -379,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingIndicator.classList.add('hidden');
             searchResultsPopup.classList.remove('hidden');
 
-            viewAllLink.href = `/search?q=${encodeURIComponent(query)}`;
+            viewAllLink.href = searchBasePath + '?q=' + encodeURIComponent(query);
 
             if (results.length > 0) {
                 const displayResults = results.slice(0, 5);
@@ -510,8 +526,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }).join('');
 
         const resultText = uniqueResults.length === 1
-            ? searchTranslations.searchResultsFound.replace('%d', uniqueResults.length).replace('%s', `"${query}"`)
-            : searchTranslations.searchResultsFoundPlural.replace('%d', uniqueResults.length).replace('%s', `"${query}"`);
+            ? searchTranslations.searchResultsFound.replace('%d', uniqueResults.length).replace('%s', `"${SecurityUtils.escapeHtml(query)}"`)
+            : searchTranslations.searchResultsFoundPlural.replace('%d', uniqueResults.length).replace('%s', `"${SecurityUtils.escapeHtml(query)}"`);
 
         container.innerHTML = `
             <div class="wrapper mt-10">
@@ -532,7 +548,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadingIndicator.classList.add('hidden');
         searchResultsPopup.classList.remove('hidden');
         
-        viewAllLink.href = `/search?q=${encodeURIComponent(query)}`;
+        viewAllLink.href = searchBasePath + '?q=' + encodeURIComponent(query);
         
         if (results.length > 0) {
             // Filter out duplicates based on permalink
