@@ -31,6 +31,14 @@
 @note: Supports Hugo icon partials (use icon name without path) and SVG file paths (use full path with /images/).
 */}}
 
+{{/*
+Tailwind safelist - dynamic icon background colors from data/components/iconColors.yaml:
+bg-indigo-600 bg-pink-700 bg-teal-400 bg-pink-500 bg-purple-600 bg-blue-600
+bg-orange-500 bg-orange-600 bg-orange-400 bg-green-500 bg-red-600 bg-blue-800
+bg-yellow-500 bg-teal-600 bg-red-900 bg-green-700 bg-[#f59e0b] bg-[#021049]
+bg-[#b28b5d] bg-[#611f69] bg-[#95bf47] bg-[#2684fc] bg-[#00ac47] bg-[#0066da] bg-[#00749c]
+*/}}
+
 {{ $icon := .icon }}
 {{ $iconSize := .iconSize | default "w-5 h-5" }}
 {{ $iconBackgroundSize := .iconBackgroundSize | default "w-10 h-10" }}
