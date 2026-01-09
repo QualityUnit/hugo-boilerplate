@@ -43,6 +43,7 @@
                 </article>
             </script>
 
+            {{ partial "js/security-utils.html" . }}
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     const searchInput = document.getElementById('search-query');
@@ -56,16 +57,6 @@
 
                     const minReadTranslatedText = document.getElementById('min-read-translation').textContent;
 
-                    // HTML sanitization function to prevent XSS
-                    function escapeHtml(unsafe) {
-                        if (typeof unsafe !== 'string') return '';
-                        return unsafe
-                            .replace(/&/g, "&amp;")
-                            .replace(/</g, "&lt;")
-                            .replace(/>/g, "&gt;")
-                            .replace(/"/g, "&quot;")
-                            .replace(/'/g, "&#039;");
-                    }
 
                     // Initialize with URL parameters if present
                     const searchQuery = new URLSearchParams(window.location.search).get('q');
@@ -353,7 +344,7 @@
                               <div class="w-96 pt-6 not-prose">
                                 <div class="flex gap-1 text-base text-heading">
                                   <span>{{ i18n "search_no_results_for" }}:</span>
-                                  <span class="font-bold">${escapeHtml(query)}</span>
+                                  <span class="font-bold">${SecurityUtils.escapeHtml(query)}</span>
                                 </div>
                                 <div class="border-t border-secondary mt-3"></div>
                                 <div class="py-3">
