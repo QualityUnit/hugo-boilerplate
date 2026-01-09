@@ -25,17 +25,21 @@
 
 <!-- FAQ Section if available -->
 {{ if .Params.faq }}
-{{ partial "sections/faq/side-by-side" (dict
-"title" (i18n "faq_heading")
-"description" (i18n "faq_description")
-"items" .Params.faq
-) }}
+  {{ partial "sections/faq/side-by-side" (dict
+  "title" (i18n "faq_heading")
+  "description" (i18n "faq_description")
+  "items" .Params.faq
+  ) }}
 {{ end }}
 
 
 <!-- Author Section -->
 {{ if .Params.author }}
-  {{ partial "author.html" (dict "authorKey" .Params.author "page" .) }}
+  {{ partial "author.html" (dict 
+    "authorKey" .Params.author 
+    "page" . 
+    "padding" (cond (not .Params.faq) "pt-20" "")
+  ) }}
 {{ end }}
 
 {{ partial "cta.html" . }}
