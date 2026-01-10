@@ -24,9 +24,12 @@
 {{ $height := .height | default "" }}
 {{ $id := .id | default "" }}
 
+{{/* Get URL with static domain if configured */}}
+{{ $svgSrc := partial "functions/get-static-url.html" (dict "path" $src) }}
+
 <object 
   class="lazy-svg {{ with $class }}{{ . }}{{ end }}"
-  data-src="{{ $src }}"
+  data-src="{{ $svgSrc }}"
   type="image/svg+xml"
   {{ with $width }}width="{{ . }}"{{ end }}
   {{ with $height }}height="{{ . }}"{{ end }}
