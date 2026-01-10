@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedResultIndex = -1;
     const directories = {{ $directories | jsonify | safeJS }};
     const resultsContainer = {{ $resultsContainer | jsonify | safeJS }};
-    const searchBasePath = {{ "/search" | relURL | jsonify }};
+    const searchBasePath = {{ "/search" | relURL }};
 
 
     // --- Event Listeners ---
