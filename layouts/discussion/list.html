@@ -1,0 +1,76 @@
+{{ define "main" }}
+
+{{/* Configuration */}}
+{{ $paginationSize := 30 }}
+
+{{/* Search configuration */}}
+{{ $searchConfig := dict
+  "enabled" true
+  "directories" (slice .Section)
+}}
+
+{{ partial "hero_default.html" (dict "Params" .Params "Title" .Title "search" $searchConfig "Site" .Site) }}
+
+{{ if eq (len .Pages) 0 }}
+  <div class="wrapper text-center py-12">
+    <p class="text-xl font-semibold text-gray-600">{{ i18n "no_posts_found" | default "No discussions found" }}</p>
+  </div>
+{{ else }}
+
+  {{/* Sorting */}}
+  {{ $sortBy := .Params.sortBy | default "date" }}
+  {{ $sortOrder := .Params.sortOrder | default "desc" }}
+
+  {{ $pages := .Pages }}
+  {{ if eq $sortBy "date" }}
+    {{ $pages = .Pages.ByDate }}
+  {{ else if eq $sortBy "title" }}
+    {{ $pages = .Pages.ByTitle }}
+  {{ else if eq $sortBy "weight" }}
+    {{ $pages = .Pages.ByWeight }}
+  {{ end }}
+
+  {{ if eq $sortOrder "desc" }}
+    {{ $pages = $pages.Reverse }}
+  {{ end }}
+
+  {{ $paginator := .Paginate $pages $paginationSize }}
+
+  {{/* Forum-style Discussion Table */}}
+  <div class="bg-gray-100 py-6 md:py-10">
+    <div class="wrapper">
+
+      {{/* Forum table */}}
+      <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        {{/* Table rows */}}
+        <div class="divide-y divide-gray-100">
+          {{ range $paginator.Pages }}
+            {{ partial "components/cards/discussion_row.html" . }}
+          {{ end }}
+        </div>
+      </div>
+
+      {{/* Pagination */}}
+      {{ if gt $paginator.TotalPages 1 }}
+        <div class="mt-6">
+          {{ partial "components/pagination/pagination.html" $paginator }}
+        </div>
+      {{ end }}
+    </div>
+  </div>
+
+{{ end }}
+
+{{/* Bottom content if any */}}
+{{ if .Content }}
+  {{ partial "sections/content/centered.html" (dict
+      "content" .Content
+      "bgColor" "bg-white"
+      "page" .
+  ) }}
+{{ end }}
+
+{{/* CTA */}}
+{{ partial "cta.html" . }}
+
+{{ end }}

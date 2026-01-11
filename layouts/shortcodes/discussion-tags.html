@@ -1,0 +1,35 @@
+{{/*
+@shortcode: discussion-tags
+@description: Renders Reddit-style flair tags for categorizing discussions.
+              Used at the top of discussion pages to show topic categories.
+
+@params:
+  - tags: Comma-separated list of tags (required)
+  - primary: The primary/highlighted tag (optional)
+
+@example:
+  {{< discussion-tags tags="Question,Tools,Strategy" primary="Question" >}}
+
+@note: Tags are rendered as pill-style badges. The primary tag gets highlighted styling.
+*/}}
+
+{{ $tagsParam := .Get "tags" | default "" }}
+{{ $primary := .Get "primary" | default "" }}
+{{ $tags := split $tagsParam "," }}
+
+{{ if $tags }}
+<div class="discussion-tags flex flex-wrap gap-2 mb-4">
+  {{ range $tags }}
+    {{ $tag := . | strings.TrimSpace }}
+    {{ if eq $tag $primary }}
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-brand-100 text-brand-700 border border-brand-200">
+        {{ $tag }}
+      </span>
+    {{ else }}
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200 transition-colors">
+        {{ $tag }}
+      </span>
+    {{ end }}
+  {{ end }}
+</div>
+{{ end }}

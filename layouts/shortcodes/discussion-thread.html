@@ -1,0 +1,50 @@
+{{/*
+@shortcode: discussion-thread
+@description: Wrapper component for a Reddit-style discussion thread. Contains sorting options
+              and wraps all replies with consistent styling.
+
+@params:
+  - heading: Title for the comments section (optional, default: "Comments")
+  - sortBy: Default sort option - "best", "new", "top" (optional, default: "best")
+  - showSorting: Whether to show sorting options (optional, default: "true")
+
+@example:
+  {{< discussion-thread heading="Community Discussion" sortBy="best" >}}
+    {{< discussion-reply username="User1" date="2026-01-11" upvotes="42" >}}
+    Reply content here...
+    {{< /discussion-reply >}}
+  {{< /discussion-thread >}}
+
+@note: Use .Inner to wrap discussion-reply shortcodes.
+*/}}
+
+{{ $heading := .Get "heading" | default "Comments" }}
+{{ $sortBy := .Get "sortBy" | default "best" }}
+{{ $showSorting := .Get "showSorting" | default "true" }}
+
+<div class="discussion-thread mt-8">
+  {{/* Header with sorting options */}}
+  <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-900">{{ $heading }}</h3>
+
+    {{ if eq $showSorting "true" }}
+    <div class="flex items-center gap-1 text-sm">
+      <span class="text-gray-500 mr-2">Sort by:</span>
+      <button class="px-3 py-1 rounded-full transition-colors {{ if eq $sortBy "best" }}bg-brand-100 text-brand-700 font-medium{{ else }}text-gray-600 hover:bg-gray-100{{ end }}">
+        Best
+      </button>
+      <button class="px-3 py-1 rounded-full transition-colors {{ if eq $sortBy "new" }}bg-brand-100 text-brand-700 font-medium{{ else }}text-gray-600 hover:bg-gray-100{{ end }}">
+        New
+      </button>
+      <button class="px-3 py-1 rounded-full transition-colors {{ if eq $sortBy "top" }}bg-brand-100 text-brand-700 font-medium{{ else }}text-gray-600 hover:bg-gray-100{{ end }}">
+        Top
+      </button>
+    </div>
+    {{ end }}
+  </div>
+
+  {{/* Thread content */}}
+  <div class="divide-y divide-gray-100">
+    {{ .Inner }}
+  </div>
+</div>

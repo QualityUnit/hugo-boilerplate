@@ -1,0 +1,139 @@
+{{/*
+@shortcode: discussion-op
+@description: Renders the original post (OP) in a Reddit-style discussion thread.
+              This is the main post that starts the discussion, styled more prominently than replies.
+
+@params:
+  - username: Username of the original poster (required)
+  - avatar: Avatar image URL (optional, uses initials fallback)
+  - date: Date of the post (required)
+  - upvotes: Number of upvotes (optional, default: 0)
+  - verified: Whether user is verified (optional, default: false)
+  - badge: Special badge text like "Expert", "Staff" (optional)
+  - role: User's role/title (optional)
+  - commentCount: Number of comments on this post (optional)
+
+@example:
+  {{< discussion-op
+    username="MarketingPro_Sarah"
+    avatar="/images/avatars/sarah.webp"
+    date="2026-01-10"
+    upvotes="127"
+    verified="true"
+    role="Marketing Director"
+    commentCount="15"
+  >}}
+  I've been trying to understand how often our brand gets mentioned by AI tools...
+  {{< /discussion-op >}}
+
+@note: Use .Inner content for the post body. Supports markdown formatting.
+*/}}
+
+{{ $username := .Get "username" | default "Anonymous" }}
+{{ $avatar := .Get "avatar" }}
+{{ $date := .Get "date" | default "Unknown" }}
+{{ $upvotes := .Get "upvotes" | default "0" }}
+{{ $verified := .Get "verified" | default "false" }}
+{{ $badge := .Get "badge" }}
+{{ $role := .Get "role" }}
+{{ $commentCount := .Get "commentCount" | default "0" }}
+
+{{/* Generate initials for avatar fallback */}}
+{{ $initials := "" }}
+{{ $nameParts := split $username "_" }}
+{{ range first 2 $nameParts }}
+  {{ $initials = printf "%s%s" $initials (substr . 0 1 | upper) }}
+{{ end }}
+{{ if eq $initials "" }}
+  {{ $initials = substr $username 0 2 | upper }}
+{{ end }}
+
+<div class="discussion-op surface-secondary rounded-xl border border-gray-200 p-4 md:p-6 mb-6">
+  <div class="flex gap-3 md:gap-4">
+    {{/* Vote column */}}
+    <div class="flex flex-col items-center text-gray-400 select-none shrink-0 w-10">
+      <span class="text-sm hover:text-brand-600 cursor-pointer transition-colors p-1">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+        </svg>
+      </span>
+      <span class="font-bold text-base text-gray-700 my-1">{{ $upvotes }}</span>
+      <span class="text-sm hover:text-gray-600 cursor-pointer transition-colors p-1">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </span>
+    </div>
+
+    {{/* Content column */}}
+    <div class="flex-1 min-w-0">
+      {{/* Header with avatar and meta */}}
+      <div class="flex items-center gap-2 md:gap-3 mb-4 flex-wrap">
+        {{/* Avatar */}}
+        {{ if $avatar }}
+          <img src="{{ $avatar }}" alt="{{ $username }}" class="w-10 h-10 rounded-full object-cover shrink-0" loading="lazy">
+        {{ else }}
+          <div class="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-semibold shrink-0">
+            {{ $initials }}
+          </div>
+        {{ end }}
+
+        <div class="flex flex-col">
+          <div class="flex items-center gap-2 flex-wrap">
+            {{/* Username */}}
+            <span class="font-semibold text-gray-900">{{ $username }}</span>
+
+            {{ if eq $verified "true" }}
+              <span class="text-brand-600" title="Verified">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+              </span>
+            {{ end }}
+
+            {{ if $badge }}
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                {{ $badge }}
+              </span>
+            {{ end }}
+          </div>
+
+          <div class="flex items-center gap-2 text-sm text-gray-500">
+            {{ if $role }}
+              <span>{{ $role }}</span>
+              <span>·</span>
+            {{ end }}
+            <span>{{ $date }}</span>
+          </div>
+        </div>
+      </div>
+
+      {{/* Post content */}}
+      <div class="prose prose-base max-w-none text-gray-700 mb-4">
+        {{ .Inner | markdownify }}
+      </div>
+
+      {{/* Stats bar */}}
+      <div class="flex items-center gap-4 pt-4 border-t border-gray-200 text-sm text-gray-500">
+        <span class="flex items-center gap-1.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+          <span>{{ $commentCount }} comments</span>
+        </span>
+        <button class="hover:text-gray-700 transition-colors flex items-center gap-1.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+          </svg>
+          Share
+        </button>
+        <button class="hover:text-gray-700 transition-colors flex items-center gap-1.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+          </svg>
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
