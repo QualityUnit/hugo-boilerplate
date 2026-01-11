@@ -23,24 +23,9 @@
 {{ $showSorting := .Get "showSorting" | default "true" }}
 
 <div class="discussion-thread mt-8">
-  {{/* Header with sorting options */}}
+  {{/* Header */}}
   <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
     <h3 class="text-lg font-semibold text-gray-900">{{ $heading }}</h3>
-
-    {{ if eq $showSorting "true" }}
-    <div class="flex items-center gap-1 text-sm">
-      <span class="text-gray-500 mr-2">Sort by:</span>
-      <button class="px-3 py-1 rounded-full transition-colors {{ if eq $sortBy "best" }}bg-brand-100 text-brand-700 font-medium{{ else }}text-gray-600 hover:bg-gray-100{{ end }}">
-        Best
-      </button>
-      <button class="px-3 py-1 rounded-full transition-colors {{ if eq $sortBy "new" }}bg-brand-100 text-brand-700 font-medium{{ else }}text-gray-600 hover:bg-gray-100{{ end }}">
-        New
-      </button>
-      <button class="px-3 py-1 rounded-full transition-colors {{ if eq $sortBy "top" }}bg-brand-100 text-brand-700 font-medium{{ else }}text-gray-600 hover:bg-gray-100{{ end }}">
-        Top
-      </button>
-    </div>
-    {{ end }}
   </div>
 
   {{/* Thread content */}}
