@@ -21,7 +21,7 @@
 {{ $useAllLanguagesData := isset site.Data "all_languages" }}
 
 <div class="language-selector">
-  <div class="flex flex-wrap items-center justify-center gap-3">
+  <div class="flex flex-wrap items-center lg:justify-center gap-3">
     {{ if $useAllLanguagesData }}
       <!-- Use unified language data when available -->
       {{ with site.Data }}
