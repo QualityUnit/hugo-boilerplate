@@ -86,7 +86,7 @@
         </div>
       {{ end }}
       <div class="mx-auto {{ if or $eyebrow $heading $description }}mt-16{{ else }}mt-0{{ end }} max-w-2-xl sm:mt-12 lg:mt-24 lg:max-w-none">
-        <dl class="grid max-w-xl grid-cols-1 {{ $gridGap }} md:max-w-none lg:grid-cols-3">
+        <dl class="grid max-w-xl grid-cols-1 {{ $gridGap }} md:max-w-none md:grid-cols-2 lg:grid-cols-3">
           {{ range $features }}
           <div class="relative pl-0">
             {{ if .icon }}
