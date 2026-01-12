@@ -52,12 +52,12 @@
   {{ end }}
 {{ end }}
 
-{{ $figureClasses := "text-center" }}
+{{ $figureClasses := slice "text-center" }}
 {{ if $figureClass }}
-  {{ $figureClasses = printf "%s %s" $figureClasses $figureClass }}
+  {{ $figureClasses = $figureClasses | append (split (trim $figureClass " ") " ") }}
 {{ end }}
 
-<figure class="{{ $figureClasses }}">
+<figure class="{{ delimit $figureClasses " " }}">
   {{ if $link }}<a href="{{ $link }}"{{ if $linkTarget }} target="{{ $linkTarget }}"{{ end }}{{ if $finalRel }} rel="{{ $finalRel }}"{{ end }}{{ if $linkTitle }} title="{{ $linkTitle }}"{{ end }}>{{ end }}
   {{ if $src }}
     {{ if or (hasPrefix $src "http://") (hasPrefix $src "https://") }}
