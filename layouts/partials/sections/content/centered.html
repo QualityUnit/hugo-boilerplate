@@ -64,23 +64,25 @@
   {{ $alignmentClass = "text-left" }}
 {{ end }}
 
-<div class="{{ $bgColor }} {{ $padding }} rounded-xl wrapper">
-  <div class="text-base/7 {{ $contentColor }} {{ $alignmentClass }}">
-    {{ if $eyebrow }}
-    <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ $eyebrow }}</p>
-    {{ end }}
-    
-    {{ if $heading }}
-    <h2 class="mt-2 text-4xl font-semibold tracking-tight text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
-    {{ end }}
-    
-    {{ if $description }}
-    <p class="mt-6 text-xl/8 {{ $descriptionColor }} prose-links">{{ $description | safeHTML }}</p>
-    {{ end }}
-    
-    <!-- Apply Tailwind typography with custom processing for better heading styles -->
-    <div class="mt-10 prose prose-lg prose-indigo prose-links max-w-none {{ if eq $alignment "center" }}mx-auto{{ else if eq $alignment "right" }}ml-auto{{ end }}">
-      {{ $content }}
+<div class="{{ $bgColor }}">
+  <div class="{{ $padding }} rounded-xl wrapper">
+    <div class="text-base/7 {{ $contentColor }} {{ $alignmentClass }}">
+      {{ if $eyebrow }}
+      <p class="text-base/7 font-semibold {{ $eyebrowColor }}">{{ $eyebrow }}</p>
+      {{ end }}
+      
+      {{ if $heading }}
+      <h2 class="mt-2 text-4xl font-semibold tracking-tight text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
+      {{ end }}
+      
+      {{ if $description }}
+      <p class="mt-6 text-xl/8 {{ $descriptionColor }} prose-links">{{ $description | safeHTML }}</p>
+      {{ end }}
+      
+      <!-- Apply Tailwind typography with custom processing for better heading styles -->
+      <div class="mt-10 prose prose-lg prose-indigo prose-links max-w-none {{ if eq $alignment "center" }}mx-auto{{ else if eq $alignment "right" }}ml-auto{{ end }}">
+        {{ $content }}
+      </div>
     </div>
   </div>
 </div>
