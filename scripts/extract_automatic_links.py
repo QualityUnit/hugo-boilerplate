@@ -22,6 +22,7 @@ import os
 import sys
 import json
 import argparse
+import yaml
 import toml_frontmatter as frontmatter  # Use robust TOML parser
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -35,17 +36,54 @@ logger = logging.getLogger(__name__)
 
 class LinkExtractor:
     """Main class for extracting automatic links from markdown content"""
-    
-    def __init__(self, content_dir: str, base_url: str = ""):
+
+    def __init__(self, content_dir: str, base_url: str = "", lang: str = None):
         self.content_dir = Path(content_dir).resolve()
         self.base_url = base_url
+        self.lang = lang
+        self.lang_url_prefix = ""
         self.stats = {
             'files_processed': 0,
             'files_with_keywords': 0,
             'total_keywords': 0,
             'errors': []
         }
-    
+
+        # Load language configuration to get URL prefix
+        if lang:
+            self._load_language_config()
+
+    def _load_language_config(self):
+        """Load language configuration from all_languages.yaml to get URL prefix"""
+        # Find the project root (scripts is in themes/boilerplate/scripts/)
+        script_dir = Path(__file__).resolve().parent
+        project_root = script_dir.parent.parent.parent
+        lang_config_path = project_root / "data" / "all_languages.yaml"
+
+        if not lang_config_path.exists():
+            logger.warning(f"Language config not found at {lang_config_path}")
+            return
+
+        try:
+            with open(lang_config_path, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+
+            languages = config.get('languages', {})
+            if self.lang in languages:
+                lang_data = languages[self.lang]
+                base_url = lang_data.get('baseURL', '/')
+
+                # If baseURL is not just "/", use it as prefix
+                # For example: "/sk/" for Slovak, "/" for English
+                if base_url and base_url != '/':
+                    self.lang_url_prefix = base_url.rstrip('/')
+                    logger.info(f"Using language URL prefix: {self.lang_url_prefix}")
+            else:
+                logger.warning(f"Language '{self.lang}' not found in config")
+
+        except Exception as e:
+            logger.warning(f"Failed to load language config: {e}")
+
     def process_directory(self) -> List[Dict]:
         """Process all markdown files in the content directory"""
         logger.info(f"Processing content directory: {self.content_dir}")
@@ -180,12 +218,12 @@ class LinkExtractor:
         return url_path
     
     def path_to_url(self, relative_path: Path) -> str:
-        """Convert a file path to a URL"""
+        """Convert a file path to a URL, including language prefix if applicable"""
         # Remove .md extension
         path_str = str(relative_path)
         if path_str.endswith('.md'):
             path_str = path_str[:-3]
-        
+
         # Handle index files
         if path_str.endswith('/_index'):
             path_str = path_str[:-7]  # Remove /_index
@@ -193,15 +231,23 @@ class LinkExtractor:
             path_str = ''  # Root index becomes empty (will become "/" below)
         elif path_str.endswith('/index'):
             path_str = path_str[:-6]  # Remove /index
-        
+
         # Ensure path starts with /
         if not path_str.startswith('/'):
             path_str = '/' + path_str
-        
+
         # Ensure path ends with / for directories (except root)
         if path_str != '/' and not path_str.endswith('/'):
             path_str += '/'
-        
+
+        # Prepend language URL prefix if set (e.g., "/sk" for Slovak)
+        # This handles subdirectory-based language routing
+        if self.lang_url_prefix:
+            if path_str == '/':
+                path_str = self.lang_url_prefix + '/'
+            else:
+                path_str = self.lang_url_prefix + path_str
+
         return path_str
     
     def get_title_from_frontmatter(self, frontmatter_data: Dict) -> str:
@@ -329,6 +375,8 @@ Output Format:
                        help='Path to content directory (e.g., content/en/)')
     parser.add_argument('--output', required=True,
                        help='Output JSON file path (e.g., data/linkbuilding/automatic/en_automatic.json)')
+    parser.add_argument('--lang',
+                       help='Language code (e.g., en, sk, de). Used to determine URL prefix from all_languages.yaml')
     parser.add_argument('--base-url', default="",
                        help='Base URL for relative links (optional)')
     parser.add_argument('-v', '--verbose', action='store_true',
@@ -343,8 +391,17 @@ Output Format:
         logging.getLogger().setLevel(logging.DEBUG)
     
     try:
+        # Auto-detect language from content directory if not provided
+        lang = args.lang
+        if not lang:
+            # Try to extract language from content directory path (e.g., content/sk/ -> sk)
+            content_path = Path(args.content_dir).resolve()
+            if content_path.name and len(content_path.name) == 2 and content_path.name.isalpha():
+                lang = content_path.name.lower()
+                logger.info(f"Auto-detected language from path: {lang}")
+
         # Create extractor and process directory
-        extractor = LinkExtractor(args.content_dir, args.base_url)
+        extractor = LinkExtractor(args.content_dir, args.base_url, lang=lang)
         links = extractor.process_directory()
         
         # Get statistics
