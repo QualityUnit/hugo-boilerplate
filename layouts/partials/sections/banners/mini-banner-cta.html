@@ -38,7 +38,7 @@
   <div class="bg-gray-100 min-h-[72px] flex flex-col lg:flex-row lg:items-center gap-4 p-3 md:p-4 lg:py-0">
     <div class="flex items-center gap-3 lg:mr-auto">
       <div class="bg-gray-100 p-2 flex-shrink-0 rounded-l-lg">
-        {{ if fileExists "static/images/logo-icon.png" }}
+        {{ if fileExists "cdn-assets/logo-icon.png" }}
           {{ partial "components/media/lazyimg_internal.html" (dict
             "src" "/images/logo-icon.png"
             "alt" "Logo"
