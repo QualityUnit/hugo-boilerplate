@@ -6,6 +6,7 @@
   - alt: Alternative text for accessibility (required)
   - description: Text under the image
   - class: Additional CSS classes (optional)
+  - figureClass: Additional CSS classes for figure element (optional)
   - id: Image ID (optional)
   - width: Image width (optional)
   - height: Image height (optional)
@@ -21,18 +22,21 @@
       "alt" "Example image" 
       "description" "Source: <a href='https://www.shutterstock.com/'>Shutterstock</a>"
       "class" "rounded-lg shadow-md"
+      "figureClass" "size-full"
   ) }}
   
   {{ partial "components/media/lazyimg.html" (dict 
       "src" "/images/hero-banner.jpg" 
       "alt" "Hero banner" 
       "class" "hero-image"
+      "figureClass" "size-large"
       "noLazy" true
   ) }}
 */}}
 
 {{ $src := .src }}
 {{ $description := .description }}
+{{ $figureClass := .figureClass | default "" }}
 {{ $link := .link | default "" }}
 {{ $linkTarget := .linkTarget | default "" }}
 {{ $linkRel := .linkRel | default "" }}
@@ -48,7 +52,12 @@
   {{ end }}
 {{ end }}
 
-<figure class="text-center">
+{{ $figureClasses := slice "text-center" }}
+{{ if $figureClass }}
+  {{ $figureClasses = $figureClasses | append (split (trim $figureClass " ") " ") }}
+{{ end }}
+
+<figure class="{{ delimit $figureClasses " " }}">
   {{ if $link }}<a href="{{ $link }}"{{ if $linkTarget }} target="{{ $linkTarget }}"{{ end }}{{ if $finalRel }} rel="{{ $finalRel }}"{{ end }}{{ if $linkTitle }} title="{{ $linkTitle }}"{{ end }}>{{ end }}
   {{ if $src }}
     {{ if or (hasPrefix $src "http://") (hasPrefix $src "https://") }}

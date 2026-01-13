@@ -3,7 +3,7 @@
 <head>
   {{ partialCached "head.html" . .Permalink }}
 </head>
-<body class="antialiased bg-white dark:bg-gray-900">
+<body class="antialiased bg-white dark:bg-gray-900 min-h-screen flex flex-col">
 
 {{ $showPromoBanner := and 
     site.Params.promoBanner.enable 
@@ -21,7 +21,7 @@
 {{ end }}
 
 {{ partialCached "header.html" . (printf "header-%s" site.Language.Lang) }}
-<main class="w-full">
+<main class="w-full flex-1">
   {{ block "main" . }}{{ end }}
 </main>
 
