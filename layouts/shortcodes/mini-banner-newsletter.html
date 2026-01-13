@@ -1,0 +1,44 @@
+{{- /*
+@shortcode: mini-banner-newsletter
+@description: Mini newsletter banner with icon, heading, description, email input and subscribe button.
+              Responsive layout that stacks on mobile and displays in a row on desktop.
+
+@params:
+  - heading: Newsletter heading (optional, uses i18n translation by default)
+  - description: Newsletter description text (optional, uses i18n translation by default)
+  - placeholder: Input placeholder text (optional, uses i18n translation by default)
+  - buttonText: Subscribe button text (optional, uses i18n translation by default)
+  - action: Form action URL (optional, default: "#")
+  - method: Form method (optional, default: "post")
+
+@example:
+  {{< mini-banner-newsletter >}}
+
+@example (with custom text):
+  {{< mini-banner-newsletter
+    heading="Subscribe to updates"
+    description="Get the latest news directly to your inbox."
+    placeholder="Enter your email"
+    buttonText="Sign up"
+    action="/newsletter/subscribe"
+  >}}
+
+@note: All text parameters support i18n translations as defaults.
+*/ -}}
+
+{{ $heading := .Get "heading" }}
+{{ $description := .Get "description" }}
+{{ $placeholder := .Get "placeholder" }}
+{{ $buttonText := .Get "buttonText" }}
+{{ $action := .Get "action" }}
+{{ $method := .Get "method" }}
+
+{{ partial "sections/banners/mini-banner-newsletter.html" (dict
+  "heading" $heading
+  "description" $description
+  "placeholder" $placeholder
+  "buttonText" $buttonText
+  "action" $action
+  "method" $method
+  "Site" .Site
+) }}

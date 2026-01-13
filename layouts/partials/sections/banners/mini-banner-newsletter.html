@@ -1,0 +1,90 @@
+{{/*
+@section: Mini Newsletter Banner
+@description: Mini newsletter subscription banner with icon, heading, description, email input and subscribe button.
+              Responsive layout that stacks on mobile and displays in a row on desktop.
+@params:
+  - heading: Newsletter heading (optional, uses i18n translation by default)
+  - description: Newsletter description text (optional, uses i18n translation by default)
+  - placeholder: Input placeholder text (optional, uses i18n translation by default)
+  - buttonText: Subscribe button text (optional, uses i18n translation by default)
+  - action: Form action URL (optional, default: "#")
+  - method: Form method (optional, default: "post")
+@example:
+  {{ partial "sections/banners/mini-banner-newsletter.html" (dict "Site" .Site) }}
+
+@example (with custom parameters):
+  {{ partial "sections/banners/mini-banner-newsletter.html" (dict
+    "heading" "Subscribe to updates"
+    "description" "Get the latest news directly to your inbox."
+    "placeholder" "Enter your email"
+    "buttonText" "Sign up"
+    "action" "/newsletter/subscribe"
+    "Site" .Site
+  ) }}
+@note: All text parameters support i18n translations as defaults.
+*/}}
+
+{{ $heading := .heading | default (i18n "newsletter.heading") | default "Join our newsletter" }}
+{{ $description := .description | default (i18n "newsletter.description") | default "Get latest tips, trends, and deals for free." }}
+{{ $placeholder := .placeholder | default (i18n "newsletter.placeholder") | default "Email address" }}
+{{ $buttonText := .buttonText | default (i18n "newsletter.button") | default "Subscribe" }}
+{{ $action := .action | default .Site.Params.footer.newsletter_action | default "#" }}
+
+<div class="newsletter-box min-h-[72px] rounded-xl border border-gray-200 overflow-hidden my-6">
+  <div class="bg-gray-100 min-h-[72px] flex flex-col lg:flex-row lg:items-center gap-4 p-3 md:p-4 lg:py-0">
+    <div class="flex items-center gap-3 lg:mr-auto">
+      <div class="bg-gray-100 p-2 flex-shrink-0 rounded-l-lg">
+        {{ partial "components/media/lazyimg_internal.html" (dict
+          "src" "/images/logo-icon.png"
+          "alt" "Logo"
+          "width" 36
+          "class" "w-8 md:w-9 object-contain !my-0 !block"
+          "classPicture" "!my-0 !block"
+          "noLazy" false
+        ) }}
+      </div>
+      <div class="min-w-0 flex-1">
+        <h3 class="text-sm lg:text-base font-semibold leading-tight !my-0 truncate">{{ $heading }}</h3>
+        <p class="text-xs lg:text-sm !my-0 !mt-0.5 line-clamp-2">{{ $description }}</p>
+      </div>
+    </div>
+
+    <form class="flex-shrink-0 w-full lg:w-auto newsletter-form"
+      action="{{ $action }}"
+      method="post"
+      name="mc-embedded-subscribe-form"
+      target="_blank"
+      rel="noopener"
+      novalidate>
+      <div class="flex gap-2">
+        <div class="relative flex-1 lg:flex-initial">
+          <label for="newsletter-box-email" class="sr-only">{{ $placeholder }}</label>
+          <input
+            type="email"
+            name="EMAIL"
+            id="newsletter-box-email"
+            autocomplete="email"
+            required
+            placeholder="{{ $placeholder }}"
+            class="w-full lg:w-64 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+          <div style="position: absolute; left: -5000px;" aria-hidden="true">
+            <input type="text" name="b_18d6ab6093f8e6cdbbd783635_22b687a6cc" tabindex="-1" value="">
+          </div>
+        </div>
+        <button
+          type="submit"
+          name="subscribe"
+          id="newsletter-box-submit"
+          class="btn-primary px-3.5 py-2.5 text-sm whitespace-nowrap"
+        >
+          {{ $buttonText }}
+        </button>
+      </div>
+      <div class="mce-responses clear mt-2" style="display:none">
+        <div class="response text-red-500 text-sm" id="mce-error-response"></div>
+        <div class="response text-green-600 text-sm" id="mce-success-response"></div>
+      </div>
+    </form>
+  </div>
+</div>

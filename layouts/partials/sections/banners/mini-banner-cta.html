@@ -1,0 +1,63 @@
+{{/*
+@section: Mini CTA Banner
+@description: Mini CTA banner with icon, heading, description and two action buttons (primary and secondary).
+              Responsive layout that stacks on mobile and displays in a row on desktop.
+@params:
+  - heading: Banner heading (optional, uses i18n translation by default)
+  - description: Banner description text (optional, uses i18n translation by default)
+  - primaryText: Primary button text (optional, uses i18n translation by default)
+  - primaryUrl: Primary button URL (optional, default: "/trial/")
+  - secondaryText: Secondary button text (optional, uses i18n translation by default)
+  - secondaryUrl: Secondary button URL (optional, default: "/demo/")
+@example:
+  {{ partial "sections/banners/mini-banner-cta.html" (dict "Site" .Site) }}
+
+@example (with custom parameters):
+  {{ partial "sections/banners/mini-banner-cta.html" (dict
+    "heading" "Custom heading"
+    "description" "Custom description text."
+    "primaryText" "Get Started"
+    "primaryUrl" "/signup/"
+    "secondaryText" "Learn More"
+    "secondaryUrl" "/about/"
+    "Site" .Site
+  ) }}
+@note: All text parameters support i18n translations as defaults.
+*/}}
+
+{{ $heading := .heading | default (i18n "cta_banner.heading") | default "Ready to grow your business?" }}
+{{ $description := .description | default (i18n "cta_banner.description") | default "Start your free trial today and see results within days." }}
+{{ $primaryText := .primaryText | default (i18n "cta_banner.primary_button") | default "Request demo" }}
+{{ $primaryUrl := partial "helpers/get-translated-url.html" (dict "url" (.primaryUrl | default "/demo/")) }}
+{{ $secondaryText := .secondaryText | default (i18n "cta_banner.secondary_button") | default "Start 30-days free trial" }}
+{{ $secondaryUrl := partial "helpers/get-translated-url.html" (dict "url" (.secondaryUrl | default "/trial/")) }}
+
+<div class="mini-banner-cta min-h-[72px] rounded-xl border border-gray-200 overflow-hidden my-6">
+  <div class="bg-gray-100 min-h-[72px] flex flex-col lg:flex-row lg:items-center gap-4 p-3 md:p-4 lg:py-0">
+    <div class="flex items-center gap-3 lg:mr-auto">
+      <div class="bg-gray-100 p-2 flex-shrink-0 rounded-l-lg">
+        {{ partial "components/media/lazyimg_internal.html" (dict
+          "src" "/images/logo-icon.png"
+          "alt" "Logo"
+          "width" 36
+          "class" "w-8 md:w-9 object-contain !my-0 !block"
+          "classPicture" "!my-0 !block"
+          "noLazy" false
+        ) }}
+      </div>
+      <div class="min-w-0 flex-1">
+        <h3 class="text-sm lg:text-base font-semibold leading-tight !my-0 truncate">{{ $heading }}</h3>
+        <p class="text-xs lg:text-sm !my-0 !mt-0.5 line-clamp-2">{{ $description }}</p>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-2 lg:flex-shrink-0">
+      <a href="{{ $primaryUrl }}" class="btn-primary px-3.5 py-2.5 text-center whitespace-nowrap !no-underline not-prose group">
+        {{ $primaryText }}
+      </a>
+      <a href="{{ $secondaryUrl }}" class="btn-secondary px-3.5 py-2.5 text-sm text-center whitespace-nowrap !no-underline">
+        {{ $secondaryText }}
+      </a>
+    </div>
+  </div>
+</div>

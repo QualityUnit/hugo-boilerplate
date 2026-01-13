@@ -1,0 +1,45 @@
+{{- /*
+@shortcode: mini-banner-cta
+@description: Mini CTA banner with icon, heading, description and two action buttons (primary and secondary).
+              Responsive layout that stacks on mobile and displays in a row on desktop.
+
+@params:
+  - heading: Banner heading (optional, uses i18n translation by default)
+  - description: Banner description text (optional, uses i18n translation by default)
+  - primaryText: Primary button text (optional, uses i18n translation by default)
+  - primaryUrl: Primary button URL (optional, default: "/trial/")
+  - secondaryText: Secondary button text (optional, uses i18n translation by default)
+  - secondaryUrl: Secondary button URL (optional, default: "/demo/")
+
+@example:
+  {{< mini-banner-cta >}}
+
+@example (with custom text):
+  {{< mini-banner-cta
+    heading="Ready to grow your business?"
+    description="Start your free trial today."
+    primaryText="Get Started"
+    primaryUrl="/signup/"
+    secondaryText="Learn More"
+    secondaryUrl="/about/"
+  >}}
+
+@note: All text parameters support i18n translations as defaults.
+*/ -}}
+
+{{ $heading := .Get "heading" }}
+{{ $description := .Get "description" }}
+{{ $primaryText := .Get "primaryText" }}
+{{ $primaryUrl := .Get "primaryUrl" }}
+{{ $secondaryText := .Get "secondaryText" }}
+{{ $secondaryUrl := .Get "secondaryUrl" }}
+
+{{ partial "sections/banners/mini-banner-cta.html" (dict
+  "heading" $heading
+  "description" $description
+  "primaryText" $primaryText
+  "primaryUrl" $primaryUrl
+  "secondaryText" $secondaryText
+  "secondaryUrl" $secondaryUrl
+  "Site" .Site
+) }}
