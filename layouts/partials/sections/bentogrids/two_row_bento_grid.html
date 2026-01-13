@@ -157,12 +157,12 @@
           {{ $borderRadius = "rounded-[10px] lg:rounded-[10px_10px_32px_10px]" }}
         {{ end }}
         {{ $url := $card.url | default "" }}
-        {{ $cardImageClasses := $card.cardImageClasses | default "w-full h-80 object-cover object-center" }}
+        {{ $cardImageClasses := $card.cardImageClasses | default "w-full h-auto md:h-80 object-cover object-center" }}
         {{ $backgroundColorImage := $card.backgroundColorImage | default "bg-gray-200" }}
         <div class="relative {{ $colSpan }} {{ $borderRadius }} {{ $cardShadow }} {{ $cardHoverShadow }} transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] group/card">
           <div class="absolute inset-0 {{ $borderRadius }} bg-white"></div>
           {{ if $url }}
-            {{ $cardImageClasses = $card.cardImageClasses | default "w-full h-80 object-cover object-center transition-transform group-hover:scale-105" }}
+            {{ $cardImageClasses = $card.cardImageClasses | default "w-full h-auto md:h-80 object-cover object-center transition-transform group-hover:scale-105" }}
 
             <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $url) }}" class="relative block h-full group">
               <div class="relative flex h-full flex-col overflow-hidden {{ $borderRadius }}">
@@ -177,8 +177,8 @@
                 {{ if or $card.category $card.title $card.description }}
                 <div class="p-10 pt-4">
                   <h3 class="text-sm/4 font-semibold text-{{ $card.categoryColor }}">{{ $card.category }}</h3>
-                  <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 group-hover:underline">{{ $card.title }}</p>
-                  <p class="mt-2 max-w-lg text-sm/6 text-gray-600">{{ $card.description }}</p>
+                  <p class="mt-2 text-lg font-medium tracking-tight text-heading group-hover:underline">{{ $card.title }}</p>
+                  <p class="mt-2 max-w-lg text-sm/6 text-secondary">{{ $card.description }}</p>
                 </div>
                 {{ end }}
               </div>
