@@ -2,6 +2,7 @@
 @section: Mini CTA Banner
 @description: Mini CTA banner with icon, heading, description and two action buttons (primary and secondary).
               Responsive layout that stacks on mobile and displays in a row on desktop.
+              Uses logo-icon.png if available, otherwise falls back to sparkles-solid icon.
 @params:
   - heading: Banner heading (optional, uses i18n translation by default)
   - description: Banner description text (optional, uses i18n translation by default)
@@ -23,6 +24,7 @@
     "Site" .Site
   ) }}
 @note: All text parameters support i18n translations as defaults.
+@icon: Uses /images/logo-icon.png if exists, otherwise rocket-launch-solid icon as fallback.
 */}}
 
 {{ $heading := .heading | default (i18n "cta_banner.heading") | default "Ready to grow your business?" }}
@@ -36,14 +38,18 @@
   <div class="bg-gray-100 min-h-[72px] flex flex-col lg:flex-row lg:items-center gap-4 p-3 md:p-4 lg:py-0">
     <div class="flex items-center gap-3 lg:mr-auto">
       <div class="bg-gray-100 p-2 flex-shrink-0 rounded-l-lg">
-        {{ partial "components/media/lazyimg_internal.html" (dict
-          "src" "/images/logo-icon.png"
-          "alt" "Logo"
-          "width" 36
-          "class" "w-8 md:w-9 object-contain !my-0 !block"
-          "classPicture" "!my-0 !block"
-          "noLazy" false
-        ) }}
+        {{ if fileExists "static/images/logo-icon.png" }}
+          {{ partial "components/media/lazyimg_internal.html" (dict
+            "src" "/images/logo-icon.png"
+            "alt" "Logo"
+            "width" 36
+            "class" "w-8 md:w-9 object-contain !my-0 !block"
+            "classPicture" "!my-0 !block"
+            "noLazy" false
+          ) }}
+        {{ else }}
+          {{ partial "icons/rocket-launch-solid" "w-8 md:w-9 text-primary-600" }}
+        {{ end }}
       </div>
       <div class="min-w-0 flex-1">
         <h3 class="text-sm lg:text-base font-semibold leading-tight !my-0 truncate">{{ $heading }}</h3>
