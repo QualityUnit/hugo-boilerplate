@@ -1,0 +1,53 @@
+{{- /*
+  Heading Render Hook with Mini Banner Injection
+  ==============================================
+
+  Configuration per section via cascade in _index.md:
+
+  [cascade]
+    miniBannerEnabled = true
+    miniBannerCtaPosition = 3
+    miniBannerNewsletterPosition = 5
+
+  Per-article disable:
+    miniBannerDisabled = true
+*/ -}}
+
+{{- $level := .Level -}}
+{{- $text := .Text -}}
+{{- $anchor := .Anchor -}}
+
+{{- if eq $level 2 -}}
+  {{- /* Check if enabled via page params (from cascade) */ -}}
+  {{- $enabled := .Page.Params.miniBannerEnabled | default false -}}
+
+  {{- if $enabled -}}
+    {{- /* Check if disabled for this specific page */ -}}
+    {{- $disabled := .Page.Params.miniBannerDisabled | default false -}}
+
+    {{- if not $disabled -}}
+      {{- $ctaPos := .Page.Params.miniBannerCtaPosition | default 3 -}}
+      {{- $newsletterPos := .Page.Params.miniBannerNewsletterPosition | default 5 -}}
+
+      {{- /* Count H2 headings */ -}}
+      {{- $h2Count := .Page.Scratch.Get "h2Count" | default 0 -}}
+      {{- $h2Count = add $h2Count 1 -}}
+      {{- .Page.Scratch.Set "h2Count" $h2Count -}}
+
+      {{- /* Insert CTA banner */ -}}
+      {{- if eq $h2Count $ctaPos -}}
+        {{- partial "sections/banners/mini-banner-cta.html" (dict "Site" .Page.Site) -}}
+      {{- end -}}
+
+      {{- /* Insert Newsletter banner */ -}}
+      {{- if eq $h2Count $newsletterPos -}}
+        {{- partial "sections/banners/mini-banner-newsletter.html" (dict "Site" .Page.Site) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Render the heading */ -}}
+<h{{ $level }} id="{{ $anchor }}">
+  {{- $text | safeHTML -}}
+</h{{ $level }}>
