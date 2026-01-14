@@ -7,9 +7,9 @@
   - heading: Banner heading (optional, uses i18n translation by default)
   - description: Banner description text (optional, uses i18n translation by default)
   - primaryText: Primary button text (optional, uses i18n translation by default)
-  - primaryUrl: Primary button URL (optional, default: "/trial/")
+  - primaryUrl: Primary button URL (optional, default from Site.Params.miniBannerCta.primaryUrl or "/demo/")
   - secondaryText: Secondary button text (optional, uses i18n translation by default)
-  - secondaryUrl: Secondary button URL (optional, default: "/demo/")
+  - secondaryUrl: Secondary button URL (optional, default from Site.Params.miniBannerCta.secondaryUrl or "/trial/")
 @example:
   {{ partial "sections/banners/mini-banner-cta.html" (dict "Site" .Site) }}
 

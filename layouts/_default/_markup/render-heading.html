@@ -17,7 +17,7 @@
        miniBannerCtaPosition = 3
        miniBannerNewsletterPosition = 5
 
-  Full example:
+  Full example with custom CTA texts and URLs:
   +++
   title = "Blog"
   description = "..."
@@ -26,6 +26,13 @@
     miniBannerEnabled = true
     miniBannerCtaPosition = 3
     miniBannerNewsletterPosition = 5
+    # Optional CTA banner customization (falls back to i18n/defaults if not set)
+    miniBannerCtaHeading = "Custom heading"
+    miniBannerCtaDescription = "Custom description"
+    miniBannerCtaPrimaryText = "Get Demo"
+    miniBannerCtaPrimaryUrl = "/demo/"
+    miniBannerCtaSecondaryText = "Free Trial"
+    miniBannerCtaSecondaryUrl = "/trial/"
 
   +++
 
@@ -83,7 +90,14 @@
 
       {{- /* Insert CTA banner */ -}}
       {{- if eq $h2Count $ctaPos -}}
-        {{- partial "sections/banners/mini-banner-cta.html" (dict "Site" .Page.Site) -}}
+        {{- partial "sections/banners/mini-banner-cta.html" (dict
+          "heading" .Page.Params.miniBannerCtaHeading
+          "description" .Page.Params.miniBannerCtaDescription
+          "primaryText" .Page.Params.miniBannerCtaPrimaryText
+          "primaryUrl" .Page.Params.miniBannerCtaPrimaryUrl
+          "secondaryText" .Page.Params.miniBannerCtaSecondaryText
+          "secondaryUrl" .Page.Params.miniBannerCtaSecondaryUrl
+        ) -}}
       {{- end -}}
 
       {{- /* Insert Newsletter banner */ -}}
