@@ -2,14 +2,61 @@
   Heading Render Hook with Mini Banner Injection
   ==============================================
 
-  Configuration per section via cascade in _index.md:
+  How to enable mini banners for a post type section:
+  ----------------------------------------------------
+
+  1. Open the _index.md file for your section, for example:
+     content/en/blog/_index.md
+     content/en/academy/_index.md
+     content/en/glossary/_index.md
+
+  2. Add this BEFORE the closing +++ :
+
+     [cascade]
+       miniBannerEnabled = true
+       miniBannerCtaPosition = 3
+       miniBannerNewsletterPosition = 5
+
+  Full example:
+  +++
+  title = "Blog"
+  description = "..."
 
   [cascade]
     miniBannerEnabled = true
     miniBannerCtaPosition = 3
     miniBannerNewsletterPosition = 5
 
+  +++
+
+  This will enable banners for ALL articles in that section.
+  Repeat for all languages: content/sk/blog/_index.md, content/de/blog/_index.md, etc.
+
+  How positions work:
+  -------------------
+  ctaPosition = 3           # CTA banner appears BEFORE the 3rd H2 heading
+  newsletterPosition = 5    # Newsletter banner appears BEFORE the 5th H2 heading
+
+  Example article structure:
+    ## First H2              ← H2 count = 1
+    Content...
+    ## Second H2             ← H2 count = 2
+    Content...
+    [CTA BANNER INSERTED HERE]     ← Before 3rd H2 (ctaPosition = 3)
+    ## Third H2              ← H2 count = 3
+    Content...
+    ## Fourth H2             ← H2 count = 4
+    Content...
+    [NEWSLETTER BANNER INSERTED HERE]  ← Before 5th H2 (newsletterPosition = 5)
+    ## Fifth H2              ← H2 count = 5
+    Content...
+
+  Note: If article has fewer H2 headings than configured positions, banners won't appear.
+        For example, if article has only 4 H2s, newsletter banner (position 5) won't show.
+
   Per-article disable:
+  --------------------
+  Add to article's front matter:
     miniBannerDisabled = true
 */ -}}
 
