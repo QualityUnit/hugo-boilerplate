@@ -33,7 +33,7 @@
 {{ $action := .action | default .Site.Params.footer.newsletter_action | default "#" }}
 
 <div class="newsletter-box min-h-[72px] rounded-xl border border-gray-200 overflow-hidden my-6">
-  <div class="bg-gray-100 min-h-[72px] flex flex-col lg:flex-row lg:items-center gap-4 p-3 md:p-4 lg:py-0">
+  <div class="bg-gray-100 min-h-[72px] flex flex-col lg:flex-row lg:items-center gap-4 p-3 md:p-4 lg:py-3">
     <div class="flex items-center gap-3 lg:mr-auto">
       <div class="bg-gray-100 p-2 flex-shrink-0 rounded-l-lg">
         {{ if fileExists "cdn-assets/logo-icon.png" }}
