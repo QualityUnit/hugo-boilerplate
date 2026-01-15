@@ -76,6 +76,13 @@
         // Find all YouTube containers
         var videoContainers = document.querySelectorAll('[data-video-id]');
         videoContainers.forEach(function(container) {
+            // If container is a button/link, use it directly
+            if (container.tagName === 'BUTTON' || container.tagName === 'A') {
+                container.removeEventListener('click', handleVideoTriggerClick);
+                container.addEventListener('click', handleVideoTriggerClick);
+                return;
+            }
+            
             // Look for a specific trigger inside
             var trigger = container.querySelector('[data-video-trigger="true"]');
             if (trigger) {
@@ -106,10 +113,8 @@
         var trigger = event.currentTarget;
         var container = trigger;
         
-        // If this is a thumbnail, play button, or video trigger, find the parent container
-        if (trigger.classList.contains('lazy-video-thumbnail') || 
-            trigger.classList.contains('lazy-video-play-button') ||
-            trigger.getAttribute('data-video-trigger') === 'true') {
+        // If trigger has data-video-id, use it as container; otherwise find parent
+        if (!trigger.hasAttribute('data-video-id')) {
             container = trigger.closest('[data-video-id]');
         }
         
