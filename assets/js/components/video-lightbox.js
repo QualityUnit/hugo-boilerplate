@@ -106,8 +106,10 @@
         var trigger = event.currentTarget;
         var container = trigger;
         
-        // If this is a thumbnail or play button, find the parent container
-        if (trigger.classList.contains('lazy-video-thumbnail') || trigger.classList.contains('lazy-video-play-button')) {
+        // If this is a thumbnail, play button, or video trigger, find the parent container
+        if (trigger.classList.contains('lazy-video-thumbnail') || 
+            trigger.classList.contains('lazy-video-play-button') ||
+            trigger.getAttribute('data-video-trigger') === 'true') {
             container = trigger.closest('[data-video-id]');
         }
         
