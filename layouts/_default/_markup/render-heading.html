@@ -17,7 +17,7 @@
        miniBannerCtaPosition = 3
        miniBannerNewsletterPosition = 5
 
-  Full example with custom CTA texts and URLs:
+  Full example with custom texts and URLs:
   +++
   title = "Blog"
   description = "..."
@@ -27,12 +27,17 @@
     miniBannerCtaPosition = 3
     miniBannerNewsletterPosition = 5
     # Optional CTA banner customization (falls back to i18n/defaults if not set)
-    miniBannerCtaHeading = "Custom heading"
-    miniBannerCtaDescription = "Custom description"
+    miniBannerCtaHeading = "Launch your affiliate program today"
+    miniBannerCtaDescription = "Set up advanced tracking in minutes. No credit card required."
     miniBannerCtaPrimaryText = "Get Demo"
     miniBannerCtaPrimaryUrl = "/demo/"
     miniBannerCtaSecondaryText = "Free Trial"
     miniBannerCtaSecondaryUrl = "/trial/"
+    # Optional Newsletter banner customization
+    miniBannerNewsletterHeading = "Join our newsletter"
+    miniBannerNewsletterDescription = "Be the first to know about new features and product updates."
+    miniBannerNewsletterPlaceholder = "Email address"
+    miniBannerNewsletterButtonText = "Subscribe"
 
   +++
 
@@ -102,7 +107,13 @@
 
       {{- /* Insert Newsletter banner */ -}}
       {{- if eq $h2Count $newsletterPos -}}
-        {{- partial "sections/banners/mini-banner-newsletter.html" (dict "Site" .Page.Site) -}}
+        {{- partial "sections/banners/mini-banner-newsletter.html" (dict
+          "heading" .Page.Params.miniBannerNewsletterHeading
+          "description" .Page.Params.miniBannerNewsletterDescription
+          "placeholder" .Page.Params.miniBannerNewsletterPlaceholder
+          "buttonText" .Page.Params.miniBannerNewsletterButtonText
+          "Site" .Page.Site
+        ) -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
