@@ -48,6 +48,8 @@ cta_default_heading: "Utöka dina kunskaper med våra resurser"
 cta_default_description: "Utforska vårt omfattande bibliotek av artiklar, guider och handledningar för att fördjupa din förståelse av nyckelbegrepp och hålla dig uppdaterad med de senaste utvecklingarna."
 cta_default_primary_text: "Bläddra bland resurser"
 cta_default_secondary_text: "Kontakta våra experter"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "artikel"

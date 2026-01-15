@@ -48,6 +48,8 @@ cta_default_heading: "Διευρύνετε τις γνώσεις σας με τ�
 cta_default_description: "Εξερευνήστε την εκτενή βιβλιοθήκη μας με άρθρα, οδηγούς και εκπαιδευτικό υλικό για να εμβαθύνετε την κατανόησή σας για βασικές έννοιες και να ενημερώνεστε για τις τελευταίες εξελίξεις."
 cta_default_primary_text: "Περιηγηθείτε στους πόρους"
 cta_default_secondary_text: "Επικοινωνήστε με τους ειδικούς μας"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "άρθρο"

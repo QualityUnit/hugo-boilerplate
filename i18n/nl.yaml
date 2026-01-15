@@ -48,6 +48,8 @@ cta_default_heading: "Breid uw kennis uit met onze bronnen"
 cta_default_description: "Verken onze uitgebreide bibliotheek van artikelen, gidsen en tutorials om uw begrip van sleutelconcepten te verdiepen en op de hoogte te blijven van de nieuwste ontwikkelingen."
 cta_default_primary_text: "Bronnen verkennen"
 cta_default_secondary_text: "Contact opnemen met onze experts"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "artikel"

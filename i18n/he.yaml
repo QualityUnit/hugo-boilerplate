@@ -48,6 +48,8 @@ cta_default_heading: "הרחב את הידע שלך עם המשאבים שלנו
 cta_default_description: "עיין בספריית המאמרים, המדריכים והטוטוריאלים המקיפה שלנו כדי להעמיק את ההבנה שלך במושגי מפתח ולהישאר מעודכן עם ההתפתחויות האחרונות."
 cta_default_primary_text: "עיין במשאבים"
 cta_default_secondary_text: "צור קשר עם המומחים שלנו"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "מאמר"

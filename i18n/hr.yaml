@@ -48,6 +48,8 @@ cta_default_heading: "Proširite svoje znanje s našim resursima"
 cta_default_description: "Istražite našu sveobuhvatnu biblioteku članaka, vodiča i tutorijala kako biste produbili svoje razumijevanje ključnih koncepata i bili u toku s najnovijim razvojima."
 cta_default_primary_text: "Pregledajte resurse"
 cta_default_secondary_text: "Kontaktirajte naše stručnjake"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "članak"

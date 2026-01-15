@@ -48,6 +48,8 @@ cta_default_heading: "وسّع معرفتك من خلال مواردنا"
 cta_default_description: "استكشف مكتبتنا الشاملة من المقالات والأدلة والبرامج التعليمية لتعميق فهمك للمفاهيم الرئيسية والبقاء على اطلاع بأحدث التطورات."
 cta_default_primary_text: "تصفح الموارد"
 cta_default_secondary_text: "تواصل مع خبرائنا"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "مقال"

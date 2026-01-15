@@ -48,6 +48,8 @@ cta_default_heading: "Rozšiřte své znalosti s našimi zdroji"
 cta_default_description: "Prozkoumejte naši rozsáhlou knihovnu článků, průvodců a tutoriálů, abyste prohloubili své porozumění klíčovým konceptům a zůstali informováni o nejnovějším vývoji."
 cta_default_primary_text: "Procházet zdroje"
 cta_default_secondary_text: "Kontaktovat naše experty"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "článek"

@@ -48,6 +48,8 @@ cta_default_heading: "우리의 자원으로 지식을 확장하세요"
 cta_default_description: "주요 개념에 대한 이해를 깊게 하고 최신 개발 동향을 파악하기 위해 포괄적인 기사, 가이드 및 튜토리얼 라이브러리를 탐색하세요."
 cta_default_primary_text: "리소스 찾아보기"
 cta_default_secondary_text: "전문가에게 문의하기"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "기사"

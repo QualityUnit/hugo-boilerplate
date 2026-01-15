@@ -48,6 +48,8 @@ cta_default_heading: "Расширьте свои знания с помощью
 cta_default_description: "Изучите нашу обширную библиотеку статей, руководств и учебных пособий, чтобы углубить понимание ключевых концепций и быть в курсе последних разработок."
 cta_default_primary_text: "Просмотреть ресурсы"
 cta_default_secondary_text: "Связаться с нашими экспертами"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "статья"

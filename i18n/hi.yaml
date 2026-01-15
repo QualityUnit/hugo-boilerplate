@@ -46,6 +46,8 @@ cta_default_heading: "हमारे संसाधनों के साथ 
 cta_default_description: "प्रमुख अवधारणाओं की गहन समझ के लिए हमारे लेखों, गाइडों और ट्यूटोरियल्स की व्यापक लाइब्रेरी का अन्वेषण करें और नवीनतम विकास से अपडेट रहें।"
 cta_default_primary_text: "संसाधन ब्राउज़ करें"
 cta_default_secondary_text: "हमारे विशेषज्ञों से संपर्क करें"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 content_article_singular: "लेख"
 content_article_plural: "लेख"
 tags_browse_all: "विषय के अनुसार सभी सामग्री ब्राउज़ करें"

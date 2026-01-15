@@ -71,6 +71,8 @@ cta_default_heading: "Mở rộng kiến thức với tài nguyên của chúng 
 cta_default_description: "Khám phá thư viện bài viết, hướng dẫn và tài liệu toàn diện để hiểu sâu hơn các khái niệm chính và cập nhật những phát triển mới nhất."
 cta_default_primary_text: "Duyệt tài nguyên"
 cta_default_secondary_text: "Liên hệ chuyên gia của chúng tôi"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 content_article_singular: "bài viết"
 content_article_plural: "bài viết"
 tags_browse_all: "Duyệt tất cả nội dung theo chủ đề"

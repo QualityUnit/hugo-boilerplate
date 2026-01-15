@@ -48,6 +48,8 @@ cta_default_heading: "Plėskite savo žinias su mūsų ištekliais"
 cta_default_description: "Tyrinėkite mūsų išsamią straipsnių, vadovų ir pamokų biblioteką, kad pagilintumėte pagrindinių koncepcijų supratimą ir būtumėte informuoti apie naujausius pokyčius."
 cta_default_primary_text: "Naršyti išteklius"
 cta_default_secondary_text: "Susisiekti su mūsų ekspertais"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "straipsnis"

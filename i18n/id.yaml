@@ -48,6 +48,8 @@ cta_default_heading: "Perluas pengetahuan Anda dengan sumber daya kami"
 cta_default_description: "Jelajahi perpustakaan komprehensif kami yang berisi artikel, panduan, dan tutorial untuk memperdalam pemahaman Anda tentang konsep-konsep utama dan tetap mengikuti perkembangan terbaru."
 cta_default_primary_text: "Telusuri sumber daya"
 cta_default_secondary_text: "Hubungi ahli kami"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "artikel"

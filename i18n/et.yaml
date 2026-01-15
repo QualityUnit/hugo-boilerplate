@@ -48,6 +48,8 @@ cta_default_heading: "Laienda oma teadmisi meie ressurssidega"
 cta_default_description: "Uuri meie põhjalikku artiklite, juhendite ja õpetuste kogu, et süvendada oma arusaamist põhimõistetest ja hoida end kursis viimaste arengutega."
 cta_default_primary_text: "Sirvi ressursse"
 cta_default_secondary_text: "Võta ühendust meie ekspertidega"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "artikkel"

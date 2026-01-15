@@ -48,6 +48,8 @@ cta_default_heading: "Extindeți-vă cunoștințele cu resursele noastre"
 cta_default_description: "Explorați biblioteca noastră cuprinzătoare de articole, ghiduri și tutoriale pentru a vă aprofunda înțelegerea conceptelor cheie și pentru a fi la curent cu cele mai recente evoluții."
 cta_default_primary_text: "Răsfoiți resursele"
 cta_default_secondary_text: "Contactați experții noștri"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "articol"

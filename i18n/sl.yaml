@@ -48,6 +48,8 @@ cta_default_heading: "Razširite svoje znanje z našimi viri"
 cta_default_description: "Raziščite našo obsežno knjižnico člankov, vodičev in vadnic, da poglobite svoje razumevanje ključnih konceptov in ostanete na tekočem z najnovejšimi razvojnimi dosežki."
 cta_default_primary_text: "Prebrskaj vire"
 cta_default_secondary_text: "Kontaktirajte naše strokovnjake"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "članek"

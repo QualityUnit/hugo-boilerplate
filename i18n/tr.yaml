@@ -48,6 +48,8 @@ cta_default_heading: "Kaynaklarımızla bilginizi genişletin"
 cta_default_description: "Temel kavramları daha iyi anlamak ve en son gelişmelerden haberdar olmak için kapsamlı makale, kılavuz ve öğretici kitaplığımızı keşfedin."
 cta_default_primary_text: "Kaynaklara göz atın"
 cta_default_secondary_text: "Uzmanlarımızla iletişime geçin"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "makale"

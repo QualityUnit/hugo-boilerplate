@@ -48,6 +48,8 @@ cta_default_heading: "Bővítse tudását erőforrásainkkal"
 cta_default_description: "Fedezze fel átfogó cikk-, útmutató- és oktatóanyagtárunkat, hogy elmélyítse a kulcsfogalmak megértését és naprakész maradjon a legújabb fejleményekkel kapcsolatban."
 cta_default_primary_text: "Erőforrások böngészése"
 cta_default_secondary_text: "Kapcsolat szakértőinkkel"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "cikk"

@@ -48,6 +48,8 @@ cta_default_heading: "利用我们的资源扩展您的知识"
 cta_default_description: "探索我们全面的文章、指南和教程库，加深您对关键概念的理解，并了解最新发展动态。"
 cta_default_primary_text: "浏览资源"
 cta_default_secondary_text: "联系我们的专家"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "文章"

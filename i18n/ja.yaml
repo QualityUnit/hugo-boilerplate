@@ -49,6 +49,8 @@ cta_default_heading: "私たちのリソースで知識を広げましょう"
 cta_default_description: "包括的な記事、ガイド、チュートリアルのライブラリーを探索して、主要な概念の理解を深め、最新の開発情報を常に入手しましょう。"
 cta_default_primary_text: "リソースを閲覧する"
 cta_default_secondary_text: "専門家に問い合わせる"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # コンテンツタイプの翻訳
 content_article_singular: "記事"

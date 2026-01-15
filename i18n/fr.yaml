@@ -48,6 +48,8 @@ cta_default_heading: "Élargissez vos connaissances avec nos ressources"
 cta_default_description: "Explorez notre bibliothèque complète d'articles, de guides et de tutoriels pour approfondir votre compréhension des concepts clés et rester à jour avec les derniers développements."
 cta_default_primary_text: "Parcourir les ressources"
 cta_default_secondary_text: "Contacter nos experts"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "article"

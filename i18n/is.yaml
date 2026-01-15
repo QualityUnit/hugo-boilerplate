@@ -22,6 +22,8 @@ cta_default_heading: "Útvíkkaðu þekkingu þína með úrræðum okkar"
 cta_default_description: "Kannaðu yfirgripsmikið safn greina, leiðbeininga og kennsluefnis til að dýpka skilning þinn á lykilhugtökum og fylgjast með nýjustu þróun."
 cta_default_primary_text: "Skoða úrræði"
 cta_default_secondary_text: "Hafa samband við sérfræðinga okkar"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "grein"

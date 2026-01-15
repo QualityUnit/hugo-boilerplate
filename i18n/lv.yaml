@@ -48,6 +48,8 @@ cta_default_heading: "Paplašiniet savas zināšanas ar mūsu resursiem"
 cta_default_description: "Izpētiet mūsu visaptverošo rakstu, ceļvežu un apmācību bibliotēku, lai padziļinātu savu izpratni par galvenajiem jēdzieniem un sekotu līdzi jaunākajiem notikumiem."
 cta_default_primary_text: "Pārlūkot resursus"
 cta_default_secondary_text: "Sazināties ar mūsu ekspertiem"
+cta_default_primary_url: "/trial/"
+cta_default_secondary_url: "/demo/"
 
 # Content type translations
 content_article_singular: "raksts"
