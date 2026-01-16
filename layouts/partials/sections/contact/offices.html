@@ -1,40 +1,33 @@
-{{ $title := .title | default "Our offices" }}
+{{ $title := .title | default "" }}
 {{ $description := .description | default "" }}
-{{ $offices := .offices | default (slice
-  (dict "city" "Los Angeles" "company" "Headquarters" "address" (slice "4556 Brendan Ferry" "Los Angeles, CA 90210"))
-  (dict "city" "New York" "company" "East Coast Office" "address" (slice "886 Walter Street" "New York, NY 12345"))
-  (dict "city" "Toronto" "company" "Canada Branch" "address" (slice "7363 Cynthia Pass" "Toronto, ON N3Y 4H8"))
-  (dict "city" "London" "company" "European HQ" "address" (slice "114 Cobble Lane" "London N1 2EF")))
-}}
+{{ $offices := .offices | default (slice) }}
 {{ $borderColor := .borderColor | default "indigo" }}
 
-<div class="bg-white py-24 sm:py-32">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
-    <div class="mx-auto max-w-2xl lg:mx-0">
-      <h2 class="text-pretty text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">{{ $title }}</h2>
-      {{ if $description }}<p class="mt-6 text-lg/8 text-gray-600">{{ $description }}</p>{{ end }}
-    </div>
-    <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 text-base/7 sm:grid-cols-2 sm:gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-{{ len $offices }}">
-      {{ range $offices }}
-      <div>
-        <h3 class="border-l border-{{ $borderColor }}-600 pl-6 font-semibold text-gray-900">{{ .city }}</h3>
-        <address class="border-l border-gray-200 pl-6 pt-2 not-italic text-gray-600">
-          {{ if .company }}
-          <p class="font-medium">{{ .company }}</p>
-          {{ end }}
-          <div class="flex items-start">
-            <span class="mr-3 flex-shrink-0">
-              {{ partial "components/media/icon.html" (dict "icon" "map" "class" "h-4 w-4 mt-1") }}
-            </span>
-            <div>
-              {{ range .address }}
-              <p class="m-0 p-0">{{ . }}</p>
-              {{ end }}
-            </div>
+<div class="section-bg-light my-24 sm:my-32 wrapper">
+  <div class="mx-auto max-w-2xl lg:mx-0">
+    <h2 class="text-pretty text-4xl font-semibold tracking-tight text-heading sm:text-5xl">{{ $title }}</h2>
+    {{ if $description }}<p class="mt-6 text-lg/8 text-secondary">{{ $description }}</p>{{ end }}
+  </div>
+  <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 text-base/7 sm:grid-cols-2 sm:gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-{{ len $offices }}">
+    {{ range $offices }}
+    <div>
+      <h3 class="border-l border-{{ $borderColor }}-600 pl-6 font-semibold text-heading">{{ .city }}</h3>
+      <address class="border-l border-gray-200 pl-6 pt-2 not-italic text-secondary">
+        {{ if .company }}
+        <p class="font-medium">{{ .company }}</p>
+        {{ end }}
+        <div class="flex items-start">
+          <span class="mr-3 flex-shrink-0">
+            {{ partial "components/media/icon.html" (dict "icon" "map" "class" "h-4 w-4 mt-1") }}
+          </span>
+          <div>
+            {{ range .address }}
+            <p class="m-0 p-0">{{ . }}</p>
+            {{ end }}
           </div>
-        </address>
-      </div>
-      {{ end }}
+        </div>
+      </address>
     </div>
+    {{ end }}
   </div>
 </div>

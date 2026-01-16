@@ -2,14 +2,15 @@
 @section: Team Grid with Round Images
 @description: A compact team showcase section featuring small circular profile images in a multi-column grid layout, ideal for displaying larger teams with basic information.
 @params:
-  - bgColor: Background color class (optional, default: "bg-white")
-  - padding: Padding classes (optional, default: "py-24 sm:py-32")
+  - bgColor: Background color class (optional, default: "section-bg-light")
+  - margin: Margin classes (optional, default: "my-24 sm:my-32")
+  - padding: Padding classes (optional, default: "py-0")
   - heading: Main section heading (optional, default: "Our team")
-  - headingColor: Heading color class (optional, default: "text-gray-900")
+  - headingColor: Heading color class (optional, default: "text-heading")
   - description: Section description text (optional, default: "We're a dynamic group of individuals...")
-  - descriptionColor: Description color class (optional, default: "text-gray-600")
-  - nameColor: Team member name color class (optional, default: "text-gray-900")
-  - roleColor: Team member role color class (optional, default: "text-gray-600")
+  - descriptionColor: Description color class (optional, default: "text-secondary")
+  - nameColor: Team member name color class (optional, default: "text-heading")
+  - roleColor: Team member role color class (optional, default: "text-secondary")
   - teamMembers: Array of team member objects (optional, includes defaults)
     - name: Team member name
     - role: Team member role/position
@@ -45,96 +46,36 @@
               "image" "/images/team/aditya-patel.jpg"
           )
       )
-      "bgColor" "bg-gray-50"
+      "bgColor" "section-bg-alternate"
   ) }}
 @note: This component is designed for showcasing larger teams with a compact, efficient grid layout. The responsive grid adjusts from 2 columns on mobile up to 6 columns on extra-large screens, making it perfect for companies with many team members. The simplified design with just names and roles keeps the focus on the team as a whole rather than individual detailed information.
 */}}
 
 {{/* Configurable variables */}}
-{{ $bgColor := .bgColor | default "bg-white" }}
-{{ $padding := .padding | default "py-24 sm:py-32" }}
+{{ $bgColor := .bgColor | default "section-bg-light" }}
+{{ $margin := .margin | default "my-24 sm:my-32" }}
+{{ $padding := .padding | default "py-0" }}
 
 {{/* Heading section */}}
 {{ $heading := .heading | default "Our team" }}
-{{ $headingColor := .headingColor | default "text-gray-900" }}
-{{ $description := .description | default "We're a dynamic group of individuals who are passionate about what we do and dedicated to delivering the best results for our clients." }}
-{{ $descriptionColor := .descriptionColor | default "text-gray-600" }}
+{{ $headingColor := .headingColor | default "text-heading" }}
+{{ $description := .description | default "" }}
+{{ $descriptionColor := .descriptionColor | default "text-secondary" }}
 
 {{/* Team members */}}
-{{ $nameColor := .nameColor | default "text-gray-900" }}
-{{ $roleColor := .roleColor | default "text-gray-600" }}
-{{ $teamMembers := .teamMembers | default (slice 
-  (dict 
-    "name" "Michael Foster" 
-    "role" "Co-Founder / CTO"
-    "image" "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "Lindsay Walton" 
-    "role" "Front-end Developer"
-    "image" "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "Dries Vincent" 
-    "role" "Business Relations"
-    "image" "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "Leslie Alexander" 
-    "role" "Co-Founder / CEO"
-    "image" "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "Courtney Henry" 
-    "role" "Designer"
-    "image" "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "Tom Cook" 
-    "role" "Director of Product"
-    "image" "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "Emma Johnson" 
-    "role" "Marketing Manager"
-    "image" "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "David Wilson" 
-    "role" "UX Researcher"
-    "image" "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "Sarah Chen" 
-    "role" "Back-end Developer"
-    "image" "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "James Rodriguez" 
-    "role" "Customer Success"
-    "image" "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "Olivia Martinez" 
-    "role" "Content Strategist"
-    "image" "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-  (dict 
-    "name" "Robert Taylor" 
-    "role" "Sales Director"
-    "image" "https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80"
-  )
-) }}
+{{ $nameColor := .nameColor | default "text-heading" }}
+{{ $roleColor := .roleColor | default "text-secondary" }}
+{{ $teamMembers := .teamMembers | default (slice) }}
 
-<div class="{{ $bgColor }} {{ $padding }}">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+<div class="{{ $bgColor }} {{ $margin }} {{ $padding }}">
+  <div class="wrapper">
     <div class="mx-auto max-w-2xl lg:mx-0">
-      <h2 class="text-4xl font-semibold tracking-tight text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
-      <p class="mt-6 text-lg/8 {{ $descriptionColor }}">{{ $description }}</p>
-    </div>
-    <ul role="list" class="mx-auto mt-20 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-16 text-center sm:grid-cols-3 md:grid-cols-4 lg:mx-0 lg:max-w-none lg:grid-cols-5 xl:grid-cols-6">
+        <h2 class="text-4xl font-semibold tracking-tight text-pretty {{ $headingColor }} sm:text-5xl">{{ $heading }}</h2>
+        <p class="mt-6 text-lg/8 {{ $descriptionColor }}">{{ $description }}</p>
+      </div>
+      <ul role="list" class="mx-auto p-0 mt-20 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-16 text-center sm:grid-cols-3 md:grid-cols-4 lg:mx-0 lg:max-w-none lg:grid-cols-5 xl:grid-cols-6">
       {{ range $teamMembers }}
-      <li>
+      <li class="list-none p-0">
         {{ partial "components/media/lazyimg.html" (dict 
           "src" .image 
           "alt" .name 
