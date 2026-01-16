@@ -3,12 +3,13 @@
   {{< team-grid-round-images 
     heading="Our Amazing Team" 
     description="Meet the talented individuals behind our success." 
-    bgColor="bg-gray-100" 
-    padding="py-20 sm:py-28" 
-    headingColor="text-blue-900" 
-    descriptionColor="text-blue-600" 
-    nameColor="text-black" 
-    roleColor="text-gray-500" 
+    bgColor="section-bg-alternate" 
+    margin="my-24 sm:my-32"
+    padding="py-0" 
+    headingColor="text-heading" 
+    descriptionColor="text-secondary" 
+    nameColor="text-heading" 
+    roleColor="text-secondary" 
   >}}
 [
 {
@@ -22,14 +23,15 @@
 */}}
 
 {{/* Team Grid with Round Images Shortcode */}}
-{{ $heading := (.Get "heading") | default "Our team" }}
-{{ $description := (.Get "description") | default "We're a dynamic group of individuals who are passionate about what we do and dedicated to delivering the best results for our clients." }}
-{{ $bgColor := (.Get "bgColor") | default "bg-white" }}
-{{ $padding := (.Get "padding") | default "py-24 sm:py-32" }}
-{{ $headingColor := (.Get "headingColor") | default "text-gray-900" }}
-{{ $descriptionColor := (.Get "descriptionColor") | default "text-gray-600" }}
-{{ $nameColor := (.Get "nameColor") | default "text-gray-900" }}
-{{ $roleColor := (.Get "roleColor") | default "text-gray-600" }}
+{{ $heading := (.Get "heading") | default "" }}
+{{ $description := (.Get "description") | default "" }}
+{{ $bgColor := (.Get "bgColor") | default "section-bg-light" }}
+{{ $margin := (.Get "margin") | default "my-24 sm:my-32" }}
+{{ $padding := (.Get "padding") | default "py-0" }}
+{{ $headingColor := (.Get "headingColor") | default "text-heading" }}
+{{ $descriptionColor := (.Get "descriptionColor") | default "text-secondary" }}
+{{ $nameColor := (.Get "nameColor") | default "text-heading" }}
+{{ $roleColor := (.Get "roleColor") | default "text-secondary" }}
 {{- $teamMembers := slice -}}
 {{- if .Inner -}}
 {{- $rawTeamMembers := transform.Unmarshal .Inner -}}
@@ -45,6 +47,7 @@
   "heading" $heading
   "description" $description
   "bgColor" $bgColor
+  "margin" $margin
   "padding" $padding
   "headingColor" $headingColor
   "descriptionColor" $descriptionColor
