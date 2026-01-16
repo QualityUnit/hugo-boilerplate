@@ -6,7 +6,7 @@
   - description: Description content below the main heading. Can be:
     * Simple string: Treated as plain text.
     * Array of objects: For complex mixed content. Each object can have:
-      - type: "code" | "list" | "heading" | "text" | "markdown" | "html""
+      - type: "code" | "list" | "heading" | "text" | "markdown" | "html" | "button"
       - content: Content based on type (string for text and code, array for list)
       - For type "list": "items" (array of strings or objects with text) and "listType" ("numbers" | "checks", default: "checks")
         * For hierarchical lists, use objects with "text" and "items" (for nested items)
@@ -93,6 +93,14 @@
   {{ else if eq $type "code" }}
     <div class="bg-gray-900 text-white p-5 rounded-lg not-prose">
       <code class="p-0 m-0 whitespace-pre-wrap break-words">{{ $content }}</code>
+    </div>
+  {{ else if eq $type "button" }}
+    <div class="mt-6 not-prose">
+      {{ partial "components/buttons/buttons.html" (dict 
+        "text" ($block.text | default "")
+        "url" ($block.url | default "")
+        "variant" ($block.variant | default "primary")
+      ) }}
     </div>
   {{ else if eq $type "list" }}
     <ul class="pl-0 space-y-4 {{ if eq $listType "checks" }}my-10{{ else }}mt-10{{ end }}">
