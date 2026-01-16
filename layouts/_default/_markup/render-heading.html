@@ -15,6 +15,8 @@
      [cascade]
        miniBannerEnabled = true
        miniBannerCtaPosition = 3
+       # Optional: disable newsletter banner (enabled by default)
+       # miniBannerNewsletterEnabled = false
        miniBannerNewsletterPosition = 5
 
   Full example with custom texts and URLs:
@@ -26,6 +28,8 @@
     miniBannerEnabled = true
     miniBannerCtaPosition = 3
     miniBannerNewsletterPosition = 5
+    # Optional: disable newsletter banner (enabled by default)
+    # miniBannerNewsletterEnabled = false
     # Optional CTA banner customization (falls back to i18n/defaults if not set)
     miniBannerCtaHeading = "Launch your affiliate program today"
     miniBannerCtaDescription = "Set up advanced tracking in minutes. No credit card required."
@@ -86,6 +90,7 @@
 
     {{- if not $disabled -}}
       {{- $ctaPos := .Page.Params.miniBannerCtaPosition | default 3 -}}
+      {{- $newsletterEnabled := .Page.Params.miniBannerNewsletterEnabled | default true -}}
       {{- $newsletterPos := .Page.Params.miniBannerNewsletterPosition | default 5 -}}
 
       {{- /* Count H2 headings */ -}}
@@ -105,8 +110,8 @@
         ) -}}
       {{- end -}}
 
-      {{- /* Insert Newsletter banner */ -}}
-      {{- if eq $h2Count $newsletterPos -}}
+      {{- /* Insert Newsletter banner (only if explicitly enabled) */ -}}
+      {{- if and $newsletterEnabled (eq $h2Count $newsletterPos) -}}
         {{- partial "sections/banners/mini-banner-newsletter.html" (dict
           "heading" .Page.Params.miniBannerNewsletterHeading
           "description" .Page.Params.miniBannerNewsletterDescription
