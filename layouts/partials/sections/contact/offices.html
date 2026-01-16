@@ -3,33 +3,31 @@
 {{ $offices := .offices | default (slice) }}
 {{ $borderColor := .borderColor | default "indigo" }}
 
-<div class="bg-white my-24 sm:my-32">
-  <div class="wrapper">
-    <div class="mx-auto max-w-2xl lg:mx-0">
-      <h2 class="text-pretty text-4xl font-semibold tracking-tight text-heading sm:text-5xl">{{ $title }}</h2>
-      {{ if $description }}<p class="mt-6 text-lg/8 text-secondary">{{ $description }}</p>{{ end }}
-    </div>
-    <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 text-base/7 sm:grid-cols-2 sm:gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-{{ len $offices }}">
-      {{ range $offices }}
-      <div>
-        <h3 class="border-l border-{{ $borderColor }}-600 pl-6 font-semibold text-heading">{{ .city }}</h3>
-        <address class="border-l border-gray-200 pl-6 pt-2 not-italic text-secondary">
-          {{ if .company }}
-          <p class="font-medium">{{ .company }}</p>
-          {{ end }}
-          <div class="flex items-start">
-            <span class="mr-3 flex-shrink-0">
-              {{ partial "components/media/icon.html" (dict "icon" "map" "class" "h-4 w-4 mt-1") }}
-            </span>
-            <div>
-              {{ range .address }}
-              <p class="m-0 p-0">{{ . }}</p>
-              {{ end }}
-            </div>
+<div class="section-bg-light my-24 sm:my-32 wrapper">
+  <div class="mx-auto max-w-2xl lg:mx-0">
+    <h2 class="text-pretty text-4xl font-semibold tracking-tight text-heading sm:text-5xl">{{ $title }}</h2>
+    {{ if $description }}<p class="mt-6 text-lg/8 text-secondary">{{ $description }}</p>{{ end }}
+  </div>
+  <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 text-base/7 sm:grid-cols-2 sm:gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-{{ len $offices }}">
+    {{ range $offices }}
+    <div>
+      <h3 class="border-l border-{{ $borderColor }}-600 pl-6 font-semibold text-heading">{{ .city }}</h3>
+      <address class="border-l border-gray-200 pl-6 pt-2 not-italic text-secondary">
+        {{ if .company }}
+        <p class="font-medium">{{ .company }}</p>
+        {{ end }}
+        <div class="flex items-start">
+          <span class="mr-3 flex-shrink-0">
+            {{ partial "components/media/icon.html" (dict "icon" "map" "class" "h-4 w-4 mt-1") }}
+          </span>
+          <div>
+            {{ range .address }}
+            <p class="m-0 p-0">{{ . }}</p>
+            {{ end }}
           </div>
-        </address>
-      </div>
-      {{ end }}
+        </div>
+      </address>
     </div>
+    {{ end }}
   </div>
 </div>
