@@ -114,22 +114,14 @@
       {{ with $id }}id="{{ . }}"{{ end }}
       {{ with $dataAttributes }}{{ . | safeHTMLAttr }}{{ end }}
     >
-      {{ if and $icon (eq $iconPosition "left") }}
-        <span aria-hidden="true" class="mr-0.5">
-          {{ partial "components/media/icon.html" (dict "icon" $icon "class" "w-5 h-5") }}
-        </span>
-      {{ end }}
+      {{ partial "components/buttons/icon.html" (dict "icon" $icon "position" "left" "iconPosition" $iconPosition) }}
       {{ $text }}
       {{ if $showArrow }}
         <span aria-hidden="true" class="ml-1.5 btn-arrow">
           {{ partial "components/media/icon.html" (dict "icon" $iconArrow "class" "w-5 h-5 p-0.5") }}
         </span>
       {{ end }}
-      {{ if and $icon (ne $iconPosition "left") }}
-        <span aria-hidden="true" class="ml-0.5">
-          {{ partial "components/media/icon.html" (dict "icon" $icon "class" "w-5 h-5") }}
-        </span>
-      {{ end }}
+      {{ partial "components/buttons/icon.html" (dict "icon" $icon "position" "right" "iconPosition" $iconPosition) }}
     </button>
   {{ else if $url }}
     <a
@@ -142,22 +134,14 @@
       {{ with $rel }}rel="{{ . }}"{{ end }}
       {{ with $dataAttributes }}{{ . | safeHTMLAttr }}{{ end }}
     >
-      {{ if and $icon (eq $iconPosition "left") }}
-        <span aria-hidden="true" class="mr-0.5">
-          {{ partial "components/media/icon.html" (dict "icon" $icon "class" "w-5 h-5") }}
-        </span>
-      {{ end }}
+      {{ partial "components/buttons/icon.html" (dict "icon" $icon "position" "left" "iconPosition" $iconPosition) }}
       {{ $text }}
       {{ if $showArrow }}
         <span aria-hidden="true" class="ml-1.5 btn-arrow">
           {{ partial "components/media/icon.html" (dict "icon" $iconArrow "class" "w-5 h-5 p-0.5") }}
         </span>
       {{ end }}
-      {{ if and $icon (ne $iconPosition "left") }}
-        <span aria-hidden="true" class="ml-0.5">
-          {{ partial "components/media/icon.html" (dict "icon" $icon "class" "w-5 h-5") }}
-        </span>
-      {{ end }}
+      {{ partial "components/buttons/icon.html" (dict "icon" $icon "position" "right" "iconPosition" $iconPosition) }}
     </a>
   {{ end }}
 {{ end }}
