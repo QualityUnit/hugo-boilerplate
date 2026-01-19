@@ -35,15 +35,15 @@
                 "descriptionLines" 6
             ) }}
 
-            {{/* Add Schema.org FAQ markup */}}
+            {{/* Accumulate FAQ for consolidated schema output */}}
             {{ $faqAnswer := .Content }}
             {{ if $definitionDescription }}
               {{ $faqAnswer = printf "%s\n\n%s" $definitionDescription .Content }}
             {{ end }}
-            {{ partial "schemaorg/faq.html" (dict "faqs" (slice (dict
+            {{ partial "schemaorg/faq-accumulator.html" (dict "faqs" (slice (dict
                 "question" $definitionTitle
                 "answer" ($faqAnswer | plainify)
-            ))) }}
+            )) "page" .) }}
           {{ end }}
 
           {{ .Content | safeHTML }}

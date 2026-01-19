@@ -11,6 +11,7 @@
 {{ $ctaLinkText := .ctaLinkText | default "" }}
 {{ $questionColor := .questionColor | default "text-gray-900" }}
 {{ $answerColor := .answerColor | default "text-gray-600" }}
+{{ $page := .page }}
 {{ $faqs := .faqs }}
 
 {{ if and $faqs (gt (len $faqs) 0) }}
@@ -104,7 +105,7 @@
 
 </section>
 
-{{ partial "schemaorg/faq.html" (dict "faqs" $faqs) }}
+{{ partial "schemaorg/faq-accumulator.html" (dict "faqs" $faqs "page" $page) }}
 
 <script>
   function toggleFAQTwoCol(button, id) {

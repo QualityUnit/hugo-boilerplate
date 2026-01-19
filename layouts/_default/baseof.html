@@ -42,5 +42,8 @@
 <!-- Check and load video lightbox resources if needed -->
 {{ partial "helpers/check-video-lightbox-resources.html" . }}
 
+<!-- Consolidated FAQ Schema (renders once per page with all accumulated FAQs) -->
+{{ partial "schemaorg/faq-consolidated.html" . }}
+
 </body>
 </html>

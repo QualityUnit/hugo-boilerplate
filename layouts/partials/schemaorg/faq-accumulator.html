@@ -1,0 +1,30 @@
+{{/*
+@partial: Schema.org FAQ Accumulator
+@description: Accumulates FAQ items to page store for later consolidation into a single FAQPage schema
+@params:
+  - faqs: Array of FAQ objects to accumulate
+    - question: Question text
+    - answer: Answer text
+  - page: Page context
+@example:
+  {{ partial "schemaorg/faq-accumulator.html" (dict "faqs" $faqs "page" .) }}
+@note: This partial does not output any HTML. It only accumulates FAQs for later rendering.
+       Use schemaorg/faq-consolidated.html to render the final schema once per page.
+*/}}
+
+{{ $page := .page | default . }}
+{{ $faqs := .faqs }}
+
+{{ if and $faqs (gt (len $faqs) 0) }}
+  {{/* Get existing FAQs or initialize empty slice - using site store to avoid serialization */}}
+  {{ $storeKey := printf "faq_%s" $page.RelPermalink }}
+  {{ $existingFaqs := site.Store.Get $storeKey | default slice }}
+
+  {{/* Append each individual FAQ item to the flat list */}}
+  {{ range $faqs }}
+    {{ $existingFaqs = $existingFaqs | append . }}
+  {{ end }}
+
+  {{/* Store back to site store */}}
+  {{ site.Store.Set $storeKey $existingFaqs }}
+{{ end }}

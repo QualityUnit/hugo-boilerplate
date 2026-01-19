@@ -40,6 +40,6 @@
   </div>
 </div>
 
-{{ partial "schemaorg/faq.html" (dict "faqs" $faqs) }}
+{{ partial "schemaorg/faq-accumulator.html" (dict "faqs" $faqs "page" $page) }}
 
 {{ end }}
