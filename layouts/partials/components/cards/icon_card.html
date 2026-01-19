@@ -78,8 +78,8 @@ bg-[#b28b5d] bg-[#611f69] bg-[#95bf47] bg-[#2684fc] bg-[#00ac47] bg-[#0066da] bg
                     {{/* Use Hugo icon partial for icon names (e.g., "light-bulb") */}}
                     {{ partial (printf "icons/%s" $icon) (printf "%s %s flex-shrink-0" $iconSize $iconColor) }}
                 {{ else }}
-                    {{/* Use lazysvg for file paths (e.g., "/images/icons/icon.svg") */}}
-                    {{ partial "components/media/lazysvg.html" (dict
+                    {{/* Use lazyimg_internal for file paths (e.g., "/images/icons/icon.svg")*/}}
+                    {{ partial "components/media/lazyimg_internal.html" (dict
                         "src" $icon
                         "alt" $iconAlt
                         "class" (printf "%s %s flex-shrink-0" $iconSize $iconColor)
