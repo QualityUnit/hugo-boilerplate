@@ -30,7 +30,7 @@
 
         <!-- Zoom Controls -->
         <div class="flex items-center gap-2">
-          <button id="zoom-out-btn" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+          <button id="zoom-out-btn" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
@@ -162,14 +162,40 @@
   // Get current language
   const currentLang = '{{ .Language.Lang }}' || 'en';
   const dataUrl = `/data/clustering/${currentLang}.json`;
+  
+  // TRULY UNIVERSAL APPROACH: Detect architecture by analyzing current URL path
+  // If current URL contains language prefix (like /de/, /fr/) = single domain with language prefixes
+  // If current URL has no language prefix = custom domains (each language has own domain)
+  
+  const currentPath = window.location.pathname;
+  const currentLangCode = currentLang;
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('localhost');
+  
+  // Check if current path starts with language prefix pattern
+  // This works for ANY language code, not just hardcoded ones
+  const langPrefixMatch = currentPath.match(/^\/([a-z]{2}(-[a-z]{2})?)\//i);
+  const hasLangPrefixInPath = langPrefixMatch && langPrefixMatch[1] === currentLangCode;
+  
+  // Logic: If URL has language prefix = single domain architecture
+  // If URL has no language prefix = custom domains architecture  
+  const hasCustomDomains = !hasLangPrefixInPath;
 
-  // Helper function to fix URLs - remove language prefix if present
-  // This prevents double language paths like postaffiliatepro.fr/fr/...
+  // Helper function to fix URLs - remove language prefix if present when using custom domains
+  // This prevents double language paths like postaffiliatepro.fr/fr/... for sites with custom domains
+  // But preserves language prefixes for sites without custom domains (e.g., example.com/fr/)
   function fixUrl(url) {
     if (!url) return url;
-    // Remove language prefix (e.g., /fr/, /de/, /es/) from the beginning of the URL
-    const langPrefixRegex = new RegExp(`^/${currentLang}/`);
-    return url.replace(langPrefixRegex, '/');
+    
+    const originalUrl = url;
+    let fixedUrl = url;
+    
+    // Only remove language prefix if using custom domains
+    if (hasCustomDomains) {
+      const langPrefixRegex = new RegExp(`^/${currentLang}/`);
+      fixedUrl = url.replace(langPrefixRegex, '/');
+    }
+    
+    return fixedUrl;
   }
 
   // Load and render the visualization
@@ -584,11 +610,13 @@
     if (zoomStack.length > 0) {
       breadcrumbNav.classList.remove('hidden');
       zoomOutBtn.classList.remove('hidden');
+      zoomOutBtn.classList.add('flex', 'items-center', 'gap-2');
       const currentName = focus.data.title || focus.data.name || 'Cluster';
       breadcrumbCurrent.innerHTML = ` → <span class="font-semibold text-gray-900">${currentName}</span>`;
     } else {
       breadcrumbNav.classList.add('hidden');
       zoomOutBtn.classList.add('hidden');
+      zoomOutBtn.classList.remove('flex', 'items-center', 'gap-2');
       breadcrumbCurrent.innerHTML = '';
     }
   }
