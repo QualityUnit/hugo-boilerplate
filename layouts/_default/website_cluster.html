@@ -163,6 +163,15 @@
   const currentLang = '{{ .Language.Lang }}' || 'en';
   const dataUrl = `/data/clustering/${currentLang}.json`;
 
+  // Helper function to fix URLs - remove language prefix if present
+  // This prevents double language paths like postaffiliatepro.fr/fr/...
+  function fixUrl(url) {
+    if (!url) return url;
+    // Remove language prefix (e.g., /fr/, /de/, /es/) from the beginning of the URL
+    const langPrefixRegex = new RegExp(`^/${currentLang}/`);
+    return url.replace(langPrefixRegex, '/');
+  }
+
   // Load and render the visualization
   async function loadVisualization() {
     try {
@@ -287,7 +296,7 @@
 
         // If it's a page with URL, navigate to it
         if (d.data.url && !d.children) {
-          window.location.href = d.data.url;
+          window.location.href = fixUrl(d.data.url);
           return;
         }
 
@@ -490,7 +499,7 @@
         if (!n.children && n.data.url) {
           pages.push({
             title: n.data.title || n.data.name,
-            url: n.data.url,
+            url: fixUrl(n.data.url),
             section: n.data.section || '',
             keywords: n.data.keywords || []
           });
@@ -748,7 +757,7 @@
       .style('cursor', 'pointer')
       .on('click', function(event, d) {
         event.stopPropagation();
-        window.location.href = d.url;
+        window.location.href = fixUrl(d.url);
       });
 
     // Add tooltip
@@ -969,7 +978,7 @@
     tableBody.innerHTML = pages.map(page => `
       <tr class="hover:bg-gray-50">
         <td class="px-4 py-3">
-          <a href="${page.url}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
+          <a href="${fixUrl(page.url)}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
             ${page.title}
           </a>
         </td>
