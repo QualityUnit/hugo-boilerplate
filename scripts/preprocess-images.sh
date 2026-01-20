@@ -216,6 +216,13 @@ process_image() {
 
     echo "  Original width: $original_width px, size: $original_size bytes"
 
+    # Skip files where width can't be determined (corrupted or unsupported)
+    if [ "$original_width" -eq 0 ]; then
+        echo "  Warning: Cannot determine image width, skipping file"
+        add_skipped_variant "$rel_path" "original"
+        return
+    fi
+
     # Store optimized original image if it doesn't exist or needs updating
     local optimized_original="$target_dir/${basename}.${extension}"
     if ! is_variant_skipped "$rel_path" "original"; then
