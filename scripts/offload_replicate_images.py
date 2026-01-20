@@ -184,7 +184,7 @@ def find_title_near_line(lines, idx):
             return match.group(1)
     return 'untitled'
 
-def process_image_url(url, out_dir, title, md_stem, idx=None):
+def process_image_url(url, out_dir, title, md_stem, idx=None, md_path=None):
     # 1. Determine extension
     ext = os.path.splitext(urlparse(url).path)[1]
     if not ext:
@@ -196,7 +196,8 @@ def process_image_url(url, out_dir, title, md_stem, idx=None):
             else:
                 ext = '.jpg'  # fallback
         except Exception as e:
-            print(f"!!! ERROR getting extension for image {url}: {e}")
+            file_info = f" in file {md_path}" if md_path else ""
+            print(f"!!! ERROR getting extension for image{file_info} from {url}: {e}")
             ext = '.jpg'
 
     # 2. Generate filename from URL
@@ -234,10 +235,11 @@ def process_image_url(url, out_dir, title, md_stem, idx=None):
 
         # Check if the response is actually an image
         content_type = resp.headers.get('Content-Type', '')
+        file_info = f" in file {md_path}" if md_path else ""
         if 'text/html' in content_type:
-            print(f"!!! ERROR: URL {url} returned HTML instead of an image")
+            print(f"!!! ERROR{file_info}: URL {url} returned HTML instead of an image")
         elif resp.content.startswith(b'<!DOCTYPE') or resp.content.startswith(b'<html'):
-            print(f"!!! ERROR: URL {url} returned HTML content instead of an image")
+            print(f"!!! ERROR{file_info}: URL {url} returned HTML content instead of an image")
         else:
             with open(out_path, 'wb') as imgf:
                 imgf.write(resp.content)
@@ -260,9 +262,11 @@ def process_image_url(url, out_dir, title, md_stem, idx=None):
                     sys.exit(1)
                 # 'skip' - just continue without downloading
         else:
-            print(f"!!! ERROR downloading image from {url}: {e}")
+            file_info = f" in file {md_path}" if md_path else ""
+            print(f"!!! ERROR{file_info} downloading image from {url}: {e}")
     except Exception as e:
-        print(f"!!! ERROR downloading image from {url}: {e}")
+        file_info = f" in file {md_path}" if md_path else ""
+        print(f"!!! ERROR{file_info} downloading image from {url}: {e}")
 
     if not download_success:
         return None
@@ -312,7 +316,7 @@ def process_md_file(md_path):
                     base_title = orig_title if orig_title and orig_title.strip() else attr
                     out_dir = STATIC_IMAGES_DIR / rel_folder
                     out_dir.mkdir(parents=True, exist_ok=True)
-                    out_filename_result = process_image_url(url, out_dir, base_title, md_stem)
+                    out_filename_result = process_image_url(url, out_dir, base_title, md_stem, md_path=md_path)
                     if out_filename_result:
                         local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
                         data[attr] = local_url
@@ -329,7 +333,7 @@ def process_md_file(md_path):
                                 base_title = entry_title if entry_title and entry_title.strip() else img_key
                                 out_dir = STATIC_IMAGES_DIR / rel_folder
                                 out_dir.mkdir(parents=True, exist_ok=True)
-                                out_filename_result = process_image_url(url, out_dir, base_title, md_stem, idx=idx_entry)
+                                out_filename_result = process_image_url(url, out_dir, base_title, md_stem, idx=idx_entry, md_path=md_path)
                                 if out_filename_result:
                                     local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
                                     entry[img_key] = local_url
@@ -343,7 +347,7 @@ def process_md_file(md_path):
                             base_title = entry_title if entry_title and entry_title.strip() else img_key
                             out_dir = STATIC_IMAGES_DIR / rel_folder
                             out_dir.mkdir(parents=True, exist_ok=True)
-                            out_filename_result = process_image_url(url, out_dir, base_title, md_stem)
+                            out_filename_result = process_image_url(url, out_dir, base_title, md_stem, md_path=md_path)
                             if out_filename_result:
                                 local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
                                 entry[img_key] = local_url
@@ -377,7 +381,7 @@ def process_md_file(md_path):
             out_dir = STATIC_IMAGES_DIR / rel_folder
             out_dir.mkdir(parents=True, exist_ok=True)
 
-            out_filename_result = process_image_url(url, out_dir, title, md_stem, idx=f"md{idx}_{match_idx}")
+            out_filename_result = process_image_url(url, out_dir, title, md_stem, idx=f"md{idx}_{match_idx}", md_path=md_path)
 
             if out_filename_result:
                 local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
@@ -391,7 +395,7 @@ def process_md_file(md_path):
     body = '\n'.join(lines)
 
     # Process all shortcodes using the general method
-    body, sc_changed = process_shortcodes(body, rel_folder, md_stem)
+    body, sc_changed = process_shortcodes(body, rel_folder, md_stem, md_path)
     if sc_changed:
         body_changed = True
         changed = True
@@ -404,7 +408,7 @@ def process_md_file(md_path):
         except Exception as e:
             print(f"!!! ERROR: Failed to write file {md_path}: {e}")
 
-def process_shortcodes(content, rel_folder, md_stem):
+def process_shortcodes(content, rel_folder, md_stem, md_path=None):
     """
     Process all shortcodes defined in SHORTCODE_IMAGE_ATTRIBUTES
     Returns: (modified_content, changed_flag)
@@ -450,7 +454,8 @@ def process_shortcodes(content, rel_folder, md_stem):
                         out_dir.mkdir(parents=True, exist_ok=True)
                         out_filename_result = process_image_url(
                             url, out_dir, alt_text, md_stem,
-                            idx=f"{shortcode_name}{match_idx}_{attr_name}"
+                            idx=f"{shortcode_name}{match_idx}_{attr_name}",
+                            md_path=md_path
                         )
 
                         if out_filename_result:
