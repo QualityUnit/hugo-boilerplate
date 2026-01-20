@@ -11,6 +11,23 @@
 
 {{ partial "hero_default.html" (dict "Params" .Params "Title" .Title "search" $searchConfig "Site" .Site) }}
 
+{{/* Schema.org ItemList for discussions */}}
+{{ if gt (len .Pages) 0 }}
+  {{ $items := slice }}
+  {{ range .Pages }}
+    {{ $items = $items | append (dict
+      "name" .Title
+      "url" .Permalink
+      "description" (.Description | default .Summary)
+    ) }}
+  {{ end }}
+  {{ partial "schemaorg/itemlist.html" (dict
+    "name" (printf "%s - %s" .Title site.Title)
+    "description" (.Description | default "Community Discussions")
+    "items" $items
+  ) }}
+{{ end }}
+
 {{ if eq (len .Pages) 0 }}
   <div class="wrapper text-center py-12">
     <p class="text-xl font-semibold text-gray-600">{{ i18n "no_posts_found" | default "No discussions found" }}</p>

@@ -1,0 +1,50 @@
+{{/*
+@partial: Schema.org AggregateRating
+@description: Generates JSON-LD structured data for aggregate ratings and reviews
+@params:
+  - itemType: Type of item being rated (e.g., "SoftwareApplication", "Product", "LocalBusiness", "Organization")
+  - itemName: Name of the item being rated
+  - ratingValue: The aggregate rating value
+  - reviewCount: Total number of reviews
+  - bestRating: Best possible rating (optional, defaults to 5)
+  - worstRating: Worst possible rating (optional, defaults to 1)
+@example:
+  {{ partial "schemaorg/aggregaterating.html" (dict
+    "itemType" "SoftwareApplication"
+    "itemName" "Post Affiliate Pro"
+    "ratingValue" "4.8"
+    "reviewCount" "250"
+    "bestRating" "5"
+  ) }}
+@note: This creates a standalone rating schema or can be embedded in other schemas
+*/}}
+
+{{ $site := .Site }}
+{{ $itemType := .itemType | default "Product" }}
+{{ $itemName := .itemName | default $site.Title }}
+{{ $ratingValue := .ratingValue }}
+{{ $reviewCount := .reviewCount }}
+{{ $bestRating := .bestRating | default "5" }}
+{{ $worstRating := .worstRating | default "1" }}
+
+{{ if and $ratingValue $reviewCount }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": {{ $itemType | jsonify }},
+  "name": {{ $itemName | jsonify }},
+  {{ with .url }}"url": {{ . | jsonify }},{{ else }}"url": {{ $site.BaseURL | jsonify }},{{ end }}
+  {{ with .description }}"description": {{ . | jsonify }},{{ end }}
+  {{ with .image }}
+  "image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }},
+  {{ end }}
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": {{ $ratingValue | jsonify }},
+    "reviewCount": {{ $reviewCount | jsonify }},
+    "bestRating": {{ $bestRating | jsonify }},
+    "worstRating": {{ $worstRating | jsonify }}
+  }
+}
+</script>
+{{ end }}

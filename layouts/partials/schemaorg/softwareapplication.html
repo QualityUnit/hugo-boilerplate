@@ -1,0 +1,119 @@
+{{/*
+@partial: Schema.org SoftwareApplication
+@description: Generates JSON-LD structured data for software product/application
+@params:
+  - page: Page context (optional)
+  - productName: Override product name (optional)
+  - aggregateRating: Include aggregate rating data (optional)
+@example:
+  {{ partial "schemaorg/softwareapplication.html" . }}
+  {{ partial "schemaorg/softwareapplication.html" (dict "page" . "aggregateRating" true) }}
+@note: Requires site params configuration
+  Config example in config.yaml:
+    params:
+      software:
+        name: "Software Name"
+        description: "Software description"
+        applicationCategory: "BusinessApplication"
+        operatingSystem: "Windows, macOS, Linux, Web"
+        offers:
+          price: "99.00"
+          priceCurrency: "USD"
+        screenshot: "/images/screenshot.png"
+        softwareVersion: "1.0.0"
+        releaseNotes: "https://example.com/release-notes"
+        downloadUrl: "https://example.com/download"
+        featureList: "Feature 1, Feature 2, Feature 3"
+        requirements: "Modern web browser"
+        aggregateRating:
+          ratingValue: "4.8"
+          reviewCount: "250"
+          bestRating: "5"
+*/}}
+
+{{ $site := .Site }}
+
+{{/* Handle both direct page context and dict with page key */}}
+{{ $page := . }}
+{{ if reflect.IsMap . }}
+  {{ if isset . "page" }}
+    {{ $page = .page }}
+  {{ end }}
+{{ end }}
+
+{{ $software := $site.Params.software }}
+{{ $productName := $site.Title }}
+
+{{ if reflect.IsMap . }}
+  {{ $productName = .productName | default $software.name | default $site.Title }}
+{{ else }}
+  {{ $productName = $software.name | default $site.Title }}
+{{ end }}
+
+{{ if $software }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": {{ $productName | jsonify }},
+  {{ with $software.description }}"description": {{ . | jsonify }},{{ end }}
+  "url": {{ $site.BaseURL | jsonify }},
+  {{ with $software.applicationCategory }}"applicationCategory": {{ . | jsonify }},{{ end }}
+  {{ with $software.operatingSystem }}"operatingSystem": {{ . | jsonify }},{{ end }}
+  {{ with $software.softwareVersion }}"softwareVersion": {{ . | jsonify }},{{ end }}
+  {{ with $software.releaseNotes }}"releaseNotes": {{ . | jsonify }},{{ end }}
+  {{ with $software.downloadUrl }}"downloadUrl": {{ . | jsonify }},{{ end }}
+  {{ with $software.fileSize }}"fileSize": {{ . | jsonify }},{{ end }}
+  {{ with $software.requirements }}"requirements": {{ . | jsonify }},{{ end }}
+  {{ with $software.featureList }}"featureList": {{ . | jsonify }},{{ end }}
+  {{ with $software.screenshot }}
+  "screenshot": {
+    "@type": "ImageObject",
+    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+  },
+  {{ end }}
+  {{ with $software.offers }}
+  "offers": {
+    "@type": "Offer",
+    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
+    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
+    {{ with .priceValidUntil }}"priceValidUntil": {{ . | jsonify }},{{ end }}
+    {{ with .availability }}"availability": {{ . | jsonify }},{{ else }}"availability": "https://schema.org/InStock",{{ end }}
+    "url": {{ $site.BaseURL | jsonify }},
+    "seller": {
+      "@type": "Organization",
+      "name": {{ $site.Title | jsonify }},
+      "url": {{ $site.BaseURL | jsonify }}
+    }
+  },
+  {{ end }}
+  {{ $showAggregateRating := false }}
+  {{ if reflect.IsMap . }}
+    {{ $showAggregateRating = and .aggregateRating $software.aggregateRating }}
+  {{ else }}
+    {{ $showAggregateRating = $software.aggregateRating }}
+  {{ end }}
+  {{ if and $showAggregateRating $software.aggregateRating }}
+  {{ with $software.aggregateRating }}
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    {{ with .ratingValue }}"ratingValue": {{ . | jsonify }},{{ end }}
+    {{ with .reviewCount }}"reviewCount": {{ . | jsonify }},{{ end }}
+    {{ with .bestRating }}"bestRating": {{ . | jsonify }},{{ end }}
+    {{ with .worstRating }}"worstRating": {{ . | jsonify }}{{ end }}
+  },
+  {{ end }}
+  {{ end }}
+  "author": {
+    "@type": "Organization",
+    "name": {{ $site.Title | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": {{ $site.Title | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+  }
+}
+</script>
+{{ end }}

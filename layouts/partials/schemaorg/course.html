@@ -1,0 +1,135 @@
+{{/*
+@partial: Schema.org Course
+@description: Generates JSON-LD structured data for courses and learning resources
+@params:
+  - page: Page context (optional)
+  - name: Course name (required)
+  - description: Course description (required)
+  - provider: Course provider (defaults to site title)
+  - courseMode: "online", "onsite", or "blended"
+  - educationalLevel: "Beginner", "Intermediate", "Advanced"
+  - timeRequired: Duration in ISO 8601 format (e.g., "PT2H30M")
+  - hasCourseInstance: Array of course instances with schedules
+  - syllabus: Course syllabus sections
+@example:
+  {{ partial "schemaorg/course.html" (dict
+    "name" "Affiliate Marketing Fundamentals"
+    "description" "Learn the basics of affiliate marketing"
+    "courseMode" "online"
+    "educationalLevel" "Beginner"
+    "timeRequired" "PT4H"
+  ) }}
+
+  From frontmatter (academy pages):
+    {{ partial "schemaorg/course.html" . }}
+@note: Perfect for academy/training content sections
+*/}}
+
+{{ $site := .Site }}
+
+{{/* Handle both direct page context and dict with page key */}}
+{{ $page := . }}
+{{ if reflect.IsMap . }}
+  {{ if isset . "page" }}
+    {{ $page = .page }}
+  {{ end }}
+{{ end }}
+
+{{ $name := $page.Title }}
+{{ $description := $page.Description }}
+{{ if reflect.IsMap . }}
+  {{ $name = .name | default $page.Title }}
+  {{ $description = .description | default $page.Description }}
+{{ end }}
+
+{{ if and $name $description }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": {{ $name | jsonify }},
+  "description": {{ $description | jsonify }},
+  "provider": {
+    "@type": "Organization",
+    "name": {{ (.provider | default $site.Title) | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+    {{ with $site.Params.organization.logo }},
+    "logo": {
+      "@type": "ImageObject",
+      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+    }
+    {{ end }}
+  },
+  {{ with .image }}
+  "image": {
+    "@type": "ImageObject",
+    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+  },
+  {{ end }}
+  {{ with .courseMode }}"courseMode": {{ . | jsonify }},{{ end }}
+  {{ with .educationalLevel }}"educationalLevel": {{ . | jsonify }},{{ end }}
+  {{ with .timeRequired }}"timeRequired": {{ . | jsonify }},{{ end }}
+  {{ with .numberOfLessons }}"numberOfLessons": {{ . }},{{ end }}
+  {{ with .inLanguage }}"inLanguage": {{ . | jsonify }},{{ else }}"inLanguage": {{ $site.Language.Lang | jsonify }},{{ end }}
+  {{ with .audience }}
+  "audience": {
+    "@type": "Audience",
+    "audienceType": {{ . | jsonify }}
+  },
+  {{ end }}
+  {{ with .teaches }}"teaches": {{ . | jsonify }},{{ end }}
+  {{ with .coursePrerequisites }}"coursePrerequisites": {{ . | jsonify }},{{ end }}
+  {{ with .syllabus }}
+  "syllabusSections": [
+    {{ range $index, $section := . }}
+    {{ if $index }},{{ end }}
+    {
+      "@type": "Syllabus",
+      "name": {{ $section.name | jsonify }}
+      {{ with $section.description }},"description": {{ . | jsonify }}{{ end }}
+      {{ with $section.timeRequired }},"timeRequired": {{ . | jsonify }}{{ end }}
+    }
+    {{ end }}
+  ],
+  {{ end }}
+  {{ with .hasCourseInstance }}
+  "hasCourseInstance": [
+    {{ range $index, $instance := . }}
+    {{ if $index }},{{ end }}
+    {
+      "@type": "CourseInstance",
+      {{ with .courseMode }}"courseMode": {{ . | jsonify }},{{ end }}
+      {{ with .startDate }}"startDate": {{ . | jsonify }},{{ end }}
+      {{ with .endDate }}"endDate": {{ . | jsonify }},{{ end }}
+      {{ with .instructor }}
+      "instructor": {
+        "@type": "Person",
+        "name": {{ .name | jsonify }}
+        {{ with .image }},"image": {{ . | jsonify }}{{ end }}
+      },
+      {{ end }}
+      "courseWorkload": {{ .courseWorkload | default "Self-paced" | jsonify }}
+    }
+    {{ end }}
+  ],
+  {{ end }}
+  {{ with .offers }}
+  "offers": {
+    "@type": "Offer",
+    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
+    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
+    "availability": {{ .availability | default "https://schema.org/InStock" | jsonify }},
+    "url": {{ ($page.Permalink | default $site.BaseURL) | jsonify }}
+  },
+  {{ end }}
+  {{ with .aggregateRating }}
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": {{ .ratingValue | jsonify }},
+    "reviewCount": {{ .reviewCount | jsonify }}
+  },
+  {{ end }}
+  "url": {{ ($page.Permalink | default $site.BaseURL) | jsonify }}
+}
+</script>
+{{ end }}

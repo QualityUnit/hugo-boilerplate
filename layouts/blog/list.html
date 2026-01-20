@@ -4,12 +4,29 @@
 {{ $cardHeight := 540 }}
 
 {{/* Define search configuration for blog list pages */}}
-{{ $searchConfig := dict 
+{{ $searchConfig := dict
   "enabled" true
   "directories" (slice "blog")
 }}
 
 {{ partial "hero_default.html" (dict "Params" .Params "Title" .Title "search" $searchConfig "Site" .Site) }}
+
+{{/* Schema.org ItemList for blog posts */}}
+{{ if gt (len .Pages) 0 }}
+  {{ $items := slice }}
+  {{ range .Pages }}
+    {{ $items = $items | append (dict
+      "name" .Title
+      "url" .Permalink
+      "description" (.Description | default .Summary)
+    ) }}
+  {{ end }}
+  {{ partial "schemaorg/itemlist.html" (dict
+    "name" (printf "%s - %s" .Title site.Title)
+    "description" (.Description | default "Blog posts")
+    "items" $items
+  ) }}
+{{ end }}
 
 {{ if eq (len .Pages) 0 }}
   <div class="wrapper text-center">

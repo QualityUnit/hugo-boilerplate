@@ -1,0 +1,85 @@
+{{/*
+@partial: Schema.org Offer (standalone)
+@description: Generates JSON-LD structured data for special offers, promotions, and deals
+@params:
+  - name: Offer name (required)
+  - description: Offer description
+  - price: Price (use "0" for free)
+  - priceCurrency: Currency code (e.g., "USD", "EUR")
+  - priceValidUntil: End date for the offer
+  - availability: "InStock", "OutOfStock", "PreOrder", etc.
+  - itemOffered: What's being offered (name, description)
+  - eligibleRegion: Geographic restrictions
+  - validFrom: Start date
+@example:
+  Free trial offer:
+    {{ partial "schemaorg/offer.html" (dict
+      "name" "14-Day Free Trial"
+      "description" "Try our software free for 14 days"
+      "price" "0"
+      "priceCurrency" "USD"
+      "itemOffered" (dict "name" "Post Affiliate Pro" "description" "Full access to all features")
+    ) }}
+
+  Discount promotion:
+    {{ partial "schemaorg/offer.html" (dict
+      "name" "50% Off Annual Plan"
+      "price" "499"
+      "priceCurrency" "USD"
+      "priceValidUntil" "2026-12-31"
+    ) }}
+@note: Perfect for landing pages with special promotions
+*/}}
+
+{{ $site := .Site }}
+{{ $name := .name }}
+
+{{ if $name }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Offer",
+  "name": {{ $name | jsonify }},
+  {{ with .description }}"description": {{ . | jsonify }},{{ end }}
+  {{ with .price }}"price": {{ . | jsonify }},{{ end }}
+  {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
+  {{ with .priceValidUntil }}"priceValidUntil": {{ . | jsonify }},{{ end }}
+  {{ with .validFrom }}"validFrom": {{ . | jsonify }},{{ end }}
+  {{ with .availability }}
+  "availability": {{ printf "https://schema.org/%s" . | jsonify }},
+  {{ else }}
+  "availability": "https://schema.org/InStock",
+  {{ end }}
+  "url": {{ (.url | default $site.BaseURL) | jsonify }},
+  {{ with .itemOffered }}
+  "itemOffered": {
+    "@type": {{ .type | default "Product" | jsonify }},
+    "name": {{ .name | jsonify }}
+    {{ with .description }},"description": {{ . | jsonify }}{{ end }}
+    {{ with .image }},"image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}{{ end }}
+  },
+  {{ end }}
+  {{ with .eligibleRegion }}"eligibleRegion": {{ . | jsonify }},{{ end }}
+  {{ with .eligibleCustomerType }}"eligibleCustomerType": {{ . | jsonify }},{{ end }}
+  {{ with .priceSpecification }}
+  "priceSpecification": {
+    "@type": "PriceSpecification",
+    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
+    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
+    {{ with .valueAddedTaxIncluded }}"valueAddedTaxIncluded": {{ . }}{{ end }}
+  },
+  {{ end }}
+  "seller": {
+    "@type": "Organization",
+    "name": {{ $site.Title | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+  }
+  {{ with .offeredBy }},
+  "offeredBy": {
+    "@type": "Organization",
+    "name": {{ . | jsonify }}
+  }
+  {{ end }}
+}
+</script>
+{{ end }}

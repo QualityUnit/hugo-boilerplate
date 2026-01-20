@@ -1,0 +1,112 @@
+{{/*
+@partial: Schema.org QAPage
+@description: Generates JSON-LD structured data for Question & Answer pages (different from FAQ)
+@params:
+  - page: Page context (optional)
+  - question: The main question being asked
+  - questionAuthor: Person who asked the question
+  - answers: Array of answer objects
+    - text: Answer text
+    - author: Answer author name
+    - upvoteCount: Number of upvotes (optional)
+    - dateCreated: When answer was posted
+    - isAccepted: Boolean for accepted answer
+@example:
+  {{ partial "schemaorg/qapage.html" (dict
+      "question" "How do I integrate Post Affiliate Pro with my website?"
+      "questionAuthor" "John Doe"
+      "answers" (slice
+        (dict "text" "You can integrate using our JavaScript tracking code..." "author" "Support Team" "isAccepted" true)
+      )
+    ) }}
+@note: Use this for community Q&A, support forums, knowledge base articles
+  Different from FAQPage - QAPage is for community-driven Q&A
+*/}}
+
+{{ $site := .Site }}
+
+{{/* Handle both direct page context and dict with page key */}}
+{{ $page := . }}
+{{ if reflect.IsMap . }}
+  {{ if isset . "page" }}
+    {{ $page = .page }}
+  {{ end }}
+{{ end }}
+
+{{ $question := $page.Title }}
+{{ $answers := slice }}
+
+{{ if reflect.IsMap . }}
+  {{ $question = .question | default $page.Title }}
+  {{ $answers = .answers }}
+{{ end }}
+
+{{ if and $question $answers }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "QAPage",
+  "mainEntity": {
+    "@type": "Question",
+    "name": {{ $question | jsonify }},
+    {{ with .questionText }}"text": {{ . | jsonify }},{{ end }}
+    {{ with .questionAuthor }}
+    "author": {
+      "@type": "Person",
+      "name": {{ . | jsonify }}
+    },
+    {{ end }}
+    {{ with .dateCreated }}"dateCreated": {{ . | jsonify }},{{ end }}
+    {{ with .upvoteCount }}"upvoteCount": {{ . }},{{ end }}
+    {{ with .answerCount }}"answerCount": {{ . }},{{ else }}"answerCount": {{ len $answers }},{{ end }}
+    {{ if $answers }}
+    {{ $acceptedAnswer := false }}
+    {{ $suggestedAnswers := slice }}
+    {{ range $answers }}
+      {{ if .isAccepted }}
+        {{ $acceptedAnswer = . }}
+      {{ else }}
+        {{ $suggestedAnswers = $suggestedAnswers | append . }}
+      {{ end }}
+    {{ end }}
+    {{ if $acceptedAnswer }}
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": {{ $acceptedAnswer.text | jsonify }},
+      {{ with $acceptedAnswer.author }}
+      "author": {
+        "@type": "Person",
+        "name": {{ . | jsonify }}
+      },
+      {{ end }}
+      {{ with $acceptedAnswer.dateCreated }}"dateCreated": {{ . | jsonify }},{{ end }}
+      {{ with $acceptedAnswer.upvoteCount }}"upvoteCount": {{ . }},{{ end }}
+      "url": {{ ($page.Permalink | default $site.BaseURL) | jsonify }}
+    },
+    {{ end }}
+    {{ if $suggestedAnswers }}
+    "suggestedAnswer": [
+      {{ range $index, $answer := $suggestedAnswers }}
+      {{ if $index }},{{ end }}
+      {
+        "@type": "Answer",
+        "text": {{ $answer.text | jsonify }},
+        {{ with $answer.author }}
+        "author": {
+          "@type": "Person",
+          "name": {{ . | jsonify }}
+        },
+        {{ end }}
+        {{ with $answer.dateCreated }}"dateCreated": {{ . | jsonify }},{{ end }}
+        {{ with $answer.upvoteCount }}"upvoteCount": {{ . }},{{ end }}
+        "url": {{ ($page.Permalink | default $site.BaseURL) | jsonify }}
+      }
+      {{ end }}
+    ],
+    {{ end }}
+    {{ end }}
+    "url": {{ ($page.Permalink | default $site.BaseURL) | jsonify }}
+  }
+}
+</script>
+{{ end }}

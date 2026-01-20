@@ -1,0 +1,64 @@
+{{/*
+@partial: Schema.org ItemList
+@description: Generates JSON-LD structured data for lists (features, integrations, pricing tiers, etc.)
+@params:
+  - name: List name (optional)
+  - description: List description (optional)
+  - items: Array of item objects (required)
+    - name: Item name
+    - url: Item URL (optional)
+    - description: Item description (optional)
+    - image: Item image (optional)
+  - itemListOrder: "Ascending", "Descending", "Unordered" (optional)
+@example:
+  Feature list:
+    {{ partial "schemaorg/itemlist.html" (dict
+      "name" "Key Features"
+      "items" $features
+      "itemListOrder" "Unordered"
+    ) }}
+
+  Integration directory:
+    {{ partial "schemaorg/itemlist.html" (dict
+      "name" "Available Integrations"
+      "items" $integrations
+    ) }}
+@note: Great for feature lists, integration directories, pricing comparisons
+*/}}
+
+{{ $site := .Site }}
+{{ $items := .items }}
+
+{{ if $items }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  {{ with .name }}"name": {{ . | jsonify }},{{ end }}
+  {{ with .description }}"description": {{ . | jsonify }},{{ end }}
+  {{ with .itemListOrder }}"itemListOrder": {{ printf "https://schema.org/%sItemList" . | jsonify }},{{ end }}
+  {{ with .numberOfItems }}"numberOfItems": {{ . }},{{ else }}"numberOfItems": {{ len $items }},{{ end }}
+  "itemListElement": [
+    {{ range $index, $item := $items }}
+    {{ if $index }},{{ end }}
+    {
+      "@type": "ListItem",
+      "position": {{ add $index 1 }},
+      {{ if $item.url }}
+      "item": {
+        "@type": "Thing",
+        "name": {{ $item.name | jsonify }},
+        "url": {{ $item.url | jsonify }}
+        {{ with $item.description }},"description": {{ . | jsonify }}{{ end }}
+        {{ with $item.image }},"image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}{{ end }}
+      }
+      {{ else }}
+      "name": {{ $item.name | jsonify }}
+      {{ with $item.description }},"description": {{ . | jsonify }}{{ end }}
+      {{ end }}
+    }
+    {{ end }}
+  ]
+}
+</script>
+{{ end }}

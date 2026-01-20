@@ -1,0 +1,107 @@
+{{/*
+@partial: Schema.org HowTo
+@description: Generates JSON-LD structured data for step-by-step guides and tutorials
+@params:
+  - page: Page context (optional)
+  - name: Name/title of the how-to guide
+  - description: Description of the how-to
+  - image: Featured image for the how-to
+  - totalTime: Total time required (ISO 8601 duration format, e.g., "PT30M" for 30 minutes)
+  - estimatedCost: Estimated cost (optional)
+  - supply: Array of supplies needed (optional)
+  - tool: Array of tools needed (optional)
+  - steps: Array of step objects (required)
+    - name: Step name/title
+    - text: Step description
+    - image: Step image (optional)
+    - url: URL to step details (optional)
+@example:
+  {{ partial "schemaorg/howto.html" (dict
+    "name" "How to Set Up Affiliate Program"
+    "description" "Complete guide to setting up your affiliate program"
+    "totalTime" "PT30M"
+    "steps" $steps
+  ) }}
+@note: Steps should be an array of step objects with name and text fields
+*/}}
+
+{{/* Handle both direct page context and dict with page key */}}
+{{ $page := . }}
+{{ if reflect.IsMap . }}
+  {{ if isset . "page" }}
+    {{ $page = .page }}
+  {{ end }}
+{{ end }}
+{{ $site := $page.Site }}
+
+{{ $name := $page.Title }}
+{{ $description := $page.Description }}
+{{ $image := "" }}
+{{ $steps := slice }}
+
+{{ if reflect.IsMap . }}
+  {{ $name = .name | default $page.Title }}
+  {{ $description = .description | default $page.Description }}
+  {{ $image = .image }}
+  {{ $steps = .steps }}
+{{ end }}
+
+{{ if $steps }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": {{ $name | jsonify }},
+  {{ with $description }}"description": {{ . | jsonify }},{{ end }}
+  {{ with $image }}
+  "image": {
+    "@type": "ImageObject",
+    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+  },
+  {{ end }}
+  {{ with .totalTime }}"totalTime": {{ . | jsonify }},{{ end }}
+  {{ with .estimatedCost }}
+  "estimatedCost": {
+    "@type": "MonetaryAmount",
+    "currency": {{ .currency | default "USD" | jsonify }},
+    "value": {{ .value | jsonify }}
+  },
+  {{ end }}
+  {{ with .supply }}
+  "supply": [
+    {{ range $index, $item := . }}
+    {{ if $index }},{{ end }}
+    {
+      "@type": "HowToSupply",
+      "name": {{ $item | jsonify }}
+    }
+    {{ end }}
+  ],
+  {{ end }}
+  {{ with .tool }}
+  "tool": [
+    {{ range $index, $item := . }}
+    {{ if $index }},{{ end }}
+    {
+      "@type": "HowToTool",
+      "name": {{ $item | jsonify }}
+    }
+    {{ end }}
+  ],
+  {{ end }}
+  "step": [
+    {{ range $index, $step := $steps }}
+    {{ if $index }},{{ end }}
+    {
+      "@type": "HowToStep",
+      "position": {{ add $index 1 }},
+      "name": {{ $step.name | jsonify }},
+      "text": {{ $step.text | jsonify }}
+      {{ with $step.image }},"image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}{{ end }}
+      {{ with $step.url }},"url": {{ . | jsonify }}{{ end }}
+    }
+    {{ end }}
+  ]
+}
+</script>
+{{ end }}

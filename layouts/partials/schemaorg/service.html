@@ -1,0 +1,115 @@
+{{/*
+@partial: Schema.org Service
+@description: Generates JSON-LD structured data for service offerings
+@params:
+  - services: Array of service objects (optional, for multiple services)
+  - service: Single service object (optional, for single service)
+  Service object structure:
+    - name: Service name
+    - description: Service description
+    - serviceType: Type of service
+    - provider: Provider name (defaults to site title)
+    - areaServed: Geographic area or "Worldwide"
+    - audience: Target audience
+    - offers: Pricing/offer details
+@example:
+  Single service:
+    {{ partial "schemaorg/service.html" (dict "service" $service) }}
+
+  Multiple services:
+    {{ partial "schemaorg/service.html" (dict "services" $services) }}
+
+  From frontmatter:
+    {{ partial "schemaorg/service.html" . }}
+@note: Critical for SaaS as services, not just products
+*/}}
+
+{{ $site := .Site }}
+{{ $page := . }}
+
+{{/* Handle single service */}}
+{{ $service := .service }}
+{{ if $service }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": {{ $service.name | jsonify }},
+  {{ with $service.description }}"description": {{ . | jsonify }},{{ end }}
+  {{ with $service.serviceType }}"serviceType": {{ . | jsonify }},{{ end }}
+  {{ with $service.image }}
+  "image": {
+    "@type": "ImageObject",
+    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+  },
+  {{ end }}
+  "provider": {
+    "@type": "Organization",
+    "name": {{ ($service.provider | default $site.Title) | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+  },
+  {{ with $service.areaServed }}"areaServed": {{ . | jsonify }},{{ else }}"areaServed": "Worldwide",{{ end }}
+  {{ with $service.audience }}
+  "audience": {
+    "@type": "Audience",
+    "audienceType": {{ . | jsonify }}
+  },
+  {{ end }}
+  {{ with $service.category }}"category": {{ . | jsonify }},{{ end }}
+  {{ with $service.offers }}
+  "offers": {
+    "@type": "Offer",
+    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
+    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
+    {{ with .description }}"description": {{ . | jsonify }},{{ end }}
+    "availability": {{ .availability | default "https://schema.org/InStock" | jsonify }},
+    "url": {{ ($service.url | default $site.BaseURL) | jsonify }}
+  },
+  {{ end }}
+  {{ with $service.termsOfService }}"termsOfService": {{ . | jsonify }},{{ end }}
+  {{ with $service.serviceOutput }}"serviceOutput": {{ . | jsonify }},{{ end }}
+  "url": {{ ($service.url | default $site.BaseURL) | jsonify }}
+}
+</script>
+{{ end }}
+
+{{/* Handle multiple services */}}
+{{ $services := .services }}
+{{ if $services }}
+<script type="application/ld+json">
+[
+  {{ range $index, $svc := $services }}
+  {{ if $index }},{{ end }}
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": {{ $svc.name | jsonify }},
+    {{ with $svc.description }}"description": {{ . | jsonify }},{{ end }}
+    {{ with $svc.serviceType }}"serviceType": {{ . | jsonify }},{{ end }}
+    {{ with $svc.image }}
+    "image": {
+      "@type": "ImageObject",
+      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+    },
+    {{ end }}
+    "provider": {
+      "@type": "Organization",
+      "name": {{ ($svc.provider | default $site.Title) | jsonify }},
+      "url": {{ $site.BaseURL | jsonify }}
+    },
+    {{ with $svc.areaServed }}"areaServed": {{ . | jsonify }},{{ else }}"areaServed": "Worldwide",{{ end }}
+    {{ with $svc.offers }}
+    "offers": {
+      "@type": "Offer",
+      {{ with .price }}"price": {{ . | jsonify }},{{ end }}
+      {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
+      "availability": {{ .availability | default "https://schema.org/InStock" | jsonify }},
+      "url": {{ ($svc.url | default $site.BaseURL) | jsonify }}
+    },
+    {{ end }}
+    "url": {{ ($svc.url | default $site.BaseURL) | jsonify }}
+  }
+  {{ end }}
+]
+</script>
+{{ end }}

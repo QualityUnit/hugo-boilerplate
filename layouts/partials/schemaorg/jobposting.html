@@ -1,0 +1,97 @@
+{{/*
+@partial: Schema.org JobPosting
+@description: Generates JSON-LD structured data for job postings
+@params:
+  - title: Job title (required)
+  - description: Job description (required)
+  - datePosted: Date posted in ISO 8601 format (required)
+  - validThrough: Application deadline
+  - employmentType: "FULL_TIME", "PART_TIME", "CONTRACT", "TEMPORARY", "INTERN"
+  - location: Job location (city, state, country or "Remote")
+  - baseSalary: Salary information
+  - hiringOrganization: Company name (defaults to site title)
+@example:
+  {{ partial "schemaorg/jobposting.html" (dict
+      "title" "Senior Software Engineer"
+      "description" "We are looking for an experienced software engineer..."
+      "datePosted" "2026-01-20"
+      "validThrough" "2026-03-20"
+      "employmentType" "FULL_TIME"
+      "location" (dict "city" "San Francisco" "state" "CA" "country" "US")
+      "baseSalary" (dict "currency" "USD" "value" 120000 "unitText" "YEAR")
+    ) }}
+@note: Enables Google Jobs integration and job search visibility
+*/}}
+
+{{ $site := .Site }}
+{{ $title := .title }}
+{{ $description := .description }}
+{{ $datePosted := .datePosted }}
+
+{{ if and $title $description $datePosted }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "JobPosting",
+  "title": {{ $title | jsonify }},
+  "description": {{ $description | jsonify }},
+  "datePosted": {{ $datePosted | jsonify }},
+  {{ with .validThrough }}"validThrough": {{ . | jsonify }},{{ end }}
+  {{ with .employmentType }}"employmentType": {{ . | jsonify }},{{ end }}
+  "hiringOrganization": {
+    "@type": "Organization",
+    "name": {{ (.hiringOrganization | default $site.Title) | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+    {{ with $site.Params.organization.logo }},
+    "logo": {
+      "@type": "ImageObject",
+      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+    }
+    {{ end }}
+  },
+  {{ $location := .location }}
+  {{ if $location }}
+  {{ if eq $location "Remote" }}
+  "jobLocationType": "TELECOMMUTE",
+  "applicantLocationRequirements": {
+    "@type": "Country",
+    "name": "Worldwide"
+  },
+  {{ else }}
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress"
+      {{ with $location.streetAddress }},"streetAddress": {{ . | jsonify }}{{ end }}
+      {{ with $location.city }},"addressLocality": {{ . | jsonify }}{{ end }}
+      {{ with $location.state }},"addressRegion": {{ . | jsonify }}{{ end }}
+      {{ with $location.postalCode }},"postalCode": {{ . | jsonify }}{{ end }}
+      {{ with $location.country }},"addressCountry": {{ . | jsonify }}{{ end }}
+    }
+  },
+  {{ end }}
+  {{ end }}
+  {{ with .baseSalary }}
+  "baseSalary": {
+    "@type": "MonetaryAmount",
+    "currency": {{ .currency | jsonify }},
+    "value": {
+      "@type": "QuantitativeValue",
+      "value": {{ .value }},
+      "unitText": {{ .unitText | jsonify }}
+    }
+  },
+  {{ end }}
+  {{ with .responsibilities }}"responsibilities": {{ . | jsonify }},{{ end }}
+  {{ with .skills }}"skills": {{ . | jsonify }},{{ end }}
+  {{ with .qualifications }}"qualifications": {{ . | jsonify }},{{ end }}
+  {{ with .educationRequirements }}"educationRequirements": {{ . | jsonify }},{{ end }}
+  {{ with .experienceRequirements }}"experienceRequirements": {{ . | jsonify }},{{ end }}
+  {{ with .benefits }}"jobBenefits": {{ . | jsonify }},{{ end }}
+  {{ with .workHours }}"workHours": {{ . | jsonify }},{{ end }}
+  {{ with .industryCategories }}"industry": {{ . | jsonify }},{{ end }}
+  {{ with .occupationalCategory }}"occupationalCategory": {{ . | jsonify }},{{ end }}
+  "url": {{ (.url | default $site.BaseURL) | jsonify }}
+}
+</script>
+{{ end }}

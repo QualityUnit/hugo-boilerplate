@@ -1,0 +1,120 @@
+{{/*
+@partial: Schema.org Event
+@description: Generates JSON-LD structured data for events (webinars, conferences, online events)
+@params:
+  - name: Event name (required)
+  - description: Event description (required)
+  - startDate: Start date/time in ISO 8601 format (required)
+  - endDate: End date/time in ISO 8601 format (optional)
+  - eventAttendanceMode: "OnlineEventAttendanceMode", "OfflineEventAttendanceMode", "MixedEventAttendanceMode"
+  - eventStatus: "EventScheduled", "EventCancelled", "EventPostponed", "EventRescheduled"
+  - location: Location object (for physical) or URL (for online)
+  - image: Event image URL
+  - organizer: Organizer name (defaults to site title)
+  - performer: Speaker/presenter information
+  - offers: Ticket/registration offers
+@example:
+  Webinar:
+    {{ partial "schemaorg/event.html" (dict
+      "name" "SaaS Marketing Webinar"
+      "description" "Learn how to grow your SaaS business"
+      "startDate" "2026-02-15T14:00:00-05:00"
+      "endDate" "2026-02-15T15:00:00-05:00"
+      "eventAttendanceMode" "OnlineEventAttendanceMode"
+      "location" "https://example.com/webinar"
+      "image" "/images/webinar.jpg"
+      "offers" (dict "price" "0" "priceCurrency" "USD" "url" "https://example.com/register")
+    ) }}
+@note: Critical for SaaS webinar marketing and event SEO
+*/}}
+
+{{ $site := .Site }}
+{{ $name := .name }}
+{{ $description := .description }}
+{{ $startDate := .startDate }}
+
+{{ if and $name $description $startDate }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": {{ .eventType | default "Event" | jsonify }},
+  "name": {{ $name | jsonify }},
+  "description": {{ $description | jsonify }},
+  "startDate": {{ $startDate | jsonify }},
+  {{ with .endDate }}"endDate": {{ . | jsonify }},{{ end }}
+  {{ with .eventAttendanceMode }}
+  "eventAttendanceMode": {{ printf "https://schema.org/%s" . | jsonify }},
+  {{ end }}
+  {{ with .eventStatus }}
+  "eventStatus": {{ printf "https://schema.org/%s" . | jsonify }},
+  {{ else }}
+  "eventStatus": "https://schema.org/EventScheduled",
+  {{ end }}
+  {{ with .image }}
+  "image": {
+    "@type": "ImageObject",
+    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+  },
+  {{ end }}
+  {{ $location := .location }}
+  {{ if $location }}
+  {{ if or (hasPrefix $location "http://") (hasPrefix $location "https://") }}
+  "location": {
+    "@type": "VirtualLocation",
+    "url": {{ $location | jsonify }}
+  },
+  {{ else }}
+  "location": {
+    "@type": "Place",
+    "name": {{ $location | jsonify }}
+    {{ with .address }},
+    "address": {
+      "@type": "PostalAddress",
+      {{ with .streetAddress }}"streetAddress": {{ . | jsonify }},{{ end }}
+      {{ with .addressLocality }}"addressLocality": {{ . | jsonify }},{{ end }}
+      {{ with .addressRegion }}"addressRegion": {{ . | jsonify }},{{ end }}
+      {{ with .postalCode }}"postalCode": {{ . | jsonify }},{{ end }}
+      {{ with .addressCountry }}"addressCountry": {{ . | jsonify }}{{ end }}
+    }
+    {{ end }}
+  },
+  {{ end }}
+  {{ end }}
+  "organizer": {
+    "@type": "Organization",
+    "name": {{ (.organizer | default $site.Title) | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+  },
+  {{ with .performer }}
+  "performer": {
+    "@type": "Person",
+    "name": {{ .name | jsonify }}
+    {{ with .image }},"image": {{ . | jsonify }}{{ end }}
+    {{ with .jobTitle }},"jobTitle": {{ . | jsonify }}{{ end }}
+  },
+  {{ end }}
+  {{ with .offers }}
+  "offers": {
+    "@type": "Offer",
+    "url": {{ .url | jsonify }},
+    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
+    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
+    {{ with .availability }}"availability": {{ . | jsonify }},{{ else }}"availability": "https://schema.org/InStock",{{ end }}
+    {{ with .validFrom }}"validFrom": {{ . | jsonify }},{{ end }}
+    "seller": {
+      "@type": "Organization",
+      "name": {{ $site.Title | jsonify }}
+    }
+  },
+  {{ end }}
+  {{ with .audience }}
+  "audience": {
+    "@type": "Audience",
+    "audienceType": {{ . | jsonify }}
+  },
+  {{ end }}
+  {{ with .isAccessibleForFree }}"isAccessibleForFree": {{ . }},{{ end }}
+  {{ with .url }}"url": {{ . | jsonify }}{{ end }}
+}
+</script>
+{{ end }}

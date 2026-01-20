@@ -1,0 +1,88 @@
+{{/*
+@partial: Schema.org Article/BlogPosting
+@description: Generates JSON-LD structured data for blog posts and articles
+@params:
+  - page: Page context (required)
+  - articleType: Type of article - "BlogPosting", "Article", "NewsArticle", "TechArticle" (optional, defaults to BlogPosting)
+@example:
+  {{ partial "schemaorg/article.html" . }}
+  {{ partial "schemaorg/article.html" (dict "page" . "articleType" "TechArticle") }}
+@note: Automatically uses page metadata (title, description, date, author, etc.)
+*/}}
+
+{{/* Handle both direct page context and dict with page key */}}
+{{ $page := . }}
+{{ if reflect.IsMap . }}
+  {{ if isset . "page" }}
+    {{ $page = .page }}
+  {{ end }}
+{{ end }}
+{{ $site := $page.Site }}
+
+{{/* Get article type */}}
+{{ $articleType := "BlogPosting" }}
+{{ if reflect.IsMap . }}
+  {{ $articleType = .articleType | default "BlogPosting" }}
+{{ end }}
+
+{{/* Get author information */}}
+{{ $authorName := "Anonymous" }}
+{{ $authorImage := "" }}
+{{ if $page.Params.author }}
+  {{ $authorKey := $page.Params.author }}
+  {{ $authors := $site.Data.authors }}
+  {{ if and $authors (index $authors $authorKey) }}
+    {{ $author := index $authors $authorKey }}
+    {{ $authorName = $author.name }}
+    {{ $authorImage = $author.image }}
+  {{ end }}
+{{ end }}
+
+{{/* Get article image */}}
+{{ $image := "" }}
+{{ with $page.Params.image }}
+  {{ $image = (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) }}
+{{ else with $page.Params.featured_image }}
+  {{ $image = (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) }}
+{{ else with $site.Params.defaultImage }}
+  {{ $image = (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) }}
+{{ end }}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": {{ $articleType | jsonify }},
+  "headline": {{ $page.Title | jsonify }},
+  {{ with $page.Description }}"description": {{ . | jsonify }},{{ end }}
+  {{ with $image }}"image": {{ . | jsonify }},{{ end }}
+  "datePublished": {{ $page.Date.Format "2006-01-02T15:04:05Z07:00" | jsonify }},
+  "dateModified": {{ $page.Lastmod.Format "2006-01-02T15:04:05Z07:00" | jsonify }},
+  "author": {
+    "@type": "Person",
+    "name": {{ $authorName | jsonify }}
+    {{ with $authorImage }},"image": {{ . | jsonify }}{{ end }}
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ $site.Title | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+    {{ with $site.Params.organization.logo }},
+    "logo": {
+      "@type": "ImageObject",
+      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+    }
+    {{ end }}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": {{ $page.Permalink | jsonify }}
+  },
+  {{ with $page.Params.tags }}"keywords": {{ delimit . ", " | jsonify }},{{ end }}
+  {{ with $page.WordCount }}"wordCount": {{ . }},{{ end }}
+  "url": {{ $page.Permalink | jsonify }},
+  "articleBody": {{ $page.Plain | jsonify }},
+  {{ with $page.Params.category }}"articleSection": {{ . | jsonify }},{{ end }}
+  "inLanguage": {{ $page.Language.Lang | jsonify }}
+  {{ with $page.Params.timeToRead }},"timeRequired": {{ printf "PT%dM" . | jsonify }}{{ end }}
+}
+</script>
