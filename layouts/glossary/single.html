@@ -70,10 +70,8 @@
 "title" (i18n "faq_heading" | default "Frequently Asked Questions")
 "description" (printf "%s %s" (i18n "faq_description_prefix" | default "Common questions about") (.Params.term | default .Title))
 "items" .Params.faq
+"page" .
 ) }}
-
-{{/* Add Schema.org FAQ markup */}}
-{{ partial "schemaorg/faq.html" (dict "faqs" .Params.faq) }}
 {{ end }}
 
 {{ partial "cta.html" . }}

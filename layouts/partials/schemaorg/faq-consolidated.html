@@ -1,0 +1,40 @@
+{{/*
+@partial: Schema.org FAQ Consolidated
+@description: Renders a single FAQPage schema with all accumulated FAQ items from the page
+@params:
+  - Context should be the page itself (.)
+@example:
+  {{ partial "schemaorg/faq-consolidated.html" . }}
+@note: This should be called once per page, typically in baseof.html before </body>.
+       It will output nothing if no FAQs have been accumulated.
+*/}}
+
+{{ $page := . }}
+
+{{/* Get all accumulated FAQs from site store using page-specific key */}}
+{{ $storeKey := printf "faq_%s" $page.RelPermalink }}
+{{ $allFaqs := site.Store.Get $storeKey | default slice }}
+
+{{/* Only output schema if we have FAQs */}}
+{{ if and $allFaqs (gt (len $allFaqs) 0) }}
+<!-- Schema.org FAQPage markup (consolidated) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {{ range $index, $faq := $allFaqs }}
+      {{ if gt $index 0 }},{{ end }}
+      {
+        "@type": "Question",
+        "name": "{{ $faq.question }}",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "{{ $faq.answer }}"
+        }
+      }
+    {{ end }}
+  ]
+}
+</script>
+{{ end }}

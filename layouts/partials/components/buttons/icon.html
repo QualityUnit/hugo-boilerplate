@@ -1,0 +1,24 @@
+{{/*
+@component: Button Icon
+@description: Renders an icon with proper positioning and spacing for buttons
+@params:
+  - icon: Icon name to display (required)
+  - position: Position of the icon - "left" or "right" (required)
+  - iconPosition: Current iconPosition setting from parent (required)
+*/}}
+
+{{ $icon := .icon }}
+{{ $position := .position }}
+{{ $iconPosition := .iconPosition }}
+
+{{ if and $icon (eq $iconPosition $position) }}
+  {{ if eq $position "left" }}
+    <span aria-hidden="true" class="mr-0.5">
+      {{ partial "components/media/icon.html" (dict "icon" $icon "class" "w-5 h-5") }}
+    </span>
+  {{ else if eq $position "right" }}
+    <span aria-hidden="true" class="ml-0.5">
+      {{ partial "components/media/icon.html" (dict "icon" $icon "class" "w-5 h-5") }}
+    </span>
+  {{ end }}
+{{ end }}

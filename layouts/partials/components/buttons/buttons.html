@@ -13,6 +13,8 @@
   - ariaLabel: ARIA label (optional; defaults to button text)
   - ariaHidden: Boolean to hide button from screen readers (optional, default: false)
   - showArrow: Boolean to show an arrow after the text (optional, default: false)
+  - icon: Icon name to display (optional)
+  - iconPosition: Position of the icon - "left" or "right" (optional, default: "right")
   - dataAttributes: Data attributes for the button/link (optional)
   - type: Button type (e.g., "submit", "button") (optional, default: "button")
   - element: Element type ("button" or "link") (optional, default: "link")
@@ -46,6 +48,14 @@
       "variant" "primary"
       "dataAttributes" "data-video-url=\"/videos/demo.mp4\" data-video-id=\"dQw4w9WgXcQ\" data-video-title=\"Demo Video\" data-video-provider=\"youtube\" data-video-autoplay=\"true\""
   ) }}
+
+  {{ partial "components/buttons/buttons.html" (dict
+      "text" "Back to Templates"
+      "url" "/templates/"
+      "variant" "secondary"
+      "icon" "arrow-left"
+      "iconPosition" "left"
+  ) }}
 */}}
 
 {{/* Define variables */}}
@@ -62,6 +72,7 @@
 {{ $showArrow := .showArrow | default false }}
 {{ $iconArrow := "arrow-up-right" }}
 {{ $icon := .icon | default "" }}
+{{ $iconPosition := .iconPosition | default "right" }}
 {{ $dataAttributes := .dataAttributes | default "" }}
 {{ $type := .type | default "button" }}
 {{ $element := .element | default "link" }}
@@ -103,17 +114,14 @@
       {{ with $id }}id="{{ . }}"{{ end }}
       {{ with $dataAttributes }}{{ . | safeHTMLAttr }}{{ end }}
     >
+      {{ partial "components/buttons/icon.html" (dict "icon" $icon "position" "left" "iconPosition" $iconPosition) }}
       {{ $text }}
       {{ if $showArrow }}
         <span aria-hidden="true" class="ml-1.5 btn-arrow">
           {{ partial "components/media/icon.html" (dict "icon" $iconArrow "class" "w-5 h-5 p-0.5") }}
         </span>
       {{ end }}
-      {{ if $icon }}
-        <span aria-hidden="true" class="ml-0.5">
-          {{ partial "components/media/icon.html" (dict "icon" $icon "class" "w-5 h-5") }}
-        </span>
-      {{ end }}
+      {{ partial "components/buttons/icon.html" (dict "icon" $icon "position" "right" "iconPosition" $iconPosition) }}
     </button>
   {{ else if $url }}
     <a
@@ -126,17 +134,14 @@
       {{ with $rel }}rel="{{ . }}"{{ end }}
       {{ with $dataAttributes }}{{ . | safeHTMLAttr }}{{ end }}
     >
+      {{ partial "components/buttons/icon.html" (dict "icon" $icon "position" "left" "iconPosition" $iconPosition) }}
       {{ $text }}
       {{ if $showArrow }}
         <span aria-hidden="true" class="ml-1.5 btn-arrow">
           {{ partial "components/media/icon.html" (dict "icon" $iconArrow "class" "w-5 h-5 p-0.5") }}
         </span>
       {{ end }}
-      {{ if $icon }}
-        <span aria-hidden="true" class="ml-0.5">
-          {{ partial "components/media/icon.html" (dict "icon" $icon "class" "w-5 h-5") }}
-        </span>
-      {{ end }}
+      {{ partial "components/buttons/icon.html" (dict "icon" $icon "position" "right" "iconPosition" $iconPosition) }}
     </a>
   {{ end }}
 {{ end }}

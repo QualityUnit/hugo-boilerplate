@@ -34,8 +34,8 @@
   "headline": {{ $page.Title | jsonify }},
   "text": {{ $page.Description | default $page.Summary | plainify | jsonify }},
   "url": {{ $page.Permalink | jsonify }},
-  "datePublished": {{ $page.Date.Format "2006-01-02T15:04:05Z07:00" | jsonify }},
-  "dateModified": {{ $page.Lastmod.Format "2006-01-02T15:04:05Z07:00" | jsonify }},
+  "datePublished": "{{ $page.Date.Format "2006-01-02T15:04:05-07:00" }}",
+  "dateModified": "{{ $page.Lastmod.Format "2006-01-02T15:04:05-07:00" }}",
   "author": {
     "@type": "Person",
     "name": {{ $username | jsonify }}
@@ -84,7 +84,7 @@
 }
 </script>
 
-{{/* Also add FAQPage schema if there are FAQ items */}}
+{{/* Accumulate FAQ items for consolidated schema output */}}
 {{ if $page.Params.faq }}
-{{ partial "schemaorg/faq.html" (dict "faq" $page.Params.faq) }}
+{{ partial "schemaorg/faq-accumulator.html" (dict "faqs" $page.Params.faq "page" $page) }}
 {{ end }}

@@ -452,8 +452,8 @@
     /* Standard prose with custom link styling */
   }
   
-  .prose-links a:hover,
-  a.prose-links:hover {
+  .prose-links a:hover:not([class^="btn-"]),
+  a.prose-links:hover:not([class^="btn-"]) {
     @apply text-brand-text;
   }
   
