@@ -30,6 +30,7 @@ Parameters:
 - categories: Array of categories (optional), will create category links to /categories/[category-name]
 - badges: Array of badge texts (optional), displayed as styled badges
 - resources: Array of resource objects with 'name' and 'link' properties (optional), displayed as download buttons
+- useCaseImprovements: Array of improvement objects with 'improvement' and 'text' properties (optional), displayed as hero statistics
 - typewriter: Object with typewriter effect configuration (optional)
   - enabled: Boolean to enable/disable the effect (default: false)
   - words: Number of words to animate (default: 1)
@@ -110,6 +111,7 @@ Design Tokens:
   {{ end }}
 {{ end }}
 {{ $resources := .resources | default (slice) }}
+{{ $useCaseImprovements := .useCaseImprovements | default (slice) }}
 {{ $typewriter := .typewriter | default dict }}
 {{ $search := .search | default dict }}
 {{ $checklist := .checklist | default dict }}
@@ -358,8 +360,8 @@ Design Tokens:
           </div>
         {{ end }}
 
-        {{/* Tags, Categories, Badges and Resources */}}
-        {{ if or $categories $tags $badges $resources }}
+        {{/* Tags, Categories, Badges, Resources and Use Case Improvements */}}
+        {{ if or $categories $tags $badges $resources $useCaseImprovements }}
         <div class="mt-6 flex flex-col gap-4">
           {{ if $badges }}
           <div class="flex flex-wrap gap-2">
@@ -395,6 +397,10 @@ Design Tokens:
 
           {{ if $resources }}
             {{ partial "sections/resources/resources.html" (dict "resources" $resources "maxItems" 4) }}
+          {{ end }}
+
+          {{ if $useCaseImprovements }}
+            {{ partial "sections/stats/use-case-improvements-hero.html" (dict "improvements" $useCaseImprovements) }}
           {{ end }}
         </div>
         {{ end }}

@@ -15,6 +15,7 @@
 {{ $tags := .Params.tags | default (slice) }}
 {{ $resources := .Params.resources | default (slice) }}
 {{ $badges := .Params.badges | default "" }}
+{{ $useCaseImprovements := .Params.useCaseImprovements | default (slice) }}
 {{ $title := .Params.heading | default .Params.title | default .Title | default "" }}
 {{ $shortDescription := .Params.shortDescription | default .Params.description | default "" }}
 {{ $typewriter := .Params.typewriter | default dict }}
@@ -48,6 +49,7 @@
     "tags" $tags
     "badges" $badges
     "resources" $resources
+    "useCaseImprovements" $useCaseImprovements
     "search" $search
     "cta" (dict
         "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
@@ -63,6 +65,7 @@
     "tags" $tags
     "badges" $badges
     "resources" $resources
+    "useCaseImprovements" $useCaseImprovements
     "search" $search
     "cta" (dict
     "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
@@ -81,6 +84,7 @@
         "tags" $tags
         "badges" $badges
         "resources" $resources
+        "useCaseImprovements" $useCaseImprovements
         "typewriter" $typewriter
         "search" $search
         "checklist" $checklist
@@ -107,6 +111,7 @@
     "tags" $tags
     "badges" $badges
     "resources" $resources
+    "useCaseImprovements" $useCaseImprovements
     "cta" (dict
     "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
     "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))

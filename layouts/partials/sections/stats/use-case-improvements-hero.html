@@ -1,0 +1,32 @@
+{{/*
+@section: Use Case Improvements for Hero
+@description: A simplified layout for displaying key improvement metrics in hero sections, designed for better visual integration with hero content.
+@params:
+  - improvements: Array of improvement objects (required)
+    - improvement: The improvement value (e.g., "+45%", "47%", "5000+")
+    - text: Description of the improvement (e.g., "increase in support effectiveness")
+@example:
+  {{ partial "sections/hero/use-case-improvements-hero.html" (dict
+      "improvements" (slice
+          (dict "improvement" "47%" "text" "increase in support effectiveness")
+          (dict "improvement" "5000+" "text" "chats handled monthly")
+          (dict "improvement" "Unified" "text" "communication platform")
+      )
+  ) }}
+@note: This is a specialized version for hero sections with horizontal layout and simplified styling.
+*/}}
+
+{{ $improvements := .improvements | default slice }}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
+  {{ range $index, $improvement := $improvements }}
+    <div class="py-3 px-4 border-l border-neutral-200">
+      <div class="text-4xl md:text-4xl font-bold text-brand mb-1.5">
+        {{ $improvement.improvement }}
+      </div>
+      <div class="text-secondary font-semibold">
+        {{ $improvement.text }}
+      </div>
+    </div>
+  {{ end }}
+</div>
