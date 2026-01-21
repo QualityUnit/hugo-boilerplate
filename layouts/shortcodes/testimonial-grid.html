@@ -1,46 +1,62 @@
 {{- /*
-  Usage in markdown:
-  {{< testimonial-grid 
-    headingTag="Heading tag text" 
-    heading="Main heading" 
+  Testimonial Grid Shortcode
+  ==========================
+
+  Displays testimonials from the headless content bundle (content/en/testimonials/).
+  Testimonials are automatically loaded - no need to include JSON in content files.
+
+  Basic Usage (loads all testimonials):
+  {{< testimonial-grid
+    headingTag="Heading tag text"
+    heading="Main heading"
     showHeading="true"
     limited="true"
     limit="6"
+  >}}{{< /testimonial-grid >}}
 
-  >}}
+  With specific testimonials by filename (without .md):
+  {{< testimonial-grid
+    ids="roman-bosch,christine-preusler,karl-dieterich"
+    headingTag="Testimonials"
+    heading="What our clients say"
+  >}}{{< /testimonial-grid >}}
+
+  Legacy usage (inline JSON - still supported for backwards compatibility):
+  {{< testimonial-grid >}}
   [
-    {
-      "quote": "This product transformed our workflow completely.",
-      "personImage": "/images/testimonials/jane-doe.jpg",
-      "personName": "Jane Doe",
-      "personHandle": "@janedoe",
-      "companyLogo": "/images/logos/acme-inc.svg",
-      "companyLogoAlt": "Acme Inc",
-      "featured": true
-    },
     {
       "quote": "Amazing support team!",
       "personName": "John Smith",
-      "personHandle": "CTO at TechCorp",
-      "companyLogo": "/images/logos/techcorp.svg",
-      "companyLogoAlt": "TechCorp"
+      "personHandle": "CTO at TechCorp"
     }
   ]
   {{< /testimonial-grid >}}
 
-  SEO Configuration (add to site params for enhanced software product schema):
-  [params]
-    softwareCategory = "Business Software"  # Type of software
-    softwareDescription = "AI workflow automation platform"  # Brief description  
-    operatingSystem = "Web-based"  # Platform compatibility
-    softwareAudience = "Business"  # Target user type
+  Parameters:
+  - headingTag: Small text above heading (optional)
+  - heading: Main section heading (optional)
+  - showHeading: Show/hide heading section (default: "true")
+  - limited: Enable testimonial limit (default: "false")
+  - limit: Max testimonials when limited=true (default: 6)
+  - ids: Comma-separated list of testimonial filenames to show (optional)
+  - featured: Filename of the testimonial to mark as featured (optional)
+
+  Testimonial MD file structure (in content/en/testimonials/):
+  +++
+  personName = "John Smith"
+  personHandle = "Company"
+  personImage = "/images/testimonials/john.webp"
+  featured = false
+  weight = 10
+  +++
+  The testimonial quote goes here in the content body.
 
   Image Logic (priority order):
   1. personImage (if exists) → shows as avatar
   2. companyLogo (if personImage missing) → shows as avatar fallback
   3. default icon (if both missing) → shows placeholder
 
-  Schema: Includes SoftwareApplication structured data for better search engine understanding of product reviews.
+  Schema: Includes SoftwareApplication structured data for better search engine understanding.
 */ -}}
 
 {{ $headingTag := (.Get "headingTag") | default "" }}
@@ -48,36 +64,118 @@
 {{ $showHeading := (.Get "showHeading") | default "true" }}
 {{ $limited := (.Get "limited") | default "" }}
 {{ $limit := (.Get "limit") | default "" }}
+{{ $ids := (.Get "ids") | default "" }}
+{{ $featuredId := (.Get "featured") | default "" }}
 
-{{/* 
-  Note: This shortcode uses a fixed design with primary colors and consistent styling.
-  All color and styling parameters have been removed for a unified design system approach.
-  
-  Testimonial Data Structure:
-  - quote: Testimonial text (required)
-  - personImage: URL to person's avatar (optional, priority 1)
-  - personName: Name of the person (required)
-  - personHandle: Social handle or job title (optional)
-  - companyLogo: URL to company logo (optional, priority 2 fallback)
-  - companyLogoAlt: Alt text for company logo (optional)
-  - featured: Boolean for featured styling (optional, default: false)
-  
-  For custom testimonials, pass them as JSON array in the shortcode content.
+{{/*
+  Testimonial Data Loading:
+  1. If inline JSON is provided, use that (backwards compatibility)
+  2. Otherwise, load from headless content bundle (content/xx/testimonials/)
+  3. If "ids" parameter is set, filter by those filenames
 */}}
 
-
 {{ $testimonials := slice }}
+
+{{/* Check for inline JSON (legacy support) */}}
 {{ with .Inner }}
-  {{ if . }}
-    {{ $testimonials = . | unmarshal }}
+  {{ $trimmed := . | strings.TrimSpace }}
+  {{ if $trimmed }}
+    {{ $testimonials = $trimmed | unmarshal }}
   {{ end }}
 {{ end }}
 
-{{ partial "sections/testimonials/grid.html" (dict 
+{{/* If no inline testimonials, load from headless content bundle */}}
+{{ if eq (len $testimonials) 0 }}
+  {{ $testimonialsSection := site.GetPage "testimonials" }}
+  {{ with $testimonialsSection }}
+    {{ $allPages := .Pages }}
+
+    {{ if ne $ids "" }}
+      {{/* Filter by specific IDs (filenames) */}}
+      {{ $idList := split $ids "," }}
+      {{ range $id := $idList }}
+        {{ $id = $id | strings.TrimSpace }}
+        {{ range $allPages }}
+          {{ $filename := .File.ContentBaseName }}
+          {{ if eq $filename $id }}
+            {{ $testimonials = $testimonials | append (dict
+              "quote" .RawContent
+              "personName" .Params.personName
+              "personHandle" .Params.personHandle
+              "personImage" .Params.personImage
+              "companyLogo" .Params.companyLogo
+              "companyLogoAlt" .Params.companyLogoAlt
+              "featured" (.Params.featured | default false)
+              "id" $filename
+            ) }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    {{ else }}
+      {{/* Get page path for deterministic sorting */}}
+      {{ $pagePath := $.Page.RelPermalink }}
+
+      {{/* Collect all testimonials, separate featured from regular */}}
+      {{ $featured := slice }}
+      {{ $regular := slice }}
+      {{ range $allPages }}
+        {{ $filename := .File.ContentBaseName }}
+        {{/* Create deterministic sort key based on page URL + testimonial ID */}}
+        {{ $sortKey := printf "%s-%s" $pagePath $filename | md5 }}
+        {{ $t := dict
+          "quote" .RawContent
+          "personName" .Params.personName
+          "personHandle" .Params.personHandle
+          "personImage" .Params.personImage
+          "companyLogo" .Params.companyLogo
+          "companyLogoAlt" .Params.companyLogoAlt
+          "featured" false
+          "id" $filename
+          "_sortKey" $sortKey
+        }}
+        {{ if .Params.featured }}
+          {{ $featured = $featured | append $t }}
+        {{ else }}
+          {{ $regular = $regular | append $t }}
+        {{ end }}
+      {{ end }}
+
+      {{/* Sort regular testimonials by hash (deterministic per page) */}}
+      {{ $regular = sort $regular "_sortKey" }}
+
+      {{/* Build final list: first regular, then featured at position 2, then rest */}}
+      {{ if gt (len $regular) 0 }}
+        {{ $testimonials = $testimonials | append (index $regular 0) }}
+        {{ $regular = after 1 $regular }}
+      {{ end }}
+      {{ range $featured }}
+        {{ $testimonials = $testimonials | append (merge . (dict "featured" true)) }}
+      {{ end }}
+      {{ $testimonials = $testimonials | append $regular }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{/* Override featured status if manually specified */}}
+{{ if ne $featuredId "" }}
+  {{ $updatedTestimonials = slice }}
+  {{ range $testimonials }}
+    {{ $t := . }}
+    {{ if eq .id $featuredId }}
+      {{ $t = merge . (dict "featured" true) }}
+    {{ else }}
+      {{ $t = merge . (dict "featured" false) }}
+    {{ end }}
+    {{ $updatedTestimonials = $updatedTestimonials | append $t }}
+  {{ end }}
+  {{ $testimonials = $updatedTestimonials }}
+{{ end }}
+
+{{ partial "sections/testimonials/grid.html" (dict
   "headingTag" $headingTag
   "heading" $heading
   "showHeading" (eq $showHeading "true")
   "limited" (eq $limited "true")
-  "limit" (cond (ne $limit "") (int $limit) nil)
+  "limit" (cond (ne $limit "") (int $limit) 9)
   "testimonials" $testimonials
 ) }}
