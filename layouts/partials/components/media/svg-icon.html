@@ -33,6 +33,9 @@
       {{ $src = printf "/%s" $src }}
     {{ end }}
     {{ $svgPath := printf "static%s" $src }}
+    {{ if and (not (fileExists $svgPath)) (hasPrefix $src "/images/") }}
+      {{ $svgPath = printf "cdn-assets%s" (strings.TrimPrefix "/images" $src) }}
+    {{ end }}
     {{ if fileExists $svgPath }}
       {{ $svgContent := readFile $svgPath }}
     {{/* First preserve none values by temporarily replacing them */}}
