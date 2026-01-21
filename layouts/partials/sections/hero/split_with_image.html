@@ -2,11 +2,12 @@
 Responsive hero section with split layout - content left, image/video right.
 
 Parameters:
-- type: "default" | "simple_base" | "features" | "integrations" | feature category (default: "default")
+- type: "default" | "simple_base" | "features" | "integrations" | "success-stories" | feature category (default: "default")
   - "default": Standard hero with image background
   - "simple_base": Simple hero without image (handled by hero_default.html, not this component)
   - "features": Generic features hero with icon overlay
   - "integrations": Integration hero with logo overlay
+  - "success-stories": Success story hero with icon overlay on the right side
   - Feature categories: "promotional-materials", "reporting", "commissions", "user-interface", "tracking", "security"
     (automatically treated as features type with specific icon color)
 - theme: "light" | "dark" | "alternate" (default: "light")
@@ -14,7 +15,7 @@ Parameters:
   - For type "default": Just background image, no overlay
   - For type "features" or feature categories: Background image + SVG icon overlay in square
   - For type "integrations": integration-detail.png background + logo overlay in square
-- icon: SVG icon path (used only for features types)
+- icon: Icon path - SVG for features, image for success-stories/integrations
 - video: Video object with properties (optional, takes priority over image if enabled):
   - enabled: Boolean to enable video mode (default: false)
   - src: YouTube URL for the video
@@ -41,7 +42,7 @@ Parameters:
   - wordAlternatives: Comma separated words to alternate with
 - sectionPaddingY: Custom vertical padding using Tailwind classes (default: "max-md:pt-0 py-12 lg:py-16")
 - backgroundColor: Custom background color class
-- overlayPosition: Position of icon overlay (default: "top-[5.69rem] left-[1.25rem]")
+- overlayPosition: Position of icon overlay (default: "top-[5.69rem] left-[1.25rem]", for success-stories: "top-4 -right-8")
 - overlaySize: Size of overlay container (default: "w-[7.88rem] h-[7.88rem]")
 - overlayIconSizeIntegrations: Size of integration icons (default: "w-[6.25rem] h-[6.25rem]")
 - overlayIconSizeFeatures: Size of feature icons (default: "w-[4.25rem] h-[4.25rem]")
@@ -196,12 +197,21 @@ Design Tokens:
     "overlayColor" "text-primary"
 }}
 
+{{ $successStoriesConfig := dict 
+    "customBackground" ""
+    "showOverlay" true 
+    "overlayMode" "svg"
+    "overlayColor" ""
+    "overlayPositionRight" true
+}}
+
 {{/* All Types Map: Defines all possible configurations */}}
 {{ $allTypeConfigs := dict
   "academy" $academyConfig
   "integrations" $integrationConfig
   "templates" $templatesConfig
   "features" (merge $featureBaseConfig (dict "overlayColor" "text-green-600"))
+  "success-stories" $successStoriesConfig
 }}
 
 {{/* Dynamically merge feature category configurations into the main map */}}
@@ -241,16 +251,26 @@ Design Tokens:
 {{ $showOverlay := $config.showOverlay }}
 {{ $iconImageSrc := "" }}
 {{ if eq $config.overlayMode "image" }}
-  {{ $iconImageSrc = $image }}
+  {{ $iconImageSrc = $icon }}
+  {{ $showOverlay = and $showOverlay (ne $iconImageSrc "") }}
 {{ else if eq $config.overlayMode "svg" }}
   {{ $iconImageSrc = $icon }}
   {{ $showOverlay = and $showOverlay (ne $iconImageSrc "") }}
 {{ end }}
 
+{{/* Overlay position - right for success-stories, left for others */}}
+{{ if $config.overlayPositionRight }}
+  {{ $overlayPosition = "top-12 right-0 lg:translate-x-1/3" }}
+{{ end }}
+
 <div class="split-with-image-hero {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
-      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-[35rem]">
+      {{ $overflowClass := "overflow-hidden" }}
+      {{ if $config.overlayPositionRight }}
+        {{ $overflowClass = "overflow-hidden lg:overflow-visible" }}
+      {{ end }}
+      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full {{ $overflowClass }} mx-auto max-w-[38rem] max-h-[35rem]">
         {{ if and $video $video.enabled }}
           {{/* Display video with popup */}}
           {{ partial "components/media/video.html" (dict 
@@ -271,10 +291,10 @@ Design Tokens:
           {{ if and $showOverlay $iconImageSrc }}
             <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
               {{ if eq $config.overlayMode "image" }}
-                {{/* Integration logo (Image Overlay) */}}
+                {{/* Image Overlay (integrations, success-stories) */}}
                 {{ partial "components/media/lazyimg.html" (dict
                   "src" $iconImageSrc
-                  "alt" "Integration logo"
+                  "alt" "Logo"
                   "class" (printf "%s object-contain" $overlayIconSizeIntegrations)
                   "noLazy" true
                 ) }}
