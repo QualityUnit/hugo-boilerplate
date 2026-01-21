@@ -31,7 +31,35 @@
 {{ $noLazy := .noLazy | default false }}
 
 
-{{- if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") -}}
+{{- $fileExt := strings.ToLower (path.Ext $src) -}}
+{{- $videoExts := slice ".mp4" ".webm" ".ogv" ".mov" ".avi" -}}
+{{- $isVideo := in $videoExts $fileExt -}}
+
+{{- if $isVideo -}}
+  {{- /* Videos: render <video> tag with lazy loading */ -}}
+  {{- $videoClass := "lazy-video" -}}
+  {{- if $class }}{{ $videoClass = printf "%s %s" $videoClass $class }}{{ end -}}
+  {{- /* Get URL with static domain if configured */ -}}
+  {{- $videoSrc := partial "functions/get-static-url.html" (dict "path" $src) -}}
+  {{- $mimeType := "video/mp4" -}}
+  {{- if eq $fileExt ".webm" }}{{ $mimeType = "video/webm" }}
+  {{- else if eq $fileExt ".ogv" }}{{ $mimeType = "video/ogg" }}
+  {{- else if eq $fileExt ".mov" }}{{ $mimeType = "video/quicktime" }}
+  {{- else if eq $fileExt ".avi" }}{{ $mimeType = "video/x-msvideo" }}
+  {{- end -}}
+  <video
+    {{- if $noLazy }} src="{{ $videoSrc }}" class="{{ $videoClass }} loaded"
+    {{- else }} class="{{ $videoClass }}" data-src="{{ $videoSrc }}"
+    {{- end }}
+    {{- if $id }} id="{{ $id }}"{{ end -}}
+    {{- if $width }} width="{{ $width }}"{{ end -}}
+    {{- if $height }} height="{{ $height }}"{{ end -}}
+    {{- if not $noLazy }} loading="lazy"{{ end }}
+    muted playsinline loop autoplay>
+    <source src="{{ $videoSrc }}" type="{{ $mimeType }}">
+    {{ $alt }}
+  </video>
+{{- else if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") -}}
   {{- /* SVGs: skip <picture> and srcset logic, just use <img> with lazy loading */ -}}
   {{- $imgClassSvg := "lazy-image" -}}
   {{- if $class }}{{ $imgClassSvg = printf "%s %s" $imgClassSvg $class }}{{ end -}}
@@ -72,14 +100,17 @@
     {{ $useOriginal := false }}
 
     <!-- 1 & 2. Get original image dimensions -->
-    {{ $originalImagePath := printf "static%s" $src }}
+    {{ $originalImageCheck := partial "functions/file-exists-check.html" (dict "path" $src) }}
     {{ $originalWidth := 0 }}
 
     <!-- Check file extension before using imageConfig -->
     {{ $fileExtLower := strings.ToLower (path.Ext $src) }}
     {{ $supportedImageExts := slice ".jpg" ".avif" ".jpeg" ".png" ".gif" ".webp" ".bmp" ".tiff" ".tif" }}
-    {{ if fileExists $originalImagePath }}
-      {{ if eq $fileExtLower ".avif" }}
+    {{ if $originalImageCheck.exists }}
+      {{ if eq $fileExtLower ".ico" }}
+        <!-- Skip imageConfig for ICO files (favicon format) -->
+        {{ $originalWidth = 32 }} <!-- Default width for ICO files -->
+      {{ else if eq $fileExtLower ".avif" }}
         <!-- Skip imageConfig for AVIF files as Hugo doesn't support them -->
         {{ $originalWidth = 1500 }} <!-- Default width for AVIF files -->
       {{ else if in $supportedImageExts $fileExtLower }}
@@ -90,11 +121,11 @@
         <!-- Safely try to get image config -->
         {{ range $i := slice 1 }}
           {{ if not $configError }}
-            {{ with imageConfig $originalImagePath }}
+            {{ with imageConfig $originalImageCheck.actualPath }}
               {{ $originalWidth = .Width }}
             {{ else }}
               <!-- imageConfig failed, file might not be a valid image despite extension -->
-              {{ warnf "Failed to get image config for %s - file may be corrupted or not a valid image" $originalImagePath }}
+              {{ warnf "Failed to get image config for %s - file may be corrupted or not a valid image" $originalImageCheck.actualPath }}
               {{ $configError = true }}
               {{ $originalWidth = 800 }} <!-- Default width for failed images -->
             {{ end }}
@@ -102,7 +133,7 @@
         {{ end }}
       {{ else }}
         <!-- Unknown file extension, skip imageConfig -->
-        {{ warnf "Unsupported image extension %s for file %s" $fileExtLower $originalImagePath }}
+        {{ warnf "Unsupported image extension %s for file %s" $fileExtLower $originalImageCheck.actualPath }}
         {{ $originalWidth = 800 }} <!-- Default width for unsupported formats -->
       {{ end }}
     {{ end }}
@@ -125,7 +156,8 @@
     {{ range $availableWidths }}
       {{ $w := . }} {{/* Renamed to avoid conflict with partial's $width */}}
       {{ $processedPath := printf "%s%s-%d%s" $processedDirPath $basename $w $extension }}
-      {{ if fileExists (printf "static%s" $processedPath) }}
+      {{ $processedCheck := partial "functions/file-exists-check.html" (dict "path" $processedPath) }}
+      {{ if $processedCheck.exists }}
         {{ $validatedWidths = $validatedWidths | append $w }}
       {{ end }}
     {{ end }}
@@ -226,12 +258,13 @@
 
     {{ $fallbackSrc := $src }}
     {{ $optimizedOriginalPath := printf "%s%s%s" $processedDirPath $basename $extension }}
-    {{ $hasOptimizedOriginal := fileExists (printf "static%s" $optimizedOriginalPath) }}
+    {{ $optimizedCheck := partial "functions/file-exists-check.html" (dict "path" $optimizedOriginalPath) }}
+    {{ $hasOptimizedOriginal := $optimizedCheck.exists }}
 
     {{ if $hasOptimizedOriginal }}
       {{ $fallbackSrc = $optimizedOriginalPath }}
     {{ end }}
-    
+
     {{/* Apply static domain to fallback source if configured */}}
     {{ $fallbackSrcWithDomain := partial "functions/get-static-url.html" (dict "path" $fallbackSrc) }}
 
@@ -239,7 +272,8 @@
     {{ $webpSrcset := "" }}
 
     {{ $originalWebpPath := printf "%s%s.webp" $processedDirPath $basename }}
-    {{ $useOriginalWebp := fileExists (printf "static%s" $originalWebpPath) }}
+    {{ $originalWebpCheck := partial "functions/file-exists-check.html" (dict "path" $originalWebpPath) }}
+    {{ $useOriginalWebp := $originalWebpCheck.exists }}
 
     {{ $availableSrcWidths := slice }}
     {{ $availableWebpWidths := slice }}
@@ -249,11 +283,13 @@
         {{ $currentSrcPath := printf "%s%s-%d%s" $processedDirPath $basename $currentWidth $extension }}
         {{ $currentWebpPath := printf "%s%s-%d.webp" $processedDirPath $basename $currentWidth }}
 
-        {{ if fileExists (printf "static%s" $currentSrcPath) }}
+        {{ $currentSrcCheck := partial "functions/file-exists-check.html" (dict "path" $currentSrcPath) }}
+        {{ if $currentSrcCheck.exists }}
             {{ $availableSrcWidths = $availableSrcWidths | append (dict "width" $currentWidth "path" $currentSrcPath) }}
         {{ end }}
 
-        {{ if fileExists (printf "static%s" $currentWebpPath) }}
+        {{ $currentWebpCheck := partial "functions/file-exists-check.html" (dict "path" $currentWebpPath) }}
+        {{ if $currentWebpCheck.exists }}
             {{ $availableWebpWidths = $availableWebpWidths | append (dict "width" $currentWidth "path" $currentWebpPath) }}
         {{ end }}
     {{ end }}

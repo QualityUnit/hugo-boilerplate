@@ -20,10 +20,14 @@
 <!-- Default image fallback with existence check -->
 {{ if eq $ogImage "" }}
   {{ $defaultImage := "/images/social-share.jpg" }}
-  {{ if fileExists (printf "static%s" $defaultImage) }}
+  {{ $defaultCheck := partial "functions/file-exists-check.html" (dict "path" $defaultImage) }}
+  {{ if $defaultCheck.exists }}
     {{ $ogImage = partial "functions/get-static-url.html" (dict "path" $defaultImage) }}
-  {{ else if fileExists (printf "static/images/placeholder.webp") }}
-    {{ $ogImage = partial "functions/get-static-url.html" (dict "path" "/images/placeholder.webp") }}
+  {{ else }}
+    {{ $placeholderCheck := partial "functions/file-exists-check.html" (dict "path" "/images/placeholder.webp") }}
+    {{ if $placeholderCheck.exists }}
+      {{ $ogImage = partial "functions/get-static-url.html" (dict "path" "/images/placeholder.webp") }}
+    {{ end }}
   {{ end }}
 {{ end }}
 
