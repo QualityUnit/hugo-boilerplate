@@ -31,7 +31,35 @@
 {{ $noLazy := .noLazy | default false }}
 
 
-{{- if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") -}}
+{{- $fileExt := strings.ToLower (path.Ext $src) -}}
+{{- $videoExts := slice ".mp4" ".webm" ".ogv" ".mov" ".avi" -}}
+{{- $isVideo := in $videoExts $fileExt -}}
+
+{{- if $isVideo -}}
+  {{- /* Videos: render <video> tag with lazy loading */ -}}
+  {{- $videoClass := "lazy-video" -}}
+  {{- if $class }}{{ $videoClass = printf "%s %s" $videoClass $class }}{{ end -}}
+  {{- /* Get URL with static domain if configured */ -}}
+  {{- $videoSrc := partial "functions/get-static-url.html" (dict "path" $src) -}}
+  {{- $mimeType := "video/mp4" -}}
+  {{- if eq $fileExt ".webm" }}{{ $mimeType = "video/webm" }}
+  {{- else if eq $fileExt ".ogv" }}{{ $mimeType = "video/ogg" }}
+  {{- else if eq $fileExt ".mov" }}{{ $mimeType = "video/quicktime" }}
+  {{- else if eq $fileExt ".avi" }}{{ $mimeType = "video/x-msvideo" }}
+  {{- end -}}
+  <video
+    {{- if $noLazy }} src="{{ $videoSrc }}" class="{{ $videoClass }} loaded"
+    {{- else }} class="{{ $videoClass }}" data-src="{{ $videoSrc }}"
+    {{- end }}
+    {{- if $id }} id="{{ $id }}"{{ end -}}
+    {{- if $width }} width="{{ $width }}"{{ end -}}
+    {{- if $height }} height="{{ $height }}"{{ end -}}
+    {{- if not $noLazy }} loading="lazy"{{ end }}
+    muted playsinline loop autoplay>
+    <source src="{{ $videoSrc }}" type="{{ $mimeType }}">
+    {{ $alt }}
+  </video>
+{{- else if or (strings.HasSuffix $src ".svg") (strings.HasSuffix $src ".SVG") -}}
   {{- /* SVGs: skip <picture> and srcset logic, just use <img> with lazy loading */ -}}
   {{- $imgClassSvg := "lazy-image" -}}
   {{- if $class }}{{ $imgClassSvg = printf "%s %s" $imgClassSvg $class }}{{ end -}}
@@ -79,7 +107,10 @@
     {{ $fileExtLower := strings.ToLower (path.Ext $src) }}
     {{ $supportedImageExts := slice ".jpg" ".avif" ".jpeg" ".png" ".gif" ".webp" ".bmp" ".tiff" ".tif" }}
     {{ if $originalImageCheck.exists }}
-      {{ if eq $fileExtLower ".avif" }}
+      {{ if eq $fileExtLower ".ico" }}
+        <!-- Skip imageConfig for ICO files (favicon format) -->
+        {{ $originalWidth = 32 }} <!-- Default width for ICO files -->
+      {{ else if eq $fileExtLower ".avif" }}
         <!-- Skip imageConfig for AVIF files as Hugo doesn't support them -->
         {{ $originalWidth = 1500 }} <!-- Default width for AVIF files -->
       {{ else if in $supportedImageExts $fileExtLower }}
