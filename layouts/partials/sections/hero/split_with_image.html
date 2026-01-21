@@ -406,23 +406,23 @@ Design Tokens:
         {{ end }}
 
         {{/* CTA Buttons */}}
-        {{ if $cta }}
-          {{ $showPrimaryCta := and (isset $cta "primary") (isset $cta.primary "url") (isset $cta.primary "text") (ne $cta.primary.url "") (ne $cta.primary.text "") }}
-          {{ $showSecondaryCta := and (isset $cta "secondary") (isset $cta.secondary "url") (isset $cta.secondary "text") (ne $cta.secondary.url "") (ne $cta.secondary.text "") }}
-          {{ if or $showPrimaryCta $showSecondaryCta }}
+        {{ with $cta }}
+          {{ $hasPrimary := and .primary .primary.url .primary.text (ne .primary.url "") (ne .primary.text "") }}
+          {{ $hasSecondary := and .secondary .secondary.url .secondary.text (ne .secondary.url "") (ne .secondary.text "") }}
+          {{ if or $hasPrimary $hasSecondary }}
           <div class="mt-10 flex items-center gap-x-6">
-            {{ if $showPrimaryCta }}
+            {{ if $hasPrimary }}
               {{ partial "components/buttons/buttons.html" (dict
-                "text" $cta.primary.text
-                "url" $cta.primary.url
+                "text" .primary.text
+                "url" .primary.url
                 "variant" "primary"
                 "size" "xl"
               ) }}
             {{ end }}
-            {{ if $showSecondaryCta }}
+            {{ if $hasSecondary }}
               {{ partial "components/buttons/buttons.html" (dict
-                "text" $cta.secondary.text
-                "url" $cta.secondary.url
+                "text" .secondary.text
+                "url" .secondary.url
                 "variant" "secondary"
                 "showArrow" true
                 "size" "xl"
