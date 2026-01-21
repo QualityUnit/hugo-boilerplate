@@ -1,0 +1,35 @@
+{{/*
+@function: File Exists Check
+@description: Checks if a file exists in either static/ or cdn-assets/ directory (for Hugo mounts)
+@params:
+  - path: File path starting with / (required, e.g., "/images/icon.svg")
+@returns: dict with "exists" (bool) and "actualPath" (string)
+@example:
+  {{ $result := partial "functions/file-exists-check.html" (dict "path" "/images/icon.svg") }}
+  {{ if $result.exists }}
+    {{ $content := readFile $result.actualPath }}
+  {{ end }}
+*/}}
+
+{{ $path := .path }}
+{{ $exists := false }}
+{{ $actualPath := "" }}
+
+{{ if $path }}
+  {{/* Check static directory first */}}
+  {{ $staticPath := printf "static%s" $path }}
+  {{ if fileExists $staticPath }}
+    {{ $exists = true }}
+    {{ $actualPath = $staticPath }}
+  {{ else }}
+    {{/* Check cdn-assets directory (for mounted files) */}}
+    {{ $cdnPath := strings.TrimPrefix "/images/" $path }}
+    {{ $cdnPath = printf "cdn-assets/%s" $cdnPath }}
+    {{ if fileExists $cdnPath }}
+      {{ $exists = true }}
+      {{ $actualPath = $cdnPath }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ return (dict "exists" $exists "actualPath" $actualPath) }}

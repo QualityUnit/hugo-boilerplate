@@ -34,22 +34,10 @@
     {{ end }}
 
     {{/* Check for file in both static/ and cdn-assets/ directories */}}
-    {{ $svgPath := printf "static%s" $src }}
-    {{ $cdnPath := strings.TrimPrefix "/images/" $src }}
-    {{ $cdnPath = printf "cdn-assets/%s" $cdnPath }}
-    {{ $fileFound := false }}
-    {{ $actualPath := "" }}
+    {{ $fileCheck := partial "functions/file-exists-check.html" (dict "path" $src) }}
 
-    {{ if fileExists $svgPath }}
-      {{ $fileFound = true }}
-      {{ $actualPath = $svgPath }}
-    {{ else if fileExists $cdnPath }}
-      {{ $fileFound = true }}
-      {{ $actualPath = $cdnPath }}
-    {{ end }}
-
-    {{ if $fileFound }}
-      {{ $svgContent := readFile $actualPath }}
+    {{ if $fileCheck.exists }}
+      {{ $svgContent := readFile $fileCheck.actualPath }}
     {{/* First preserve none values by temporarily replacing them */}}
     {{ $svgContent = replace $svgContent `fill="none"` `FILL_NONE_PLACEHOLDER` }}
     {{ $svgContent = replace $svgContent `stroke="none"` `STROKE_NONE_PLACEHOLDER` }}
