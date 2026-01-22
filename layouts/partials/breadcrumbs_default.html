@@ -1,27 +1,15 @@
 <!-- Breadcrumbs -->
 {{ $breadcrumbItems := slice (dict "title" (i18n "home_title") "url" .Site.Home.RelPermalink) }}
-{{ $path := "" }}
-{{ $parts := split (strings.TrimPrefix "/" .RelPermalink) "/" }}
-{{ $isMultilingual := gt (len .Site.Languages) 1 }}
-{{ $langPrefix := "" }}
 
-{{ if $isMultilingual }}
-  {{ $currentLang := .Site.Language.Lang }}
-  {{ $langPrefix = $currentLang }}
-  {{ $firstSegment := index $parts 0 }}
-
-  {{ if eq $firstSegment $currentLang }}
-    <!-- Remove language prefix from parts if present in URL -->
-    {{ $parts = after 1 $parts }}
+{{ range .Ancestors.Reverse }}
+  {{ if not .IsHome }}
+    {{ $breadcrumbItems = $breadcrumbItems | append (dict "title" .Title "url" .RelPermalink) }}
   {{ end }}
 {{ end }}
 
-{{ range $index, $part := first (sub (len $parts) 1) $parts }}
-{{ $path = printf "%s/%s" $path $part }}
-{{ with $.Site.GetPage $path }}
-  {{ $title := replace .Title "-" " " }}
-  {{ $breadcrumbItems = $breadcrumbItems | append (dict "title" $title "url" .RelPermalink) }}
+{{ if not .IsHome }}
+  {{ $breadcrumbItems = $breadcrumbItems | append (dict "title" .Title "url" .RelPermalink) }}
 {{ end }}
-{{ end }}
+
 {{ partial "components/breadcrumbs/basic" (dict "items" $breadcrumbItems) }}
 {{ partial "schemaorg/breadcrumbs.html" (dict "items" $breadcrumbItems) }}
