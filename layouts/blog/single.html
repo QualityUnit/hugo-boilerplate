@@ -3,6 +3,12 @@
 {{/* Set page context for shortcodes to know about wrapper-narrower-content usage */}}
 {{ .Scratch.Set "hasWrapperNarrower" true }}
 
+{{/* Schema.org structured data for blog post */}}
+{{ partial "schemaorg/article.html" . }}
+{{ if .Params.author }}
+  {{ partial "schemaorg/author.html" . }}
+{{ end }}
+
 {{ partial "breadcrumbs_default.html" . }}
 {{ partial "hero_default.html" . }}
 
@@ -30,6 +36,8 @@
   "description" (i18n "faq_description")
   "items" .Params.faq
   ) }}
+  {{/* Schema.org FAQ markup */}}
+  {{ partial "schemaorg/faq.html" (dict "faqs" .Params.faq) }}
 {{ end }}
 
 

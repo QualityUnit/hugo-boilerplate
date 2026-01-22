@@ -50,3 +50,4 @@ build/
 # Optional: Ignore generated CSS/JS if using a build pipeline
 # /static/css/
 # /static/js/
+__pycache__/

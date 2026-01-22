@@ -8,6 +8,23 @@
     {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
     {{ $activeLetter := "" }}
     {{ $glossaryTerms := where .Site.RegularPages "Section" "glossary" }}
+
+    {{/* Schema.org ItemList for glossary terms */}}
+    {{ if gt (len $glossaryTerms) 0 }}
+      {{ $items := slice }}
+      {{ range $glossaryTerms }}
+        {{ $items = $items | append (dict
+          "name" (.Params.term | default .Title)
+          "url" .Permalink
+          "description" (.Params.short_definition | default .Description)
+        ) }}
+      {{ end }}
+      {{ partial "schemaorg/itemlist.html" (dict
+        "name" (printf "%s - %s" .Title site.Title)
+        "description" (.Description | default "Glossary terms")
+        "items" $items
+      ) }}
+    {{ end }}
     <div id="alphabetNav" class="w-full bg-white sticky top-20 md:top-[5.25rem] z-[45] transition-all duration-300">
       <div class="wrapper px-8 ">
         <div class="grid grid-cols-2 lg:hidden">

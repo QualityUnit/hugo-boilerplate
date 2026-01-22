@@ -1,0 +1,86 @@
+{{/*
+@partial: Schema.org Organization
+@description: Generates JSON-LD structured data for company/organization identity
+@params:
+  - site: Site context (optional, defaults to current site)
+@example:
+  {{ partial "schemaorg/organization.html" . }}
+@note: Requires site params configuration for complete organization data
+  Config example in config.yaml:
+    params:
+      organization:
+        name: "Company Name"
+        legalName: "Company Legal Name Inc."
+        description: "Company description"
+        url: "https://example.com"
+        logo: "/images/logo.png"
+        email: "contact@example.com"
+        telephone: "+1-555-555-5555"
+        foundingDate: "2010-01-01"
+        address:
+          streetAddress: "123 Main St"
+          addressLocality: "City"
+          addressRegion: "State"
+          postalCode: "12345"
+          addressCountry: "US"
+        sameAs:
+          - "https://facebook.com/company"
+          - "https://twitter.com/company"
+          - "https://linkedin.com/company/company"
+*/}}
+
+{{ $site := .Site }}
+{{ $org := $site.Params.organization }}
+
+{{ if $org }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  {{ with $org.name }}"name": {{ . | jsonify }},{{ end }}
+  {{ with $org.legalName }}"legalName": {{ . | jsonify }},{{ end }}
+  {{ with $org.description }}"description": {{ . | jsonify }},{{ end }}
+  "url": {{ ($org.url | default $site.BaseURL) | jsonify }},
+  {{ with $org.logo }}
+  "logo": {
+    "@type": "ImageObject",
+    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+  },
+  {{ end }}
+  {{ with $org.email }}"email": {{ . | jsonify }},{{ end }}
+  {{ with $org.telephone }}"telephone": {{ . | jsonify }},{{ end }}
+  {{ with $org.foundingDate }}"foundingDate": {{ . | jsonify }},{{ end }}
+  {{ with $org.address }}
+  "address": {
+    "@type": "PostalAddress"
+    {{ with .streetAddress }},"streetAddress": {{ . | jsonify }}{{ end }}
+    {{ with .addressLocality }},"addressLocality": {{ . | jsonify }}{{ end }}
+    {{ with .addressRegion }},"addressRegion": {{ . | jsonify }}{{ end }}
+    {{ with .postalCode }},"postalCode": {{ . | jsonify }}{{ end }}
+    {{ with .addressCountry }},"addressCountry": {{ . | jsonify }}{{ end }}
+  },
+  {{ end }}
+  {{ with $org.sameAs }}
+  "sameAs": {{ . | jsonify }},
+  {{ end }}
+  {{ with $org.contactPoint }}
+  "contactPoint": {
+    "@type": "ContactPoint"
+    {{ with .telephone }},"telephone": {{ . | jsonify }}{{ end }}
+    {{ with .contactType }},"contactType": {{ . | jsonify }}{{ end }}
+    {{ with .email }},"email": {{ . | jsonify }}{{ end }}
+    {{ with .availableLanguage }},"availableLanguage": {{ . | jsonify }}{{ end }}
+    {{ with .areaServed }},"areaServed": {{ . | jsonify }}{{ end }}
+  },
+  {{ end }}
+  {{ with $org.numberOfEmployees }}"numberOfEmployees": {{ . | jsonify }},{{ end }}
+  {{ with $org.vatID }}"vatID": {{ . | jsonify }},{{ end }}
+  {{ with $org.taxID }}"taxID": {{ . | jsonify }},{{ end }}
+  {{ with $org.duns }}"duns": {{ . | jsonify }},{{ end }}
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": {{ $site.BaseURL | jsonify }}
+  }
+}
+</script>
+{{ end }}

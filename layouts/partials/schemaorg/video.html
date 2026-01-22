@@ -1,0 +1,77 @@
+{{/*
+@partial: Schema.org VideoObject
+@description: Generates JSON-LD structured data for video content
+@params:
+  - name: Video title/name (required)
+  - description: Video description (required)
+  - thumbnailUrl: URL to video thumbnail image (required)
+  - uploadDate: Upload date in ISO 8601 format (required)
+  - contentUrl: Direct URL to video file (optional)
+  - embedUrl: URL for embedding the video (optional)
+  - duration: Video duration in ISO 8601 format (e.g., "PT1M54S" for 1 min 54 sec)
+  - width: Video width in pixels
+  - height: Video height in pixels
+  - transcriptUrl: URL to video transcript (optional)
+  - interactionStatistic: View count data (optional)
+@example:
+  {{ partial "schemaorg/video.html" (dict
+    "name" "How to Use Post Affiliate Pro"
+    "description" "Tutorial video showing how to use our software"
+    "thumbnailUrl" "/images/video-thumb.jpg"
+    "uploadDate" "2025-01-15"
+    "embedUrl" "https://youtube.com/embed/abc123"
+    "duration" "PT5M30S"
+  ) }}
+@note: Helps videos appear in Google Video Search and rich results
+*/}}
+
+{{ $site := .Site }}
+{{ $name := .name }}
+{{ $description := .description }}
+{{ $thumbnailUrl := .thumbnailUrl }}
+{{ $uploadDate := .uploadDate }}
+
+{{ if and $name $description $thumbnailUrl $uploadDate }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "name": {{ $name | jsonify }},
+  "description": {{ $description | jsonify }},
+  "thumbnailUrl": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" $thumbnailUrl)) | jsonify }},
+  "uploadDate": {{ $uploadDate | jsonify }},
+  {{ with .contentUrl }}"contentUrl": {{ . | jsonify }},{{ end }}
+  {{ with .embedUrl }}"embedUrl": {{ . | jsonify }},{{ end }}
+  {{ with .duration }}"duration": {{ . | jsonify }},{{ end }}
+  {{ if and .width .height }}
+  "width": {{ .width | jsonify }},
+  "height": {{ .height | jsonify }},
+  {{ end }}
+  {{ with .transcriptUrl }}"transcript": {{ . | jsonify }},{{ end }}
+  {{ with .interactionStatistic }}
+  "interactionStatistic": {
+    "@type": "InteractionCounter",
+    "interactionType": { "@type": "WatchAction" },
+    "userInteractionCount": {{ . | jsonify }}
+  },
+  {{ end }}
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ $site.Title | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+    {{ with $site.Params.organization.logo }},
+    "logo": {
+      "@type": "ImageObject",
+      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+    }
+    {{ end }}
+  }
+  {{ with .author }},
+  "author": {
+    "@type": "Person",
+    "name": {{ . | jsonify }}
+  }
+  {{ end }}
+}
+</script>
+{{ end }}

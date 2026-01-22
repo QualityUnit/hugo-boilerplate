@@ -640,6 +640,281 @@ You can include partials in your templates:
   "description" "Description text") }}
 ```
 
+## Schema.org Structured Data (SEO)
+
+The theme includes a comprehensive schema.org structured data implementation to improve SEO and search engine visibility. All schemas are automatically integrated and work out-of-the-box.
+
+### What's Included
+
+The theme provides **20+ schema.org types** specifically optimized for SaaS businesses:
+
+#### Core Schemas (Automatic)
+- **WebSite** - Site identity with search box functionality
+- **Organization** - Company identity and contact information
+- **WebPage** - Auto-detecting page types (AboutPage, ContactPage, FAQPage, etc.)
+- **SoftwareApplication** - Product/software description
+
+#### Content Schemas (Auto-detected by section)
+- **Article/BlogPosting** - Blog posts and news articles
+- **Course** - Academy and educational content
+- **Service** - SaaS service offerings
+- **Event** - Webinars and online events
+- **JobPosting** - Career and job listings
+
+#### Enhancement Schemas (Triggered by frontmatter)
+- **Product** - Product listings and pricing
+- **Offer** - Special promotions and deals
+- **ItemList** - Feature lists, integration directories
+- **HowTo** - Step-by-step guides
+- **VideoObject** - Video content
+- **FAQPage** - FAQ sections
+- **QAPage** - Community Q&A
+- **Review/AggregateRating** - Customer testimonials and ratings
+- **Breadcrumbs** - Navigation breadcrumbs
+- **Author/Person** - Content authors
+
+### How It Works
+
+Schema.org structured data is **automatically integrated** via the `schemas.html` partial which is included in the theme's `head.html`.
+
+**Core schemas** (WebSite, Organization, WebPage) are always included on every page.
+
+**Content-specific schemas** are triggered by **frontmatter parameters** - not by hardcoded section names. This makes the system work with any Hugo project structure.
+
+Add parameters to your page frontmatter to enable specific schemas:
+```yaml
+---
+title: "My Page"
+schemaType: "Article"       # Triggers Article schema
+author: "authorkey"         # Triggers Author schema
+faq: [...]                  # Triggers FAQ schema
+product: {...}              # Triggers Product schema
+---
+```
+
+### Configuration
+
+#### Site-Level Configuration
+
+Add to your `config/_default/params.toml` or `hugo.toml`:
+
+```toml
+[params]
+  # Enable site search box in Google
+  searchUrl = "/search/"
+
+  [params.organization]
+    name = "Your Company Name"
+    legalName = "Your Company Legal Name Inc."
+    description = "Company description"
+    logo = "/images/logo.png"
+    email = "contact@example.com"
+    telephone = "+1-555-555-5555"
+    foundingDate = "2010-01-01"
+
+    [params.organization.address]
+      streetAddress = "123 Main St"
+      addressLocality = "City"
+      addressRegion = "State"
+      postalCode = "12345"
+      addressCountry = "US"
+
+    [[params.organization.sameAs]]
+      "https://facebook.com/yourcompany"
+    [[params.organization.sameAs]]
+      "https://twitter.com/yourcompany"
+    [[params.organization.sameAs]]
+      "https://linkedin.com/company/yourcompany"
+
+  [params.software]
+    name = "Your Software Name"
+    description = "Your software description"
+    applicationCategory = "BusinessApplication"
+    operatingSystem = "Windows, macOS, Linux, Web"
+    softwareVersion = "1.0.0"
+    screenshot = "/images/screenshot.png"
+
+    [params.software.offers]
+      price = "99.00"
+      priceCurrency = "USD"
+
+    [params.software.aggregateRating]
+      ratingValue = "4.8"
+      reviewCount = "250"
+      bestRating = "5"
+```
+
+#### Page-Level Configuration
+
+Add schema data to your page frontmatter. Use the `schemaType` parameter to specify the main content type:
+
+**Blog Posts/Articles:**
+```yaml
+---
+title: "Article Title"
+description: "Article description"
+schemaType: "Article"          # or "BlogPosting", "TechArticle", "NewsArticle"
+date: 2026-01-20
+author: "authorkey"            # References data/authors.yaml
+image: "/images/article.jpg"
+tags: ["tag1", "tag2"]
+---
+```
+
+**Course/Academy Pages:**
+```yaml
+---
+title: "Course Title"
+courseMode: "online"
+educationalLevel: "Beginner"
+timeRequired: "PT4H"
+---
+```
+
+**Event/Webinar Pages:**
+```yaml
+---
+title: "Webinar Title"
+event:
+  name: "SaaS Marketing Webinar"
+  description: "Learn how to grow your SaaS"
+  startDate: "2026-02-15T14:00:00-05:00"
+  endDate: "2026-02-15T15:00:00-05:00"
+  eventAttendanceMode: "OnlineEventAttendanceMode"
+  location: "https://yoursite.com/webinar"
+  offers:
+    price: "0"
+    priceCurrency: "USD"
+---
+```
+
+**FAQ Sections:**
+```yaml
+---
+title: "FAQ"
+faq:
+  - question: "How does it work?"
+    answer: "It works by..."
+  - question: "What is the price?"
+    answer: "The price is..."
+---
+```
+
+**Product Pages:**
+```yaml
+---
+title: "Product Name"
+product:
+  name: "Product Name"
+  description: "Product description"
+  sku: "PROD-001"
+  offers:
+    price: "99.00"
+    priceCurrency: "USD"
+---
+```
+
+**Special Offers:**
+```yaml
+---
+title: "Special Offer"
+offer:
+  name: "50% Off Annual Plan"
+  price: "499"
+  priceCurrency: "USD"
+  priceValidUntil: "2026-12-31"
+---
+```
+
+### Using Schemas in Custom Layouts
+
+While schemas are automatically included via `head.html`, you can manually include specific schemas in custom layout files:
+
+**Include a specific schema:**
+```go
+{{/* Single service */}}
+{{ partial "schemaorg/service.html" (dict "service" .Params.service) }}
+
+{{/* Multiple products */}}
+{{ partial "schemaorg/product.html" (dict "products" .Params.products) }}
+
+{{/* Event with custom data */}}
+{{ partial "schemaorg/event.html" (dict
+  "name" "Event Name"
+  "description" "Event description"
+  "startDate" "2026-02-15T14:00:00-05:00"
+) }}
+```
+
+**Available schema partials:**
+All schema partials are located in `themes/boilerplate/layouts/partials/schemaorg/`:
+- `article.html` - Blog posts and articles
+- `aggregaterating.html` - Ratings and reviews
+- `author.html` - Content authors
+- `breadcrumbs.html` - Navigation breadcrumbs
+- `course.html` - Educational content
+- `discussion.html` - Forum discussions
+- `event.html` - Events and webinars
+- `faq.html` - FAQ pages
+- `howto.html` - Step-by-step guides
+- `itemlist.html` - Lists of items
+- `jobposting.html` - Job listings
+- `offer.html` - Special offers
+- `organization.html` - Company information
+- `product.html` - Products
+- `qapage.html` - Q&A pages
+- `reviews.html` - Customer reviews
+- `service.html` - Service offerings
+- `softwareapplication.html` - Software products
+- `video.html` - Video content
+- `webpage.html` - Web pages
+- `website.html` - Website identity
+
+### Frontmatter Parameters Reference
+
+The system uses frontmatter parameters to trigger schemas - no hardcoded section names:
+
+| Parameter | Schema Type | Example |
+|-----------|-------------|---------|
+| `schemaType: "Article"` | Article/BlogPosting | Blog posts, news |
+| `schemaType: "TechArticle"` | TechArticle | Technical guides |
+| `author: "authorkey"` | Person/Author | Any content with author |
+| `faq: [...]` | FAQPage | FAQ sections |
+| `product: {...}` | Product | Product pages |
+| `service: {...}` | Service | Service offerings |
+| `event: {...}` | Event | Events, webinars |
+| `courseMode: "online"` | Course | Educational content |
+| `video: {...}` | VideoObject | Video content |
+| `howto: {...}` | HowTo | Step-by-step guides |
+| `jobPosting: {...}` | JobPosting | Job listings |
+| `offer: {...}` | Offer | Special promotions |
+| `testimonials: [...]` | Review | Customer reviews |
+| `itemList: [...]` | ItemList | Lists of items |
+
+**Note:** Individual page templates can also explicitly include schemas when needed.
+
+### Testing Your Schemas
+
+Validate your structured data using:
+
+1. **Google Rich Results Test**: https://search.google.com/test/rich-results
+2. **Schema.org Validator**: https://validator.schema.org/
+3. **Google Search Console**: Monitor rich results performance
+
+### Complete Documentation
+
+For detailed documentation including all available parameters, examples, and configuration options, see:
+`themes/boilerplate/layouts/partials/schemaorg/README.md`
+
+### Benefits
+
+Proper schema.org implementation provides:
+- **Better SEO**: Improved search engine understanding of your content
+- **Rich Results**: Enhanced search results with ratings, prices, events, etc.
+- **Knowledge Graph**: Potential inclusion in Google Knowledge Graph
+- **Voice Search**: Better optimization for voice assistants
+- **AI Discoverability**: Improved visibility in AI-driven search (ChatGPT, Perplexity, etc.)
+
 ## Customization
 
 ### Tailwind Configuration

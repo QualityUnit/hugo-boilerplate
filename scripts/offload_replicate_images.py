@@ -2,15 +2,21 @@ import os
 import re
 import requests
 import tomllib
+import json
 from pathlib import Path
 from toml_frontmatter import safe_toml_dumps
 from urllib.parse import urlparse, unquote
 import random
-from dotenv import load_dotenv
 
-# Load environment variables from .env file in the same directory as this script
-env_path = Path(__file__).parent / '.env'
-load_dotenv(env_path)
+# Try to load dotenv if available, but don't fail if it's not installed
+try:
+    from dotenv import load_dotenv
+    # Load environment variables from .env file in the same directory as this script
+    env_path = Path(__file__).parent / '.env'
+    load_dotenv(env_path)
+except ImportError:
+    # dotenv not installed, environment variables should be set manually if needed
+    pass
 
 # FlowHunt S3 configuration
 FLOWHUNT_S3_BUCKET = os.getenv('FLOWHUNT_S3_BUCKET')
@@ -128,7 +134,17 @@ TITLE_PATTERN = re.compile(r'title:\s*"([^"]+)"', re.IGNORECASE)
 IMAGE_ATTRIBUTES = [
     "image", "screenshot",
     "originalCharacterImage",
+    "personImage",
+    "logo",
+    "customerSupportImage",
+    "videoThumbnail",
+    "icon",
+    "shortDescription",  # Sometimes used for image URLs
     {"characterImages": "image"},
+    {"testimonials": "personImage"},
+    {"testimonials": "videoThumbnail"},
+    {"logos": "image"},
+    {"features": "image"},
     # Add more as needed
 ]
 
@@ -144,9 +160,59 @@ SHORTCODE_IMAGE_ATTRIBUTES = [
         "use_alt": "alt"
     },
     {
+        "name": "hero-split-with-image",
+        "attributes": ["image", "imageUrl", "videoPoster"],
+        "use_alt": "imageAlt"
+    },
+    {
+        "name": "checklist-item",
+        "attributes": ["schemaImage"],
+        "use_alt": "header"  # Use header as fallback for alt text
+    },
+    {
+        "name": "video",
+        "attributes": ["src"],
+        "use_alt": "title"  # Use title attribute for alt text
+    },
+    {
         "name": "features-with-fading-image",
         "attributes": ["imageUrl"],
         "use_alt": "imageAlt"
+    },
+    {
+        "name": "content-split-with-image",
+        "attributes": ["image"],
+        "use_alt": "imageAlt"
+    },
+    {
+        "name": "visual-section",
+        "attributes": ["image", "videoUrl"],
+        "use_alt": "imageAlt"
+    },
+    {
+        "name": "testimonial-simple-centered",
+        "attributes": ["personImage", "logo"],
+        "use_alt": "personImageAlt"
+    },
+    {
+        "name": "hero-banner",
+        "attributes": ["imageUrl", "image-url"],
+        "use_alt": "imageAlt"
+    },
+    {
+        "name": "hero-split",
+        "attributes": ["imageUrl"],
+        "use_alt": "imageAlt"
+    },
+    {
+        "name": "cta-split-with-image",
+        "attributes": ["image", "image-url"],
+        "use_alt": "imageAlt"
+    },
+    {
+        "name": "award-badge",
+        "attributes": ["image"],
+        "use_alt": "alt"
     },
     # Add more shortcodes as needed, for example:
     # {
@@ -154,6 +220,38 @@ SHORTCODE_IMAGE_ATTRIBUTES = [
     #     "attributes": ["backgroundImg", "logoImg"],
     #     "use_alt": "altText"
     # },
+]
+
+# Configurable list of shortcodes that contain JSON content with image URLs
+# Each entry specifies:
+# - name: the shortcode name
+# - json_image_keys: list of JSON keys that contain image URLs (supports dot notation for nested keys)
+SHORTCODE_JSON_IMAGE_KEYS = [
+    {
+        "name": "split-with-image-cards",
+        "json_image_keys": ["schemaImage", "backgroundImage"]
+    },
+    {
+        "name": "bentogrid-three-column",
+        "json_image_keys": ["image"]
+    },
+    {
+        "name": "testimonial-grid",
+        "json_image_keys": ["personImage"]
+    },
+    {
+        "name": "features-with-intro-and-tabs",
+        "json_image_keys": ["content.imageUrl"]  # Nested key using dot notation
+    },
+    {
+        "name": "content-split-with-testimonial",
+        "json_image_keys": ["imageGallery.images[].src"]  # Array notation
+    },
+    {
+        "name": "content-split-with-image",
+        "json_image_keys": ["imageGallery.images[].src"]  # Array notation
+    },
+    # Add more shortcodes with JSON content as needed
 ]
 
 def url_matches_prefix(url):
@@ -184,7 +282,7 @@ def find_title_near_line(lines, idx):
             return match.group(1)
     return 'untitled'
 
-def process_image_url(url, out_dir, title, md_stem, idx=None):
+def process_image_url(url, out_dir, title, md_stem, idx=None, md_path=None):
     # 1. Determine extension
     ext = os.path.splitext(urlparse(url).path)[1]
     if not ext:
@@ -196,7 +294,8 @@ def process_image_url(url, out_dir, title, md_stem, idx=None):
             else:
                 ext = '.jpg'  # fallback
         except Exception as e:
-            print(f"!!! ERROR getting extension for image {url}: {e}")
+            file_info = f" in file {md_path}" if md_path else ""
+            print(f"!!! ERROR getting extension for image{file_info} from {url}: {e}")
             ext = '.jpg'
 
     # 2. Generate filename from URL
@@ -234,10 +333,11 @@ def process_image_url(url, out_dir, title, md_stem, idx=None):
 
         # Check if the response is actually an image
         content_type = resp.headers.get('Content-Type', '')
+        file_info = f" in file {md_path}" if md_path else ""
         if 'text/html' in content_type:
-            print(f"!!! ERROR: URL {url} returned HTML instead of an image")
+            print(f"!!! ERROR{file_info}: URL {url} returned HTML instead of an image")
         elif resp.content.startswith(b'<!DOCTYPE') or resp.content.startswith(b'<html'):
-            print(f"!!! ERROR: URL {url} returned HTML content instead of an image")
+            print(f"!!! ERROR{file_info}: URL {url} returned HTML content instead of an image")
         else:
             with open(out_path, 'wb') as imgf:
                 imgf.write(resp.content)
@@ -260,9 +360,11 @@ def process_image_url(url, out_dir, title, md_stem, idx=None):
                     sys.exit(1)
                 # 'skip' - just continue without downloading
         else:
-            print(f"!!! ERROR downloading image from {url}: {e}")
+            file_info = f" in file {md_path}" if md_path else ""
+            print(f"!!! ERROR{file_info} downloading image from {url}: {e}")
     except Exception as e:
-        print(f"!!! ERROR downloading image from {url}: {e}")
+        file_info = f" in file {md_path}" if md_path else ""
+        print(f"!!! ERROR{file_info} downloading image from {url}: {e}")
 
     if not download_success:
         return None
@@ -312,7 +414,7 @@ def process_md_file(md_path):
                     base_title = orig_title if orig_title and orig_title.strip() else attr
                     out_dir = STATIC_IMAGES_DIR / rel_folder
                     out_dir.mkdir(parents=True, exist_ok=True)
-                    out_filename_result = process_image_url(url, out_dir, base_title, md_stem)
+                    out_filename_result = process_image_url(url, out_dir, base_title, md_stem, md_path=md_path)
                     if out_filename_result:
                         local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
                         data[attr] = local_url
@@ -329,7 +431,7 @@ def process_md_file(md_path):
                                 base_title = entry_title if entry_title and entry_title.strip() else img_key
                                 out_dir = STATIC_IMAGES_DIR / rel_folder
                                 out_dir.mkdir(parents=True, exist_ok=True)
-                                out_filename_result = process_image_url(url, out_dir, base_title, md_stem, idx=idx_entry)
+                                out_filename_result = process_image_url(url, out_dir, base_title, md_stem, idx=idx_entry, md_path=md_path)
                                 if out_filename_result:
                                     local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
                                     entry[img_key] = local_url
@@ -343,7 +445,7 @@ def process_md_file(md_path):
                             base_title = entry_title if entry_title and entry_title.strip() else img_key
                             out_dir = STATIC_IMAGES_DIR / rel_folder
                             out_dir.mkdir(parents=True, exist_ok=True)
-                            out_filename_result = process_image_url(url, out_dir, base_title, md_stem)
+                            out_filename_result = process_image_url(url, out_dir, base_title, md_stem, md_path=md_path)
                             if out_filename_result:
                                 local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
                                 entry[img_key] = local_url
@@ -377,7 +479,7 @@ def process_md_file(md_path):
             out_dir = STATIC_IMAGES_DIR / rel_folder
             out_dir.mkdir(parents=True, exist_ok=True)
 
-            out_filename_result = process_image_url(url, out_dir, title, md_stem, idx=f"md{idx}_{match_idx}")
+            out_filename_result = process_image_url(url, out_dir, title, md_stem, idx=f"md{idx}_{match_idx}", md_path=md_path)
 
             if out_filename_result:
                 local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
@@ -391,8 +493,20 @@ def process_md_file(md_path):
     body = '\n'.join(lines)
 
     # Process all shortcodes using the general method
-    body, sc_changed = process_shortcodes(body, rel_folder, md_stem)
+    body, sc_changed = process_shortcodes(body, rel_folder, md_stem, md_path)
     if sc_changed:
+        body_changed = True
+        changed = True
+
+    # Process shortcodes with JSON content
+    body, json_changed = process_json_in_shortcodes(body, rel_folder, md_stem, md_path)
+    if json_changed:
+        body_changed = True
+        changed = True
+
+    # Process HTML tags (video, img, source)
+    body, html_changed = process_html_tags(body, rel_folder, md_stem, md_path)
+    if html_changed:
         body_changed = True
         changed = True
 
@@ -404,7 +518,7 @@ def process_md_file(md_path):
         except Exception as e:
             print(f"!!! ERROR: Failed to write file {md_path}: {e}")
 
-def process_shortcodes(content, rel_folder, md_stem):
+def process_shortcodes(content, rel_folder, md_stem, md_path=None):
     """
     Process all shortcodes defined in SHORTCODE_IMAGE_ATTRIBUTES
     Returns: (modified_content, changed_flag)
@@ -434,14 +548,15 @@ def process_shortcodes(content, rel_folder, md_stem):
             new_shortcode = shortcode_content
             for attr_name in image_attributes:
                 # Look for the attribute in the shortcode content
-                attr_pattern = re.compile(r'(?:^|\s)' + re.escape(attr_name) + r'="([^"]+)"')
+                # Support both: attr_name="value" and "attr_name"="value"
+                attr_pattern = re.compile(r'(?:^|\s)"?' + re.escape(attr_name) + r'"?="([^"]+)"')
                 attr_match = attr_pattern.search(attributes_text)
 
                 if attr_match:
                     url = attr_match.group(1)
                     if url_matches_prefix(url):
                         # Get alt text if it exists
-                        alt_pattern = re.compile(r'(?:^|\s)' + re.escape(alt_attribute) + r'="([^"]+)"')
+                        alt_pattern = re.compile(r'(?:^|\s)"?' + re.escape(alt_attribute) + r'"?="([^"]+)"')
                         alt_match = alt_pattern.search(attributes_text)
                         alt_text = alt_match.group(1) if alt_match else f"{shortcode_name}_{match_idx}"
 
@@ -450,14 +565,20 @@ def process_shortcodes(content, rel_folder, md_stem):
                         out_dir.mkdir(parents=True, exist_ok=True)
                         out_filename_result = process_image_url(
                             url, out_dir, alt_text, md_stem,
-                            idx=f"{shortcode_name}{match_idx}_{attr_name}"
+                            idx=f"{shortcode_name}{match_idx}_{attr_name}",
+                            md_path=md_path
                         )
 
                         if out_filename_result:
                             local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
-                            # Replace the URL in the attribute
-                            new_attr = f'{attr_name}="{local_url}"'
-                            old_attr = f'{attr_name}="{url}"'
+                            # Replace the URL in the attribute - handle both quoted and unquoted attr names
+                            # Try to match the original format
+                            if f'"{attr_name}"=' in shortcode_content:
+                                new_attr = f'"{attr_name}"="{local_url}"'
+                                old_attr = f'"{attr_name}"="{url}"'
+                            else:
+                                new_attr = f'{attr_name}="{local_url}"'
+                                old_attr = f'{attr_name}="{url}"'
                             new_shortcode = new_shortcode.replace(old_attr, new_attr)
                             content_changed = True
 
@@ -467,6 +588,238 @@ def process_shortcodes(content, rel_folder, md_stem):
         # Apply all replacements
         for old, new in replacements:
             modified_content = modified_content.replace(old, new)
+
+    return modified_content, content_changed
+
+def get_nested_value(obj, key_path):
+    """
+    Get value from nested dictionary using dot notation (e.g., 'content.imageUrl')
+    Supports array notation: 'imageGallery.images[].src' will return list of src values
+    """
+    if '[]' in key_path:
+        # Handle array notation
+        parts = key_path.split('[]')
+        if len(parts) != 2:
+            return None
+        array_path = parts[0].rstrip('.')
+        item_key = parts[1].lstrip('.')
+
+        # Navigate to the array
+        keys = array_path.split('.') if array_path else []
+        value = obj
+        for key in keys:
+            if isinstance(value, dict) and key in value:
+                value = value[key]
+            else:
+                return None
+
+        # Extract values from array items
+        if isinstance(value, list):
+            results = []
+            for item in value:
+                if isinstance(item, dict) and item_key in item:
+                    results.append(item[item_key])
+            return results if results else None
+        return None
+    else:
+        # Regular dot notation
+        keys = key_path.split('.')
+        value = obj
+        for key in keys:
+            if isinstance(value, dict) and key in value:
+                value = value[key]
+            else:
+                return None
+        return value
+
+def set_nested_value(obj, key_path, new_value, array_index=None):
+    """
+    Set value in nested dictionary using dot notation (e.g., 'content.imageUrl')
+    If array_index is provided and key_path contains [], it will set the value at that index
+    """
+    if '[]' in key_path and array_index is not None:
+        # Handle array notation
+        parts = key_path.split('[]')
+        array_path = parts[0].rstrip('.')
+        item_key = parts[1].lstrip('.')
+
+        # Navigate to the array
+        keys = array_path.split('.') if array_path else []
+        current = obj
+        for key in keys:
+            if key not in current:
+                current[key] = {}
+            current = current[key]
+
+        # Set value in array item
+        if isinstance(current, list) and array_index < len(current):
+            if isinstance(current[array_index], dict):
+                current[array_index][item_key] = new_value
+    else:
+        # Regular dot notation
+        keys = key_path.split('.')
+        current = obj
+        for key in keys[:-1]:
+            if key not in current:
+                current[key] = {}
+            current = current[key]
+        current[keys[-1]] = new_value
+
+def process_json_in_shortcodes(content, rel_folder, md_stem, md_path=None):
+    """
+    Process shortcodes that contain JSON content with image URLs
+    Returns: (modified_content, changed_flag)
+    """
+    modified_content = content
+    content_changed = False
+
+    for shortcode_config in SHORTCODE_JSON_IMAGE_KEYS:
+        shortcode_name = shortcode_config["name"]
+        json_image_keys = shortcode_config["json_image_keys"]
+
+        # Pattern to match shortcode with opening/closing tags and capture the JSON content
+        # {{< shortcode-name ... >}}  JSON_CONTENT  {{< /shortcode-name >}}
+        pattern = re.compile(
+            r'\{\{<\s*' + re.escape(shortcode_name) + r'\s+([^>]*?)>}}\s*(.*?)\s*\{\{<\s*/' + re.escape(shortcode_name) + r'\s*>}}',
+            re.DOTALL
+        )
+
+        replacements = []
+        for match_idx, match in enumerate(pattern.finditer(modified_content)):
+            full_shortcode = match.group(0)
+            shortcode_attrs = match.group(1)
+            json_content = match.group(2).strip()
+
+            # Try to parse the JSON content
+            try:
+                # The JSON might be wrapped in [ ] or might be a single object
+                json_data = json.loads(json_content)
+            except json.JSONDecodeError:
+                # If JSON parsing fails, skip this shortcode
+                continue
+
+            # Process images in the JSON data
+            json_modified = False
+            if isinstance(json_data, list):
+                # Process array of objects
+                for item_idx, item in enumerate(json_data):
+                    if isinstance(item, dict):
+                        for key_path in json_image_keys:
+                            # Support nested keys with dot notation (e.g., 'content.imageUrl')
+                            value = get_nested_value(item, key_path)
+                            if value and isinstance(value, str) and url_matches_prefix(value):
+                                url = value
+                                title = item.get('title', f"{shortcode_name}_{match_idx}_{item_idx}")
+
+                                out_dir = STATIC_IMAGES_DIR / rel_folder
+                                out_dir.mkdir(parents=True, exist_ok=True)
+                                out_filename_result = process_image_url(
+                                    url, out_dir, title, md_stem,
+                                    idx=f"{shortcode_name}{match_idx}_{item_idx}_{key_path.replace('.', '_')}",
+                                    md_path=md_path
+                                )
+
+                                if out_filename_result:
+                                    local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
+                                    set_nested_value(item, key_path, local_url)
+                                    json_modified = True
+                                    content_changed = True
+
+            elif isinstance(json_data, dict):
+                # Process single object
+                for key_path in json_image_keys:
+                    # Support nested keys with dot notation (e.g., 'content.imageUrl')
+                    # Also support array notation (e.g., 'imageGallery.images[].src')
+                    value = get_nested_value(json_data, key_path)
+
+                    if '[]' in key_path and isinstance(value, list):
+                        # Handle array of URLs
+                        for arr_idx, url in enumerate(value):
+                            if url and isinstance(url, str) and url_matches_prefix(url):
+                                title = json_data.get('title', f"{shortcode_name}_{match_idx}")
+
+                                out_dir = STATIC_IMAGES_DIR / rel_folder
+                                out_dir.mkdir(parents=True, exist_ok=True)
+                                out_filename_result = process_image_url(
+                                    url, out_dir, title, md_stem,
+                                    idx=f"{shortcode_name}{match_idx}_{key_path.replace('.', '_').replace('[]', '')}_{arr_idx}",
+                                    md_path=md_path
+                                )
+
+                                if out_filename_result:
+                                    local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
+                                    set_nested_value(json_data, key_path, local_url, array_index=arr_idx)
+                                    json_modified = True
+                                    content_changed = True
+                    elif value and isinstance(value, str) and url_matches_prefix(value):
+                        # Handle single URL
+                        url = value
+                        title = json_data.get('title', f"{shortcode_name}_{match_idx}")
+
+                        out_dir = STATIC_IMAGES_DIR / rel_folder
+                        out_dir.mkdir(parents=True, exist_ok=True)
+                        out_filename_result = process_image_url(
+                            url, out_dir, title, md_stem,
+                            idx=f"{shortcode_name}{match_idx}_{key_path.replace('.', '_')}",
+                            md_path=md_path
+                        )
+
+                        if out_filename_result:
+                            local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
+                            set_nested_value(json_data, key_path, local_url)
+                            json_modified = True
+                            content_changed = True
+
+            if json_modified:
+                # Reconstruct the shortcode with updated JSON
+                # Use indent=2 for readable formatting
+                new_json_content = json.dumps(json_data, indent=2, ensure_ascii=False)
+                new_shortcode = f"{{{{< {shortcode_name} {shortcode_attrs}>}}}}\n    {new_json_content}\n    {{{{< /{shortcode_name} >}}}}"
+                replacements.append((full_shortcode, new_shortcode))
+
+        # Apply all replacements
+        for old, new in replacements:
+            modified_content = modified_content.replace(old, new)
+
+    return modified_content, content_changed
+
+def process_html_tags(content, rel_folder, md_stem, md_path=None):
+    """
+    Process HTML tags with image/video URLs in markdown body
+    Handles: <source src="...">, <img src="...">, <video poster="...">
+    Returns: (modified_content, changed_flag)
+    """
+    modified_content = content
+    content_changed = False
+
+    # Pattern for <source src="URL">, <img src="URL">, <video poster="URL">
+    html_patterns = [
+        (r'<source\s+src="((?:' + '|'.join(re.escape(p) for p in IMG_URL_PREFIXES) + r')[^"]+)"', 'source', 'src'),
+        (r'<img\s+src="((?:' + '|'.join(re.escape(p) for p in IMG_URL_PREFIXES) + r')[^"]+)"', 'img', 'src'),
+        (r'<video\s+[^>]*poster="((?:' + '|'.join(re.escape(p) for p in IMG_URL_PREFIXES) + r')[^"]+)"', 'video', 'poster'),
+    ]
+
+    for pattern_str, tag_name, attr_name in html_patterns:
+        pattern = re.compile(pattern_str)
+        for match_idx, match in enumerate(pattern.finditer(modified_content)):
+            url = match.group(1)
+            if url_matches_prefix(url):
+                title = f"{tag_name}_{attr_name}"
+
+                out_dir = STATIC_IMAGES_DIR / rel_folder
+                out_dir.mkdir(parents=True, exist_ok=True)
+                out_filename_result = process_image_url(
+                    url, out_dir, title, md_stem,
+                    idx=f"html_{tag_name}{match_idx}",
+                    md_path=md_path
+                )
+
+                if out_filename_result:
+                    local_url = f"/images/{rel_folder}/{out_filename_result}".replace('\\', '/')
+                    old_tag = match.group(0)
+                    new_tag = old_tag.replace(url, local_url)
+                    modified_content = modified_content.replace(old_tag, new_tag)
+                    content_changed = True
 
     return modified_content, content_changed
 

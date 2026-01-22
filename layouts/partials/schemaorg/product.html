@@ -1,0 +1,156 @@
+{{/*
+@partial: Schema.org Product/Offer
+@description: Generates JSON-LD structured data for product offerings and pricing
+@params:
+  - products: Array of product objects (optional, for multiple products)
+  - product: Single product object (optional, for single product)
+  Product object structure:
+    - name: Product name
+    - description: Product description
+    - image: Product image URL
+    - sku: Product SKU
+    - brand: Brand name
+    - offers: Offer details (price, priceCurrency, availability, etc.)
+    - aggregateRating: Rating data (optional)
+@example:
+  Single product:
+    {{ partial "schemaorg/product.html" (dict "product" $product) }}
+
+  Multiple products:
+    {{ partial "schemaorg/product.html" (dict "products" $products) }}
+
+  From page params:
+    {{ partial "schemaorg/product.html" . }}
+@note: Can handle both single Product and multiple Products
+*/}}
+
+{{ $site := .Site }}
+{{ $page := . }}
+
+{{/* Handle single product */}}
+{{ $product := .product }}
+{{ if $product }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": {{ $product.name | jsonify }},
+  {{ with $product.description }}"description": {{ . | jsonify }},{{ end }}
+  {{ with $product.image }}
+  "image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }},
+  {{ end }}
+  {{ with $product.sku }}"sku": {{ . | jsonify }},{{ end }}
+  {{ with $product.mpn }}"mpn": {{ . | jsonify }},{{ end }}
+  {{ with $product.brand }}
+  "brand": {
+    "@type": "Brand",
+    "name": {{ . | jsonify }}
+  },
+  {{ end }}
+  {{ with $product.offers }}
+  "offers": {
+    "@type": "Offer",
+    "url": {{ ($product.url | default $site.BaseURL) | jsonify }},
+    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
+    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
+    {{ with .priceValidUntil }}"priceValidUntil": {{ . | jsonify }},{{ end }}
+    {{ with .availability }}"availability": {{ . | jsonify }},{{ else }}"availability": "https://schema.org/InStock",{{ end }}
+    {{ with .itemCondition }}"itemCondition": {{ . | jsonify }},{{ else }}"itemCondition": "https://schema.org/NewCondition",{{ end }}
+    "seller": {
+      "@type": "Organization",
+      "name": {{ $site.Title | jsonify }}
+    }
+  },
+  {{ end }}
+  {{ with $product.aggregateRating }}
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    {{ with .ratingValue }}"ratingValue": {{ . | jsonify }},{{ end }}
+    {{ with .reviewCount }}"reviewCount": {{ . | jsonify }},{{ end }}
+    {{ with .bestRating }}"bestRating": {{ . | jsonify }}{{ end }}
+  },
+  {{ end }}
+  {{ with $product.review }}
+  "review": [
+    {{ range $index, $rev := . }}
+    {{ if $index }},{{ end }}
+    {
+      "@type": "Review",
+      {{ with .author }}
+      "author": {
+        "@type": "Person",
+        "name": {{ . | jsonify }}
+      },
+      {{ end }}
+      {{ with .reviewRating }}
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": {{ .ratingValue | jsonify }},
+        "bestRating": {{ .bestRating | default "5" | jsonify }}
+      },
+      {{ end }}
+      {{ with .reviewBody }}"reviewBody": {{ . | jsonify }}{{ end }}
+    }
+    {{ end }}
+  ],
+  {{ end }}
+  "manufacturer": {
+    "@type": "Organization",
+    "name": {{ $site.Title | jsonify }}
+  }
+}
+</script>
+{{ end }}
+
+{{/* Handle multiple products */}}
+{{ $products := .products }}
+{{ if $products }}
+<script type="application/ld+json">
+[
+  {{ range $index, $prod := $products }}
+  {{ if $index }},{{ end }}
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": {{ $prod.name | jsonify }},
+    {{ with $prod.description }}"description": {{ . | jsonify }},{{ end }}
+    {{ with $prod.image }}
+    "image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }},
+    {{ end }}
+    {{ with $prod.sku }}"sku": {{ . | jsonify }},{{ end }}
+    {{ with $prod.brand }}
+    "brand": {
+      "@type": "Brand",
+      "name": {{ . | jsonify }}
+    },
+    {{ end }}
+    {{ with $prod.offers }}
+    "offers": {
+      "@type": "Offer",
+      "url": {{ ($prod.url | default $site.BaseURL) | jsonify }},
+      {{ with .price }}"price": {{ . | jsonify }},{{ end }}
+      {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
+      {{ with .priceValidUntil }}"priceValidUntil": {{ . | jsonify }},{{ end }}
+      {{ with .availability }}"availability": {{ . | jsonify }},{{ else }}"availability": "https://schema.org/InStock",{{ end }}
+      "seller": {
+        "@type": "Organization",
+        "name": {{ $site.Title | jsonify }}
+      }
+    },
+    {{ end }}
+    {{ with $prod.aggregateRating }}
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": {{ .ratingValue | jsonify }},
+      "reviewCount": {{ .reviewCount | jsonify }}
+    },
+    {{ end }}
+    "manufacturer": {
+      "@type": "Organization",
+      "name": {{ $site.Title | jsonify }}
+    }
+  }
+  {{ end }}
+]
+</script>
+{{ end }}

@@ -1,0 +1,156 @@
+{{/*
+@partial: Schema.org Master Integration
+@description: Includes schema.org structured data based on page parameters (frontmatter)
+@params: page context (automatically passed)
+@usage: Add {{ partial "schemaorg/schemas.html" . }} to your head.html
+@note: This partial uses page parameters to determine which schemas to include.
+       No hardcoded section names - works with any Hugo project structure.
+
+Configuration via frontmatter:
+  schemaType: "Article"          # Main content type schema
+  product: {...}                 # Product schema data
+  service: {...}                 # Service schema data
+  event: {...}                   # Event schema data
+  video: {...}                   # Video schema data
+  howto: {...}                   # HowTo schema data
+  faq: [...]                     # FAQ schema data
+  testimonials: [...]            # Reviews schema data
+  aggregateRating: {...}         # Rating schema data
+  offer: {...}                   # Offer schema data
+  courseMode: "online"           # Triggers Course schema
+  discussion: true               # Triggers Discussion schema
+  author: "authorkey"            # Author schema
+*/}}
+
+{{ $page := . }}
+{{ $site := .Site }}
+
+{{/* ============================================
+    CORE SCHEMAS - Always Included
+    ============================================ */}}
+
+{{/* WebSite schema - enables Google site search box */}}
+{{ partial "schemaorg/website.html" . }}
+
+{{/* Organization schema - company identity */}}
+{{ partial "schemaorg/organization.html" . }}
+
+{{/* WebPage schema - auto-detects page type (AboutPage, ContactPage, etc.) */}}
+{{ partial "schemaorg/webpage.html" . }}
+
+{{/* ============================================
+    HOMEPAGE SCHEMAS
+    ============================================ */}}
+
+{{ if .IsHome }}
+  {{/* SoftwareApplication schema for homepage */}}
+  {{ if $site.Params.software }}
+    {{ partial "schemaorg/softwareapplication.html" . }}
+  {{ end }}
+{{ end }}
+
+{{/* ============================================
+    CONTENT TYPE SCHEMAS
+    Triggered by schemaType parameter
+    ============================================ */}}
+
+{{ $schemaType := .Params.schemaType | default "" }}
+
+{{ if eq $schemaType "Article" }}
+  {{ partial "schemaorg/article.html" . }}
+{{ else if eq $schemaType "BlogPosting" }}
+  {{ partial "schemaorg/article.html" . }}
+{{ else if eq $schemaType "TechArticle" }}
+  {{ partial "schemaorg/article.html" (dict "page" . "articleType" "TechArticle") }}
+{{ else if eq $schemaType "NewsArticle" }}
+  {{ partial "schemaorg/article.html" (dict "page" . "articleType" "NewsArticle") }}
+{{ end }}
+
+{{/* Author schema - if author is specified */}}
+{{ if .Params.author }}
+  {{ partial "schemaorg/author.html" . }}
+{{ end }}
+
+{{/* ============================================
+    PARAMETER-BASED SCHEMAS
+    Triggered by presence of specific parameters
+    ============================================ */}}
+
+{{/* Product schema */}}
+{{ if .Params.product }}
+  {{ partial "schemaorg/product.html" (dict "product" .Params.product) }}
+{{ else if .Params.products }}
+  {{ partial "schemaorg/product.html" (dict "products" .Params.products) }}
+{{ end }}
+
+{{/* Service schema */}}
+{{ if .Params.service }}
+  {{ partial "schemaorg/service.html" (dict "service" .Params.service) }}
+{{ else if .Params.services }}
+  {{ partial "schemaorg/service.html" (dict "services" .Params.services) }}
+{{ end }}
+
+{{/* Event schema */}}
+{{ if .Params.event }}
+  {{ partial "schemaorg/event.html" .Params.event }}
+{{ end }}
+
+{{/* Course schema - triggered by courseMode or course parameter */}}
+{{ if or .Params.courseMode .Params.course }}
+  {{ partial "schemaorg/course.html" . }}
+{{ end }}
+
+{{/* Video schema */}}
+{{ if .Params.video }}
+  {{ partial "schemaorg/video.html" .Params.video }}
+{{ end }}
+
+{{/* HowTo schema */}}
+{{ if .Params.howto }}
+  {{ partial "schemaorg/howto.html" .Params.howto }}
+{{ end }}
+
+{{/* FAQ schema */}}
+{{ if .Params.faq }}
+  {{ partial "schemaorg/faq.html" (dict "faqs" .Params.faq) }}
+{{ end }}
+
+{{/* QAPage schema */}}
+{{ if .Params.qaPage }}
+  {{ partial "schemaorg/qapage.html" . }}
+{{ end }}
+
+{{/* Reviews/Testimonials schema */}}
+{{ if .Params.testimonials }}
+  {{ partial "schemaorg/reviews.html" (dict "testimonials" .Params.testimonials) }}
+{{ end }}
+
+{{/* Aggregate Rating schema */}}
+{{ if .Params.aggregateRating }}
+  {{ partial "schemaorg/aggregaterating.html" .Params.aggregateRating }}
+{{ end }}
+
+{{/* Offer schema */}}
+{{ if .Params.offer }}
+  {{ partial "schemaorg/offer.html" .Params.offer }}
+{{ end }}
+
+{{/* JobPosting schema */}}
+{{ if .Params.jobPosting }}
+  {{ partial "schemaorg/jobposting.html" .Params.jobPosting }}
+{{ end }}
+
+{{/* ItemList schema */}}
+{{ if .Params.itemList }}
+  {{ partial "schemaorg/itemlist.html" (dict "name" .Title "items" .Params.itemList) }}
+{{ end }}
+
+{{/* Breadcrumbs schema */}}
+{{ if .Params.breadcrumbs }}
+  {{ partial "schemaorg/breadcrumbs.html" (dict "items" .Params.breadcrumbs) }}
+{{ end }}
+
+{{/* Discussion schema */}}
+{{ if .Params.discussion }}
+  {{ partial "schemaorg/discussion.html" . }}
+{{ end }}

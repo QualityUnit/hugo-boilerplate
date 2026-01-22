@@ -6,6 +6,30 @@
   <div class="bg-white dark:bg-gray-900 py-16">
     {{ partial "hero_default.html" . }}
 
+    {{/* Schema.org ItemList and FAQPage for FAQ pages */}}
+    {{ $glossaryTerms := where .Site.RegularPages "Section" "faq" }}
+    {{ if gt (len $glossaryTerms) 0 }}
+      {{ $items := slice }}
+      {{ $faqs := slice }}
+      {{ range $glossaryTerms }}
+        {{ $items = $items | append (dict
+          "name" (.Params.question | default .Title)
+          "url" .Permalink
+          "description" (.Params.short_answer | default .Description)
+        ) }}
+        {{ $faqs = $faqs | append (dict
+          "question" (.Params.question | default .Title)
+          "answer" (.Params.short_answer | default .Description | default .Plain)
+        ) }}
+      {{ end }}
+      {{ partial "schemaorg/itemlist.html" (dict
+        "name" (printf "%s - %s" .Title site.Title)
+        "description" (.Description | default "Frequently Asked Questions")
+        "items" $items
+      ) }}
+      {{ partial "schemaorg/faq.html" (dict "faqs" $faqs) }}
+    {{ end }}
+
     {{/* Search field for FAQ */}}
     <div class="wrapper px-8 mt-4">
       <div class="max-w-xl mx-auto">

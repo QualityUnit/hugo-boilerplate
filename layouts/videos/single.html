@@ -1,5 +1,10 @@
 {{ define "main" }}
 
+{{/* Schema.org structured data for video */}}
+{{ if .Params.video }}
+  {{ partial "schemaorg/video.html" .Params.video }}
+{{ end }}
+
 {{ partial "breadcrumbs_default.html" . }}
 {{ partial "hero_default.html" . }}
 
@@ -27,6 +32,8 @@
 "description" (i18n "faq_description")
 "items" .Params.faq
 ) }}
+{{/* Schema.org FAQ markup */}}
+{{ partial "schemaorg/faq.html" (dict "faqs" .Params.faq) }}
 {{ end }}
 
 

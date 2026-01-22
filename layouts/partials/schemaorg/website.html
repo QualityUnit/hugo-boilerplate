@@ -1,0 +1,47 @@
+{{/*
+@partial: Schema.org WebSite
+@description: Generates JSON-LD structured data for website identity with SearchAction
+@params:
+  - site: Site context (optional, defaults to current site)
+@example:
+  {{ partial "schemaorg/website.html" . }}
+@note: Add this to your base template (baseof.html or head.html)
+  Enables Google site search box in SERPs
+  Config example in config.yaml:
+    params:
+      searchUrl: "/search/"
+*/}}
+
+{{ $site := .Site }}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": {{ $site.Title | jsonify }},
+  "url": {{ $site.BaseURL | jsonify }},
+  {{ with $site.Params.description }}"description": {{ . | jsonify }},{{ end }}
+  {{ with $site.Params.searchUrl }}
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": {{ printf "%s%s?q={search_term_string}" $site.BaseURL (strings.TrimPrefix "/" .) | jsonify }}
+    },
+    "query-input": "required name=search_term_string"
+  },
+  {{ end }}
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ $site.Title | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+    {{ with $site.Params.organization.logo }},
+    "logo": {
+      "@type": "ImageObject",
+      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+    }
+    {{ end }}
+  },
+  "inLanguage": {{ $site.Language.Lang | jsonify }}
+}
+</script>

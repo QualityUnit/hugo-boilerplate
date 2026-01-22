@@ -1,0 +1,97 @@
+{{/*
+@partial: Schema.org WebPage
+@description: Generates JSON-LD structured data for various webpage types
+@params:
+  - page: Page context (required)
+  - pageType: Type of page - "WebPage", "AboutPage", "ContactPage", "FAQPage", "CollectionPage", "ProfilePage", "SearchResultsPage" (optional, auto-detected or defaults to WebPage)
+@example:
+  {{ partial "schemaorg/webpage.html" . }}
+  {{ partial "schemaorg/webpage.html" (dict "page" . "pageType" "AboutPage") }}
+@note: Automatically detects page type from page params or URL
+  Set pageType in frontmatter: pageType: "AboutPage"
+*/}}
+
+{{/* Handle both direct page context and dict with page key */}}
+{{ $page := . }}
+{{ if reflect.IsMap . }}
+  {{ if isset . "page" }}
+    {{ $page = .page }}
+  {{ end }}
+{{ end }}
+{{ $site := $page.Site }}
+
+{{/* Auto-detect page type */}}
+{{ $pageType := "WebPage" }}
+{{ if reflect.IsMap . }}
+  {{ $pageType = .pageType | default $page.Params.pageType | default "WebPage" }}
+{{ else }}
+  {{ $pageType = $page.Params.pageType | default "WebPage" }}
+{{ end }}
+
+{{/* Auto-detect based on page path if not specified */}}
+{{ if eq $pageType "WebPage" }}
+  {{ $relPath := strings.ToLower $page.RelPermalink }}
+  {{ if or (in $relPath "/about") (in $relPath "/about-us") }}
+    {{ $pageType = "AboutPage" }}
+  {{ else if or (in $relPath "/contact") (in $relPath "/contact-us") }}
+    {{ $pageType = "ContactPage" }}
+  {{ else if in $relPath "/faq" }}
+    {{ $pageType = "FAQPage" }}
+  {{ else if or (in $relPath "/search") (in $relPath "/results") }}
+    {{ $pageType = "SearchResultsPage" }}
+  {{ else if $page.IsHome }}
+    {{ $pageType = "WebPage" }}
+  {{ end }}
+{{ end }}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": {{ $pageType | jsonify }},
+  "@id": {{ $page.Permalink | jsonify }},
+  "url": {{ $page.Permalink | jsonify }},
+  "name": {{ $page.Title | jsonify }},
+  {{ with $page.Description }}"description": {{ . | jsonify }},{{ end }}
+  {{ with $page.Params.image }}
+  "image": {
+    "@type": "ImageObject",
+    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+  },
+  {{ end }}
+  "inLanguage": {{ $page.Language.Lang | jsonify }},
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": {{ printf "%s#website" $site.BaseURL | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }},
+    "name": {{ $site.Title | jsonify }}
+  },
+  "datePublished": {{ $page.Date.Format "2006-01-02T15:04:05Z07:00" | jsonify }},
+  "dateModified": {{ $page.Lastmod.Format "2006-01-02T15:04:05Z07:00" | jsonify }},
+  {{ with $page.Params.author }}
+  {{ $authorKey := . }}
+  {{ $authors := $site.Data.authors }}
+  {{ if and $authors (index $authors $authorKey) }}
+  {{ $author := index $authors $authorKey }}
+  "author": {
+    "@type": "Person",
+    "name": {{ $author.name | jsonify }}
+  },
+  {{ end }}
+  {{ end }}
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "@id": {{ printf "%s#breadcrumb" $page.Permalink | jsonify }}
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ $site.Title | jsonify }},
+    "url": {{ $site.BaseURL | jsonify }}
+    {{ with $site.Params.organization.logo }},
+    "logo": {
+      "@type": "ImageObject",
+      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
+    }
+    {{ end }}
+  }
+}
+</script>
