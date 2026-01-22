@@ -63,12 +63,16 @@
 {{/* Theme setup */}}
 {{ $theme := .theme | default "light" }}
 {{ $isDark := eq $theme "dark" }}
+{{ $isAlternate := eq $theme "alternate" }}
 {{ $darkClass := cond $isDark "dark" "" }}
+
+{{ $sectionVerticalSpacing := .sectionVerticalSpacing | default "my-24 sm:my-32" }}
+{{ $finalSpacing := cond (or $isDark $isAlternate) "py-24 sm:py-32" $sectionVerticalSpacing }}
 
 {{ $cards := .cards | default (slice) }}
 
 <div class="{{ $darkClass }}">
-  <div class="section-bg-light dark:section-bg-dark dark:py-24 dark:sm:py-32 dark:my-0 my-24 sm:my-32">
+  <div class="section-bg-light dark:section-bg-dark {{ $finalSpacing }}">
     <div class="wrapper">
       {{ if $tagline }}
         <h2 class="text-center text-base/7 font-semibold product-text">{{ $tagline }}</h2>
