@@ -167,14 +167,21 @@ Design Tokens:
   {{ else }}
     {{ $imageSrc = $image }}
   {{ end }}
-{{ else }}
-  {{ $imageSrc = "https://images.unsplash.com/photo-1487017159836-4e23ece2e4cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2102&q=80" }}
 {{ end }}
 
-{{/* Overlay icon source logic (Simplified by using overlayMode) */}}
+{{/* Overlay icon source logic - use $image for "image" mode, $icon for "svg" mode */}}
 {{ $showOverlay := $config.showOverlay }}
 {{ $iconImageSrc := "" }}
-{{ if or (eq $config.overlayMode "image") (eq $config.overlayMode "svg") }}
+{{ if eq $config.overlayMode "image" }}
+  {{/* Image mode: use main image as overlay icon (integrations, success-stories) */}}
+  {{ if reflect.IsMap $image }}
+    {{ $iconImageSrc = $image.url }}
+  {{ else }}
+    {{ $iconImageSrc = $image }}
+  {{ end }}
+  {{ $showOverlay = and $showOverlay (ne $iconImageSrc "") }}
+{{ else if eq $config.overlayMode "svg" }}
+  {{/* SVG mode: use icon parameter (features) */}}
   {{ $iconImageSrc = $icon }}
   {{ $showOverlay = and $showOverlay (ne $iconImageSrc "") }}
 {{ end }}
