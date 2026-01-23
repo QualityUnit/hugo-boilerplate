@@ -14,17 +14,29 @@
       )
   ) }}
 @note: This is a specialized version for hero sections with horizontal layout and simplified styling.
+  - Equal width columns when 3 items
+  - Improvement value: max 2 lines with ellipsis
+  - Description text: max 3 lines with ellipsis
 */}}
 
 {{ $improvements := .improvements | default slice }}
+{{ $count := len $improvements }}
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
+{{/* Grid columns based on count - equal thirds for 3 items */}}
+{{ $gridCols := "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" }}
+{{ if eq $count 2 }}
+  {{ $gridCols = "grid-cols-1 sm:grid-cols-2" }}
+{{ else if eq $count 1 }}
+  {{ $gridCols = "grid-cols-1" }}
+{{ end }}
+
+<div class="grid {{ $gridCols }} gap-1">
   {{ range $index, $improvement := $improvements }}
-    <div class="py-3 px-4 border-l border-neutral-200">
-      <div class="text-4xl md:text-4xl font-bold text-brand mb-1.5">
+    <div class="py-3 px-4 border-l border-neutral-200 flex-1">
+      <div class="text-4xl font-bold text-brand mb-1.5 line-clamp-2">
         {{ $improvement.improvement }}
       </div>
-      <div class="text-secondary font-semibold">
+      <div class="text-secondary font-semibold line-clamp-3">
         {{ $improvement.text }}
       </div>
     </div>
