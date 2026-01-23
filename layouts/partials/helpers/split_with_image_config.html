@@ -1,0 +1,106 @@
+{{/*
+@helper: Split With Image Hero Type Configuration
+@description: Returns configuration for different hero types used in split_with_image.html
+@params:
+  - type: Hero type string (e.g., "success-stories", "integrations", "features", etc.)
+  - customBackground: Optional custom background image path
+@returns: dict with configuration:
+  - customBackground: Background image path
+  - showOverlay: Boolean - whether to show overlay
+  - overlayMode: "none" | "svg" | "image"
+  - overlayColor: Color class for SVG icons
+  - overlayPositionRight: Boolean - position overlay on right side
+@example:
+  {{ $config := partial "helpers/split_with_image_config.html" (dict "type" "success-stories") }}
+*/}}
+
+{{ $type := .type | default "default" }}
+{{ $customBackground := .customBackground | default "" }}
+
+{{/* Feature category colors map */}}
+{{ $featureColors := dict
+  "promotional-materials" "text-green-600"
+  "reporting" "text-fuchsia-600"
+  "commissions" "text-yellow-600"
+  "user-interface" "text-orange-300"
+  "tracking" "text-sky-600"
+  "security" "text-pink-600"
+}}
+
+{{/* Base config for Features (SVG Overlay mode) */}}
+{{ $featureBaseConfig := dict 
+    "customBackground" ""
+    "showOverlay" true 
+    "overlayMode" "svg"
+    "overlayColor" "text-green-600"
+    "overlayPositionRight" false
+}}
+
+{{/* Base config for Integrations (Image Overlay mode) */}}
+{{ $integrationConfigDefault := dict 
+    "customBackground" "/images/integration-methods/integration-detail.png"
+    "showOverlay" true 
+    "overlayMode" "image"
+    "overlayColor" ""
+    "overlayPositionRight" false
+}}
+
+{{/* Use customBackground if provided for integrations */}}
+{{ $integrationConfig := $integrationConfigDefault }}
+{{ if $customBackground }}
+  {{ $integrationConfig = merge $integrationConfigDefault (dict "customBackground" $customBackground) }}
+{{ end }}
+
+{{/* Academy config */}}
+{{ $academyConfig := dict 
+    "customBackground" ""
+    "showOverlay" true 
+    "overlayMode" "svg"
+    "overlayColor" ""
+    "overlayPositionRight" false
+}}
+
+{{/* Templates config */}}
+{{ $templatesConfig := dict 
+    "customBackground" ""
+    "showOverlay" true 
+    "overlayMode" "svg"
+    "overlayColor" "text-primary"
+    "overlayPositionRight" false
+}}
+
+{{/* Success Stories config */}}
+{{ $successStoriesConfig := dict 
+    "customBackground" ""
+    "showOverlay" true 
+    "overlayMode" "svg"
+    "overlayColor" ""
+    "overlayPositionRight" true
+}}
+
+{{/* Default config (no overlay) */}}
+{{ $defaultConfig := dict 
+    "customBackground" "" 
+    "showOverlay" false 
+    "overlayMode" "none"
+    "overlayColor" ""
+    "overlayPositionRight" false
+}}
+
+{{/* All Types Map */}}
+{{ $allTypeConfigs := dict
+  "academy" $academyConfig
+  "integrations" $integrationConfig
+  "templates" $templatesConfig
+  "features" $featureBaseConfig
+  "success-stories" $successStoriesConfig
+}}
+
+{{/* Add feature category configurations */}}
+{{ range $category, $color := $featureColors }}
+  {{ $categoryConfig := merge $featureBaseConfig (dict "overlayColor" $color) }}
+  {{ $allTypeConfigs = merge $allTypeConfigs (dict $category $categoryConfig) }}
+{{ end }}
+
+{{/* Return config for requested type */}}
+{{ return (index $allTypeConfigs $type | default $defaultConfig) }}
