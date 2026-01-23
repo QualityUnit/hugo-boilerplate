@@ -38,7 +38,7 @@
     - numbered_features: JSON string or "numbered_features" to use page params (features with numbers instead of icons)
     - stats: JSON string or "stats" to use page params
     - quote: JSON string or "quote" to use page params
-    - sectionMarginY: Custom vertical margin using Tailwind classes (default: "my-24 lg:my-32")
+    - sectionVerticalSpacing: Custom vertical spacing parameter - for light theme uses margin classes (default: "my-24 sm:my-32"), for dark/alternate themes uses padding "py-24 sm:py-32"
     - imageGallery: JSON string with gallery data {"title": "Gallery Title", "images": [{"src": "/path/to/image.jpg", "alt": "Image description"}]}
 
 
@@ -340,7 +340,7 @@
 {{ $theme := .Get "theme" | default "light" }}
 {{ $backgroundColor := .Get "backgroundColor" | default "" }}
 {{ $contentAsHTML := .Get "contentAsHTML" | default false }}
-{{ $sectionMarginY := .Get "sectionMarginY" }}
+{{ $sectionVerticalSpacing := .Get "sectionVerticalSpacing" }}
 
 {{/* Header parameters */}}
 {{ $headerEyebrow := .Get "headerEyebrow" | default "" }}
@@ -572,7 +572,7 @@
   "stats" $stats
   "quote" $quote
   "imageGallery" $imageGallery
-  "sectionMarginY" $sectionMarginY
+  "sectionVerticalSpacing" $sectionVerticalSpacing
   "headerEyebrow" $headerEyebrow
   "headerHeading" $headerHeading
   "headerDescription" $headerDescription
