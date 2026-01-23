@@ -280,43 +280,43 @@ Design Tokens:
 
           {{/* Tags, Categories, Badges, Resources */}}
           {{ if or $categories $tags $badges $resources }}
-          <div class="mt-6 flex flex-col gap-4">
-            {{ if $badges }}
-            <div class="flex flex-wrap gap-2">
-              {{ range $badges }}
-                {{ partial "components/label/label.html" (dict 
-                  "text" . 
-                  "badgeClass" "badge-base badge-gray badge-with-border"
-                ) }}
+            <div class="mt-6 flex flex-col gap-4">
+              {{ if $badges }}
+              <div class="flex flex-wrap gap-2">
+                {{ range $badges }}
+                  {{ partial "components/label/label.html" (dict 
+                    "text" . 
+                    "badgeClass" "badge-base badge-gray badge-with-border"
+                  ) }}
+                {{ end }}
+              </div>
+              {{ end }}
+
+              {{ if $categories }}
+              {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
+              <div class="flex flex-wrap gap-2">
+                {{ range $categories }}
+                {{ if $categoriesEnabled }}
+                <a href="{{ print "/categories/" (. | urlize) | relLangURL }}/" class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark hover:bg-indigo-100">
+                {{ . }}
+                </a>
+                {{ else }}
+                <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark">
+                {{ . }}
+                </span>
+                {{ end }}
+                {{ end }}
+              </div>
+              {{ end }}
+
+              {{ if $tags }}
+                {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 ) }}
+              {{ end }}
+
+              {{ if $resources }}
+                {{ partial "sections/resources/resources.html" (dict "resources" $resources "maxItems" 4) }}
               {{ end }}
             </div>
-            {{ end }}
-
-            {{ if $categories }}
-            {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
-            <div class="flex flex-wrap gap-2">
-              {{ range $categories }}
-              {{ if $categoriesEnabled }}
-              <a href="{{ print "/categories/" (. | urlize) | relLangURL }}/" class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark hover:bg-indigo-100">
-              {{ . }}
-              </a>
-              {{ else }}
-              <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark">
-              {{ . }}
-              </span>
-              {{ end }}
-              {{ end }}
-            </div>
-            {{ end }}
-
-            {{ if $tags }}
-              {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 ) }}
-            {{ end }}
-
-            {{ if $resources }}
-              {{ partial "sections/resources/resources.html" (dict "resources" $resources "maxItems" 4) }}
-            {{ end }}
-          </div>
           {{ end }}
 
           {{/* CTA Buttons */}}
