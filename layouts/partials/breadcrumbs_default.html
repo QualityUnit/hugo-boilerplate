@@ -1,12 +1,14 @@
 <!-- Breadcrumbs -->
 {{ $breadcrumbItems := slice (dict "title" (i18n "home_title") "url" .Site.Home.RelPermalink) }}
 
+{{/* Add ancestor pages (parent, grandparent, etc.) - excludes home and current page */}}
 {{ range .Ancestors.Reverse }}
   {{ if not .IsHome }}
     {{ $breadcrumbItems = $breadcrumbItems | append (dict "title" .Title "url" .RelPermalink) }}
   {{ end }}
 {{ end }}
 
+{{/* Add current page - .Ancestors does not include the current page, so we add it separately */}}
 {{ if not .IsHome }}
   {{ $breadcrumbItems = $breadcrumbItems | append (dict "title" .Title "url" .RelPermalink) }}
 {{ end }}
