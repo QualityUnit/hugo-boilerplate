@@ -186,81 +186,24 @@ Design Tokens:
 
 <div class="split-with-image-hero {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
-    {{/* Right side - Media */}}
-    {{ if eq $type "success-stories" }}
-      {{/* Success Stories - use dedicated media partial */}}
-      {{ partial "sections/hero/split_right_media.html" (dict
-        "image" $imageSrc
-        "imageAlt" $finalImageAlt
-        "video" $video
-        "heading" $heading
-        "overlay" (dict
-          "enabled" $showOverlay
-          "mode" $config.overlayMode
-          "icon" $iconImageSrc
-          "color" $config.overlayColor
-          "positionRight" $config.overlayPositionRight
-          "size" $overlaySize
-          "iconSizeImage" $overlayIconSizeIntegrations
-          "iconSizeSvg" $overlayIconSizeFeatures
-          "shadowClass" $overlayShadowClass
-        )
-      ) }}
-    {{ else }}
-      {{/* Default media rendering */}}
-      <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
-        {{ $overflowClass := "overflow-hidden" }}
-        {{ if $config.overlayPositionRight }}
-          {{ $overflowClass = "overflow-hidden lg:overflow-visible" }}
-        {{ end }}
-        <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full {{ $overflowClass }} mx-auto max-w-[38rem] max-h-[35rem]">
-          {{ if and $video $video.enabled }}
-            {{/* Display video with popup */}}
-            {{ partial "components/media/video.html" (dict 
-                "src" $video.src 
-                "poster" $video.poster 
-                "title" $heading
-                "class" "rounded-lg w-full h-auto"
-                "provider" "youtube"
-                "playBtnClass" ""
-                "posterHeight" "h-full"
-                "useAspectRatio" false
-                "showPlayButton" $video.showPlayButton
-                "useLightbox" true
-                "noLazy" true
-            ) }}
-          {{ else }}
-            {{/* Display regular image */}}
-            {{ if and $showOverlay $iconImageSrc }}
-              <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
-                {{ if eq $config.overlayMode "image" }}
-                  {{/* Image Overlay (integrations, success-stories) */}}
-                  {{ partial "components/media/lazyimg.html" (dict
-                    "src" $iconImageSrc
-                    "alt" "Logo"
-                    "class" (printf "%s object-contain" $overlayIconSizeIntegrations)
-                    "noLazy" true
-                  ) }}
-                {{ else if eq $config.overlayMode "svg" }}
-                  {{/* Feature SVG icon (SVG Overlay) */}}
-                  {{ partial "components/media/svg-icon.html" (dict
-                    "src" $iconImageSrc
-                    "alt" "Feature icon"
-                    "class" (printf "%s %s" $overlayIconSizeFeatures $config.overlayColor)
-                  ) }}
-                {{ end }}
-              </div>
-            {{ end }}
-            {{ partial "components/media/lazyimg.html" (dict
-                "src" $imageSrc
-                "alt" $finalImageAlt
-                "class" "object-contain rounded-lg"
-                "noLazy" true
-              ) }}
-          {{ end }}
-        </div>
-      </div>
-    {{ end }}
+    {{/* Right side - Media (universal partial for all types) */}}
+    {{ partial "sections/hero/split_right_media.html" (dict
+      "image" $imageSrc
+      "imageAlt" $finalImageAlt
+      "video" $video
+      "heading" $heading
+      "overlay" (dict
+        "enabled" $showOverlay
+        "mode" $config.overlayMode
+        "icon" $iconImageSrc
+        "color" $config.overlayColor
+        "positionRight" $config.overlayPositionRight
+        "size" $overlaySize
+        "iconSizeImage" $overlayIconSizeIntegrations
+        "iconSizeSvg" $overlayIconSizeFeatures
+        "shadowClass" $overlayShadowClass
+      )
+    ) }}
 
     {{/* Left side - Content */}}
     <div class="lg:flex lg:w-1/2 lg:items-center">
