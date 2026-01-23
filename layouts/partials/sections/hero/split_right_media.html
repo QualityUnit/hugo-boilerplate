@@ -1,0 +1,126 @@
+{{/*
+@section: Hero Right Media
+@description: Right side media container for split hero layouts - supports image, video, and overlay modes.
+@params:
+  - image: Image source URL (required unless video enabled)
+  - imageAlt: Alt text for image (optional, falls back to heading)
+  - video: Video object (optional)
+    - enabled: Boolean to enable video mode
+    - src: YouTube URL
+    - poster: Custom poster image
+    - showPlayButton: Show play button overlay
+  - heading: Used for alt text fallback
+  - overlay: Overlay configuration object (optional)
+    - enabled: Boolean to show overlay
+    - mode: "svg" | "image" - type of overlay content
+    - icon: Icon/image source for overlay
+    - color: Color class for SVG icons (e.g., "text-green-600")
+    - position: Position classes (default: "top-[5.69rem] left-[1.25rem]")
+    - positionRight: Boolean - if true, positions overlay on right side
+    - size: Size classes for overlay container (default: "w-[7.88rem] h-[7.88rem]")
+    - iconSizeImage: Size classes for image icons (default: "w-[6.25rem] h-[6.25rem]")
+    - iconSizeSvg: Size classes for SVG icons (default: "w-[4.25rem] h-[4.25rem]")
+    - shadowClass: CSS class for shadow (default: "hero-overlay-shadow")
+@example:
+  {{ partial "sections/hero/split_right_media.html" (dict
+      "image" "/images/hero.jpg"
+      "imageAlt" "Hero image"
+      "overlay" (dict
+          "enabled" true
+          "mode" "svg"
+          "icon" "/icons/feature.svg"
+          "color" "text-green-600"
+      )
+  ) }}
+*/}}
+
+{{ $image := .image }}
+{{ $imageAlt := .imageAlt | default .heading | default "Hero image" }}
+{{ $video := .video | default (dict "enabled" false) }}
+{{ $heading := .heading | default "" }}
+{{ $overlay := .overlay | default (dict "enabled" false) }}
+
+{{/* Overlay configuration with defaults */}}
+{{ $showOverlay := $overlay.enabled | default false }}
+{{ $overlayMode := $overlay.mode | default "none" }}
+{{ $overlayIcon := $overlay.icon | default "" }}
+{{ $overlayColor := $overlay.color | default "" }}
+{{ $overlayPositionRight := $overlay.positionRight | default false }}
+{{ $overlayPosition := $overlay.position | default "top-[5.69rem] left-[1.25rem]" }}
+{{ $overlaySize := $overlay.size | default "w-[7.88rem] h-[7.88rem]" }}
+{{ $overlayIconSizeImage := $overlay.iconSizeImage | default "w-[6.25rem] h-[6.25rem]" }}
+{{ $overlayIconSizeSvg := $overlay.iconSizeSvg | default "w-[4.25rem] h-[4.25rem]" }}
+{{ $overlayShadowClass := $overlay.shadowClass | default "hero-overlay-shadow" }}
+
+{{/* Override position for right-side overlay */}}
+{{ if $overlayPositionRight }}
+  {{ $overlayPosition = "top-12 right-0 lg:translate-x-1/3" }}
+{{ end }}
+
+{{/* Image processing */}}
+{{ $imageSrc := "" }}
+{{ if $image }}
+  {{ if reflect.IsMap $image }}
+    {{ $imageSrc = $image.url }}
+    {{ $imageAlt = $image.alt | default $imageAlt }}
+  {{ else }}
+    {{ $imageSrc = $image }}
+  {{ end }}
+{{ else }}
+  {{ $imageSrc = "https://images.unsplash.com/photo-1487017159836-4e23ece2e4cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2102&q=80" }}
+{{ end }}
+
+{{/* Overflow class - visible for right-positioned overlay */}}
+{{ $overflowClass := "overflow-hidden" }}
+{{ if $overlayPositionRight }}
+  {{ $overflowClass = "overflow-hidden lg:overflow-visible" }}
+{{ end }}
+
+<div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
+  <div class="relative rounded-lg py-6 flex items-start justify-center w-full {{ $overflowClass }} mx-auto max-w-[38rem] max-h-[35rem]">
+    {{ if and $video $video.enabled }}
+      {{/* Display video with popup */}}
+      {{ partial "components/media/video.html" (dict 
+          "src" $video.src 
+          "poster" $video.poster 
+          "title" $heading
+          "class" "rounded-lg w-full h-auto"
+          "provider" "youtube"
+          "playBtnClass" ""
+          "posterHeight" "h-full"
+          "useAspectRatio" false
+          "showPlayButton" $video.showPlayButton
+          "useLightbox" true
+          "noLazy" true
+      ) }}
+    {{ else }}
+      {{/* Display regular image with optional overlay */}}
+      {{ if and $showOverlay $overlayIcon }}
+        <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
+          {{ if eq $overlayMode "image" }}
+            {{/* Image Overlay (integrations, success-stories) */}}
+            {{ partial "components/media/lazyimg.html" (dict
+              "src" $overlayIcon
+              "alt" "Logo"
+              "class" (printf "%s object-contain" $overlayIconSizeImage)
+              "noLazy" true
+            ) }}
+          {{ else if eq $overlayMode "svg" }}
+            {{/* Feature SVG icon */}}
+            {{ partial "components/media/svg-icon.html" (dict
+              "src" $overlayIcon
+              "alt" "Feature icon"
+              "class" (printf "%s %s" $overlayIconSizeSvg $overlayColor)
+            ) }}
+          {{ end }}
+        </div>
+      {{ end }}
+      {{ partial "components/media/lazyimg.html" (dict
+          "src" $imageSrc
+          "alt" $imageAlt
+          "class" "object-contain rounded-lg"
+          "noLazy" true
+        ) }}
+    {{ end }}
+  </div>
+</div>
