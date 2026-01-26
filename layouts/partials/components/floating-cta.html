@@ -150,24 +150,24 @@
         {{ end }}
       </ul>
       {{ end }}
-    </div>
 
-    {{/* Button */}}
-    <div class="floating-cta__action">
-      {{ partial "components/buttons/buttons.html" (dict
-        "text" $buttonText
-        "url" $buttonUrl
-        "variant" $buttonVariant
-        "size" "lg"
-        "classes" "w-full justify-center"
-      ) }}
+      {{/* Button */}}
+      <div class="floating-cta__action">
+        {{ partial "components/buttons/buttons.html" (dict
+          "text" $buttonText
+          "url" $buttonUrl
+          "variant" $buttonVariant
+          "size" "lg"
+          "classes" "w-full justify-center"
+        ) }}
 
-      {{/* Secondary link */}}
-      {{ if and $secondaryText $secondaryUrl }}
-      <div class="floating-cta__secondary">
-        <a href="{{ $secondaryUrl }}">{{ $secondaryText }} →</a>
+        {{/* Secondary link */}}
+        {{ if and $secondaryText $secondaryUrl }}
+        <div class="floating-cta__secondary">
+          <a href="{{ $secondaryUrl }}">{{ $secondaryText }} →</a>
+        </div>
+        {{ end }}
       </div>
-      {{ end }}
     </div>
 
     {{/* Background image - displayed at bottom */}}
