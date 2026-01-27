@@ -215,7 +215,7 @@
 
 /* Feature list */
 .floating-cta__features {
-  @apply mt-0 space-y-2;
+  @apply my-7 space-y-2;
 }
 
 .floating-cta__feature {
