@@ -65,6 +65,7 @@
 {{ $secondaryText := .Params.floatingCta.secondaryText | default site.Params.floatingcta.secondarytext | default (i18n "floating_cta_secondary") | default "" }}
 {{ $secondaryUrl := .Params.floatingCta.secondaryUrl | default site.Params.floatingcta.secondaryurl | default "" }}
 {{ $showBadge := .Params.floatingCta.showBadge | default site.Params.floatingcta.showbadge | default true }}
+{{ $showFeatures := .Params.floatingCta.showFeatures | default site.Params.floatingcta.showfeatures | default true }}
 {{ $showSecondary := .Params.floatingCta.showSecondary | default site.Params.floatingcta.showsecondary | default true }}
 {{ $theme := .Params.floatingCta.theme | default site.Params.floatingcta.theme | default "dark" }}
 {{ $showLogo := .Params.floatingCta.showLogo | default site.Params.floatingcta.showlogo | default false }}
@@ -140,7 +141,7 @@
       <p class="floating-cta__description">{{ $description }}</p>
 
       {{/* Feature list */}}
-      {{ if $features }}
+      {{ if and $features $showFeatures }}
       <ul class="floating-cta__features">
         {{ range $features }}
         <li class="floating-cta__feature">
