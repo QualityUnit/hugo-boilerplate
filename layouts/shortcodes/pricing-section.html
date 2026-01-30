@@ -3,10 +3,10 @@
 {{ $tagline := .Get "tagline" | default (.Get 0) | default (i18n "pricing_section_tagline") }}
 {{ $heading := .Get "heading" | default (.Get 1) | default (i18n "pricing_section_heading") }}
 {{ $description := .Get "description" | default (.Get 2) | default (i18n "pricing_section_description") }}
-{{ $backgroundColor := .Get "backgroundColor" | default $params.backgroundColor | default (.Get 3) | default "gray-50" }}
-{{ $taglineColor := .Get "taglineColor" | default $params.taglineColor | default (.Get 4) | default "primary" }}
-{{ $headingColor := .Get "headingColor" | default $params.headingColor | default (.Get 5) | default "gray-900" }}
-{{ $descriptionColor := .Get "descriptionColor" | default $params.descriptionColor | default (.Get 6) | default "gray-600" }}
+{{ $backgroundColor := .Get "backgroundColor" | default $params.backgroundColor | default (.Get 3) }}
+{{ $taglineColor := .Get "taglineColor" | default $params.taglineColor | default (.Get 4) }}
+{{ $headingColor := .Get "headingColor" | default $params.headingColor | default (.Get 5) }}
+{{ $descriptionColor := .Get "descriptionColor" | default $params.descriptionColor | default (.Get 6) }}
 {{ $checkIcon := .Get "checkIcon" | default $params.checkIcon | default "" }}
 {{ $columns := .Get "columns" | default $params.columns }}
 {{ $startColumn := .Get "startColumn" | default 0 | int }}
