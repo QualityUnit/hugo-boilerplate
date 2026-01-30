@@ -35,6 +35,14 @@ document.addEventListener('DOMContentLoaded', function () {
         top: -8px !important;
         bottom: auto !important;
       }
+
+      @media (max-width: 767px) {
+        .tooltip-content.adjust-left, .tooltip-content.adjust-right, .tooltip-content.adjust-top {
+          transform: translateX(0%) translateY(0%) !important;
+          left: 0 !important;
+          right: auto !important;
+        }
+      }
     `;
     document.head.appendChild(style);
   }

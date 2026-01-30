@@ -13,9 +13,9 @@
 
 {{ $tooltipPosition := "" }}
 {{ if eq $position "top" }}
-  {{ $tooltipPosition = "bottom-full left-1/2 transform -translate-x-1/2 mb-2" }}
+  {{ $tooltipPosition = "bottom-full left-1/2 -translate-x-1/2 mb-2" }}
 {{ else if eq $position "bottom" }}
-  {{ $tooltipPosition = "top-full left-1/2 transform -translate-x-1/2 mt-2" }}
+  {{ $tooltipPosition = "top-full left-1/2 -translate-x-1/2 mt-2" }}
 {{ else if eq $position "left" }}
   {{ $tooltipPosition = "right-full top-1/2 transform -translate-y-1/2 mr-2" }}
 {{ else }}
@@ -23,13 +23,14 @@
 {{ end }}
 
 <div class="inline-block whitespace-normal hyphens-auto">
-  <span class="whitespace-nowrap">{{ .content }}<span class="group relative inline-block align-middle pl-2">
-    {{ partial (printf "icons/%s" $icon) (printf "%s cursor-pointer tooltip-trigger %s" $sizeIcon $colorIcon) }}
+  <span class="whitespace-nowrap">{{ .content }}<span class="md:group md:relative inline-block align-middle pl-2">
+    <button type="button" class="inline-flex focus:outline-none">
+      {{ partial (printf "icons/%s" $icon) (printf "%s cursor-pointer tooltip-trigger %s" $sizeIcon $colorIcon) }}
+    </button>
     <div
-      class="pointer-events-none absolute {{ $tooltipPosition }} z-[9999] w-72 rounded-md bg-gray-900 px-4 py-3 text-sm text-white font-normal opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100 tooltip-content leading-relaxed"
+      class="pointer-events-none absolute left-4 right-4 md:left-1/2 md:right-auto bottom-4 md:bottom-auto {{ $tooltipPosition }} z-[9999] md:w-72 rounded-md bg-gray-900 px-4 py-3 text-sm text-white font-normal opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100 tooltip-content leading-relaxed"
       data-tooltip
       role="tooltip"
-      aria-hidden="true"
     >
       {{ $text }}
     </div>
