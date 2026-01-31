@@ -255,7 +255,7 @@
 
                             {{ range $featureIndex, $feature := $category.features }}
                                 <tr>
-                                    <th scope="row" class="not-prose py-4 text-sm/6 font-normal text-heading">
+                                    <th scope="row" class="not-prose py-4 text-sm/6 font-normal text-heading group relative">
                                         {{ if $feature.tooltip }}
                                             {{ partial "components/tooltip/tooltip.html" (dict "content" (i18n $feature.name | default $feature.name) "text" (i18n $feature.tooltip | default $feature.tooltip)) }}
                                         {{ else }}
