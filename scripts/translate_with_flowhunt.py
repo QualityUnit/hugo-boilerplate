@@ -1,4 +1,4 @@
-    #!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 translate_with_flowhunt.py
 
@@ -151,16 +151,9 @@ def get_workspace_id(workspace_id=None):
     if DEFAULT_WORKSPACE_ID:
         return DEFAULT_WORKSPACE_ID
 
-    # Fallback: use WebAuthApi (SDK 3.15.0)
-    api_client = initialize_api_client()
-    api_instance = flowhunt.WebAuthApi(api_client)
-
-    try:
-        api_response = api_instance.get_user()
-        return api_response.api_key_workspace_id
-    except flowhunt.ApiException as e:
-        print("Exception when calling WebAuthApi->get_user: %s\n" % e)
-        return None
+    # No fallback available - DEFAULT_WORKSPACE_ID must be set
+    print("Error: No workspace ID available. DEFAULT_WORKSPACE_ID must be set.")
+    return None
     
 
 def is_translatable_file(file_path):
@@ -212,7 +205,7 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
         workspace_id (str): FlowHunt workspace ID
 
     Returns:
-        dict: Session info containing session_id and message_id, or None if failed
+        dict: Session info containing session_id, from_timestamp, and start_time, or None if failed
     """
     try:
         # Get the full language name from the map, fallback to the code if not found
@@ -240,9 +233,22 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
         session_id = create_session_rsp.session_id
         print(f"[DEBUG] Created session {session_id} for {filename}")
 
-        # Step 2: Invoke the translation task with content as message
-        # Include instruction to translate to target language
-        translation_message = f"Translate to {language_name}:\n\n{content}"
+        # Step 2: Upload the file as an attachment to the session
+        file_bytes = content.encode('utf-8')
+        file_tuple = (filename, file_bytes)
+
+        try:
+            upload_rsp = api_instance.upload_attachments(
+                session_id=session_id,
+                file=file_tuple
+            )
+            print(f"[DEBUG] Uploaded file attachment for {filename} to session {session_id}")
+        except Exception as e:
+            print(f"[WARNING] Failed to upload file attachment: {str(e)}")
+            print(f"[DEBUG] Continuing with inline content fallback")
+
+        # Step 3: Invoke the translation task
+        translation_message = f"Translate to {language_name}"
 
         invoke_rsp = api_instance.invoke_flow_response(
             session_id=session_id,
@@ -255,7 +261,7 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
 
         return {
             'session_id': session_id,
-            'from_timestamp': '0',
+            'from_timestamp': str(invoke_rsp.created_at),
             'start_time': time.time()
         }
 
@@ -265,7 +271,7 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
         traceback.print_exc()
         return None
 
-def check_session_results(api_instance, session_info):
+def check_session_results(api_instance, session_info, timeout=600):
     """
     Check if a flow session has completed and get the translation.md file URL
 
@@ -275,6 +281,7 @@ def check_session_results(api_instance, session_info):
     Args:
         api_instance: FlowHunt API instance
         session_info (dict): Session info containing session_id, start_time, and from_timestamp
+        timeout (int): Maximum time in seconds to wait for session completion (default: 600 = 10 minutes)
 
     Returns:
         tuple: (is_ready, file_url)
@@ -282,6 +289,12 @@ def check_session_results(api_instance, session_info):
     try:
         session_id = session_info['session_id']
         from_ts = session_info.get('from_timestamp', '0')
+
+        # Check for timeout
+        elapsed_time = time.time() - session_info['start_time']
+        if elapsed_time > timeout:
+            print(f"[ERROR] Session {session_id} timed out after {timeout} seconds")
+            return True, None
 
         # Poll for flow response using raw response to avoid SDK validation issues
         resp = api_instance.poll_flow_response_without_preload_content(
@@ -340,7 +353,8 @@ def download_translation(file_url):
 
         response = requests.get(file_url)
         response.raise_for_status()
-        return response.text
+        # Explicitly decode as UTF-8 for Hugo markdown content
+        return response.content.decode('utf-8')
 
     except Exception as e:
         print(f"Error downloading translation from {file_url}: {str(e)}")
