@@ -491,4 +491,24 @@
       drop-shadow(1px 1px 0 rgba(140, 200, 253, 0.8))
       drop-shadow(0 0 9px rgba(87, 171, 250, 0.5));
   }
+  
+  /*
+  * Prose figure styles for single pages
+  */
+  .single-content figure {
+    text-align: center;
+  }
+  
+  .single-content figure picture {
+    display: inline-block;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .single-content figure img {
+    max-width: 100%;
+    height: auto;
+    display: inline-block; /* Забезпечує правильне центрування */
+  }
 }
