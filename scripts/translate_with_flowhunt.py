@@ -237,15 +237,11 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
         file_bytes = content.encode('utf-8')
         file_tuple = (filename, file_bytes)
 
-        try:
-            upload_rsp = api_instance.upload_attachments(
-                session_id=session_id,
-                file=file_tuple
-            )
-            print(f"[DEBUG] Uploaded file attachment for {filename} to session {session_id}")
-        except Exception as e:
-            print(f"[WARNING] Failed to upload file attachment: {str(e)}")
-            print(f"[DEBUG] Continuing with inline content fallback")
+        upload_rsp = api_instance.upload_attachments(
+            session_id=session_id,
+            file=file_tuple
+        )
+        print(f"[DEBUG] Uploaded file attachment for {filename} to session {session_id}")
 
         # Step 3: Invoke the translation task
         translation_message = f"Translate to {language_name}"
