@@ -10,6 +10,7 @@
   - height: Image height (optional)
   - maxWidth: Maximum image width for loading (optional)
   - noLazy: Set to true to disable lazy loading (for hero images, above-the-fold content) (optional)
+  - noAutoWidth: Set to true to prevent automatic use of originalWidth when width is not provided (optional)
 @example:
   {{ partial "components/media/lazyimg.html" (dict
       "src" "/images/blog/featured-image.jpg"
@@ -29,6 +30,7 @@
 {{ $height := .height | default "" }}
 {{ $maxWidth := .maxWidth | default 3000 }}
 {{ $noLazy := .noLazy | default false }}
+{{ $noAutoWidth := .noAutoWidth | default false }}
 
 
 {{- $fileExt := strings.ToLower (path.Ext $src) -}}
@@ -358,9 +360,9 @@
     {{ else if eq $fileExt ".avif" }}{{ $mimeType = "image/avif" }}
     {{ end }}
 
-    {{/* Use originalWidth if width parameter not provided */}}
+    {{/* Use originalWidth if width parameter not provided and noAutoWidth is false */}}
     {{- $finalWidth := $width -}}
-    {{- if and (not $width) (gt $originalWidth 0) }}{{ $finalWidth = $originalWidth }}{{ end -}}
+    {{- if and (not $width) (gt $originalWidth 0) (not $noAutoWidth) }}{{ $finalWidth = $originalWidth }}{{ end -}}
 
     {{- $pictureFinalClass := "lazy-picture" -}}
     {{- if $classPicture }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass $classPicture }}{{ end -}}
