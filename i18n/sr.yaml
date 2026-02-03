@@ -61,6 +61,8 @@ faq_description: "Pronađite odgovore na česta pitanja o ovoj temi."
 
 pricing_monthly_label: "Месечно"
 pricing_yearly_label: "Годишње"
+pricing_show_more: "Прикажи више"
+pricing_show_less: "Прикажи мање"
 wantMore: "Желите више?"
 learnMore: "Сазнајте више"
 pricing_tagline: "Ценовник"

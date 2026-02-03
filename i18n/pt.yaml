@@ -98,6 +98,8 @@ no_terms_available: "Nenhum termo disponível"
 
 pricing_monthly_label: "Mensal"
 pricing_yearly_label: "Anual"
+pricing_show_more: "Mostrar mais"
+pricing_show_less: "Mostrar menos"
 wantMore: "Quer mais?"
 learnMore: "Saiba mais"
 pricing_tagline: "Preços"

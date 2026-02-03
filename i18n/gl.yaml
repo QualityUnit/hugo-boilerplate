@@ -61,6 +61,8 @@ faq_description: "Atopa respostas ás preguntas máis comúns sobre este tema."
 
 pricing_monthly_label: "Mensual"
 pricing_yearly_label: "Anual"
+pricing_show_more: "Mostrar máis"
+pricing_show_less: "Mostrar menos"
 wantMore: "Queres máis?"
 learnMore: "Saber máis"
 pricing_tagline: "Prezos"

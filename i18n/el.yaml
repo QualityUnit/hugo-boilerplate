@@ -98,6 +98,8 @@ faq_description: "Βρείτε απαντήσεις σε συνήθεις ερω
 no_terms_available: "Δεν υπάρχουν διαθέσιμοι όροι"
 pricing_monthly_label: "Μηνιαία"
 pricing_yearly_label: "Ετήσια"
+pricing_show_more: "Εμφάνιση περισσότερων"
+pricing_show_less: "Εμφάνιση λιγότερων"
 wantMore: "Θέλετε περισσότερα;"
 learnMore: "Μάθετε περισσότερα"
 pricing_tagline: "Τιμολόγηση"

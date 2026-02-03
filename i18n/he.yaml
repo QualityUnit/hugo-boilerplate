@@ -97,6 +97,8 @@ faq_description: "מצא תשובות לשאלות נפוצות בנושא זה.
 no_terms_available: "אין מונחים זמינים"
 pricing_monthly_label: "חודשי"
 pricing_yearly_label: "שנתי"
+pricing_show_more: "הצג עוד"
+pricing_show_less: "הצג פחות"
 wantMore: "רוצה עוד?"
 learnMore: "למד עוד"
 pricing_tagline: "תמחור"

@@ -79,6 +79,8 @@ faq_heading: "Frequently asked questions"
 faq_description: "Find answers to common questions about this topic."
 pricing_monthly_label: "Monthly"
 pricing_yearly_label: "Yearly"
+pricing_show_more: "Show more"
+pricing_show_less: "Show less"
 
 learnMore: "Learn more"
 pricing_tagline: "Pricing"

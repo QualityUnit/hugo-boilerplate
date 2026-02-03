@@ -98,6 +98,8 @@ faq_description: "このトピックに関する一般的な質問への回答�
 no_terms_available: "利用可能な用語はありません"
 pricing_monthly_label: "月額"
 pricing_yearly_label: "年額"
+pricing_show_more: "もっと見る"
+pricing_show_less: "閉じる"
 learnMore: "詳細はこちら"
 wantMore: "もっと知りたいですか？"
 pricing_tagline: "料金プラン"

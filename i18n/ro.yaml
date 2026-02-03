@@ -97,6 +97,8 @@ faq_description: "Găsiți răspunsuri la întrebările comune despre acest subi
 no_terms_available: "Niciun termen disponibil"
 pricing_monthly_label: "Lunar"
 pricing_yearly_label: "Anual"
+pricing_show_more: "Afișează mai mult"
+pricing_show_less: "Afișează mai puțin"
 wantMore: "Vrei mai mult?"
 learnMore: "Află mai multe"
 pricing_tagline: "Prețuri"

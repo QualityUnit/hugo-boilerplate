@@ -98,6 +98,8 @@ faq_description: "پاسخ‌هایی برای سوالات رایج در مور
 no_terms_available: "هیچ اصطلاحی موجود نیست"
 pricing_monthly_label: "ماهانه"
 pricing_yearly_label: "سالانه"
+pricing_show_more: "نمایش بیشتر"
+pricing_show_less: "نمایش کمتر"
 wantMore: "بیشتر می‌خواهید؟"
 learnMore: "بیشتر بدانید"
 pricing_tagline: "قیمت‌گذاری"

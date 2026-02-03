@@ -97,6 +97,8 @@ faq_description: "Leia vastused selle teema kohta käivatele levinud küsimustel
 no_terms_available: "Ühtegi terminit pole saadaval"
 pricing_monthly_label: "Kuupõhine"
 pricing_yearly_label: "Aastapõhine"
+pricing_show_more: "Näita rohkem"
+pricing_show_less: "Näita vähem"
 wantMore: "Soovid rohkem?"
 learnMore: "Loe lähemalt"
 pricing_tagline: "Hinnastamine"

@@ -97,6 +97,8 @@ faq_description: "Znajdź odpowiedzi na popularne pytania dotyczące tego tematu
 no_terms_available: "Brak dostępnych terminów"
 pricing_monthly_label: "Miesięcznie"
 pricing_yearly_label: "Rocznie"
+pricing_show_more: "Pokaż więcej"
+pricing_show_less: "Pokaż mniej"
 wantMore: "Chcesz więcej?"
 learnMore: "Dowiedz się więcej"
 pricing_tagline: "Cennik"

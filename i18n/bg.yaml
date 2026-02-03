@@ -97,6 +97,8 @@ faq_description: "Намерете отговори на често задава
 
 pricing_monthly_label: "Месечно"
 pricing_yearly_label: "Годишно"
+pricing_show_more: "Покажи повече"
+pricing_show_less: "Покажи по-малко"
 wantMore: "Искате повече?"
 learnMore: "Научете повече"
 pricing_tagline: "Ценообразуване"
