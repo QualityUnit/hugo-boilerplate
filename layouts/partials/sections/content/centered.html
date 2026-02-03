@@ -80,7 +80,7 @@
       {{ end }}
       
       <!-- Apply Tailwind typography with custom processing for better heading styles -->
-      <div class="mt-10 prose prose-lg prose-indigo prose-links max-w-none {{ if eq $alignment "center" }}mx-auto{{ else if eq $alignment "right" }}ml-auto{{ end }}">
+      <div class="single-content mt-10 prose prose-lg prose-indigo prose-links max-w-none {{ if eq $alignment "center" }}mx-auto{{ else if eq $alignment "right" }}ml-auto{{ end }}">
         {{ $content }}
       </div>
     </div>

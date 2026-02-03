@@ -53,7 +53,9 @@
               </script>
             {{ end }}
 
-            {{ .Content | safeHTML }}
+            <div class="single-content">
+              {{ .Content | safeHTML }}
+            </div>
 
         </div>
       </div>
