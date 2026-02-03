@@ -58,7 +58,7 @@ declare -A STEP_DESCRIPTIONS=(
     ["sync_translation_urls"]="Sync translation URLs"
     ["generate_translation_urls"]="Generate translation URL mappings"
     ["generate_amplify_redirects"]="Generate AWS Amplify redirects"
-    ["generate_related_content"]="Generate related content data"
+    ["generate_related_content"]="Generate related content JSON (split by section)"
     ["generate_clustering"]="Generate website clustering visualization"
     ["generate_linkbuilding_keywords"]="Generate linkbuilding keywords"
     ["regenerate_linkbuilding_keywords"]="REGENERATE linkbuilding (clears existing first)"
@@ -733,10 +733,10 @@ PYTHON_SCRIPT
             echo -e "${YELLOW}[DEBUG] Step regenerate_linkbuilding_keywords finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_related_content)
-            echo -e "${BLUE}=== Step 4: Generating Related Content and Clustering Data ===${NC}"
+            echo -e "${BLUE}=== Step 4: Generating Related Content JSON Files (Split by Section) ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/generate_related_content.py --path ${HUGO_ROOT}/content --hugo-root ${HUGO_ROOT} --exclude-sections author${NC}"
             python "${SCRIPT_DIR}/generate_related_content.py" --path "${HUGO_ROOT}/content" --hugo-root "${HUGO_ROOT}" --exclude-sections "author"
-            echo -e "${GREEN}Related content and clustering data generation completed!${NC}"
+            echo -e "${GREEN}Related content JSON generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_related_content finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_clustering)

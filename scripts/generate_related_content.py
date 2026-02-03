@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 """
-Generate Related Content YAML
+Generate Related Content JSON Files
 
 This script indexes content files in a specific language folder as vectors using FAISS
 and a sentence transformer model from Hugging Face. For each file, it finds
-the 3 most similar files and generates a YAML file with the related content structure.
+the 3 most similar files and generates JSON files split by section for better performance.
+
+Output: data/related_content/{lang}/{section}.json
 
 Usage:
     python generate_related_content.py --lang en
     python generate_related_content.py --lang en --path /path/to/content
 
 Requirements:
-    pip install sentence-transformers faiss-cpu pyyaml frontmatter markdown bs4 tqdm
-    
+    pip install sentence-transformers faiss-cpu frontmatter markdown bs4 tqdm
+
     or install requirements.txt
     pip install -r requirements.txt
-    
+
 """
 
 import os
@@ -340,23 +342,40 @@ def convert_defaultdict_to_dict(d):
         d = {k: convert_defaultdict_to_dict(v) for k, v in d.items()}
     return d
 
-def generate_yaml(related_content, hugo_root, output_dir, lang):
-    """Generate YAML file with related content structure."""
-    print(f"Generating YAML file for language: {lang}")
+def generate_json_per_section(related_content, hugo_root, output_dir, lang):
+    """Generate JSON files split by section for better performance.
 
-    # Create output directory if it doesn't exist
-    output_path = os.path.join(hugo_root, output_dir)
-    os.makedirs(output_path, exist_ok=True)
+    Creates separate JSON files for each section instead of one large file.
+    Structure: data/related_content/{lang}/{section}.json
+    """
+    print(f"Generating JSON files for language: {lang}")
 
-    # Convert defaultdict to regular dict for YAML serialization
-    yaml_data = convert_defaultdict_to_dict(related_content)
+    # Create output directory for this language
+    lang_output_path = os.path.join(hugo_root, output_dir, lang)
+    os.makedirs(lang_output_path, exist_ok=True)
 
-    # Write YAML file
-    output_file = os.path.join(output_path, f"{lang}.yaml")
-    with open(output_file, 'w', encoding='utf-8') as f:
-        yaml.dump(yaml_data, f, default_flow_style=False, allow_unicode=True)
+    # Convert defaultdict to regular dict
+    content_dict = convert_defaultdict_to_dict(related_content)
 
-    print(f"YAML file generated: {output_file}")
+    # Track statistics
+    file_count = 0
+    total_entries = 0
+
+    # Write separate JSON file for each section
+    for section, section_data in content_dict.items():
+        if not section:
+            continue
+
+        output_file = os.path.join(lang_output_path, f"{section}.json")
+
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(section_data, f, ensure_ascii=False, indent=2)
+
+        file_count += 1
+        total_entries += len(section_data)
+        print(f"  ✓ Created {section}.json ({len(section_data)} entries)")
+
+    print(f"Generated {file_count} JSON files with {total_entries} total entries for {lang}")
 
 def create_clusters(embeddings, target_clusters=40):
     """Create semantic clusters using sklearn k-means clustering.
@@ -625,21 +644,14 @@ def process_language(args, lang):
     related_content = find_related_content(file_data, embeddings)
     print(f"[DEBUG] Related content found")
 
-    # Convert defaultdict to regular dict for clean YAML output
+    # Convert defaultdict to regular dict for clean JSON output
     print(f"[DEBUG] Converting data structure...")
     related_content_dict = convert_defaultdict_to_dict(related_content)
 
-    # Generate YAML file
-    yaml_dir = os.path.join(args.hugo_root, "data", "related_content")
-    os.makedirs(yaml_dir, exist_ok=True)
-    yaml_file = os.path.join(yaml_dir, f"{lang}.yaml")
-
-    print(f"[DEBUG] Generating YAML file for language: {lang}")
-    print(f"[DEBUG] YAML path: {yaml_file}")
-    with open(yaml_file, "w") as f:
-        yaml.dump(related_content_dict, f, default_flow_style=False)
-
-    print(f"[DEBUG] YAML file generated: {yaml_file}")
+    # Generate JSON files (one per section)
+    print(f"[DEBUG] Generating JSON files for language: {lang}")
+    generate_json_per_section(related_content_dict, args.hugo_root, "data/related_content", lang)
+    print(f"[DEBUG] JSON files generated successfully")
 
     # Generate clustering data (reusing the same embeddings)
     print(f"[DEBUG] Generating clustering data for visualization...")
