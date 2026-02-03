@@ -124,10 +124,16 @@
                     </fieldset>
                 {{ end }}
             </div>
+            {{/* Number of categories to show initially (before "Show more") */}}
+            {{ $visibleCategories := 2 }}
+            
             <div class="isolate mt-20">
                 <div class="lg:-mx-8">
                     {{ $columnCount := add (len $tiersComparison) 1 }}
                     {{ $columnWidthVar := div 100.0 (len $tiersComparison) }}
+                    {{ if gt (len $featureCategories) $visibleCategories }}
+                    <div id="comparison-gradient-overlay" class="relative after:content-[''] after:block after:w-full after:h-full after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:bottom-0 after:left-0 after:pointer-events-none after:transition-opacity">
+                    {{ end }}
                     <div class="relative">
                         {{ range $index, $tier := $tiersComparison }}
                             {{ if $tier.emphasized }}
@@ -245,9 +251,6 @@
                             {{ end }}
                         </tr>
 
-                        {{/* Number of categories to show initially (before "Show more") */}}
-                        {{ $visibleCategories := 2 }}
-                        
                         {{ range $categoryIndex, $category := $featureCategories }}
                             <tr class="{{ if ge $categoryIndex $visibleCategories }}comparison-hidden-row hidden{{ end }}">
                                 <th scope="colgroup" colspan="{{ add (len $tiersComparison) 1 }}"
@@ -313,12 +316,14 @@
                         </tbody>
                         </table>
                     </div>
+                    {{ if gt (len $featureCategories) $visibleCategories }}
+                    </div>
+                    {{ end }}
                     
                     {{ if gt (len $featureCategories) $visibleCategories }}
-                    <div class="flex justify-center mt-6">
-                        <button type="button" id="comparison-toggle-btn" class="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-900 hover:bg-gray-600 text-white text-sm font-medium rounded-full transition-colors" data-show-more="{{ i18n "pricing_show_more" | default "Show more" }}" data-show-less="{{ i18n "pricing_show_less" | default "Show less" }}" aria-label="{{ i18n "pricing_toggle_aria_label" | default "Toggle pricing comparison table visibility" }}">
+                    <div class="relative flex justify-center -mt-20">
+                        <button type="button" id="comparison-toggle-btn" class="px-5 py-2 bg-gray-900 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors" data-show-more="{{ i18n "pricing_show_more" | default "Show more" }}" data-show-less="{{ i18n "pricing_show_less" | default "Show less" }}" aria-label="{{ i18n "pricing_toggle_aria_label" | default "Toggle pricing comparison table visibility" }}">
                             <span data-toggle-text>{{ i18n "pricing_show_more" | default "Show more" }}</span>
-                            {{ partial "icons/chevron-down" "w-4 h-4 transition-transform duration-200" }}
                         </button>
                     </div>
                     {{ end }}
@@ -442,27 +447,22 @@
         if (toggleBtn) {
             let expanded = false;
             let isMobile = false;
+            const gradientOverlay = document.getElementById('comparison-gradient-overlay');
             
-            // Set up media query listener for better performance
             const mobileQuery = window.matchMedia('(max-width:1024px)');
-            
-            function updateMobileState(e) {
-                isMobile = e.matches;
-            }
-            
+            function updateMobileState(e) { isMobile = e.matches; }
             mobileQuery.addEventListener('change', updateMobileState);
-            updateMobileState(mobileQuery); // Initialize the state
+            updateMobileState(mobileQuery);
             
             toggleBtn.onclick = () => {
                 expanded = !expanded;
                 document.querySelectorAll('.comparison-hidden-row').forEach(r => {
                     r.classList.toggle('hidden', !expanded);
-                    if (isMobile) {
-                        r.classList.toggle('flex', expanded);
-                    }
+                    if (isMobile) r.classList.toggle('flex', expanded);
                 });
+                if (gradientOverlay) gradientOverlay.classList.toggle('after:opacity-0', expanded); 
+                toggleBtn.parentElement.classList.toggle(expanded ? "mt-6" : "-mt-20");
                 toggleBtn.querySelector('[data-toggle-text]').textContent = toggleBtn.dataset[expanded ? 'showLess' : 'showMore'];
-                toggleBtn.querySelector('svg').classList.toggle('rotate-180', expanded);
             };
         }
     </script>
