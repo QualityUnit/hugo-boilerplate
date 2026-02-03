@@ -316,7 +316,7 @@
                     
                     {{ if gt (len $featureCategories) $visibleCategories }}
                     <div class="flex justify-center mt-6">
-                        <button type="button" id="comparison-toggle-btn" class="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-900 hover:bg-gray-600 text-white text-sm font-medium rounded-full transition-colors" data-show-more="{{ i18n "pricing_show_more" | default "Show more" }}" data-show-less="{{ i18n "pricing_show_less" | default "Show less" }}">
+                        <button type="button" id="comparison-toggle-btn" class="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-900 hover:bg-gray-600 text-white text-sm font-medium rounded-full transition-colors" data-show-more="{{ i18n "pricing_show_more" | default "Show more" }}" data-show-less="{{ i18n "pricing_show_less" | default "Show less" }}" aria-label="{{ i18n "pricing_toggle_aria_label" | default "Toggle pricing comparison table visibility" }}">
                             <span data-toggle-text>{{ i18n "pricing_show_more" | default "Show more" }}</span>
                             {{ partial "icons/chevron-down" "w-4 h-4 transition-transform duration-200" }}
                         </button>
@@ -441,12 +441,25 @@
         const toggleBtn = document.getElementById('comparison-toggle-btn');
         if (toggleBtn) {
             let expanded = false;
+            let isMobile = false;
+            
+            // Set up media query listener for better performance
+            const mobileQuery = window.matchMedia('(max-width:1024px)');
+            
+            function updateMobileState(e) {
+                isMobile = e.matches;
+            }
+            
+            mobileQuery.addEventListener('change', updateMobileState);
+            updateMobileState(mobileQuery); // Initialize the state
+            
             toggleBtn.onclick = () => {
                 expanded = !expanded;
-                const isMobile = matchMedia('(max-width:1024px)').matches;
                 document.querySelectorAll('.comparison-hidden-row').forEach(r => {
                     r.classList.toggle('hidden', !expanded);
-                    isMobile && r.classList.toggle('flex', expanded);
+                    if (isMobile) {
+                        r.classList.toggle('flex', expanded);
+                    }
                 });
                 toggleBtn.querySelector('[data-toggle-text]').textContent = toggleBtn.dataset[expanded ? 'showLess' : 'showMore'];
                 toggleBtn.querySelector('svg').classList.toggle('rotate-180', expanded);
