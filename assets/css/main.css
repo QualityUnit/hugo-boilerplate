@@ -509,6 +509,6 @@
   .single-content figure img {
     max-width: 100%;
     height: auto;
-    display: inline-block; /* Забезпечує правильне центрування */
+    display: inline-block;
   }
 }
