@@ -111,15 +111,30 @@ def update_front_matter_url_only(file_path: Path, original_toml: str, new_url: s
     """Update only the URL field in the TOML front matter, preserving all other formatting"""
     # Use regex to replace just the URL line in the original TOML
     url_pattern = r'^url\s*=\s*"[^"]*"'
-    
+
     # Check if URL exists in the original TOML
     if re.search(url_pattern, original_toml, re.MULTILINE):
         # Replace existing URL
         updated_toml = re.sub(url_pattern, f'url = "{new_url}"', original_toml, flags=re.MULTILINE)
     else:
-        # Add URL at the end if it doesn't exist
-        updated_toml = original_toml.rstrip() + f'\nurl = "{new_url}"\n'
-    
+        # Add URL at the beginning (right after title if it exists)
+        lines = original_toml.split('\n')
+        new_lines = []
+        url_inserted = False
+
+        for line in lines:
+            new_lines.append(line)
+            # Insert url after title line
+            if not url_inserted and line.strip().startswith('title ='):
+                new_lines.append(f'url = "{new_url}"')
+                url_inserted = True
+
+        # If no title found, insert at the beginning
+        if not url_inserted:
+            new_lines.insert(0, f'url = "{new_url}"')
+
+        updated_toml = '\n'.join(new_lines)
+
     # Write the updated content
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write('+++\n')
