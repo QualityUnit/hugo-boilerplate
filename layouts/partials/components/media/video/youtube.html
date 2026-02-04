@@ -62,7 +62,7 @@
 </script>
 
 <div 
-  class="relative w-full overflow-hidden rounded-lg shadow-md {{ with $class }}{{ . }}{{ end }}"
+  class="relative w-full overflow-hidden rounded-lg {{ with $class }}{{ . }}{{ end }}"
   data-video-id="{{ $videoID }}"
   data-video-title="{{ $title }}"
   data-video-provider="youtube"
@@ -76,14 +76,15 @@
   {{/* Build thumbnail class string - simple poster image for lightbox popup */}}
   {{ $thumbnailClass := "lazy-video-thumbnail relative w-full overflow-hidden cursor-pointer" }}
   {{ if $posterHeight }}
-    {{ $thumbnailClass = printf "%s %s" $thumbnailClass $posterHeight }}
+    {{ $posterHeightClass := printf "h-full md:%s" $posterHeight }}
+    {{ $thumbnailClass = printf "%s %s" $thumbnailClass $posterHeightClass }}
   {{ end }}
   <div class="{{ $thumbnailClass }}" data-video-trigger="true">
     <img 
       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E"
       data-src="{{ $thumbnailUrl }}"
       alt="Thumbnail for {{ $alt }}"
-      class="lazy-video-thumb-img lazy-image w-full object-cover transition-transform duration-300"
+      class="lazy-video-thumb-img lazy-image w-full min-h-56 h-full object-cover transition-transform duration-300"
       {{ if not $poster }}data-video-id="{{ $videoID }}"{{ end }}
       loading="{{ $loading }}"
       decoding="async"
@@ -93,7 +94,7 @@
     />
   </div>
   {{ if $showPlayButton }}
-  <div class="lazy-video-play-button md:absolute md:top-1/2 md:left-1/2 md:transform md:-translate-x-1/2 md:-translate-y-1/2 flex items-center justify-center transition-all duration-300 z-10 {{ $playBtnClass }}">
+  <div class="lazy-video-play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-300 z-10 {{ $playBtnClass }}">
     {{ if $playBtnInnerClass }}
       <div class="{{ $playBtnInnerClass }}">
         {{ partial "icons/play-solid" $svgClass }}
