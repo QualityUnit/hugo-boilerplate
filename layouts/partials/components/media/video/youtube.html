@@ -76,15 +76,19 @@
   {{/* Build thumbnail class string - simple poster image for lightbox popup */}}
   {{ $thumbnailClass := "lazy-video-thumbnail relative w-full overflow-hidden cursor-pointer" }}
   {{ if $posterHeight }}
-    {{ $posterHeightClass := printf "h-full md:%s" $posterHeight }}
-    {{ $thumbnailClass = printf "%s %s" $thumbnailClass $posterHeightClass }}
+    {{ $thumbnailClass = printf "%s %s" $thumbnailClass $posterHeight }}
+  {{ end }}
+  {{/* Build image class - use h-full only when posterHeight is set, otherwise use min-h-56 for mobile */}}
+  {{ $imgHeightClass := "min-h-56" }}
+  {{ if $posterHeight }}
+    {{ $imgHeightClass = "h-full" }}
   {{ end }}
   <div class="{{ $thumbnailClass }}" data-video-trigger="true">
     <img 
       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E"
       data-src="{{ $thumbnailUrl }}"
       alt="Thumbnail for {{ $alt }}"
-      class="lazy-video-thumb-img lazy-image w-full min-h-56 h-full object-cover transition-transform duration-300"
+      class="lazy-video-thumb-img lazy-image w-full {{ $imgHeightClass }} object-cover transition-transform duration-300"
       {{ if not $poster }}data-video-id="{{ $videoID }}"{{ end }}
       loading="{{ $loading }}"
       decoding="async"
