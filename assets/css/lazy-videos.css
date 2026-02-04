@@ -37,8 +37,6 @@
 }
 
 .lazy-video-play-button {
-  width: 68px;
-  height: 48px;
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 8px;
   display: flex;
