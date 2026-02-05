@@ -124,22 +124,29 @@
                     </fieldset>
                 {{ end }}
             </div>
+            {{/* Number of categories to show initially (before "Show more") */}}
+            {{ $visibleCategories := 2 }}
+            
             <div class="isolate mt-20">
-                <div class="relative lg:-mx-8">
+                <div class="lg:-mx-8">
                     {{ $columnCount := add (len $tiersComparison) 1 }}
                     {{ $columnWidthVar := div 100.0 (len $tiersComparison) }}
-                    {{ range $index, $tier := $tiersComparison }}
-                        {{ if $tier.emphasized }}
-                            {{ $columnWidth := div 100 $columnCount }}
-                            {{ $marginLeft := mul $columnWidth (add $index 1) }}
-                            <div
-                                    class="max-lg:hidden pointer-events-none absolute top-0 left-0 -z-10 h-full px-4"
-                                    style="width: {{ $columnWidth }}%; margin-left: {{ $marginLeft }}%;">
-                                <div class="w-full rounded-t-xl border-x border-t border-gray-900/10 bg-gray-400/5 h-full"></div>
-                            </div>
-                        {{ end }}
+                    {{ if gt (len $featureCategories) $visibleCategories }}
+                    <div id="comparison-gradient-overlay" class="relative after:content-[''] after:block after:w-full after:h-full after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:bottom-0 after:left-0 after:pointer-events-none after:transition-opacity">
                     {{ end }}
-                    <table class="w-full table-fixed border-separate border-spacing-x-8 text-left" style="--colWidth: {{ $columnWidthVar }}%">
+                    <div class="relative">
+                        {{ range $index, $tier := $tiersComparison }}
+                            {{ if $tier.emphasized }}
+                                {{ $columnWidth := div 100 $columnCount }}
+                                {{ $marginLeft := mul $columnWidth (add $index 1) }}
+                                <div
+                                        class="max-lg:hidden pointer-events-none absolute top-0 left-0 -z-10 h-full px-4"
+                                        style="width: {{ $columnWidth }}%; margin-left: {{ $marginLeft }}%;">
+                                    <div class="w-full rounded-t-xl border-x border-t border-gray-900/10 bg-gray-400/5 h-full"></div>
+                                </div>
+                            {{ end }}
+                        {{ end }}
+                        <table class="w-full table-fixed border-separate border-spacing-x-8 text-left" style="--colWidth: {{ $columnWidthVar }}%">
                         <colgroup class="max-lg:hidden">
                             <col class="w-1/4">
                             {{ range $tiersComparison }}
@@ -245,7 +252,7 @@
                         </tr>
 
                         {{ range $categoryIndex, $category := $featureCategories }}
-                            <tr>
+                            <tr class="{{ if ge $categoryIndex $visibleCategories }}comparison-hidden-row hidden{{ end }}">
                                 <th scope="colgroup" colspan="{{ add (len $tiersComparison) 1 }}"
                                     class="pt-{{ if eq $categoryIndex 0 }}8{{ else }}16{{ end }} pb-4 text-sm/6 font-semibold text-heading">
                                     {{ i18n $category.name | default $category.name }}
@@ -254,7 +261,7 @@
                             </tr>
 
                             {{ range $featureIndex, $feature := $category.features }}
-                                <tr>
+                                <tr class="{{ if ge $categoryIndex $visibleCategories }}comparison-hidden-row hidden{{ end }}">
                                     <th scope="row" class="not-prose py-4 text-sm/6 font-normal text-heading group relative">
                                         {{ if $feature.tooltip }}
                                             {{ partial "components/tooltip/tooltip.html" (dict "content" (i18n $feature.name | default $feature.name) "text" (i18n $feature.tooltip | default $feature.tooltip)) }}
@@ -307,7 +314,19 @@
                             {{ end }}
                         {{ end }}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
+                    {{ if gt (len $featureCategories) $visibleCategories }}
+                    </div>
+                    {{ end }}
+                    
+                    {{ if gt (len $featureCategories) $visibleCategories }}
+                    <div class="relative flex justify-center -mt-20">
+                        <button type="button" id="comparison-toggle-btn" class="px-5 py-2 bg-gray-900 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors" data-show-more="{{ i18n "pricing_show_more" | default "Show more" }}" data-show-less="{{ i18n "pricing_show_less" | default "Show less" }}" aria-label="{{ i18n "pricing_toggle_aria_label" | default "Toggle pricing comparison table visibility" }}">
+                            <span data-toggle-text>{{ i18n "pricing_show_more" | default "Show more" }}</span>
+                        </button>
+                    </div>
+                    {{ end }}
                 </div>
             </div>
         </div>
@@ -422,6 +441,30 @@
         }
 
         sticky(document.querySelector('#comparison-table table'));
+        
+        /* Show more / Show less toggle */
+        const toggleBtn = document.getElementById('comparison-toggle-btn');
+        if (toggleBtn) {
+            let expanded = false;
+            let isMobile = false;
+            const gradientOverlay = document.getElementById('comparison-gradient-overlay');
+            
+            const mobileQuery = window.matchMedia('(max-width:1024px)');
+            function updateMobileState(e) { isMobile = e.matches; }
+            mobileQuery.addEventListener('change', updateMobileState);
+            updateMobileState(mobileQuery);
+            
+            toggleBtn.onclick = () => {
+                expanded = !expanded;
+                document.querySelectorAll('.comparison-hidden-row').forEach(r => {
+                    r.classList.toggle('hidden', !expanded);
+                    if (isMobile) r.classList.toggle('flex', expanded);
+                });
+                if (gradientOverlay) gradientOverlay.classList.toggle('after:opacity-0', expanded); 
+                toggleBtn.parentElement.classList.toggle(expanded ? "mt-6" : "-mt-20");
+                toggleBtn.querySelector('[data-toggle-text]').textContent = toggleBtn.dataset[expanded ? 'showLess' : 'showMore'];
+            };
+        }
     </script>
 
     {{ if $togglePrice }}

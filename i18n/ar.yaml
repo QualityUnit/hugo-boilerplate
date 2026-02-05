@@ -97,6 +97,9 @@ faq_description: "ابحث عن إجابات للأسئلة الشائعة حو�
 no_terms_available: "لا توجد مصطلحات متاحة"
 pricing_monthly_label: "شهريًا"
 pricing_yearly_label: "سنويًا"
+pricing_show_more: "عرض المزيد"
+pricing_show_less: "عرض أقل"
+pricing_toggle_aria_label: "تبديل رؤية جدول مقارنة الأسعار"
 wantMore: "هل تريد المزيد؟"
 learnMore: "اعرف المزيد"
 pricing_tagline: "التسعير"

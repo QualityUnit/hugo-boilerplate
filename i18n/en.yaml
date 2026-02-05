@@ -106,6 +106,9 @@ pricing_comparison_title: "Compare Plans"
 pricing_comparison_description: "Check out our plan comparisons and select the best one for you"
 pricing_monthly_label: "Monthly"
 pricing_yearly_label: "Yearly"
+pricing_show_more: "Show more"
+pricing_show_less: "Show less"
+pricing_toggle_aria_label: "Toggle pricing comparison table visibility"
 
 wantMore: "Want more?"
 
