@@ -12,7 +12,6 @@
   - autoplay: Enable autoplay when opened in lightbox (optional, default: false)
   - poster: Custom poster/thumbnail image URL (optional, defaults to YouTube thumbnail)
   - posterHeight: Additional CSS classes for poster height (optional, e.g. "h-64", "h-80", "h-96", "h-[450px]")
-  - useAspectRatio: Use 16:9 aspect ratio constraint (optional, default: true, adds 'aspect-ratio' class with height: 0; padding-bottom: 56.25%;)
   - playBtnClass: CSS classes for play button (optional)
   - playBtnInnerClass: CSS classes for inner play button element (optional)
   - showPlayButton: Show/hide play button overlay (optional, default: true)
@@ -33,7 +32,6 @@
 {{ $noLazy := .noLazy | default false }}
 {{ $poster := .poster }}
 {{ $posterHeight := .posterHeight | default "" }}
-{{ $useAspectRatio := .useAspectRatio | default true }}
 {{ $loading := cond $noLazy "eager" "lazy" }}
 {{ $playBtnClass := .playBtnClass | default "w-16 h-12 bg-red-600 rounded-lg hover:bg-red-700 hover:scale-110" }}
 {{ $playBtnInnerClass := .playBtnInnerClass | default "" }}
@@ -64,7 +62,7 @@
 </script>
 
 <div 
-  class="relative w-full overflow-hidden rounded-lg shadow-md {{ with $class }}{{ . }}{{ end }}"
+  class="relative w-full overflow-hidden rounded-lg {{ with $class }}{{ . }}{{ end }}"
   data-video-id="{{ $videoID }}"
   data-video-title="{{ $title }}"
   data-video-provider="youtube"
@@ -75,24 +73,22 @@
   data-video-fallback-url="https://www.youtube.com/watch?v={{ $videoID }}"
   {{ with $id }}id="{{ . }}"{{ end }}
 >
-  {{/* Build thumbnail class string for maintainability */}}
-  {{ $thumbnailClass := "lazy-video-thumbnail" }}
-  {{ if $useAspectRatio }}
-    {{ $thumbnailClass = printf "%s aspect-ratio video-aspect-ratio" $thumbnailClass }}
-  {{ else }}
-    {{ $thumbnailClass = printf "%s min-h-[35rem]" $thumbnailClass }}
-  {{ end }}
-  {{ $thumbnailClass = printf "%s relative w-full overflow-hidden cursor-pointer" $thumbnailClass }}
+  {{/* Build thumbnail class string - simple poster image for lightbox popup */}}
+  {{ $thumbnailClass := "lazy-video-thumbnail relative w-full overflow-hidden cursor-pointer" }}
   {{ if $posterHeight }}
     {{ $thumbnailClass = printf "%s %s" $thumbnailClass $posterHeight }}
   {{ end }}
-  {{ $thumbnailClass = printf "%s relative w-full overflow-hidden cursor-pointer" $thumbnailClass }}
+  {{/* Build image class - use h-full only when posterHeight is set, otherwise use min-h-56 for mobile */}}
+  {{ $imgHeightClass := "min-h-56" }}
+  {{ if $posterHeight }}
+    {{ $imgHeightClass = "h-full" }}
+  {{ end }}
   <div class="{{ $thumbnailClass }}" data-video-trigger="true">
     <img 
       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E"
       data-src="{{ $thumbnailUrl }}"
       alt="Thumbnail for {{ $alt }}"
-      class="lazy-video-thumb-img lazy-image absolute inset-0 w-full h-full object-cover transition-transform duration-300"
+      class="lazy-video-thumb-img lazy-image w-full {{ $imgHeightClass }} object-cover transition-transform duration-300"
       {{ if not $poster }}data-video-id="{{ $videoID }}"{{ end }}
       loading="{{ $loading }}"
       decoding="async"
