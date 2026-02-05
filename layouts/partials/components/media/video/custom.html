@@ -1,8 +1,8 @@
 {{/*
 @component: Custom Video Player
-@description: Component for custom (HTML5) videos with lazy loading and playback controls.
+@description: Component for custom (HTML5) videos with lazy loading and playback controls. Automatically uses CDN domain from staticAssets config.
 @params:
-  - src: Video URL (required)
+  - src: Video URL (required, will be processed through get-static-url.html for CDN support)
   - title: Video title for accessibility (required)
   - alt: Alternative text for accessibility (optional, defaults to title)
   - class: Additional CSS classes (optional)
@@ -13,7 +13,8 @@
   - loop: Enable loop (optional, default: false)
   - muted: Enable muted (optional, default: false)
   - controls: Show video controls (optional, default: true)
-  - poster: Poster image URL (optional)
+  - controlsList: HTML5 controlslist attribute (optional, e.g. "nodownload")
+  - poster: Poster image URL (optional, will be processed through get-static-url.html for CDN support)
   - useLightbox: Enable lightbox functionality (optional, default: false)
 @note: This partial should be called through the main video.html partial, not directly.
 */}}
@@ -29,9 +30,12 @@
 {{ $loop := .loop | default false }}
 {{ $muted := .muted | default false }}
 {{ $controls := .controls | default true }}
+{{ $controlsList := .controlsList | default "" }}
 {{ $poster := .poster }}
 {{ $posterUrl := "" }}
 {{ $pureVideo := .pureVideo | default false }}
+
+{{ $videoSrc := partial "functions/get-static-url.html" (dict "path" $src) }}
 
 {{ if $pureVideo }}
   {{ $autoplay = true }}
@@ -51,28 +55,31 @@
   data-video-provider="custom"
   data-video-lightbox="{{ if $useLightbox }}true{{ else }}false{{ end }}"
   data-video-title="{{ $title }}"
-  data-video-src="{{ $src }}"
+  data-video-src="{{ $videoSrc }}"
   {{ with $id }}id="{{ . }}"{{ end }}
 >
 {{ end }}
+{{ if not $pureVideo }}
   <div class="video-aspect-ratio relative">
+{{ end }}
     <video 
       {{ if $autoplay }}autoplay{{ end }}
       {{ if $loop }}loop{{ end }}
       {{ if $muted }}muted{{ end }}
       {{ if $controls }}controls{{ end }}
+      {{ with $controlsList }}controlslist="{{ . }}"{{ end }}
       {{ with $posterUrl }}poster="{{ . }}"{{ end }}
       preload="metadata"
-      class="w-full h-full custom-video-player {{ if $useLightbox }}lightbox-ready{{ end }}"
+      class="{{ if $pureVideo }}{{ $class }}{{ else }}w-full h-full custom-video-player {{ if $useLightbox }}lightbox-ready{{ end }}{{ end }}"
       title="{{ $title }}"
       aria-label="{{ $alt }}"
-      data-video-src="{{ $src }}"
+      data-video-src="{{ $videoSrc }}"
       data-video-lightbox="{{ if $useLightbox }}true{{ else }}false{{ end }}"
     >
-      <source src="{{ $src }}" type="{{ if in $src ".mp4" }}video/mp4{{ else if in $src ".webm" }}video/webm{{ else if in $src ".ogg" }}video/ogg{{ else }}video/mp4{{ end }}">
-      <p>Your browser doesn't support HTML5 video. <a href="{{ $src }}">Download the video</a> instead.</p>
+      <source src="{{ $videoSrc }}" type="{{ if in $src ".mp4" }}video/mp4{{ else if in $src ".webm" }}video/webm{{ else if in $src ".ogg" }}video/ogg{{ else }}video/mp4{{ end }}">
+      <p>Your browser doesn't support HTML5 video. <a href="{{ $videoSrc }}">Download the video</a> instead.</p>
     </video>
-    {{ if not $pureVideo }}
+{{ if not $pureVideo }}
       {{ if $showPlayOverlay }}
         <div class="video-play-overlay absolute inset-0 flex items-center justify-center pointer-events-none bg-gray-900 bg-opacity-50">
           <div class="video-play-button w-32 h-32 p-8 flex items-center justify-center bg-blue-600 bg-opacity-90 rounded-full text-white">
@@ -80,8 +87,6 @@
           </div>
         </div>
       {{ end }}
-    {{ end }}
   </div>
-{{ if not $pureVideo }}
 </div>
 {{ end }}
