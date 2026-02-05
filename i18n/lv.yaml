@@ -119,8 +119,8 @@ icon.card.btn: "Skatīt"
 # Attachments
 attachments.title: "Pielikumi"
 
-search_results_found: "Found %d result for %s"
-search_results_found_plural: "Found %d results for %s"
+search_results_found: "Atrasts %d rezultāts vaicājumam %s"
+search_results_found_plural: "Atrasti %d rezultāti vaicājumam %s"
 
 # Copy code functionality
 copy_code: "Kopēt kodu"

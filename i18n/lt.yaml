@@ -119,8 +119,8 @@ icon.card.btn: "Žiūrėti"
 # Attachments
 attachments.title: "Priedai"
 
-search_results_found: "Found %d result for %s"
-search_results_found_plural: "Found %d results for %s"
+search_results_found: "Rasta %d rezultatas užklausai %s"
+search_results_found_plural: "Rasta %d rezultatai užklausai %s"
 
 # Copy code functionality
 copy_code: "Kopijuoti kodą"

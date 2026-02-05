@@ -121,8 +121,8 @@ icon.card.btn: "Δες"
 # Attachments
 attachments.title: "Συνημμένα"
 
-search_results_found: "Found %d result for %s"
-search_results_found_plural: "Found %d results for %s"
+search_results_found: "Βρέθηκε %d αποτέλεσμα για %s"
+search_results_found_plural: "Βρέθηκαν %d αποτελέσματα για %s"
 
 # Copy code functionality
 copy_code: "Αντιγραφή κώδικα"
