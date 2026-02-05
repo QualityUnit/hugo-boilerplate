@@ -248,7 +248,8 @@ Design Tokens:
               </blockquote>
               <figcaption class="mt-6 flex gap-x-4 text-sm/6">
                 {{ if $quote.avatar }}
-                <img src="{{ $quote.avatar }}" alt="{{ $quote.author }}" class="size-6 flex-none rounded-full" />
+                {{ $avatarUrlWithDomain := partial "functions/get-static-url.html" (dict "path" $quote.avatar) }}
+                <img src="{{ $avatarUrlWithDomain }}" alt="{{ $quote.author }}" class="size-6 flex-none rounded-full" />
                 {{ end }}
                 <div>
                   <span class="font-semibold text-heading">{{ $quote.author }}</span>

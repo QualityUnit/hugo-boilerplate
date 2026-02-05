@@ -21,10 +21,20 @@
 {{ $imageUrl := .imageUrl }}
 {{ $logoUrl := .logoUrl }}
 
+{{/* Apply get-static-url function to internal image URLs */}}
+{{ $imageUrlWithDomain := "" }}
+{{ if $imageUrl }}
+  {{ $imageUrlWithDomain = partial "functions/get-static-url.html" (dict "path" $imageUrl) }}
+{{ end }}
+{{ $logoUrlWithDomain := "" }}
+{{ if $logoUrl }}
+  {{ $logoUrlWithDomain = partial "functions/get-static-url.html" (dict "path" $logoUrl) }}
+{{ end }}
+
 <div class="flex flex-col sm:flex-row items-center gap-4 p-6 bg-gray-50 rounded-lg shadow-sm my-8">
     {{ if $imageUrl }}
         <div class="flex-shrink-0">
-            <img src="{{ $imageUrl }}" alt="{{ $name }}" class="w-16 h-16 rounded-full object-cover shadow-sm">
+            <img src="{{ $imageUrlWithDomain }}" alt="{{ $name }}" class="w-16 h-16 rounded-full object-cover shadow-sm">
         </div>
     {{ end }}
 
@@ -42,7 +52,7 @@
 
     {{ if $logoUrl }}
         <div class="flex-shrink-0">
-            <img src="{{ $logoUrl }}" alt="Company logo" class="h-12 object-contain">
+            <img src="{{ $logoUrlWithDomain }}" alt="Company logo" class="h-12 object-contain">
         </div>
     {{ end }}
 </div>

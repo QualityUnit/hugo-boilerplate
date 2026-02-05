@@ -102,7 +102,8 @@
       {{ if or $logoUrl $showLogo }}
       <div class="floating-cta__logo">
         {{ if $logoUrl }}
-          <img src="{{ $logoUrl }}" alt="{{ site.Title }}" class="h-8" loading="lazy" />
+          {{ $logoUrlWithDomain := partial "functions/get-static-url.html" (dict "path" $logoUrl) }}
+          <img src="{{ $logoUrlWithDomain }}" alt="{{ site.Title }}" class="h-8" loading="lazy" />
         {{ else }}
           {{ partialCached "header/logo_section" (dict
             "logoUrl" (site.Params.logo | default "/images/logo.svg")
