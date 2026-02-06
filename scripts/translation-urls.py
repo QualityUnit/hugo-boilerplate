@@ -62,9 +62,13 @@ def get_url_from_file(file_path, lang, relative_path, lang_config=None):
         # Check if URL is defined and not empty in frontmatter
         if 'url' in post.metadata and post.metadata['url'] and post.metadata['url'].strip():
             url = post.metadata['url'].strip()
-            # Ensure URL ends with /
-            if not url.endswith('/'):
-                url = url + '/'
+            # Skip external URLs, only normalize internal URLs
+            if not url.startswith(('http://', 'https://', '//')):
+                # Ensure URL starts with / and ends with /
+                if not url.startswith('/'):
+                    url = '/' + url
+                if not url.endswith('/'):
+                    url = url + '/'
             return url
         
         # Derive URL from file path

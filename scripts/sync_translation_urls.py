@@ -218,10 +218,21 @@ def get_directory_url_path(directory_path: Path, language: str, hugo_config: Dic
         return f"/{'/'.join(path_parts)}"
 
 
-def ensure_trailing_slash(url: str) -> str:
-    """Ensure URL ends with a trailing slash"""
+def ensure_url_slashes(url: str) -> str:
+    """Ensure URL starts with / and ends with / for proper Hugo absolute URLs
+
+    Skips external URLs (http://, https://, //) and returns them unchanged.
+    """
+    # Skip external URLs
+    if url.startswith(('http://', 'https://', '//')):
+        return url
+
+    # Ensure leading slash for internal URLs
+    if not url.startswith('/'):
+        url = '/' + url
+    # Ensure trailing slash
     if not url.endswith('/'):
-        return url + '/'
+        url = url + '/'
     return url
 
 
@@ -247,7 +258,7 @@ def process_directory(lang_dir: Path, directory: Path, stats: Dict, hugo_config:
             
             if 'url' not in front_matter:
                 # Add the URL if missing
-                new_url = ensure_trailing_slash(base_url)
+                new_url = ensure_url_slashes(base_url)
                 if not dry_run:
                     update_front_matter_url_only(file_path, original_toml, new_url, remaining_content)
                 if verbose or dry_run:
@@ -259,7 +270,7 @@ def process_directory(lang_dir: Path, directory: Path, stats: Dict, hugo_config:
             else:
                 # Check if URL needs fixing
                 current_url = front_matter.get('url', '')
-                expected_url = ensure_trailing_slash(base_url)
+                expected_url = ensure_url_slashes(base_url)
                 
                 if current_url != expected_url:
                     # Update if the URL doesn't match the expected URL

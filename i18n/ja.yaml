@@ -139,3 +139,5 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "%s によって %s に公開されました。"
 published_on: "%s に公開されました。"
 last_modified_on_at: "%s の %s に最終更新されました"
+
+learnMore: "詳しく見る"
