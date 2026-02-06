@@ -35,7 +35,7 @@ Creates a responsive section with heading, description, large image/video and CT
 - imageAlt: Image alt text (optional, defaults to heading)
 - videoUrl: Video URL for embedding (YouTube or custom video) (optional)
 - poster: Video poster image URL (optional)
-- posterHeight: Video poster height classes (optional, default: "h-[522px]")
+- posterHeight: Video poster height classes (optional, default: "h-full")
 - videoTitle: Video title text (optional)
 - videoDescription: Video description text (optional)
 - videoLinkUrl: Link to page on site from video overlay (optional)
@@ -54,12 +54,14 @@ Creates a responsive section with heading, description, large image/video and CT
 {{ $imageAlt := .Get "imageAlt" | default $heading }}
 {{ $videoUrl := .Get "videoUrl" }}
 {{ $poster := .Get "poster" }}
-{{ $posterHeight := .Get "posterHeight" | default "h-[522px]" }}
+{{ $posterHeight := .Get "posterHeight" | default "h-full" }}
 {{ $videoTitle := .Get "videoTitle" }}
 {{ $videoDescription := .Get "videoDescription" }}
 {{ $videoLinkUrl := .Get "videoLinkUrl" }}
 {{ $provider := .Get "provider" | default "youtube" }}
-{{ $pureVideo := .Get "pureVideo" | default false }}
+{{ $pureVideoRaw := .Get "pureVideo" | default "false" }}
+{{ $pureVideo := cond (or (eq $pureVideoRaw "true") (eq $pureVideoRaw true)) true false }}
+{{ $controlsList := .Get "controlsList" | default "" }}
 {{ $ctaPrimaryText := .Get "ctaPrimaryText" }}
 {{ $ctaPrimaryURL := .Get "ctaPrimaryURL" }}
 {{ $ctaSecondaryText := .Get "ctaSecondaryText" }}
@@ -87,6 +89,7 @@ Creates a responsive section with heading, description, large image/video and CT
     "videoLinkUrl" $videoLinkUrl
     "provider" $provider
     "pureVideo" $pureVideo
+    "controlsList" $controlsList
     "cta" $cta
     "padding" $padding
     "page" .Page
