@@ -471,10 +471,6 @@
         <!-- JavaScript for toggle functionality -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                if (window.innerWidth < 768) {
-                    return;
-                }
-
                 const monthlyLabel = document.getElementById('monthly-label');
                 const annuallyLabel = document.getElementById('annually-label');
                 const monthlyElements = document.querySelectorAll('.monthly-price, .monthly-interval');
@@ -516,13 +512,6 @@
 
                 // Initialize with monthly pricing
                 togglePricing(true);
-
-                // Recheck on window resize
-                window.addEventListener('resize', function () {
-                    if (window.innerWidth < 768) {
-                        return;
-                    }
-                });
             });
         </script>
     {{ end }}
