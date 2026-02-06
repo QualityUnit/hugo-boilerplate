@@ -3,7 +3,7 @@ Hero section with content at top and two interactive cards below.
 
 Parameters:
 - heading, description (optional): Text content
-- cards: Array of 2 card objects with title, description, backgroundImage, schemaImage, imageAlt, cta (text, url)
+- cards: Array of 2 card objects with title, description, backgroundImage, schemaImage, videoUrl, videoTitle, videoPoster, videoProvider, imageAlt, cta (text, url)
 - sectionPaddingY: Custom padding (default: "py-16 lg:py-24")
 
 Example:
@@ -66,21 +66,47 @@ Example:
                 {{ range $cards }}
                     {{ $cardBackgroundImage := .backgroundImage }}
                     {{ $cardSchemaImage := .schemaImage }}
+                    {{ $cardVideoUrl := .videoUrl }}
+                    {{ $cardVideoTitle := .videoTitle | default .title }}
+                    {{ $cardVideoPoster := .videoPoster }}
+                    {{ $cardVideoProvider := .videoProvider | default "youtube" }}
                     {{ $cardImageAlt := .imageAlt | default .title }}
                     {{ $cardImageClass := .imageClass | default "w-full h-auto" }}
 
-                    <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center {{ if $simple }} shadow-lg{{ end }}"{{ if not .cta.url }} aria-label="{{ .title }}" {{ end }} {{ with $cardBackgroundImage }}style="background-image: url('{{ partial "functions/get-static-url.html" (dict "path" .) }}');"{{ end }}>
-                        {{ if .cta.url }}
-                            <a href="{{ .cta.url }}" class="absolute inset-0 z-20" aria-label="{{ .title }}"></a>
-                        {{ end }}
+                    <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center {{ if $simple }} shadow-lg{{ end }}" aria-label="{{ .title }}" {{ with $cardBackgroundImage }}style="background-image: url('{{ partial "functions/get-static-url.html" (dict "path" .) }}');"{{ end }}>
                         
                         <div class="relative z-10 flex flex-col h-full bg-[#F9FAFB]">
                             <div class="flex-grow bg-[#F9FAFB]"></div>
 
-                            {{ with $cardSchemaImage }}
+                            {{ if $cardVideoUrl }}
+                                <div class="flex-shrink-0">
+                                    {{ if eq $cardVideoProvider "youtube" }}
+                                        {{ partial "components/media/video.html" (dict
+                                            "src" $cardVideoUrl
+                                            "title" $cardVideoTitle
+                                            "poster" $cardVideoPoster
+                                            "provider" $cardVideoProvider
+                                            "useLightbox" true
+                                            "showPlayOverlay" true
+                                        ) }}
+                                    {{ else }}
+                                        {{ partial "components/media/video.html" (dict
+                                            "src" $cardVideoUrl
+                                            "title" $cardVideoTitle
+                                            "poster" $cardVideoPoster
+                                            "provider" $cardVideoProvider
+                                            "muted" true
+                                            "loop" true
+                                            "controls" false
+                                            "useLightbox" false
+                                            "showPlayOverlay" false
+                                        ) }}
+                                    {{ end }}
+                                </div>
+                            {{ else if $cardSchemaImage }}
                                 <div class="flex-shrink-0">
                                     {{ partial "components/media/lazyimg.html" (dict
-                                        "src" .
+                                        "src" $cardSchemaImage
                                         "alt" $cardImageAlt
                                         "class" $cardImageClass
                                         "noLazy" false
@@ -102,14 +128,14 @@ Example:
                                 
                                 {{ if and .cta .cta.text .cta.url }}
                                     <div class="cta flex-shrink-0">
-                                        {{ partial "components/buttons/buttons.html" (dict
-                                            "text" .cta.text
-                                            "url" .cta.url
-                                            "variant" "secondary"
-                                            "showArrow" true
-                                            "sizeClasses" "xl"
-                                            "ariaHidden" true
-                                        ) }}
+                                            {{ partial "components/buttons/buttons.html" (dict
+                                                "text" .cta.text
+                                                "url" .cta.url
+                                                "variant" "secondary"
+                                                "showArrow" true
+                                                "sizeClasses" "xl"
+                                                "ariaHidden" true
+                                            ) }}
                                     </div>
                                 {{ end }}
                             </div>
