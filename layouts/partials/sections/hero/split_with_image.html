@@ -26,6 +26,7 @@ Parameters:
 - date: Publication date (Hugo time object)
 - lastmod: Last modification date (Hugo time object)
 - author: Author key/identifier (string) - will create link to /author/{author}/ if page exists
+- showPublicationInfo: Boolean to show/hide date and author information (default: false)
 - tags: Array of tags (optional), will create tag links to /tags/[tag-name]/
 - categories: Array of categories (optional), will create category links to /categories/[category-name]
 - badges: Array of badge texts (optional), displayed as styled badges
@@ -116,6 +117,7 @@ Design Tokens:
 {{ $date := .date }}
 {{ $lastmod := .lastmod }}
 {{ $author := .author }}
+{{ $showPublicationInfo := .showPublicationInfo | default false }}
 {{ $customBackground := .customBackground }}
 
 {{/* Typewriter configuration with defaults */}}
@@ -324,7 +326,7 @@ Design Tokens:
           <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
         {{ end }}
 
-        {{ if or $date $lastmod $author }}
+        {{ if and $showPublicationInfo (or $date $lastmod $author) }}
           <div class="mt-6 text-sm text-secondary/8">
             {{ $dateFormat := "Jan 2, 2006" }}
             {{ $timeFormat := "3:04 pm" }}

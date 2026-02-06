@@ -35,6 +35,13 @@
   {{ $checklist = merge $checklist .checklist }}
 {{ end }}
 
+{{ $showPublicationInfo := false }}
+{{ if reflect.IsMap . }}
+  {{ $showPublicationInfo = .showPublicationInfo | default false }}
+{{ else }}
+  {{ $showPublicationInfo = .Params.showPublicationInfo | default false }}
+{{ end }}
+
 
 {{ if .Params.youtubeVideoID }}
     {{ partial "sections/hero/split_with_youtube_video.html" (dict
@@ -87,9 +94,10 @@
         "cta" (dict
             "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
             "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
-        "date" .Date
-        "lastmod" .Lastmod
-        "author" .Params.author
+        "date" (.Page.Date | default .Date)
+        "lastmod" (.Page.Lastmod | default .Lastmod)
+        "author" (.Page.Params.author | default .Params.author)
+        "showPublicationInfo" $showPublicationInfo
     ) }}
 {{ else if eq $heroType "simple_base" }}
     {{ partial "sections/hero/simple_base.html" (dict
