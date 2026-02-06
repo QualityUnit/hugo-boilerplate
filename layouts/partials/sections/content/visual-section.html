@@ -8,7 +8,7 @@ Parameters:
 - imageAlt: Image alt text (optional)
 - videoUrl: Video URL for embedding (YouTube or custom video)
 - poster: Video poster image URL (optional)
-- posterHeight: Video poster height classes (optional, default: "h-[522px]")
+- posterHeight: Video poster height classes (optional, default: "h-full")
 - videoTitle: Video title text (optional)
 - videoDescription: Video description text (optional)
 - videoLinkUrl: Link to page on site from video overlay (optional)
@@ -55,12 +55,13 @@ Parameters:
 {{/* Video parameters */}}
 {{ $videoUrl := .videoUrl | default "" }}
 {{ $poster := .poster | default "" }}
-{{ $posterHeight := .posterHeight | default "h-[522px]" }}
+{{ $posterHeight := .posterHeight | default "h-full" }}
 {{ $videoTitle := .videoTitle | default "" }}
 {{ $videoDescription := .videoDescription | default "" }}
 {{ $videoLinkUrl := .videoLinkUrl | default "" }}
 {{ $provider := .provider | default "youtube" }}
 {{ $pureVideo := .pureVideo | default false }}
+{{ $controlsList := .controlsList | default "" }}
 
 {{/* Image processing */}}
 {{ $imageSrc := "" }}
@@ -97,8 +98,10 @@ Parameters:
                   "class" "rounded-xl h-full"
                   "provider" $provider
                   "pureVideo" $pureVideo
-                  "useLightbox" true
-                  "showPlayOverlay" true
+                  "controls" false
+                  "controlsList" $controlsList
+                  "useLightbox" (not $pureVideo)
+                  "showPlayOverlay" (not $pureVideo)
                   "playBtnClass" "white-circle-bounce size-[5.5rem] md:size-[7.75rem] rounded-full backdrop-blur-[3px]"
                   "playBtnInnerClass" "bg-white relative size-[4.5rem] md:size-24 rounded-full hover:scale-105 transition-transform duration-300"
                   "svgClass" "size-10 md:size-14 ml-1 text-[#4F46E5] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
