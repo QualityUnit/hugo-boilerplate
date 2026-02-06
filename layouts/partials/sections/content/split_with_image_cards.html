@@ -73,7 +73,10 @@ Example:
                     {{ $cardImageAlt := .imageAlt | default .title }}
                     {{ $cardImageClass := .imageClass | default "w-full h-auto" }}
 
-                    <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center {{ if $simple }} shadow-lg{{ end }}" aria-label="{{ .title }}" {{ with $cardBackgroundImage }}style="background-image: url('{{ partial "functions/get-static-url.html" (dict "path" .) }}');"{{ end }}>
+                    <div class="relative overflow-hidden rounded-xl min-h-[453px] bg-cover bg-center {{ if $simple }} shadow-lg{{ end }}" {{ if and (not $cardVideoUrl) .cta.url }}aria-label="{{ .title }}"{{ else }}aria-label="{{ .title }}"{{ end }} {{ with $cardBackgroundImage }}style="background-image: url('{{ partial "functions/get-static-url.html" (dict "path" .) }}');"{{ end }}>
+                        {{ if and (not $cardVideoUrl) .cta.url }}
+                            <a href="{{ .cta.url }}" class="absolute inset-0 z-20" aria-label="{{ .title }}"></a>
+                        {{ end }}
                         
                         <div class="relative z-10 flex flex-col h-full bg-[#F9FAFB]">
                             <div class="flex-grow bg-[#F9FAFB]"></div>
