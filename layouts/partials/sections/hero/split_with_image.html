@@ -285,10 +285,15 @@ Design Tokens:
               {{ end }}
             </div>
           {{ end }}
+          {{/* Determine image class based on file type */}}
+          {{ $imageClass := "object-contain rounded-lg" }}
+          {{ if or (strings.HasSuffix $imageSrc ".svg") (strings.HasSuffix $imageSrc ".SVG") }}
+            {{ $imageClass = "w-full h-full max-w-full max-h-full" }}
+          {{ end }}
           {{ partial "components/media/lazyimg.html" (dict
               "src" $imageSrc
               "alt" $finalImageAlt
-              "class" "object-contain rounded-lg"
+              "class" $imageClass
               "noLazy" true
             ) }}
         {{ end }}
