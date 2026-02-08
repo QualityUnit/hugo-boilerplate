@@ -10,9 +10,16 @@
 {{/* Determine the appropriate Google Analytics ID */}}
 {{ $analyticsID := "" }}
 
-{{/* Get the measurement ID from the language params */}}
-{{ with .Site.Language.Params.gaMeasurementID }}
+{{/* First, try Hugo's built-in googleAnalytics config */}}
+{{ with .Site.GoogleAnalytics }}
   {{ $analyticsID = . }}
+{{ end }}
+
+{{/* Fallback to language-specific param */}}
+{{ if not $analyticsID }}
+  {{ with .Site.Language.Params.gaMeasurementID }}
+    {{ $analyticsID = . }}
+  {{ end }}
 {{ end }}
 
 {{/* Fallback to the site params if no language-specific ID is found */}}
