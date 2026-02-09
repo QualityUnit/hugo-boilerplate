@@ -23,8 +23,7 @@
 {{ end }}
 
 <div class="inline-block whitespace-normal hyphens-auto">
-  <span class="whitespace-nowrap">{{ .content }}<span class="md:group md:relative inline-block align-middle pl-2">
-    <button type="button" class="inline-flex focus:outline-none">
+  <span class="md:group md:relative"><span class="pr-2">{{ .content }}</span><button type="button" class="inline-flex focus:outline-none align-text-bottom">
       {{ partial (printf "icons/%s" $icon) (printf "%s cursor-pointer tooltip-trigger %s" $sizeIcon $colorIcon) }}
     </button>
     <div
@@ -34,5 +33,5 @@
     >
       {{ $text }}
     </div>
-  </span></span>
+  </span>
 </div>
