@@ -11,7 +11,7 @@ tqdm
 python-dotenv
 requests>=2.31.0
 toml>=0.10.2
-flowhunt~=3.0
+flowhunt>=3.17.0
 nltk>=3.8
 numpy>=1.21.0
 scikit-learn>=1.0.0

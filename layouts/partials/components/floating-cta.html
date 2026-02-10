@@ -64,6 +64,9 @@
 {{ $badge := .Params.floatingCta.badge | default site.Params.floatingcta.badge | default (i18n "floating_cta_badge") | default "" }}
 {{ $secondaryText := .Params.floatingCta.secondaryText | default site.Params.floatingcta.secondarytext | default (i18n "floating_cta_secondary") | default "" }}
 {{ $secondaryUrl := .Params.floatingCta.secondaryUrl | default site.Params.floatingcta.secondaryurl | default "" }}
+{{ $showBadge := .Params.floatingCta.showBadge | default site.Params.floatingcta.showbadge | default true }}
+{{ $showFeatures := .Params.floatingCta.showFeatures | default site.Params.floatingcta.showfeatures | default true }}
+{{ $showSecondary := .Params.floatingCta.showSecondary | default site.Params.floatingcta.showsecondary | default true }}
 {{ $theme := .Params.floatingCta.theme | default site.Params.floatingcta.theme | default "dark" }}
 {{ $showLogo := .Params.floatingCta.showLogo | default site.Params.floatingcta.showlogo | default false }}
 {{ $logoUrl := .Params.floatingCta.logoUrl | default site.Params.floatingcta.logourl | default "" }}
@@ -99,7 +102,8 @@
       {{ if or $logoUrl $showLogo }}
       <div class="floating-cta__logo">
         {{ if $logoUrl }}
-          <img src="{{ $logoUrl }}" alt="{{ site.Title }}" class="h-8" loading="lazy" />
+          {{ $logoUrlWithDomain := partial "functions/get-static-url.html" (dict "path" $logoUrl) }}
+          <img src="{{ $logoUrlWithDomain }}" alt="{{ site.Title }}" class="h-8" loading="lazy" />
         {{ else }}
           {{ partialCached "header/logo_section" (dict
             "logoUrl" (site.Params.logo | default "/images/logo.svg")
@@ -113,7 +117,7 @@
       {{ end }}
 
       {{/* Badge */}}
-      {{ if $badge }}
+      {{ if and $showBadge $badge }}
       <div class="floating-cta__badge">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
@@ -138,7 +142,7 @@
       <p class="floating-cta__description">{{ $description }}</p>
 
       {{/* Feature list */}}
-      {{ if $features }}
+      {{ if and $features $showFeatures }}
       <ul class="floating-cta__features">
         {{ range $features }}
         <li class="floating-cta__feature">
@@ -150,24 +154,24 @@
         {{ end }}
       </ul>
       {{ end }}
-    </div>
 
-    {{/* Button */}}
-    <div class="floating-cta__action">
-      {{ partial "components/buttons/buttons.html" (dict
-        "text" $buttonText
-        "url" $buttonUrl
-        "variant" $buttonVariant
-        "size" "lg"
-        "classes" "w-full justify-center"
-      ) }}
+      {{/* Button */}}
+      <div class="floating-cta__action">
+        {{ partial "components/buttons/buttons.html" (dict
+          "text" $buttonText
+          "url" $buttonUrl
+          "variant" $buttonVariant
+          "size" "lg"
+          "classes" "w-full justify-center"
+        ) }}
 
-      {{/* Secondary link */}}
-      {{ if and $secondaryText $secondaryUrl }}
-      <div class="floating-cta__secondary">
-        <a href="{{ $secondaryUrl }}">{{ $secondaryText }} →</a>
+        {{/* Secondary link */}}
+        {{ if and $showSecondary (and $secondaryText $secondaryUrl) }}
+        <div class="floating-cta__secondary">
+          <a href="{{ $secondaryUrl }}">{{ $secondaryText }} →</a>
+        </div>
+        {{ end }}
       </div>
-      {{ end }}
     </div>
 
     {{/* Background image - displayed at bottom */}}

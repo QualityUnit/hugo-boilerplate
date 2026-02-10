@@ -1,11 +1,12 @@
 {{/*
 @component: Related Content
-@description: Displays related content articles based on configuration in data/related_content/[lang].yaml.
+@description: Displays related content articles based on configuration in data/related_content/{lang}/{section}.json.
 @params:
   This component expects a page context (.) and looks up related content based on the page's section and slug.
 @example:
   {{ partial "related_content.html" . }}
-@note: If no related content is defined for the current page in the YAML file, nothing will be displayed.
+@note: If no related content is defined for the current page in the JSON file, nothing will be displayed.
+@note: Data is now split by section for better performance - each section has its own JSON file.
 */}}
 
 {{ $currentPage := . }}
@@ -14,8 +15,9 @@
   {{ $slug := $currentPage.File.ContentBaseName }}
   {{ $lang := $currentPage.Language.Lang }}
 
-  {{ $relatedContentData := index site.Data.related_content $lang }}
-  {{ $sectionData := index $relatedContentData $section | default dict }}
+  {{/* New structure: data/related_content/{lang}/{section}.json */}}
+  {{ $langData := index site.Data.related_content $lang }}
+  {{ $sectionData := index $langData $section | default dict }}
   {{ $pageRelatedContent := index $sectionData $slug | default slice }}
 
   {{ if gt (len $pageRelatedContent) 0 }}

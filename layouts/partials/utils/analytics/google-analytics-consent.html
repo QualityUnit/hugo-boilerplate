@@ -10,7 +10,7 @@
 {{/* Determine the appropriate Google Analytics ID */}}
 {{ $analyticsID := "" }}
 
-{{/* Get the measurement ID from the language params */}}
+{{/* Try language-specific param first */}}
 {{ with .Site.Language.Params.gaMeasurementID }}
   {{ $analyticsID = . }}
 {{ end }}

@@ -10,6 +10,7 @@
   - height: Image height (optional)
   - maxWidth: Maximum image width for loading (optional)
   - noLazy: Set to true to disable lazy loading (for hero images, above-the-fold content) (optional)
+  - noAutoWidth: Set to true to prevent automatic use of originalWidth when width is not provided (optional)
 @example:
   {{ partial "components/media/lazyimg.html" (dict
       "src" "/images/blog/featured-image.jpg"
@@ -29,6 +30,7 @@
 {{ $height := .height | default "" }}
 {{ $maxWidth := .maxWidth | default 3000 }}
 {{ $noLazy := .noLazy | default false }}
+{{ $noAutoWidth := .noAutoWidth | default false }}
 
 
 {{- $fileExt := strings.ToLower (path.Ext $src) -}}
@@ -358,6 +360,10 @@
     {{ else if eq $fileExt ".avif" }}{{ $mimeType = "image/avif" }}
     {{ end }}
 
+    {{/* Use originalWidth if width parameter not provided and noAutoWidth is false */}}
+    {{- $finalWidth := $width -}}
+    {{- if and (not $width) (gt $originalWidth 0) (not $noAutoWidth) }}{{ $finalWidth = $originalWidth }}{{ end -}}
+
     {{- $pictureFinalClass := "lazy-picture" -}}
     {{- if $classPicture }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass $classPicture }}{{ end -}}
     {{- if $noLazy }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass "loaded" }}{{ end -}}
@@ -377,7 +383,7 @@
         {{- if $noLazy }} src="{{ $fallbackSrcWithDomain }}"{{ else }} src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="{{ $fallbackSrcWithDomain }}"{{ end }}
         alt="{{ $alt }}" class="{{ $imgClassFallback }}"
         {{- if $id }} id="{{ $id }}"{{ end -}}
-        {{- if $width }} width="{{ $width }}"{{ end -}}
+        {{- if $finalWidth }} width="{{ $finalWidth }}"{{ end -}}
         {{- if $height }} height="{{ $height }}"{{ end -}}
         {{- if not $noLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
     </picture>

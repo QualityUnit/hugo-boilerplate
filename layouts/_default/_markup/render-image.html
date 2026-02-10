@@ -1,0 +1,17 @@
+{{/*
+@component: Markdown Image Render Hook
+@description: Automatically processes markdown images using the lazyimg component
+@context: Triggered automatically when Hugo renders markdown images
+@example: ![Alt text](/images/example.jpg) -> lazyimg component with CDN URL and lazy loading
+*/}}
+
+{{- $src := .Destination -}}
+{{- $alt := .Text -}}
+{{- $title := .Title | default "" -}}
+
+{{/* Use the lazyimg partial for consistent image handling */}}
+{{- partial "components/media/lazyimg.html" (dict
+  "src" $src
+  "alt" $alt
+  "class" ""
+) -}}

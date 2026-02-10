@@ -98,6 +98,9 @@ faq_description: "Βρείτε απαντήσεις σε συνήθεις ερω
 no_terms_available: "Δεν υπάρχουν διαθέσιμοι όροι"
 pricing_monthly_label: "Μηνιαία"
 pricing_yearly_label: "Ετήσια"
+pricing_show_more: "Εμφάνιση περισσότερων"
+pricing_show_less: "Εμφάνιση λιγότερων"
+pricing_toggle_aria_label: "Εναλλαγή ορατότητας πίνακα σύγκρισης τιμών"
 wantMore: "Θέλετε περισσότερα;"
 learnMore: "Μάθετε περισσότερα"
 pricing_tagline: "Τιμολόγηση"
@@ -121,8 +124,8 @@ icon.card.btn: "Δες"
 # Attachments
 attachments.title: "Συνημμένα"
 
-search_results_found: "Found %d result for %s"
-search_results_found_plural: "Found %d results for %s"
+search_results_found: "Βρέθηκε %d αποτέλεσμα για %s"
+search_results_found_plural: "Βρέθηκαν %d αποτελέσματα για %s"
 
 # Copy code functionality
 copy_code: "Αντιγραφή κώδικα"

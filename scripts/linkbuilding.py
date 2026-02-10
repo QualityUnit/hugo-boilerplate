@@ -279,9 +279,13 @@ class LinkBuilder:
         parsed = urlparse(href)
         url_path = parsed.path
 
-        # Ensure it ends with /
-        if url_path and not url_path.endswith('/'):
-            url_path = url_path + '/'
+        # Ensure it starts with / and ends with / (only for internal paths)
+        # Note: urlparse().path should never have http://, but check to be safe
+        if url_path and not url_path.startswith(('http://', 'https://', '//')):
+            if not url_path.startswith('/'):
+                url_path = '/' + url_path
+            if not url_path.endswith('/'):
+                url_path = url_path + '/'
 
         return url_path if url_path else None
 

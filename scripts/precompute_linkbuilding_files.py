@@ -204,10 +204,13 @@ class KeywordMatcher:
         if not page_url or not keyword_url:
             return False
 
-        # Normalize URLs
+        # Normalize URLs (skip external URLs)
         page_normalized = page_url.strip()
-        if not page_normalized.endswith('/'):
-            page_normalized += '/'
+        if not page_normalized.startswith(('http://', 'https://', '//')):
+            if not page_normalized.startswith('/'):
+                page_normalized = '/' + page_normalized
+            if not page_normalized.endswith('/'):
+                page_normalized += '/'
 
         keyword_normalized = keyword_url.strip()
         if not keyword_normalized.startswith('/'):

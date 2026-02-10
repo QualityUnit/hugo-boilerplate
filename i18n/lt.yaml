@@ -97,6 +97,9 @@ faq_description: "Raskite atsakymus į dažniausiai užduodamus klausimus šia t
 no_terms_available: "Nėra galimų terminų"
 pricing_monthly_label: "Kas mėnesį"
 pricing_yearly_label: "Kasmet"
+pricing_show_more: "Rodyti daugiau"
+pricing_show_less: "Rodyti mažiau"
+pricing_toggle_aria_label: "Perjungti kainų palyginimo lentelės matomumą"
 wantMore: "Norite daugiau?"
 learnMore: "Sužinokite daugiau"
 pricing_tagline: "Kainodara"
@@ -119,8 +122,8 @@ icon.card.btn: "Žiūrėti"
 # Attachments
 attachments.title: "Priedai"
 
-search_results_found: "Found %d result for %s"
-search_results_found_plural: "Found %d results for %s"
+search_results_found: "Rasta %d rezultatas užklausai %s"
+search_results_found_plural: "Rasta %d rezultatai užklausai %s"
 
 # Copy code functionality
 copy_code: "Kopijuoti kodą"

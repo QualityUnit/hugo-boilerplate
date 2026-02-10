@@ -58,7 +58,7 @@ declare -A STEP_DESCRIPTIONS=(
     ["sync_translation_urls"]="Sync translation URLs"
     ["generate_translation_urls"]="Generate translation URL mappings"
     ["generate_amplify_redirects"]="Generate AWS Amplify redirects"
-    ["generate_related_content"]="Generate related content data"
+    ["generate_related_content"]="Generate related content JSON (split by section)"
     ["generate_clustering"]="Generate website clustering visualization"
     ["generate_linkbuilding_keywords"]="Generate linkbuilding keywords"
     ["regenerate_linkbuilding_keywords"]="REGENERATE linkbuilding (clears existing first)"
@@ -298,6 +298,7 @@ fi
 # Parse arguments for step selection
 STEPS_TO_RUN=()
 SKIP_MENU=false
+MAX_PARALLEL_TRANSLATIONS=100  # Default value for parallel translation processes
 while [[ $# -gt 0 ]]; do
     case $1 in
         --step|--steps)
@@ -310,13 +311,18 @@ while [[ $# -gt 0 ]]; do
             SKIP_MENU=true
             shift
             ;;
+        --max-parallel)
+            MAX_PARALLEL_TRANSLATIONS="$2"
+            shift 2
+            ;;
         --help|-h)
             echo -e "${BLUE}Usage: $0 [OPTIONS]${NC}"
             echo ""
             echo "Options:"
-            echo "  --step, --steps STEPS   Comma-separated list of steps to run"
-            echo "  --no-menu               Skip interactive menu, run all default steps"
-            echo "  --help, -h              Show this help message"
+            echo "  --step, --steps STEPS      Comma-separated list of steps to run"
+            echo "  --no-menu                  Skip interactive menu, run all default steps"
+            echo "  --max-parallel NUM         Maximum number of parallel translation processes (default: 10)"
+            echo "  --help, -h                 Show this help message"
             echo ""
             echo "Available steps:"
             for step in "${ALL_STEPS[@]}"; do
@@ -324,9 +330,10 @@ while [[ $# -gt 0 ]]; do
             done
             echo ""
             echo "Examples:"
-            echo "  $0                                    # Show interactive menu"
+            echo "  $0                                           # Show interactive menu"
             echo "  $0 --steps sync_translations,build_hugo"
-            echo "  $0 --no-menu                          # Run all steps without menu"
+            echo "  $0 --no-menu                                 # Run all steps without menu"
+            echo "  $0 --steps translate --max-parallel 5        # Run translation with 5 parallel processes"
             exit 0
             ;;
         *)
@@ -493,9 +500,9 @@ run_step() {
                 exit 0
             fi
             
-            echo -e "${YELLOW}Running FlowHunt translation script...${NC}"
-            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translate_with_flowhunt.py --path ${HUGO_ROOT}/content${NC}"
-            python "${SCRIPT_DIR}/translate_with_flowhunt.py" --path "${HUGO_ROOT}/content"
+            echo -e "${YELLOW}Running FlowHunt translation script with max ${MAX_PARALLEL_TRANSLATIONS} parallel processes...${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translate_with_flowhunt.py --path ${HUGO_ROOT}/content --max-scheduled-tasks ${MAX_PARALLEL_TRANSLATIONS}${NC}"
+            python "${SCRIPT_DIR}/translate_with_flowhunt.py" --path "${HUGO_ROOT}/content" --max-scheduled-tasks "${MAX_PARALLEL_TRANSLATIONS}"
             echo -e "${GREEN}Translation of missing content completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step translate finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
@@ -726,10 +733,10 @@ PYTHON_SCRIPT
             echo -e "${YELLOW}[DEBUG] Step regenerate_linkbuilding_keywords finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_related_content)
-            echo -e "${BLUE}=== Step 4: Generating Related Content and Clustering Data ===${NC}"
+            echo -e "${BLUE}=== Step 4: Generating Related Content JSON Files (Split by Section) ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/generate_related_content.py --path ${HUGO_ROOT}/content --hugo-root ${HUGO_ROOT} --exclude-sections author${NC}"
             python "${SCRIPT_DIR}/generate_related_content.py" --path "${HUGO_ROOT}/content" --hugo-root "${HUGO_ROOT}" --exclude-sections "author"
-            echo -e "${GREEN}Related content and clustering data generation completed!${NC}"
+            echo -e "${GREEN}Related content JSON generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_related_content finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_clustering)

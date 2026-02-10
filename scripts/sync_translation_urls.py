@@ -111,15 +111,30 @@ def update_front_matter_url_only(file_path: Path, original_toml: str, new_url: s
     """Update only the URL field in the TOML front matter, preserving all other formatting"""
     # Use regex to replace just the URL line in the original TOML
     url_pattern = r'^url\s*=\s*"[^"]*"'
-    
+
     # Check if URL exists in the original TOML
     if re.search(url_pattern, original_toml, re.MULTILINE):
         # Replace existing URL
         updated_toml = re.sub(url_pattern, f'url = "{new_url}"', original_toml, flags=re.MULTILINE)
     else:
-        # Add URL at the end if it doesn't exist
-        updated_toml = original_toml.rstrip() + f'\nurl = "{new_url}"\n'
-    
+        # Add URL at the beginning (right after title if it exists)
+        lines = original_toml.split('\n')
+        new_lines = []
+        url_inserted = False
+
+        for line in lines:
+            new_lines.append(line)
+            # Insert url after title line
+            if not url_inserted and line.strip().startswith('title ='):
+                new_lines.append(f'url = "{new_url}"')
+                url_inserted = True
+
+        # If no title found, insert at the beginning
+        if not url_inserted:
+            new_lines.insert(0, f'url = "{new_url}"')
+
+        updated_toml = '\n'.join(new_lines)
+
     # Write the updated content
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write('+++\n')
@@ -203,10 +218,21 @@ def get_directory_url_path(directory_path: Path, language: str, hugo_config: Dic
         return f"/{'/'.join(path_parts)}"
 
 
-def ensure_trailing_slash(url: str) -> str:
-    """Ensure URL ends with a trailing slash"""
+def ensure_url_slashes(url: str) -> str:
+    """Ensure URL starts with / and ends with / for proper Hugo absolute URLs
+
+    Skips external URLs (http://, https://, //) and returns them unchanged.
+    """
+    # Skip external URLs
+    if url.startswith(('http://', 'https://', '//')):
+        return url
+
+    # Ensure leading slash for internal URLs
+    if not url.startswith('/'):
+        url = '/' + url
+    # Ensure trailing slash
     if not url.endswith('/'):
-        return url + '/'
+        url = url + '/'
     return url
 
 
@@ -232,7 +258,7 @@ def process_directory(lang_dir: Path, directory: Path, stats: Dict, hugo_config:
             
             if 'url' not in front_matter:
                 # Add the URL if missing
-                new_url = ensure_trailing_slash(base_url)
+                new_url = ensure_url_slashes(base_url)
                 if not dry_run:
                     update_front_matter_url_only(file_path, original_toml, new_url, remaining_content)
                 if verbose or dry_run:
@@ -244,7 +270,7 @@ def process_directory(lang_dir: Path, directory: Path, stats: Dict, hugo_config:
             else:
                 # Check if URL needs fixing
                 current_url = front_matter.get('url', '')
-                expected_url = ensure_trailing_slash(base_url)
+                expected_url = ensure_url_slashes(base_url)
                 
                 if current_url != expected_url:
                     # Update if the URL doesn't match the expected URL

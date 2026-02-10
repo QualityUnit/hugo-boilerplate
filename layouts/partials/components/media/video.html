@@ -15,9 +15,9 @@
   - loop: Enable loop (optional, default: false)
   - muted: Enable muted (optional, default: false)
   - controls: Show video controls (optional, default: true for custom, false for YouTube)
+  - controlsList: HTML5 controlslist attribute for custom videos (optional, e.g. "nodownload")
   - poster: Poster image URL for HTML5 video or custom YouTube thumbnail (optional)
   - posterHeight: Height classes for YouTube video poster (optional, e.g. "h-96")
-  - useAspectRatio: Use 16:9 aspect ratio for YouTube videos (optional, default: true, adds 'aspect-ratio' CSS class)
   - useLightbox: Use lightbox for custom videos (optional, default: false)
   - showPlayOverlay: Show play button overlay on custom videos (optional, default: true)
   - showPlayButton: Show play button overlay on YouTube videos (optional, default: true)
@@ -61,6 +61,7 @@
 {{ $loop := .loop | default false }}
 {{ $muted := .muted | default false }}
 {{ $controls := .controls | default false }}
+{{ $controlsList := .controlsList | default "" }}
 {{ $useLightbox := .useLightbox | default false }}
 {{ $controls := (and (not $useLightbox) (.controls | default true)) }}
 {{ $poster := .poster }}
@@ -71,7 +72,6 @@
 {{ $noLazy := .noLazy | default false }}
 {{ $showPlayOverlay := .showPlayOverlay | default true }}
 {{ $showPlayButton := .showPlayButton | default true }}
-{{ $useAspectRatio := .useAspectRatio | default true }}
 
 
 <!-- First determine the provider if not explicitly set -->
@@ -114,7 +114,6 @@
 "noLazy" $noLazy
 "poster" $poster
 "posterHeight" $posterHeight
-"useAspectRatio" $useAspectRatio
 "playBtnClass" .playBtnClass
 "playBtnInnerClass" .playBtnInnerClass
 "svgClass" .svgClass
@@ -137,6 +136,7 @@
 "loop" $loop
 "muted" $muted
 "controls" $controls
+"controlsList" $controlsList
 "poster" $poster
 "useLightbox" $useLightbox
 "showPlayOverlay" $showPlayOverlay
