@@ -78,10 +78,6 @@
   },
   {{ end }}
   {{ end }}
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "@id": {{ printf "%s#breadcrumb" $page.Permalink | jsonify }}
-  },
   "publisher": {
     "@type": "Organization",
     "name": {{ $site.Title | jsonify }},
