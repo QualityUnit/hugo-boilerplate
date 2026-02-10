@@ -15,6 +15,7 @@ Parameters:
   - For type "default": Just background image, no overlay
   - For type "features" or feature categories: Background image + SVG icon overlay in square
   - For type "integrations": integration-detail.png background + logo overlay in square
+- imageSingle: Alternative image source (takes priority over image parameter when available)
 - icon: Icon path - SVG for features, image for success-stories/integrations
 - video: Video object with properties (optional, takes priority over image if enabled):
   - enabled: Boolean to enable video mode (default: false)
@@ -89,6 +90,7 @@ Design Tokens:
 {{/* Section parameters */}}
 {{ $type := .type | default "default" }}
 {{ $image := .image }}
+{{ $imageSingle := .imageSingle }}
 {{ $imageAlt := .imageAlt }}
 {{ $icon := .icon }}
 {{ $features := .features | default (slice) }}
@@ -153,16 +155,25 @@ Design Tokens:
 {{ $overlayShadowClass := .overlayShadowClass | default "hero-overlay-shadow" }}
 
 {{/* Hero type configuration - loaded from helper partial */}}
-{{ $config := partial "helpers/split_with_image_config.html" (dict "type" $type "customBackground" $customBackground) }}
+{{ $config := partial "helpers/split_with_image_config.html" (dict "type" $type "customBackground" $customBackground "image" $image "imageSingle" $imageSingle) }}
 
 {{/* Image processing */}}
 {{ $imageSrc := "" }}
 {{ $finalImageAlt := $imageAlt | default $heading | default .Title | default "Hero image" }}
 
-{{/* Background image source logic */}}
+{{/* Background image source logic - universal approach */}}
 {{ if $config.customBackground }}
   {{ $imageSrc = $config.customBackground }}
+{{ else if $config.imageSingle }}
+  {{/* Use imageSingle from config if available (priority over regular image) */}}
+  {{ if reflect.IsMap $config.imageSingle }}
+    {{ $imageSrc = $config.imageSingle.url }}
+    {{ $finalImageAlt = $config.imageSingle.alt | default $finalImageAlt }}
+  {{ else }}
+    {{ $imageSrc = $config.imageSingle }}
+  {{ end }}
 {{ else if $image }}
+  {{/* Fallback to regular image */}}
   {{ if reflect.IsMap $image }}
     {{ $imageSrc = $image.url }}
     {{ $finalImageAlt = $image.alt | default $finalImageAlt }}
@@ -171,15 +182,23 @@ Design Tokens:
   {{ end }}
 {{ end }}
 
-{{/* Overlay icon source logic - use $image for "image" mode, $icon for "svg" mode */}}
+{{/* Overlay icon source logic - configurable approach */}}
 {{ $showOverlay := $config.showOverlay }}
 {{ $iconImageSrc := "" }}
 {{ if eq $config.overlayMode "image" }}
-  {{/* Image mode: use main image as overlay icon (integrations, success-stories) */}}
-  {{ if reflect.IsMap $image }}
-    {{ $iconImageSrc = $image.url }}
+  {{/* Image mode: check if should use icon as overlay instead of main image */}}
+  {{ if $config.useIconAsOverlay }}
+    {{ $iconImageSrc = $icon }}
+    {{/* Fallback to default icon if no icon provided */}}
+    {{ if and (not $iconImageSrc) $config.defaultIcon }}
+      {{ $iconImageSrc = $config.defaultIcon }}
+    {{ end }}
   {{ else }}
-    {{ $iconImageSrc = $image }}
+    {{ if reflect.IsMap $image }}
+      {{ $iconImageSrc = $image.url }}
+    {{ else }}
+      {{ $iconImageSrc = $image }}
+    {{ end }}
   {{ end }}
   {{ $showOverlay = and $showOverlay (ne $iconImageSrc "") }}
 {{ else if eq $config.overlayMode "svg" }}
@@ -214,24 +233,36 @@ Design Tokens:
         {{ else }}
           {{/* Display regular image */}}
           {{ if and $showOverlay $iconImageSrc }}
-            <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
-              {{ if eq $config.overlayMode "image" }}
-                {{/* Integration logo (Image Overlay) */}}
-                {{ partial "components/media/lazyimg.html" (dict
-                  "src" $iconImageSrc
-                  "alt" "Integration logo"
-                  "class" (printf "%s object-contain" $overlayIconSizeIntegrations)
-                  "noLazy" true
-                ) }}
-              {{ else if eq $config.overlayMode "svg" }}
-                {{/* Feature SVG icon (SVG Overlay) */}}
-                {{ partial "components/media/svg-icon.html" (dict
-                  "src" $iconImageSrc
-                  "alt" "Feature icon"
-                  "class" (printf "%s %s" $overlayIconSizeFeatures $config.overlayColor)
-                ) }}
-              {{ end }}
-            </div>
+            {{ if $config.showDoubleIcon }}
+              {{/* Success Stories - Double Icon Layout */}}
+              {{ partial "components/success-stories/double-icon-overlay.html" (dict
+                "primaryIcon" $iconImageSrc
+                "secondaryIcon" $config.defaultIcon
+                "overlayPosition" $overlayPosition
+                "overlaySize" $overlaySize
+                "overlayShadowClass" $overlayShadowClass
+              ) }}
+            {{ else }}
+              {{/* Standard Single Icon Overlay */}}
+              <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
+                {{ if eq $config.overlayMode "image" }}
+                  {{/* Integration logo (Image Overlay) */}}
+                  {{ partial "components/media/lazyimg.html" (dict
+                    "src" $iconImageSrc
+                    "alt" "Integration logo"
+                    "class" (printf "%s object-contain" $overlayIconSizeIntegrations)
+                    "noLazy" true
+                  ) }}
+                {{ else if eq $config.overlayMode "svg" }}
+                  {{/* Feature SVG icon (SVG Overlay) */}}
+                  {{ partial "components/media/svg-icon.html" (dict
+                    "src" $iconImageSrc
+                    "alt" "Feature icon"
+                    "class" (printf "%s %s" $overlayIconSizeFeatures $config.overlayColor)
+                  ) }}
+                {{ end }}
+              </div>
+            {{ end }}
           {{ end }}
           {{/* Determine image class based on file type */}}
           {{ $imageClass := "object-contain rounded-lg" }}

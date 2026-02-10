@@ -1,0 +1,77 @@
+{{/*
+Success Stories Double Icon Overlay Component
+
+Displays two icons side by side with a vertical divider between them, 
+styled as shown in the success stories design.
+
+Parameters:
+- primaryIcon: Main company/brand icon (from front matter)
+- secondaryIcon: LiveAgent default icon (fallback)
+- overlayPosition: CSS positioning classes
+- overlaySize: Size classes for the overlay container
+- overlayShadowClass: Shadow styling class
+
+Usage:
+{{ partial "components/success-stories/double-icon-overlay.html" (dict
+  "primaryIcon" "/path/to/company-logo.svg"
+  "secondaryIcon" "/path/to/liveagent-logo.svg" 
+  "overlayPosition" "top-12 right-0 lg:translate-x-1/3"
+  "overlaySize" "w-[7.88rem] h-[7.88rem]"
+  "overlayShadowClass" "hero-overlay-shadow"
+) }}
+*/}}
+
+{{ $primaryIcon := .primaryIcon }}
+{{ $secondaryIcon := .secondaryIcon }}
+{{ $overlayPosition := .overlayPosition | default "top-12 right-0 lg:translate-x-1/3" }}
+{{ $overlaySize := .overlaySize | default "h-[6.75rem]" }}
+{{ $overlayShadowClass := .overlayShadowClass | default "hero-overlay-shadow" }}
+
+<div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-90 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
+  <div class="flex items-center justify-center h-full py-6 px-8">
+    {{/* Primary Icon (Company Logo) */}}
+    {{ if $primaryIcon }}
+      <div class="flex items-center justify-center">
+        {{ if or (strings.HasSuffix $primaryIcon ".svg") (strings.HasSuffix $primaryIcon ".SVG") }}
+          {{ partial "components/media/svg-icon.html" (dict
+            "src" $primaryIcon
+            "alt" "Company logo"
+            "class" "h-8 object-contain"
+          ) }}
+        {{ else }}
+          {{ partial "components/media/lazyimg.html" (dict
+            "src" $primaryIcon
+            "alt" "Company logo"
+            "class" "h-8 object-contain"
+            "noLazy" true
+          ) }}
+        {{ end }}
+      </div>
+    {{ end }}
+    
+    {{/* Vertical Divider */}}
+    {{ if and $primaryIcon $secondaryIcon }}
+      <div class="w-px h-8 bg-gray-300 mx-4"></div>
+    {{ end }}
+    
+    {{/* Secondary Icon (LiveAgent Logo) */}}
+    {{ if $secondaryIcon }}
+      <div class="flex items-center justify-center">
+        {{ if or (strings.HasSuffix $secondaryIcon ".svg") (strings.HasSuffix $secondaryIcon ".SVG") }}
+          {{ partial "components/media/svg-icon.html" (dict
+            "src" $secondaryIcon
+            "alt" "LiveAgent logo"
+            "class" "h-8 object-contain text-primary"
+          ) }}
+        {{ else }}
+          {{ partial "components/media/lazyimg.html" (dict
+            "src" $secondaryIcon
+            "alt" "LiveAgent logo"
+            "class" "h-8 object-contain"
+            "noLazy" true
+          ) }}
+        {{ end }}
+      </div>
+    {{ end }}
+  </div>
+</div>
