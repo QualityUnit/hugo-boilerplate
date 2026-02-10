@@ -110,10 +110,7 @@ Configuration via frontmatter:
   {{ partial "schemaorg/howto.html" .Params.howto }}
 {{ end }}
 
-{{/* FAQ schema */}}
-{{ if .Params.faq }}
-  {{ partial "schemaorg/faq.html" (dict "faqs" .Params.faq) }}
-{{ end }}
+{{/* FAQ schema - handled by faq section partials (which accumulate) + faq-consolidated.html in baseof.html (which renders once) */}}
 
 {{/* QAPage schema */}}
 {{ if .Params.qaPage }}
