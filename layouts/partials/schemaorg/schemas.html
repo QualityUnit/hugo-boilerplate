@@ -110,9 +110,9 @@ Configuration via frontmatter:
   {{ partial "schemaorg/howto.html" .Params.howto }}
 {{ end }}
 
-{{/* FAQ schema */}}
+{{/* FAQ schema - accumulate frontmatter FAQs for consolidated output in baseof.html */}}
 {{ if .Params.faq }}
-  {{ partial "schemaorg/faq.html" (dict "faqs" .Params.faq) }}
+  {{ partial "schemaorg/faq-accumulator.html" (dict "faqs" .Params.faq "page" .) }}
 {{ end }}
 
 {{/* QAPage schema */}}
@@ -145,10 +145,6 @@ Configuration via frontmatter:
   {{ partial "schemaorg/itemlist.html" (dict "name" .Title "items" .Params.itemList) }}
 {{ end }}
 
-{{/* Breadcrumbs schema */}}
-{{ if .Params.breadcrumbs }}
-  {{ partial "schemaorg/breadcrumbs.html" (dict "items" .Params.breadcrumbs) }}
-{{ end }}
 
 {{/* Discussion schema */}}
 {{ if .Params.discussion }}
