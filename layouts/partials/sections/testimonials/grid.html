@@ -442,6 +442,6 @@
   
   {{/* Load testimonials randomizer script only when limited mode is enabled */}}
   {{ if $limited }}
-  <script src="/js/testimonials.js"></script>
+  <script src="{{ partial "functions/get-static-url.html" (dict "path" "/js/testimonials.js") }}"></script>
   {{ end }}
 </section>
