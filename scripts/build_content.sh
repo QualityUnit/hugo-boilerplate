@@ -28,6 +28,7 @@ ALL_STEPS=(
     "drop_all_keywords"
     "sync_translations"
     "build_hugo"
+    "split_sitemap"
     "offload_images"
     "find_duplicate_images"
     "translate"
@@ -49,6 +50,7 @@ ALL_STEPS=(
 declare -A STEP_DESCRIPTIONS=(
     ["sync_translations"]="Sync translation keys across i18n files"
     ["build_hugo"]="Build Hugo site with minification"
+    ["split_sitemap"]="Split sitemap.xml into per-sport sitemaps"
     ["offload_images"]="Offload images from Replicate"
     ["find_duplicate_images"]="Find duplicate images in content"
     ["translate"]="Translate missing content via FlowHunt API"
@@ -884,6 +886,14 @@ PYTHON_SCRIPT
             echo -e "  en: ${en_count} files (at root)"
             
             echo -e "${YELLOW}[DEBUG] Step build_hugo finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
+        split_sitemap)
+            echo -e "${BLUE}=== Step 2.1: Splitting Sitemap ===${NC}"
+            echo -e "${YELLOW}Splitting monolithic sitemap.xml into per-sport sitemaps...${NC}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/split_sitemap.py --public-dir ${HUGO_ROOT}/public${NC}"
+            python "${SCRIPT_DIR}/split_sitemap.py" --public-dir "${HUGO_ROOT}/public"
+            echo -e "${GREEN}Sitemap splitting completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step split_sitemap finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         precompute_linkbuilding)
             echo -e "${BLUE}=== Step 4.8: Precomputing File-Centric Linkbuilding ===${NC}"
