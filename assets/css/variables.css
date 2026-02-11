@@ -62,3 +62,42 @@
   }
   
 }
+/* Betmana Custom Variables */
+/* This file will be merged with theme variables */
+
+:root {
+  /* Primary brand colors */
+  --color-primary: #0ea5e9;
+  --color-primary-hover: #0284c7;
+  --color-primary-dark: #075985;
+
+  /* Button colors */
+  --color-button-primary: #0ea5e9;
+  --color-button-primary-hover: #0284c7;
+
+  /* Brand colors */
+  --color-brand-surface: #f0f9ff;
+  --color-brand-border: #0ea5e9;
+  --color-brand-text: #0ea5e9;
+  --color-brand-icon: #0ea5e9;
+}
+
+/* Betmana Custom Variables */
+/* This file will be merged with theme variables */
+
+:root {
+  /* Primary brand colors */
+  --color-primary: #0ea5e9;
+  --color-primary-hover: #0284c7;
+  --color-primary-dark: #075985;
+
+  /* Button colors */
+  --color-button-primary: #0ea5e9;
+  --color-button-primary-hover: #0284c7;
+
+  /* Brand colors */
+  --color-brand-surface: #f0f9ff;
+  --color-brand-border: #0ea5e9;
+  --color-brand-text: #0ea5e9;
+  --color-brand-icon: #0ea5e9;
+}
