@@ -28,7 +28,7 @@ Usage:
 {{ $overlayShadowClass := .overlayShadowClass | default "hero-overlay-shadow" }}
 
 <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-90 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
-  <div class="flex items-center justify-center h-full py-6 px-8">
+  <div class="flex items-center justify-center h-full py-6 px-8 text-gray-600">
     {{/* Primary Icon (Company Logo) */}}
     {{ if $primaryIcon }}
       <div class="flex items-center justify-center">
@@ -36,13 +36,13 @@ Usage:
           {{ partial "components/media/svg-icon.html" (dict
             "src" $primaryIcon
             "alt" "Company logo"
-            "class" "h-8 object-contain"
+            "class" "w-auto h-auto object-contain"
           ) }}
         {{ else }}
           {{ partial "components/media/lazyimg.html" (dict
             "src" $primaryIcon
             "alt" "Company logo"
-            "class" "h-8 object-contain"
+            "class" "w-auto h-auto object-contain"
             "noLazy" true
           ) }}
         {{ end }}
@@ -51,7 +51,7 @@ Usage:
     
     {{/* Vertical Divider */}}
     {{ if and $primaryIcon $secondaryIcon }}
-      <div class="w-px h-8 bg-gray-300 mx-4"></div>
+      <div class="w-px h-full bg-gray-300 mx-3"></div>
     {{ end }}
     
     {{/* Secondary Icon (LiveAgent Logo) */}}
@@ -61,13 +61,13 @@ Usage:
           {{ partial "components/media/svg-icon.html" (dict
             "src" $secondaryIcon
             "alt" "LiveAgent logo"
-            "class" "h-8 object-contain text-primary"
+            "class" "w-9 h-auto object-contain"
           ) }}
         {{ else }}
           {{ partial "components/media/lazyimg.html" (dict
             "src" $secondaryIcon
             "alt" "LiveAgent logo"
-            "class" "h-8 object-contain"
+            "class" "w-9 h-auto object-contain"
             "noLazy" true
           ) }}
         {{ end }}
