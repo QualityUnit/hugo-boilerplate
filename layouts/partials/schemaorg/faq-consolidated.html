@@ -15,6 +15,11 @@
 {{ $storeKey := printf "faq_%s" $page.RelPermalink }}
 {{ $allFaqs := site.Store.Get $storeKey | default slice }}
 
+{{/* Fallback: if nothing was accumulated but page has faq in frontmatter, use that */}}
+{{ if and (eq (len $allFaqs) 0) $page.Params.faq }}
+  {{ $allFaqs = $page.Params.faq }}
+{{ end }}
+
 {{/* Only output schema if we have FAQs */}}
 {{ if and $allFaqs (gt (len $allFaqs) 0) }}
 <!-- Schema.org FAQPage markup (consolidated) -->
@@ -27,10 +32,10 @@
       {{ if gt $index 0 }},{{ end }}
       {
         "@type": "Question",
-        "name": "{{ $faq.question }}",
+        "name": {{ $faq.question | jsonify }},
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "{{ $faq.answer }}"
+          "text": {{ $faq.answer | jsonify }}
         }
       }
     {{ end }}

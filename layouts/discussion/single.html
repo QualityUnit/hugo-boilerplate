@@ -111,8 +111,6 @@
 
         {{/* FAQ Section if available */}}
         {{ if .Params.faq }}
-        {{/* Schema.org FAQ markup */}}
-        {{ partial "schemaorg/faq.html" (dict "faqs" .Params.faq) }}
         <div class="mt-8 bg-white rounded-xl border border-gray-200 p-6 md:p-8">
           <h2 class="text-xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
           <div class="space-y-4">
