@@ -35,8 +35,6 @@
     {{ $pageType = "AboutPage" }}
   {{ else if or (in $relPath "/contact") (in $relPath "/contact-us") }}
     {{ $pageType = "ContactPage" }}
-  {{ else if in $relPath "/faq" }}
-    {{ $pageType = "FAQPage" }}
   {{ else if or (in $relPath "/search") (in $relPath "/results") }}
     {{ $pageType = "SearchResultsPage" }}
   {{ else if $page.IsHome }}
@@ -78,6 +76,32 @@
   },
   {{ end }}
   {{ end }}
+  {{/* Build breadcrumb from page hierarchy */}}
+  {{- $breadcrumbs := slice (dict "name" "Home" "url" $site.BaseURL) -}}
+  {{- $ancestors := $page.Ancestors.Reverse -}}
+  {{- range $ancestors -}}
+    {{- if not .IsHome -}}
+      {{- $breadcrumbs = $breadcrumbs | append (dict "name" .Title "url" .Permalink) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if not $page.IsHome -}}
+    {{- $breadcrumbs = $breadcrumbs | append (dict "name" $page.Title "url" $page.Permalink) -}}
+  {{- end -}}
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "@id": {{ printf "%s#breadcrumb" $page.Permalink | jsonify }},
+    "itemListElement": [
+      {{- range $i, $crumb := $breadcrumbs -}}
+      {{- if $i -}},{{- end -}}
+      {
+        "@type": "ListItem",
+        "position": {{ add $i 1 }},
+        "name": {{ $crumb.name | jsonify }},
+        "item": {{ $crumb.url | jsonify }}
+      }
+      {{- end -}}
+    ]
+  },
   "publisher": {
     "@type": "Organization",
     "name": {{ $site.Title | jsonify }},

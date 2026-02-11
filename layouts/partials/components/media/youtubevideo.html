@@ -25,7 +25,6 @@
 {{ $id := .id | default (print "youtube-" $videoID) }}
 {{ $description := .description | default $title }}
 {{ $uploadDate := .uploadDate | default (now.Format "2006-01-02T15:04:05Z07:00") }}
-{{ $duration := .duration | default "PT0M0S" }}
 
 <!-- Schema.org VideoObject metadata -->
 <script type="application/ld+json">
@@ -36,7 +35,6 @@
   "description": {{ $description }},
   "thumbnailUrl": "https://img.youtube.com/vi/{{ $videoID }}/maxresdefault.jpg",
   "uploadDate": {{ $uploadDate }},
-  "duration": {{ $duration }},
   "contentUrl": "https://www.youtube.com/watch?v={{ $videoID }}",
   "embedUrl": "https://www.youtube.com/embed/{{ $videoID }}"
 }

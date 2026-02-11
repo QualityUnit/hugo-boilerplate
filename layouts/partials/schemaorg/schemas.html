@@ -142,10 +142,6 @@ Configuration via frontmatter:
   {{ partial "schemaorg/itemlist.html" (dict "name" .Title "items" .Params.itemList) }}
 {{ end }}
 
-{{/* Breadcrumbs schema */}}
-{{ if .Params.breadcrumbs }}
-  {{ partial "schemaorg/breadcrumbs.html" (dict "items" .Params.breadcrumbs) }}
-{{ end }}
 
 {{/* Discussion schema */}}
 {{ if .Params.discussion }}

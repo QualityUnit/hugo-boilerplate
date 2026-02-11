@@ -8,7 +8,6 @@
   - uploadDate: Upload date in ISO 8601 format (required)
   - contentUrl: Direct URL to video file (optional)
   - embedUrl: URL for embedding the video (optional)
-  - duration: Video duration in ISO 8601 format (e.g., "PT1M54S" for 1 min 54 sec)
   - width: Video width in pixels
   - height: Video height in pixels
   - transcriptUrl: URL to video transcript (optional)
@@ -20,7 +19,6 @@
     "thumbnailUrl" "/images/video-thumb.jpg"
     "uploadDate" "2025-01-15"
     "embedUrl" "https://youtube.com/embed/abc123"
-    "duration" "PT5M30S"
   ) }}
 @note: Helps videos appear in Google Video Search and rich results
 */}}
@@ -42,7 +40,6 @@
   "uploadDate": {{ $uploadDate | jsonify }},
   {{ with .contentUrl }}"contentUrl": {{ . | jsonify }},{{ end }}
   {{ with .embedUrl }}"embedUrl": {{ . | jsonify }},{{ end }}
-  {{ with .duration }}"duration": {{ . | jsonify }},{{ end }}
   {{ if and .width .height }}
   "width": {{ .width | jsonify }},
   "height": {{ .height | jsonify }},
