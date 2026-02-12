@@ -1,11 +1,11 @@
 {{/*
   Check if the current page should display the promo banner
-  Returns true if the current page is in the enabled pages list
+  Returns true unless the current page is in the excluded pages list
 */}}
 
 {{- $currentPath := .RelPermalink -}}
-{{- $enabledPages := site.Data.promo_banner_pages.enabled_pages -}}
-{{- $showBanner := false -}}
+{{- $excludedPages := site.Data.promo_banner_pages.excluded_pages -}}
+{{- $showBanner := true -}}
 
 {{/* Clean the path - remove query parameters and fragments */}}
 {{- $cleanPath := $currentPath -}}
@@ -21,19 +21,16 @@
   {{- $cleanPath = printf "%s/" $cleanPath -}}
 {{- end -}}
 
-{{/* Check if current clean path is in the enabled pages list */}}
-{{- range $enabledPages -}}
-  {{- $enabledPath := . -}}
-  {{/* Ensure enabled path ends with / for consistent comparison, except for root */}}
-  {{- if and (ne $enabledPath "/") (not (strings.HasSuffix $enabledPath "/")) -}}
-    {{- $enabledPath = printf "%s/" $enabledPath -}}
+{{/* Check if current clean path is in the excluded pages list */}}
+{{- range $excludedPages -}}
+  {{- $excludedPath := . -}}
+  {{/* Ensure excluded path ends with / for consistent comparison, except for root */}}
+  {{- if and (ne $excludedPath "/") (not (strings.HasSuffix $excludedPath "/")) -}}
+    {{- $excludedPath = printf "%s/" $excludedPath -}}
   {{- end -}}
-  {{- if eq $cleanPath $enabledPath -}}
-    {{- $showBanner = true -}}
+  {{- if eq $cleanPath $excludedPath -}}
+    {{- $showBanner = false -}}
   {{- end -}}
 {{- end -}}
-
-{{/* Debug output - remove in production */}}
-<!-- DEBUG: Current path: {{ $currentPath }}, Clean path: {{ $cleanPath }}, Show banner: {{ $showBanner }}, Enabled pages: {{ len $enabledPages }} -->
 
 {{- return (dict "showBanner" $showBanner) -}}
