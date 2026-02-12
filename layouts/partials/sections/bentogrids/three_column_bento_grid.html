@@ -70,8 +70,9 @@
 {{ $finalSpacing := cond (or $isDark $isAlternate) "py-24 sm:py-32" $sectionVerticalSpacing }}
 
 {{ $cards := .cards | default (slice) }}
+{{ $id := .id | default "" }}
 
-<div class="{{ $darkClass }}">
+<div {{ with $id }}id="{{ . }}"{{ end }} class="{{ $darkClass }}">
   <div class="section-bg-light dark:section-bg-dark {{ $finalSpacing }}">
     <div class="wrapper">
       {{ if $tagline }}
