@@ -53,6 +53,7 @@
 
 {{- $title := partial $renderTextPartial (dict "text" $item.Name) -}}
 
+{{- if and site.Params.promotional.enabled $promo -}}<div class="relative">{{- end -}}
 <a href="{{- $url -}}"
   class="flex items-center gap-x-1 text-base lg:text-sm/6 font-semibold text-heading"
   {{$targetAttr}}{{$relAttr}}{{$ariaAttr}}{{$dataAttr}}>
@@ -65,11 +66,10 @@
     {{- if eq $item.Params.target "_blank" -}}
       {{- partial "icons/arrow-top-right-on-square" "inline-block ml-1 h-4 w-4" -}}
     {{- end -}}
-    
-    {{- /* Show Limited Offer badge if enabled globally and for this specific menu item */ -}}
-    {{- if and site.Params.promotional.enabled $promo -}}
-      {{- $limitedOfferText := i18n "promo_offer_in_menu" | default "-75% OFF" -}}
-      <span class="inline-block ml-1.5 px-2 py-0.5 bg-red-500 text-white text-sm font-bold rounded-[100px] tracking-wide backdrop-blur-sm">FREE UPGRADE{{/*  {{- $limitedOfferText -}}  */}}</span>
-    {{- end -}}
   </div>
 </a>
+{{- if and site.Params.promotional.enabled $promo -}}
+  {{- $limitedOfferText := i18n "promo_offer_in_menu" | default "-75% OFF" -}}
+  <span class="absolute right-0 pointer-events-none px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full whitespace-nowrap shadow-sm" style="top:-17px;transform:translateX(70%);">{{- $limitedOfferText -}}</span>
+</div>
+{{- end -}}
