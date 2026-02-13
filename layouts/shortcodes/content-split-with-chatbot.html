@@ -1,0 +1,66 @@
+{{/*
+    Shortcode: content-split-with-chatbot
+    Purpose: Split layout with text content on the left and embedded FlowHunt chatbot on the right.
+    Based on content-split-with-image pattern.
+
+    Parameters:
+    - theme: "light" | "dark" | "alternate" | "gradient" (default: "light")
+    - backgroundColor: Custom background using Tailwind CSS classes (default: "")
+    - id: Section ID for anchor links (default: "")
+    - heading: Main title for the section
+    - eyebrow: Small text above heading (default: "")
+    - description: Text below heading (default: "")
+    - chatbotId: FlowHunt chatbot ID (required)
+    - workspaceId: FlowHunt workspace ID (required)
+    - maxWindowHeight: Max height for the chatbot window (default: "500px")
+    - link: CTA link URL (default: "")
+    - linkText: CTA button text (default: "Learn more")
+    - linkTarget: Link target "_self" or "_blank" (default: "_self")
+    - buttonStyle: "primary" or "secondary" (default: "primary")
+    - sectionVerticalSpacing: Custom vertical spacing (default: "my-24 sm:my-32" for light, "py-24 sm:py-32" for dark)
+
+    Usage:
+    {{< content-split-with-chatbot
+        theme="light"
+        id="ai-chatbot"
+        heading="Want the details? Ask the expert"
+        description="Our AI-chatbot knows this promo inside out."
+        chatbotId="your-chatbot-id"
+        workspaceId="your-workspace-id"
+        link="#"
+        linkText="Start chatting"
+    >}}
+    {{< /content-split-with-chatbot >}}
+*/}}
+
+{{ $theme := .Get "theme" | default "light" }}
+{{ $backgroundColor := .Get "backgroundColor" | default "" }}
+{{ $id := .Get "id" | default "" }}
+{{ $eyebrow := .Get "eyebrow" | default "" }}
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $chatbotId := .Get "chatbotId" | default "" }}
+{{ $workspaceId := .Get "workspaceId" | default "" }}
+{{ $maxWindowHeight := .Get "maxWindowHeight" | default "500px" }}
+{{ $link := .Get "link" | default "" }}
+{{ $linkText := .Get "linkText" | default (i18n "learnMore") | default "Learn more" }}
+{{ $linkTarget := .Get "linkTarget" | default "_self" }}
+{{ $buttonStyle := .Get "buttonStyle" | default "primary" }}
+{{ $sectionVerticalSpacing := .Get "sectionVerticalSpacing" }}
+
+{{ partial "sections/content/split_with_chatbot.html" (dict
+  "theme" $theme
+  "backgroundColor" $backgroundColor
+  "id" $id
+  "eyebrow" $eyebrow
+  "heading" $heading
+  "description" $description
+  "chatbotId" $chatbotId
+  "workspaceId" $workspaceId
+  "maxWindowHeight" $maxWindowHeight
+  "link" $link
+  "linkText" $linkText
+  "linkTarget" $linkTarget
+  "buttonStyle" $buttonStyle
+  "sectionVerticalSpacing" $sectionVerticalSpacing
+) }}
