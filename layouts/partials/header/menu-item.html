@@ -69,7 +69,7 @@
     {{- /* Show Limited Offer badge if enabled globally and for this specific menu item */ -}}
     {{- if and site.Params.promotional.enabled $promo -}}
       {{- $limitedOfferText := i18n "promo_offer_in_menu" | default "-75% OFF" -}}
-      <span class="inline-block ml-1.5 px-2 py-0.5 bg-red-500 text-white text-sm font-bold rounded-[100px] tracking-wide backdrop-blur-sm">{{- $limitedOfferText -}}</span>
+      <span class="inline-block ml-1.5 px-2 py-0.5 bg-red-500 text-white text-sm font-bold rounded-[100px] tracking-wide backdrop-blur-sm">FREE UPGRADE{{/*  {{- $limitedOfferText -}}  */}}</span>
     {{- end -}}
   </div>
 </a>

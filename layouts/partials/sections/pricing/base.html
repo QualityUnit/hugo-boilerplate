@@ -154,9 +154,13 @@
             {{ end }}
           </div>
           <p class="mt-auto mb-6 text-sm/6 {{ if $tier.darkTheme }}text-gray-300{{ else }}text-gray-600{{ end }} sm:min-h-[5rem]">{{ i18n $tier.description }}</p>
-          {{ if $promo }}
+          {{ if $promo  }}
             <div class="mb-2.5">
-              <span class="inline-flex bg-red-500 text-white text-xs font-bold rounded-[100px] py-1 px-2.5 backdrop-blur-sm">{{ i18n "promo_offer" }}</span>
+              {{ if $tier.promoPrice }}
+                <span class="inline-flex bg-red-500 text-white text-xs font-bold rounded-[100px] py-1 px-2.5 backdrop-blur-sm">Limited offer{{/*  {{ i18n "promo_offer" }}  */}}</span>
+              {{ else }}
+                <span class="inline-flex h-6"></span>
+              {{ end }}
             </div>
           {{ end }}
           <div class="mt-auto mb-6">

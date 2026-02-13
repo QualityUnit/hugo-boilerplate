@@ -27,7 +27,7 @@
         "description" (.Description | default "Frequently Asked Questions")
         "items" $items
       ) }}
-      {{ partial "schemaorg/faq.html" (dict "faqs" $faqs) }}
+      {{ partial "schemaorg/faq-accumulator.html" (dict "faqs" $faqs "page" $) }}
     {{ end }}
 
     {{/* Search field for FAQ */}}

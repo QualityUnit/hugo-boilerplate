@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ site.Language.LanguageCode }}" dir="{{ or site.Language.LanguageDirection `ltr` }}">
+<html lang="{{ site.Language.LanguageCode }}" dir="{{ or site.Language.LanguageDirection `ltr` }}" class="scroll-smooth scroll-pt-32">
 <head>
   {{ partialCached "head.html" . .Permalink }}
 </head>
@@ -12,9 +12,7 @@
 
 {{ if $showPromoBanner }}
   <!-- Promo Banner -->
-  {{ partial "components/banners/promo-header" (dict 
-      "image" "/images/promo/black-friday-25_LP_man_img.png"
-      "image_alt" "Black Friday promotion banner"
+  {{ partial "components/banners/valentines-day/promo-header" (dict 
       "sticky" true
       "Page" .
   ) }}

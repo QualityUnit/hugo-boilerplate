@@ -70,6 +70,7 @@
 {{ $tagline := .Get "tagline" | default "" }}
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
+{{ $id := .Get "id" | default "" }}
 
 {{/* Parse inner content as JSON if provided */}}
 
@@ -80,10 +81,11 @@
   {{ end }}
 {{ end }}
 
-{{ partial "sections/bentogrids/three_column_bento_grid.html" (dict 
+{{ partial "sections/bentogrids/three_column_bento_grid.html" (dict
   "theme" $theme
   "tagline" $tagline
   "heading" $heading
   "description" $description
   "cards" $cards
+  "id" $id
 ) }}
