@@ -21,9 +21,11 @@
   {{- $cleanPath = printf "%s/" $cleanPath -}}
 {{- end -}}
 
-{{/* Check if current clean path is in the excluded pages list */}}
+{{/* Check if current clean path is in the excluded pages list (with translation support) */}}
 {{- range $excludedPages -}}
   {{- $excludedPath := . -}}
+  {{/* Translate the excluded URL to match current language */}}
+  {{- $excludedPath = partial "helpers/get-translated-url.html" (dict "url" $excludedPath) -}}
   {{/* Ensure excluded path ends with / for consistent comparison, except for root */}}
   {{- if and (ne $excludedPath "/") (not (strings.HasSuffix $excludedPath "/")) -}}
     {{- $excludedPath = printf "%s/" $excludedPath -}}
