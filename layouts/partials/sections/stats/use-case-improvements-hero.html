@@ -1,0 +1,44 @@
+{{/*
+@section: Use Case Improvements for Hero
+@description: A simplified layout for displaying key improvement metrics in hero sections, designed for better visual integration with hero content.
+@params:
+  - improvements: Array of improvement objects (required)
+    - improvement: The improvement value (e.g., "+45%", "47%", "5000+")
+    - text: Description of the improvement (e.g., "increase in support effectiveness")
+@example:
+  {{ partial "sections/stats/use-case-improvements-hero.html" (dict
+      "improvements" (slice
+          (dict "improvement" "47%" "text" "increase in support effectiveness")
+          (dict "improvement" "5000+" "text" "chats handled monthly")
+          (dict "improvement" "Unified" "text" "communication platform")
+      )
+  ) }}
+@note: This is a specialized version for hero sections with horizontal layout and simplified styling.
+  - Equal width columns when 3 items
+  - Improvement value: max 2 lines with ellipsis
+  - Description text: max 3 lines with ellipsis
+*/}}
+
+{{ $improvements := .improvements | default slice }}
+{{ $count := len $improvements }}
+
+{{/* Grid columns based on count - equal thirds for 3 items */}}
+{{ $gridCols := "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" }}
+{{ if eq $count 2 }}
+  {{ $gridCols = "grid-cols-1 sm:grid-cols-2" }}
+{{ else if eq $count 1 }}
+  {{ $gridCols = "grid-cols-1" }}
+{{ end }}
+
+<div class="grid {{ $gridCols }} gap-1">
+  {{ range $index, $improvement := $improvements }}
+    <div class="py-3 px-4 border-l border-neutral-200 flex-1">
+      <div class="text-4xl font-bold text-brand mb-1.5 line-clamp-2">
+        {{ $improvement.improvement }}
+      </div>
+      <div class="text-secondary font-semibold line-clamp-3">
+        {{ $improvement.text }}
+      </div>
+    </div>
+  {{ end }}
+</div>
