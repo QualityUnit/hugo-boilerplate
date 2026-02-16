@@ -15,7 +15,7 @@ Usage:
 {{ partial "components/success-stories/double-icon-overlay.html" (dict
   "primaryIcon" "/path/to/company-logo.svg"
   "secondaryIcon" "/path/to/liveagent-logo.svg" 
-  "overlayPosition" "top-12 right-0 lg:translate-x-1/3"
+  "overlayPosition" "top-12 right-3 xl:-right-10"
   "overlaySize" "w-[7.88rem] h-[7.88rem]"
   "overlayShadowClass" "hero-overlay-shadow"
 ) }}
@@ -23,7 +23,7 @@ Usage:
 
 {{ $primaryIcon := .primaryIcon }}
 {{ $secondaryIcon := .secondaryIcon }}
-{{ $overlayPosition := .overlayPosition | default "top-12 right-0 lg:translate-x-1/3" }}
+{{ $overlayPosition := .overlayPosition | default "top-12 right-3 xl:-right-10" }}
 {{ $overlaySize := .overlaySize | default "h-[8.75rem]" }}
 {{ $overlayShadowClass := .overlayShadowClass | default "hero-overlay-shadow" }}
 
