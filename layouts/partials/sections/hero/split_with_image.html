@@ -2,11 +2,12 @@
 Responsive hero section with split layout - content left, image/video right.
 
 Parameters:
-- type: "default" | "simple_base" | "features" | "integrations" | feature category (default: "default")
+- type: "default" | "simple_base" | "features" | "integrations" | "success-stories" | feature category (default: "default")
   - "default": Standard hero with image background
   - "simple_base": Simple hero without image (handled by hero_default.html, not this component)
   - "features": Generic features hero with icon overlay
   - "integrations": Integration hero with logo overlay
+  - "success-stories": Success story hero with icon overlay on the right side
   - Feature categories: "promotional-materials", "reporting", "commissions", "user-interface", "tracking", "security"
     (automatically treated as features type with specific icon color)
 - theme: "light" | "dark" | "alternate" (default: "light")
@@ -14,7 +15,8 @@ Parameters:
   - For type "default": Just background image, no overlay
   - For type "features" or feature categories: Background image + SVG icon overlay in square
   - For type "integrations": integration-detail.png background + logo overlay in square
-- icon: SVG icon path (used only for features types)
+- imageSingle: Alternative image source (takes priority over image parameter when available)
+- icon: Icon path - SVG for features, image for success-stories/integrations
 - video: Video object with properties (optional, takes priority over image if enabled):
   - enabled: Boolean to enable video mode (default: false)
   - src: YouTube URL for the video
@@ -31,6 +33,7 @@ Parameters:
 - categories: Array of categories (optional), will create category links to /categories/[category-name]
 - badges: Array of badge texts (optional), displayed as styled badges
 - resources: Array of resource objects with 'name' and 'link' properties (optional), displayed as download buttons
+- useCaseImprovements: Array of improvement objects with 'improvement' and 'text' properties (optional), displayed as hero statistics
 - typewriter: Object with typewriter effect configuration (optional)
   - enabled: Boolean to enable/disable the effect (default: false)
   - words: Number of words to animate (default: 1)
@@ -41,7 +44,7 @@ Parameters:
   - wordAlternatives: Comma separated words to alternate with
 - sectionPaddingY: Custom vertical padding using Tailwind classes (default: "max-md:pt-0 py-12 lg:py-16")
 - backgroundColor: Custom background color class
-- overlayPosition: Position of icon overlay (default: "top-[5.69rem] left-[1.25rem]")
+- overlayPosition: Position of icon overlay (default: "top-[5.69rem] left-[1.25rem]", for success-stories: "top-12 right-3 xl:-right-10")
 - overlaySize: Size of overlay container (default: "w-[7.88rem] h-[7.88rem]")
 - overlayIconSizeIntegrations: Size of integration icons (default: "w-[6.25rem] h-[6.25rem]")
 - overlayIconSizeFeatures: Size of feature icons (default: "w-[4.25rem] h-[4.25rem]")
@@ -87,6 +90,7 @@ Design Tokens:
 {{/* Section parameters */}}
 {{ $type := .type | default "default" }}
 {{ $image := .image }}
+{{ $imageSingle := .imageSingle }}
 {{ $imageAlt := .imageAlt }}
 {{ $icon := .icon }}
 {{ $features := .features | default (slice) }}
@@ -111,6 +115,7 @@ Design Tokens:
   {{ end }}
 {{ end }}
 {{ $resources := .resources | default (slice) }}
+{{ $useCaseImprovements := .useCaseImprovements | default (slice) }}
 {{ $typewriter := .typewriter | default dict }}
 {{ $search := .search | default dict }}
 {{ $checklist := .checklist | default dict }}
@@ -148,109 +153,80 @@ Design Tokens:
 {{ $overlayIconSizeIntegrations := .overlayIconSizeIntegrations | default "w-[6.25rem] h-[6.25rem]" }}
 {{ $overlayIconSizeFeatures := .overlayIconSizeFeatures | default "w-[4.25rem] h-[4.25rem]" }}
 {{ $overlayShadowClass := .overlayShadowClass | default "hero-overlay-shadow" }}
+{{ $overflowClass := "overflow-hidden" }}
 
-{{/* Hero type configuration - clean and simple */}}
-
-{{/* Feature category colors map */}}
-{{ $featureColors := dict
-  "promotional-materials" "text-green-600"
-  "reporting" "text-fuchsia-600"
-  "commissions" "text-yellow-600"
-  "user-interface" "text-orange-300"
-  "tracking" "text-sky-600"
-  "security" "text-pink-600"
-}}
-
-{{/* Base config for Features (SVG Overlay mode) */}}
-{{ $featureBaseConfig := dict 
-    "customBackground" ""
-    "showOverlay" true 
-    "overlayMode" "svg"
-}}
-
-{{/* Base config for Integrations (Image Overlay mode) */}}
-{{ $integrationConfigDefault := dict 
-    "customBackground" "/images/integration-methods/integration-detail.png"
-    "showOverlay" true 
-    "overlayMode" "image"
-    "overlayColor" ""
-}}
-
-{{/* Use customBackground if provided */}}
-{{ $integrationConfig := $integrationConfigDefault }}
-{{ if $customBackground }}
-  {{ $integrationConfig = merge $integrationConfigDefault (dict "customBackground" $customBackground) }}
-{{ end }}
-
-{{ $academyConfig := dict 
-    "customBackground" ""
-    "showOverlay" true 
-    "overlayMode" "svg"
-    "overlayColor" ""
-}}
-
-{{ $templatesConfig := dict 
-    "customBackground" ""
-    "showOverlay" true 
-    "overlayMode" "svg"
-    "overlayColor" "text-primary"
-}}
-
-{{/* All Types Map: Defines all possible configurations */}}
-{{ $allTypeConfigs := dict
-  "academy" $academyConfig
-  "integrations" $integrationConfig
-  "templates" $templatesConfig
-  "features" (merge $featureBaseConfig (dict "overlayColor" "text-green-600"))
-}}
-
-{{/* Dynamically merge feature category configurations into the main map */}}
-{{ range $category, $color := $featureColors }}
-  {{ $categoryConfig := merge $featureBaseConfig (dict "overlayColor" $color) }}
-  {{ $allTypeConfigs = merge $allTypeConfigs (dict $category $categoryConfig) }}
-{{ end }}
-
-{{/* Fallback (Default type has no overlay) */}}
-{{ $defaultConfig := dict 
-    "customBackground" "" 
-    "showOverlay" false 
-    "overlayMode" "none"
-    "overlayColor" "" 
-}}
-{{ $config := index $allTypeConfigs $type | default $defaultConfig }}
+{{/* Hero type configuration - loaded from helper partial */}}
+{{ $config := partial "helpers/split_with_image_config.html" (dict "type" $type "customBackground" $customBackground "image" $image "imageSingle" $imageSingle) }}
 
 {{/* Image processing */}}
 {{ $imageSrc := "" }}
 {{ $finalImageAlt := $imageAlt | default $heading | default .Title | default "Hero image" }}
 
-{{/* Background image source logic */}}
+{{/* Background image source logic - universal approach */}}
 {{ if $config.customBackground }}
   {{ $imageSrc = $config.customBackground }}
+{{ else if $imageSingle }}
+  {{/* Use direct imageSingle parameter if available (takes priority over image) */}}
+  {{ if reflect.IsMap $imageSingle }}
+    {{ $imageSrc = $imageSingle.url }}
+    {{ $finalImageAlt = $imageSingle.alt | default $finalImageAlt }}
+  {{ else }}
+    {{ $imageSrc = $imageSingle }}
+  {{ end }}
+{{ else if $config.imageSingle }}
+  {{/* Use imageSingle from config if available (priority over regular image) */}}
+  {{ if reflect.IsMap $config.imageSingle }}
+    {{ $imageSrc = $config.imageSingle.url }}
+    {{ $finalImageAlt = $config.imageSingle.alt | default $finalImageAlt }}
+  {{ else }}
+    {{ $imageSrc = $config.imageSingle }}
+  {{ end }}
 {{ else if $image }}
+  {{/* Fallback to regular image */}}
   {{ if reflect.IsMap $image }}
     {{ $imageSrc = $image.url }}
     {{ $finalImageAlt = $image.alt | default $finalImageAlt }}
   {{ else }}
     {{ $imageSrc = $image }}
   {{ end }}
-{{ else }}
-  {{ $imageSrc = "https://images.unsplash.com/photo-1487017159836-4e23ece2e4cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2102&q=80" }}
 {{ end }}
 
-{{/* Overlay icon source logic (Simplified by using overlayMode) */}}
+{{/* Overlay icon source logic - configurable approach */}}
 {{ $showOverlay := $config.showOverlay }}
 {{ $iconImageSrc := "" }}
 {{ if eq $config.overlayMode "image" }}
-  {{ $iconImageSrc = $image }}
+  {{/* Image mode: check if should use icon as overlay instead of main image */}}
+  {{ if $config.useIconAsOverlay }}
+    {{ $iconImageSrc = $icon }}
+    {{/* Fallback to default icon if no icon provided */}}
+    {{ if and (not $iconImageSrc) $config.defaultIcon }}
+      {{ $iconImageSrc = $config.defaultIcon }}
+    {{ end }}
+  {{ else }}
+    {{ if reflect.IsMap $image }}
+      {{ $iconImageSrc = $image.url }}
+    {{ else }}
+      {{ $iconImageSrc = $image }}
+    {{ end }}
+  {{ end }}
+  {{ $showOverlay = and $showOverlay (ne $iconImageSrc "") }}
 {{ else if eq $config.overlayMode "svg" }}
+  {{/* SVG mode: use icon parameter (features) */}}
   {{ $iconImageSrc = $icon }}
   {{ $showOverlay = and $showOverlay (ne $iconImageSrc "") }}
+{{ end }}
+
+{{/* Overlay position - right for success-stories, left for others */}}
+{{ if $config.overlayPositionRight }}
+  {{ $overlayPosition = "top-12 right-3 xl:-right-10" }}
+  {{ $overlaySize = "w-auto h-[8.75rem]" }}
+  {{ $overflowClass = "overflow-hidden xl:overflow-visible" }}
 {{ end }}
 
 <div class="split-with-image-hero {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
-      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full overflow-hidden mx-auto max-w-[38rem] max-h-full">
+      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full {{ $overflowClass }} mx-auto max-w-[38rem] max-h-full">
         {{ if and $video $video.enabled }}
           {{/* Display video with popup */}}
           {{ partial "components/media/video.html" (dict 
@@ -268,24 +244,36 @@ Design Tokens:
         {{ else }}
           {{/* Display regular image */}}
           {{ if and $showOverlay $iconImageSrc }}
-            <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
-              {{ if eq $config.overlayMode "image" }}
-                {{/* Integration logo (Image Overlay) */}}
-                {{ partial "components/media/lazyimg.html" (dict
-                  "src" $iconImageSrc
-                  "alt" "Integration logo"
-                  "class" (printf "%s object-contain" $overlayIconSizeIntegrations)
-                  "noLazy" true
-                ) }}
-              {{ else if eq $config.overlayMode "svg" }}
-                {{/* Feature SVG icon (SVG Overlay) */}}
-                {{ partial "components/media/svg-icon.html" (dict
-                  "src" $iconImageSrc
-                  "alt" "Feature icon"
-                  "class" (printf "%s %s" $overlayIconSizeFeatures $config.overlayColor)
-                ) }}
-              {{ end }}
-            </div>
+            {{ if $config.showDoubleIcon }}
+              {{/* Success Stories - Double Icon Layout */}}
+              {{ partial "components/success-stories/double-icon-overlay.html" (dict
+                "primaryIcon" $iconImageSrc
+                "secondaryIcon" $config.defaultIcon
+                "overlayPosition" $overlayPosition
+                "overlaySize" $overlaySize
+                "overlayShadowClass" $overlayShadowClass
+              ) }}
+            {{ else }}
+              {{/* Standard Single Icon Overlay */}}
+              <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
+                {{ if eq $config.overlayMode "image" }}
+                  {{/* Integration logo (Image Overlay) */}}
+                  {{ partial "components/media/lazyimg.html" (dict
+                    "src" $iconImageSrc
+                    "alt" "Integration logo"
+                    "class" (printf "%s object-contain" $overlayIconSizeIntegrations)
+                    "noLazy" true
+                  ) }}
+                {{ else if eq $config.overlayMode "svg" }}
+                  {{/* Feature SVG icon (SVG Overlay) */}}
+                  {{ partial "components/media/svg-icon.html" (dict
+                    "src" $iconImageSrc
+                    "alt" "Feature icon"
+                    "class" (printf "%s %s" $overlayIconSizeFeatures $config.overlayColor)
+                  ) }}
+                {{ end }}
+              </div>
+            {{ end }}
           {{ end }}
           {{/* Determine image class based on file type */}}
           {{ $imageClass := "object-contain rounded-lg" }}
@@ -303,33 +291,42 @@ Design Tokens:
     </div>
     <div class="lg:flex lg:w-1/2 lg:items-center">
       <div class="{{ $contentPaddingY }} lg:w-full lg:flex-none {{ $contentLeftPadding }}">
-        {{ if $eyebrow }}
-          <p class="text-base/7 font-semibold text-primary">{{ $eyebrow }}</p>
-        {{ end }}
-        {{ if $heading }}
-          {{ $headingLength := len $heading }}
-          {{ $lineHeightClass := "leading-tight" }}
-
-          {{/* Get dynamic font classes from shared partial */}}
-          {{ $fontConfig := partial "helpers/dynamic-font-classes.html" (dict "headingLength" $headingLength) }}
-          {{ $fontSizeClass := $fontConfig.fontSizeClass }}
-          {{ $headingTracking := $fontConfig.headingTracking }}
-          
-          {{/* Build typewriter attributes efficiently */}}
-          {{ $typewriterAttrs := "" }}
-          {{ if $typewriter.enabled }}
-            {{ $typewriterAttrs = printf ` data-typewriter data-typewriter-words="%s" data-typewriter-word-alternatives="%s" data-typewriter-speed="%d" data-typewriter-delete-speed="%d" data-typewriter-pause="%d" data-typewriter-color="%s"` $typewriter.words $typewriter.wordAlternatives $typewriter.speed $typewriter.deleteSpeed $typewriter.pause $typewriter.color }}
+        {{ if eq $type "success-stories" }}
+          {{/* Success Stories - simplified content: heading, description, improvements only */}}
+          {{ partial "sections/hero/split_left_success_stories.html" (dict
+            "heading" $heading
+            "description" $description
+            "useCaseImprovements" $useCaseImprovements
+          ) }}
+        {{ else }}
+          {{/* Default content rendering */}}
+          {{ if $eyebrow }}
+            <p class="text-base/7 font-semibold text-primary">{{ $eyebrow }}</p>
           {{ end }}
+          {{ if $heading }}
+            {{ $headingLength := len $heading }}
+            {{ $lineHeightClass := "leading-tight" }}
 
-          <h1 class="mt-6 {{ $fontSizeClass }} font-semibold {{ $headingTracking }} text-heading {{ $lineHeightClass }}" 
-              data-dynamic-font 
-              data-text-length="{{ $headingLength }}"{{ $typewriterAttrs | safeHTMLAttr }}>
-            {{ $heading }}
-          </h1>
-        {{ end }}
-        {{ if $description }}
-          <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
-        {{ end }}
+            {{/* Get dynamic font classes from shared partial */}}
+            {{ $fontConfig := partial "helpers/dynamic-font-classes.html" (dict "headingLength" $headingLength) }}
+            {{ $fontSizeClass := $fontConfig.fontSizeClass }}
+            {{ $headingTracking := $fontConfig.headingTracking }}
+            
+            {{/* Build typewriter attributes efficiently */}}
+            {{ $typewriterAttrs := "" }}
+            {{ if $typewriter.enabled }}
+              {{ $typewriterAttrs = printf ` data-typewriter data-typewriter-words="%s" data-typewriter-word-alternatives="%s" data-typewriter-speed="%d" data-typewriter-delete-speed="%d" data-typewriter-pause="%d" data-typewriter-color="%s"` $typewriter.words $typewriter.wordAlternatives $typewriter.speed $typewriter.deleteSpeed $typewriter.pause $typewriter.color }}
+            {{ end }}
+
+            <h1 class="mt-6 {{ $fontSizeClass }} font-semibold {{ $headingTracking }} text-heading {{ $lineHeightClass }}" 
+                data-dynamic-font 
+                data-text-length="{{ $headingLength }}"{{ $typewriterAttrs | safeHTMLAttr }}>
+              {{ $heading }}
+            </h1>
+          {{ end }}
+          {{ if $description }}
+            <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
+          {{ end }}
 
         {{ if and $showPublicationInfo (or $date $lastmod $author) }}
           <div class="mt-6 text-sm text-secondary/8">
@@ -354,95 +351,95 @@ Design Tokens:
               </time>
             {{ end }}
 
-            {{ with $lastmod }}
-                <span> </span>
-                <span>{{ printf (i18n "last_modified_on_at" | default "Last modified on %s at %s") (.Format $dateFormat) (.Format $timeFormat) }}</span>
-                <time datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" class="sr-only">
-                    {{ .Format $dateFormat }} {{ .Format $timeFormat }}
-                </time>
-            {{ end }}
-          </div>
-        {{ end }}
+              {{ with $lastmod }}
+                  <span> </span>
+                  <span>{{ printf (i18n "last_modified_on_at" | default "Last modified on %s at %s") (.Format $dateFormat) (.Format $timeFormat) }}</span>
+                  <time datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" class="sr-only">
+                      {{ .Format $dateFormat }} {{ .Format $timeFormat }}
+                  </time>
+              {{ end }}
+            </div>
+          {{ end }}
 
-        {{/* Tags, Categories, Badges and Resources */}}
-        {{ if or $categories $tags $badges $resources }}
-        <div class="mt-6 flex flex-col gap-4">
-          {{ if $badges }}
-          <div class="flex flex-wrap gap-2">
-            {{ range $badges }}
-              {{ partial "components/label/label.html" (dict 
-                "text" . 
-                "badgeClass" "badge-base badge-gray badge-with-border"
+          {{/* Tags, Categories, Badges, Resources */}}
+          {{ if or $categories $tags $badges $resources }}
+            <div class="mt-6 flex flex-col gap-4">
+              {{ if $badges }}
+              <div class="flex flex-wrap gap-2">
+                {{ range $badges }}
+                  {{ partial "components/label/label.html" (dict 
+                    "text" . 
+                    "badgeClass" "badge-base badge-gray badge-with-border"
+                  ) }}
+                {{ end }}
+              </div>
+              {{ end }}
+
+              {{ if $categories }}
+              {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
+              <div class="flex flex-wrap gap-2">
+                {{ range $categories }}
+                {{ if $categoriesEnabled }}
+                <a href="{{ print "/categories/" (. | urlize) | relLangURL }}/" class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark hover:bg-indigo-100">
+                {{ . }}
+                </a>
+                {{ else }}
+                <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark">
+                {{ . }}
+                </span>
+                {{ end }}
+                {{ end }}
+              </div>
+              {{ end }}
+
+              {{ if $tags }}
+                {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 ) }}
+              {{ end }}
+
+              {{ if $resources }}
+                {{ partial "sections/resources/resources.html" (dict "resources" $resources "maxItems" 4) }}
+              {{ end }}
+            </div>
+          {{ end }}
+
+          {{/* CTA Buttons */}}
+          {{ with $cta }}
+            {{ $hasPrimary := and .primary .primary.url .primary.text (ne .primary.url "") (ne .primary.text "") }}
+            {{ $hasSecondary := and .secondary .secondary.url .secondary.text (ne .secondary.url "") (ne .secondary.text "") }}
+            {{ if or $hasPrimary $hasSecondary }}
+            <div class="mt-10 flex items-center gap-x-6">
+              {{ if $hasPrimary }}
+                {{ partial "components/buttons/buttons.html" (dict
+                  "text" .primary.text
+                  "url" .primary.url
+                  "variant" "primary"
+                  "size" "xl"
+                ) }}
+              {{ end }}
+              {{ if $hasSecondary }}
+                {{ partial "components/buttons/buttons.html" (dict
+                  "text" .secondary.text
+                  "url" .secondary.url
+                  "variant" "secondary"
+                  "showArrow" true
+                  "size" "xl"
+                ) }}
+              {{ end }}
+            </div>
+            {{ end }}
+          {{ end }}
+          
+          {{/* Search Field */}}
+          {{ if $search.enabled }}
+            <div class="mt-8 max-w-xl">
+              {{ partial "search_field.html" (dict
+                "type" "hero-search"
+                "directories" $search.directories
+                "placeholder" $search.placeholder
               ) }}
-            {{ end }}
-          </div>
-          {{ end }}
-
-          {{ if $categories }}
-          {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
-          <div class="flex flex-wrap gap-2">
-            {{ range $categories }}
-            {{ if $categoriesEnabled }}
-            <a href="{{ print "/categories/" (. | urlize) | relLangURL }}/" class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark hover:bg-indigo-100">
-            {{ . }}
-            </a>
-            {{ else }}
-            <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark">
-            {{ . }}
-            </span>
-            {{ end }}
-            {{ end }}
-          </div>
-          {{ end }}
-
-          {{ if $tags }}
-            {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 ) }}
-          {{ end }}
-
-          {{ if $resources }}
-            {{ partial "sections/resources/resources.html" (dict "resources" $resources "maxItems" 4) }}
-          {{ end }}
-        </div>
-        {{ end }}
-
-        {{/* CTA Buttons */}}
-        {{ if $cta }}
-          {{ $showPrimaryCta := and (isset $cta "primary") (isset $cta.primary "url") (isset $cta.primary "text") (ne $cta.primary.url "") (ne $cta.primary.text "") }}
-          {{ $showSecondaryCta := and (isset $cta "secondary") (isset $cta.secondary "url") (isset $cta.secondary "text") (ne $cta.secondary.url "") (ne $cta.secondary.text "") }}
-          {{ if or $showPrimaryCta $showSecondaryCta }}
-          <div class="mt-10 flex items-center gap-x-6">
-            {{ if $showPrimaryCta }}
-              {{ partial "components/buttons/buttons.html" (dict
-                "text" $cta.primary.text
-                "url" $cta.primary.url
-                "variant" "primary"
-                "size" "xl"
-              ) }}
-            {{ end }}
-            {{ if $showSecondaryCta }}
-              {{ partial "components/buttons/buttons.html" (dict
-                "text" $cta.secondary.text
-                "url" $cta.secondary.url
-                "variant" "secondary"
-                "showArrow" true
-                "size" "xl"
-              ) }}
-            {{ end }}
-          </div>
+            </div>
           {{ end }}
         {{ end }}
-        
-        {{/* Search Field */}}
-        {{ if $search.enabled }}
-          <div class="mt-8 max-w-xl">
-            {{ partial "search_field.html" (dict
-              "type" "hero-search"
-              "directories" $search.directories
-              "placeholder" $search.placeholder
-            ) }}
-          </div>
-        {{ end }}
-
       </div>
     </div>
   </div>

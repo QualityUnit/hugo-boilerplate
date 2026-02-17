@@ -1,0 +1,50 @@
+{{/*
+@section: Success Stories Hero Left Content
+@description: Simplified left side content for success-stories hero - only heading, description and use case improvements.
+@params:
+  - heading: Main heading text (required)
+  - description: Description text (optional)
+  - useCaseImprovements: Array of improvement objects (optional)
+    - improvement: The improvement value (e.g., "+45%", "47%")
+    - text: Description of the improvement
+@example:
+  {{ partial "sections/hero/split_left_success_stories.html" (dict
+      "heading" "Company Success Story"
+      "description" "How they improved their support"
+      "useCaseImprovements" (slice
+          (dict "improvement" "47%" "text" "increase in effectiveness")
+      )
+  ) }}
+*/}}
+
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $useCaseImprovements := .useCaseImprovements | default (slice) }}
+
+<div>
+  {{ if $heading }}
+    {{ $headingLength := len $heading }}
+    {{ $lineHeightClass := "leading-tight" }}
+
+    {{/* Get dynamic font classes from shared partial */}}
+    {{ $fontConfig := partial "helpers/dynamic-font-classes.html" (dict "headingLength" $headingLength) }}
+    {{ $fontSizeClass := $fontConfig.fontSizeClass }}
+    {{ $headingTracking := $fontConfig.headingTracking }}
+
+    <h1 class="mt-6 {{ $fontSizeClass }} font-semibold {{ $headingTracking }} text-heading {{ $lineHeightClass }}" 
+        data-dynamic-font 
+        data-text-length="{{ $headingLength }}">
+      {{ $heading }}
+    </h1>
+  {{ end }}
+
+  {{ if $description }}
+    <p class="mt-8 text-lg/7 text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
+  {{ end }}
+
+  {{ if $useCaseImprovements }}
+    <div class="mt-6">
+      {{ partial "sections/stats/use-case-improvements-hero.html" (dict "improvements" $useCaseImprovements) }}
+    </div>
+  {{ end }}
+</div>
