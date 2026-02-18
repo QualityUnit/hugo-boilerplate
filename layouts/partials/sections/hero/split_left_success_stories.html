@@ -31,9 +31,7 @@
     {{ $fontSizeClass := $fontConfig.fontSizeClass }}
     {{ $headingTracking := $fontConfig.headingTracking }}
 
-    <h1 class="mt-6 {{ $fontSizeClass }} font-semibold {{ $headingTracking }} text-heading {{ $lineHeightClass }}" 
-        data-dynamic-font 
-        data-text-length="{{ $headingLength }}">
+    <h1 class="mt-6 {{ $fontSizeClass }} font-semibold {{ $headingTracking }} text-heading {{ $lineHeightClass }}">
       {{ $heading }}
     </h1>
   {{ end }}
