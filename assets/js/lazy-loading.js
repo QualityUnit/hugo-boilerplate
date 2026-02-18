@@ -103,6 +103,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Helper function to check if an element is in the viewport
     function isInViewport(element) {
       const rect = element.getBoundingClientRect();
+      // Skip elements with zero dimensions (e.g. inside display:none containers)
+      if (rect.width === 0 && rect.height === 0) {
+        return false;
+      }
       return (
         rect.top >= 0 &&
         rect.left >= 0 &&
@@ -190,6 +194,8 @@ document.addEventListener('DOMContentLoaded', function() {
           
           // Loading images
           lazyImages.forEach(function(image) {
+            // Skip elements with zero dimensions (e.g. inside display:none containers)
+            if (image.offsetWidth === 0 && image.offsetHeight === 0) return;
             if (image.offsetTop < (window.innerHeight + scrollTop + 200)) { // Standard margin
               if (image.dataset.src) {
                 const picture = image.closest('picture');
