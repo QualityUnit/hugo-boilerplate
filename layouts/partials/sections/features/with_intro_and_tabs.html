@@ -271,33 +271,4 @@
   </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const tabButtons = document.querySelectorAll('button[data-tabs-group="{{ $uniqueID }}"]');
-  
-  tabButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const tabId = this.getAttribute('data-tab-id');
-      const tabsGroup = this.getAttribute('data-tabs-group');
-      
-      // Hide all panels
-      document.querySelectorAll(`div[data-tabs-group="${tabsGroup}"]`).forEach(panel => {
-        panel.classList.add('hidden');
-      });
-      
-      // Show the selected panel
-      document.querySelector(`div[data-tabs-group="${tabsGroup}"][data-panel-id="${tabId}"]`).classList.remove('hidden');
-      
-      // Update tab button styles
-      document.querySelectorAll(`button[data-tabs-group="${tabsGroup}"]`).forEach(btn => {
-        btn.classList.remove('border-brand', 'product-primary');
-        btn.classList.add('border-transparent', 'text-tertiary', 'hover:border-brand', 'hover:product-primary');
-      });
-      
-      // Style the active tab
-      this.classList.remove('border-transparent', 'text-tertiary', 'hover:border-brand', 'hover:product-primary');
-      this.classList.add('border-brand', 'product-primary');
-    });
-  });
-});
-</script>
+{{ partial "components/load-features-tabs.html" . }}
