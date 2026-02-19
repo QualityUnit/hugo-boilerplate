@@ -57,9 +57,7 @@
             {{ $typewriterAttrs = printf ` data-typewriter data-typewriter-words="%s" data-typewriter-word-alternatives="%s" data-typewriter-speed="%d" data-typewriter-delete-speed="%d" data-typewriter-pause="%d" data-typewriter-color="%s"` $typewriter.words $typewriter.wordAlternatives $typewriter.speed $typewriter.deleteSpeed $typewriter.pause $typewriter.color }}
         {{ end }}
 
-        <h1 class="mt-6 {{ $fontSizeClass }} font-semibold {{ $headingTracking }} text-heading {{ $lineHeightClass }}" 
-            data-dynamic-font 
-            data-text-length="{{ $headingLength }}"{{ $typewriterAttrs | safeHTMLAttr }}>
+        <h1 class="mt-6 {{ $fontSizeClass }} font-semibold {{ $headingTracking }} text-heading {{ $lineHeightClass }}"{{ $typewriterAttrs | safeHTMLAttr }}>
             {{ $heading }}
         </h1>
     {{ end }}
