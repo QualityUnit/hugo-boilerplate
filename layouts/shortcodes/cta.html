@@ -22,9 +22,9 @@
 {{ $ctaHeading := .Get "heading" | default (i18n "cta_default_heading") }}
 {{ $ctaDescription := .Get "description" | default (i18n "cta_default_description") }}
 {{ $ctaPrimaryText := .Get "primaryText" | default (i18n "cta_default_primary_text") }}
-{{ $ctaPrimaryURL := .Get "primaryURL" | default (i18n "cta_default_primary_url") }}
+{{ $ctaPrimaryURL := .Get "primaryURL" | default (i18n "cta_default_primary_url" | default "") }}
 {{ $ctaSecondaryText := .Get "secondaryText" | default (i18n "cta_default_secondary_text") }}
-{{ $ctaSecondaryURL := .Get "secondaryURL" | default (i18n "cta_default_secondary_url") }}
+{{ $ctaSecondaryURL := .Get "secondaryURL" | default (i18n "cta_default_secondary_url" | default "") }}
 
 {{/* Get translated URLs */}}
 {{ $ctaPrimaryURL = partial "helpers/get-translated-url.html" (dict "url" $ctaPrimaryURL "lang" site.Language.Lang) }}
