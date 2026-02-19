@@ -15,7 +15,6 @@ Parameters:
   - For type "default": Just background image, no overlay
   - For type "features" or feature categories: Background image + SVG icon overlay in square
   - For type "integrations": integration-detail.png background + logo overlay in square
-- imageSingle: Alternative image source (takes priority over image parameter when available)
 - icon: Icon path - SVG for features, image for success-stories/integrations
 - video: Video object with properties (optional, takes priority over image if enabled):
   - enabled: Boolean to enable video mode (default: false)
@@ -90,7 +89,6 @@ Design Tokens:
 {{/* Section parameters */}}
 {{ $type := .type | default "default" }}
 {{ $image := .image }}
-{{ $imageSingle := .imageSingle }}
 {{ $imageAlt := .imageAlt }}
 {{ $icon := .icon }}
 {{ $features := .features | default (slice) }}
@@ -156,7 +154,7 @@ Design Tokens:
 {{ $overflowClass := "overflow-hidden" }}
 
 {{/* Hero type configuration - loaded from helper partial */}}
-{{ $config := partial "helpers/split_with_image_config.html" (dict "type" $type "customBackground" $customBackground "image" $image "imageSingle" $imageSingle) }}
+{{ $config := partial "helpers/split_with_image_config.html" (dict "type" $type "customBackground" $customBackground "image" $image) }}
 
 {{/* Image processing */}}
 {{ $imageSrc := "" }}
@@ -165,22 +163,6 @@ Design Tokens:
 {{/* Background image source logic - universal approach */}}
 {{ if $config.customBackground }}
   {{ $imageSrc = $config.customBackground }}
-{{ else if $imageSingle }}
-  {{/* Use direct imageSingle parameter if available (takes priority over image) */}}
-  {{ if reflect.IsMap $imageSingle }}
-    {{ $imageSrc = $imageSingle.url }}
-    {{ $finalImageAlt = $imageSingle.alt | default $finalImageAlt }}
-  {{ else }}
-    {{ $imageSrc = $imageSingle }}
-  {{ end }}
-{{ else if $config.imageSingle }}
-  {{/* Use imageSingle from config if available (priority over regular image) */}}
-  {{ if reflect.IsMap $config.imageSingle }}
-    {{ $imageSrc = $config.imageSingle.url }}
-    {{ $finalImageAlt = $config.imageSingle.alt | default $finalImageAlt }}
-  {{ else }}
-    {{ $imageSrc = $config.imageSingle }}
-  {{ end }}
 {{ else if $image }}
   {{/* Fallback to regular image */}}
   {{ if reflect.IsMap $image }}

@@ -5,7 +5,6 @@
   - type: Hero type string (e.g., "success-stories", "integrations", "features", etc.)
   - customBackground: Optional custom background image path
   - image: Main image parameter (for image transformations)
-  - imageSingle: Single image parameter (for success-stories)
 @returns: dict with configuration:
   - customBackground: Background image path
   - showOverlay: Boolean - whether to show overlay
@@ -19,7 +18,6 @@
 {{ $type := .type | default "default" }}
 {{ $customBackground := .customBackground | default "" }}
 {{ $image := .image | default "" }}
-{{ $imageSingle := .imageSingle | default "" }}
 
 {{/* Feature category colors map */}}
 {{ $featureColors := dict
@@ -82,7 +80,6 @@
     "overlayColor" ""
     "overlayPositionRight" true
     "useIconAsOverlay" true
-    "imageSingle" $imageSingle
     "defaultIcon" "/success-stories/hero/logo/live-agent-logo.svg"
     "showDoubleIcon" true
 }}
