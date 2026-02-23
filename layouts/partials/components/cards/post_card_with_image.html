@@ -93,7 +93,7 @@
 {{ $iconClass := .iconClass | default "w-5 h-5 text-gray-900 shrink-0" }}
 
 {{ $displayTitle := $page.Params.title_for_list | default $page.Params.term | default $page.Title }}
-<article class="group relative rounded-2xl flex flex-col surface-secondary shadow-lg border border-gray-primary overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-1 {{ $cardClasses }}">
+<article class="group relative rounded-2xl flex flex-col surface-secondary shadow-lg border border-gray-primary overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-1 {{ $cardClasses }}" data-section="{{ range $i, $cat := $page.Params.categories }}{{ if $i }} {{ end }}{{ $cat }}{{ end }}" data-tags="{{ range $i, $tag := $page.Params.tags }}{{ if $i }} {{ end }}{{ $tag }},{{ end }}" data-keywords="{{ range $i, $keyword := $page.Params.keywords }}{{ if $i }} {{ end }}{{ $keyword }},{{ end }}">
   <a href="{{ $permalink }}" class="absolute inset-0" aria-label="Read more: {{ $displayTitle }}">
     <span class="sr-only">{{ $displayTitle }}</span>
   </a>
