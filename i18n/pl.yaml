@@ -138,3 +138,9 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Opublikowano %s przez %s."
 published_on: "Opublikowano %s."
 last_modified_on_at: "Ostatnia modyfikacja %s o %s"
+
+# Filter translations
+ui.filters_any: "Wszystkie"
+ui.filters_categories: "Kategorie"
+ui.filters_tags: "Tagi"
+ui.filters_keywords: "Słowa kluczowe"

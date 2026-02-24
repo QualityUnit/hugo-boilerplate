@@ -139,3 +139,9 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "%s tarihinde %s tarafından yayınlandı."
 published_on: "%s tarihinde yayınlandı."
 last_modified_on_at: "%s tarihinde %s saatinde son güncellendi"
+
+# Filter translations
+ui.filters_any: "Herhangi biri"
+ui.filters_categories: "Kategoriler"
+ui.filters_tags: "Etiketler"
+ui.filters_keywords: "Anahtar kelimeler"

@@ -142,6 +142,7 @@
     "search" $search
     "filters" $filters
     "checklist" $checklist
+    "section" .Section
     "cta" (dict
     "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
     "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
@@ -161,6 +162,7 @@
     "categories" $categories
     "keywords" $keywords
     "filters" $filters
+    "section" .Section
   ) }}
 {{ else }}
   {{ partial "sections/hero/simple_centered.html" (dict
@@ -176,6 +178,7 @@
     "badges" $badges
     "resources" $resources
     "useCaseImprovements" $useCaseImprovements
+    "section" .Section
     "cta" (dict
     "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
     "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))

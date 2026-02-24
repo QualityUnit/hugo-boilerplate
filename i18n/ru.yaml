@@ -140,3 +140,9 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Опубликовано %s, автор %s."
 published_on: "Опубликовано %s."
 last_modified_on_at: "Последнее изменение %s в %s"
+
+# Filter translations
+ui.filters_any: "Любой"
+ui.filters_categories: "Категории"
+ui.filters_tags: "Теги"
+ui.filters_keywords: "Ключевые слова"

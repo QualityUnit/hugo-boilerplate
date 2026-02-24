@@ -139,3 +139,9 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Publikované dňa %s autorom %s."
 published_on: "Publikované dňa %s."
 last_modified_on_at: "Naposledy upravené dňa %s o %s"
+
+# Filter translations
+ui.filters_any: "Akýkoľvek"
+ui.filters_categories: "Kategórie"
+ui.filters_tags: "Štítky"
+ui.filters_keywords: "Kľúčové slová"

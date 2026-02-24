@@ -140,3 +140,9 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "发表于 %s，作者：%s。"
 published_on: "发表于 %s。"
 last_modified_on_at: "最后修改于 %s %s"
+
+# Filter translations
+ui.filters_any: "任意"
+ui.filters_categories: "类别"
+ui.filters_tags: "标签"
+ui.filters_keywords: "关键词"

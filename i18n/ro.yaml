@@ -138,3 +138,9 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Publicat la %s de %s."
 published_on: "Publicat la %s."
 last_modified_on_at: "Ultima modificare la %s la %s"
+
+# Filter translations
+ui.filters_any: "Oricare"
+ui.filters_categories: "Categorii"
+ui.filters_tags: "Etichete"
+ui.filters_keywords: "Cuvinte cheie"

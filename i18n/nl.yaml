@@ -140,3 +140,9 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Gepubliceerd op %s door %s."
 published_on: "Gepubliceerd op %s."
 last_modified_on_at: "Laatst gewijzigd op %s om %s"
+
+# Filter translations
+ui.filters_any: "Alle"
+ui.filters_categories: "Categorieën"
+ui.filters_tags: "Tags"
+ui.filters_keywords: "Zoekwoorden"

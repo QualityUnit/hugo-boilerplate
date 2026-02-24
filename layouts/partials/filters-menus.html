@@ -1,6 +1,18 @@
 {{ $categories := .categories | default (slice) }}
 {{ $tags := .tags | default (slice) }}
 {{ $keywords := .keywords | default (slice) }}
+{{ $section := .section | default "" }}
+
+{{/* Translation variables for JavaScript */}}
+{{ $filterTranslations := dict 
+  "filteredResults" (i18n "ui.filters_filtered_results")
+  "article" (i18n "ui.filters_article") 
+  "articles" (i18n "ui.filters_articles")
+  "activeFilters" (i18n "ui.filters_active_filters")
+  "noArticlesFound" (i18n "ui.filters_no_articles_found")
+  "noArticlesMatch" (i18n "ui.filters_no_articles_match")
+  "learnMore" (i18n "ui.filters_learn_more")
+}}
 
 {{$buttonClass := "text-left   w-full flex items-center border rounded-lg px-4 py-1" }}
 {{$buttonSpanClass := "block truncate text-ellipsis overflow-hidden shrink-0 w-16" }}
@@ -25,7 +37,25 @@
   .filter-list li button.active:before {
     background-image: url("{{ $urlChecboxOn }}");
   }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 </style>
+
+<!-- Add loading indicator for filters -->
+<div id="filter-loading" class="text-center py-4 hidden">
+  <div class="inline-flex items-center gap-2 text-gray-500">
+    <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    {{ (i18n "ui.filters_loading") }}
+  </div>
+</div>
 <div class="flex text-left gap-4">
   {{ if $categories }}
   <div class="relative w-full">
@@ -74,81 +104,470 @@
     </ul>
   </div>
   {{ end }}
+  <div class="flex items-end">
+    <button id="clear-all-filters" class="px-4 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors hidden">
+      {{ (i18n "ui.filters_clear_all") }}
+    </button>
+  </div>
 </div>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js" integrity="sha512-Nqw1tH3mpavka9cQCc5zWWEZNfIPdOYyQFjlV1NvflEtQ0/XI6ZQ+H/D3YgJdqSUJlMLAPRj/oXlaHCFbFCjoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const filterItems = document.querySelectorAll("[data-item]");
-    // Function to check if a filter item has any matching content
-    function hasMatchingContent(filterValue, parentType) {
-      const itemsToCheck = document.querySelectorAll(`[data-${parentType}]`);
-      console.log(itemsToCheck)
-      return Array.from(itemsToCheck).some(item => {
-        const dataValue = item.dataset[parentType];
-        if (!dataValue) return false;
-        const dataArray = dataValue.split(", ");
-        return dataArray.includes(filterValue);
-      });
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize variables
+  let fuseInstance = null;
+  let allArticlesData = null;
+  let sectionArticlesData = null;
+  let isFilterInitialized = false;
+  let activeFilters = {
+    section: '',  // maps to categories in articles
+    tags: '',
+    keywords: ''
+  };
+
+  // Current section from Hugo template
+  const currentSection = '{{ $section }}';
+
+  // Translation strings from Hugo i18n
+  const translations = {
+    filteredResults: '{{ index $filterTranslations "filteredResults" }}',
+    article: '{{ index $filterTranslations "article" }}',
+    articles: '{{ index $filterTranslations "articles" }}',
+    activeFilters: '{{ index $filterTranslations "activeFilters" }}',
+    noArticlesFound: '{{ index $filterTranslations "noArticlesFound" }}',
+    noArticlesMatch: '{{ index $filterTranslations "noArticlesMatch" }}',
+    learnMore: '{{ index $filterTranslations "learnMore" }}'
+  };
+
+  // DOM elements
+  const filterItems = document.querySelectorAll("[data-item]");
+  const loadingIndicator = document.getElementById('filter-loading');
+  const clearButton = document.getElementById('clear-all-filters');
+  
+  // Find the wrapper that comes immediately after the hero element
+  const heroElement = document.querySelector('.heroDefault, .split-with-image-hero, .hero, [class*="hero"]');
+  let contentContainer = null;
+  let filteredResultsHeader = null;
+  
+  if (heroElement) {
+    // Find the next wrapper element after hero
+    let nextElement = heroElement.nextElementSibling;
+    while (nextElement) {
+      if (nextElement.classList.contains('wrapper')) {
+        // Use the wrapper itself as the content container
+        contentContainer = nextElement;
+        break;
+      } else if (nextElement.querySelector('.wrapper')) {
+        // If wrapper is nested inside this element
+        contentContainer = nextElement.querySelector('.wrapper');
+        break;
+      }
+      nextElement = nextElement.nextElementSibling;
+    }
+  }
+  
+  // Fallback selectors if hero-based targeting fails
+  if (!contentContainer) {
+    contentContainer = document.querySelector('.wrapper') || 
+                      document.querySelector('main .wrapper') ||
+                      document.querySelector('[class*="wrapper"]');
+  }
+
+  /**
+   * Initialize filter system with Fuse.js
+   */
+  function initializeFilterSystem() {
+    if (isFilterInitialized || typeof Fuse === 'undefined') {
+      return Promise.resolve();
     }
 
-    // Function to update filter item visibility
-    function updateFilterVisibility() {
-      // Get all filter buttons (excluding "Any" options)
-      const allFilterButtons = document.querySelectorAll("[data-item]:not([data-item=''])");
-      
-      allFilterButtons.forEach(button => {
-        const filterValue = button.dataset.item;
-        const parentList = button.closest("ul");
-        const parentType = parentList.dataset.id;
-        const listItem = button.closest("li");
-        
-        // Check if this filter has any matching content
-        if (hasMatchingContent(filterValue, parentType)) {
-          listItem.style.display = "";
+    loadingIndicator?.classList.remove('hidden');
+
+    return fetch('/index.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          throw new Error('Search index is empty or invalid');
+        }
+
+        allArticlesData = data;
+
+        // Filter articles to current section only
+        if (currentSection) {
+          sectionArticlesData = allArticlesData.filter(article => {
+            // Check if article belongs to current section
+            return article.dir === currentSection || article.section === currentSection;
+          });
         } else {
-          listItem.style.display = "none";
+          // If no section specified, use all articles
+          sectionArticlesData = allArticlesData;
         }
+
+
+
+        // Create Fuse instance for filtering within current section
+        fuseInstance = new Fuse(sectionArticlesData, {
+          keys: [
+            { name: 'categories', weight: 2 },
+            { name: 'tags', weight: 2 },
+            { name: 'keywords', weight: 2 },
+            { name: 'title', weight: 1.5 },
+            { name: 'content', weight: 1 }
+          ],
+          includeScore: true,
+          threshold: 0.0, // Exact matches for filters
+          ignoreLocation: true,
+          distance: 0
+        });
+
+        isFilterInitialized = true;
+        loadingIndicator?.classList.add('hidden');
+      })
+      .catch(error => {
+        console.error('Filter system initialization error:', error);
+        loadingIndicator?.classList.add('hidden');
       });
+  }
+
+  /**
+   * Filter articles based on active filters
+   */
+  function filterArticles() {
+    if (!fuseInstance || !sectionArticlesData) {
+      console.warn('Filter system not initialized');
+      return;
     }
 
-    function handleFilterClick(e) {
-      e.stopPropagation();
-      const activator = e.currentTarget;
-      const menuButtonText = e.currentTarget.closest("div").querySelector("[data-target] span");
-      const parent = e.currentTarget.closest("ul");
-      const parentType = parent.dataset.id;
-      const filter = activator.dataset.item;
-      const itemsToFilter = document.querySelectorAll(`[data-${parentType}]`);
+    let filteredArticles = sectionArticlesData;
+
+    // Apply filters with proper field mapping
+    Object.entries(activeFilters).forEach(([filterType, filterValue]) => {
+      if (filterValue) {
+        filteredArticles = filteredArticles.filter(article => {
+          // Map UI filter types to article field names
+          let articleFieldName = filterType;
+          if (filterType === 'section') {
+            articleFieldName = 'categories';  // Categories UI maps to categories field
+          }
+          
+          const fieldData = article[articleFieldName];
+          if (!fieldData) return false;
+
+          // Handle both string and array fields
+          if (Array.isArray(fieldData)) {
+            return fieldData.includes(filterValue);
+          } else if (typeof fieldData === 'string') {
+            return fieldData.split(',').map(item => item.trim()).includes(filterValue);
+          }
+          return false;
+        });
+      }
+    });
+
+    displayFilteredResults(filteredArticles);
+  }
+
+  /**
+   * Display filtered results in the content area
+   */
+  function displayFilteredResults(articles) {
+    if (!contentContainer) {
+      console.warn('Content container not found');
+      return;
+    }
+
+    // Store original content if not already stored
+    if (!contentContainer.hasAttribute('data-original-content')) {
+      contentContainer.setAttribute('data-original-content', contentContainer.innerHTML);
+    }
+
+    // If no filters active, restore original content
+    const hasActiveFilters = Object.values(activeFilters).some(value => value !== '');
+    if (!hasActiveFilters) {
+      // Remove filtered results header if it exists
+      if (filteredResultsHeader) {
+        filteredResultsHeader.remove();
+        filteredResultsHeader = null;
+      }
       
-      // Hide all targets
-      itemsToFilter.forEach(itemToFilter => {
-        parent?.querySelector("button.active")?.classList.remove("active");
-        activator?.classList.add("active");
-
-        if (!filter) {
-          itemToFilter.classList.remove("hidden");
-          menuButtonText.textContent = `{{ (i18n "ui.filters_any") }}`
-          return;
-        }
-
-        const dataValue = itemToFilter.dataset[parentType].split(", ");
-        itemToFilter.classList.remove("hidden");
-        menuButtonText.textContent = activator.textContent;
-        console.log(dataValue)
-        
-        if (dataValue.includes(filter)) {
-          console.log(itemToFilter)
-        }
-        if(!dataValue.includes(filter)) {
-          itemToFilter.classList.add("hidden")
-        }
-      });
+      contentContainer.innerHTML = contentContainer.getAttribute('data-original-content');
+      clearButton?.classList.add('hidden');
+      return;
     }
 
-    // Initialize filter visibility on page load
-    updateFilterVisibility();
+    // Show clear button when filters are active
+    clearButton?.classList.remove('hidden');
 
-    filterItems.forEach(filterItem => {      
-      filterItem.addEventListener('click', handleFilterClick);
-    })
+    // Create or update filtered results header
+    if (!filteredResultsHeader) {
+      filteredResultsHeader = document.createElement('div');
+      filteredResultsHeader.id = 'filtered-results-header';
+      filteredResultsHeader.className = 'mb-8 wrapper grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3';
+      heroElement.parentNode.insertBefore(filteredResultsHeader, contentContainer);
+    }
+
+    const activeFiltersText = Object.entries(activeFilters)
+      .filter(([_, value]) => value)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(', ');
+
+    filteredResultsHeader.innerHTML = `
+      <div class="flex items-center gap-4 mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">${translations.filteredResults}</h2>
+        <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+          ${articles.length} ${articles.length !== 1 ? translations.articles : translations.article}
+        </span>
+      </div>
+      <div class="text-sm text-gray-600">
+        ${translations.activeFilters} ${activeFiltersText}
+      </div>
+    `;
+
+    // Build filtered results HTML
+    if (articles.length === 0) {
+      contentContainer.innerHTML = `
+        <div class="text-center py-16">
+          <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">${translations.noArticlesFound}</h3>
+          <p class="text-gray-600">${translations.noArticlesMatch}</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Group articles by section
+    const articlesBySection = {};
+    articles.forEach(article => {
+      const section = article.dir || 'other';
+      if (!articlesBySection[section]) {
+        articlesBySection[section] = [];
+      }
+      articlesBySection[section].push(article);
+    });
+
+    // Build HTML for each section
+    const sectionsHTML = Object.entries(articlesBySection).map(([sectionName, sectionArticles]) => {
+      // Sort articles by order, putting order=1 first
+      const sortedArticles = sectionArticles.sort((a, b) => {
+        const orderA = a.order || 9999;
+        const orderB = b.order || 9999;
+        return orderA - orderB;
+      });
+      
+      const isSectionsList = contentContainer && contentContainer.classList.contains('sections-list');
+      
+      if (isSectionsList && sortedArticles.length > 0) {
+        // Use sections-list layout: first article wide, rest in grid
+        const firstArticle = createArticleCard(sortedArticles[0], true);
+        const remainingArticles = sortedArticles.slice(1);
+        
+        let remainingHTML = '';
+        if (remainingArticles.length > 0) {
+          const gridArticlesHTML = remainingArticles.map(article => createArticleCard(article, false)).join('');
+          remainingHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+              ${gridArticlesHTML}
+            </div>
+          `;
+        }
+        
+        return `
+          <section class="flex shrink-1 flex-col gap-y-8 hide-when-all-hidden">
+            ${firstArticle}
+            ${remainingHTML}
+          </section>
+        `;
+      } else {
+        // Default layout for non-sections-list - return pure articles without section wrapper
+        const articlesHTML = sortedArticles.map(article => createArticleCard(article, false)).join('');
+        return articlesHTML;
+      }
+    }).join('');
+
+    // Replace the wrapper content with just the sectionsHTML
+    contentContainer.innerHTML = sectionsHTML;
+  }
+
+  /**
+   * Create article card HTML
+   */
+  function createArticleCard(article, isFirstInSection = false) {
+    const truncatedContent = article.content ? 
+      article.content.substring(0, 160) + '...' : '';
+    
+    // Check if we're in sections-list layout
+    const isSectionsList = contentContainer && contentContainer.classList.contains('sections-list');
+    
+    if (isSectionsList) {
+      // Check if this should be the first item (wide format with background)
+      if (isFirstInSection || article.order === 1) {
+        // Use wide format like in sections-list for first items (no image)
+        return `
+          <article class="flex flex-wrap border border-gray-primary rounded-xl pl-8 lg:pr-12 lg:h-[16.625rem] bg-center bg-no-repeat bg-cover" style="background-image: url('/images/section-lists/bg/bg-violet.png');">
+            <div class="w-full py-8 flex flex-col justify-end lg:w-1/2 gap-2">
+              <a href="${article.permalink}" class="block hover:no-underline">
+                <h3 class="text-2xl font-semibold hover:text-primary transition-colors">${article.title}</h3>
+              </a>
+              <a href="${article.permalink}" class="block hover:no-underline">
+                <p class="text-secondary leading-6">${truncatedContent}</p>
+              </a>
+              <div class="inline-flex mt-4">
+                <a href="${article.permalink}" class="flex items-center text-primary hover:text-primary-dark">
+                  ${translations.learnMore}
+                  <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </article>
+        `;
+      } else {
+        // Use regular icon-based cards matching the original sections-list format
+        const iconHtml = article.icon ? `
+          <div class="inline-flex items-center p-2 mb-4 rounded-lg text-violet-600 bg-violet-50">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+              <use href="${article.icon}"></use>
+            </svg>
+          </div>
+        ` : '';
+        
+        return `
+          <article class="group border border-gray-primary surface-primary rounded-xl transition-all hover:border-primary">
+            <a href="${article.permalink}" class="block p-8 hover:no-underline">
+              ${iconHtml}
+              <h3 class="mb-1.5 text-lg font-semibold transition-colors group-hover:text-primary">${article.title}</h3>
+              <p class="text-secondary text-sm leading-5">${truncatedContent}</p>
+            </a>
+          </article>
+        `;
+      }
+    } else {
+      // Use default card formatting with image for non-sections-list layouts
+      const imageHtml = article.image ? 
+        `<img src="${article.image}" alt="${article.title}" class="w-full h-48 object-cover">` : '';
+
+      return `
+        <article class="group relative rounded-2xl flex flex-col surface-secondary shadow-lg border border-gray-primary overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-1 h-full min-h-[15.75rem]">
+          <a href="${article.permalink}" class="absolute inset-0" aria-label="Read more: ${article.title}">
+            <span class="sr-only">${article.title}</span>
+          </a>
+          ${imageHtml}
+          <div class="flex flex-col flex-grow p-8 items-start text-left">
+            <h3 class="text-lg/6 font-semibold text-heading group-hover:text-tertiary transition-colors duration-300">
+              ${article.title}
+            </h3>
+            <p class="mt-5 text-sm leading-6 text-secondary font-normal line-clamp-3 flex-grow overflow-hidden">${truncatedContent}</p>
+            ${article.tags ? `
+              <div class="mt-4 flex flex-wrap gap-1">
+                ${Array.isArray(article.tags) ? 
+                  article.tags.slice(0, 3).map(tag => `<span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">${tag}</span>`).join('') :
+                  article.tags.split(',').slice(0, 3).map(tag => `<span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">${tag.trim()}</span>`).join('')
+                }
+              </div>
+            ` : ''}
+          </div>
+        </article>
+      `;
+    }
+  }
+
+  /**
+   * Handle filter button clicks
+   */
+  function handleFilterClick(e) {
+    e.stopPropagation();
+    
+    const activator = e.currentTarget;
+    const menuButtonText = e.currentTarget.closest("div").querySelector("[data-target] span");
+    const parent = e.currentTarget.closest("ul");
+    const parentType = parent.dataset.id;
+    const filter = activator.dataset.item;
+    
+    // Update active state
+    parent?.querySelector("button.active")?.classList.remove("active");
+    activator?.classList.add("active");
+    
+    // Update active filters
+    activeFilters[parentType] = filter;
+    
+    // Update button text
+    if (!filter) {
+      menuButtonText.textContent = `{{ (i18n "ui.filters_any") }}`;
+    } else {
+      menuButtonText.textContent = activator.textContent;
+    }
+    
+    // Apply filters
+    filterArticles();
+  }
+
+  /**
+   * Clear all filters and restore original content
+   */
+  function clearAllFilters() {
+    // Reset active filters
+    Object.keys(activeFilters).forEach(key => {
+      activeFilters[key] = '';
+    });
+    
+    // Reset UI
+    document.querySelectorAll('.filter-list button.active').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelectorAll('.filter-list li:first-child button').forEach(btn => {
+      btn.classList.add('active');
+    });
+    document.querySelectorAll('[data-target] span').forEach(span => {
+      span.textContent = "{{ (i18n "ui.filters_any") }}";
+    });
+    
+    // Remove filtered results header if it exists
+    if (filteredResultsHeader) {
+      filteredResultsHeader.remove();
+      filteredResultsHeader = null;
+    }
+    
+    // Restore original content
+    if (contentContainer && contentContainer.hasAttribute('data-original-content')) {
+      contentContainer.innerHTML = contentContainer.getAttribute('data-original-content');
+    }
+    
+    // Hide clear button
+    clearButton?.classList.add('hidden');
+  }
+
+  // Initialize filter system when first filter is used
+  let filterInitPromise = null;
+  function ensureFilterSystemInitialized() {
+    if (!filterInitPromise) {
+      filterInitPromise = initializeFilterSystem();
+    }
+    return filterInitPromise;
+  }
+
+  // Event listeners
+  filterItems.forEach(filterItem => {
+    filterItem.addEventListener('click', (e) => {
+      ensureFilterSystemInitialized().then(() => {
+        handleFilterClick(e);
+      });
+    });
   });
+
+  // Clear all filters button
+  clearButton?.addEventListener('click', clearAllFilters);
+
+  // Auto-initialize if Fuse.js is already loaded
+  if (typeof Fuse !== 'undefined') {
+    ensureFilterSystemInitialized();
+  }
+});
 </script>

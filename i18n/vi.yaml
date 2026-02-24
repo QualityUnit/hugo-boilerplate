@@ -126,3 +126,9 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Được xuất bản vào %s bởi %s."
 published_on: "Được xuất bản vào %s."
 last_modified_on_at: "Chỉnh sửa lần cuối vào %s lúc %s"
+
+# Filter translations
+ui.filters_any: "Bất kỳ"
+ui.filters_categories: "Danh mục"
+ui.filters_tags: "Thẻ"
+ui.filters_keywords: "Từ khóa"
