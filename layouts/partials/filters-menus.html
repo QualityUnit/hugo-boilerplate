@@ -12,11 +12,17 @@
   "noArticlesFound" (i18n "ui.filters_no_articles_found")
   "noArticlesMatch" (i18n "ui.filters_no_articles_match")
   "learnMore" (i18n "ui.filters_learn_more")
+  "searchPlaceholderCategories" "Search categories..."
+  "searchPlaceholderTags" "Search tags..."
+  "searchPlaceholderKeywords" "Search keywords..."
+  "noItemsFound" "No items found"
 }}
 
-{{$buttonClass := "text-left   w-full flex items-center border rounded-lg px-4 py-1" }}
+{{$searchClass := "sticky top-0 px-3 bg-white py-2 border-b border-gray-100" }}
+{{$filterSearchClass := "filter-search w-full px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:border-primary" }}
+{{$buttonClass := "text-left w-full flex items-center border rounded-lg px-4 py-1" }}
 {{$buttonSpanClass := "block truncate text-ellipsis overflow-hidden shrink-0 w-16" }}
-{{$listClass := "absolute w-64 filter-list hidden flex bg-white shadow-md flex-col gap-2 max-h-48 overflow-y-auto" }}
+{{$listClass := "absolute w-64 filter-list hidden flex bg-white shadow-md flex-col gap-2 max-h-64 overflow-y-auto" }}
 {{$listItemClass := "inline-flex  cursor-pointer items-center rounded-full px-3 py-1 text-sm font-medium text-primary-dark" }}
 {{$listItemBtnClass := "flex items-center gap-2 w-full text-left" }}
 
@@ -44,6 +50,18 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+  
+  .filter-search:focus {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+  
+  .filter-list {
+    max-height: 16rem;
+  }
+  
+  .no-results-item {
+    pointer-events: none;
+  }
 </style>
 
 <!-- Add loading indicator for filters -->
@@ -62,6 +80,9 @@
     <div class="text-sm mb-2">{{ (i18n "ui.filters_categories") }}</div>
     <button data-target="section" class="{{ $buttonClass }}"><span class="{{ $buttonSpanClass }}">{{ (i18n "ui.filters_any") }}</span> {{ partial "icons/chevron-down" "size-4 text-gray-500 ml-auto" }}</button>
     <ul data-id="section" class="{{ $listClass }}">
+      <li class="{{ $searchClass }}">
+        <input type="text" class="{{ $filterSearchClass}}" placeholder="{{ index $filterTranslations "searchPlaceholderCategories" }}" data-filter-target="section">
+      </li>
       <li class="{{ $listItemClass }}">
         <button class="{{ $listItemBtnClass }} active" data-item="">{{ (i18n "ui.filters_any") }}</button>
       </li>
@@ -78,6 +99,9 @@
     <div class="text-sm mb-2">{{ (i18n "ui.filters_tags") }}</div>
     <button data-target="tags" class="{{ $buttonClass }}"><span class="{{ $buttonSpanClass }}">{{ (i18n "ui.filters_any") }}</span> {{ partial "icons/chevron-down" "size-4 text-gray-500 ml-auto" }}</button>
     <ul data-id="tags" class="{{ $listClass }}">
+      <li class="{{ $searchClass }}">
+        <input type="text" class="{{ $filterSearchClass }}" placeholder="{{ index $filterTranslations "searchPlaceholderTags" }}" data-filter-target="tags">
+      </li>
       <li class="{{ $listItemClass }}">
         <button class="{{ $listItemBtnClass }} active" data-item="">{{ (i18n "ui.filters_any") }}</button>
       </li>      {{ range $tags }}
@@ -93,6 +117,9 @@
     <div class="text-sm mb-2">{{ (i18n "ui.filters_keywords") }}</div>
     <button data-target="keywords" class="{{ $buttonClass }}"><span class="{{ $buttonSpanClass }}">{{ (i18n "ui.filters_any") }}</span> {{ partial "icons/chevron-down" "size-4 text-gray-500 ml-auto" }}</button>
     <ul data-id="keywords" class="{{ $listClass }}">
+      <li class="{{ $searchClass }}">
+        <input type="text" class="{{ $filterSearchClass }}" placeholder="{{ index $filterTranslations "searchPlaceholderKeywords" }}" data-filter-target="keywords">
+      </li>
       <li class="{{ $listItemClass }}">
         <button class="{{ $listItemBtnClass }} active" data-item="">{{ (i18n "ui.filters_any") }}</button>
       </li>
@@ -124,6 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
     tags: '',
     keywords: ''
   };
+  
+  // Store display values for active filters (preserves original case)
+  let activeFiltersDisplay = {
+    section: '',
+    tags: '',
+    keywords: ''
+  };
 
   // Current section from Hugo template
   const currentSection = '{{ $section }}';
@@ -136,13 +170,15 @@ document.addEventListener('DOMContentLoaded', () => {
     activeFilters: '{{ index $filterTranslations "activeFilters" }}',
     noArticlesFound: '{{ index $filterTranslations "noArticlesFound" }}',
     noArticlesMatch: '{{ index $filterTranslations "noArticlesMatch" }}',
-    learnMore: '{{ index $filterTranslations "learnMore" }}'
+    learnMore: '{{ index $filterTranslations "learnMore" }}',
+    noItemsFound: '{{ index $filterTranslations "noItemsFound" }}'
   };
 
   // DOM elements
   const filterItems = document.querySelectorAll("[data-item]");
   const loadingIndicator = document.getElementById('filter-loading');
   const clearButton = document.getElementById('clear-all-filters');
+  const searchInputs = document.querySelectorAll('.filter-search');
   
   // Find the wrapper that comes immediately after the hero element
   const heroElement = document.querySelector('.heroDefault, .split-with-image-hero, .hero, [class*="hero"]');
@@ -222,7 +258,8 @@ document.addEventListener('DOMContentLoaded', () => {
           includeScore: true,
           threshold: 0.0, // Exact matches for filters
           ignoreLocation: true,
-          distance: 0
+          distance: 0,
+          isCaseSensitive: false // Enable case-insensitive search
         });
 
         isFilterInitialized = true;
@@ -245,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let filteredArticles = sectionArticlesData;
 
-    // Apply filters with proper field mapping
+    // Apply filters with proper field mapping and case-insensitive matching
     Object.entries(activeFilters).forEach(([filterType, filterValue]) => {
       if (filterValue) {
         filteredArticles = filteredArticles.filter(article => {
@@ -258,11 +295,14 @@ document.addEventListener('DOMContentLoaded', () => {
           const fieldData = article[articleFieldName];
           if (!fieldData) return false;
 
+          // Normalize filter value to lowercase for case-insensitive matching
+          const normalizedFilterValue = filterValue.toLowerCase();
+
           // Handle both string and array fields
           if (Array.isArray(fieldData)) {
-            return fieldData.includes(filterValue);
+            return fieldData.some(item => item.toLowerCase() === normalizedFilterValue);
           } else if (typeof fieldData === 'string') {
-            return fieldData.split(',').map(item => item.trim()).includes(filterValue);
+            return fieldData.split(',').map(item => item.trim().toLowerCase()).includes(normalizedFilterValue);
           }
           return false;
         });
@@ -270,6 +310,103 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     displayFilteredResults(filteredArticles);
+  }
+
+  /**
+   * Filter dropdown items based on search input
+   */
+  function filterDropdownItems(searchInput, filterType) {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const dropdown = searchInput.closest('ul');
+    const filterItems = dropdown.querySelectorAll('li[class*="cursor-pointer"]');
+    
+    let visibleCount = 0;
+    
+    filterItems.forEach(item => {
+      const button = item.querySelector('button[data-item]');
+      if (!button || button.dataset.item === '') return; // Skip "Any" option
+      
+      const itemText = button.textContent.toLowerCase();
+      const isVisible = itemText.includes(searchTerm);
+      
+      if (isVisible) {
+        item.style.display = '';
+        visibleCount++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+    
+    // Show "no results" message if no items match
+    let noResultsItem = dropdown.querySelector('.no-results-item');
+    if (searchTerm && visibleCount === 0) {
+      if (!noResultsItem) {
+        noResultsItem = document.createElement('li');
+        noResultsItem.className = 'no-results-item px-3 py-2 text-sm text-gray-500 italic';
+        noResultsItem.textContent = translations.noItemsFound;
+        dropdown.appendChild(noResultsItem);
+      }
+      noResultsItem.style.display = '';
+    } else if (noResultsItem) {
+      noResultsItem.style.display = 'none';
+    }
+  }
+
+  /**
+   * Handle search input in filter dropdowns
+   */
+  function handleSearchInput(e) {
+    const searchInput = e.target;
+    const filterType = searchInput.dataset.filterTarget;
+    filterDropdownItems(searchInput, filterType);
+  }
+
+  /**
+   * Clear search input and show all items
+   */
+  function clearSearchInput(searchInput) {
+    searchInput.value = '';
+    const dropdown = searchInput.closest('ul');
+    const filterItems = dropdown.querySelectorAll('li[class*="cursor-pointer"]');
+    
+    filterItems.forEach(item => {
+      item.style.display = '';
+    });
+    
+    const noResultsItem = dropdown.querySelector('.no-results-item');
+    if (noResultsItem) {
+      noResultsItem.style.display = 'none';
+    }
+  }
+
+  /**
+   * Handle search input focus when dropdown opens
+   */
+  function setupDropdownInteractions() {
+    // Focus search input when dropdown becomes visible using MutationObserver
+    document.querySelectorAll('.filter-list').forEach(dropdown => {
+      const searchInput = dropdown.querySelector('.filter-search');
+      if (!searchInput) return;
+
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const target = mutation.target;
+            if (!target.classList.contains('hidden') && target.classList.contains('filter-list')) {
+              // Dropdown just became visible, focus search input
+              setTimeout(() => {
+                const searchInput = target.querySelector('.filter-search');
+                if (searchInput) {
+                  searchInput.focus();
+                }
+              }, 100);
+            }
+          }
+        });
+      });
+
+      observer.observe(dropdown, { attributes: true });
+    });
   }
 
   /**
@@ -311,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
       heroElement.parentNode.insertBefore(filteredResultsHeader, contentContainer);
     }
 
-    const activeFiltersText = Object.entries(activeFilters)
+    const activeFiltersText = Object.entries(activeFiltersDisplay)
       .filter(([_, value]) => value)
       .map(([key, value]) => `${key}: ${value}`)
       .join(', ');
@@ -490,19 +627,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const parent = e.currentTarget.closest("ul");
     const parentType = parent.dataset.id;
     const filter = activator.dataset.item;
+    const displayText = activator.textContent.trim();
     
     // Update active state
     parent?.querySelector("button.active")?.classList.remove("active");
     activator?.classList.add("active");
     
-    // Update active filters
-    activeFilters[parentType] = filter;
+    // Update active filters (normalized for matching) and display values (original case)
+    activeFilters[parentType] = filter ? filter.toLowerCase() : '';
+    activeFiltersDisplay[parentType] = filter ? displayText : '';
     
     // Update button text
     if (!filter) {
       menuButtonText.textContent = `{{ (i18n "ui.filters_any") }}`;
     } else {
-      menuButtonText.textContent = activator.textContent;
+      menuButtonText.textContent = displayText;
     }
     
     // Apply filters
@@ -513,9 +652,10 @@ document.addEventListener('DOMContentLoaded', () => {
    * Clear all filters and restore original content
    */
   function clearAllFilters() {
-    // Reset active filters
+    // Reset active filters and display values
     Object.keys(activeFilters).forEach(key => {
       activeFilters[key] = '';
+      activeFiltersDisplay[key] = '';
     });
     
     // Reset UI
@@ -527,6 +667,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.querySelectorAll('[data-target] span').forEach(span => {
       span.textContent = "{{ (i18n "ui.filters_any") }}";
+    });
+    
+    // Clear search inputs and show all items
+    searchInputs.forEach(searchInput => {
+      clearSearchInput(searchInput);
     });
     
     // Remove filtered results header if it exists
@@ -564,6 +709,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Clear all filters button
   clearButton?.addEventListener('click', clearAllFilters);
+  
+  // Setup search functionality
+  searchInputs.forEach(searchInput => {
+    searchInput.addEventListener('input', handleSearchInput);
+    searchInput.addEventListener('keydown', (e) => {
+      e.stopPropagation(); // Prevent filter dropdown from closing
+    });
+    searchInput.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent filter dropdown from closing
+    });
+  });
+  
+  // Setup dropdown interactions
+  setupDropdownInteractions();
 
   // Auto-initialize if Fuse.js is already loaded
   if (typeof Fuse !== 'undefined') {

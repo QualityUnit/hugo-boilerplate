@@ -23,27 +23,108 @@
 {{ $keywords := default (slice) }}
 {{ $allTags := default (slice) }}
 
+{{/* Create maps to track items by lowercase key for case-insensitive unification */}}
+{{ $categoryMap := dict }}
+{{ $keywordMap := dict }}
+{{ $tagMap := dict }}
+
 {{ if .Section }}
   {{ range where (where .Site.RegularPages "Section" .Section) "Language.Lang" .Site.Language.Lang }}
     {{ if .Params.categories }}
-      {{ $categories = $categories | append .Params.categories }}
+      {{ range .Params.categories }}
+        {{ $lowerKey := lower . }}
+        {{ if not (index $categoryMap $lowerKey) }}
+          {{ $categoryMap = $categoryMap | merge (dict $lowerKey .) }}
+        {{ end }}
+      {{ end }}
     {{ end }}
     {{ if .Params.tags }}
-      {{ $allTags = $allTags | append .Params.tags }}
+      {{ range .Params.tags }}
+        {{ $lowerKey := lower . }}
+        {{ if not (index $tagMap $lowerKey) }}
+          {{ $tagMap = $tagMap | merge (dict $lowerKey .) }}
+        {{ end }}
+      {{ end }}
     {{ end }}
     {{ if .Params.keywords }}
-      {{ $keywords = $keywords | append .Params.keywords }}
+      {{ range .Params.keywords }}
+        {{ $lowerKey := lower . }}
+        {{ if not (index $keywordMap $lowerKey) }}
+          {{ $keywordMap = $keywordMap | merge (dict $lowerKey .) }}
+        {{ end }}
+      {{ end }}
     {{ end }}
   {{ end }}
 
-  {{ $categories = $categories | uniq | sort }}
-  {{ $keywords = $keywords | uniq | sort }}
-  {{ $allTags = $allTags | uniq | sort }}
+  {{/* Extract unified values and sort them */}}
+  {{ $categories = slice }}
+  {{ $keywords = slice }}
+  {{ $allTags = slice }}
+  
+  {{ range $categoryMap }}
+    {{ $categories = $categories | append . }}
+  {{ end }}
+  {{ range $keywordMap }}
+    {{ $keywords = $keywords | append . }}
+  {{ end }}
+  {{ range $tagMap }}
+    {{ $allTags = $allTags | append . }}
+  {{ end }}
+  
+  {{ $categories = $categories | sort }}
+  {{ $keywords = $keywords | sort }}
+  {{ $allTags = $allTags | sort }}
 
 {{ else }}
-  {{ $categories = .Params.categories | default (slice) | sort }}
-  {{ $keywords = .Params.keywords | default (slice) | sort }}
-  {{ $allTags = .Params.tags | default (slice) | sort }}
+  {{/* Handle single page case with unification */}}
+  {{ $categoryMap := dict }}
+  {{ $keywordMap := dict }}
+  {{ $tagMap := dict }}
+  
+  {{ if .Params.categories }}
+    {{ range .Params.categories }}
+      {{ $lowerKey := lower . }}
+      {{ if not (index $categoryMap $lowerKey) }}
+        {{ $categoryMap = $categoryMap | merge (dict $lowerKey .) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+  
+  {{ if .Params.keywords }}
+    {{ range .Params.keywords }}
+      {{ $lowerKey := lower . }}
+      {{ if not (index $keywordMap $lowerKey) }}
+        {{ $keywordMap = $keywordMap | merge (dict $lowerKey .) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+  
+  {{ if .Params.tags }}
+    {{ range .Params.tags }}
+      {{ $lowerKey := lower . }}
+      {{ if not (index $tagMap $lowerKey) }}
+        {{ $tagMap = $tagMap | merge (dict $lowerKey .) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+  
+  {{ $categories = slice }}
+  {{ $keywords = slice }}
+  {{ $allTags = slice }}
+  
+  {{ range $categoryMap }}
+    {{ $categories = $categories | append . }}
+  {{ end }}
+  {{ range $keywordMap }}
+    {{ $keywords = $keywords | append . }}
+  {{ end }}
+  {{ range $tagMap }}
+    {{ $allTags = $allTags | append . }}
+  {{ end }}
+  
+  {{ $categories = $categories | sort }}
+  {{ $keywords = $keywords | sort }}
+  {{ $allTags = $allTags | sort }}
 {{ end }}
 
 {{ $eyebrow := .Params.eyebrow | default "" }}
