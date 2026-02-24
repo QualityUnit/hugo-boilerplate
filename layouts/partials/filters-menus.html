@@ -99,10 +99,14 @@
           return;
         }
 
-        const dataValue = itemToFilter.dataset[parentType].split(",");
+        const dataValue = itemToFilter.dataset[parentType].split(", ");
         itemToFilter.classList.remove("hidden");
         menuButtonText.textContent = activator.textContent;
-
+        console.log(dataValue)
+        
+        if (dataValue.includes(filter)) {
+          console.log(itemToFilter)
+        }
         if(!dataValue.includes(filter)) {
           itemToFilter.classList.add("hidden")
         }

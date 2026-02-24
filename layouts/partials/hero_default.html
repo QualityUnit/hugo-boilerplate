@@ -24,7 +24,7 @@
 {{ $allTags := default (slice) }}
 
 {{ if .Section }}
-  {{ range where .Site.RegularPages "Section" .Section }}
+  {{ range where (where .Site.RegularPages "Section" .Section) "Language.Lang" .Site.Language.Lang }}
     {{ if .Params.categories }}
       {{ $categories = $categories | append .Params.categories }}
     {{ end }}
