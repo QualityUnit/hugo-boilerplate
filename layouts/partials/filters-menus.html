@@ -174,6 +174,74 @@ document.addEventListener('DOMContentLoaded', () => {
     noItemsFound: '{{ index $filterTranslations "noItemsFound" }}'
   };
 
+  // Cache for loaded and processed SVG icons
+  let svgIconCache = {};
+
+  /**
+   * Load and process SVG icon similar to Hugo svg-icon.html partial
+   */
+  async function loadSvgIcon(iconPath) {
+    if (svgIconCache[iconPath]) {
+      return svgIconCache[iconPath];
+    }
+
+    try {
+      // Ensure path starts with /
+      const normalizedPath = iconPath.startsWith('/') ? iconPath : `/${iconPath}`;
+      
+      const response = await fetch(normalizedPath);
+      if (!response.ok) {
+        throw new Error(`Failed to load SVG: ${response.status}`);
+      }
+      
+      let svgContent = await response.text();
+      
+      // Process SVG content similar to Hugo partial
+      // First preserve none values by temporarily replacing them
+      svgContent = svgContent.replace(/fill="none"/g, 'FILL_NONE_PLACEHOLDER');
+      svgContent = svgContent.replace(/stroke="none"/g, 'STROKE_NONE_PLACEHOLDER');
+      
+      // Replace color values with currentColor using regex patterns
+      svgContent = svgContent.replace(/fill="(#[0-9a-fA-F]{3,8}|rgba?\([^)]*\)|hsla?\([^)]*\))"/g, 'fill="currentColor"');
+      svgContent = svgContent.replace(/stroke="(#[0-9a-fA-F]{3,8}|rgba?\([^)]*\)|hsla?\([^)]*\))"/g, 'stroke="currentColor"');
+      
+      // Restore none values
+      svgContent = svgContent.replace(/FILL_NONE_PLACEHOLDER/g, 'fill="none"');
+      svgContent = svgContent.replace(/STROKE_NONE_PLACEHOLDER/g, 'stroke="none"');
+      
+      // Cache the processed SVG
+      svgIconCache[iconPath] = svgContent;
+      return svgContent;
+    } catch (error) {
+      console.warn(`Failed to load SVG icon: ${iconPath}`, error);
+      // Return fallback icon
+      const fallbackSvg = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      `;
+      svgIconCache[iconPath] = fallbackSvg;
+      return fallbackSvg;
+    }
+  }
+
+  /**
+   * Create icon HTML with proper SVG processing
+   */
+  async function createIconHtml(iconPath, className = 'w-6 h-6', altText = '') {
+    if (!iconPath) return '';
+    
+    const svgContent = await loadSvgIcon(iconPath);
+    
+    // Add classes and attributes to the SVG element
+    const attrs = `class="${className}"${altText ? ` role="img" aria-label="${altText}"` : ' aria-hidden="true"'}`;
+    const processedSvg = svgContent.replace(/<svg([^>]*)>/i, `<svg$1 ${attrs}>`);
+    
+    return processedSvg;
+  }
+
   // DOM elements
   const filterItems = document.querySelectorAll("[data-item]");
   const loadingIndicator = document.getElementById('filter-loading');
@@ -274,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Filter articles based on active filters
    */
-  function filterArticles() {
+  async function filterArticles() {
     if (!fuseInstance || !sectionArticlesData) {
       console.warn('Filter system not initialized');
       return;
@@ -309,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    displayFilteredResults(filteredArticles);
+    await displayFilteredResults(filteredArticles);
   }
 
   /**
@@ -412,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Display filtered results in the content area
    */
-  function displayFilteredResults(articles) {
+  async function displayFilteredResults(articles) {
     if (!contentContainer) {
       console.warn('Content container not found');
       return;
@@ -490,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Build HTML for each section
-    const sectionsHTML = Object.entries(articlesBySection).map(([sectionName, sectionArticles]) => {
+    const sectionsHTML = await Promise.all(Object.entries(articlesBySection).map(async ([sectionName, sectionArticles]) => {
       // Sort articles by order, putting order=1 first
       const sortedArticles = sectionArticles.sort((a, b) => {
         const orderA = a.order || 9999;
@@ -502,15 +570,15 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (isSectionsList && sortedArticles.length > 0) {
         // Use sections-list layout: first article wide, rest in grid
-        const firstArticle = createArticleCard(sortedArticles[0], true);
+        const firstArticle = await createArticleCard(sortedArticles[0], true);
         const remainingArticles = sortedArticles.slice(1);
         
         let remainingHTML = '';
         if (remainingArticles.length > 0) {
-          const gridArticlesHTML = remainingArticles.map(article => createArticleCard(article, false)).join('');
+          const gridArticlesHTML = await Promise.all(remainingArticles.map(article => createArticleCard(article, false)));
           remainingHTML = `
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-              ${gridArticlesHTML}
+              ${gridArticlesHTML.join('')}
             </div>
           `;
         }
@@ -523,19 +591,19 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       } else {
         // Default layout for non-sections-list - return pure articles without section wrapper
-        const articlesHTML = sortedArticles.map(article => createArticleCard(article, false)).join('');
-        return articlesHTML;
+        const articlesHTML = await Promise.all(sortedArticles.map(article => createArticleCard(article, false)));
+        return articlesHTML.join('');
       }
-    }).join('');
+    }));
 
     // Replace the wrapper content with just the sectionsHTML
-    contentContainer.innerHTML = sectionsHTML;
+    contentContainer.innerHTML = sectionsHTML.join('');
   }
 
   /**
    * Create article card HTML
    */
-  function createArticleCard(article, isFirstInSection = false) {
+  async function createArticleCard(article, isFirstInSection = false) {
     const truncatedContent = article.content ? 
       article.content.substring(0, 160) + '...' : '';
     
@@ -556,11 +624,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="text-secondary leading-6">${truncatedContent}</p>
               </a>
               <div class="inline-flex mt-4">
-                <a href="${article.permalink}" class="flex items-center text-primary hover:text-primary-dark">
+                <a href="${article.permalink}" class="btn-text dark:btn-text-dark px-3 py-2 not-prose group">
                   ${translations.learnMore}
-                  <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                  </svg>
+                  <span aria-hidden="true" class="ml-1.5 btn-arrow">
+                    <svg class="w-5 h-5 p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </span>
                 </a>
               </div>
             </div>
@@ -570,9 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Use regular icon-based cards matching the original sections-list format
         const iconHtml = article.icon ? `
           <div class="inline-flex items-center p-2 mb-4 rounded-lg text-violet-600 bg-violet-50">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-              <use href="${article.icon}"></use>
-            </svg>
+            ${await createIconHtml(article.icon, 'w-6 h-6', article.title)}
           </div>
         ` : '';
         
@@ -619,7 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Handle filter button clicks
    */
-  function handleFilterClick(e) {
+  async function handleFilterClick(e) {
     e.stopPropagation();
     
     const activator = e.currentTarget;
@@ -645,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Apply filters
-    filterArticles();
+    await filterArticles();
   }
 
   /**
