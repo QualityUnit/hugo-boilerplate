@@ -103,7 +103,7 @@
 {{ $search := merge (dict "placeholder" (i18n "search_placeholder")) $search }}
 {{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 
-<div class="{{ $darkClass }}">
+<div class="{{ $darkClass }} relative z-10">
   <div class="section-bg-light dark:section-bg-dark relative z-[1]">
     <div class="relative isolate">
         <div class="wrapper {{ $padding }}">

@@ -6,10 +6,11 @@
 {{/* Define search configuration for blog list pages */}}
 {{ $searchConfig := dict
   "enabled" true
+  "filters" true
   "directories" (slice "blog")
 }}
 
-{{ partial "hero_default.html" (dict "Params" .Params "Title" .Title "search" $searchConfig "Site" .Site) }}
+{{ partial "hero_default.html" (dict "Params" .Params "Title" .Title "search" $searchConfig "Site" .Site "Section" .Section ) }}
 
 {{/* Schema.org ItemList for blog posts */}}
 {{ if gt (len .Pages) 0 }}

@@ -225,7 +225,7 @@ Design Tokens:
   {{ $overflowClass = "overflow-hidden xl:overflow-visible" }}
 {{ end }}
 
-<div class="split-with-image-hero {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
+<div class="split-with-image-hero relative z-10 {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
     <div class="hidden lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
       <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full {{ $overflowClass }} mx-auto max-w-[38rem] max-h-full">

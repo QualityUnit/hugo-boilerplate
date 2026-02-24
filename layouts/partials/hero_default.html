@@ -19,9 +19,9 @@
   {{ end }}
 {{ end }}
 
-{{ $categories := slice }}
-{{ $keywords := slice }}
-{{ $allTags := slice }}
+{{ $categories := default (slice) }}
+{{ $keywords := default (slice) }}
+{{ $allTags := default (slice) }}
 
 {{ if .Section }}
   {{ range where .Site.RegularPages "Section" .Section }}
