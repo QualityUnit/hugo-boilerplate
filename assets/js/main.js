@@ -12,3 +12,6 @@ import './copyToClipboard.js';
 import './typewriter.js';
 // Import tooltip functionality
 import './tooltips.js';
+
+// data-target and data-id generic activator-deactivator (ie click on btn with data-target="menu-22" to show/hide ul width same data-id)
+import './activator-deactivator.js';
