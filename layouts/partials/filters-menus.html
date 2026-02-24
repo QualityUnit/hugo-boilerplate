@@ -76,8 +76,39 @@
   {{ end }}
 </div>
 <script>
-  (() => {
+  document.addEventListener('DOMContentLoaded', () => {
     const filterItems = document.querySelectorAll("[data-item]");
+    // Function to check if a filter item has any matching content
+    function hasMatchingContent(filterValue, parentType) {
+      const itemsToCheck = document.querySelectorAll(`[data-${parentType}]`);
+      console.log(itemsToCheck)
+      return Array.from(itemsToCheck).some(item => {
+        const dataValue = item.dataset[parentType];
+        if (!dataValue) return false;
+        const dataArray = dataValue.split(", ");
+        return dataArray.includes(filterValue);
+      });
+    }
+
+    // Function to update filter item visibility
+    function updateFilterVisibility() {
+      // Get all filter buttons (excluding "Any" options)
+      const allFilterButtons = document.querySelectorAll("[data-item]:not([data-item=''])");
+      
+      allFilterButtons.forEach(button => {
+        const filterValue = button.dataset.item;
+        const parentList = button.closest("ul");
+        const parentType = parentList.dataset.id;
+        const listItem = button.closest("li");
+        
+        // Check if this filter has any matching content
+        if (hasMatchingContent(filterValue, parentType)) {
+          listItem.style.display = "";
+        } else {
+          listItem.style.display = "none";
+        }
+      });
+    }
 
     function handleFilterClick(e) {
       e.stopPropagation();
@@ -113,8 +144,11 @@
       });
     }
 
+    // Initialize filter visibility on page load
+    updateFilterVisibility();
+
     filterItems.forEach(filterItem => {      
       filterItem.addEventListener('click', handleFilterClick);
     })
-  })()
+  });
 </script>
