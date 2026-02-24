@@ -1,0 +1,116 @@
+{{ $categories := .categories | default (slice) }}
+{{ $tags := .tags | default (slice) }}
+{{ $keywords := .keywords | default (slice) }}
+
+{{$buttonClass := "text-left   w-full flex items-center border rounded-lg px-4 py-1" }}
+{{$buttonSpanClass := "block truncate text-ellipsis overflow-hidden shrink-0 w-16" }}
+{{$listClass := "absolute w-64 filter-list hidden flex bg-white shadow-md flex-col gap-2 max-h-48 overflow-y-auto" }}
+{{$listItemClass := "inline-flex  cursor-pointer items-center rounded-full px-3 py-1 text-sm font-medium text-primary-dark" }}
+{{$listItemBtnClass := "flex items-center gap-2 w-full text-left" }}
+
+{{- $urlChecboxOff := partial "functions/get-static-url.html" (dict "path" "/images/checkbox_off.svg") -}}
+{{- $urlChecboxOn := partial "functions/get-static-url.html" (dict "path" "/images/checkbox_on.svg") -}}
+
+<style type="text/css">
+  .filter-list li button:before {
+    display: inline-block;
+    content: "";
+    width: 1.25em;
+    height: 1.25em;
+    background: url("{{ $urlChecboxOff }}") center center no-repeat;
+    background-size: contain;
+    flex-shrink: 0;
+  }
+
+  .filter-list li button.active:before {
+    background-image: url("{{ $urlChecboxOn }}");
+  }
+</style>
+<div class="flex text-left gap-4">
+  {{ if $categories }}
+  <div class="relative w-full">
+    <div class="text-sm mb-2">{{ (i18n "ui.filters_categories") }}</div>
+    <button data-target="section" class="{{ $buttonClass }}"><span class="{{ $buttonSpanClass }}">{{ (i18n "ui.filters_any") }}</span> {{ partial "icons/chevron-down" "size-4 text-gray-500 ml-auto" }}</button>
+    <ul data-id="section" class="{{ $listClass }}">
+      <li class="{{ $listItemClass }}">
+        <button class="{{ $listItemBtnClass }} active" data-item="">{{ (i18n "ui.filters_any") }}</button>
+      </li>
+      {{ range $categories }}
+      <li class="{{ $listItemClass }}">
+        <button class="{{ $listItemBtnClass }}" data-item="{{ . }}">{{ . }}</button>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
+  {{ end }}
+  {{ if $tags }}
+  <div class="relative w-full">
+    <div class="text-sm mb-2">{{ (i18n "ui.filters_tags") }}</div>
+    <button data-target="tags" class="{{ $buttonClass }}"><span class="{{ $buttonSpanClass }}">{{ (i18n "ui.filters_any") }}</span> {{ partial "icons/chevron-down" "size-4 text-gray-500 ml-auto" }}</button>
+    <ul data-id="tags" class="{{ $listClass }}">
+      <li class="{{ $listItemClass }}">
+        <button class="{{ $listItemBtnClass }} active" data-item="">{{ (i18n "ui.filters_any") }}</button>
+      </li>      {{ range $tags }}
+      <li class="{{ $listItemClass }}">
+        <button class="{{ $listItemBtnClass }}" data-item="{{ . }}">{{ . }}</button>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
+  {{ end }}
+  {{ if $keywords }}
+  <div class="relative w-full">
+    <div class="text-sm mb-2">{{ (i18n "ui.filters_keywords") }}</div>
+    <button data-target="keywords" class="{{ $buttonClass }}"><span class="{{ $buttonSpanClass }}">{{ (i18n "ui.filters_any") }}</span> {{ partial "icons/chevron-down" "size-4 text-gray-500 ml-auto" }}</button>
+    <ul data-id="keywords" class="{{ $listClass }}">
+      <li class="{{ $listItemClass }}">
+        <button class="{{ $listItemBtnClass }} active" data-item="">{{ (i18n "ui.filters_any") }}</button>
+      </li>
+      {{ range $keywords }}
+      <li class="{{ $listItemClass }}">
+        <button class="{{ $listItemBtnClass }}" data-item="{{ . }}">{{ . }}</button>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
+  {{ end }}
+</div>
+<script>
+  (() => {
+    const filterItems = document.querySelectorAll("[data-item]");
+
+    function handleFilterClick(e) {
+      e.stopPropagation();
+      const activator = e.currentTarget;
+      const menuButtonText = e.currentTarget.closest("div").querySelector("[data-target] span");
+      const parent = e.currentTarget.closest("ul");
+      const parentType = parent.dataset.id;
+      const filter = activator.dataset.item;
+      const itemsToFilter = document.querySelectorAll(`[data-${parentType}]`);
+      
+      // Hide all targets
+      itemsToFilter.forEach(itemToFilter => {
+        parent?.querySelector("button.active")?.classList.remove("active");
+        activator?.classList.add("active");
+
+        if (!filter) {
+          itemToFilter.classList.remove("hidden");
+          menuButtonText.textContent = `{{ (i18n "ui.filters_any") }}`
+          return;
+        }
+
+        const dataValue = itemToFilter.dataset[parentType].split(",");
+        itemToFilter.classList.remove("hidden");
+        menuButtonText.textContent = activator.textContent;
+
+        if(!dataValue.includes(filter)) {
+          itemToFilter.classList.add("hidden")
+        }
+      });
+    }
+
+    filterItems.forEach(filterItem => {      
+      filterItem.addEventListener('click', handleFilterClick);
+    })
+  })()
+</script>

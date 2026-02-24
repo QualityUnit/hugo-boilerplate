@@ -1,19 +1,54 @@
 <!-- Hero Section with Split Image -->
 {{/* Accept search configuration either from params or from caller */}}
 {{ $search := dict }}
+{{ $filters := dict }}
+
 {{ if reflect.IsMap . }}
   {{ if .search }}
+    {{ $search = .search }}
+  {{ end }}
+  {{ if .filters }}
     {{ $search = .search }}
   {{ end }}
 {{ else if .Params }}
   {{ if .Params.search }}
     {{ $search = .Params.search }}
   {{ end }}
+  {{ if .Params.filters }}
+    {{ $filters = .Params.filters }}
+  {{ end }}
+{{ end }}
+
+{{ $categories := slice }}
+{{ $keywords := slice }}
+{{ $allTags := slice }}
+
+{{ if .Section }}
+  {{ range where .Site.RegularPages "Section" .Section }}
+    {{ if .Params.categories }}
+      {{ $categories = $categories | append .Params.categories }}
+    {{ end }}
+    {{ if .Params.tags }}
+      {{ $allTags = $allTags | append .Params.tags }}
+    {{ end }}
+    {{ if .Params.keywords }}
+      {{ $keywords = $keywords | append .Params.keywords }}
+    {{ end }}
+  {{ end }}
+
+  {{ $categories = $categories | uniq | sort }}
+  {{ $keywords = $keywords | uniq | sort }}
+  {{ $allTags = $allTags | uniq | sort }}
+
+{{ else }}
+  {{ $categories = .Params.categories | default (slice) | sort }}
+  {{ $keywords = .Params.keywords | default (slice) | sort }}
+  {{ $allTags = .Params.tags | default (slice) | sort }}
 {{ end }}
 
 {{ $eyebrow := .Params.eyebrow | default "" }}
-{{ $tags := .Params.tags | default (slice) }}
 {{ $resources := .Params.resources | default (slice) }}
+{{ $tags := .Params.tags | default (slice) }}
 {{ $badges := .Params.badges | default "" }}
 {{ $useCaseImprovements := .Params.useCaseImprovements | default (slice) }}
 {{ $title := .Params.heading | default .Params.title | default .Title | default "" }}
@@ -43,9 +78,8 @@
   {{ $showPublicationInfo = .Params.showPublicationInfo | default false }}
 {{ end }}
 
-
 {{ if .Params.youtubeVideoID }}
-    {{ partial "sections/hero/split_with_youtube_video.html" (dict
+  {{ partial "sections/hero/split_with_youtube_video.html" (dict
     "heading" $title
     "description" (markdownify $shortDescription)
     "eyebrow" .Params.eyebrow
@@ -54,70 +88,91 @@
     "videoID" .Params.youtubeVideoID
     "typewriter" $typewriter
     "tags" $tags
+    "allTags" $allTags
+    "categories" $categories
+    "keywords" $keywords
     "badges" $badges
     "resources" $resources
     "useCaseImprovements" $useCaseImprovements
     "search" $search
+    "filters" $filters
     "cta" (dict
-        "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
-        "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
-    ) }}
+    "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
+    "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
+  ) }}
 {{ else if and .Params.workspaceId .Params.chatbotId }}
-    {{ partial "sections/hero/split_with_chatbot.html" (dict
+  {{ partial "sections/hero/split_with_chatbot.html" (dict
     "heading" $title
     "description" (markdownify $shortDescription)
     "eyebrow" .Params.eyebrow
     "chatbotId" .Params.chatbotId
     "workspaceId" .Params.workspaceId
     "tags" $tags
+    "allTags" $allTags
+    "categories" $categories
+    "keywords" $keywords
     "badges" $badges
     "resources" $resources
     "useCaseImprovements" $useCaseImprovements
     "search" $search
+    "filters" $filters
     "cta" (dict
     "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
     "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL)
     )
     "typewriter" $typewriter
-    ) }}
+  ) }}
 {{ else if $image }}
-    {{ partial "sections/hero/split_with_image.html" (dict
-        "type" $heroType
-        "heading" $title
-        "description" (markdownify $shortDescription)
-        "eyebrow"  (.Params.eyebrow | default (i18n "eyebrow") | default "")
-        "icon" (.Params.icon | default "")
-        "image" $image
-        "imageSingle" (.Params.imageSingle | default "")
-        "tags" $tags
-        "badges" $badges
-        "resources" $resources
-        "useCaseImprovements" $useCaseImprovements
-        "typewriter" $typewriter
-        "search" $search
-        "checklist" $checklist
-        "cta" (dict
-            "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
-            "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
-        "date" (.Page.Date | default .Date)
-        "lastmod" (.Page.Lastmod | default .Lastmod)
-        "author" (.Page.Params.author | default .Params.author)
-        "showPublicationInfo" $showPublicationInfo
-    ) }}
+  {{ partial "sections/hero/split_with_image.html" (dict
+    "type" $heroType
+    "heading" $title
+    "description" (markdownify $shortDescription)
+    "eyebrow" (.Params.eyebrow | default (i18n "eyebrow") | default "")
+    "icon" (.Params.icon | default "")
+    "image" $image
+    "imageSingle" (.Params.imageSingle | default "")
+    "tags" $tags
+    "allTags" $allTags
+    "categories" $categories
+    "keywords" $keywords
+    "badges" $badges
+    "resources" $resources
+    "useCaseImprovements" $useCaseImprovements
+    "typewriter" $typewriter
+    "search" $search
+    "filters" $filters
+    "checklist" $checklist
+    "cta" (dict
+    "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
+    "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
+    "date" (.Page.Date | default .Date)
+    "lastmod" (.Page.Lastmod | default .Lastmod)
+    "author" (.Page.Params.author | default .Params.author)
+    "showPublicationInfo" $showPublicationInfo
+  ) }}
 {{ else if eq $heroType "simple_base" }}
-    {{ partial "sections/hero/simple_base.html" (dict
+  {{ partial "sections/hero/simple_base.html" (dict
     "heading" $title
     "description" (markdownify $shortDescription)
     "padding" (.Params.heroPadding | default "py-24 sm:py-32")
     "search" $search
-    ) }}
+    "tags" $tags
+    "allTags" $allTags
+    "categories" $categories
+    "keywords" $keywords
+    "filters" $filters
+  ) }}
 {{ else }}
-    {{ partial "sections/hero/simple_centered.html" (dict
+  {{ partial "sections/hero/simple_centered.html" (dict
     "heading" $title
     "description" (markdownify $shortDescription)
-    "eyebrow"  (.Params.eyebrow | default (i18n "eyebrow") | default "")
+    "eyebrow" (.Params.eyebrow | default (i18n "eyebrow") | default "")
     "typewriter" $typewriter
     "tags" $tags
+    "allTags" $allTags
+    "search" $search
+    "categories" $categories
+    "keywords" $keywords
     "badges" $badges
     "resources" $resources
     "useCaseImprovements" $useCaseImprovements
@@ -125,6 +180,5 @@
     "primary" (dict "text" .Params.ctaPrimaryText "url" .Params.ctaPrimaryURL)
     "secondary" (dict "text" .Params.ctaSecondaryText "url" .Params.ctaSecondaryURL))
     "padding" (.Params.heroPadding | default "py-24 sm:py-32")
-    "search" $search
-    ) }}
+  ) }}
 {{ end }}

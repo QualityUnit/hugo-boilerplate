@@ -100,6 +100,8 @@ Design Tokens:
 {{ $description := .description }}
 {{ $cta := .cta }}
 {{ $tags := .tags | default (slice) }}
+{{ $allTags := .allTags | default (slice) }}
+{{ $keywords := .keywords | default (slice) }}
 {{ $categories := .categories | default (slice) }}
 {{ $badgesRaw := .badges | default (slice) }}
 {{ $badges := slice }}
@@ -373,23 +375,6 @@ Design Tokens:
               </div>
               {{ end }}
 
-              {{ if $categories }}
-              {{ $categoriesEnabled := isset site.Taxonomies "categories" }}
-              <div class="flex flex-wrap gap-2">
-                {{ range $categories }}
-                {{ if $categoriesEnabled }}
-                <a href="{{ print "/categories/" (. | urlize) | relLangURL }}/" class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark hover:bg-indigo-100">
-                {{ . }}
-                </a>
-                {{ else }}
-                <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-primary-dark">
-                {{ . }}
-                </span>
-                {{ end }}
-                {{ end }}
-              </div>
-              {{ end }}
-
               {{ if $tags }}
                 {{ partial "sections/tags/tags.html" (dict "tags" $tags "maxTags" 4 ) }}
               {{ end }}
@@ -434,6 +419,15 @@ Design Tokens:
                 "type" "hero-search"
                 "directories" $search.directories
                 "placeholder" $search.placeholder
+              ) }}
+            </div>
+          {{ end }}
+          {{ if $search.filters }}
+            <div class="mt-8 max-w-xl">
+              {{ partial "filters-menus.html" (dict
+                "categories" $categories
+                "tags" $allTags
+                "keywords" $keywords
               ) }}
             </div>
           {{ end }}
