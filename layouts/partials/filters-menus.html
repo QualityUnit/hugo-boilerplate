@@ -76,7 +76,7 @@
 </div>
 <div class="flex max-md:flex-wrap text-left gap-4">
   {{ if $categories }}
-  <div class="relative w-full">
+  <div class="relative w-full z-30">
     <div class="text-sm mb-2">{{ (i18n "ui.filters_categories") }}</div>
     <button data-target="section" class="{{ $buttonClass }}"><span class="{{ $buttonSpanClass }}">{{ (i18n "ui.filters_any") }}</span> {{ partial "icons/chevron-down" "size-4 text-gray-500 ml-auto" }}</button>
     <ul data-id="section" class="{{ $listClass }}">
@@ -95,7 +95,7 @@
   </div>
   {{ end }}
   {{ if $tags }}
-  <div class="relative w-full">
+  <div class="relative w-full z-20">
     <div class="text-sm mb-2">{{ (i18n "ui.filters_tags") }}</div>
     <button data-target="tags" class="{{ $buttonClass }}"><span class="{{ $buttonSpanClass }}">{{ (i18n "ui.filters_any") }}</span> {{ partial "icons/chevron-down" "size-4 text-gray-500 ml-auto" }}</button>
     <ul data-id="tags" class="{{ $listClass }}">
@@ -113,7 +113,7 @@
   </div>
   {{ end }}
   {{ if $keywords }}
-  <div class="relative w-full">
+  <div class="relative w-full z-10">
     <div class="text-sm mb-2">{{ (i18n "ui.filters_keywords") }}</div>
     <button data-target="keywords" class="{{ $buttonClass }}"><span class="{{ $buttonSpanClass }}">{{ (i18n "ui.filters_any") }}</span> {{ partial "icons/chevron-down" "size-4 text-gray-500 ml-auto" }}</button>
     <ul data-id="keywords" class="{{ $listClass }}">
