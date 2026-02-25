@@ -70,6 +70,6 @@
 </a>
 {{- if and site.Params.promotional.enabled $promo -}}
   {{- $limitedOfferText := i18n "promo_offer_in_menu" | default "-75% OFF" -}}
-  <span class="absolute right-0 pointer-events-none px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full whitespace-nowrap shadow-sm" style="top:-17px;transform:translateX(70%);">{{- $limitedOfferText -}}</span>
+  <span class="absolute right-0 pointer-events-none px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full whitespace-nowrap shadow-sm top-0 translate-x-0 lg:-top-[17px] lg:translate-x-[70%]">{{- $limitedOfferText -}}</span>
 </div>
 {{- end -}}
