@@ -157,12 +157,8 @@ Design Tokens:
             {{ end }}
           </div>
         {{ else if $image }}
-          {{/* Display image with decorative frame */}}
-          <div class="relative w-full p-4">
-            <!-- Decorative background gradient -->
-            <div class="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent rounded-2xl blur-2xl"></div>
-            <!-- Image with frame -->
-            <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10">
+          {{/* Display image */}}
+          <div class="relative w-full">
               {{ if $link }}
                 <a href="{{ $link }}" target="{{ $linkTarget }}"{{ if eq $linkTarget "_blank" }} rel="noopener noreferrer"{{ end }} class="block">
               {{ end }}
@@ -174,7 +170,6 @@ Design Tokens:
               {{ if $link }}
                 </a>
               {{ end }}
-            </div>
           </div>
         {{ end }}
       </div>
