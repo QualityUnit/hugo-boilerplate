@@ -28,11 +28,15 @@
     - pause: Pause duration in ms (default: 2000)
     - color: Color class for animated text (default: "text-indigo-600")
   - imgBgClass: Background class for image container (default: "")
+  - imageWrapperClasses: Additional classes for the image wrapper (default: "bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10")
+  - padding: Vertical padding for the section (default: "py-24 sm:py-32")
+  - maxWidthContent: Max width for the content container (default: "max-w-
   - search: Object with search configuration (optional)
     - enabled: Boolean to enable search field (default: false)
     - directories: Array of directories to search in (default: [])
     - placeholder: Search placeholder text (default: i18n "search_placeholder")
     - searchFields: Fields to search in (default: ["title", "content", "tags", "categories"])
+  - badges: Array of badge texts (optional), displayed as styled badges
 @example:
   {{ partial "sections/hero/simple_centered.html" (dict
       "announcement" (dict
@@ -91,8 +95,23 @@
 {{ $typewriter := merge (dict "color" "text-indigo-600") $typewriter }}
 {{ $typewriter := merge (dict "wordAlternatives" "") $typewriter }}{{/* comma separated words to alternate with */}}
 {{ $padding := .padding | default "py-24 sm:py-32" }}
+{{ $maxWidthContent := .maxWidthContent | default "max-w-2xl" }}
+{{ $badgesRaw := .badges | default (slice) }}
+{{ $badges := slice }}
+{{ if $badgesRaw }}
+  {{ if eq (printf "%T" $badgesRaw) "string" }}
+    {{/* Convert comma-separated string to slice */}}
+    {{ $badgesList := split $badgesRaw "," }}
+    {{ range $badgesList }}
+      {{ $badges = $badges | append (trim . " ") }}
+    {{ end }}
+  {{ else }}
+    {{ $badges = $badgesRaw }}
+  {{ end }}
+{{ end }}
 
 {{ $imgBgClass := .imgBgClass | default "" }}
+{{ $imageWrapperClasses := .imageWrapperClasses | default "bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10"}}
 
 {{ $search := .search | default dict }}
 {{ $search := merge (dict "enabled" false) $search }}
@@ -104,7 +123,7 @@
   <div class="section-bg-light dark:section-bg-dark relative z-[1]">
     <div class="relative isolate">
         <div class="wrapper {{ $padding }}">
-          <div class="mx-auto max-w-2xl text-center">
+          <div class="mx-auto {{ $maxWidthContent }} text-center">
             {{ if $announcement.text }}
               <div class="hidden sm:mb-8 sm:flex sm:justify-center">
                 <div class="relative rounded-full px-3 py-1 text-sm/6 text-tertiary ring-1 ring-gray-900/10 hover:ring-gray-900/20">
@@ -123,7 +142,18 @@
               <h1 class="text-5xl font-semibold tracking-[-4.248px] leading-none text-balance text-heading sm:text-7xl"{{ if $typewriter.enabled }} data-typewriter data-typewriter-words="{{ $typewriter.words }}" data-typewriter-word-alternatives="{{$typewriter.wordAlternatives}}" data-typewriter-speed="{{ $typewriter.speed }}" data-typewriter-delete-speed="{{ $typewriter.deleteSpeed }}" data-typewriter-pause="{{ $typewriter.pause }}" data-typewriter-color="{{ $typewriter.color }}"{{ end }}>{{ $heading }}</h1>
             {{ end }}
             {{ if $description }}
-              <p class="mt-9 text-lg font-medium text-pretty text-secondary sm:text-xl/8 prose-links prose-a:font-medium">{{ $description | safeHTML }}</p>
+              <p class="mt-9 max-w-[850px] mx-auto text-lg font-medium text-pretty text-secondary sm:text-xl/8 prose-links prose-a:font-medium">{{ $description | safeHTML }}</p>
+            {{ end }}
+
+            {{ if $badges }}
+              <div class="mt-3 flex justify-center flex-wrap gap-2.5">
+                {{ range $badges }}
+                  {{ partial "components/label/label.html" (dict 
+                    "text" . 
+                    "badgeClass" "badge-base badge-gray badge-with-border"
+                  ) }}
+                {{ end }}
+              </div>
             {{ end }}
 
             {{ if $tags }}
@@ -143,12 +173,13 @@
 
 
             {{ if or $primaryCTA.text $secondaryCTA.text }}
-              <div class="mt-9 flex items-center justify-center gap-x-6">
+              <div class="mt-12 flex items-center justify-center gap-x-3">
                   {{ if $primaryCTA.text }}
                     {{ partial "components/buttons/buttons.html" (dict
                       "text" $primaryCTA.text
                       "url" $primaryCTA.url
                       "variant" $primaryVariant
+                      "size" "xl"
                     ) }}
                   {{ end }}
                   {{ if $secondaryCTA.text }}
@@ -156,7 +187,8 @@
                       "text" $secondaryCTA.text
                       "url" $secondaryCTA.url
                       "variant" $secondaryVariant
-                      "arrow" true
+                      "showArrow" true
+                      "size" "xl"
                     ) }}
                   {{ end }}
               </div>
@@ -174,13 +206,10 @@
           </div>
 
           {{ if $image.src }}
-            <div class="max-md:hidden mt-16 flow-root sm:mt-[4.5rem]">
+            <div class="max-md:hidden mt-16 flow-root">
               <div class="relative mx-auto max-w-[1145px]">
-                <!-- Decorative background gradient -->
-                <div class="absolute -inset-4 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-2xl blur-xl"></div>
-                <div class="absolute -inset-1 bg-gradient-to-br from-primary/30 via-transparent to-primary/30 rounded-xl"></div>
                 <!-- Image with frame -->
-                <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10 {{ $imgBgClass }}">
+                <div class="relative {{ $imageWrapperClasses }} {{ $imgBgClass }}">
                   {{ partial "components/media/lazyimg.html" (dict
                     "src" $image.src
                     "alt" $image.alt

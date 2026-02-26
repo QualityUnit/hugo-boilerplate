@@ -282,7 +282,7 @@
 
   /* Base styles for all badges */
   .badge-base {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md leading-4 tracking-[0.216px];
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-md leading-4 tracking-[0.216px];
   }
 
   /* Color schemes for badges */
