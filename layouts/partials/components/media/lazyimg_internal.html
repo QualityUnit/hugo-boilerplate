@@ -30,6 +30,8 @@
 {{ $height := .height | default "" }}
 {{ $maxWidth := .maxWidth | default 3000 }}
 {{ $noLazy := .noLazy | default false }}
+{{ $nativeLazy := .nativeLazy | default false }}
+{{ if $nativeLazy }}{{ $noLazy = true }}{{ end }}
 {{ $noAutoWidth := .noAutoWidth | default false }}
 
 
@@ -74,7 +76,7 @@
     {{- if $id }} id="{{ $id }}"{{ end -}}
     {{- if $width }} width="{{ $width }}"{{ end -}}
     {{- if $height }} height="{{ $height }}"{{ end -}}
-    {{- if not $noLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
+    {{- if or (not $noLazy) $nativeLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
 {{- else -}}
 {{- $availableWidths := slice 300 1024 -}}
 
@@ -385,6 +387,6 @@
         {{- if $id }} id="{{ $id }}"{{ end -}}
         {{- if $finalWidth }} width="{{ $finalWidth }}"{{ end -}}
         {{- if $height }} height="{{ $height }}"{{ end -}}
-        {{- if not $noLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
+        {{- if or (not $noLazy) $nativeLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
     </picture>
 {{- end -}}

@@ -28,6 +28,8 @@
 {{ $width := .width | default "" }}
 {{ $height := .height | default "" }}
 {{ $noLazy := .noLazy | default false }}
+{{ $nativeLazy := .nativeLazy | default false }}
+{{ if $nativeLazy }}{{ $noLazy = true }}{{ end }}
 
 {{/* Check if the URL is a video */}}
 {{ $isVideo := false }}
@@ -76,7 +78,7 @@
     {{ with $id }}id="{{ . }}"{{ end }}
     {{ with $width }}width="{{ . }}"{{ end }}
     {{ with $height }}height="{{ . }}"{{ end }}
-    {{ if not $noLazy }}loading="lazy"{{ end }}
+    {{ if or (not $noLazy) $nativeLazy }}loading="lazy"{{ end }}
     decoding="async"
     data-original-src="{{ $src }}"
   >

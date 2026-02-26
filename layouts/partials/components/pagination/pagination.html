@@ -5,24 +5,29 @@
     <div class="flex flex-1 justify-between sm:hidden">
         <!-- Previous button (mobile) -->
         {{ if $paginator.HasPrev }}
-            <a href="{{ $paginator.Prev.URL }}" 
-               class="relative inline-flex items-center rounded-md border-gray-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary hover:surface-secondary">
+            <a href="{{ $paginator.Prev.URL }}"
+               class="relative inline-flex items-center rounded-md border border-gray-primary surface-primary px-4 py-2.5 text-sm font-semibold text-heading hover:surface-secondary">
                 {{ i18n "pagination_previous" }}
             </a>
         {{ else }}
-            <span class="relative inline-flex items-center rounded-md border border-gray-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary cursor-not-allowed">
+            <span class="relative inline-flex items-center rounded-md border border-gray-primary surface-primary px-4 py-2.5 text-sm font-semibold text-gray-300 cursor-not-allowed">
                 {{ i18n "pagination_previous" }}
             </span>
         {{ end }}
 
+        <!-- Page indicator (mobile) -->
+        <span class="inline-flex items-center text-sm font-medium text-secondary">
+            {{ $paginator.PageNumber }}/{{ $paginator.TotalPages }}
+        </span>
+
         <!-- Next button (mobile) -->
         {{ if $paginator.HasNext }}
-            <a href="{{ $paginator.Next.URL }}" 
-               class="relative ml-3 inline-flex items-center rounded-md border-gray-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary hover:surface-secondary">
+            <a href="{{ $paginator.Next.URL }}"
+               class="relative ml-3 inline-flex items-center rounded-md border border-gray-primary surface-primary px-4 py-2.5 text-sm font-semibold text-heading hover:surface-secondary">
                 {{ i18n "pagination_next" }}
             </a>
         {{ else }}
-            <span class="relative ml-3 inline-flex items-center rounded-md border border-gray-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary cursor-not-allowed">
+            <span class="relative ml-3 inline-flex items-center rounded-md border border-gray-primary surface-primary px-4 py-2.5 text-sm font-semibold text-gray-300 cursor-not-allowed">
                 {{ i18n "pagination_next" }}
             </span>
         {{ end }}
