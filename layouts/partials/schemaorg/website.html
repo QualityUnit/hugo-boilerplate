@@ -14,34 +14,19 @@
 
 {{ $site := .Site }}
 
+{{- $publisher := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
+{{- with $site.Params.organization.logo -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $publisher = merge $publisher (dict "logo" $logo) -}}
+{{- end -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" "WebSite" "name" $site.Title "url" $site.BaseURL "publisher" $publisher "inLanguage" $site.Language.Lang -}}
+{{- with $site.Params.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
+{{- with $site.Params.searchUrl -}}
+  {{- $entryPoint := dict "@type" "EntryPoint" "urlTemplate" (printf "%s%s?q={search_term_string}" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $searchAction := dict "@type" "SearchAction" "target" $entryPoint "query-input" "required name=search_term_string" -}}
+  {{- $schema = merge $schema (dict "potentialAction" $searchAction) -}}
+{{- end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": {{ $site.Title | jsonify }},
-  "url": {{ $site.BaseURL | jsonify }},
-  {{ with $site.Params.description }}"description": {{ . | jsonify }},{{ end }}
-  {{ with $site.Params.searchUrl }}
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": {
-      "@type": "EntryPoint",
-      "urlTemplate": {{ printf "%s%s?q={search_term_string}" $site.BaseURL (strings.TrimPrefix "/" .) | jsonify }}
-    },
-    "query-input": "required name=search_term_string"
-  },
-  {{ end }}
-  "publisher": {
-    "@type": "Organization",
-    "name": {{ $site.Title | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }}
-    {{ with $site.Params.organization.logo }},
-    "logo": {
-      "@type": "ImageObject",
-      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-    }
-    {{ end }}
-  },
-  "inLanguage": {{ $site.Language.Lang | jsonify }}
-}
+{{- $schema | jsonify | safeJS -}}
 </script>

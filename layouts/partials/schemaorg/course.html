@@ -43,93 +43,63 @@
 {{ end }}
 
 {{ if and $name $description }}
+{{- $providerOrg := dict "@type" "Organization" "name" (.provider | default $site.Title) "url" $site.BaseURL -}}
+{{- with $site.Params.organization.logo -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $providerOrg = merge $providerOrg (dict "logo" $logo) -}}
+{{- end -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" "Course" "name" $name "description" $description "provider" $providerOrg "url" ($page.Permalink | default $site.BaseURL) -}}
+{{- with .image -}}
+  {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $schema = merge $schema (dict "image" $img) -}}
+{{- end -}}
+{{- with .courseMode }}{{ $schema = merge $schema (dict "courseMode" .) }}{{ end -}}
+{{- with .educationalLevel }}{{ $schema = merge $schema (dict "educationalLevel" .) }}{{ end -}}
+{{- with .timeRequired }}{{ $schema = merge $schema (dict "timeRequired" .) }}{{ end -}}
+{{- with .numberOfLessons }}{{ $schema = merge $schema (dict "numberOfLessons" .) }}{{ end -}}
+{{- with .inLanguage }}{{ $schema = merge $schema (dict "inLanguage" .) }}{{ else }}{{ $schema = merge $schema (dict "inLanguage" $site.Language.Lang) }}{{ end -}}
+{{- with .audience -}}
+  {{- $schema = merge $schema (dict "audience" (dict "@type" "Audience" "audienceType" .)) -}}
+{{- end -}}
+{{- with .teaches }}{{ $schema = merge $schema (dict "teaches" .) }}{{ end -}}
+{{- with .coursePrerequisites }}{{ $schema = merge $schema (dict "coursePrerequisites" .) }}{{ end -}}
+{{- with .syllabus -}}
+  {{- $sections := slice -}}
+  {{- range . -}}
+    {{- $section := dict "@type" "Syllabus" "name" .name -}}
+    {{- with .description }}{{ $section = merge $section (dict "description" .) }}{{ end -}}
+    {{- with .timeRequired }}{{ $section = merge $section (dict "timeRequired" .) }}{{ end -}}
+    {{- $sections = $sections | append $section -}}
+  {{- end -}}
+  {{- $schema = merge $schema (dict "syllabusSections" $sections) -}}
+{{- end -}}
+{{- with .hasCourseInstance -}}
+  {{- $instances := slice -}}
+  {{- range . -}}
+    {{- $inst := dict "@type" "CourseInstance" "courseWorkload" (.courseWorkload | default "Self-paced") -}}
+    {{- with .courseMode }}{{ $inst = merge $inst (dict "courseMode" .) }}{{ end -}}
+    {{- with .startDate }}{{ $inst = merge $inst (dict "startDate" .) }}{{ end -}}
+    {{- with .endDate }}{{ $inst = merge $inst (dict "endDate" .) }}{{ end -}}
+    {{- with .instructor -}}
+      {{- $instr := dict "@type" "Person" "name" .name -}}
+      {{- with .image }}{{ $instr = merge $instr (dict "image" .) }}{{ end -}}
+      {{- $inst = merge $inst (dict "instructor" $instr) -}}
+    {{- end -}}
+    {{- $instances = $instances | append $inst -}}
+  {{- end -}}
+  {{- $schema = merge $schema (dict "hasCourseInstance" $instances) -}}
+{{- end -}}
+{{- with .offers -}}
+  {{- $offer := dict "@type" "Offer" "availability" (.availability | default "https://schema.org/InStock") "url" ($page.Permalink | default $site.BaseURL) -}}
+  {{- with .price }}{{ $offer = merge $offer (dict "price" .) }}{{ end -}}
+  {{- with .priceCurrency }}{{ $offer = merge $offer (dict "priceCurrency" .) }}{{ end -}}
+  {{- $schema = merge $schema (dict "offers" $offer) -}}
+{{- end -}}
+{{- with .aggregateRating -}}
+  {{- $schema = merge $schema (dict "aggregateRating" (dict "@type" "AggregateRating" "ratingValue" .ratingValue "reviewCount" .reviewCount)) -}}
+{{- end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Course",
-  "name": {{ $name | jsonify }},
-  "description": {{ $description | jsonify }},
-  "provider": {
-    "@type": "Organization",
-    "name": {{ (.provider | default $site.Title) | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }}
-    {{ with $site.Params.organization.logo }},
-    "logo": {
-      "@type": "ImageObject",
-      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-    }
-    {{ end }}
-  },
-  {{ with .image }}
-  "image": {
-    "@type": "ImageObject",
-    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-  },
-  {{ end }}
-  {{ with .courseMode }}"courseMode": {{ . | jsonify }},{{ end }}
-  {{ with .educationalLevel }}"educationalLevel": {{ . | jsonify }},{{ end }}
-  {{ with .timeRequired }}"timeRequired": {{ . | jsonify }},{{ end }}
-  {{ with .numberOfLessons }}"numberOfLessons": {{ . }},{{ end }}
-  {{ with .inLanguage }}"inLanguage": {{ . | jsonify }},{{ else }}"inLanguage": {{ $site.Language.Lang | jsonify }},{{ end }}
-  {{ with .audience }}
-  "audience": {
-    "@type": "Audience",
-    "audienceType": {{ . | jsonify }}
-  },
-  {{ end }}
-  {{ with .teaches }}"teaches": {{ . | jsonify }},{{ end }}
-  {{ with .coursePrerequisites }}"coursePrerequisites": {{ . | jsonify }},{{ end }}
-  {{ with .syllabus }}
-  "syllabusSections": [
-    {{ range $index, $section := . }}
-    {{ if $index }},{{ end }}
-    {
-      "@type": "Syllabus",
-      "name": {{ $section.name | jsonify }}
-      {{ with $section.description }},"description": {{ . | jsonify }}{{ end }}
-      {{ with $section.timeRequired }},"timeRequired": {{ . | jsonify }}{{ end }}
-    }
-    {{ end }}
-  ],
-  {{ end }}
-  {{ with .hasCourseInstance }}
-  "hasCourseInstance": [
-    {{ range $index, $instance := . }}
-    {{ if $index }},{{ end }}
-    {
-      "@type": "CourseInstance",
-      {{ with .courseMode }}"courseMode": {{ . | jsonify }},{{ end }}
-      {{ with .startDate }}"startDate": {{ . | jsonify }},{{ end }}
-      {{ with .endDate }}"endDate": {{ . | jsonify }},{{ end }}
-      {{ with .instructor }}
-      "instructor": {
-        "@type": "Person",
-        "name": {{ .name | jsonify }}
-        {{ with .image }},"image": {{ . | jsonify }}{{ end }}
-      },
-      {{ end }}
-      "courseWorkload": {{ .courseWorkload | default "Self-paced" | jsonify }}
-    }
-    {{ end }}
-  ],
-  {{ end }}
-  {{ with .offers }}
-  "offers": {
-    "@type": "Offer",
-    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
-    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
-    "availability": {{ .availability | default "https://schema.org/InStock" | jsonify }},
-    "url": {{ ($page.Permalink | default $site.BaseURL) | jsonify }}
-  },
-  {{ end }}
-  {{ with .aggregateRating }}
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": {{ .ratingValue | jsonify }},
-    "reviewCount": {{ .reviewCount | jsonify }}
-  },
-  {{ end }}
-  "url": {{ ($page.Permalink | default $site.BaseURL) | jsonify }}
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}

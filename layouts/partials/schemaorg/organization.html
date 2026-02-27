@@ -33,54 +33,42 @@
 {{ $org := $site.Params.organization }}
 
 {{ if $org }}
+{{- $mainEntity := dict "@type" "WebPage" "@id" $site.BaseURL -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" "Organization" "url" ($org.url | default $site.BaseURL) "mainEntityOfPage" $mainEntity -}}
+{{- with $org.name }}{{ $schema = merge $schema (dict "name" .) }}{{ end -}}
+{{- with $org.legalName }}{{ $schema = merge $schema (dict "legalName" .) }}{{ end -}}
+{{- with $org.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
+{{- with $org.logo -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $schema = merge $schema (dict "logo" $logo) -}}
+{{- end -}}
+{{- with $org.email }}{{ $schema = merge $schema (dict "email" .) }}{{ end -}}
+{{- with $org.telephone }}{{ $schema = merge $schema (dict "telephone" .) }}{{ end -}}
+{{- with $org.foundingDate }}{{ $schema = merge $schema (dict "foundingDate" .) }}{{ end -}}
+{{- with $org.address -}}
+  {{- $addr := dict "@type" "PostalAddress" -}}
+  {{- with .streetAddress }}{{ $addr = merge $addr (dict "streetAddress" .) }}{{ end -}}
+  {{- with .addressLocality }}{{ $addr = merge $addr (dict "addressLocality" .) }}{{ end -}}
+  {{- with .addressRegion }}{{ $addr = merge $addr (dict "addressRegion" .) }}{{ end -}}
+  {{- with .postalCode }}{{ $addr = merge $addr (dict "postalCode" .) }}{{ end -}}
+  {{- with .addressCountry }}{{ $addr = merge $addr (dict "addressCountry" .) }}{{ end -}}
+  {{- $schema = merge $schema (dict "address" $addr) -}}
+{{- end -}}
+{{- with $org.sameAs }}{{ $schema = merge $schema (dict "sameAs" .) }}{{ end -}}
+{{- with $org.contactPoint -}}
+  {{- $cp := dict "@type" "ContactPoint" -}}
+  {{- with .telephone }}{{ $cp = merge $cp (dict "telephone" .) }}{{ end -}}
+  {{- with .contactType }}{{ $cp = merge $cp (dict "contactType" .) }}{{ end -}}
+  {{- with .email }}{{ $cp = merge $cp (dict "email" .) }}{{ end -}}
+  {{- with .availableLanguage }}{{ $cp = merge $cp (dict "availableLanguage" .) }}{{ end -}}
+  {{- with .areaServed }}{{ $cp = merge $cp (dict "areaServed" .) }}{{ end -}}
+  {{- $schema = merge $schema (dict "contactPoint" $cp) -}}
+{{- end -}}
+{{- with $org.numberOfEmployees }}{{ $schema = merge $schema (dict "numberOfEmployees" .) }}{{ end -}}
+{{- with $org.vatID }}{{ $schema = merge $schema (dict "vatID" .) }}{{ end -}}
+{{- with $org.taxID }}{{ $schema = merge $schema (dict "taxID" .) }}{{ end -}}
+{{- with $org.duns }}{{ $schema = merge $schema (dict "duns" .) }}{{ end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  {{ with $org.name }}"name": {{ . | jsonify }},{{ end }}
-  {{ with $org.legalName }}"legalName": {{ . | jsonify }},{{ end }}
-  {{ with $org.description }}"description": {{ . | jsonify }},{{ end }}
-  "url": {{ ($org.url | default $site.BaseURL) | jsonify }},
-  {{ with $org.logo }}
-  "logo": {
-    "@type": "ImageObject",
-    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-  },
-  {{ end }}
-  {{ with $org.email }}"email": {{ . | jsonify }},{{ end }}
-  {{ with $org.telephone }}"telephone": {{ . | jsonify }},{{ end }}
-  {{ with $org.foundingDate }}"foundingDate": {{ . | jsonify }},{{ end }}
-  {{ with $org.address }}
-  "address": {
-    "@type": "PostalAddress"
-    {{ with .streetAddress }},"streetAddress": {{ . | jsonify }}{{ end }}
-    {{ with .addressLocality }},"addressLocality": {{ . | jsonify }}{{ end }}
-    {{ with .addressRegion }},"addressRegion": {{ . | jsonify }}{{ end }}
-    {{ with .postalCode }},"postalCode": {{ . | jsonify }}{{ end }}
-    {{ with .addressCountry }},"addressCountry": {{ . | jsonify }}{{ end }}
-  },
-  {{ end }}
-  {{ with $org.sameAs }}
-  "sameAs": {{ . | jsonify }},
-  {{ end }}
-  {{ with $org.contactPoint }}
-  "contactPoint": {
-    "@type": "ContactPoint"
-    {{ with .telephone }},"telephone": {{ . | jsonify }}{{ end }}
-    {{ with .contactType }},"contactType": {{ . | jsonify }}{{ end }}
-    {{ with .email }},"email": {{ . | jsonify }}{{ end }}
-    {{ with .availableLanguage }},"availableLanguage": {{ . | jsonify }}{{ end }}
-    {{ with .areaServed }},"areaServed": {{ . | jsonify }}{{ end }}
-  },
-  {{ end }}
-  {{ with $org.numberOfEmployees }}"numberOfEmployees": {{ . | jsonify }},{{ end }}
-  {{ with $org.vatID }}"vatID": {{ . | jsonify }},{{ end }}
-  {{ with $org.taxID }}"taxID": {{ . | jsonify }},{{ end }}
-  {{ with $org.duns }}"duns": {{ . | jsonify }},{{ end }}
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": {{ $site.BaseURL | jsonify }}
-  }
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}

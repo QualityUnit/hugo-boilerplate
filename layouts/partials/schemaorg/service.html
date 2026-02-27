@@ -30,86 +30,56 @@
 {{/* Handle single service */}}
 {{ $service := .service }}
 {{ if $service }}
+{{- $provider := dict "@type" "Organization" "name" ($service.provider | default $site.Title) "url" $site.BaseURL -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" "Service" "name" $service.name "provider" $provider "url" ($service.url | default $site.BaseURL) -}}
+{{- with $service.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
+{{- with $service.serviceType }}{{ $schema = merge $schema (dict "serviceType" .) }}{{ end -}}
+{{- with $service.image -}}
+  {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $schema = merge $schema (dict "image" $img) -}}
+{{- end -}}
+{{- with $service.areaServed }}{{ $schema = merge $schema (dict "areaServed" .) }}{{ else }}{{ $schema = merge $schema (dict "areaServed" "Worldwide") }}{{ end -}}
+{{- with $service.audience -}}
+  {{- $schema = merge $schema (dict "audience" (dict "@type" "Audience" "audienceType" .)) -}}
+{{- end -}}
+{{- with $service.category }}{{ $schema = merge $schema (dict "category" .) }}{{ end -}}
+{{- with $service.offers -}}
+  {{- $offer := dict "@type" "Offer" "availability" (.availability | default "https://schema.org/InStock") "url" ($service.url | default $site.BaseURL) -}}
+  {{- with .price }}{{ $offer = merge $offer (dict "price" .) }}{{ end -}}
+  {{- with .priceCurrency }}{{ $offer = merge $offer (dict "priceCurrency" .) }}{{ end -}}
+  {{- with .description }}{{ $offer = merge $offer (dict "description" .) }}{{ end -}}
+  {{- $schema = merge $schema (dict "offers" $offer) -}}
+{{- end -}}
+{{- with $service.termsOfService }}{{ $schema = merge $schema (dict "termsOfService" .) }}{{ end -}}
+{{- with $service.serviceOutput }}{{ $schema = merge $schema (dict "serviceOutput" .) }}{{ end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": {{ $service.name | jsonify }},
-  {{ with $service.description }}"description": {{ . | jsonify }},{{ end }}
-  {{ with $service.serviceType }}"serviceType": {{ . | jsonify }},{{ end }}
-  {{ with $service.image }}
-  "image": {
-    "@type": "ImageObject",
-    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-  },
-  {{ end }}
-  "provider": {
-    "@type": "Organization",
-    "name": {{ ($service.provider | default $site.Title) | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }}
-  },
-  {{ with $service.areaServed }}"areaServed": {{ . | jsonify }},{{ else }}"areaServed": "Worldwide",{{ end }}
-  {{ with $service.audience }}
-  "audience": {
-    "@type": "Audience",
-    "audienceType": {{ . | jsonify }}
-  },
-  {{ end }}
-  {{ with $service.category }}"category": {{ . | jsonify }},{{ end }}
-  {{ with $service.offers }}
-  "offers": {
-    "@type": "Offer",
-    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
-    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
-    {{ with .description }}"description": {{ . | jsonify }},{{ end }}
-    "availability": {{ .availability | default "https://schema.org/InStock" | jsonify }},
-    "url": {{ ($service.url | default $site.BaseURL) | jsonify }}
-  },
-  {{ end }}
-  {{ with $service.termsOfService }}"termsOfService": {{ . | jsonify }},{{ end }}
-  {{ with $service.serviceOutput }}"serviceOutput": {{ . | jsonify }},{{ end }}
-  "url": {{ ($service.url | default $site.BaseURL) | jsonify }}
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}
 
 {{/* Handle multiple services */}}
 {{ $services := .services }}
 {{ if $services }}
+{{- $serviceArray := slice -}}
+{{- range $services -}}
+  {{- $provider := dict "@type" "Organization" "name" (.provider | default $site.Title) "url" $site.BaseURL -}}
+  {{- $svc := dict "@context" "https://schema.org" "@type" "Service" "name" .name "provider" $provider "url" (.url | default $site.BaseURL) -}}
+  {{- with .description }}{{ $svc = merge $svc (dict "description" .) }}{{ end -}}
+  {{- with .serviceType }}{{ $svc = merge $svc (dict "serviceType" .) }}{{ end -}}
+  {{- with .image -}}
+    {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+    {{- $svc = merge $svc (dict "image" $img) -}}
+  {{- end -}}
+  {{- with .areaServed }}{{ $svc = merge $svc (dict "areaServed" .) }}{{ else }}{{ $svc = merge $svc (dict "areaServed" "Worldwide") }}{{ end -}}
+  {{- with .offers -}}
+    {{- $offer := dict "@type" "Offer" "availability" (.availability | default "https://schema.org/InStock") "url" ($svc.url | default $site.BaseURL) -}}
+    {{- with .price }}{{ $offer = merge $offer (dict "price" .) }}{{ end -}}
+    {{- with .priceCurrency }}{{ $offer = merge $offer (dict "priceCurrency" .) }}{{ end -}}
+    {{- $svc = merge $svc (dict "offers" $offer) -}}
+  {{- end -}}
+  {{- $serviceArray = $serviceArray | append $svc -}}
+{{- end -}}
 <script type="application/ld+json">
-[
-  {{ range $index, $svc := $services }}
-  {{ if $index }},{{ end }}
-  {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": {{ $svc.name | jsonify }},
-    {{ with $svc.description }}"description": {{ . | jsonify }},{{ end }}
-    {{ with $svc.serviceType }}"serviceType": {{ . | jsonify }},{{ end }}
-    {{ with $svc.image }}
-    "image": {
-      "@type": "ImageObject",
-      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-    },
-    {{ end }}
-    "provider": {
-      "@type": "Organization",
-      "name": {{ ($svc.provider | default $site.Title) | jsonify }},
-      "url": {{ $site.BaseURL | jsonify }}
-    },
-    {{ with $svc.areaServed }}"areaServed": {{ . | jsonify }},{{ else }}"areaServed": "Worldwide",{{ end }}
-    {{ with $svc.offers }}
-    "offers": {
-      "@type": "Offer",
-      {{ with .price }}"price": {{ . | jsonify }},{{ end }}
-      {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
-      "availability": {{ .availability | default "https://schema.org/InStock" | jsonify }},
-      "url": {{ ($svc.url | default $site.BaseURL) | jsonify }}
-    },
-    {{ end }}
-    "url": {{ ($svc.url | default $site.BaseURL) | jsonify }}
-  }
-  {{ end }}
-]
+{{- $serviceArray | jsonify | safeJS -}}
 </script>
 {{ end }}

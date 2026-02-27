@@ -16,28 +16,16 @@
     {{ if and $authors (index $authors $authorKey) }}
         {{ $author := index $authors $authorKey }}
         {{ $authorName := $author.name }}
-        {{ $authorImage := $author.image }}
-        {{ $authorRole := $author.role }}
-        {{ $authorDescription := $author.description }}
-        
+
         {{ if $authorName }}
+            {{- $worksFor := dict "@type" "Organization" "name" .Site.Title "url" .Site.BaseURL -}}
+            {{- $schema := dict "@context" "https://schema.org" "@type" "Person" "name" $authorName "url" .Site.BaseURL "worksFor" $worksFor -}}
+            {{- with $author.image }}{{ $schema = merge $schema (dict "image" .) }}{{ end -}}
+            {{- with $author.role }}{{ $schema = merge $schema (dict "jobTitle" .) }}{{ end -}}
+            {{- with $author.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
             <script type="application/ld+json">
-            {
-            "@context": "https://schema.org",
-            "@type": "Person",
-            "name": {{ $authorName | jsonify }},
-            {{ if $authorImage }}"image": {{ $authorImage | jsonify }},{{ end }}
-            {{ if $authorRole }}"jobTitle": {{ $authorRole | jsonify }},{{ end }}
-            {{ if $authorDescription }}"description": {{ $authorDescription | jsonify }},{{ end }}
-            "url": {{ .Site.BaseURL | jsonify }},
-            "worksFor": {
-                "@type": "Organization",
-                "name": {{ .Site.Title | jsonify }},
-                "url": {{ .Site.BaseURL | jsonify }}
-            }
-            }
+            {{- $schema | jsonify | safeJS -}}
             </script>
         {{ end }}
     {{ end }}
-
 {{ end }}

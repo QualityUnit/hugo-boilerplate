@@ -11,31 +11,18 @@
 */}}
 
 {{ if .testimonials }}
-{{ $testimonials := .testimonials }}
+{{- $reviews := slice -}}
+{{- range .testimonials -}}
+  {{- $itemReviewed := dict "@type" "SoftwareApplication" "name" site.Title "url" site.BaseURL "applicationCategory" (site.Params.softwareCategory | default "Business Software") -}}
+  {{- with site.Params.softwareDescription }}{{ $itemReviewed = merge $itemReviewed (dict "description" .) }}{{ end -}}
+  {{- with site.Params.operatingSystem }}{{ $itemReviewed = merge $itemReviewed (dict "operatingSystem" .) }}{{ end -}}
+  {{- with site.Params.softwareAudience }}{{ $itemReviewed = merge $itemReviewed (dict "audience" .) }}{{ end -}}
+  {{- $author := dict "@type" "Person" "name" .personName -}}
+  {{- $review := dict "@context" "https://schema.org" "@type" "Review" "reviewBody" .quote "author" $author "itemReviewed" $itemReviewed -}}
+  {{- $reviews = $reviews | append $review -}}
+{{- end -}}
 <!-- Schema.org structured data for reviews -->
 <script type="application/ld+json">
-[
-  {{ range $index, $testimonial := $testimonials }}
-  {{ if $index }},{{ end }}
-  {
-    "@context": "https://schema.org",
-    "@type": "Review",
-    "reviewBody": {{ $testimonial.quote | jsonify }},
-    "author": {
-      "@type": "Person",
-      "name": {{ $testimonial.personName | jsonify }}
-    },
-    "itemReviewed": {
-      "@type": "SoftwareApplication",
-      "name": {{ site.Title | jsonify }},
-      "url": {{ site.BaseURL | jsonify }},
-      "applicationCategory": {{ site.Params.softwareCategory | default "Business Software" | jsonify }}
-      {{ with site.Params.softwareDescription }},"description": {{ . | jsonify }}{{ end }}
-      {{ with site.Params.operatingSystem }},"operatingSystem": {{ . | jsonify }}{{ end }}
-      {{ with site.Params.softwareAudience }},"audience": {{ . | jsonify }}{{ end }}
-    }
-  }
-  {{ end }}
-]
+{{- $reviews | jsonify | safeJS -}}
 </script>
 {{ end }}

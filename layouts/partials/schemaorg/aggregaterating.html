@@ -28,23 +28,12 @@
 {{ $worstRating := .worstRating | default "1" }}
 
 {{ if and $ratingValue $reviewCount }}
+{{- $rating := dict "@type" "AggregateRating" "ratingValue" $ratingValue "reviewCount" $reviewCount "bestRating" $bestRating "worstRating" $worstRating -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" $itemType "name" $itemName "aggregateRating" $rating -}}
+{{- with .url }}{{ $schema = merge $schema (dict "url" .) }}{{ else }}{{ $schema = merge $schema (dict "url" $site.BaseURL) }}{{ end -}}
+{{- with .description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
+{{- with .image }}{{ $schema = merge $schema (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": {{ $itemType | jsonify }},
-  "name": {{ $itemName | jsonify }},
-  {{ with .url }}"url": {{ . | jsonify }},{{ else }}"url": {{ $site.BaseURL | jsonify }},{{ end }}
-  {{ with .description }}"description": {{ . | jsonify }},{{ end }}
-  {{ with .image }}
-  "image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }},
-  {{ end }}
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": {{ $ratingValue | jsonify }},
-    "reviewCount": {{ $reviewCount | jsonify }},
-    "bestRating": {{ $bestRating | jsonify }},
-    "worstRating": {{ $worstRating | jsonify }}
-  }
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}

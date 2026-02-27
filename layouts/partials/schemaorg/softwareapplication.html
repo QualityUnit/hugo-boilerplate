@@ -51,69 +51,50 @@
 {{ end }}
 
 {{ if $software }}
+{{- $authorOrg := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
+{{- $providerOrg := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" "SoftwareApplication" "name" $productName "url" $site.BaseURL "author" $authorOrg "provider" $providerOrg -}}
+{{- with $software.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
+{{- with $software.applicationCategory }}{{ $schema = merge $schema (dict "applicationCategory" .) }}{{ end -}}
+{{- with $software.operatingSystem }}{{ $schema = merge $schema (dict "operatingSystem" .) }}{{ end -}}
+{{- with $software.softwareVersion }}{{ $schema = merge $schema (dict "softwareVersion" .) }}{{ end -}}
+{{- with $software.releaseNotes }}{{ $schema = merge $schema (dict "releaseNotes" .) }}{{ end -}}
+{{- with $software.downloadUrl }}{{ $schema = merge $schema (dict "downloadUrl" .) }}{{ end -}}
+{{- with $software.fileSize }}{{ $schema = merge $schema (dict "fileSize" .) }}{{ end -}}
+{{- with $software.requirements }}{{ $schema = merge $schema (dict "requirements" .) }}{{ end -}}
+{{- with $software.featureList }}{{ $schema = merge $schema (dict "featureList" .) }}{{ end -}}
+{{- with $software.screenshot -}}
+  {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $schema = merge $schema (dict "screenshot" $img) -}}
+{{- end -}}
+{{- with $software.offers -}}
+  {{- $sellerOrg := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
+  {{- $offer := dict "@type" "Offer" "url" $site.BaseURL "seller" $sellerOrg -}}
+  {{- with .price }}{{ $offer = merge $offer (dict "price" .) }}{{ end -}}
+  {{- with .priceCurrency }}{{ $offer = merge $offer (dict "priceCurrency" .) }}{{ end -}}
+  {{- with .priceValidUntil }}{{ $offer = merge $offer (dict "priceValidUntil" .) }}{{ end -}}
+  {{- with .availability }}{{ $offer = merge $offer (dict "availability" .) }}{{ else }}{{ $offer = merge $offer (dict "availability" "https://schema.org/InStock") }}{{ end -}}
+  {{- $schema = merge $schema (dict "offers" $offer) -}}
+{{- end -}}
+
+{{- $showAggregateRating := false -}}
+{{- if reflect.IsMap . -}}
+  {{- $showAggregateRating = and .aggregateRating $software.aggregateRating -}}
+{{- else -}}
+  {{- $showAggregateRating = $software.aggregateRating -}}
+{{- end -}}
+{{- if and $showAggregateRating $software.aggregateRating -}}
+  {{- with $software.aggregateRating -}}
+    {{- $rating := dict "@type" "AggregateRating" -}}
+    {{- with .ratingValue }}{{ $rating = merge $rating (dict "ratingValue" .) }}{{ end -}}
+    {{- with .reviewCount }}{{ $rating = merge $rating (dict "reviewCount" .) }}{{ end -}}
+    {{- with .bestRating }}{{ $rating = merge $rating (dict "bestRating" .) }}{{ end -}}
+    {{- with .worstRating }}{{ $rating = merge $rating (dict "worstRating" .) }}{{ end -}}
+    {{- $schema = merge $schema (dict "aggregateRating" $rating) -}}
+  {{- end -}}
+{{- end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": {{ $productName | jsonify }},
-  {{ with $software.description }}"description": {{ . | jsonify }},{{ end }}
-  "url": {{ $site.BaseURL | jsonify }},
-  {{ with $software.applicationCategory }}"applicationCategory": {{ . | jsonify }},{{ end }}
-  {{ with $software.operatingSystem }}"operatingSystem": {{ . | jsonify }},{{ end }}
-  {{ with $software.softwareVersion }}"softwareVersion": {{ . | jsonify }},{{ end }}
-  {{ with $software.releaseNotes }}"releaseNotes": {{ . | jsonify }},{{ end }}
-  {{ with $software.downloadUrl }}"downloadUrl": {{ . | jsonify }},{{ end }}
-  {{ with $software.fileSize }}"fileSize": {{ . | jsonify }},{{ end }}
-  {{ with $software.requirements }}"requirements": {{ . | jsonify }},{{ end }}
-  {{ with $software.featureList }}"featureList": {{ . | jsonify }},{{ end }}
-  {{ with $software.screenshot }}
-  "screenshot": {
-    "@type": "ImageObject",
-    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-  },
-  {{ end }}
-  {{ with $software.offers }}
-  "offers": {
-    "@type": "Offer",
-    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
-    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
-    {{ with .priceValidUntil }}"priceValidUntil": {{ . | jsonify }},{{ end }}
-    {{ with .availability }}"availability": {{ . | jsonify }},{{ else }}"availability": "https://schema.org/InStock",{{ end }}
-    "url": {{ $site.BaseURL | jsonify }},
-    "seller": {
-      "@type": "Organization",
-      "name": {{ $site.Title | jsonify }},
-      "url": {{ $site.BaseURL | jsonify }}
-    }
-  },
-  {{ end }}
-  {{ $showAggregateRating := false }}
-  {{ if reflect.IsMap . }}
-    {{ $showAggregateRating = and .aggregateRating $software.aggregateRating }}
-  {{ else }}
-    {{ $showAggregateRating = $software.aggregateRating }}
-  {{ end }}
-  {{ if and $showAggregateRating $software.aggregateRating }}
-  {{ with $software.aggregateRating }}
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    {{ with .ratingValue }}"ratingValue": {{ . | jsonify }},{{ end }}
-    {{ with .reviewCount }}"reviewCount": {{ . | jsonify }},{{ end }}
-    {{ with .bestRating }}"bestRating": {{ . | jsonify }},{{ end }}
-    {{ with .worstRating }}"worstRating": {{ . | jsonify }}{{ end }}
-  },
-  {{ end }}
-  {{ end }}
-  "author": {
-    "@type": "Organization",
-    "name": {{ $site.Title | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }}
-  },
-  "provider": {
-    "@type": "Organization",
-    "name": {{ $site.Title | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }}
-  }
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}

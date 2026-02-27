@@ -1,21 +1,13 @@
-{{if .items }}
-{{ $items := .items }}
+{{- if .items -}}
+{{- $items := .items -}}
+{{- $listItems := slice -}}
+{{- range $index, $item := $items -}}
+  {{- $listItem := dict "@type" "ListItem" "position" (add $index 1) "name" $item.title "item" ($item.url | absURL) -}}
+  {{- $listItems = $listItems | append $listItem -}}
+{{- end -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" "BreadcrumbList" "itemListElement" $listItems -}}
 <!-- Schema.org BreadcrumbList -->
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {{- range $index, $item := $items -}}
-    {{- if $index -}},{{- end -}}
-    {
-      "@type": "ListItem",
-      "position": {{ add $index 1 }},
-      "name": "{{ $item.title }}",
-      "item": "{{ $item.url | absURL }}"
-    }
-    {{- end -}}
-  ]
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
-{{ end}}
+{{- end -}}

@@ -30,45 +30,25 @@
 {{ $uploadDate := .uploadDate }}
 
 {{ if and $name $description $thumbnailUrl $uploadDate }}
+{{- $publisher := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
+{{- with $site.Params.organization.logo -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $publisher = merge $publisher (dict "logo" $logo) -}}
+{{- end -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" "VideoObject" "name" $name "description" $description "thumbnailUrl" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" $thumbnailUrl)) "uploadDate" $uploadDate "publisher" $publisher -}}
+{{- with .contentUrl }}{{ $schema = merge $schema (dict "contentUrl" .) }}{{ end -}}
+{{- with .embedUrl }}{{ $schema = merge $schema (dict "embedUrl" .) }}{{ end -}}
+{{- if and .width .height }}{{ $schema = merge $schema (dict "width" .width "height" .height) }}{{ end -}}
+{{- with .transcriptUrl }}{{ $schema = merge $schema (dict "transcript" .) }}{{ end -}}
+{{- with .interactionStatistic -}}
+  {{- $stat := dict "@type" "InteractionCounter" "interactionType" (dict "@type" "WatchAction") "userInteractionCount" . -}}
+  {{- $schema = merge $schema (dict "interactionStatistic" $stat) -}}
+{{- end -}}
+{{- with .author -}}
+  {{- $schema = merge $schema (dict "author" (dict "@type" "Person" "name" .)) -}}
+{{- end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "VideoObject",
-  "name": {{ $name | jsonify }},
-  "description": {{ $description | jsonify }},
-  "thumbnailUrl": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" $thumbnailUrl)) | jsonify }},
-  "uploadDate": {{ $uploadDate | jsonify }},
-  {{ with .contentUrl }}"contentUrl": {{ . | jsonify }},{{ end }}
-  {{ with .embedUrl }}"embedUrl": {{ . | jsonify }},{{ end }}
-  {{ if and .width .height }}
-  "width": {{ .width | jsonify }},
-  "height": {{ .height | jsonify }},
-  {{ end }}
-  {{ with .transcriptUrl }}"transcript": {{ . | jsonify }},{{ end }}
-  {{ with .interactionStatistic }}
-  "interactionStatistic": {
-    "@type": "InteractionCounter",
-    "interactionType": { "@type": "WatchAction" },
-    "userInteractionCount": {{ . | jsonify }}
-  },
-  {{ end }}
-  "publisher": {
-    "@type": "Organization",
-    "name": {{ $site.Title | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }}
-    {{ with $site.Params.organization.logo }},
-    "logo": {
-      "@type": "ImageObject",
-      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-    }
-    {{ end }}
-  }
-  {{ with .author }},
-  "author": {
-    "@type": "Person",
-    "name": {{ . | jsonify }}
-  }
-  {{ end }}
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}

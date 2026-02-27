@@ -35,51 +35,37 @@
 {{ $name := .name }}
 
 {{ if $name }}
+{{- $seller := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" "Offer" "name" $name "url" (.url | default $site.BaseURL) "seller" $seller -}}
+{{- with .description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
+{{- with .price }}{{ $schema = merge $schema (dict "price" .) }}{{ end -}}
+{{- with .priceCurrency }}{{ $schema = merge $schema (dict "priceCurrency" .) }}{{ end -}}
+{{- with .priceValidUntil }}{{ $schema = merge $schema (dict "priceValidUntil" .) }}{{ end -}}
+{{- with .validFrom }}{{ $schema = merge $schema (dict "validFrom" .) }}{{ end -}}
+{{- with .availability -}}
+  {{- $schema = merge $schema (dict "availability" (printf "https://schema.org/%s" .)) -}}
+{{- else -}}
+  {{- $schema = merge $schema (dict "availability" "https://schema.org/InStock") -}}
+{{- end -}}
+{{- with .itemOffered -}}
+  {{- $item := dict "@type" (.type | default "Product") "name" .name -}}
+  {{- with .description }}{{ $item = merge $item (dict "description" .) }}{{ end -}}
+  {{- with .image }}{{ $item = merge $item (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
+  {{- $schema = merge $schema (dict "itemOffered" $item) -}}
+{{- end -}}
+{{- with .eligibleRegion }}{{ $schema = merge $schema (dict "eligibleRegion" .) }}{{ end -}}
+{{- with .eligibleCustomerType }}{{ $schema = merge $schema (dict "eligibleCustomerType" .) }}{{ end -}}
+{{- with .priceSpecification -}}
+  {{- $spec := dict "@type" "PriceSpecification" -}}
+  {{- with .price }}{{ $spec = merge $spec (dict "price" .) }}{{ end -}}
+  {{- with .priceCurrency }}{{ $spec = merge $spec (dict "priceCurrency" .) }}{{ end -}}
+  {{- with .valueAddedTaxIncluded }}{{ $spec = merge $spec (dict "valueAddedTaxIncluded" .) }}{{ end -}}
+  {{- $schema = merge $schema (dict "priceSpecification" $spec) -}}
+{{- end -}}
+{{- with .offeredBy -}}
+  {{- $schema = merge $schema (dict "offeredBy" (dict "@type" "Organization" "name" .)) -}}
+{{- end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Offer",
-  "name": {{ $name | jsonify }},
-  {{ with .description }}"description": {{ . | jsonify }},{{ end }}
-  {{ with .price }}"price": {{ . | jsonify }},{{ end }}
-  {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
-  {{ with .priceValidUntil }}"priceValidUntil": {{ . | jsonify }},{{ end }}
-  {{ with .validFrom }}"validFrom": {{ . | jsonify }},{{ end }}
-  {{ with .availability }}
-  "availability": {{ printf "https://schema.org/%s" . | jsonify }},
-  {{ else }}
-  "availability": "https://schema.org/InStock",
-  {{ end }}
-  "url": {{ (.url | default $site.BaseURL) | jsonify }},
-  {{ with .itemOffered }}
-  "itemOffered": {
-    "@type": {{ .type | default "Product" | jsonify }},
-    "name": {{ .name | jsonify }}
-    {{ with .description }},"description": {{ . | jsonify }}{{ end }}
-    {{ with .image }},"image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}{{ end }}
-  },
-  {{ end }}
-  {{ with .eligibleRegion }}"eligibleRegion": {{ . | jsonify }},{{ end }}
-  {{ with .eligibleCustomerType }}"eligibleCustomerType": {{ . | jsonify }},{{ end }}
-  {{ with .priceSpecification }}
-  "priceSpecification": {
-    "@type": "PriceSpecification",
-    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
-    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
-    {{ with .valueAddedTaxIncluded }}"valueAddedTaxIncluded": {{ . }}{{ end }}
-  },
-  {{ end }}
-  "seller": {
-    "@type": "Organization",
-    "name": {{ $site.Title | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }}
-  }
-  {{ with .offeredBy }},
-  "offeredBy": {
-    "@type": "Organization",
-    "name": {{ . | jsonify }}
-  }
-  {{ end }}
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}

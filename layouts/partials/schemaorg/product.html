@@ -30,127 +30,78 @@
 {{/* Handle single product */}}
 {{ $product := .product }}
 {{ if $product }}
+{{- $manufacturer := dict "@type" "Organization" "name" $site.Title -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" "Product" "name" $product.name "manufacturer" $manufacturer -}}
+{{- with $product.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
+{{- with $product.image }}{{ $schema = merge $schema (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
+{{- with $product.sku }}{{ $schema = merge $schema (dict "sku" .) }}{{ end -}}
+{{- with $product.mpn }}{{ $schema = merge $schema (dict "mpn" .) }}{{ end -}}
+{{- with $product.brand -}}
+  {{- $schema = merge $schema (dict "brand" (dict "@type" "Brand" "name" .)) -}}
+{{- end -}}
+{{- with $product.offers -}}
+  {{- $seller := dict "@type" "Organization" "name" $site.Title -}}
+  {{- $offer := dict "@type" "Offer" "url" ($product.url | default $site.BaseURL) "seller" $seller -}}
+  {{- with .price }}{{ $offer = merge $offer (dict "price" .) }}{{ end -}}
+  {{- with .priceCurrency }}{{ $offer = merge $offer (dict "priceCurrency" .) }}{{ end -}}
+  {{- with .priceValidUntil }}{{ $offer = merge $offer (dict "priceValidUntil" .) }}{{ end -}}
+  {{- with .availability }}{{ $offer = merge $offer (dict "availability" .) }}{{ else }}{{ $offer = merge $offer (dict "availability" "https://schema.org/InStock") }}{{ end -}}
+  {{- with .itemCondition }}{{ $offer = merge $offer (dict "itemCondition" .) }}{{ else }}{{ $offer = merge $offer (dict "itemCondition" "https://schema.org/NewCondition") }}{{ end -}}
+  {{- $schema = merge $schema (dict "offers" $offer) -}}
+{{- end -}}
+{{- with $product.aggregateRating -}}
+  {{- $rating := dict "@type" "AggregateRating" -}}
+  {{- with .ratingValue }}{{ $rating = merge $rating (dict "ratingValue" .) }}{{ end -}}
+  {{- with .reviewCount }}{{ $rating = merge $rating (dict "reviewCount" .) }}{{ end -}}
+  {{- with .bestRating }}{{ $rating = merge $rating (dict "bestRating" .) }}{{ end -}}
+  {{- $schema = merge $schema (dict "aggregateRating" $rating) -}}
+{{- end -}}
+{{- with $product.review -}}
+  {{- $reviews := slice -}}
+  {{- range . -}}
+    {{- $rev := dict "@type" "Review" -}}
+    {{- with .author }}{{ $rev = merge $rev (dict "author" (dict "@type" "Person" "name" .)) }}{{ end -}}
+    {{- with .reviewRating -}}
+      {{- $rev = merge $rev (dict "reviewRating" (dict "@type" "Rating" "ratingValue" .ratingValue "bestRating" (.bestRating | default "5"))) -}}
+    {{- end -}}
+    {{- with .reviewBody }}{{ $rev = merge $rev (dict "reviewBody" .) }}{{ end -}}
+    {{- $reviews = $reviews | append $rev -}}
+  {{- end -}}
+  {{- $schema = merge $schema (dict "review" $reviews) -}}
+{{- end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Product",
-  "name": {{ $product.name | jsonify }},
-  {{ with $product.description }}"description": {{ . | jsonify }},{{ end }}
-  {{ with $product.image }}
-  "image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }},
-  {{ end }}
-  {{ with $product.sku }}"sku": {{ . | jsonify }},{{ end }}
-  {{ with $product.mpn }}"mpn": {{ . | jsonify }},{{ end }}
-  {{ with $product.brand }}
-  "brand": {
-    "@type": "Brand",
-    "name": {{ . | jsonify }}
-  },
-  {{ end }}
-  {{ with $product.offers }}
-  "offers": {
-    "@type": "Offer",
-    "url": {{ ($product.url | default $site.BaseURL) | jsonify }},
-    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
-    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
-    {{ with .priceValidUntil }}"priceValidUntil": {{ . | jsonify }},{{ end }}
-    {{ with .availability }}"availability": {{ . | jsonify }},{{ else }}"availability": "https://schema.org/InStock",{{ end }}
-    {{ with .itemCondition }}"itemCondition": {{ . | jsonify }},{{ else }}"itemCondition": "https://schema.org/NewCondition",{{ end }}
-    "seller": {
-      "@type": "Organization",
-      "name": {{ $site.Title | jsonify }}
-    }
-  },
-  {{ end }}
-  {{ with $product.aggregateRating }}
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    {{ with .ratingValue }}"ratingValue": {{ . | jsonify }},{{ end }}
-    {{ with .reviewCount }}"reviewCount": {{ . | jsonify }},{{ end }}
-    {{ with .bestRating }}"bestRating": {{ . | jsonify }}{{ end }}
-  },
-  {{ end }}
-  {{ with $product.review }}
-  "review": [
-    {{ range $index, $rev := . }}
-    {{ if $index }},{{ end }}
-    {
-      "@type": "Review",
-      {{ with .author }}
-      "author": {
-        "@type": "Person",
-        "name": {{ . | jsonify }}
-      },
-      {{ end }}
-      {{ with .reviewRating }}
-      "reviewRating": {
-        "@type": "Rating",
-        "ratingValue": {{ .ratingValue | jsonify }},
-        "bestRating": {{ .bestRating | default "5" | jsonify }}
-      },
-      {{ end }}
-      {{ with .reviewBody }}"reviewBody": {{ . | jsonify }}{{ end }}
-    }
-    {{ end }}
-  ],
-  {{ end }}
-  "manufacturer": {
-    "@type": "Organization",
-    "name": {{ $site.Title | jsonify }}
-  }
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}
 
 {{/* Handle multiple products */}}
 {{ $products := .products }}
 {{ if $products }}
+{{- $productArray := slice -}}
+{{- range $products -}}
+  {{- $manufacturer := dict "@type" "Organization" "name" $site.Title -}}
+  {{- $prod := dict "@context" "https://schema.org" "@type" "Product" "name" .name "manufacturer" $manufacturer -}}
+  {{- with .description }}{{ $prod = merge $prod (dict "description" .) }}{{ end -}}
+  {{- with .image }}{{ $prod = merge $prod (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
+  {{- with .sku }}{{ $prod = merge $prod (dict "sku" .) }}{{ end -}}
+  {{- with .brand -}}
+    {{- $prod = merge $prod (dict "brand" (dict "@type" "Brand" "name" .)) -}}
+  {{- end -}}
+  {{- with .offers -}}
+    {{- $seller := dict "@type" "Organization" "name" $site.Title -}}
+    {{- $offer := dict "@type" "Offer" "url" ($prod.url | default $site.BaseURL) "seller" $seller -}}
+    {{- with .price }}{{ $offer = merge $offer (dict "price" .) }}{{ end -}}
+    {{- with .priceCurrency }}{{ $offer = merge $offer (dict "priceCurrency" .) }}{{ end -}}
+    {{- with .priceValidUntil }}{{ $offer = merge $offer (dict "priceValidUntil" .) }}{{ end -}}
+    {{- with .availability }}{{ $offer = merge $offer (dict "availability" .) }}{{ else }}{{ $offer = merge $offer (dict "availability" "https://schema.org/InStock") }}{{ end -}}
+    {{- $prod = merge $prod (dict "offers" $offer) -}}
+  {{- end -}}
+  {{- with .aggregateRating -}}
+    {{- $prod = merge $prod (dict "aggregateRating" (dict "@type" "AggregateRating" "ratingValue" .ratingValue "reviewCount" .reviewCount)) -}}
+  {{- end -}}
+  {{- $productArray = $productArray | append $prod -}}
+{{- end -}}
 <script type="application/ld+json">
-[
-  {{ range $index, $prod := $products }}
-  {{ if $index }},{{ end }}
-  {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": {{ $prod.name | jsonify }},
-    {{ with $prod.description }}"description": {{ . | jsonify }},{{ end }}
-    {{ with $prod.image }}
-    "image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }},
-    {{ end }}
-    {{ with $prod.sku }}"sku": {{ . | jsonify }},{{ end }}
-    {{ with $prod.brand }}
-    "brand": {
-      "@type": "Brand",
-      "name": {{ . | jsonify }}
-    },
-    {{ end }}
-    {{ with $prod.offers }}
-    "offers": {
-      "@type": "Offer",
-      "url": {{ ($prod.url | default $site.BaseURL) | jsonify }},
-      {{ with .price }}"price": {{ . | jsonify }},{{ end }}
-      {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
-      {{ with .priceValidUntil }}"priceValidUntil": {{ . | jsonify }},{{ end }}
-      {{ with .availability }}"availability": {{ . | jsonify }},{{ else }}"availability": "https://schema.org/InStock",{{ end }}
-      "seller": {
-        "@type": "Organization",
-        "name": {{ $site.Title | jsonify }}
-      }
-    },
-    {{ end }}
-    {{ with $prod.aggregateRating }}
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": {{ .ratingValue | jsonify }},
-      "reviewCount": {{ .reviewCount | jsonify }}
-    },
-    {{ end }}
-    "manufacturer": {
-      "@type": "Organization",
-      "name": {{ $site.Title | jsonify }}
-    }
-  }
-  {{ end }}
-]
+{{- $productArray | jsonify | safeJS -}}
 </script>
 {{ end }}
