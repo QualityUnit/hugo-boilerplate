@@ -22,24 +22,15 @@
 
 {{/* Only output schema if we have FAQs */}}
 {{ if and $allFaqs (gt (len $allFaqs) 0) }}
+{{- $mainEntity := slice -}}
+{{- range $allFaqs -}}
+  {{- $answer := dict "@type" "Answer" "text" .answer -}}
+  {{- $question := dict "@type" "Question" "name" .question "acceptedAnswer" $answer -}}
+  {{- $mainEntity = $mainEntity | append $question -}}
+{{- end -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" "FAQPage" "mainEntity" $mainEntity -}}
 <!-- Schema.org FAQPage markup (consolidated) -->
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {{ range $index, $faq := $allFaqs }}
-      {{ if gt $index 0 }},{{ end }}
-      {
-        "@type": "Question",
-        "name": {{ $faq.question | jsonify }},
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": {{ $faq.answer | jsonify }}
-        }
-      }
-    {{ end }}
-  ]
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}

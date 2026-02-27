@@ -30,35 +30,27 @@
 {{ $items := .items }}
 
 {{ if $items }}
+{{- $listElements := slice -}}
+{{- range $index, $item := $items -}}
+  {{- $element := dict "@type" "ListItem" "position" (add $index 1) -}}
+  {{- if $item.url -}}
+    {{- $thing := dict "@type" "Thing" "name" $item.name "url" $item.url -}}
+    {{- with $item.description }}{{ $thing = merge $thing (dict "description" .) }}{{ end -}}
+    {{- with $item.image }}{{ $thing = merge $thing (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
+    {{- $element = merge $element (dict "item" $thing) -}}
+  {{- else -}}
+    {{- $element = merge $element (dict "name" $item.name) -}}
+    {{- with $item.description }}{{ $element = merge $element (dict "description" .) }}{{ end -}}
+  {{- end -}}
+  {{- $listElements = $listElements | append $element -}}
+{{- end -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" "ItemList" "itemListElement" $listElements -}}
+{{- with .name }}{{ $schema = merge $schema (dict "name" .) }}{{ end -}}
+{{- with .description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
+{{- with .itemListOrder }}{{ $schema = merge $schema (dict "itemListOrder" (printf "https://schema.org/%sItemList" .)) }}{{ end -}}
+{{- with .numberOfItems }}{{ $schema = merge $schema (dict "numberOfItems" .) }}{{ else }}{{ $schema = merge $schema (dict "numberOfItems" (len $items)) }}{{ end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  {{ with .name }}"name": {{ . | jsonify }},{{ end }}
-  {{ with .description }}"description": {{ . | jsonify }},{{ end }}
-  {{ with .itemListOrder }}"itemListOrder": {{ printf "https://schema.org/%sItemList" . | jsonify }},{{ end }}
-  {{ with .numberOfItems }}"numberOfItems": {{ . }},{{ else }}"numberOfItems": {{ len $items }},{{ end }}
-  "itemListElement": [
-    {{ range $index, $item := $items }}
-    {{ if $index }},{{ end }}
-    {
-      "@type": "ListItem",
-      "position": {{ add $index 1 }},
-      {{ if $item.url }}
-      "item": {
-        "@type": "Thing",
-        "name": {{ $item.name | jsonify }},
-        "url": {{ $item.url | jsonify }}
-        {{ with $item.description }},"description": {{ . | jsonify }}{{ end }}
-        {{ with $item.image }},"image": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}{{ end }}
-      }
-      {{ else }}
-      "name": {{ $item.name | jsonify }}
-      {{ with $item.description }},"description": {{ . | jsonify }}{{ end }}
-      {{ end }}
-    }
-    {{ end }}
-  ]
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}

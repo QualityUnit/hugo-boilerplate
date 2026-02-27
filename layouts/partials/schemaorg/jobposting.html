@@ -29,69 +29,46 @@
 {{ $datePosted := .datePosted }}
 
 {{ if and $title $description $datePosted }}
+{{- $hiringOrg := dict "@type" "Organization" "name" (.hiringOrganization | default $site.Title) "url" $site.BaseURL -}}
+{{- with $site.Params.organization.logo -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $hiringOrg = merge $hiringOrg (dict "logo" $logo) -}}
+{{- end -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" "JobPosting" "title" $title "description" $description "datePosted" $datePosted "hiringOrganization" $hiringOrg "url" (.url | default $site.BaseURL) -}}
+{{- with .validThrough }}{{ $schema = merge $schema (dict "validThrough" .) }}{{ end -}}
+{{- with .employmentType }}{{ $schema = merge $schema (dict "employmentType" .) }}{{ end -}}
+
+{{- $location := .location -}}
+{{- if $location -}}
+  {{- if eq $location "Remote" -}}
+    {{- $schema = merge $schema (dict "jobLocationType" "TELECOMMUTE" "applicantLocationRequirements" (dict "@type" "Country" "name" "Worldwide")) -}}
+  {{- else -}}
+    {{- $addr := dict "@type" "PostalAddress" -}}
+    {{- with $location.streetAddress }}{{ $addr = merge $addr (dict "streetAddress" .) }}{{ end -}}
+    {{- with $location.city }}{{ $addr = merge $addr (dict "addressLocality" .) }}{{ end -}}
+    {{- with $location.state }}{{ $addr = merge $addr (dict "addressRegion" .) }}{{ end -}}
+    {{- with $location.postalCode }}{{ $addr = merge $addr (dict "postalCode" .) }}{{ end -}}
+    {{- with $location.country }}{{ $addr = merge $addr (dict "addressCountry" .) }}{{ end -}}
+    {{- $schema = merge $schema (dict "jobLocation" (dict "@type" "Place" "address" $addr)) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- with .baseSalary -}}
+  {{- $value := dict "@type" "QuantitativeValue" "value" .value "unitText" .unitText -}}
+  {{- $salary := dict "@type" "MonetaryAmount" "currency" .currency "value" $value -}}
+  {{- $schema = merge $schema (dict "baseSalary" $salary) -}}
+{{- end -}}
+{{- with .responsibilities }}{{ $schema = merge $schema (dict "responsibilities" .) }}{{ end -}}
+{{- with .skills }}{{ $schema = merge $schema (dict "skills" .) }}{{ end -}}
+{{- with .qualifications }}{{ $schema = merge $schema (dict "qualifications" .) }}{{ end -}}
+{{- with .educationRequirements }}{{ $schema = merge $schema (dict "educationRequirements" .) }}{{ end -}}
+{{- with .experienceRequirements }}{{ $schema = merge $schema (dict "experienceRequirements" .) }}{{ end -}}
+{{- with .benefits }}{{ $schema = merge $schema (dict "jobBenefits" .) }}{{ end -}}
+{{- with .workHours }}{{ $schema = merge $schema (dict "workHours" .) }}{{ end -}}
+{{- with .industryCategories }}{{ $schema = merge $schema (dict "industry" .) }}{{ end -}}
+{{- with .occupationalCategory }}{{ $schema = merge $schema (dict "occupationalCategory" .) }}{{ end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "JobPosting",
-  "title": {{ $title | jsonify }},
-  "description": {{ $description | jsonify }},
-  "datePosted": {{ $datePosted | jsonify }},
-  {{ with .validThrough }}"validThrough": {{ . | jsonify }},{{ end }}
-  {{ with .employmentType }}"employmentType": {{ . | jsonify }},{{ end }}
-  "hiringOrganization": {
-    "@type": "Organization",
-    "name": {{ (.hiringOrganization | default $site.Title) | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }}
-    {{ with $site.Params.organization.logo }},
-    "logo": {
-      "@type": "ImageObject",
-      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-    }
-    {{ end }}
-  },
-  {{ $location := .location }}
-  {{ if $location }}
-  {{ if eq $location "Remote" }}
-  "jobLocationType": "TELECOMMUTE",
-  "applicantLocationRequirements": {
-    "@type": "Country",
-    "name": "Worldwide"
-  },
-  {{ else }}
-  "jobLocation": {
-    "@type": "Place",
-    "address": {
-      "@type": "PostalAddress"
-      {{ with $location.streetAddress }},"streetAddress": {{ . | jsonify }}{{ end }}
-      {{ with $location.city }},"addressLocality": {{ . | jsonify }}{{ end }}
-      {{ with $location.state }},"addressRegion": {{ . | jsonify }}{{ end }}
-      {{ with $location.postalCode }},"postalCode": {{ . | jsonify }}{{ end }}
-      {{ with $location.country }},"addressCountry": {{ . | jsonify }}{{ end }}
-    }
-  },
-  {{ end }}
-  {{ end }}
-  {{ with .baseSalary }}
-  "baseSalary": {
-    "@type": "MonetaryAmount",
-    "currency": {{ .currency | jsonify }},
-    "value": {
-      "@type": "QuantitativeValue",
-      "value": {{ .value }},
-      "unitText": {{ .unitText | jsonify }}
-    }
-  },
-  {{ end }}
-  {{ with .responsibilities }}"responsibilities": {{ . | jsonify }},{{ end }}
-  {{ with .skills }}"skills": {{ . | jsonify }},{{ end }}
-  {{ with .qualifications }}"qualifications": {{ . | jsonify }},{{ end }}
-  {{ with .educationRequirements }}"educationRequirements": {{ . | jsonify }},{{ end }}
-  {{ with .experienceRequirements }}"experienceRequirements": {{ . | jsonify }},{{ end }}
-  {{ with .benefits }}"jobBenefits": {{ . | jsonify }},{{ end }}
-  {{ with .workHours }}"workHours": {{ . | jsonify }},{{ end }}
-  {{ with .industryCategories }}"industry": {{ . | jsonify }},{{ end }}
-  {{ with .occupationalCategory }}"occupationalCategory": {{ . | jsonify }},{{ end }}
-  "url": {{ (.url | default $site.BaseURL) | jsonify }}
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}

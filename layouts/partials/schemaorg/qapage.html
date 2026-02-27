@@ -42,71 +42,45 @@
 {{ end }}
 
 {{ if and $question $answers }}
+{{- $questionObj := dict "@type" "Question" "name" $question "url" ($page.Permalink | default $site.BaseURL) -}}
+{{- with .questionText }}{{ $questionObj = merge $questionObj (dict "text" .) }}{{ end -}}
+{{- with .questionAuthor }}{{ $questionObj = merge $questionObj (dict "author" (dict "@type" "Person" "name" .)) }}{{ end -}}
+{{- with .dateCreated }}{{ $questionObj = merge $questionObj (dict "dateCreated" .) }}{{ end -}}
+{{- with .upvoteCount }}{{ $questionObj = merge $questionObj (dict "upvoteCount" .) }}{{ end -}}
+{{- with .answerCount }}{{ $questionObj = merge $questionObj (dict "answerCount" .) }}{{ else }}{{ $questionObj = merge $questionObj (dict "answerCount" (len $answers)) }}{{ end -}}
+
+{{- $acceptedAnswer := false -}}
+{{- $suggestedAnswers := slice -}}
+{{- range $answers -}}
+  {{- if .isAccepted -}}
+    {{- $acceptedAnswer = . -}}
+  {{- else -}}
+    {{- $suggestedAnswers = $suggestedAnswers | append . -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if $acceptedAnswer -}}
+  {{- $ans := dict "@type" "Answer" "text" $acceptedAnswer.text "url" ($page.Permalink | default $site.BaseURL) -}}
+  {{- with $acceptedAnswer.author }}{{ $ans = merge $ans (dict "author" (dict "@type" "Person" "name" .)) }}{{ end -}}
+  {{- with $acceptedAnswer.dateCreated }}{{ $ans = merge $ans (dict "dateCreated" .) }}{{ end -}}
+  {{- with $acceptedAnswer.upvoteCount }}{{ $ans = merge $ans (dict "upvoteCount" .) }}{{ end -}}
+  {{- $questionObj = merge $questionObj (dict "acceptedAnswer" $ans) -}}
+{{- end -}}
+
+{{- if $suggestedAnswers -}}
+  {{- $suggested := slice -}}
+  {{- range $suggestedAnswers -}}
+    {{- $ans := dict "@type" "Answer" "text" .text "url" ($page.Permalink | default $site.BaseURL) -}}
+    {{- with .author }}{{ $ans = merge $ans (dict "author" (dict "@type" "Person" "name" .)) }}{{ end -}}
+    {{- with .dateCreated }}{{ $ans = merge $ans (dict "dateCreated" .) }}{{ end -}}
+    {{- with .upvoteCount }}{{ $ans = merge $ans (dict "upvoteCount" .) }}{{ end -}}
+    {{- $suggested = $suggested | append $ans -}}
+  {{- end -}}
+  {{- $questionObj = merge $questionObj (dict "suggestedAnswer" $suggested) -}}
+{{- end -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" "QAPage" "mainEntity" $questionObj -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "QAPage",
-  "mainEntity": {
-    "@type": "Question",
-    "name": {{ $question | jsonify }},
-    {{ with .questionText }}"text": {{ . | jsonify }},{{ end }}
-    {{ with .questionAuthor }}
-    "author": {
-      "@type": "Person",
-      "name": {{ . | jsonify }}
-    },
-    {{ end }}
-    {{ with .dateCreated }}"dateCreated": {{ . | jsonify }},{{ end }}
-    {{ with .upvoteCount }}"upvoteCount": {{ . }},{{ end }}
-    {{ with .answerCount }}"answerCount": {{ . }},{{ else }}"answerCount": {{ len $answers }},{{ end }}
-    {{ if $answers }}
-    {{ $acceptedAnswer := false }}
-    {{ $suggestedAnswers := slice }}
-    {{ range $answers }}
-      {{ if .isAccepted }}
-        {{ $acceptedAnswer = . }}
-      {{ else }}
-        {{ $suggestedAnswers = $suggestedAnswers | append . }}
-      {{ end }}
-    {{ end }}
-    {{ if $acceptedAnswer }}
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": {{ $acceptedAnswer.text | jsonify }},
-      {{ with $acceptedAnswer.author }}
-      "author": {
-        "@type": "Person",
-        "name": {{ . | jsonify }}
-      },
-      {{ end }}
-      {{ with $acceptedAnswer.dateCreated }}"dateCreated": {{ . | jsonify }},{{ end }}
-      {{ with $acceptedAnswer.upvoteCount }}"upvoteCount": {{ . }},{{ end }}
-      "url": {{ ($page.Permalink | default $site.BaseURL) | jsonify }}
-    },
-    {{ end }}
-    {{ if $suggestedAnswers }}
-    "suggestedAnswer": [
-      {{ range $index, $answer := $suggestedAnswers }}
-      {{ if $index }},{{ end }}
-      {
-        "@type": "Answer",
-        "text": {{ $answer.text | jsonify }},
-        {{ with $answer.author }}
-        "author": {
-          "@type": "Person",
-          "name": {{ . | jsonify }}
-        },
-        {{ end }}
-        {{ with $answer.dateCreated }}"dateCreated": {{ . | jsonify }},{{ end }}
-        {{ with $answer.upvoteCount }}"upvoteCount": {{ . }},{{ end }}
-        "url": {{ ($page.Permalink | default $site.BaseURL) | jsonify }}
-      }
-      {{ end }}
-    ],
-    {{ end }}
-    {{ end }}
-    "url": {{ ($page.Permalink | default $site.BaseURL) | jsonify }}
-  }
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}

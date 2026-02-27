@@ -25,63 +25,25 @@
 {{ $upvotes := $page.Params.upvotes | default 0 }}
 {{ $commentCount := $page.Params.commentCount | default 0 }}
 
+{{- $authorObj := dict "@type" "Person" "name" $username -}}
+{{- if $role }}{{ $authorObj = merge $authorObj (dict "jobTitle" $role) }}{{ end -}}
+
+{{- $likeCounter := dict "@type" "InteractionCounter" "interactionType" "https://schema.org/LikeAction" "userInteractionCount" $upvotes -}}
+{{- $commentCounter := dict "@type" "InteractionCounter" "interactionType" "https://schema.org/CommentAction" "userInteractionCount" $commentCount -}}
+
+{{- $forum := dict "@type" "DiscussionForum" "name" (printf "%s Community Discussions" $site.Title) "url" (printf "%sdiscussion/" $site.BaseURL) "description" "Community discussions about AI visibility, brand monitoring, and content strategy" -}}
+
+{{- $mainEntity := dict "@type" "WebPage" "@id" $page.Permalink -}}
+
+{{- $publisherLogo := dict "@type" "ImageObject" "url" (printf "%simages/logo.png" $site.BaseURL) -}}
+{{- $publisher := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL "logo" $publisherLogo -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" "DiscussionForumPosting" "@id" $page.Permalink "headline" $page.Title "text" ($page.Description | default $page.Summary | plainify) "url" $page.Permalink "datePublished" ($page.Date.Format "2006-01-02T15:04:05-07:00") "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05-07:00") "author" $authorObj "interactionStatistic" (slice $likeCounter $commentCounter) "discussionUrl" $page.Permalink "isPartOf" $forum "mainEntityOfPage" $mainEntity "publisher" $publisher -}}
+{{- with $page.Params.tags }}{{ $schema = merge $schema (dict "keywords" .) }}{{ end -}}
+{{- with $page.Params.image }}{{ $schema = merge $schema (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
 <!-- Schema.org structured data for discussion forum posting -->
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "DiscussionForumPosting",
-  "@id": {{ $page.Permalink | jsonify }},
-  "headline": {{ $page.Title | jsonify }},
-  "text": {{ $page.Description | default $page.Summary | plainify | jsonify }},
-  "url": {{ $page.Permalink | jsonify }},
-  "datePublished": "{{ $page.Date.Format "2006-01-02T15:04:05-07:00" }}",
-  "dateModified": "{{ $page.Lastmod.Format "2006-01-02T15:04:05-07:00" }}",
-  "author": {
-    "@type": "Person",
-    "name": {{ $username | jsonify }}
-    {{ if $role }},
-    "jobTitle": {{ $role | jsonify }}
-    {{ end }}
-  },
-  "interactionStatistic": [
-    {
-      "@type": "InteractionCounter",
-      "interactionType": "https://schema.org/LikeAction",
-      "userInteractionCount": {{ $upvotes }}
-    },
-    {
-      "@type": "InteractionCounter",
-      "interactionType": "https://schema.org/CommentAction",
-      "userInteractionCount": {{ $commentCount }}
-    }
-  ],
-  "discussionUrl": {{ $page.Permalink | jsonify }},
-  "isPartOf": {
-    "@type": "DiscussionForum",
-    "name": {{ printf "%s Community Discussions" $site.Title | jsonify }},
-    "url": {{ printf "%sdiscussion/" $site.BaseURL | jsonify }},
-    "description": "Community discussions about AI visibility, brand monitoring, and content strategy"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": {{ $page.Permalink | jsonify }}
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": {{ $site.Title | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }},
-    "logo": {
-      "@type": "ImageObject",
-      "url": {{ printf "%simages/logo.png" $site.BaseURL | jsonify }}
-    }
-  }
-  {{ if $page.Params.tags }},
-  "keywords": {{ $page.Params.tags | jsonify }}
-  {{ end }}
-  {{ if $page.Params.image }},
-  "image": {{ printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" $page.Params.image) | jsonify }}
-  {{ end }}
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 
 {{/* Accumulate FAQ items for consolidated schema output */}}

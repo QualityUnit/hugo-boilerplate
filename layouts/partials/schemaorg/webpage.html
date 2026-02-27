@@ -42,76 +42,46 @@
   {{ end }}
 {{ end }}
 
+{{/* Build breadcrumb list */}}
+{{- $breadcrumbs := slice (dict "name" "Home" "url" $site.BaseURL) -}}
+{{- $ancestors := $page.Ancestors.Reverse -}}
+{{- range $ancestors -}}
+  {{- if not .IsHome -}}
+    {{- $breadcrumbs = $breadcrumbs | append (dict "name" .Title "url" .Permalink) -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $page.IsHome -}}
+  {{- $breadcrumbs = $breadcrumbs | append (dict "name" $page.Title "url" $page.Permalink) -}}
+{{- end -}}
+
+{{- $breadcrumbItems := slice -}}
+{{- range $i, $crumb := $breadcrumbs -}}
+  {{- $breadcrumbItems = $breadcrumbItems | append (dict "@type" "ListItem" "position" (add $i 1) "name" $crumb.name "item" $crumb.url) -}}
+{{- end -}}
+{{- $breadcrumbList := dict "@type" "BreadcrumbList" "@id" (printf "%s#breadcrumb" $page.Permalink) "itemListElement" $breadcrumbItems -}}
+
+{{- $isPartOf := dict "@type" "WebSite" "@id" (printf "%s#website" $site.BaseURL) "url" $site.BaseURL "name" $site.Title -}}
+
+{{- $publisher := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
+{{- with $site.Params.organization.logo -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $publisher = merge $publisher (dict "logo" $logo) -}}
+{{- end -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" $pageType "@id" $page.Permalink "url" $page.Permalink "name" $page.Title "inLanguage" $page.Language.Lang "isPartOf" $isPartOf "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00") "breadcrumb" $breadcrumbList "publisher" $publisher -}}
+{{- with $page.Description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
+{{- with $page.Params.image -}}
+  {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $schema = merge $schema (dict "image" $img) -}}
+{{- end -}}
+{{- with $page.Params.author -}}
+  {{- $authorKey := . -}}
+  {{- $authors := $site.Data.authors -}}
+  {{- if and $authors (index $authors $authorKey) -}}
+    {{- $author := index $authors $authorKey -}}
+    {{- $schema = merge $schema (dict "author" (dict "@type" "Person" "name" $author.name)) -}}
+  {{- end -}}
+{{- end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": {{ $pageType | jsonify }},
-  "@id": {{ $page.Permalink | jsonify }},
-  "url": {{ $page.Permalink | jsonify }},
-  "name": {{ $page.Title | jsonify }},
-  {{ with $page.Description }}"description": {{ . | jsonify }},{{ end }}
-  {{ with $page.Params.image }}
-  "image": {
-    "@type": "ImageObject",
-    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-  },
-  {{ end }}
-  "inLanguage": {{ $page.Language.Lang | jsonify }},
-  "isPartOf": {
-    "@type": "WebSite",
-    "@id": {{ printf "%s#website" $site.BaseURL | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }},
-    "name": {{ $site.Title | jsonify }}
-  },
-  "datePublished": {{ $page.Date.Format "2006-01-02T15:04:05Z07:00" | jsonify }},
-  "dateModified": {{ $page.Lastmod.Format "2006-01-02T15:04:05Z07:00" | jsonify }},
-  {{ with $page.Params.author }}
-  {{ $authorKey := . }}
-  {{ $authors := $site.Data.authors }}
-  {{ if and $authors (index $authors $authorKey) }}
-  {{ $author := index $authors $authorKey }}
-  "author": {
-    "@type": "Person",
-    "name": {{ $author.name | jsonify }}
-  },
-  {{ end }}
-  {{ end }}
-  {{/* Build breadcrumb from page hierarchy */}}
-  {{- $breadcrumbs := slice (dict "name" "Home" "url" $site.BaseURL) -}}
-  {{- $ancestors := $page.Ancestors.Reverse -}}
-  {{- range $ancestors -}}
-    {{- if not .IsHome -}}
-      {{- $breadcrumbs = $breadcrumbs | append (dict "name" .Title "url" .Permalink) -}}
-    {{- end -}}
-  {{- end -}}
-  {{- if not $page.IsHome -}}
-    {{- $breadcrumbs = $breadcrumbs | append (dict "name" $page.Title "url" $page.Permalink) -}}
-  {{- end -}}
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "@id": {{ printf "%s#breadcrumb" $page.Permalink | jsonify }},
-    "itemListElement": [
-      {{- range $i, $crumb := $breadcrumbs -}}
-      {{- if $i -}},{{- end -}}
-      {
-        "@type": "ListItem",
-        "position": {{ add $i 1 }},
-        "name": {{ $crumb.name | jsonify }},
-        "item": {{ $crumb.url | jsonify }}
-      }
-      {{- end -}}
-    ]
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": {{ $site.Title | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }}
-    {{ with $site.Params.organization.logo }},
-    "logo": {
-      "@type": "ImageObject",
-      "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-    }
-    {{ end }}
-  }
-}
+{{- $schema | jsonify | safeJS -}}
 </script>

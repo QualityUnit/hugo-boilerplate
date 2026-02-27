@@ -34,87 +34,61 @@
 {{ $startDate := .startDate }}
 
 {{ if and $name $description $startDate }}
+{{- $organizer := dict "@type" "Organization" "name" (.organizer | default $site.Title) "url" $site.BaseURL -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" (.eventType | default "Event") "name" $name "description" $description "startDate" $startDate "organizer" $organizer -}}
+{{- with .endDate }}{{ $schema = merge $schema (dict "endDate" .) }}{{ end -}}
+{{- with .eventAttendanceMode }}{{ $schema = merge $schema (dict "eventAttendanceMode" (printf "https://schema.org/%s" .)) }}{{ end -}}
+{{- with .eventStatus -}}
+  {{- $schema = merge $schema (dict "eventStatus" (printf "https://schema.org/%s" .)) -}}
+{{- else -}}
+  {{- $schema = merge $schema (dict "eventStatus" "https://schema.org/EventScheduled") -}}
+{{- end -}}
+{{- with .image -}}
+  {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $schema = merge $schema (dict "image" $img) -}}
+{{- end -}}
+
+{{- $location := .location -}}
+{{- if $location -}}
+  {{- if or (hasPrefix $location "http://") (hasPrefix $location "https://") -}}
+    {{- $schema = merge $schema (dict "location" (dict "@type" "VirtualLocation" "url" $location)) -}}
+  {{- else -}}
+    {{- $place := dict "@type" "Place" "name" $location -}}
+    {{- with .address -}}
+      {{- $addr := dict "@type" "PostalAddress" -}}
+      {{- with .streetAddress }}{{ $addr = merge $addr (dict "streetAddress" .) }}{{ end -}}
+      {{- with .addressLocality }}{{ $addr = merge $addr (dict "addressLocality" .) }}{{ end -}}
+      {{- with .addressRegion }}{{ $addr = merge $addr (dict "addressRegion" .) }}{{ end -}}
+      {{- with .postalCode }}{{ $addr = merge $addr (dict "postalCode" .) }}{{ end -}}
+      {{- with .addressCountry }}{{ $addr = merge $addr (dict "addressCountry" .) }}{{ end -}}
+      {{- $place = merge $place (dict "address" $addr) -}}
+    {{- end -}}
+    {{- $schema = merge $schema (dict "location" $place) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- with .performer -}}
+  {{- $perf := dict "@type" "Person" "name" .name -}}
+  {{- with .image }}{{ $perf = merge $perf (dict "image" .) }}{{ end -}}
+  {{- with .jobTitle }}{{ $perf = merge $perf (dict "jobTitle" .) }}{{ end -}}
+  {{- $schema = merge $schema (dict "performer" $perf) -}}
+{{- end -}}
+{{- with .offers -}}
+  {{- $sellerOrg := dict "@type" "Organization" "name" $site.Title -}}
+  {{- $offer := dict "@type" "Offer" "url" .url "seller" $sellerOrg -}}
+  {{- with .price }}{{ $offer = merge $offer (dict "price" .) }}{{ end -}}
+  {{- with .priceCurrency }}{{ $offer = merge $offer (dict "priceCurrency" .) }}{{ end -}}
+  {{- with .availability }}{{ $offer = merge $offer (dict "availability" .) }}{{ else }}{{ $offer = merge $offer (dict "availability" "https://schema.org/InStock") }}{{ end -}}
+  {{- with .validFrom }}{{ $offer = merge $offer (dict "validFrom" .) }}{{ end -}}
+  {{- $schema = merge $schema (dict "offers" $offer) -}}
+{{- end -}}
+{{- with .audience -}}
+  {{- $schema = merge $schema (dict "audience" (dict "@type" "Audience" "audienceType" .)) -}}
+{{- end -}}
+{{- with .isAccessibleForFree }}{{ $schema = merge $schema (dict "isAccessibleForFree" .) }}{{ end -}}
+{{- with .url }}{{ $schema = merge $schema (dict "url" .) }}{{ end -}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": {{ .eventType | default "Event" | jsonify }},
-  "name": {{ $name | jsonify }},
-  "description": {{ $description | jsonify }},
-  "startDate": {{ $startDate | jsonify }},
-  {{ with .endDate }}"endDate": {{ . | jsonify }},{{ end }}
-  {{ with .eventAttendanceMode }}
-  "eventAttendanceMode": {{ printf "https://schema.org/%s" . | jsonify }},
-  {{ end }}
-  {{ with .eventStatus }}
-  "eventStatus": {{ printf "https://schema.org/%s" . | jsonify }},
-  {{ else }}
-  "eventStatus": "https://schema.org/EventScheduled",
-  {{ end }}
-  {{ with .image }}
-  "image": {
-    "@type": "ImageObject",
-    "url": {{ (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) | jsonify }}
-  },
-  {{ end }}
-  {{ $location := .location }}
-  {{ if $location }}
-  {{ if or (hasPrefix $location "http://") (hasPrefix $location "https://") }}
-  "location": {
-    "@type": "VirtualLocation",
-    "url": {{ $location | jsonify }}
-  },
-  {{ else }}
-  "location": {
-    "@type": "Place",
-    "name": {{ $location | jsonify }}
-    {{ with .address }},
-    "address": {
-      "@type": "PostalAddress",
-      {{ with .streetAddress }}"streetAddress": {{ . | jsonify }},{{ end }}
-      {{ with .addressLocality }}"addressLocality": {{ . | jsonify }},{{ end }}
-      {{ with .addressRegion }}"addressRegion": {{ . | jsonify }},{{ end }}
-      {{ with .postalCode }}"postalCode": {{ . | jsonify }},{{ end }}
-      {{ with .addressCountry }}"addressCountry": {{ . | jsonify }}{{ end }}
-    }
-    {{ end }}
-  },
-  {{ end }}
-  {{ end }}
-  "organizer": {
-    "@type": "Organization",
-    "name": {{ (.organizer | default $site.Title) | jsonify }},
-    "url": {{ $site.BaseURL | jsonify }}
-  },
-  {{ with .performer }}
-  "performer": {
-    "@type": "Person",
-    "name": {{ .name | jsonify }}
-    {{ with .image }},"image": {{ . | jsonify }}{{ end }}
-    {{ with .jobTitle }},"jobTitle": {{ . | jsonify }}{{ end }}
-  },
-  {{ end }}
-  {{ with .offers }}
-  "offers": {
-    "@type": "Offer",
-    "url": {{ .url | jsonify }},
-    {{ with .price }}"price": {{ . | jsonify }},{{ end }}
-    {{ with .priceCurrency }}"priceCurrency": {{ . | jsonify }},{{ end }}
-    {{ with .availability }}"availability": {{ . | jsonify }},{{ else }}"availability": "https://schema.org/InStock",{{ end }}
-    {{ with .validFrom }}"validFrom": {{ . | jsonify }},{{ end }}
-    "seller": {
-      "@type": "Organization",
-      "name": {{ $site.Title | jsonify }}
-    }
-  },
-  {{ end }}
-  {{ with .audience }}
-  "audience": {
-    "@type": "Audience",
-    "audienceType": {{ . | jsonify }}
-  },
-  {{ end }}
-  {{ with .isAccessibleForFree }}"isAccessibleForFree": {{ . }},{{ end }}
-  {{ with .url }}"url": {{ . | jsonify }}{{ end }}
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 {{ end }}
