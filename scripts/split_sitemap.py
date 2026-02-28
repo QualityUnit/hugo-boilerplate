@@ -151,7 +151,8 @@ def split_sitemap(public_dir: Path) -> None:
     """Main entry point: read sitemap.xml, split by sport, write index."""
     sitemap_path = public_dir / "sitemap.xml"
     if not sitemap_path.exists():
-        raise FileNotFoundError(f"sitemap.xml not found at {sitemap_path}")
+        print(f"sitemap.xml not found at {sitemap_path}, skipping.")
+        return
 
     print(f"Reading {sitemap_path} ...")
     url_elements = parse_sitemap(sitemap_path)
