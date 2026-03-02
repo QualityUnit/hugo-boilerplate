@@ -1,0 +1,64 @@
+{{/*
+@component: Blog Card Small
+@description: Compact blog post card with thumbnail, title, tags, and date
+@params:
+  - post: Hugo page object
+  - imagePosition: "left" or "right" (default: "left")
+*/}}
+
+{{ $post := .post }}
+{{ $imagePosition := .imagePosition | default "left" }}
+{{ $tagClasses := "inline-flex items-center px-2 py-1 font-medium text-gray-500 border border-gray-400/20 bg-gray-100 dark:bg-blue-900/30 dark:text-primary-300 rounded" }}
+
+{{ if $post }}
+<article class="group relative">
+  <a href="{{ $post.RelPermalink }}" class="flex {{ if eq $imagePosition "right" }}flex-row-reverse{{ else }}flex-row{{ end }} gap-4 items-start">
+    {{/* Thumbnail Image */}}
+    {{ if $post.Params.image }}
+      <div class="flex-shrink-0 w-[30%] lg:h-24 overflow-hidden rounded-lg">
+        {{ partial "components/media/lazyimg.html" (dict 
+            "src" $post.Params.image 
+            "alt" ($post.Params.imageAlt | default $post.Title)
+            "class" "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            "nativeLazy" true
+        ) }}
+      </div>
+    {{ end }}
+
+    {{/* Content */}}
+    <div class="flex-1 min-w-0">
+      {{/* Title */}}
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
+        {{ $post.Title }}
+      </h3>
+
+      {{/* Tags (max 3) */}}
+      {{ if $post.Params.tags }}
+        <div class="mt-2 flex items-center text-xs  flex-wrap gap-2">
+          {{ range first 1 $post.Params.tags }}
+            <span class="{{ $tagClasses }}">
+              {{ . }}
+            </span>
+          {{ end }}
+          {{ if gt (len $post.Params.tags) 1 }}
+            <span class="{{ $tagClasses }}">
+              +{{ sub (len $post.Params.tags) 1 }}
+            </span>
+          {{ end }}
+          {{/* Date and Reading Time */}}
+          {{ with $post.Date }}
+          <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <time datetime="{{ .Format " 2006-01-02" }}">
+              {{ .Format "Jan 2, 2006" }}
+            </time>
+            <span>•</span>
+            <span>{{ math.Round (div (countwords $post.Content) 200.0) }} {{ i18n "min_read" }}</span>
+          </div>
+          {{ end }}
+        </div>
+      {{ end }}
+
+    </div>
+  </a>
+</article>
+{{ end }}
