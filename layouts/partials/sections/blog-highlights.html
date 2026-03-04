@@ -56,14 +56,14 @@
         </div>
 
         {{/* Side Posts */}}
-        <div class="w-full lg:w-1/2 flex md:grid md:grid-cols-2 lg:flex flex-col gap-10">
+        <div class="w-full lg:w-1/2 flex md:grid md:grid-cols-2 lg:flex flex-col gap-14 lg:gap-10">
           {{ range $sidePosts }}
             {{ partial "components/blog-card-small.html" (dict "post" . "imagePosition" (cond (eq $mainPosition "left") "right" "left")) }}
           {{ end }}
         </div>
       </div>
 
-      <div class="mt-12 flex items-center gap-4 justify-center before:border-t after:border-t before:w-full after:w-full">
+      <div class="mt-24 lg:mt-12 flex items-center gap-4 justify-center before:border-t after:border-t before:w-full after:w-full">
         {{ partial "components/buttons/buttons.html" (dict
             "text" (i18n "read_more_post")
             "classes" "shrink-0"
