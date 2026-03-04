@@ -1,0 +1,52 @@
+{{/*
+@component: Blog Card Large
+@description: Large blog post card with image, title, description, and date
+@params:
+  - post: Hugo page object
+*/}}
+
+{{ $post := .post }}
+{{ if $post }}
+<article class="group relative flex flex-col h-full bg-white lg:shadow-md lg:border rounded-lg">
+  <a href="{{ $post.RelPermalink }}" class="block">
+    {{/* Featured Image */}}
+    {{ if $post.Params.image }}
+      <div class="relative w-full aspect-video overflow-hidden rounded-lg">
+        {{ partial "components/media/lazyimg.html" (dict 
+            "src" $post.Params.image 
+            "alt" ($post.Params.imageAlt | default $post.Title)
+            "class" "w-full h-full object-cover scale-[1.03] duration-300"
+            "nativeLazy" true
+        ) }}
+      </div>
+    {{ end }}
+
+    {{/* Content */}}
+    <div class="flex-1 flex mt-6 lg:mt-0 lg:p-6 flex-col gap-4">
+
+      {{/* Title */}}
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+        {{ $post.Title }}
+      </h3>
+
+      {{/* Description */}}
+      {{ with $post.Params.description }}
+        <p class="text-base text-gray-600 dark:text-gray-300 line-clamp-3">
+          {{ . }}
+        </p>
+      {{ end }}
+
+      {{/* Date and Reading Time */}}
+      {{ with $post.Date }}
+      <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+        <time datetime="{{ .Format "2006-01-02" }}">
+          {{ .Format "January 2, 2006" }}
+        </time>
+        <span>•</span>
+        <span>{{ math.Round (div (countwords $post.Content) 200.0) }} {{ i18n "min_read" }}</span>
+      </div>
+      {{ end }}
+    </div>
+  </a>
+</article>
+{{ end }}

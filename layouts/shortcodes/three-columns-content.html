@@ -1,0 +1,86 @@
+{{/*
+@shortcode: Three Columns Content
+@description: Displays content in a three-column grid layout with images, titles, and descriptions
+@params:
+  - theme: "light" or "dark" (default: "light")
+  - eyebrow: Short text displayed above the main heading (optional)
+  - heading: Main section heading (optional)
+  - description: Section description (optional)
+  - headerAlignment: Alignment of header content - "left", "center", or "right" (optional, default: "left")
+  - headerPadding: CSS classes for header padding (optional, default: "pb-20")
+  - contentAlignment: Alignment of card content - "left", "center", or "right" (optional, default: "left")
+  - imageClasses: CSS classes for card images (optional, default: "rounded-xl")
+  - cards: Array of card objects (can be provided via .Inner as JSON)
+@example:
+  {{< three-columns-content 
+      theme="light"
+      eyebrow="Features"
+      heading="Everything you need"
+      description="Explore our key features"
+      headerAlignment="center"
+  >}}
+  [
+    {
+      "title": "Feature One",
+      "description": "Description of the first feature",
+      "image": "/images/feature1.png",
+      "imageAlt": "Feature one illustration",
+      "url": "/features/one"
+    },
+    {
+      "title": "Feature Two",
+      "description": "Description of the second feature",
+      "image": "/images/feature2.png",
+      "imageAlt": "Feature two illustration",
+      "url": "/features/two"
+    },
+    {
+      "title": "Feature Three",
+      "description": "Description of the third feature",
+      "image": "/images/feature3.png",
+      "imageAlt": "Feature three illustration",
+      "url": "/features/three"
+    }
+  ]
+  {{< /three-columns-content >}}
+*/}}
+
+{{ $theme := .Get "theme" | default "light" }}
+{{ $eyebrow := .Get "eyebrow" | default "" }}
+{{ $heading := .Get "heading" | default "" }}
+{{ $description := .Get "description" | default "" }}
+{{ $headerAlignment := .Get "headerAlignment" | default "left" }}
+{{ $headerPadding := .Get "headerPadding" | default "pb-20" }}
+{{ $headerWrapperPadding := .Get "headerWrapperPadding" | default "p-0" }}
+{{ $headingMargin := .Get "headingMargin" | default "mt-2.5" }}
+{{ $descriptionMargin := .Get "descriptionMargin" | default "mt-6" }}
+{{ $contentAlignment := .Get "contentAlignment" | default "left" }}
+{{ $imageClasses := .Get "imageClasses" | default "rounded-xl" }}
+
+{{/* Parse inner content as JSON if provided */}}
+{{ $cards := slice }}
+{{ with .Inner }}
+  {{ if . }}
+    {{ $cards = . | unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{/* Fallback to cards parameter if no inner content */}}
+{{ if not $cards }}
+  {{ $cards = .Get "cards" | default slice }}
+{{ end }}
+
+{{ partial "sections/content/three_columns_base.html" (dict
+    "theme" $theme
+    "eyebrow" $eyebrow
+    "heading" $heading
+    "description" $description
+    "headerAlignment" $headerAlignment
+    "headerPadding" $headerPadding
+    "headerWrapperPadding" $headerWrapperPadding
+    "headingMargin" $headingMargin
+    "descriptionMargin" $descriptionMargin
+    "contentAlignment" $contentAlignment
+    "imageClasses" $imageClasses
+    "cards" $cards
+) }}
