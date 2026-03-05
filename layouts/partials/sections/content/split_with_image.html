@@ -69,6 +69,7 @@ Design Tokens:
 {{ $eyebrow := .eyebrow }}
 {{ $heading := .heading }}
 {{ $description := .description }}
+{{ $descriptionClass := .descriptionClass | default "text-lg/7" }}
 {{ $link := "" }}
 {{ if .link }}
   {{ $link = partial "helpers/get-translated-url.html" (dict "url" .link) }}
@@ -183,7 +184,7 @@ Design Tokens:
           <h2 class="mt-3  mb-0 text-4xl font-semibold {{ $headingTracking }}  text-heading leading-none text-pretty sm:text-5xl">{{ $heading }}</h2>
         {{ end }}
         {{ if $description }}
-          <p class="mt-6 text-lg/7 text-secondary prose-links">{{ $description | safeHTML }}</p>
+          <p class="mt-6 {{ $descriptionClass }} text-secondary prose-links">{{ $description | safeHTML }}</p>
         {{ end }}
 
         {{/* Features */}}
@@ -299,6 +300,7 @@ Design Tokens:
             "target" $linkTarget
             "variant" $buttonStyle
             "showArrow" $showArrow
+            "classes" "w-full lg:w-auto"
           ) }}
         </div>
         {{ end }}
