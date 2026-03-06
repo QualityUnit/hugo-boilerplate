@@ -2,8 +2,11 @@
 {{- $items := .items -}}
 {{- $listItems := slice -}}
 {{- range $index, $item := $items -}}
-  {{- $listItem := dict "@type" "ListItem" "position" (add $index 1) "name" $item.title "item" ($item.url | absURL) -}}
-  {{- $listItems = $listItems | append $listItem -}}
+  {{- $name := $item.title | default $item.name | default "" -}}
+  {{- if $name -}}
+    {{- $listItem := dict "@type" "ListItem" "position" (add $index 1) "name" $name "item" ($item.url | absURL) -}}
+    {{- $listItems = $listItems | append $listItem -}}
+  {{- end -}}
 {{- end -}}
 {{- $schema := dict "@context" "https://schema.org" "@type" "BreadcrumbList" "itemListElement" $listItems -}}
 <!-- Schema.org BreadcrumbList -->
