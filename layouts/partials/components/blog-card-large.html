@@ -7,7 +7,7 @@
 
 {{ $post := .post }}
 {{ if $post }}
-<article class="group relative flex flex-col h-full bg-white lg:shadow-md lg:border border-gray-200 hover:border-orange-400 rounded-lg transition-colors duration-300">
+<article class="group relative flex flex-col h-full bg-white lg:shadow-md lg:border border-gray-200 hover:border-primary-600 rounded-lg transition-colors duration-300">
   <a href="{{ $post.RelPermalink }}" class="block">
     {{/* Featured Image */}}
     {{ if $post.Params.image }}
