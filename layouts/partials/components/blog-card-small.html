@@ -15,11 +15,12 @@
   <a href="{{ $post.RelPermalink }}" class="flex items-stretch {{ if eq $imagePosition "right" }}flex-row-reverse{{ else }}flex-row{{ end }} gap-4 items-start">
     {{/* Thumbnail Image */}}
     {{ if $post.Params.image }}
-      <div class="flex-shrink-0 w-2/5 md:w-[30%] lg:h-24 overflow-hidden rounded-lg">
-        {{ partial "components/media/lazyimg.html" (dict 
-            "src" $post.Params.image 
+      <div class="flex-shrink-0 w-2/5 md:w-[30%] lg:w-[140px] lg:h-[90px] overflow-hidden rounded-lg border border-gray-200 group-hover:border-orange-400 transition-colors duration-300">
+        {{ partial "components/media/lazyimg.html" (dict
+            "src" $post.Params.image
             "alt" ($post.Params.imageAlt | default $post.Title)
             "class" "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            "figureClass" "h-full"
             "nativeLazy" true
         ) }}
       </div>
