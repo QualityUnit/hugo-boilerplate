@@ -419,17 +419,15 @@
         /* Sticky header */
         function sticky(stickyTable) {
             if (stickyTable !== null) {
-                const stickyTop = stickyTable.getBoundingClientRect();
-
-                
                 if (window.matchMedia('(max-width: 1024px)').matches) {
-                    const header = document.querySelector(
-                        'thead'
-                        );
+                    const header = stickyTable.querySelector('thead');
+
+                    window.addEventListener('scroll', () => {
+                        // Recompute bounds on every scroll to handle dynamic table height changes
+                        const stickyTop = stickyTable.getBoundingClientRect();
                         const posTop = stickyTop.top + window.pageYOffset - mainHeaderHeight;
                         const posBottom = stickyTop.bottom + window.pageYOffset - mainHeaderHeight;
 
-                    window.addEventListener('scroll', () => {
                         if (window.scrollY >= posTop && window.scrollY <= posBottom) {
                             header.classList.add('fixed');
                             header.style.top = `${mainHeaderHeight}px`;
