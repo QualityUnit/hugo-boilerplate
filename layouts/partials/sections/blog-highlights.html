@@ -49,14 +49,14 @@
         <p class="mt-6 mx-auto max-w-2xl text-center text-lg/9 text-secondary">{{ $description }}</p>
       {{ end }}
 
-      <div class="mt-16 flex flex-col lg:flex-row {{ if eq $mainPosition "right" }}lg:flex-row-reverse{{ end }} gap-16">
+      <div class="mt-16 flex flex-col lg:flex-row lg:items-start {{ if eq $mainPosition "right" }}lg:flex-row-reverse{{ end }} gap-16">
         {{/* Main Featured Post */}}
         <div class="w-full lg:w-1/2">
           {{ partial "components/blog-card-large.html" (dict "post" $mainPost) }}
         </div>
 
         {{/* Side Posts */}}
-        <div class="w-full lg:w-1/2 flex md:grid md:grid-cols-2 lg:flex flex-col gap-14 lg:gap-10">
+        <div class="w-full lg:w-1/2 flex md:grid md:grid-cols-2 lg:flex flex-col gap-14 lg:gap-8">
           {{ range $sidePosts }}
             {{ partial "components/blog-card-small.html" (dict "post" . "imagePosition" (cond (eq $mainPosition "left") "right" "left")) }}
           {{ end }}
