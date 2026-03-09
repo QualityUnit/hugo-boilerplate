@@ -1,0 +1,77 @@
+{{/*
+@partial: Blog Highlights
+@description: Displays 5 latest blog posts - 1 featured large post and 4 smaller posts
+@params:
+  - theme: "light" or "dark" (default: "light")
+  - heading: Section heading (optional)
+  - description: Section description (optional)
+  - mainPosition: "left" or "right" (default: "left") - position of main featured post
+  - maxPosts: Maximum number of posts to display (default: 5)
+  - sectionVerticalSpacing: Custom vertical spacing class (optional)
+@example:
+  {{ partial "sections/blog-highlights.html" (dict 
+      "theme" "light"
+      "heading" "Latest from our blog"
+      "description" "Stay updated with our latest insights"
+      "mainPosition" "left"
+  ) }}
+*/}}
+
+{{/* Default values */}}
+{{ $theme := .theme | default "light" }}
+{{ $isDark := eq $theme "dark" }}
+{{ $darkClass := cond $isDark "dark" "" }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $mainPosition := .mainPosition | default "left" }}
+{{ $maxPosts := .maxPosts | default 5 }}
+{{ $sectionVerticalSpacing := .sectionVerticalSpacing | default "my-12 sm:my-20" }}
+{{ $finalSpacing := cond $isDark "py-12 lg:py-20" $sectionVerticalSpacing }}
+
+{{/* Get latest blog posts */}}
+{{ $blogPosts := slice }}
+{{ $blogSection := site.GetPage "/blog" }}
+{{ if $blogSection }}
+  {{ $blogPosts = first $maxPosts (where $blogSection.Pages "Type" "blog") }}
+{{ end }}
+
+{{ if ge (len $blogPosts) 1 }}
+{{ $mainPost := index $blogPosts 0 }}
+{{ $sidePosts := after 1 $blogPosts }}
+
+<div class="{{ $darkClass }}">
+  <div class="bg-white dark:bg-gray-900 {{ $finalSpacing }}">
+    <div class="wrapper">
+      {{ if $heading }}
+        <h2 class="text-4xl font-semibold tracking-tight text-balance text-heading sm:text-5xl">{{ $heading }}</h2>
+      {{ end }}
+      {{ if $description }}
+        <p class="mt-6 mx-auto max-w-2xl text-center text-lg/9 text-secondary">{{ $description }}</p>
+      {{ end }}
+
+      <div class="mt-16 flex flex-col lg:flex-row {{ if eq $mainPosition "right" }}lg:flex-row-reverse{{ end }} gap-16">
+        {{/* Main Featured Post */}}
+        <div class="w-full lg:w-1/2">
+          {{ partial "components/blog-card-large.html" (dict "post" $mainPost) }}
+        </div>
+
+        {{/* Side Posts */}}
+        <div class="w-full lg:w-1/2 flex md:grid md:grid-cols-2 lg:flex flex-col gap-14 lg:gap-10">
+          {{ range $sidePosts }}
+            {{ partial "components/blog-card-small.html" (dict "post" . "imagePosition" (cond (eq $mainPosition "left") "right" "left")) }}
+          {{ end }}
+        </div>
+      </div>
+
+      <div class="mt-24 lg:mt-12 flex items-center gap-4 justify-center before:border-t after:border-t before:w-full after:w-full">
+        {{ partial "components/buttons/buttons.html" (dict
+            "text" (i18n "read_more_post")
+            "classes" "shrink-0"
+            "url" "/blog/"
+            "variant" "secondary"
+        ) }}
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}
