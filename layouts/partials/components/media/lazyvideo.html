@@ -57,8 +57,9 @@
         "id" $id
     ) }}
   {{ else }}
+    {{- $videoSrc := partial "functions/get-static-url.html" (dict "path" $src) -}}
     <div class="lazy-video-wrapper {{ with $class }}{{ . }}{{ end }}" {{ with $id }}id="{{ . }}"{{ end }} style="position: relative;">
-      <video 
+      <video
         {{ if $autoplay }}autoplay{{ end }}
         {{ if $loop }}loop{{ end }}
         {{ if $muted }}muted{{ end }}
@@ -68,7 +69,7 @@
         {{ with $height }}height="{{ . }}"{{ end }}
         preload="metadata"
         aria-label="{{ $alt }}"
-        data-lazy-video-src="{{ $src }}"
+        data-lazy-video-src="{{ $videoSrc }}"
         style="width: 100%; height: auto; display: block;"
         class="lazy-video-element"
       >
