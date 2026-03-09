@@ -1,0 +1,46 @@
+{{/*
+@shortcode: FAQ Side by Side
+@description: Renders FAQ section using the side-by-side layout partial
+@params:
+  - title: FAQ section title (optional, default: uses i18n "faq_heading" if available)
+  - description: FAQ section description (optional, default: uses i18n "faq_description" if available)
+  - items: Array of FAQ items (optional, can be provided via .Inner as JSON or uses .Page.Params.faq)
+@example:
+  {{< faq-side-by-side 
+      title="Frequently Asked Questions"
+      description="Find answers to common questions"
+  >}}
+  [
+    {
+      "question": "What is LiveAgent?",
+      "answer": "LiveAgent is an all-in-one customer service platform..."
+    }
+  ]
+  {{< /faq-side-by-side >}}
+@note: If no items are provided via .Inner, it will use .Page.Params.faq from frontmatter
+*/}}
+
+{{ $title := .Get "title" | default (i18n "faq_heading") | default "Frequently asked questions" }}
+{{ $description := .Get "description" | default (i18n "faq_description") | default "" }}
+
+{{/* Parse inner content as JSON if provided */}}
+{{ $items := slice }}
+{{ with .Inner }}
+  {{ if . }}
+    {{ $items = . | unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{/* Fallback to page params if no inner content */}}
+{{ if not $items }}
+  {{ $items = .Page.Params.faq | default slice }}
+{{ end }}
+
+{{/* Only render if we have items */}}
+{{ if $items }}
+  {{ partial "sections/faq/side-by-side" (dict
+    "title" $title
+    "description" $description
+    "items" $items
+  ) }}
+{{ end }}
