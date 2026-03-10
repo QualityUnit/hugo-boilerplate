@@ -33,6 +33,7 @@
 {{ $nativeLazy := .nativeLazy | default false }}
 {{ if $nativeLazy }}{{ $noLazy = true }}{{ end }}
 {{ $noAutoWidth := .noAutoWidth | default false }}
+{{ $fetchpriority := .fetchpriority | default "" }}
 
 
 {{- $fileExt := strings.ToLower (path.Ext $src) -}}
@@ -392,6 +393,7 @@
         {{- if $id }} id="{{ $id }}"{{ end -}}
         {{- if $finalWidth }} width="{{ $finalWidth }}"{{ end -}}
         {{- if $finalHeight }} height="{{ $finalHeight }}"{{ end -}}
+        {{- if $fetchpriority }} fetchpriority="{{ $fetchpriority }}"{{ end -}}
         {{- if or (not $noLazy) $nativeLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
     </picture>
 {{- end -}}
