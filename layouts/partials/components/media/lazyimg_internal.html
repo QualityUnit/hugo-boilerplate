@@ -33,6 +33,7 @@
 {{ $nativeLazy := .nativeLazy | default false }}
 {{ if $nativeLazy }}{{ $noLazy = true }}{{ end }}
 {{ $noAutoWidth := .noAutoWidth | default false }}
+{{ $fetchpriority := .fetchpriority | default "" }}
 
 
 {{- $fileExt := strings.ToLower (path.Ext $src) -}}
@@ -106,6 +107,7 @@
     <!-- 1 & 2. Get original image dimensions -->
     {{ $originalImageCheck := partial "functions/file-exists-check.html" (dict "path" $src) }}
     {{ $originalWidth := 0 }}
+    {{ $originalHeight := 0 }}
 
     <!-- Check file extension before using imageConfig -->
     {{ $fileExtLower := strings.ToLower (path.Ext $src) }}
@@ -127,6 +129,7 @@
           {{ if not $configError }}
             {{ with imageConfig $originalImageCheck.actualPath }}
               {{ $originalWidth = .Width }}
+              {{ $originalHeight = .Height }}
             {{ else }}
               <!-- imageConfig failed, file might not be a valid image despite extension -->
               {{ warnf "Failed to get image config for %s - file may be corrupted or not a valid image" $originalImageCheck.actualPath }}
@@ -366,6 +369,9 @@
     {{- $finalWidth := $width -}}
     {{- if and (not $width) (gt $originalWidth 0) (not $noAutoWidth) }}{{ $finalWidth = $originalWidth }}{{ end -}}
 
+    {{- $finalHeight := $height -}}
+    {{- if and (not $height) (gt $originalHeight 0) (not $noAutoWidth) }}{{ $finalHeight = $originalHeight }}{{ end -}}
+
     {{- $pictureFinalClass := "lazy-picture" -}}
     {{- if $classPicture }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass $classPicture }}{{ end -}}
     {{- if $noLazy }}{{ $pictureFinalClass = printf "%s %s" $pictureFinalClass "loaded" }}{{ end -}}
@@ -386,7 +392,8 @@
         alt="{{ $alt }}" class="{{ $imgClassFallback }}"
         {{- if $id }} id="{{ $id }}"{{ end -}}
         {{- if $finalWidth }} width="{{ $finalWidth }}"{{ end -}}
-        {{- if $height }} height="{{ $height }}"{{ end -}}
+        {{- if $finalHeight }} height="{{ $finalHeight }}"{{ end -}}
+        {{- if $fetchpriority }} fetchpriority="{{ $fetchpriority }}"{{ end -}}
         {{- if or (not $noLazy) $nativeLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
     </picture>
 {{- end -}}
