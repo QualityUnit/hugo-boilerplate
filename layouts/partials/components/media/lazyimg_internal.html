@@ -89,7 +89,9 @@
 
     <!-- Extract the relative path inside /images/ directory -->
     {{ $relativePath := $dirPath }}
-    {{ if hasPrefix $dirPath "/images/" }}
+    {{ if eq $dirPath "/images" }}
+      {{ $relativePath = "" }}
+    {{ else if hasPrefix $dirPath "/images/" }}
       {{ $relativePath = substr $dirPath 8 }}
     {{ end }}
 
