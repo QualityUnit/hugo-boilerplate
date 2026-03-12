@@ -114,5 +114,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.updateCapterraConsent === 'function') {
       window.updateCapterraConsent(allowed);
     }
+
+    // Update Meta Pixel consent
+    if (typeof window.updateMetaPixelConsent === 'function') {
+      window.updateMetaPixelConsent(allowed);
+    }
   }
 });
