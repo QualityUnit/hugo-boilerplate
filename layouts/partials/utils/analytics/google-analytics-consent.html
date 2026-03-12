@@ -22,71 +22,85 @@
 
 {{/* Only proceed if we have a valid analytics ID */}}
 {{ if $analyticsID }}
+  {{/* STEP 1: Initialize dataLayer, define gtag, set consent defaults BEFORE loading gtag.js
+       Reference: https://developers.google.com/tag-platform/security/guides/consent?consentmode=advanced
+       "The order of the code here is vital. If your consent code is called out of order, consent defaults will not work." */}}
   <script>
-    // Define a function that will be called by the cookie consent system
-    window.updateGoogleAnalyticsConsent = function(allowed) {
-      if (typeof gtag === 'function') {
-        gtag('consent', 'update', {
-          'analytics_storage': allowed ? 'granted' : 'denied',
-          'ad_storage': allowed ? 'granted' : 'denied',
-          'ad_user_data': allowed ? 'granted' : 'denied',
-          'ad_personalization': allowed ? 'granted' : 'denied'
-        });
-      }
-    };
-    
-    // Initialize dataLayer
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
 
-    // Helper function to get cookie value
+    // Helper to read cookie value
     function getCookie(name) {
-      const nameEQ = name + "=";
-      const ca = document.cookie.split(';');
-      for(let i = 0; i < ca.length; i++) {
-        let c = ca[i];
+      var nameEQ = name + '=';
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
         while (c.charAt(0) === ' ') c = c.substring(1);
         if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
       }
       return null;
     }
-    
-    // Check for existing consent before setting defaults
-    const consentStatus = getCookie('cookie_consent_status');
-    
+
+    var consentStatus = getCookie('cookie_consent_status');
+
     if (consentStatus === 'all') {
-      // User has previously accepted all cookies
-      gtag('consent', 'default', {
-        'analytics_storage': 'granted',
-        'ad_storage': 'granted',
-        'ad_user_data': 'granted',
-        'ad_personalization': 'granted'
-      });
-    } else {
-      // No consent or only necessary cookies - deny by default in EU
-      // Default cookie permission for the rest of the world
+      // Returning user who previously accepted all cookies
       gtag('consent', 'default', {
         'ad_storage': 'granted',
         'ad_user_data': 'granted',
         'ad_personalization': 'granted',
-        'analytics_storage': 'granted',
-        'functionality_storage': 'granted',
-        'anonymize_ip': true
+        'analytics_storage': 'granted'
       });
-
-      // Override settings: Block cookies for EU countries
+    } else {
+      // EEA + UK: denied by default (GDPR)
+      // Google handles region detection client-side — no server GeoIP needed
       gtag('consent', 'default', {
         'ad_storage': 'denied',
         'ad_user_data': 'denied',
         'ad_personalization': 'denied',
         'analytics_storage': 'denied',
-        'functionality_storage': 'denied',
-        'region': ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO']
-      })
+        'region': ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB']
+      });
+
+      // Rest of world: granted by default
+      gtag('consent', 'default', {
+        'ad_storage': 'granted',
+        'ad_user_data': 'granted',
+        'ad_personalization': 'granted',
+        'analytics_storage': 'granted'
+      });
     }
 
-    // Configure Google Analytics with consent mode
+    // Wait up to 500ms for CMP to restore returning user consent before firing tags
+    gtag('consent', 'default', { 'wait_for_update': 500 });
+
+    // Pass ad click info in URLs when cookies denied (critical for cross-domain tracking)
+    // Reference: https://developers.google.com/tag-platform/security/guides/consent?consentmode=advanced#url_passthrough
+    gtag('set', 'url_passthrough', true);
+
+    // Redact ad click identifiers when ad_storage is denied
+    // Reference: https://developers.google.com/tag-platform/security/guides/consent?consentmode=advanced#ads_data_redaction
+    gtag('set', 'ads_data_redaction', true);
+
+    // Consent update function — called by cookie consent banner
+    window.updateGoogleAnalyticsConsent = function(allowed) {
+      if (typeof gtag === 'function') {
+        gtag('consent', 'update', {
+          'ad_storage': allowed ? 'granted' : 'denied',
+          'ad_user_data': allowed ? 'granted' : 'denied',
+          'ad_personalization': allowed ? 'granted' : 'denied',
+          'analytics_storage': allowed ? 'granted' : 'denied'
+        });
+      }
+    };
+  </script>
+
+  {{/* STEP 2: Load gtag.js AFTER consent defaults are set */}}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ $analyticsID }}"></script>
+
+  {{/* STEP 3: Configure GA4 */}}
+  <script>
+    gtag('js', new Date());
     gtag('config', '{{ $analyticsID }}', {
       'allow_google_signals': true,
       'allow_enhanced_conversions': true,
@@ -106,9 +120,9 @@
             {{- if $index -}}, {{- end -}}
             "{{ $domain }}"
           {{- end -}}
-        ]
+        ],
+        'accept_incoming': true
       }
     });
   </script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id={{ $analyticsID }}"></script>
 {{ end }}
