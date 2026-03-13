@@ -495,6 +495,39 @@ For optimal image processing, add the following to your `params.toml` (if using 
   webpQuality = 85
 ```
 
+## Asset Optimization
+
+The theme includes scripts to optimize images and videos in `cdn-assets/`. Both use cache files in `data/` to skip already-processed assets.
+
+### Prerequisites
+
+```bash
+brew install imagemagick   # for image optimization
+brew install ffmpeg         # for video optimization
+```
+
+### Image Optimization
+
+Creates resized variants (300px, 1024px) and WebP conversions:
+
+```bash
+bash themes/boilerplate/scripts/preprocess-images.sh
+```
+
+Cache: `data/image_processing_cache.json`
+
+### Video Optimization
+
+Re-encodes `.mp4` files with libx264 CRF 23. Replaces originals only if output is smaller:
+
+```bash
+bash themes/boilerplate/scripts/preprocess-videos.sh
+```
+
+Cache: `data/video_optimization_cache.json`
+
+**Both cache files should be committed to git** so other developers don't re-process already optimized assets.
+
 ## Content Structure
 
 ### Creating Blog Posts
