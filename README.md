@@ -511,8 +511,6 @@ brew install ffmpeg         # for video optimization
 Creates resized variants (300px, 1024px) and WebP conversions:
 
 ```bash
-npx gulp images
-# or directly:
 bash themes/boilerplate/scripts/preprocess-images.sh
 ```
 
@@ -523,8 +521,6 @@ Cache: `data/image_processing_cache.json`
 Re-encodes `.mp4` files with libx264 CRF 23. Replaces originals only if output is smaller:
 
 ```bash
-npx gulp videos
-# or directly:
 bash themes/boilerplate/scripts/preprocess-videos.sh
 ```
 
@@ -1053,8 +1049,6 @@ npm run watch
 - `gulp dev` - Development mode with watch and live reload
 - `gulp css` - Build CSS with Tailwind processing
 - `gulp js` - Bundle JavaScript with ESBuild
-- `gulp images` - Optimize images in `cdn-assets/` (requires ImageMagick)
-- `gulp videos` - Optimize videos in `cdn-assets/` (requires ffmpeg)
 - `gulp watch` - Watch mode for asset changes only
 
 ### Server Options
