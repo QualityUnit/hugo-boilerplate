@@ -139,7 +139,7 @@ interest. Card heights are dynamically calculated based on their content.
               <a class="absolute size-full z-10" href="{{ $card.url }}" aria-label="{{ $card.title }}"></a>
               {{ end }}
               <div
-                class="relative md:h-full rounded-2xl inset-px border border-gray-200 group-hover:border-orange-400 shadow-md flex flex-col overflow-hidden bg-white transition-colors duration-300 {{ $cornerClass }}">
+                class="relative md:h-full rounded-2xl inset-px border border-gray-200 group-hover:border-primary-400 shadow-md flex flex-col overflow-hidden bg-white transition-colors duration-300 {{ $cornerClass }}">
                 {{ if and $card.image (eq $imagePosition "top") }}
                 <div class="flex items-center justify-center overflow-hidden">
                   {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")
