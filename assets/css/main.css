@@ -5,6 +5,7 @@
 @import "./lazy-images.css";
 @import "./lazy-videos.css";
 @import "./components/floating-cta.css";
+@import "./components/splide-custom.css";
 
 /* 🎯 TAILWIND LAYERS */
 @tailwind base;

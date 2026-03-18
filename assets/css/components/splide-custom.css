@@ -1,0 +1,55 @@
+/* CUSTOM STYLING FOR SPLIDE CSS AND BENTO 3 COLUMN */
+
+.splide__pagination {
+  position: static !important;
+  margin-top: .5em !important;
+}
+
+.splide__pagination .splide__pagination__page {
+  border: 1px solid #A3A3A3;
+  width: 10px;
+  height: 10px;
+  background-color: white;
+}
+
+.splide__pagination .splide__pagination__page.is-active {
+  background-color: #A3A3A3;
+  transform: none !important;
+}
+
+/* Bento grid Splide — desktop grid fallback when Splide is destroyed */
+@media screen and (min-width: 1023px) {
+  .content-slider-splide.splide.is-initialized:not(.is-active) .splide__list {
+    display: grid !important;
+  }
+}
+
+.content-slider-splide .splide__track .splide__list {
+  padding: 1rem !important;
+}
+
+/* Equal height slides in bento grid Splide */
+.bento-grid-splide .splide__list {
+  align-items: stretch !important;
+}
+
+.bento-grid-splide .splide__slide {
+  height: auto !important;
+}
+
+.bento-grid-splide .splide__slide>a,
+.bento-grid-splide .splide__slide>div {
+  height: 100%;
+}
+
+
+/* Splide grid fallback when carousel is destroyed on desktop */
+@media screen and (min-width: 1024px) {
+  .splide.is-initialized:not(.is-active) .splide__list {
+    display: grid !important;
+  }
+}
+
+.content-slider-splide .splide__track .splide__list {
+  padding: 1rem !important;
+}
