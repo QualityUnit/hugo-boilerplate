@@ -139,7 +139,7 @@ interest. Card heights are dynamically calculated based on their content.
               <a class="absolute size-full z-10" href="{{ $card.url }}" aria-label="{{ $card.title }}"></a>
               {{ end }}
               <div
-                class="relative md:h-full rounded-2xl inset-px border border-gray-200 group-hover:border-primary-400 shadow-md flex flex-col overflow-hidden {{ if not $isDark }}bg-white{{ end }} transition-colors duration-300 {{ $cornerClass }}">
+                class="relative md:h-full rounded-2xl inset-px border border-gray-200 dark:border-transparent group-hover:border-primary-400 shadow-md dark:shadow-none flex flex-col overflow-hidden {{ if not $isDark }}bg-white{{ end }} transition-colors duration-300 {{ $cornerClass }}">
                 {{ if and $card.image (eq $imagePosition "top") }}
                 <div class="flex items-center justify-center overflow-hidden">
                   {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")
@@ -195,6 +195,6 @@ interest. Card heights are dynamically calculated based on their content.
 </div>
 
 {{/* Load Splide assets — link/script are deduplicated by the browser */}}
-<link rel="stylesheet" href="{{ "/js/splide.css" | relURL }}">
+<link rel="stylesheet" href="{{ "/css/splide.css" | relURL }}">
 <link rel="stylesheet" href="{{ "/css/splide-custom.css" | relURL }}">
 <script src="{{ "/js/splide.js" | relURL }}" defer></script>
