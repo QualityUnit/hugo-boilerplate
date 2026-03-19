@@ -1,50 +1,58 @@
 {{/*
 @section: Three Column Bento Grid
-@description: A visually appealing layout featuring multiple content cards of varying sizes arranged in a three-column grid pattern, ideal for showcasing features or product highlights.
+@description: A visually appealing layout featuring multiple content cards of varying sizes arranged in a three-column
+grid pattern, ideal for showcasing features or product highlights.
 @params:
-  - theme: "light" or "dark" (default: "light") — applies dark mode styles if set to "dark"
-  - tagline: Short text displayed above the main heading (optional, default: empty)
-  - heading: Main section heading (optional, default: empty)
-  - description: Short description text below the heading (optional, default: empty)
-  - cards: Array of card objects with content (supports unlimited cards)
-    - title: Card title text (optional)
-    - description: Card description text (optional)
-    - image: URL to image (required)
-    - imageAlt: Alt text for the image (optional)
-    - imagePosition: Position of the image in the card, "top" or "bottom" (optional, default: "top")
-    - url: URL to link the card to, making the entire card clickable (optional)
-    - linkText: Text to display as a link at the bottom of the card (optional)
+- theme: "light" or "dark" (default: "light") — applies dark mode styles if set to "dark"
+- tagline: Short text displayed above the main heading (optional, default: empty)
+- heading: Main section heading (optional, default: empty)
+- description: Short description text below the heading (optional, default: empty)
+- headerAlign: Alignment for all header content (tagline, heading, and description) - "left", "center", or "right"
+(optional, default: "center")
+- background: Whether to add bg-gray-100 background class (optional, default: true)
+- roundedCorners: Whether to add enhanced rounded corners to outer cards (optional, default: false)
+- cards: Array of card objects with content (supports unlimited cards)
+- eyebrow: Small text above card title in primary-500 color (optional)
+- title: Card title text (optional)
+- description: Card description text (optional)
+- image: URL to image (required)
+- imageAlt: Alt text for the image (optional)
+- imagePosition: Position of the image in the card, "top" or "bottom" (optional, default: "top")
+- url: URL to link the card to, making the entire card clickable (optional)
+- linkText: Text to display as a link at the bottom of the card (optional)
 @example:
-  {{ partial "sections/bentogrids/three_column_bento_grid.html" (dict 
-      "theme" "light"
-      "tagline" "Features" 
-      "heading" "Everything you need to build your application"
-      "cards" (slice
-          (dict
-              "title" "Responsive Design" 
-              "description" "Our platform automatically adapts to any device or screen size."
-              "image" "/images/features/responsive.png"
-              "imageAlt" "Responsive design illustration"
-          )
-          (dict
-              "title" "Analytics" 
-              "description" "Detailed insights into your user behavior and application performance."
-              "image" "/images/features/analytics.png"
-              "imageAlt" "Analytics dashboard"
-          )
-          (dict
-              "title" "Security" 
-              "description" "Enterprise-grade security with end-to-end encryption."
-              "image" "/images/features/security.png"
-              "imageAlt" "Security shield"
-          )
-          (dict
-              "image" "/images/features/more-features.png"
-              "imageAlt" "Additional feature"
-          )
-      )
-  ) }}
-@note: This section uses a dynamic bento grid layout with cards of varying sizes to create visual interest. The layout automatically adapts to any number of cards provided. Every third card (0, 3, 6...) will span 2 rows to create visual interest. Card heights are dynamically calculated based on their content.
+{{ partial "sections/bentogrids/three_column_bento_grid.html" (dict
+"theme" "light"
+"tagline" "Features"
+"heading" "Everything you need to build your application"
+"cards" (slice
+(dict
+"title" "Responsive Design"
+"description" "Our platform automatically adapts to any device or screen size."
+"image" "/images/features/responsive.png"
+"imageAlt" "Responsive design illustration"
+)
+(dict
+"title" "Analytics"
+"description" "Detailed insights into your user behavior and application performance."
+"image" "/images/features/analytics.png"
+"imageAlt" "Analytics dashboard"
+)
+(dict
+"title" "Security"
+"description" "Enterprise-grade security with end-to-end encryption."
+"image" "/images/features/security.png"
+"imageAlt" "Security shield"
+)
+(dict
+"image" "/images/features/more-features.png"
+"imageAlt" "Additional feature"
+)
+)
+) }}
+@note: This section uses a dynamic bento grid layout with cards of varying sizes to create visual interest. The layout
+automatically adapts to any number of cards provided. Every third card (0, 3, 6...) will span 2 rows to create visual
+interest. Card heights are dynamically calculated based on their content.
 */}}
 
 {{/* Three Column Bento Grid Section */}}
@@ -52,85 +60,141 @@
 {{ $heading := .heading | default "" }}
 {{ $description := .description | default "" }}
 
-{{/* Parse inner content as JSON if provided */}}
-{{ $cards := (slice) }}
-{{ with .Inner }}
-  {{ if . }}
-    {{ $cards = . | unmarshal }}
-  {{ end }}
-{{ end }}
-
 {{/* Theme setup */}}
 {{ $theme := .theme | default "light" }}
 {{ $isDark := eq $theme "dark" }}
 {{ $isAlternate := eq $theme "alternate" }}
 {{ $darkClass := cond $isDark "dark" "" }}
 
-{{ $sectionVerticalSpacing := .sectionVerticalSpacing | default "my-24 sm:my-32" }}
-{{ $finalSpacing := cond (or $isDark $isAlternate) "py-24 sm:py-32" $sectionVerticalSpacing }}
-
 {{ $cards := .cards | default (slice) }}
-{{ $id := .id | default "" }}
+{{ $id := .id | default (printf "bento-%d" now.UnixMilli) }}
+{{ $headerAlign := .headerAlign | default "left" }}
+{{ $background := .background | default true }}
+{{ $bgClass := cond $background "bg-gray-100" "" }}
 
-<div {{ with $id }}id="{{ . }}"{{ end }} class="{{ $darkClass }}">
-  <div class="section-bg-light dark:section-bg-dark {{ $finalSpacing }}">
-    <div class="wrapper xl:px-0">
+{{ $sectionVerticalSpacing := .sectionVerticalSpacing | default (cond $background "" "my-12 sm:my-16") }}
+{{ $finalSpacing := cond (or $isDark $isAlternate) "py-24 sm:py-32" $sectionVerticalSpacing }}
+{{ $spacingClass := .spacingClass | default "lg:gap-8" }}
+{{ $roundedCorners := .roundedCorners | default false }}
+
+{{/* Alignment class */}}
+{{ $align := "text-center mx-auto" }}
+{{ if eq $headerAlign "left" }}
+{{ $align = "text-left" }}
+{{ else if eq $headerAlign "right" }}
+{{ $align = "text-right" }}
+{{ end }}
+{{ $hasHeader := or $tagline $heading $description }}
+
+{{/* Last row calculation for rounded corners */}}
+{{ $totalCards := len $cards }}
+{{ $lastRowStart := sub $totalCards (mod $totalCards 3) }}
+{{ if eq (mod $totalCards 3) 0 }}
+{{ $lastRowStart = sub $totalCards 3 }}
+{{ end }}
+
+<div id="{{ $id }}" class="{{ $darkClass }}">
+  <div class="section-bg-light {{ $bgClass }} {{ cond $background " py-8 lg:py-24" "py-4 lg:py-8" }}
+    dark:section-bg-dark {{ $finalSpacing }}">
+    <div class="wrapper">
       {{ if $tagline }}
-        <h2 class="text-center text-base/7 font-semibold product-text">{{ $tagline }}</h2>
+      <p class="{{ $align }} text-base/7 font-semibold product-text">{{ $tagline }}</p>
       {{ end }}
       {{ if $heading }}
-        <p class="{{ if $tagline }}mt-2{{ end }} text-center text-4xl font-semibold tracking-tight text-balance text-heading sm:text-5xl">{{ $heading }}</p>
+      <h2
+        class="{{ if $tagline }}mt-2{{ end }} {{ $align }} max-w-2xl text-4xl font-semibold tracking-tight text-balance text-heading sm:text-5xl">
+        {{ $heading }}</h2>
       {{ end }}
       {{ if $description }}
-        <p class="mt-6 mx-auto max-w-2xl text-center text-lg/9 text-secondary prose-links">{{ $description | safeHTML }}</p>
+      <p class="mt-6 {{ $align }} max-w-4xl text-lg/9 text-secondary prose-links">{{ $description | safeHTML }}</p>
       {{ end }}
-      <div class="mt-20 grid gap-8 lg:gap-8 md:grid-cols-2 lg:grid-cols-3 [&_picture]:my-0">
-        {{ range $index, $card := $cards }}
-        {{ $imagePosition := $card.imagePosition | default "top" }}
-        <div class="relative">
-          <div class="absolute inset-px rounded-2xl border surface-primary border-gray-primary shadow-md"></div>
-              <div class="relative flex flex-col overflow-hidden">
-                {{ if and $card.image (eq $imagePosition "top") }}
-                  <div class="flex items-center justify-center">
-                    {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "class" "rounded-t-2xl") }}
-                  </div>
-                {{ end }}
-
-                {{ if or $card.title $card.description $card.url }}
-                  <div class="p-4 lg:p-8">
-                    {{ if $card.title }}
-                      <h3 class="text-lg font-semibold text-heading tracking-tight mb-1 max-md:text-center">{{ $card.title }}</h3>
-                    {{ end }}
-
-                    {{ if $card.description }}
-                      <p class="text-sm text-secondary leading-8 max-md:text-center prose-links">{{ $card.description | safeHTML }}</p>
-                    {{ end }}
-
-                    {{ if $card.url }}
-                      <div class="mt-5 flex items-center justify-center md:justify-start">
-                        {{ partial "components/buttons/buttons.html" (dict
-                            "text" $card.linkText
-                            "url" ($card.url)
-                            "variant" "secondary"
-                            "showArrow" false
-                            "dataAttributes" $card.dataAttributes
-                        ) }}
-                      </div>
-                    {{ end }}
-                  </div>
-                {{ end }}
-
-              {{ if and $card.image (eq $imagePosition "bottom") }}
-                <div class="flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
-                  {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "") "class" "rounded-b-2xl" ) }}
-                </div>
-              {{ else if not $card.image }}
-                <div class="pb-6"></div> <!-- Empty space at bottom if no link and no image -->
+    </div>
+    <div class="wrapper py-0 px-0 lg:px-4">
+      <div class="splide content-slider-splide bento-grid-splide mt-12" data-slider-id="{{ $id }}"
+        data-splide='{"type":"loop","perPage":3,"perMove":1,"gap":"16px","pagination":true,"arrows":false,"autoplay":true,"interval":4000,"pauseOnHover":true,"pauseOnFocus":true,"destroy":true,"breakpoints":{"1023":{"destroy":false,"perPage":2,"gap":"22px"},"900":{"destroy":false,"perPage":1,"focus":"center","gap":"22px","width":"100vw","fixedWidth":"70%"},"767":{"pagination":true,"destroy":false,"perPage":1,"focus":"center","gap":"22px","width":"100vw","fixedWidth":"calc(100% - 3em)"}}}'>
+        <div class="splide__track">
+          <ul
+            class="splide__list {{ if $hasHeader }}mt-10{{ else }}mt-4{{ end }} lg:grid {{ $spacingClass }} lg:grid-cols-3 md:grid-cols-2 [&_picture]:my-0">
+            {{ range $index, $card := $cards }}
+            {{ $imagePosition := $card.imagePosition | default "top" }}
+            {{ $cardNumber := add $index 1 }}
+            {{ $isFirstInRow := eq (mod $cardNumber 3) 1 }}
+            {{ $isThirdInRow := eq (mod $cardNumber 3) 0 }}
+            {{ $isFirstRow := le $index 2 }}
+            {{ $isLastRow := ge $index $lastRowStart }}
+            {{ $cornerClass := "" }}
+            {{ if $roundedCorners }}
+            {{ if and $isFirstInRow $isFirstRow }}
+            {{ $cornerClass = "lg:rounded-tl-[2rem]" }}
+            {{ else if and $isThirdInRow $isFirstRow }}
+            {{ $cornerClass = "lg:rounded-tr-[2rem]" }}
+            {{ else if and $isFirstInRow $isLastRow }}
+            {{ $cornerClass = "lg:rounded-bl-[2rem]" }}
+            {{ else if and $isThirdInRow $isLastRow }}
+            {{ $cornerClass = "lg:rounded-br-[2rem]" }}
+            {{ end }}
+            {{ end }}
+            <li class="relative group splide__slide md:h-full rounded-2xl {{ $cornerClass }}">
+              {{ if $card.url }}
+              <a class="absolute size-full z-10" href="{{ $card.url }}" aria-label="{{ $card.title }}"></a>
               {{ end }}
-            </div>
-          </div>
-        {{ end }}
+              <div
+                class="relative md:h-full rounded-2xl inset-px border border-gray-200 dark:border-transparent group-hover:border-primary-400 shadow-md dark:shadow-none flex flex-col overflow-hidden {{ if not $isDark }}bg-white{{ end }} transition-colors duration-300 {{ $cornerClass }}">
+                {{ if and $card.image (eq $imagePosition "top") }}
+                <div class="flex items-center justify-center overflow-hidden">
+                  {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")
+                  "class" "rounded-t-2xl transition-transform duration-500 ease-out group-hover:scale-105" "nativeLazy"
+                  true) }}
+                </div>
+                {{ end }}
+
+                {{ if or $card.eyebrow $card.title $card.description $card.url }}
+                <div class="p-4 lg:p-8">
+                  {{ if $card.eyebrow }}
+                  <p class="text-base font-semibold product-text mb-2">{{ $card.eyebrow }}</p>
+                  {{ end }}
+                  {{ if $card.title }}
+                  <h3 class="{{ if $isDark }}text-white{{ end }} text-lg font-semibold tracking-tight mb-1">{{ $card.title }}</h3>
+                  {{ end }}
+
+                  {{ if $card.description }}
+                  <p class="text-sm text-secondary leading-6 prose-links">{{ $card.description | safeHTML }}</p>
+                  {{ end }}
+
+                  {{ if and $card.url (not $roundedCorners) }}
+                  <div class="mt-5 flex items-center justify-start">
+                    {{ partial "components/buttons/buttons.html" (dict
+                    "text" $card.linkText
+                    "url" ($card.url)
+                    "variant" "secondary"
+                    "showArrow" false
+                    "dataAttributes" $card.dataAttributes
+                    "classes" "h-8"
+                    ) }}
+                  </div>
+                  {{ end }}
+                </div>
+                {{ end }}
+
+                {{ if and $card.image (eq $imagePosition "bottom") }}
+                <div class="flex items-center justify-center px-8 sm:px-10 pb-8 pt-2">
+                  {{ partial "components/media/lazyimg.html" (dict "src" $card.image "alt" ($card.imageAlt | default "")
+                  "class" "rounded-b-2xl" "nativeLazy" true) }}
+                </div>
+                {{ else if not $card.image }}
+                <div class="pb-6"></div> <!-- Empty space at bottom if no link and no image -->
+                {{ end }}
+              </div>
+            </li>
+            {{ end }}
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+{{/* Load Splide assets — link/script are deduplicated by the browser */}}
+<link rel="stylesheet" href="{{ "/css/splide.css" | relURL }}">
+<link rel="stylesheet" href="{{ "/css/splide-custom.css" | relURL }}">
+<script src="{{ "/js/splide.js" | relURL }}" defer></script>

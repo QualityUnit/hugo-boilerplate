@@ -1,76 +1,97 @@
-{{/* 
-  Three Column Bento Grid Shortcode
-  
-  Usage:
-  {{< bentogrid-three-column
-      theme="light"
-      tagline="Build faster" 
-      heading="Everything you need for your next project"
-      description="Explore our features and components to streamline your development process."
-  >}}
-    [
-      {
-        "title": "Responsive Design",
-        "description": "Our components are fully responsive and work on all devices, from mobile to desktop.",
-        "image": "/images/responsive-design.webp",
-        "imageAlt": "Responsive design illustration",
-        "imagePosition": "top",
-        "url": "/features/responsive-design",
-        "linkText": "Learn more"
-      },
-      {
-        "title": "Performance",
-        "description": "Optimized for speed and efficiency to ensure your website loads quickly.",
-        "image": "/images/performance-metrics.webp",
-        "imageAlt": "Performance chart",
-        "imagePosition": "bottom",
-        "url": "/features/performance",
-        "linkText": "View metrics"
-      },
-      {
-        "title": "Security",
-        "description": "Built with security in mind to protect your data and your users' information.",
-        "image": "/images/security-shield.webp",
-        "imageAlt": "Security shield icon",
-        "url": "/features/security",
-        "linkText": "Explore security features"
-      },
-      {
-        "title": "Developer API",
-        "description": "Powerful and flexible API to extend functionality and integrate with other systems.",
-        "image": "",
-        "imageAlt": "",
-        "codeExample": true,
-        "url": "/developer/api",
-        "linkText": "Read documentation"
-      }
-    ]
-  {{< /bentogrid-three-column >}}
-  
-  Parameters:
-  - theme: Theme of the grid, either "light" or "dark" (optional, default: "light")
-  - tagline: Small text displayed above the main heading (optional, default: empty)
-  - heading: Main heading text (optional, default: empty)
-  - description: Short description text (optional, default: empty)
-  
-  Inner Content (optional JSON array):
-  - Array of card objects with the following properties:
-    - title: Card title
-    - description: Card description
-    - image: URL to the image for the card
-    - imageAlt: Alt text for the image
-    - imagePosition: Position of the image, "top" or "bottom" (optional, default: "top")
-    - url: URL the card should link to, making the entire card clickable (optional)
-    - linkText: Text to display as a link at the bottom of the card (optional)
+{{/*
+Three Column Bento Grid Shortcode
 
-  If inner content is not provided, default cards will be used.
+Usage:
+{{< bentogrid-three-column theme="light" tagline="Build faster" heading="Everything you need for your next project"
+  description="Explore our features and components to streamline your development process." headerAlign="center">}}
+  [
+  {
+  "eyebrow": "Feature",
+  "title": "Responsive Design",
+  "description": "Our components are fully responsive and work on all devices, from mobile to desktop.",
+  "image": "/images/responsive-design.webp",
+  "imageAlt": "Responsive design illustration",
+  "imagePosition": "top",
+  "url": "/features/responsive-design",
+  "linkText": "Learn more"
+  },
+  {
+  "eyebrow": "Performance",
+  "title": "Performance",
+  "description": "Optimized for speed and efficiency to ensure your website loads quickly.",
+  "image": "/images/performance-metrics.webp",
+  "imageAlt": "Performance chart",
+  "imagePosition": "bottom",
+  "url": "/features/performance",
+  "linkText": "View metrics"
+  },
+  {
+  "eyebrow": "Security",
+  "title": "Security",
+  "description": "Built with security in mind to protect your data and your users' information.",
+  "image": "/images/security-shield.webp",
+  "imageAlt": "Security shield icon",
+  "url": "/features/security",
+  "linkText": "Explore security features"
+  },
+  {
+  "title": "Developer API",
+  "description": "Powerful and flexible API to extend functionality and integrate with other systems.",
+  "image": "",
+  "imageAlt": "",
+  "codeExample": true,
+  "url": "/developer/api",
+  "linkText": "Read documentation"
+  }
+  ]
+{{< /bentogrid-three-column>}}
+
+Parameters:
+- theme: Theme of the grid, either "light" or "dark" (optional, default: "light")
+- tagline: Small text displayed above the main heading (optional, default: empty)
+- heading: Main heading text (optional, default: empty)
+- description: Short description text (optional, default: empty)
+- headerAlign: Alignment for all header content (tagline, heading, and description) - "left", "center", or "right"
+(optional, default: "center")
+- background: Whether to add bg-gray-100 background class (optional, default: true)
+- roundedCorners: Whether to add enhanced rounded corners to outer cards (optional, default: false)
+- spacingClass: CSS class for grid spacing (optional, default: "lg:gap-8")
+
+Inner Content (optional JSON array):
+- Array of card objects with the following properties:
+- eyebrow: Small text above card title in primary-500 color (optional)
+- title: Card title
+- description: Card description
+- image: URL to the image for the card
+- imageAlt: Alt text for the image
+- imagePosition: Position of the image, "top" or "bottom" (optional, default: "top")
+- url: URL the card should link to, making the entire card clickable (optional)
+- linkText: Text to display as a link at the bottom of the card (optional)
+
+If inner content is not provided, default cards will be used.
 */}}
 
 {{ $theme := .Get "theme" | default "light" }}
 {{ $tagline := .Get "tagline" | default "" }}
 {{ $heading := .Get "heading" | default "" }}
 {{ $description := .Get "description" | default "" }}
+{{ $headerAlign := .Get "headerAlign" | default "left" }}
+{{ $background := .Get "background" | default "true" }}
+{{ $roundedCorners := .Get "roundedCorners" | default "false" }}
+{{ $spacingClass := .Get "spacingClass" | default "lg:gap-8" }}
 {{ $id := .Get "id" | default "" }}
+
+{{/* Convert background string to boolean */}}
+{{ $backgroundBool := true }}
+{{ if eq $background "false" }}
+  {{ $backgroundBool = false }}
+{{ end }}
+
+{{/* Convert roundedCorners string to boolean */}}
+{{ $roundedCornersBool := false }}
+{{ if eq $roundedCorners "true" }}
+  {{ $roundedCornersBool = true }}
+{{ end }}
 
 {{/* Parse inner content as JSON if provided */}}
 
@@ -86,6 +107,10 @@
   "tagline" $tagline
   "heading" $heading
   "description" $description
+  "headerAlign" $headerAlign
+  "background" $backgroundBool
+  "roundedCorners" $roundedCornersBool
+  "spacingClass" $spacingClass
   "cards" $cards
   "id" $id
 ) }}
