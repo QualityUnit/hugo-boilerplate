@@ -56,6 +56,7 @@
     </div>
 
     <form class="flex-shrink-0 w-full lg:w-auto newsletter-form"
+      data-error-email="{{ i18n "newsletter.error_email" | default "Please enter a valid email address" }}"
       action="{{ $action }}"
       method="post"
       name="mc-embedded-subscribe-form"
