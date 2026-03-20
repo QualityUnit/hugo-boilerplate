@@ -20,7 +20,7 @@
 {{ $image := .Params.image }}
 {{ $title := .Title }}
 {{ $description := .Params.description | default .Description | default .Summary }}
-{{ $date := .Date.Format "Jan 2, 2006" }}
+{{ $date := partial "helpers/format-date.html" (dict "date" .Date) }}
 {{ $readingTime := .ReadingTime }}
 {{ $permalink := .RelPermalink }}
 {{ $section := .Section }}

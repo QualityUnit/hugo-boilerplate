@@ -1,0 +1,145 @@
+# English translations
+min_read: "分で読めます"
+# よくある質問
+frequently_asked_questions: "よくある質問"
+language_selector_title: "利用可能な言語"
+glossary_subtitle: "用語と定義の包括的なリスト"
+glossary_title: "用語集"
+home_title: "ホーム"
+
+# Search translations
+search_placeholder: "検索..."
+search_title: "検索"
+search_submit_aria: "検索を送信"
+search_clear_aria: "検索をクリア"
+search_clear_title: "検索をクリア"
+search_clear_btn: "クリア"
+search_close: "検索を閉じる"
+search_loading: "読み込み中..."
+search_view_all_results: "すべての結果を表示"
+search_no_results: "結果が見つかりませんでした。"
+search_error_loading: "検索結果の読み込みエラー。"
+search_error_performing: "検索実行エラー。"
+search_not_available: "検索機能は利用できません。後でもう一度お試しください。"
+search_initializing: "検索を初期化中です。もう一度お試しください。"
+search_no_results_description: "検索を変更してみてください - 素晴らしいものが数語の距離にあるかもしれません。"
+search_no_content_preview: "コンテンツプレビューは利用できません"
+search_untitled: "タイトルなし"
+
+search_no_results_for: "に対する結果が見つかりません"
+search_suggestions: "提案："
+search_suggestion_spell: "すべての単語が正しく入力されているか確認してください。"
+search_suggestion_broaden: "キーワードを広げてみてください。"
+search_suggestion_terms: "他の用語を使うか、他のカテゴリを探してみてください。"
+search_chat_link: "またはチャットでご相談ください →"
+
+# 用語集の翻訳
+glossary_eyebrow: "用語集"
+
+# カテゴリーページの翻訳
+categories_title: "カテゴリー"
+categories_browse_all: "カテゴリー別にすべてのコンテンツを閲覧する"
+category_eyebrow: "カテゴリー"
+category_browse_content: "カテゴリー %s のすべてのコンテンツを閲覧する"
+category_no_content_found: "このカテゴリーにコンテンツが見つかりません"
+category_try_browsing: "他のカテゴリーを閲覧するか、コンテンツを検索してみてください"
+category_other_categories: "その他のカテゴリー"
+
+# CTAの翻訳
+cta_default_heading: "私たちのリソースで知識を広げましょう"
+cta_default_description: "包括的な記事、ガイド、チュートリアルのライブラリーを探索して、主要な概念の理解を深め、最新の開発情報を常に入手しましょう。"
+cta_default_primary_text: "リソースを閲覧する"
+cta_default_secondary_text: "専門家に問い合わせる"
+
+# コンテンツタイプの翻訳
+content_article_singular: "記事"
+content_article_plural: "記事"
+
+# タグページの翻訳
+tags_title: "タグ"
+tags_browse_all: "トピック別にすべてのコンテンツを閲覧する"
+tag_eyebrow: "タグ"
+tag_browse_content: "このタグが付けられたすべてのコンテンツを閲覧する: %s"
+tag_no_content_found: "このタグのコンテンツが見つかりません"
+tag_try_browsing: "他のタグを閲覧するか、コンテンツを検索してみてください"
+tag_pagination_page: "%d / %d (%d)"
+tag_pagination_previous: "前へ"
+tag_pagination_next: "次へ"
+tag_other_tags: "その他のタグ"
+show_less: "表示を減らす"
+show_more: "もっと"
+
+# クッキー同意の翻訳
+cookie_consent_title: "クッキーの同意"
+cookie_consent_message: "閲覧体験を向上させ、トラフィックを分析するためにクッキーを使用します。"
+cookie_consent_accept_all: "すべてを受け入れる"
+cookie_consent_accept_necessary: "必要なものだけを受け入れる"
+cookie_consent_settings: "クッキー設定"
+cookie_settings_title: "クッキー設定"
+cookie_settings_close: "閉じる"
+cookie_settings_necessary_title: "必要なクッキー"
+cookie_settings_necessary_description: "これらのクッキーはウェブサイトの機能に必要であり、無効にすることはできません。"
+cookie_settings_analytics_title: "分析クッキー"
+cookie_settings_analytics_description: "これらのクッキーは、訪問者がウェブサイトとどのように相互作用しているかを理解するのに役立ちます。"
+cookie_settings_cancel: "キャンセル"
+cookie_settings_save: "設定を保存"
+
+# ページネーションの翻訳
+pagination_previous: "前へ"
+pagination_next: "次へ"
+pagination_showing: "表示中"
+pagination_to: "から"
+pagination_of: "の"
+pagination_results: "結果"
+pagination_browse_all: "すべてのコンテンツを閲覧する："
+
+# FAQの翻訳
+faq_heading: "よくある質問"
+faq_description: "このトピックに関する一般的な質問への回答を見つけてください。"
+no_terms_available: "利用可能な用語はありません"
+pricing_monthly_label: "月額"
+pricing_yearly_label: "年額"
+pricing_show_more: "もっと見る"
+pricing_show_less: "少なく表示"
+pricing_toggle_aria_label: "料金比較表の表示を切り替える"
+wantMore: "もっと知りたいですか？"
+pricing_tagline: "料金プラン"
+pricing_title: "あなたと共に成長する料金プラン"
+pricing_description: "視聴者を惹きつけ、顧客ロイヤルティを構築し、売上を伸ばすための最高の機能を詰め込んだ、手頃な価格のプランをお選びください。"
+pricing_comparison_title: "プラン比較"
+pricing_comparison_description: "プラン比較をご覧いただき、最適なプランをお選びください"
+read_more_post: "続きを読む"
+no_posts_found: "投稿が見つかりません"
+minutes_read: "分で読める"
+get_started: "開始する"
+courses.session: "セッション"
+courses.you_will_learn: "学ぶ内容："
+courses.or: "または"
+
+courses.format: "フォーマット"
+
+# Icon card translations
+icon.card.btn: "見る"
+
+# Attachments
+attachments.title: "添付ファイル"
+
+search_results_found: "%s に対して %d 件の結果が見つかりました"
+search_results_found_plural: "%s に対して %d 件の結果が見つかりました"
+
+# Copy code functionality
+copy_code: "コードをコピー"
+copy_success: "コピーしました！"
+copy_error: "コピーエラー"
+
+# Promotional offers
+promo_offer: "限定オファー"
+promo_offer_in_menu: "-75% OFF"
+
+# Publication info
+published_on_by: "%s によって %s に公開されました。"
+published_on: "%s に公開されました。"
+last_modified_on_at: "%s の %s に最終更新されました"
+
+date_format: "2006年1月2日"
+learnMore: "詳しく見る"

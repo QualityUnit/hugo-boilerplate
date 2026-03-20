@@ -82,7 +82,7 @@
 {{ end }}
 
 {{/* Date & Permalink */}}
-{{ $date := $page.Date.Format "Jan 2, 2006" }}
+{{ $date := partial "helpers/format-date.html" (dict "date" $page.Date) }}
 {{ $permalink := $page.RelPermalink }}
 
 {{/* Show date & reading time section */}}

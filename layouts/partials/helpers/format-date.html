@@ -1,0 +1,20 @@
+{{/*
+@helper: Format Date with i18n support
+@description: Returns a formatted date string. Uses i18n "date_format" key if available, falls back to provided format or "Jan 2, 2006".
+@params:
+  .date (time.Time): The date to format
+  .format (string): Optional fallback Go date format (default: "Jan 2, 2006")
+@returns: Formatted date string
+@example:
+  {{ partial "helpers/format-date.html" (dict "date" .Date) }}
+  {{ partial "helpers/format-date.html" (dict "date" .Date "format" "January 2, 2006") }}
+*/}}
+
+{{- $date := .date -}}
+{{- $fallback := .format | default "Jan 2, 2006" -}}
+{{- $i18nFormat := i18n "date_format" -}}
+{{- if $i18nFormat -}}
+  {{- $date.Format $i18nFormat -}}
+{{- else -}}
+  {{- $date.Format $fallback -}}
+{{- end -}}

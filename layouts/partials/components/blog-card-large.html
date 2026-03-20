@@ -40,7 +40,7 @@
       {{ with $post.Date }}
       <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
         <time datetime="{{ .Format "2006-01-02" }}">
-          {{ .Format "January 2, 2006" }}
+          {{ partial "helpers/format-date.html" (dict "date" . "format" "January 2, 2006") }}
         </time>
         <span>•</span>
         <span>{{ math.Round (div (countwords $post.Content) 200.0) }} {{ i18n "min_read" }}</span>
