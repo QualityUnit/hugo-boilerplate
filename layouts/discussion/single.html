@@ -55,7 +55,7 @@
       {{ end }}
 
       <span class="text-gray-400">·</span>
-      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "helpers/format-date.html" (dict "date" .Date) }}</time>
 
       {{ with .Params.upvotes }}
         <span class="text-gray-400">·</span>

@@ -32,7 +32,7 @@
 {{ else if lt $hours 730 }}
   {{ $timeAgo = printf "%.0f weeks ago" (div $hours 168) }}
 {{ else }}
-  {{ $timeAgo = $page.Date.Format "Jan 2, 2006" }}
+  {{ $timeAgo = partial "helpers/format-date.html" (dict "date" $page.Date) }}
 {{ end }}
 
 <article class="group bg-white hover:bg-gray-50 border-b border-gray-100 last:border-b-0">
