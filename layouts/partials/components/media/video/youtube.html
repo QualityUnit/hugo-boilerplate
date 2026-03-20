@@ -42,7 +42,7 @@
 {{ if $poster }}
   {{ $thumbnailUrl = partial "functions/get-static-url.html" (dict "path" $poster) }}
 {{ else }}
-  {{ $thumbnailUrl = print "https://img.youtube.com/vi/" $videoID "/maxresdefault.jpg" }}
+  {{ $thumbnailUrl = print "https://i.ytimg.com/vi_webp/" $videoID "/sddefault.webp" }}
 {{ end }}
 
 <!-- Schema.org VideoObject metadata for SEO -->
