@@ -181,12 +181,28 @@
                 <div class="absolute -inset-1 bg-gradient-to-br from-primary/30 via-transparent to-primary/30 rounded-xl"></div>
                 <!-- Image with frame -->
                 <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10 {{ $imgBgClass }}">
-                  {{ partial "components/media/lazyimg.html" (dict
-                    "src" $image.src
-                    "alt" $image.alt
-                    "class" (cond (and (isset $image "class") (ne $image.class "")) $image.class "w-full h-auto object-cover rounded-lg")
-                    "noLazy" true
-                  ) }}
+                  {{ $isYouTube := or (findRE `youtube\.com` $image.src) (findRE `youtu\.be` $image.src) }}
+                  {{ if $isYouTube }}
+                    {{ $videoID := "" }}
+                    {{ if findRE `youtu\.be/` $image.src }}
+                      {{ $videoID = replaceRE `.*youtu\.be/([a-zA-Z0-9_-]+).*` "$1" $image.src }}
+                    {{ else }}
+                      {{ $videoID = replaceRE `.*[?&]v=([a-zA-Z0-9_-]+).*` "$1" $image.src }}
+                    {{ end }}
+                    {{ partial "components/media/video.html" (dict
+                      "videoID" $videoID
+                      "provider" "youtube"
+                      "title" (cond (ne $image.alt "") $image.alt "YouTube Video")
+                      "posterHeight" "video-aspect-ratio"
+                    ) }}
+                  {{ else }}
+                    {{ partial "components/media/lazyimg.html" (dict
+                      "src" $image.src
+                      "alt" $image.alt
+                      "class" (cond (and (isset $image "class") (ne $image.class "")) $image.class "w-full h-auto object-cover rounded-lg")
+                      "noLazy" true
+                    ) }}
+                  {{ end }}
                 </div>
               </div>
             </div>
