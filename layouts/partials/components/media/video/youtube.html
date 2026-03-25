@@ -81,12 +81,16 @@
   {{ if $posterHeight }}
     {{ $imgHeightClass = "h-full" }}
   {{ end }}
+  {{ $imgPositionClass := "" }}
+  {{ if findRE `aspect-video|video-aspect-ratio` $posterHeight }}
+    {{ $imgPositionClass = "absolute inset-0" }}
+  {{ end }}
   <div class="{{ $thumbnailClass }}" data-video-trigger="true">
     <img 
       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E"
       data-src="{{ $thumbnailUrl }}"
       alt="Thumbnail for {{ $alt }}"
-      class="lazy-video-thumb-img lazy-image w-full {{ $imgHeightClass }} object-cover transition-transform duration-300"
+      class="lazy-video-thumb-img lazy-image w-full {{ $imgHeightClass }} object-cover transition-transform duration-300 {{ $imgPositionClass }}"
       {{ if not $poster }}data-video-id="{{ $videoID }}"{{ end }}
       loading="{{ $loading }}"
       decoding="async"
