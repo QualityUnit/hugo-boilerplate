@@ -49,6 +49,7 @@ from tqdm import tqdm
 from dotenv import load_dotenv
 import flowhunt
 from pprint import pprint
+from functools import wraps
 
 # Load environment variables from .env file
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -142,6 +143,31 @@ LANGUAGE_MAP = {
 
 
 
+def retry_on_429(func, *args, max_retries=5, default_wait=2, **kwargs):
+    """
+    Call func(*args, **kwargs) and retry on 429 (Too Many Requests) errors.
+    Uses the retry-after header when available, otherwise waits default_wait seconds.
+    """
+    for attempt in range(max_retries + 1):
+        try:
+            return func(*args, **kwargs)
+        except flowhunt.exceptions.ApiException as e:
+            if e.status == 429 and attempt < max_retries:
+                # Parse retry-after from headers if available
+                wait_time = default_wait
+                if hasattr(e, 'headers') and e.headers:
+                    retry_after = e.headers.get('retry-after')
+                    if retry_after:
+                        try:
+                            wait_time = max(int(retry_after), 1)
+                        except (ValueError, TypeError):
+                            pass
+                print(f"[RATE LIMIT] 429 received, waiting {wait_time}s before retry (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait_time)
+            else:
+                raise
+
+
 def get_workspace_id(workspace_id=None):
     # If a workspace ID is provided, use it directly
     if workspace_id:
@@ -225,7 +251,8 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
             }
         )
 
-        create_session_rsp = api_instance.create_flow_session(
+        create_session_rsp = retry_on_429(
+            api_instance.create_flow_session,
             workspace_id=workspace_id,
             flow_session_create_from_flow_request=from_flow_create_session_req
         )
@@ -237,7 +264,8 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
         file_bytes = content.encode('utf-8')
         file_tuple = (filename, file_bytes)
 
-        upload_rsp = api_instance.upload_attachments(
+        upload_rsp = retry_on_429(
+            api_instance.upload_attachments,
             session_id=session_id,
             file=file_tuple
         )
@@ -246,7 +274,8 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
         # Step 3: Invoke the translation task
         translation_message = f"Translate to {language_name}"
 
-        invoke_rsp = api_instance.invoke_flow_response(
+        invoke_rsp = retry_on_429(
+            api_instance.invoke_flow_response,
             session_id=session_id,
             flow_session_invoke_request=flowhunt.FlowSessionInvokeRequest(
                 message=translation_message
@@ -293,7 +322,8 @@ def check_session_results(api_instance, session_info, timeout=600):
             return True, None
 
         # Poll for flow response using raw response to avoid SDK validation issues
-        resp = api_instance.poll_flow_response_without_preload_content(
+        resp = retry_on_429(
+            api_instance.poll_flow_response_without_preload_content,
             session_id=session_id,
             from_timestamp=from_ts
         )
