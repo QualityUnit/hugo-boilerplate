@@ -50,7 +50,7 @@
   {{ if hasPrefix $logosReference "data." }}
     {{ $dataPath := strings.TrimPrefix "data." $logosReference }}
     {{ $dataPathParts := split $dataPath "." }}
-    {{ $dataValue := index site.Data (index $dataPathParts 0) }}
+    {{ $dataValue := index hugo.Data (index $dataPathParts 0) }}
     
     {{ range $i, $part := after 1 $dataPathParts }}
       {{ $dataValue = index $dataValue $part }}

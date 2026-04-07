@@ -37,7 +37,7 @@
 {{ $taglineColor := .Get "taglineColor" | default "indigo-400" }}
 
 {{/* Get cards from data file */}}
-{{ $cardsData := index .Site.Data "bento_grid_cards" }}
+{{ $cardsData := index hugo.Data "bento_grid_cards" }}
 {{ $cards := $cardsData.cards }}
 
 {{ partial "sections/bentogrids/dynamic_bento_grid_on_dark.html" (dict 

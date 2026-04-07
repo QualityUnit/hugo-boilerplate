@@ -50,9 +50,9 @@
 <!-- Check if current page has a meaningful path (not just root) -->
 {{ $currentPageHasPath := and (ne $pagePath "") (ne $pagePath "/") }}
 
-{{ if isset site.Data "all_languages" }}
+{{ if isset hugo.Data "all_languages" }}
   <!-- Use unified language data when available -->
-  {{ with site.Data }}
+  {{ with hugo.Data }}
     {{ range $code, $langData := .all_languages.languages }}
       <!-- Use get-language-url helper to get the correct URL for this language -->
       {{ $href := partial "helpers/get-language-url.html" (dict 
@@ -131,9 +131,9 @@
 {{ $xDefaultURL := $currentPage.Permalink }}
 {{ $found := false }}
 
-{{ if isset site.Data "all_languages" }}
+{{ if isset hugo.Data "all_languages" }}
   <!-- Use all_languages data to find default language -->
-  {{ with site.Data }}
+  {{ with hugo.Data }}
     {{ $defaultLangData := index .all_languages.languages $defaultLang }}
     {{ if $defaultLangData }}
       {{ $xDefaultURL = partial "helpers/get-language-url.html" (dict 

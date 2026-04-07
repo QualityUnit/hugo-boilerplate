@@ -4,7 +4,7 @@
 */}}
 
 {{- $currentPath := .RelPermalink -}}
-{{- $excludedPages := site.Data.promo_banner_pages.excluded_pages -}}
+{{- $excludedPages := hugo.Data.promo_banner_pages.excluded_pages -}}
 {{- $showBanner := true -}}
 
 {{/* Clean the path - remove query parameters and fragments */}}

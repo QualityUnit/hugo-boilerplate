@@ -17,7 +17,7 @@
 {{ $tiersComparison := .Get "tiersComparison" | default $params.tiersComparison }}
 {{ $featureCategories := .Get "featureCategories" | default $params.featureCategories }}
 
-{{ $pricingData := .Site.Data.pricing }}
+{{ $pricingData := hugo.Data.pricing }}
 {{ if and $pricingData $pricingData.tiersComparison $pricingData.featureCategories }}
   {{/* Use centralized data as fallback */}}
   {{ $tiersComparison = $tiersComparison | default $pricingData.tiersComparison }}
