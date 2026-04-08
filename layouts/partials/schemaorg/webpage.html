@@ -58,7 +58,7 @@
 {{- end -}}
 {{- with $page.Params.author -}}
   {{- $authorKey := . -}}
-  {{- $authors := hugo.Data.authors -}}
+  {{- $authors := site.Data.authors -}}
   {{- if and $authors (index $authors $authorKey) -}}
     {{- $author := index $authors $authorKey -}}
     {{- $schema = merge $schema (dict "author" (dict "@type" "Person" "name" $author.name)) -}}

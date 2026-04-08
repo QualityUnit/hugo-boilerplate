@@ -48,7 +48,7 @@ bg-[#b28b5d] bg-[#611f69] bg-[#95bf47] bg-[#2684fc] bg-[#00ac47] bg-[#0066da] bg
 {{ $buttonLink := .url }}
 {{ $cardClass := .cardClass | default "" }}
 {{ $iconCategory := .iconBackgroundCategory }}
-{{ $iconColors := hugo.Data.components.iconColors }}
+{{ $iconColors := site.Data.components.iconColors }}
 {{ $iconBackground := "bg-red-900" }}
 {{ if .iconBackground }}
   {{ $iconBackground = .iconBackground }}

@@ -30,7 +30,7 @@
 {{ $authorImage := "" }}
 {{ if $page.Params.author }}
   {{ $authorKey := $page.Params.author }}
-  {{ $authors := hugo.Data.authors }}
+  {{ $authors := site.Data.authors }}
   {{ if and $authors (index $authors $authorKey) }}
     {{ $author := index $authors $authorKey }}
     {{ $authorName = $author.name }}

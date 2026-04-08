@@ -21,7 +21,7 @@
 
 {{ if $useDataFile }}
   {{/* Use centralized data file */}}
-  {{ $pricingData := index hugo.Data $dataFile }}
+  {{ $pricingData := index site.Data $dataFile }}
   {{ if $pricingData }}
     {{ $tiersComparison = $pricingData.tiersComparison }}
     {{ $featureCategories = $pricingData.featureCategories }}

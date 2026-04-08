@@ -37,7 +37,7 @@
   - .featuresNote: (optional) Additional note text for features
   
   Usage example:
-  {{ partial "sections/pricing/section.html" (dict "tiers" hugo.Data.pricing.tiers "startColumn" 2 "columnsInt" 3) }}
+  {{ partial "sections/pricing/section.html" (dict "tiers" site.Data.pricing.tiers "startColumn" 2 "columnsInt" 3) }}
    
 @note: The center tier can be highlighted as the popular option and will be visually elevated. Colors for all elements are fully customizable through parameters.
 */}}
