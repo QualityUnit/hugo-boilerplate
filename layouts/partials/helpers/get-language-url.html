@@ -47,7 +47,7 @@
     
     {{/* Load translation URLs directly without partialCached to avoid issues */}}
     {{ $folderKey := replace $folder "-" "_" }}
-    {{ $translationUrls := hugo.Data.translation_urls }}
+    {{ $translationUrls := site.Data.translation_urls }}
     {{ if $translationUrls }}
       {{ $folderData := index $translationUrls $folderKey }}
       {{ if $folderData }}

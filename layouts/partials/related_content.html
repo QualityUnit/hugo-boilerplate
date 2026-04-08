@@ -16,7 +16,7 @@
   {{ $lang := $currentPage.Language.Lang }}
 
   {{/* New structure: data/related_content/{lang}/{section}.json */}}
-  {{ $langData := index hugo.Data.related_content $lang }}
+  {{ $langData := index site.Data.related_content $lang }}
   {{ $sectionData := index $langData $section | default dict }}
   {{ $pageRelatedContent := index $sectionData $slug | default slice }}
 
