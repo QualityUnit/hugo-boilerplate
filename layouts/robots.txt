@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 {{ $hasMultipleLanguages := gt (len site.Home.AllTranslations) 1 }}
 {{ if $hasMultipleLanguages }}
-{{ range .Sites }}
+{{ range hugo.Sites }}
 Sitemap: {{ .BaseURL | replaceRE "/$" "" }}{{ if .LanguagePrefix }}{{ .LanguagePrefix }}{{ end }}/sitemap.xml
 {{ end }}
 {{ else }}
