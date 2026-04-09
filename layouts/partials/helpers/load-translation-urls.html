@@ -13,7 +13,7 @@
 {{ $folderKey := replace $folder "-" "_" }}
 
 {{/* Access the translation_urls data */}}
-{{ $translationUrls := site.Data.translation_urls }}
+{{ $translationUrls := hugo.Data.translation_urls }}
 {{ $folderData := dict }}
 {{ if $translationUrls }}
   {{ $folderData = index $translationUrls $folderKey }}

@@ -7,7 +7,7 @@
   {{ partial "components/navigation/language-selector.html" . }}
 @note: The component will show either:
   1. Page translations if available (Hugo's built-in .Translations)
-  2. All languages from site.Data.all_languages.languages if configured
+  2. All languages from hugo.Data.all_languages.languages if configured
   3. Nothing if neither is available or the site is monolingual
 */}}
 
@@ -18,14 +18,15 @@
 {{ end }}
 
 {{ $hasMultipleLanguages := gt (len site.Home.AllTranslations) 1 }}
-{{ $useAllLanguagesData := isset site.Data "all_languages" }}
+{{ $allLanguagesData := hugo.Data.all_languages }}
+{{ $useAllLanguagesData := ne $allLanguagesData nil }}
 
 <div class="language-selector">
   <div class="flex flex-wrap items-center lg:justify-center gap-3">
     {{ if $useAllLanguagesData }}
       <!-- Use unified language data when available -->
-      {{ with site.Data }}
-        {{ range $code, $langData := .all_languages.languages }}
+      {{ with $allLanguagesData }}
+        {{ range $code, $langData := .languages }}
           <!-- Get country code for flag -->
           {{ $countryCode := partial "helpers/get-country-code.html" (dict "code" $code) }}
           

@@ -19,7 +19,7 @@
 {{ $tiers := slice }}
 {{ if $useDataFile }}
   {{/* Use centralized data file */}}
-  {{ $pricingData := index site.Data $dataFile }}
+  {{ $pricingData := index hugo.Data $dataFile }}
   {{ if $pricingData }}
     {{ $tiers = $pricingData.tiers }}
   {{ else }}
