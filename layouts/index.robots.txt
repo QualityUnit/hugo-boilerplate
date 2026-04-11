@@ -2,8 +2,13 @@ User-agent: *
 Allow: /
 {{ $hasMultipleLanguages := gt (len site.Home.AllTranslations) 1 }}
 {{ if $hasMultipleLanguages }}
+{{ $defaultBase := (index hugo.Sites 0).BaseURL | replaceRE "/$" "" -}}
 {{ range hugo.Sites }}
-Sitemap: {{ .BaseURL | replaceRE "/$" "" }}{{ if .LanguagePrefix }}{{ .LanguagePrefix }}{{ end }}/sitemap.xml
+{{ if strings.Contains .BaseURL "://" -}}
+Sitemap: {{ .BaseURL }}sitemap.xml
+{{ else -}}
+Sitemap: {{ $defaultBase }}{{ .LanguagePrefix }}/sitemap.xml
+{{ end -}}
 {{ end }}
 {{ else }}
 Sitemap: {{ .Site.BaseURL }}sitemap.xml
