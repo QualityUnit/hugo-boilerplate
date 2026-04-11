@@ -3,7 +3,7 @@ Allow: /
 {{ $hasMultipleLanguages := gt (len site.Home.AllTranslations) 1 }}
 {{ if $hasMultipleLanguages }}
 {{ range hugo.Sites }}
-Sitemap: {{ .BaseURL | replaceRE "/$" "" }}{{ if .LanguagePrefix }}{{ .LanguagePrefix }}{{ end }}/sitemap.xml
+Sitemap: {{ .BaseURL }}sitemap.xml
 {{ end }}
 {{ else }}
 Sitemap: {{ .Site.BaseURL }}sitemap.xml
