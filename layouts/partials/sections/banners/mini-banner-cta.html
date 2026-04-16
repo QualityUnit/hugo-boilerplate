@@ -40,7 +40,8 @@
       <div class="bg-gray-100 p-2 flex-shrink-0 rounded-l-lg">
         {{ $logo := site.Params.logo_icon }}
         {{ if and $logo (fileExists (printf "cdn-assets/%s" $logo)) }}
-          <img src="/images/{{ $logo }}" alt="Logo" width="36" class="w-8 md:w-9 object-contain !my-0 !block" loading="lazy" />
+          {{ $logoUrl := partial "functions/get-static-url.html" (dict "path" (printf "/images/%s" $logo)) }}
+          <img src="{{ $logoUrl }}" alt="Logo" width="36" class="w-8 md:w-9 object-contain !my-0 !block" loading="lazy" />
         {{ else }}
           {{ partial "icons/rocket-launch-solid" "w-8 md:w-9 text-primary-600" }}
         {{ end }}
