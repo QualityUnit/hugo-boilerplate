@@ -51,3 +51,16 @@ build/
 # /static/css/
 # /static/js/
 __pycache__/
+/tools/landing-page-generator/output/.gitignore
+/tools/landing-page-generator/output/.gitkeep
+/tools/landing-page-generator/check-requirements.sh
+/tools/landing-page-generator/README.md
+/tools/landing-page-generator/SKILL.md
+/tools/page-to-video/.cursor/rules/use-bun-instead-of-node-vite-npm-pnpm.mdc
+/tools/page-to-video/.gitignore
+/tools/page-to-video/bun.lock
+/tools/page-to-video/CLAUDE.md
+/tools/page-to-video/index.ts
+/tools/page-to-video/package.json
+/tools/page-to-video/README.md
+/tools/page-to-video/tsconfig.json
