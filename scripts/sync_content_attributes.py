@@ -55,7 +55,7 @@ def extract_front_matter(file_path):
         content = f.read()
     
     # Look for front matter between +++ delimiters
-    match = re.match(r'^\+\+\+\s*\n*(.*?)\n*\+\+\+\s*\n*', content, re.DOTALL)
+    match = re.match(r'^\s*\+\+\+\s*\n*(.*?)\n*\+\+\+\s*\n*', content, re.DOTALL)
     if match:
         front_matter_text = match.group(1)
         try:
