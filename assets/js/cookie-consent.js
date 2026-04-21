@@ -2,6 +2,28 @@
  * Cookie Consent Script
  */
 
+// EU/EEA region detection based on browser timezone
+function isEUVisitor() {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const euTimezones = [
+      // EU member states
+      'Europe/Vienna', 'Europe/Brussels', 'Europe/Sofia', 'Europe/Zagreb',
+      'Asia/Nicosia', 'Europe/Prague', 'Europe/Copenhagen', 'Europe/Tallinn',
+      'Europe/Helsinki', 'Europe/Paris', 'Europe/Berlin', 'Europe/Athens',
+      'Europe/Budapest', 'Europe/Dublin', 'Europe/Rome', 'Europe/Riga',
+      'Europe/Vilnius', 'Europe/Luxembourg', 'Europe/Malta', 'Europe/Amsterdam',
+      'Europe/Warsaw', 'Europe/Lisbon', 'Europe/Bucharest', 'Europe/Bratislava',
+      'Europe/Ljubljana', 'Europe/Madrid', 'Europe/Stockholm',
+      // EEA + UK GDPR + Switzerland
+      'Europe/London', 'Europe/Oslo', 'Europe/Reykjavik', 'Europe/Zurich', 'Europe/Vaduz'
+    ];
+    return euTimezones.includes(tz);
+  } catch (e) {
+    return true; // fallback: treat as EU if detection fails
+  }
+}
+
 const CookieManager = {
   set(name, value, days) {
     const date = new Date();
@@ -34,13 +56,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   if (consentStatus) {
     hideBanner();
+    if (consentStatus === 'all' && analyticsCheckbox) {
+      analyticsCheckbox.checked = true;
+      updateAnalyticsConsent(true);
+    }
+  } else if (!isEUVisitor()) {
+    // Non-EU visitor: auto-grant full consent, no banner needed
+    setConsent('all');
+    hideBanner();
   } else {
     showBanner();
-  }
-
-  if (consentStatus === 'all' && analyticsCheckbox) {
-    analyticsCheckbox.checked = true;
-    updateAnalyticsConsent(true);
   }
 
   document.addEventListener('click', function(event) {
