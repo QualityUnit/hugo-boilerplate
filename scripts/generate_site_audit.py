@@ -32,20 +32,22 @@ os.environ.setdefault("OMP_NUM_THREADS", "1")
 
 import argparse
 import csv
-import hashlib
 import html
 import json
 import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
-from sentence_transformers import SentenceTransformer  # must come before faiss on macOS
 import faiss
 import markdown
 import toml_frontmatter as frontmatter
 import umap
 from bs4 import BeautifulSoup
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from embedding_cache import cache_path_for, embed_with_cache
 
 DEFAULT_MODEL = "Alibaba-NLP/gte-multilingual-base"
 DEFAULT_MAX_CHARS = 2000
@@ -154,31 +156,6 @@ def process_content_files(content_dir, lang, exclude_sections, max_chars):
 
     print(f"  found {len(pages)} pages across {len({p['section'] for p in pages})} sections")
     return pages
-
-
-def embed_texts(pages, model_name, cache_path, use_cache):
-    texts = [p["embed_text"] for p in pages]
-    payload = hashlib.sha256(("\n".join(texts) + "|" + model_name).encode("utf-8")).hexdigest()
-
-    if use_cache and cache_path.exists():
-        try:
-            data = np.load(cache_path, allow_pickle=False)
-            if data.get("key") is not None and str(data["key"]) == payload:
-                print(f"Cache hit → {cache_path}")
-                return data["embeddings"].astype(np.float32)
-        except Exception as e:
-            print(f"  cache read failed ({e}); recomputing")
-
-    print(f"Loading model: {model_name}")
-    model = SentenceTransformer(model_name, trust_remote_code=True)
-    print(f"Embedding {len(texts)} pages …")
-    emb = model.encode(texts, show_progress_bar=True, batch_size=32, normalize_embeddings=True)
-    emb = np.asarray(emb, dtype=np.float32)
-
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(cache_path, embeddings=emb, key=np.array(payload))
-    print(f"Cached → {cache_path}")
-    return emb
 
 
 def l2_normalize(vec):
@@ -457,15 +434,17 @@ def main():
     hugo_root = Path(args.hugo_root).resolve()
     content_dir = Path(args.content_dir) if args.content_dir else hugo_root / "content"
     output_dir = Path(args.output_dir) if args.output_dir else hugo_root / "static" / "data" / "audit" / args.lang
-    cache_dir = Path(args.cache_dir) if args.cache_dir else hugo_root / ".audit_cache"
-    cache_path = cache_dir / f"{args.lang}_embeddings.npz"
+    if args.cache_dir:
+        cache_path = Path(args.cache_dir) / f"{args.lang}__{args.model.replace('/', '_').replace('-', '_')}.npz"
+    else:
+        cache_path = cache_path_for(hugo_root, args.lang, args.model)
 
     pages = process_content_files(content_dir, args.lang, args.exclude_sections, args.max_chars)
     if not pages:
         print("No pages found — aborting.")
         return
 
-    embeddings = embed_texts(pages, args.model, cache_path, use_cache=not args.no_cache)
+    embeddings = embed_with_cache(pages, args.model, cache_path, use_cache=not args.no_cache)
 
     site_centroid = l2_normalize(embeddings.mean(axis=0))
     site_metrics = focus_metrics(embeddings, site_centroid)

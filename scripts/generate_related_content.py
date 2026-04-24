@@ -22,10 +22,12 @@ Requirements:
 
 import os
 import re
+import sys
 import argparse
 import yaml
 import json
 import gc
+from pathlib import Path
 import toml_frontmatter as frontmatter  # Use robust TOML parser
 from toml_frontmatter import TOMLHandler
 import markdown
@@ -35,31 +37,13 @@ from collections import defaultdict
 import numpy as np
 from sklearn.preprocessing import normalize
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from embedding_cache import cache_path_for, embed_with_cache
+
 # Constants
 MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"  # Smaller model that works well with sentence-transformers
-MAX_TEXT_LENGTH = 1000  # Limit text length to avoid memory issues
+MAX_TEXT_LENGTH = 2000  # Align with generate_site_audit so embedding cache is shared
 TOP_K = 3  # Number of related content items to find
-
-# Global variables for model
-_model = None
-
-def load_model(model_name):
-    """Load the model once."""
-    global _model
-    
-    # Only load if not already loaded
-    if _model is None:
-        print(f"Loading model: {model_name}")
-        
-        # Import here to delay loading these heavy libraries until needed
-        from sentence_transformers import SentenceTransformer
-        
-        # Load the model using sentence_transformers
-        _model = SentenceTransformer(model_name, trust_remote_code=True)
-    else:
-        print("Using already loaded model")
-    
-    return _model
 
 def parse_args():
     """Parse command line arguments."""
@@ -184,38 +168,35 @@ def process_content_files(hugo_root=None, lang=None, content_dir=None, exclude_s
                     # Extract text from content
                     body_text = extract_text_from_markdown(post.content)
 
-                    # If body is empty, use frontmatter fields for embedding
-                    # This handles files where content is stored in frontmatter (e.g., affiliate directories)
+                    # If body is empty, fall back to frontmatter fields (affiliate directories, etc.)
                     if not body_text.strip():
                         frontmatter_texts = []
-                        # Add title and description
-                        if title:
-                            frontmatter_texts.append(title)
-                        if post.get("description"):
-                            frontmatter_texts.append(post.get("description"))
                         if post.get("shortDescription"):
                             frontmatter_texts.append(post.get("shortDescription"))
-                        # Check for nested frontmatter sections (like program_overview)
                         for key, value in post.metadata.items():
                             if isinstance(value, dict):
                                 for sub_key, sub_value in value.items():
                                     if sub_key in ("description", "title") and isinstance(sub_value, str):
                                         frontmatter_texts.append(sub_value)
-                        text = " ".join(frontmatter_texts)
-                    else:
-                        text = body_text
+                        body_text = " ".join(frontmatter_texts)
 
-                    # Limit text length to avoid memory issues
-                    if len(text) > MAX_TEXT_LENGTH:
-                        text = text[:MAX_TEXT_LENGTH]
-                    
+                    if len(body_text) > MAX_TEXT_LENGTH:
+                        body_text = body_text[:MAX_TEXT_LENGTH]
+
+                    description = (post.get("description") or "").strip()
+                    # Compose embed text identically to generate_site_audit.py so the
+                    # cached embeddings can be reused across both scripts.
+                    embed_text = ". ".join(s for s in [title, description, body_text] if s)
+
                     # Add to file data
                     file_data.append({
                         "path": rel_path,
+                        "file_path": rel_path,
                         "section": section,
                         "slug": slug,
                         "title": title,
-                        "text": text,
+                        "text": body_text,
+                        "embed_text": embed_text,
                         "is_index": is_index
                     })
                 except Exception as e:
@@ -224,47 +205,22 @@ def process_content_files(hugo_root=None, lang=None, content_dir=None, exclude_s
     print(f"Found {len(file_data)} content files")
     return file_data
 
-def generate_embeddings(file_data, model_name):
-    """Generate embeddings for the file data using the specified model."""
-    # Load the model (will reuse if already loaded)
-    model = load_model(model_name)
-    
-    # Process files in batches to manage memory
-    embeddings = []
-    batch_size = 100  # Process multiple files at a time, adjust based on memory constraints
-    
-    for i in range(0, len(file_data), batch_size):
-        batch = file_data[i:i+batch_size]
-        texts = [item['text'] for item in batch]
-        
-        print(f"Processing batch {i//batch_size + 1}/{(len(file_data) + batch_size - 1)//batch_size}")
-        
-        # Generate embeddings using sentence_transformers
-        batch_embeddings = model.encode(texts, show_progress_bar=False)
-        
-        embeddings.extend(batch_embeddings)
-    
-    # Convert list to numpy array
-    embeddings = np.array(embeddings).astype('float32')
-    
-    return embeddings
+def generate_embeddings(file_data, model_name, hugo_root, lang, use_cache=True):
+    """Generate embeddings via the shared per-page cache (L2-normalized)."""
+    cache_path = cache_path_for(hugo_root, lang, model_name)
+    return embed_with_cache(file_data, model_name, cache_path, use_cache=use_cache)
 
 def build_index(embeddings):
-    """Build a FAISS index for the embeddings."""
+    """Build a FAISS index over already-normalized embeddings (IP == cosine)."""
     print("Building FAISS index...")
-    
+
     # Import here to delay loading until needed
     import faiss
-    
-    # Get the dimension of the embeddings
+
     dimension = embeddings.shape[1]
-    
-    # Create a flat index (exact search)
-    index = faiss.IndexFlatIP(dimension)  # Inner product for cosine similarity with normalized vectors
-    
-    # Add vectors to the index
-    index.add(embeddings)
-    
+    index = faiss.IndexFlatIP(dimension)
+    index.add(embeddings.astype('float32'))
+
     return index
 
 def find_related_content(file_data, embeddings, top_k=TOP_K):
@@ -633,11 +589,11 @@ def process_language(args, lang):
     
     print(f"[DEBUG] Found {len(file_data)} content files for {lang}")
     
-    # Generate embeddings
-    print(f"[DEBUG] Generating embeddings (this may take a while)...")
-    print(f"[DEBUG] Loading model: {args.model}")
-    embeddings = generate_embeddings(file_data, args.model)
-    print(f"[DEBUG] Embeddings generated for {len(embeddings)} files")
+    # Generate embeddings (shared cache with generate_site_audit.py)
+    print(f"[DEBUG] Generating embeddings (using shared cache if available)...")
+    print(f"[DEBUG] Model: {args.model}")
+    embeddings = generate_embeddings(file_data, args.model, args.hugo_root, lang)
+    print(f"[DEBUG] Embeddings ready for {len(embeddings)} files")
     
     # Find related content
     print(f"[DEBUG] Finding related content...")
@@ -707,9 +663,6 @@ def main():
     print(f"\n[DEBUG] ========== RELATED CONTENT GENERATOR FINISHED ===========")
     print(f"[DEBUG] End time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     
-    # Clean up global model resources at the end
-    if '_model' in globals() and _model is not None:
-        del globals()['_model']
     gc.collect()
 
 if __name__ == "__main__":

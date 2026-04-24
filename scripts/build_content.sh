@@ -303,6 +303,10 @@ fi
 STEPS_TO_RUN=()
 SKIP_MENU=false
 MAX_PARALLEL_TRANSLATIONS=100  # Default value for parallel translation processes
+# Cap for embedding-heavy steps (site_audit, clustering). Each background
+# worker loads a sentence-transformer model (~1–2 GB resident), so fanning
+# out across all 20+ language dirs at once OOMs the machine. Override via env.
+MAX_PARALLEL_EMBED="${MAX_PARALLEL_EMBED:-3}"
 while [[ $# -gt 0 ]]; do
     case $1 in
         --step|--steps)
@@ -747,9 +751,11 @@ PYTHON_SCRIPT
             echo -e "${BLUE}=== Step 4.2: Generating Website Clustering Visualization ===${NC}"
             echo -e "${YELLOW}Running clustering generation for all languages...${NC}"
 
-            # Start all language clustering in parallel
-            echo -e "${YELLOW}Starting parallel clustering generation for all languages...${NC}"
+            # Start clustering in parallel, capped at MAX_PARALLEL_EMBED workers
+            # to avoid OOM (each worker loads a ~1–2 GB sentence-transformer model).
+            echo -e "${YELLOW}Starting clustering generation (max ${MAX_PARALLEL_EMBED} parallel)...${NC}"
             pids=()
+            active=0
 
             for lang_dir in "${HUGO_ROOT}/content"/*; do
                 if [ -d "$lang_dir" ]; then
@@ -773,13 +779,17 @@ PYTHON_SCRIPT
                         fi
                     ) &
 
-                    # Store the PID
                     pids+=($!)
+                    active=$((active + 1))
+                    if (( active >= MAX_PARALLEL_EMBED )); then
+                        wait -n 2>/dev/null || wait "${pids[0]}"
+                        active=$((active - 1))
+                    fi
                 fi
             done
 
-            # Wait for all background processes to complete
-            echo -e "${YELLOW}Waiting for all language clustering to complete...${NC}"
+            # Wait for remaining background processes
+            echo -e "${YELLOW}Waiting for remaining language clustering to complete...${NC}"
             failed_langs=()
             for pid in "${pids[@]}"; do
                 wait $pid
@@ -800,9 +810,10 @@ PYTHON_SCRIPT
             ;;
         generate_site_audit)
             echo -e "${BLUE}=== Step 4.3: Generating SEO Site Audit ===${NC}"
-            echo -e "${YELLOW}Computing siteFocusScore, siteRadius, outliers, near-duplicates for all languages...${NC}"
+            echo -e "${YELLOW}Computing siteFocusScore, siteRadius, outliers, near-duplicates (max ${MAX_PARALLEL_EMBED} parallel)...${NC}"
 
             pids=()
+            active=0
 
             for lang_dir in "${HUGO_ROOT}/content"/*; do
                 if [ -d "$lang_dir" ]; then
@@ -824,10 +835,15 @@ PYTHON_SCRIPT
                     ) &
 
                     pids+=($!)
+                    active=$((active + 1))
+                    if (( active >= MAX_PARALLEL_EMBED )); then
+                        wait -n 2>/dev/null || wait "${pids[0]}"
+                        active=$((active - 1))
+                    fi
                 fi
             done
 
-            echo -e "${YELLOW}Waiting for all language site audits to complete...${NC}"
+            echo -e "${YELLOW}Waiting for remaining language site audits to complete...${NC}"
             failed_langs=()
             for pid in "${pids[@]}"; do
                 wait $pid

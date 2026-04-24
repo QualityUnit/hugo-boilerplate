@@ -72,7 +72,7 @@
           </div>
         </div>
         <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
-          <h3 class="text-lg font-semibold text-gray-900 mb-3">Top 20 outliers (highest drift)</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Top 50 outliers (highest drift)</h3>
           <div id="audit-outliers" class="text-sm max-h-96 overflow-y-auto">
             <div class="text-gray-500">Loading…</div>
           </div>
@@ -199,7 +199,7 @@
   function renderOutliers() {
     const el = document.getElementById('audit-outliers');
     if (!state.outliers.length) { el.innerHTML = '<div class="text-gray-500">None — site is tightly focused.</div>'; return; }
-    const top = state.outliers.slice(0, 20);
+    const top = state.outliers.slice(0, 100);
     el.innerHTML = top.map(r => `
       <div class="py-1.5 border-b border-gray-100 last:border-0">
         <a href="${r.url}" class="text-blue-600 hover:underline font-medium">${r.title || r.url}</a>
@@ -211,7 +211,7 @@
   function renderDuplicates() {
     const el = document.getElementById('audit-duplicates');
     if (!state.duplicates.length) { el.innerHTML = '<div class="text-gray-500">No duplicates above threshold.</div>'; return; }
-    const top = state.duplicates.slice(0, 25);
+    const top = state.duplicates.slice(0, 100);
     el.innerHTML = `
       <table class="min-w-full text-sm">
         <thead class="text-xs text-gray-500">
