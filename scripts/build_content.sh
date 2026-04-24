@@ -39,6 +39,7 @@ ALL_STEPS=(
     "generate_amplify_redirects"
     "generate_related_content"
     "generate_clustering"
+    "generate_site_audit"
     "generate_linkbuilding_keywords"
     "regenerate_linkbuilding_keywords"
     "extract_automatic_links"
@@ -62,6 +63,7 @@ declare -A STEP_DESCRIPTIONS=(
     ["generate_amplify_redirects"]="Generate AWS Amplify redirects"
     ["generate_related_content"]="Generate related content JSON (split by section)"
     ["generate_clustering"]="Generate website clustering visualization"
+    ["generate_site_audit"]="Generate SEO site audit (focus score, radius, outliers, duplicates)"
     ["generate_linkbuilding_keywords"]="Generate linkbuilding keywords"
     ["regenerate_linkbuilding_keywords"]="REGENERATE linkbuilding (clears existing first)"
     ["extract_automatic_links"]="Extract automatic links from content"
@@ -70,7 +72,7 @@ declare -A STEP_DESCRIPTIONS=(
 )
 
 # Steps that should be unchecked by default
-UNCHECKED_BY_DEFAULT=("offload_images" "find_duplicate_images" "generate_clustering" "preprocess_images" "regenerate_linkbuilding_keywords" "drop_all_keywords")
+UNCHECKED_BY_DEFAULT=("offload_images" "find_duplicate_images" "generate_clustering" "generate_site_audit" "preprocess_images" "regenerate_linkbuilding_keywords" "drop_all_keywords")
 
 # Interactive checkbox menu function
 show_interactive_menu() {
@@ -795,6 +797,53 @@ PYTHON_SCRIPT
 
             echo -e "${GREEN}Clustering generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_clustering finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            ;;
+        generate_site_audit)
+            echo -e "${BLUE}=== Step 4.3: Generating SEO Site Audit ===${NC}"
+            echo -e "${YELLOW}Computing siteFocusScore, siteRadius, outliers, near-duplicates for all languages...${NC}"
+
+            pids=()
+
+            for lang_dir in "${HUGO_ROOT}/content"/*; do
+                if [ -d "$lang_dir" ]; then
+                    lang=$(basename "$lang_dir")
+                    echo -e "${YELLOW}[DEBUG] Starting site audit for language: $lang${NC}"
+
+                    (
+                        TOKENIZERS_PARALLELISM=false OMP_NUM_THREADS=1 \
+                        "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_site_audit.py" \
+                            --lang "$lang" \
+                            --hugo-root "${HUGO_ROOT}" 2>&1 | \
+                            sed "s/^/[$lang] /"
+
+                        if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                            echo -e "${GREEN}[$lang] Site audit generated successfully${NC}"
+                        else
+                            echo -e "${YELLOW}[$lang] Warning: Failed to generate site audit${NC}"
+                        fi
+                    ) &
+
+                    pids+=($!)
+                fi
+            done
+
+            echo -e "${YELLOW}Waiting for all language site audits to complete...${NC}"
+            failed_langs=()
+            for pid in "${pids[@]}"; do
+                wait $pid
+                if [ $? -ne 0 ]; then
+                    failed_langs+=("$pid")
+                fi
+            done
+
+            if [ ${#failed_langs[@]} -eq 0 ]; then
+                echo -e "${GREEN}All site audits completed successfully!${NC}"
+            else
+                echo -e "${YELLOW}Some site audits failed, but continuing...${NC}"
+            fi
+
+            echo -e "${GREEN}Site audit generation completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step generate_site_audit finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         extract_automatic_links)
             echo -e "${BLUE}=== Step 4.5: Extracting Automatic Links ===${NC}"
