@@ -53,7 +53,7 @@
             {{ end }}
             {{ if and $ctaText $ctaUrl }}
             <p class="mt-6 text-base text-secondary">
-              {{ $ctaText }} <a href="{{ $ctaUrl }}" class="text-primary font-medium hover:underline">{{ $ctaLinkText }}</a>
+              {{ $ctaText }} <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $ctaUrl) }}" class="text-primary font-medium hover:underline">{{ $ctaLinkText }}</a>
             </p>
             {{ end }}
           </div>

@@ -131,7 +131,7 @@
           <div>
             <div class="flex items-center gap-x-4">
               <time datetime="{{ .date }}" class="text-sm/6 {{ $blogDateColor }}">{{ dateFormat "Jan 2, 2006" .date }}</time>
-              <a href="{{ .categoryUrl }}" class="relative z-10 rounded-full {{ $blogCategoryBgColor }} px-3 py-1.5 text-xs font-medium {{ $blogCategoryTextColor }} {{ $blogCategoryHoverColor }}">{{ .category }}</a>
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .categoryUrl) }}" class="relative z-10 rounded-full {{ $blogCategoryBgColor }} px-3 py-1.5 text-xs font-medium {{ $blogCategoryTextColor }} {{ $blogCategoryHoverColor }}">{{ .category }}</a>
             </div>
             <h4 class="mt-2 text-sm/6 font-semibold {{ $blogTitleColor }}">
               <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}">

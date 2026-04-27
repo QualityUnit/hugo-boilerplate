@@ -136,7 +136,7 @@ interest. Card heights are dynamically calculated based on their content.
             {{ end }}
             <li class="relative group splide__slide md:h-full rounded-2xl {{ $cornerClass }}">
               {{ if $card.url }}
-              <a class="absolute size-full z-10" href="{{ $card.url }}" aria-label="{{ $card.title }}"></a>
+              <a class="absolute size-full z-10" href="{{ partial "helpers/get-translated-url.html" (dict "url" $card.url) }}" aria-label="{{ $card.title }}"></a>
               {{ end }}
               <div
                 class="relative md:h-full rounded-2xl inset-px border border-gray-200 dark:border-gray-700 group-hover:border-primary-400 shadow-md dark:shadow-none flex flex-col overflow-hidden {{ if not $isDark }}bg-white{{ end }} transition-colors duration-300 {{ $cornerClass }}">
