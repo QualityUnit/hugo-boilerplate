@@ -1,0 +1,61 @@
+{{/*
+@shortcode: custom-cards-slider
+@description: Carousel of custom cards with image on top and title/description/"Learn more" link below the card. Card data is passed as a JSON array in the shortcode body — not pulled from page collections.
+
+USAGE:
+  {{< custom-cards-slider
+      layout="right"
+      heading="The story behind LiveAgent"
+      description="Find out more about the team..."
+      buttonText="Learn about us"
+      buttonUrl="/about/"
+  >}}
+  [
+    {
+      "image": "/img/about/hero.jpg",
+      "imageAlt": "Team photo",
+      "title": "How LiveAgent starts",
+      "description": "Born in 2004, LiveAgent has an inspiring story...",
+      "linkText": "Learn about us",
+      "linkUrl": "/about/"
+    },
+    { "...": "..." }
+  ]
+  {{< /custom-cards-slider >}}
+
+PARAMETERS:
+  - layout: "centered" (default) or "right" (heading+CTA on the left, slider on the right)
+  - heading: Section heading (optional)
+  - description: Section description (optional)
+  - buttonText: CTA button text (optional, used with layout="right")
+  - buttonUrl: CTA button URL (optional, used with layout="right")
+  - sectionClass: Wrapper class overrides (default: "py-6 my-6")
+
+CARD JSON FIELDS:
+  - image (required): Image src
+  - imageAlt (optional): Alt text — falls back to title
+  - title (required): Card title
+  - description (optional): Card description
+  - linkText (optional): Link text — falls back to i18n "learnMore" / "Learn more"
+  - linkUrl (required): Link URL
+*/}}
+
+{{ $cards := slice }}
+{{ with .Inner }}
+  {{ if . }}
+    {{ $cards = . | unmarshal }}
+  {{ end }}
+{{ end }}
+
+{{ if $cards }}
+  {{ partial "sliders/custom-cards-slider.html" (dict
+      "cards" $cards
+      "Page" .Page
+      "layout" (.Get "layout")
+      "heading" (.Get "heading")
+      "description" (.Get "description")
+      "buttonText" (.Get "buttonText")
+      "buttonUrl" (.Get "buttonUrl")
+      "sectionClass" (.Get "sectionClass")
+  ) }}
+{{ end }}

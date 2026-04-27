@@ -1,0 +1,58 @@
+{{/* Renders the custom-cards-slider section. See layouts/shortcodes/custom-cards-slider.html for parameter docs. */}}
+
+{{ $cards := .cards | default slice }}
+{{ $layout := .layout | default "centered" }}
+{{ $heading := .heading | default "" }}
+{{ $description := .description | default "" }}
+{{ $buttonText := .buttonText | default "" }}
+{{ $buttonUrl := .buttonUrl | default "" }}
+{{ $sectionClass := .sectionClass | default "py-6 my-6" }}
+{{ $defaultLinkText := i18n "learnMore" | default "Learn more" }}
+
+{{ if eq (len $cards) 0 }}
+  {{ return }}
+{{ end }}
+
+{{ $isRight := eq $layout "right" }}
+{{ $sliderModifier := cond $isRight "custom-cards-slider--right" "" }}
+{{ $sliderId := printf "custom-cards-%d" now.UnixNano }}
+
+<section class="content-slider content-slider--custom-cards {{ $sectionClass }}">
+  {{ if or $heading $description }}
+  <div class="wrapper mb-10{{ if not $isRight }} text-center{{ end }}">
+    {{ with $heading }}
+      <h2 class="text-3xl font-semibold tracking-tight text-balance text-heading sm:text-4xl">{{ . }}</h2>
+    {{ end }}
+    {{ with $description }}
+      <p class="mt-4 {{ if not $isRight }}mx-auto {{ end }}max-w-2xl text-lg/7 text-secondary prose-links">{{ . | safeHTML }}</p>
+    {{ end }}
+    {{ if and $isRight $buttonText $buttonUrl }}
+      <div class="mt-6">
+        {{ partial "components/buttons/buttons.html" (dict
+          "text" $buttonText
+          "variant" "primary"
+          "element" "link"
+          "url" $buttonUrl
+        ) }}
+      </div>
+    {{ end }}
+  </div>
+  {{ end }}
+  <div class="overflow-hidden">
+    <div class="splide content-slider-splide {{ $sliderModifier }}" data-slider-id="{{ $sliderId }}" data-splide='{"type":"slide","perPage":3,"perMove":1,"gap":"24px","fixedWidth":"354px","focus":0,"arrows":true,"pagination":{{ if $isRight }}false{{ else }}true{{ end }},"trimSpace":{{ if $isRight }}"move"{{ else }}true{{ end }},"padding":{"left":"calc(max(1rem, (100vw - 80rem) / 2 + 2rem))","right":"calc(max(1rem, (100vw - 80rem) / 2 + 2rem))"},"breakpoints":{"1024":{"padding":{"left":"1.5rem","right":"1.5rem"}},"480":{"fixedWidth":"280px","perMove":1,"padding":{"left":"1rem","right":"1rem"}}}}'>
+      <div class="splide__track">
+        <ul class="splide__list">
+          {{- range $cards -}}
+            {{ partial "sliders/custom-cards-slider/card.html" (dict "card" . "defaultLinkText" $defaultLinkText) }}
+          {{- end -}}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+{{/* Slider assets — bundled by gulp components, browser-deduplicated when the partial is used twice */}}
+<link rel="stylesheet" href="{{ "/css/splide.css" | relURL }}">
+<link rel="stylesheet" href="{{ "/css/splide-custom.css" | relURL }}">
+<link rel="stylesheet" href="{{ "/css/custom-cards-slider.css" | relURL }}">
+<script src="{{ "/js/splide.js" | relURL }}" defer></script>

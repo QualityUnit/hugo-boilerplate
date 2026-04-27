@@ -1,0 +1,90 @@
+/**
+ * Custom Cards Slider
+ * Loaded as a standalone bundle from layouts/partials/sliders/custom-cards-slider.html
+ * (built by `gulp components`).
+ *
+ * Contains:
+ *   - Outline circular nav arrows (replaces Splide's default filled triangle)
+ *   - Right-layout positioning: heading on the left, slider extending to the right edge,
+ *     arrows pinned in the bottom-right corner of the section
+ */
+
+/* Arrow appearance — applies to both centered and right layouts */
+.content-slider--custom-cards .splide__arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgb(229, 229, 234);
+  opacity: 1;
+  transition: border-color 0.2s, background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-slider--custom-cards .splide__arrow svg {
+  display: none;
+}
+
+.content-slider--custom-cards .splide__arrow::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-top: 1.5px solid rgb(107, 107, 115);
+  border-right: 1.5px solid rgb(107, 107, 115);
+  display: block;
+}
+
+.content-slider--custom-cards .splide__arrow--prev::before {
+  transform: rotate(-135deg) translate(-1px, 1px);
+}
+
+.content-slider--custom-cards .splide__arrow--next::before {
+  transform: rotate(45deg) translate(-1px, 1px);
+}
+
+.content-slider--custom-cards .splide__arrow:hover:not(:disabled) {
+  border-color: rgb(180, 180, 187);
+  background: rgb(245, 245, 247);
+}
+
+.content-slider--custom-cards .splide__arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Right-layout positioning — heading on left, slider extends right, arrows bottom-right */
+.custom-cards-slider--right.content-slider-splide .splide__track .splide__list {
+  padding: 0 !important;
+}
+
+.custom-cards-slider--right {
+  position: relative;
+  padding-bottom: 4.5rem;
+}
+
+.custom-cards-slider--right .splide__arrows {
+  position: absolute;
+  bottom: 0;
+  right: max(1rem, calc((100vw - 80rem) / 2 + 2rem));
+  display: flex;
+  gap: 0.75rem;
+}
+
+.custom-cards-slider--right .splide__arrow {
+  position: static;
+  transform: none;
+}
+
+@media (max-width: 1024px) {
+  .custom-cards-slider--right .splide__arrows {
+    right: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-cards-slider--right .splide__arrows {
+    right: 1rem;
+  }
+}
