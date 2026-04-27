@@ -146,7 +146,7 @@
             <dl class="relative flex flex-wrap gap-x-3">
               <dt class="sr-only">Role</dt>
               <dd class="w-full flex-none text-lg font-semibold tracking-tight {{ $itemTitleColor }}">
-                <a href="{{ .titleLink }}">
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .titleLink) }}">
                   {{ .title }}
                   <span class="absolute inset-0" aria-hidden="true"></span>
                 </a>

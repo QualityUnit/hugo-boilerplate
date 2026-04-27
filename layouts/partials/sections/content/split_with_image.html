@@ -160,7 +160,7 @@ Design Tokens:
           {{/* Display image */}}
           <div class="relative w-full">
               {{ if $link }}
-                <a href="{{ $link }}" target="{{ $linkTarget }}"{{ if eq $linkTarget "_blank" }} rel="noopener noreferrer"{{ end }} class="block">
+                <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $link) }}" target="{{ $linkTarget }}"{{ if eq $linkTarget "_blank" }} rel="noopener noreferrer"{{ end }} class="block">
               {{ end }}
                   {{ partial "components/media/lazyimg.html" (dict
                     "src" $image

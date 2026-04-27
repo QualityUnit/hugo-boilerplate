@@ -61,7 +61,7 @@
               {{/* Image with frame */}}
               <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10 dark:bg-gray-800 dark:ring-white/10">
                 {{ if $link }}
-                  <a href="{{ $link }}" target="{{ $linkTarget }}"{{ if eq $linkTarget "_blank" }} rel="noopener noreferrer"{{ end }} class="block">
+                  <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $link) }}" target="{{ $linkTarget }}"{{ if eq $linkTarget "_blank" }} rel="noopener noreferrer"{{ end }} class="block">
                 {{ end }}
                     {{ partial "components/media/lazyimg.html" (dict
                       "src" $image

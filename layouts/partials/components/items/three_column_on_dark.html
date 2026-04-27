@@ -154,11 +154,11 @@
       <article class="flex max-w-xl flex-col items-start justify-between">
         <div class="flex items-center gap-x-4 text-xs">
           {{ if .date }}<time datetime="{{ .date }}" class="{{ $dateColor }}">{{ .dateDisplay }}</time>{{ end }}
-          {{ if .category }}<a href="{{ .categoryLink }}" class="relative z-10 rounded-full {{ .categoryBg }} px-3 py-1.5 font-medium {{ .categoryColor }} {{ .categoryHoverBg }}">{{ .category }}</a>{{ end }}
+          {{ if .category }}<a href="{{ partial "helpers/get-translated-url.html" (dict "url" .categoryLink) }}" class="relative z-10 rounded-full {{ .categoryBg }} px-3 py-1.5 font-medium {{ .categoryColor }} {{ .categoryHoverBg }}">{{ .category }}</a>{{ end }}
         </div>
         <div class="group relative">
           <h3 class="mt-3 text-lg/6 font-semibold {{ $titleColor }} {{ $titleHoverColor }}">
-            <a href="{{ .titleLink }}">
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .titleLink) }}">
               <span class="absolute inset-0"></span>
               {{ .title }}
             </a>
@@ -177,7 +177,7 @@
           {{ end }}
           <div class="text-sm/6">
             <p class="font-semibold {{ $authorNameColor }}">
-              <a href="{{ .authorLink }}">
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .authorLink) }}">
                 <span class="absolute inset-0"></span>
                 {{ .authorName }}
               </a>

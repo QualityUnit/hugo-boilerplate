@@ -45,7 +45,7 @@
             <p class="flex-auto">{{ .description | safeHTML }}</p>
             {{ if .link }}
             <p class="mt-6">
-              <a href="{{ .link.url }}" class="text-sm/6 font-semibold text-indigo-400">{{ .link.text }} <span aria-hidden="true">→</span></a>
+              <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .link.url) }}" class="text-sm/6 font-semibold text-indigo-400">{{ .link.text }} <span aria-hidden="true">→</span></a>
             </p>
             {{ end }}
           </dd>
