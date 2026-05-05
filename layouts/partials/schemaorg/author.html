@@ -10,6 +10,15 @@
 @note: Requires authors.yaml data file with author information
 */}}
 
+{{/* Idempotency guard: this partial is called from several places */}}
+{{/* (schemaorg/schemas.html, blog/single.html, partials/author.html,    */}}
+{{/* integrations/single.html, author/single.html). Multiple emissions  */}}
+{{/* of the same Person JSON-LD on one page produces a duplicate in     */}}
+{{/* Google's Rich Results / structured-data validators. Emit only once */}}
+{{/* per page render via .Scratch.                                      */}}
+{{ if not (.Scratch.Get "personSchemaEmitted") }}
+{{ .Scratch.Set "personSchemaEmitted" true }}
+
 {{/* Dual lookup: try data/authors.yaml first (legacy projects), then */}}
 {{/* fall back to a /author/<key>/ content page. Skip if neither exists. */}}
 {{ $authorKey := .Params.author }}
@@ -50,4 +59,5 @@
         {{- $schema | jsonify | safeJS -}}
         </script>
     {{ end }}
+{{ end }}
 {{ end }}
