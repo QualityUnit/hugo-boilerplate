@@ -1,3 +1,18 @@
+{{/* og:locale: map Hugo LanguageCode to a Facebook-compliant locale (xx_XX). */}}
+{{/* The bare BCP-47 with "-" -> "_" replacement produces values like "zh_Hans" */}}
+{{/* which Facebook silently rejects. Built-in map covers common locales; falls */}}
+{{/* back to the replace heuristic so unmapped languages still emit something. */}}
+{{ $ogLocaleMap := dict
+  "ar" "ar_AR" "bg" "bg_BG" "cs" "cs_CZ" "da" "da_DK" "de" "de_DE"
+  "el" "el_GR" "en-US" "en_US" "en-GB" "en_GB" "es" "es_ES" "et" "et_EE"
+  "fi" "fi_FI" "fr" "fr_FR" "hr" "hr_HR" "hu" "hu_HU" "it" "it_IT"
+  "ja" "ja_JP" "ko" "ko_KR" "lt" "lt_LT" "lv" "lv_LV" "nl" "nl_NL"
+  "no" "nb_NO" "pl" "pl_PL" "pt-BR" "pt_BR" "pt-PT" "pt_PT" "ro" "ro_RO"
+  "ru" "ru_RU" "sk" "sk_SK" "sl" "sl_SI" "sv" "sv_SE" "tl" "tl_PH"
+  "tr" "tr_TR" "uk" "uk_UA" "vi" "vi_VN" "zh-Hans" "zh_CN" "zh-Hant" "zh_TW"
+}}
+{{ $ogLocale := index $ogLocaleMap site.Language.LanguageCode | default (replace site.Language.LanguageCode "-" "_") }}
+
 <!-- SEO Meta Tags -->
 <meta name="description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
 {{ with .Params.keywords }}<meta name="keywords" content="{{ delimit . ", " }}">{{ end }}
@@ -6,6 +21,8 @@
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="{{ if eq .Type "blog" }}article{{ else }}website{{ end }}">
 <meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ site.Title }}">
+<meta property="og:locale" content="{{ $ogLocale }}">
 <meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ replace .Title "[year]" (now.Format "2006") }} | {{ site.Title }}{{ end }}">
 <meta property="og:description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
 
@@ -37,6 +54,7 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
+{{ with site.Params.social.twitter }}<meta name="twitter:site" content="{{ . }}">{{ end }}
 <meta name="twitter:url" content="{{ .Permalink }}">
 <meta name="twitter:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ replace .Title "[year]" (now.Format "2006") }} | {{ site.Title }}{{ end }}">
 <meta name="twitter:description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
