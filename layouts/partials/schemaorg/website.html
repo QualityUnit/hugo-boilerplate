@@ -20,7 +20,7 @@
   {{- $publisher = merge $publisher (dict "logo" $logo) -}}
 {{- end -}}
 
-{{- $schema := dict "@context" "https://schema.org" "@type" "WebSite" "name" $site.Title "url" $site.BaseURL "publisher" $publisher "inLanguage" $site.Language.Lang -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" "WebSite" "name" $site.Title "url" $site.BaseURL "publisher" $publisher "inLanguage" $site.Language.LanguageCode -}}
 {{- with $site.Params.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
 {{- with $site.Params.searchUrl -}}
   {{- $entryPoint := dict "@type" "EntryPoint" "urlTemplate" (printf "%s%s?q={search_term_string}" $site.BaseURL (strings.TrimPrefix "/" .)) -}}

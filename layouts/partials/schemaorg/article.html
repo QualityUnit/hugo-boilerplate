@@ -26,8 +26,11 @@
 {{ end }}
 
 {{/* Get author information */}}
+{{/* Try data/authors.yaml first (legacy projects), then fall back to a */}}
+{{/* /author/<key>/ content page, then to "Anonymous" if neither exists. */}}
 {{ $authorName := "Anonymous" }}
 {{ $authorImage := "" }}
+{{ $authorURL := "" }}
 {{ if $page.Params.author }}
   {{ $authorKey := $page.Params.author }}
   {{ $authors := hugo.Data.authors }}
@@ -35,6 +38,15 @@
     {{ $author := index $authors $authorKey }}
     {{ $authorName = $author.name }}
     {{ $authorImage = $author.image }}
+  {{ else }}
+    {{ $authorPage := site.GetPage (printf "/author/%s" $authorKey) }}
+    {{ if $authorPage }}
+      {{ $authorName = $authorPage.Title }}
+      {{ with $authorPage.Params.image }}
+        {{ $authorImage = (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) }}
+      {{ end }}
+      {{ $authorURL = $authorPage.Permalink }}
+    {{ end }}
   {{ end }}
 {{ end }}
 
@@ -50,6 +62,7 @@
 
 {{- $authorObj := dict "@type" "Person" "name" $authorName -}}
 {{- with $authorImage }}{{ $authorObj = merge $authorObj (dict "image" .) }}{{ end -}}
+{{- with $authorURL }}{{ $authorObj = merge $authorObj (dict "url" .) }}{{ end -}}
 
 {{- $publisher := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
 {{- with $site.Params.organization.logo -}}
@@ -59,7 +72,7 @@
 
 {{- $mainEntity := dict "@type" "WebPage" "@id" $page.Permalink -}}
 
-{{- $schema := dict "@context" "https://schema.org" "@type" $articleType "headline" $page.Title "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00") "author" $authorObj "publisher" $publisher "mainEntityOfPage" $mainEntity "url" $page.Permalink "articleBody" $page.Plain "inLanguage" $page.Language.Lang -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" $articleType "headline" $page.Title "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00") "author" $authorObj "publisher" $publisher "mainEntityOfPage" $mainEntity "url" $page.Permalink "articleBody" $page.Plain "inLanguage" $page.Language.LanguageCode -}}
 {{- with $page.Description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
 {{- with $image }}{{ $schema = merge $schema (dict "image" .) }}{{ end -}}
 {{- with $page.Params.tags }}{{ $schema = merge $schema (dict "keywords" (delimit . ", ")) }}{{ end -}}
