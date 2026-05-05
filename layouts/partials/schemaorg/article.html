@@ -59,7 +59,7 @@
 
 {{- $mainEntity := dict "@type" "WebPage" "@id" $page.Permalink -}}
 
-{{- $schema := dict "@context" "https://schema.org" "@type" $articleType "headline" $page.Title "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00") "author" $authorObj "publisher" $publisher "mainEntityOfPage" $mainEntity "url" $page.Permalink "articleBody" $page.Plain "inLanguage" $page.Language.Lang -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" $articleType "headline" $page.Title "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00") "author" $authorObj "publisher" $publisher "mainEntityOfPage" $mainEntity "url" $page.Permalink "articleBody" $page.Plain "inLanguage" $page.Language.LanguageCode -}}
 {{- with $page.Description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
 {{- with $image }}{{ $schema = merge $schema (dict "image" .) }}{{ end -}}
 {{- with $page.Params.tags }}{{ $schema = merge $schema (dict "keywords" (delimit . ", ")) }}{{ end -}}

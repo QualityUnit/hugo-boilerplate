@@ -50,7 +50,7 @@
   {{- $publisher = merge $publisher (dict "logo" $logo) -}}
 {{- end -}}
 
-{{- $schema := dict "@context" "https://schema.org" "@type" $pageType "@id" $page.Permalink "url" $page.Permalink "name" $page.Title "inLanguage" $page.Language.Lang "isPartOf" $isPartOf "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00") "publisher" $publisher -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" $pageType "@id" $page.Permalink "url" $page.Permalink "name" $page.Title "inLanguage" $page.Language.LanguageCode "isPartOf" $isPartOf "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00") "publisher" $publisher -}}
 {{- with $page.Description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
 {{- with $page.Params.image -}}
   {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
