@@ -303,10 +303,16 @@ fi
 STEPS_TO_RUN=()
 SKIP_MENU=false
 MAX_PARALLEL_TRANSLATIONS=100  # Default value for parallel translation processes
-# Cap for embedding-heavy steps (site_audit, clustering). Each background
-# worker loads a sentence-transformer model (~1–2 GB resident), so fanning
-# out across all 20+ language dirs at once OOMs the machine. Override via env.
+# Cap for embedding-heavy steps (site_audit, clustering, linkbuilding_keywords).
+# Each background worker loads a sentence-transformer model (~1–2 GB resident),
+# so fanning out across all 20+ language dirs at once OOMs the machine.
+# Override via env.
 MAX_PARALLEL_EMBED="${MAX_PARALLEL_EMBED:-3}"
+# Cap for lighter parallel steps (extract_automatic_links). No ML model, just
+# markdown/HTML parsing — RAM per worker ~150-300 MB. Higher default than
+# MAX_PARALLEL_EMBED but still bounded so 30+ language dirs don't all spawn at
+# once on weaker machines. Override via env.
+MAX_PARALLEL_LINKS="${MAX_PARALLEL_LINKS:-8}"
 while [[ $# -gt 0 ]]; do
     case $1 in
         --step|--steps)
@@ -332,6 +338,15 @@ while [[ $# -gt 0 ]]; do
             echo "  --max-parallel NUM         Maximum number of parallel translation processes (default: 10)"
             echo "  --help, -h                 Show this help message"
             echo ""
+            echo "Environment variables:"
+            echo "  FLOWHUNT_API_KEY           Required for the 'translate' step (or set in scripts/.env)"
+            echo "  MAX_PARALLEL_EMBED         Cap on parallel embedding workers for ML-heavy steps"
+            echo "                             (clustering, site_audit, linkbuilding_keywords). Default: 3"
+            echo "                             Each worker loads ~1-2 GB sentence-transformer model — lower"
+            echo "                             this on machines with <32 GB RAM to avoid OOM/swap pressure."
+            echo "  MAX_PARALLEL_LINKS         Cap on parallel workers for extract_automatic_links."
+            echo "                             Default: 8. No ML; ~150-300 MB per worker (markdown/HTML)."
+            echo ""
             echo "Available steps:"
             for step in "${ALL_STEPS[@]}"; do
                 printf "  %-30s %s\n" "$step" "${STEP_DESCRIPTIONS[$step]}"
@@ -342,6 +357,7 @@ while [[ $# -gt 0 ]]; do
             echo "  $0 --steps sync_translations,build_hugo"
             echo "  $0 --no-menu                                 # Run all steps without menu"
             echo "  $0 --steps translate --max-parallel 5        # Run translation with 5 parallel processes"
+            echo "  MAX_PARALLEL_EMBED=2 $0 --steps generate_linkbuilding_keywords  # Lower RAM usage"
             exit 0
             ;;
         *)
@@ -578,15 +594,17 @@ print(f'Done. Dropped keywords from {dropped} files.')
             echo -e "${BLUE}=== Step 3.9: Generating Linkbuilding Keywords ===${NC}"
             echo -e "${YELLOW}Running linkbuilding keyword generation for all languages...${NC}"
             
-            # Start all language extractions in parallel
-            echo -e "${YELLOW}Starting parallel linkbuilding keyword generation for all languages...${NC}"
+            # Start language extractions in parallel, capped at MAX_PARALLEL_EMBED workers
+            # to avoid OOM (each worker loads a ~1–2 GB sentence-transformer model).
+            echo -e "${YELLOW}Starting linkbuilding keyword generation (max ${MAX_PARALLEL_EMBED} parallel)...${NC}"
             pids=()
-            
+            active=0
+
             for lang_dir in "${HUGO_ROOT}/content"/*; do
                 if [ -d "$lang_dir" ]; then
                     lang=$(basename "$lang_dir")
                     echo -e "${YELLOW}[DEBUG] Starting linkbuilding keyword generation for language: $lang${NC}"
-                    
+
                     # Run generation in background (with virtual environment)
                     (
                         "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_linkbuilding_keywords.py" \
@@ -597,21 +615,26 @@ print(f'Done. Dropped keywords from {dropped} files.')
                             --min-ngram 2 \
                             --max-ngram 4 2>&1 | \
                             sed "s/^/[$lang] /"
-                        
+
                         if [ ${PIPESTATUS[0]} -eq 0 ]; then
                             echo -e "${GREEN}[$lang] Linkbuilding keywords generated successfully${NC}"
                         else
                             echo -e "${YELLOW}[$lang] Warning: Failed to generate linkbuilding keywords${NC}"
                         fi
                     ) &
-                    
+
                     # Store the PID
                     pids+=($!)
+                    active=$((active + 1))
+                    if (( active >= MAX_PARALLEL_EMBED )); then
+                        wait -n 2>/dev/null || wait "${pids[0]}"
+                        active=$((active - 1))
+                    fi
                 fi
             done
-            
-            # Wait for all background processes to complete
-            echo -e "${YELLOW}Waiting for all language linkbuilding generations to complete...${NC}"
+
+            # Wait for remaining background processes
+            echo -e "${YELLOW}Waiting for remaining language linkbuilding generations to complete...${NC}"
             failed_langs=()
             for pid in "${pids[@]}"; do
                 wait $pid
@@ -692,9 +715,10 @@ PYTHON_SCRIPT
 
             echo -e "${GREEN}Cleared existing linkbuilding attributes!${NC}"
 
-            # Step 2: Generate new linkbuilding keywords (same as generate_linkbuilding_keywords)
-            echo -e "${YELLOW}Generating new linkbuilding keywords for all languages...${NC}"
+            # Step 2: Generate new linkbuilding keywords (capped at MAX_PARALLEL_EMBED to avoid OOM)
+            echo -e "${YELLOW}Generating new linkbuilding keywords (max ${MAX_PARALLEL_EMBED} parallel)...${NC}"
             pids=()
+            active=0
 
             for lang_dir in "${HUGO_ROOT}/content"/*; do
                 if [ -d "$lang_dir" ]; then
@@ -719,10 +743,15 @@ PYTHON_SCRIPT
                     ) &
 
                     pids+=($!)
+                    active=$((active + 1))
+                    if (( active >= MAX_PARALLEL_EMBED )); then
+                        wait -n 2>/dev/null || wait "${pids[0]}"
+                        active=$((active - 1))
+                    fi
                 fi
             done
 
-            echo -e "${YELLOW}Waiting for all language regenerations to complete...${NC}"
+            echo -e "${YELLOW}Waiting for remaining language regenerations to complete...${NC}"
             failed_langs=()
             for pid in "${pids[@]}"; do
                 wait $pid
@@ -868,36 +897,43 @@ PYTHON_SCRIPT
             # Create linkbuilding directory if it doesn't exist
             mkdir -p "${HUGO_ROOT}/data/linkbuilding/automatic"
             
-            # Start all language extractions in parallel
-            echo -e "${YELLOW}Starting parallel extraction for all languages...${NC}"
+            # Start language extractions in parallel, capped at MAX_PARALLEL_LINKS
+            # workers (each ~150-300 MB markdown parser; 30+ at once spikes RAM).
+            echo -e "${YELLOW}Starting parallel extraction (max ${MAX_PARALLEL_LINKS} parallel)...${NC}"
             pids=()
-            
+            active=0
+
             for lang_dir in "${HUGO_ROOT}/content"/*; do
                 if [ -d "$lang_dir" ]; then
                     lang=$(basename "$lang_dir")
                     echo -e "${YELLOW}[DEBUG] Starting extraction for language: $lang${NC}"
-                    
+
                     # Run extraction in background (with virtual environment)
                     (
                         "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/extract_automatic_links.py" \
                             --content-dir "${lang_dir}/" \
                             --output "${HUGO_ROOT}/data/linkbuilding/automatic/${lang}_automatic.json" 2>&1 | \
                             sed "s/^/[$lang] /"
-                        
+
                         if [ ${PIPESTATUS[0]} -eq 0 ]; then
                             echo -e "${GREEN}[$lang] Automatic links extracted successfully${NC}"
                         else
                             echo -e "${YELLOW}[$lang] Warning: Failed to extract automatic links${NC}"
                         fi
                     ) &
-                    
+
                     # Store the PID
                     pids+=($!)
+                    active=$((active + 1))
+                    if (( active >= MAX_PARALLEL_LINKS )); then
+                        wait -n 2>/dev/null || wait "${pids[0]}"
+                        active=$((active - 1))
+                    fi
                 fi
             done
-            
-            # Wait for all background processes to complete
-            echo -e "${YELLOW}Waiting for all language extractions to complete...${NC}"
+
+            # Wait for remaining background processes
+            echo -e "${YELLOW}Waiting for remaining language extractions to complete...${NC}"
             failed_langs=()
             for pid in "${pids[@]}"; do
                 wait $pid

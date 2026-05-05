@@ -34,6 +34,7 @@ node_modules/
 # Environment variables
 .env
 .env.*
+!.env.example
 .venv
 
 # Logs

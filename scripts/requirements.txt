@@ -1,6 +1,18 @@
+# torch pinned to <2.7 — torch 2.7+ has MPS regressions causing silent
+# memory corruption on Apple Silicon GPU with the gte-multilingual-base
+# embedding model (PyTorch issues #160553, #154235, #163630). Lifting this
+# pin requires re-verifying generate_related_content runs cleanly on MPS.
+torch>=2.6.0,<2.7
+# transformers pinned to <5.0 — the custom modeling.py shipped with
+# Alibaba-NLP/gte-multilingual-base targets transformers 4.x APIs and
+# raises IndexError on RoPE position computation under transformers 5.x.
+transformers>=4.45,<5.0
+# sentence-transformers + huggingface_hub pinned to keep the working set
+# coherent with transformers 4.x. Lifting these requires re-testing on a
+# fresh venv across both Apple Silicon and Linux.
+sentence-transformers>=3.0,<5.0
+huggingface_hub>=0.36,<1.0
 accelerate>=0.25.0
-transformers>=4.36.0
-sentence-transformers>=2.2.0
 faiss-cpu>=1.7.4
 pyyaml>=5.3
 python-frontmatter
