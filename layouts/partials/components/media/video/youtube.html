@@ -27,7 +27,6 @@
 {{ $id := .id }}
 {{ $autoplay := .autoplay | default false }}
 {{ $description := .description | default $title }}
-{{ $uploadDate := .uploadDate | default (now.Format "2006-01-02T15:04:05Z07:00") }}
 {{ $noLazy := .noLazy | default false }}
 {{ $poster := .poster }}
 {{ $posterHeight := .posterHeight | default "" }}
@@ -45,18 +44,41 @@
   {{ $thumbnailUrl = print "https://i.ytimg.com/vi_webp/" $videoID "/sddefault.webp" }}
 {{ end }}
 
+{{/* Determine uploadDate: caller-provided > page Date > omit. Previously   */}}
+{{/* this fell back to now.Format which emitted a fresh timestamp on every */}}
+{{/* build — Google Rich Results then flagged the value as invalid because */}}
+{{/* the date kept changing for the same video.                            */}}
+{{ $uploadDate := "" }}
+{{ with .uploadDate }}
+  {{ $uploadDate = . }}
+{{ else }}
+  {{ with .page }}
+    {{ if not .Date.IsZero }}
+      {{ $uploadDate = .Date.Format "2006-01-02T15:04:05Z07:00" }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{/* Build the schema as a Hugo dict and let jsonify handle the whole      */}}
+{{/* structure. The previous template emitted raw {{ $title }} without    */}}
+{{/* JSON-quoting values, producing invalid JSON for Google's structured  */}}
+{{/* data parser. dict + jsonify is the same pattern used by every other  */}}
+{{/* schemaorg/* partial in the theme.                                     */}}
+{{ $schema := dict
+    "@context" "https://schema.org"
+    "@type" "VideoObject"
+    "name" $title
+    "description" $description
+    "thumbnailUrl" $thumbnailUrl
+    "contentUrl" (printf "https://www.youtube.com/watch?v=%s" $videoID)
+    "embedUrl" (printf "https://www.youtube.com/embed/%s" $videoID)
+}}
+{{ with $uploadDate }}
+  {{ $schema = merge $schema (dict "uploadDate" .) }}
+{{ end }}
 <!-- Schema.org VideoObject metadata for SEO -->
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "VideoObject",
-  "name": {{ $title }},
-  "description": {{ $description }},
-  "thumbnailUrl": {{ $thumbnailUrl }},
-  "uploadDate": {{ $uploadDate }},
-  "contentUrl": "https://www.youtube.com/watch?v={{ $videoID }}",
-  "embedUrl": "https://www.youtube.com/embed/{{ $videoID }}"
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 
 <div 
