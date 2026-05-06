@@ -24,20 +24,43 @@
 {{ $height := .height | default "auto" }}
 {{ $id := .id | default (print "youtube-" $videoID) }}
 {{ $description := .description | default $title }}
-{{ $uploadDate := .uploadDate | default (now.Format "2006-01-02T15:04:05Z07:00") }}
 
+{{/* Determine uploadDate: caller-provided > page Date > omit. Previously   */}}
+{{/* this fell back to now.Format which emitted a fresh timestamp on every */}}
+{{/* build — Google Rich Results then flagged the value as invalid because */}}
+{{/* the date kept changing for the same video. Page Date is stable per    */}}
+{{/* page; if absent, the field is omitted (Google accepts schema without  */}}
+{{/* uploadDate, just no Video rich result).                               */}}
+{{ $uploadDate := "" }}
+{{ with .uploadDate }}
+  {{ $uploadDate = . }}
+{{ else }}
+  {{ with .page }}
+    {{ if not .Date.IsZero }}
+      {{ $uploadDate = .Date.Format "2006-01-02T15:04:05Z07:00" }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{/* Build the schema as a dict and let jsonify handle string escaping */}}
+{{/* (the previous template emitted raw {{ $title }} without quoting  */}}
+{{/* values, producing invalid JSON for Google's structured data      */}}
+{{/* parser).                                                          */}}
+{{ $schema := dict
+    "@context" "https://schema.org"
+    "@type" "VideoObject"
+    "name" $title
+    "description" $description
+    "thumbnailUrl" (printf "https://i.ytimg.com/vi_webp/%s/sddefault.webp" $videoID)
+    "contentUrl" (printf "https://www.youtube.com/watch?v=%s" $videoID)
+    "embedUrl" (printf "https://www.youtube.com/embed/%s" $videoID)
+}}
+{{ with $uploadDate }}
+  {{ $schema = merge $schema (dict "uploadDate" .) }}
+{{ end }}
 <!-- Schema.org VideoObject metadata -->
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "VideoObject",
-  "name": {{ $title }},
-  "description": {{ $description }},
-  "thumbnailUrl": "https://i.ytimg.com/vi_webp/{{ $videoID }}/sddefault.webp",
-  "uploadDate": {{ $uploadDate }},
-  "contentUrl": "https://www.youtube.com/watch?v={{ $videoID }}",
-  "embedUrl": "https://www.youtube.com/embed/{{ $videoID }}"
-}
+{{- $schema | jsonify | safeJS -}}
 </script>
 
 <div 
