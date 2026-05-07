@@ -11,9 +11,16 @@
 */}}
 
 {{ if .testimonials }}
+{{/* Reference the SoftwareApplication via stable @id so Google's Rich    */}}
+{{/* Results validator deduplicates against the full SoftwareApplication */}}
+{{/* emitted by schemaorg/softwareapplication.html instead of validating */}}
+{{/* each Review's itemReviewed stub as its own incomplete entity (and  */}}
+{{/* flagging it for missing offers, aggregateRating, operatingSystem). */}}
+{{- $softwareID := printf "%s#software" site.BaseURL -}}
 {{- $reviews := slice -}}
 {{- range .testimonials -}}
-  {{- $itemReviewed := dict "@type" "SoftwareApplication" "name" site.Title "url" site.BaseURL "applicationCategory" (site.Params.softwareCategory | default "Business Software") -}}
+  {{- $itemReviewed := dict "@type" "SoftwareApplication" "@id" $softwareID "name" site.Title "url" site.BaseURL -}}
+  {{- with site.Params.softwareCategory }}{{ $itemReviewed = merge $itemReviewed (dict "applicationCategory" .) }}{{ else }}{{ $itemReviewed = merge $itemReviewed (dict "applicationCategory" "Business Software") }}{{ end -}}
   {{- with site.Params.softwareDescription }}{{ $itemReviewed = merge $itemReviewed (dict "description" .) }}{{ end -}}
   {{- with site.Params.operatingSystem }}{{ $itemReviewed = merge $itemReviewed (dict "operatingSystem" .) }}{{ end -}}
   {{- with site.Params.softwareAudience }}{{ $itemReviewed = merge $itemReviewed (dict "audience" .) }}{{ end -}}
