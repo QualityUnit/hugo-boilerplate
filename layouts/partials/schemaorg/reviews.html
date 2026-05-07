@@ -20,10 +20,26 @@
 {{- $reviews := slice -}}
 {{- range .testimonials -}}
   {{- $itemReviewed := dict "@type" "SoftwareApplication" "@id" $softwareID "name" site.Title "url" site.BaseURL -}}
-  {{- with site.Params.softwareCategory }}{{ $itemReviewed = merge $itemReviewed (dict "applicationCategory" .) }}{{ else }}{{ $itemReviewed = merge $itemReviewed (dict "applicationCategory" "Business Software") }}{{ end -}}
-  {{- with site.Params.softwareDescription }}{{ $itemReviewed = merge $itemReviewed (dict "description" .) }}{{ end -}}
-  {{- with site.Params.operatingSystem }}{{ $itemReviewed = merge $itemReviewed (dict "operatingSystem" .) }}{{ end -}}
-  {{- with site.Params.softwareAudience }}{{ $itemReviewed = merge $itemReviewed (dict "audience" .) }}{{ end -}}
+
+  {{/* Google's Review snippet validator requires the SoftwareApplication */}}
+  {{/* in `itemReviewed` to have at least 2 of: offers, aggregateRating,  */}}
+  {{/* applicationCategory, operatingSystem. Pull from the canonical      */}}
+  {{/* [software] config block (same source as schemaorg/softwareapplication.html) */}}
+  {{/* so reviews don't degrade to incomplete-entity warnings.            */}}
+  {{- with site.Params.software -}}
+    {{- with .applicationCategory }}{{ $itemReviewed = merge $itemReviewed (dict "applicationCategory" .) }}{{ end -}}
+    {{- with .operatingSystem }}{{ $itemReviewed = merge $itemReviewed (dict "operatingSystem" .) }}{{ end -}}
+    {{- with .description }}{{ $itemReviewed = merge $itemReviewed (dict "description" .) }}{{ end -}}
+  {{- end -}}
+
+  {{/* Fallback for projects that don't yet define [software] but use   */}}
+  {{/* legacy site.Params.softwareCategory etc.                          */}}
+  {{- if not site.Params.software -}}
+    {{- with site.Params.softwareCategory }}{{ $itemReviewed = merge $itemReviewed (dict "applicationCategory" .) }}{{ else }}{{ $itemReviewed = merge $itemReviewed (dict "applicationCategory" "Business Software") }}{{ end -}}
+    {{- with site.Params.softwareDescription }}{{ $itemReviewed = merge $itemReviewed (dict "description" .) }}{{ end -}}
+    {{- with site.Params.operatingSystem }}{{ $itemReviewed = merge $itemReviewed (dict "operatingSystem" .) }}{{ end -}}
+    {{- with site.Params.softwareAudience }}{{ $itemReviewed = merge $itemReviewed (dict "audience" .) }}{{ end -}}
+  {{- end -}}
   {{- $author := dict "@type" "Person" "name" .personName -}}
   {{- $review := dict "@context" "https://schema.org" "@type" "Review" "reviewBody" .quote "author" $author "itemReviewed" $itemReviewed -}}
   {{- $reviews = $reviews | append $review -}}
