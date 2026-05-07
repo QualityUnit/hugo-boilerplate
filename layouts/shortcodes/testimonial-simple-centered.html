@@ -29,7 +29,16 @@ Usage:
 {{ $personNameColor := .Get "personNameColor" | default "text-gray-800" }}
 {{ $personRoleColor := .Get "personRoleColor" | default "text-gray-600" }}
 
-{{ partial "sections/testimonials/simple_centered.html" (dict 
+{{/* Emit Review JSON-LD before delegating to the visual layout. The      */}}
+{{/* sections/testimonials/simple_centered.html partial handles only HTML */}}
+{{/* rendering, so the schema is built here from shortcode params and     */}}
+{{/* passed to schemaorg/reviews.html (which expects a `testimonials`     */}}
+{{/* slice of dicts with quote+personName).                               */}}
+{{ partial "schemaorg/reviews.html" (dict
+    "testimonials" (slice (dict "quote" $quote "personName" $personName))
+) }}
+
+{{ partial "sections/testimonials/simple_centered.html" (dict
   "quote" $quote
   "personName" $personName
   "personRole" $personRole
