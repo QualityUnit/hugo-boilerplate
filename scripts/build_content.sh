@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # build_content.sh
 #
 # This script creates a virtual environment, installs requirements,
