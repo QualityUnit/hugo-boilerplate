@@ -7,6 +7,16 @@
 # 2. Generates related content YAML files for the Hugo site
 # 3. Preprocesses images for optimal web delivery
 
+# Re-exec under a newer bash if the resolved one is too old.
+# macOS /bin/bash is 3.2 and doesn't support `declare -A` used below.
+if [ -z "$BASH_VERSION" ] || [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+    for newer in /opt/homebrew/bin/bash /usr/local/bin/bash; do
+        if [ -x "$newer" ]; then exec "$newer" "$0" "$@"; fi
+    done
+    echo "Error: bash 4+ required (script uses associative arrays). Install: brew install bash" >&2
+    exit 1
+fi
+
 set -e  # Exit immediately if a command exits with a non-zero status
 
 # Get the directory where this script is located
