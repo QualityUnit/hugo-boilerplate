@@ -54,7 +54,12 @@
 {{- $authorOrg := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
 {{- $providerOrg := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
 
-{{- $schema := dict "@context" "https://schema.org" "@type" "SoftwareApplication" "name" $productName "url" $site.BaseURL "author" $authorOrg "provider" $providerOrg -}}
+{{/* Stable @id so the Review schema's itemReviewed can reference this   */}}
+{{/* SoftwareApplication via JSON-LD @id rather than emitting its own   */}}
+{{/* shallow SoftwareApplication entity (which Google's Rich Results   */}}
+{{/* test validates independently and flags as missing required fields). */}}
+{{- $softwareID := printf "%s#software" $site.BaseURL -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" "SoftwareApplication" "@id" $softwareID "name" $productName "url" $site.BaseURL "author" $authorOrg "provider" $providerOrg -}}
 {{- with $software.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
 {{- with $software.applicationCategory }}{{ $schema = merge $schema (dict "applicationCategory" .) }}{{ end -}}
 {{- with $software.operatingSystem }}{{ $schema = merge $schema (dict "operatingSystem" .) }}{{ end -}}
