@@ -34,6 +34,8 @@ cookie_settings_cancel: "Otkaži"
 cookie_settings_save: "Sačuvaj Preferencije"
 
 home_title: "Početna"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "Rečnik"
 no_terms_available: "Nema dostupnih termina"
 categories_title: "Kategorije"

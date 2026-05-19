@@ -34,6 +34,8 @@ cookie_settings_cancel: "Cancelar"
 cookie_settings_save: "Gardar preferencias"
 
 home_title: "Inicio"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "Glosario"
 no_terms_available: "Non hai termos dispoñibles"
 categories_title: "Categorías"

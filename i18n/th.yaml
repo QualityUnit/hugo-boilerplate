@@ -5,6 +5,8 @@ language_selector_title: "ภาษาที่มี"
 glossary_subtitle: "รายการคำศัพท์และคำนิยามที่ครอบคลุม"
 glossary_title: "อภิธานศัพท์"
 home_title: "หน้าหลัก"
+component_page_title: "คอมโพเนนต์ %s"
+integration_page_title: "การผสานรวม %s"
 
 # Search translations
 search_placeholder: "ค้นหา..."

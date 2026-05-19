@@ -5,6 +5,8 @@ language_selector_title: "Elérhető Nyelvek"
 glossary_subtitle: "Átfogó lista szakmai kifejezésekkel és meghatározásokkal"
 glossary_title: "Szószedet"
 home_title: "Főoldal"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 
 # Search translations
 search_placeholder: "Keresés..."

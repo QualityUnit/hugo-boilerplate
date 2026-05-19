@@ -1,3 +1,11 @@
+{{ $pageTitle := partial "helpers/page-display-title.html" (dict "page" .) }}
+{{ $headTitle := "" }}
+{{ if .IsHome }}
+  {{ $headTitle = $pageTitle | default site.Title }}
+{{ else }}
+  {{ $headTitle = printf "%s | %s" $pageTitle site.Title }}
+{{ end }}
+
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="minimum-scale=1, width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -8,7 +16,7 @@
 <meta name="robots" content="noindex, nofollow">
 {{ end }}
 
-<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ printf "%s | %s" (replace .Title "[year]" (now.Format "2006")) site.Title }}{{ end }}</title>
+<title>{{ $headTitle }}</title>
 {{ with .Permalink }}<link rel="canonical" href="{{ . }}">{{ end }}
 
 <!-- Generate hreflang alternate links -->
@@ -37,4 +45,3 @@
 {{ if templates.Exists "partials/tracking/tracking-scripts.html" }}
   {{ partial "tracking/tracking-scripts.html" . }}
 {{ end }}
-

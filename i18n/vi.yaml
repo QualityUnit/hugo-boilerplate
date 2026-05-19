@@ -59,6 +59,8 @@ cookie_settings_cancel: "Hủy"
 cookie_settings_save: "Lưu Tùy Chọn"
 
 home_title: "Trang Chủ"
+component_page_title: "Thành phần %s"
+integration_page_title: "Tích hợp %s"
 glossary_eyebrow: "Thuật Ngữ"
 no_terms_available: "Không có thuật ngữ nào"
 categories_title: "Danh Mục"

@@ -34,6 +34,8 @@ cookie_settings_cancel: "Anulo"
 cookie_settings_save: "Ruaj Preferencat"
 
 home_title: "Kreu"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "Fjalori"
 no_terms_available: "Nuk ka terma të disponueshëm"
 categories_title: "Kategoritë"

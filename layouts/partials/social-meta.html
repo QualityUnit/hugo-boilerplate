@@ -13,8 +13,38 @@
 }}
 {{ $ogLocale := index $ogLocaleMap site.Language.LanguageCode | default (replace site.Language.LanguageCode "-" "_") }}
 
+{{ $metaDescription := "" }}
+{{ if and (eq .Kind "term") (eq .Data.Singular "components") }}
+  {{ $componentName := partial "helpers/component-display-name.html" (dict "page" .) }}
+  {{ $metaDescription = printf "Explore flow templates that use the %s component. See related automations, integration examples, and ways to use this component in workflows." $componentName }}
+{{ else }}
+  {{ with .Params.description }}
+    {{ $metaDescription = . }}
+  {{ else }}
+    {{ with .Description }}
+      {{ $metaDescription = . }}
+    {{ else }}
+      {{ with .Params.summary }}
+        {{ $metaDescription = . }}
+      {{ else }}
+        {{ with site.Params.description }}
+          {{ $metaDescription = . }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ $metaDescription = replace $metaDescription "[year]" (now.Format "2006") }}
+{{ $metaDescription = $metaDescription | plainify | htmlUnescape | chomp }}
+{{ if gt (len $metaDescription) 160 }}
+  {{ $metaDescription = truncate 157 "..." $metaDescription }}
+{{ end }}
+
+{{ $pageTitle := partial "helpers/page-display-title.html" (dict "page" .) }}
+{{ $metaTitle := cond .IsHome ($pageTitle | default site.Title) (printf "%s | %s" $pageTitle site.Title) }}
+
 <!-- SEO Meta Tags -->
-<meta name="description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
+<meta name="description" content="{{ $metaDescription }}">
 {{ with .Params.keywords }}<meta name="keywords" content="{{ delimit . ", " }}">{{ end }}
 
 <!-- Social Media Meta Tags -->
@@ -23,8 +53,8 @@
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:site_name" content="{{ site.Title }}">
 <meta property="og:locale" content="{{ $ogLocale }}">
-<meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ replace .Title "[year]" (now.Format "2006") }} | {{ site.Title }}{{ end }}">
-<meta property="og:description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
+<meta property="og:title" content="{{ $metaTitle }}">
+<meta property="og:description" content="{{ $metaDescription }}">
 
 <!-- Image selection logic -->
 {{ $ogImage := "" }}
@@ -47,6 +77,13 @@
     {{ end }}
   {{ end }}
 {{ end }}
+{{ if eq $ogImage "" }}
+  {{ with site.Params.organization.logo }}
+    {{ $ogImage = partial "functions/get-static-url.html" (dict "path" .) }}
+  {{ else }}
+    {{ $ogImage = absURL "/images/logo.svg" }}
+  {{ end }}
+{{ end }}
 
 <meta property="og:image" content="{{ $ogImage }}">
 <meta property="og:image:width" content="1200">
@@ -56,6 +93,6 @@
 <meta name="twitter:card" content="summary_large_image">
 {{ with site.Params.social.twitter }}<meta name="twitter:site" content="{{ . }}">{{ end }}
 <meta name="twitter:url" content="{{ .Permalink }}">
-<meta name="twitter:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ replace .Title "[year]" (now.Format "2006") }} | {{ site.Title }}{{ end }}">
-<meta name="twitter:description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
+<meta name="twitter:title" content="{{ $metaTitle }}">
+<meta name="twitter:description" content="{{ $metaDescription }}">
 <meta name="twitter:image" content="{{ $ogImage }}">

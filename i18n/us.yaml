@@ -53,6 +53,8 @@ cookie_settings_cancel: "Cancel"
 cookie_settings_save: "Save Preferences"
 
 home_title: "Home"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "Glossary"
 no_terms_available: "No terms available"
 categories_title: "Categories"

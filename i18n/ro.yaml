@@ -5,6 +5,8 @@ language_selector_title: "Limbi disponibile"
 glossary_subtitle: "O listă cuprinzătoare de termeni și definiții"
 glossary_title: "Glosar"
 home_title: "Acasă"
+component_page_title: "Componenta %s"
+integration_page_title: "Integrarea %s"
 
 # Search translations
 search_placeholder: "Căutare..."

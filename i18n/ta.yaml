@@ -32,6 +32,8 @@ cookie_settings_analytics_description: "வருகையாளர்கள் 
 cookie_settings_cancel: "ரத்து செய்"
 cookie_settings_save: "விருப்பங்களை சேமிக்கவும்"
 home_title: "முகப்பு"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "சொல்லகம்"
 no_terms_available: "பதங்கள் எதுவும் இல்லை"
 categories_title: "வகைகள்"

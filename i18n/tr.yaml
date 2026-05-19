@@ -5,6 +5,8 @@ language_selector_title: "Mevcut Diller"
 glossary_subtitle: "Kapsamlı terimler ve tanımlar listesi"
 glossary_title: "Sözlük"
 home_title: "Ana Sayfa"
+component_page_title: "%s Bileşeni"
+integration_page_title: "%s Entegrasyonu"
 
 # Search translations
 search_placeholder: "Ara..."
