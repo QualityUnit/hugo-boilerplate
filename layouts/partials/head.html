@@ -1,4 +1,4 @@
-{{ $pageTitle := partial "helpers/page-display-title.html" (dict "page" .) }}
+{{ $pageTitle := partial "helpers/page-seo-title.html" (dict "page" .) }}
 {{ $headTitle := "" }}
 {{ if .IsHome }}
   {{ $headTitle = $pageTitle | default site.Title }}

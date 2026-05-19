@@ -18,7 +18,7 @@
   {{ $metaDescription = truncate 157 "..." $metaDescription }}
 {{ end }}
 
-{{ $pageTitle := partial "helpers/page-display-title.html" (dict "page" .) }}
+{{ $pageTitle := partial "helpers/page-seo-title.html" (dict "page" .) }}
 {{ $metaTitle := cond .IsHome ($pageTitle | default site.Title) (printf "%s | %s" $pageTitle site.Title) }}
 
 <!-- SEO Meta Tags -->
