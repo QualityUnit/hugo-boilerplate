@@ -5,6 +5,8 @@ language_selector_title: "Bahasa Yang Tersedia"
 glossary_subtitle: "Senarai lengkap istilah dan definisi"
 glossary_title: "Glosari"
 home_title: "Laman Utama"
+component_page_title: "Komponen %s"
+integration_page_title: "Integrasi %s"
 
 # Search translations
 search_placeholder: "Cari..."

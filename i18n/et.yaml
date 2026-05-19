@@ -5,6 +5,8 @@ language_selector_title: "Saadaolevad Keeled"
 glossary_subtitle: "Põhjalik terminite ja definitsioonide loend"
 glossary_title: "Sõnastik"
 home_title: "Avaleht"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 
 # Search translations
 search_placeholder: "Otsi..."

@@ -5,6 +5,8 @@ language_selector_title: "Dostupné jazyky"
 glossary_subtitle: "Komplexný zoznam pojmov a definícií"
 glossary_title: "Glosár"
 home_title: "Domov"
+component_page_title: "Komponent %s"
+integration_page_title: "Integrácia %s"
 
 # Search translations
 search_placeholder: "Vyhľadať..."

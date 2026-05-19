@@ -5,6 +5,8 @@ language_selector_title: "Доступні мови"
 glossary_subtitle: "Всебічний список термінів та визначень"
 glossary_title: "Глосарій"
 home_title: "Головна"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 
 # Search translations
 search_placeholder: "Пошук..."

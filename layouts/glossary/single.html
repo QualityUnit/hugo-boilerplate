@@ -3,6 +3,8 @@
 {{/* Set page context for shortcodes to know about wrapper-narrower-content usage */}}
 {{ .Scratch.Set "hasWrapperNarrower" true }}
 
+{{ partial "schemaorg/article.html" (dict "page" . "articleType" "Article") }}
+
 {{ partial "breadcrumbs_default.html" . }}
 
 <!-- Hero Section with Term -->

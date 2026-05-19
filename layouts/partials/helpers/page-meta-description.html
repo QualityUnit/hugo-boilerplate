@@ -1,0 +1,32 @@
+{{- $page := .page | default . -}}
+{{- $description := "" -}}
+
+{{- if and (eq $page.Kind "term") (eq $page.Data.Singular "components") -}}
+  {{- $componentName := partial "helpers/component-display-name.html" (dict "page" $page) -}}
+  {{- $description = printf "Explore flow templates that use the %s component. See related automations, integration examples, and ways to use this component in workflows." $componentName -}}
+{{- else -}}
+  {{- with $page.Params.description -}}
+    {{- $description = . -}}
+  {{- else -}}
+    {{- with $page.Description -}}
+      {{- $description = . -}}
+    {{- else -}}
+      {{- with $page.Params.summary -}}
+        {{- $description = . -}}
+      {{- else -}}
+        {{- if eq $page.Kind "term" -}}
+          {{- $description = printf "Browse %s articles, tutorials, product updates, and automation guides from FlowHunt." $page.Title -}}
+        {{- else if eq $page.Kind "taxonomy" -}}
+          {{- $description = printf "Browse FlowHunt articles by topic, including AI agents, automation workflows, tutorials, product updates, and technical guides." -}}
+        {{- else -}}
+          {{- with site.Params.description -}}
+            {{- $description = . -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $description = replace $description "[year]" (now.Format "2006") -}}
+{{- $description | plainify | htmlUnescape | chomp -}}

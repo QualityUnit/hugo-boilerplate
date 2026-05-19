@@ -5,6 +5,8 @@ language_selector_title: "Tilgjengelige språk"
 glossary_subtitle: "En omfattende liste over termer og definisjoner"
 glossary_title: "Ordliste"
 home_title: "Hjem"
+component_page_title: "%s-komponent"
+integration_page_title: "%s-integrasjon"
 
 # Search translations
 search_placeholder: "Søk..."

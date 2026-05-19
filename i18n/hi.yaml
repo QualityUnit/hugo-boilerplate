@@ -34,6 +34,8 @@ cookie_settings_cancel: "रद्द करें"
 cookie_settings_save: "प्राथमिकताएँ सहेजें"
 
 home_title: "मुखपृष्ठ"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "शब्दावली"
 no_terms_available: "कोई शब्द उपलब्ध नहीं"
 categories_title: "श्रेणियाँ"

@@ -34,6 +34,8 @@ cookie_settings_cancel: "Ikkanċella"
 cookie_settings_save: "Ħlief il-Preferenzi"
 
 home_title: "Dar"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "Glossarju"
 no_terms_available: "Ebda termini disponibbli"
 categories_title: "Kategoriji"
