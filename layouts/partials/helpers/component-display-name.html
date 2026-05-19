@@ -32,4 +32,4 @@
   {{- $display = replaceRE "([A-Za-z])([0-9])" "$1 $2" $display -}}
   {{- $display = replaceRE "([0-9])([A-Za-z])" "$1 $2" $display -}}
 {{- end -}}
-{{- strings.TrimSpace $display -}}
+{{- return (strings.TrimSpace $display | htmlUnescape) -}}

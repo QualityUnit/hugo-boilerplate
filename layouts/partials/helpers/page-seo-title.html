@@ -13,4 +13,5 @@
     {{- end -}}
   {{- end -}}
 {{- end -}}
-{{- replace $title "[year]" (now.Format "2006") -}}
+{{- $title = replace $title "[year]" (now.Format "2006") -}}
+{{- return ($title | htmlUnescape) -}}
