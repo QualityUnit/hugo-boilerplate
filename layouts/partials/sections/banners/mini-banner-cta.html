@@ -33,6 +33,7 @@
 {{ $primaryUrl := partial "helpers/get-translated-url.html" (dict "url" (.primaryUrl | default "/demo/")) }}
 {{ $secondaryText := .secondaryText | default (i18n "cta_banner.secondary_button") | default "Start 30-days free trial" }}
 {{ $secondaryUrl := partial "helpers/get-translated-url.html" (dict "url" (.secondaryUrl | default "/trial/")) }}
+{{ $logoAlt := .logoAlt | default (printf "%s logo" site.Title) }}
 
 <div class="mini-banner-cta min-h-[72px] rounded-xl border border-gray-200 overflow-hidden my-6">
   <div class="bg-gray-100 min-h-[72px] flex flex-col lg:flex-row lg:items-center gap-4 p-3 md:p-4 lg:py-3">
@@ -41,7 +42,7 @@
         {{ $logo := site.Params.logo_icon }}
         {{ if and $logo (fileExists (printf "cdn-assets/%s" $logo)) }}
           {{ $logoUrl := partial "functions/get-static-url.html" (dict "path" (printf "/images/%s" $logo)) }}
-          <img src="{{ $logoUrl }}" alt="Logo" width="36" class="w-8 md:w-9 object-contain !my-0 !block" loading="lazy" />
+          <img src="{{ $logoUrl }}" alt="{{ $logoAlt }}" width="36" class="w-8 md:w-9 object-contain !my-0 !block" loading="lazy" />
         {{ else }}
           {{ partial "icons/rocket-launch-solid" "w-8 md:w-9 text-primary-600" }}
         {{ end }}
