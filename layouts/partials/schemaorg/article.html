@@ -26,26 +26,21 @@
 {{ end }}
 
 {{/* Get author information */}}
-{{/* Try data/authors.yaml first (legacy projects), then fall back to a */}}
-{{/* /author/<key>/ content page, then to "Anonymous" if neither exists. */}}
-{{ $authorName := "Anonymous" }}
-{{ $authorImage := "" }}
-{{ $authorURL := "" }}
+{{ $authorObj := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL }}
 {{ if $page.Params.author }}
   {{ $authorKey := $page.Params.author }}
   {{ $authors := hugo.Data.authors }}
   {{ if and $authors (index $authors $authorKey) }}
     {{ $author := index $authors $authorKey }}
-    {{ $authorName = $author.name }}
-    {{ $authorImage = $author.image }}
+    {{ $authorObj = dict "@type" "Person" "name" $author.name }}
+    {{ with $author.image }}{{ $authorObj = merge $authorObj (dict "image" .) }}{{ end }}
   {{ else }}
     {{ $authorPage := site.GetPage (printf "/author/%s" $authorKey) }}
     {{ if $authorPage }}
-      {{ $authorName = $authorPage.Title }}
+      {{ $authorObj = dict "@type" "Person" "name" $authorPage.Title "url" $authorPage.Permalink }}
       {{ with $authorPage.Params.image }}
-        {{ $authorImage = (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) }}
+        {{ $authorObj = merge $authorObj (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}
       {{ end }}
-      {{ $authorURL = $authorPage.Permalink }}
     {{ end }}
   {{ end }}
 {{ end }}
@@ -60,10 +55,6 @@
   {{ $image = (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) }}
 {{ end }}
 
-{{- $authorObj := dict "@type" "Person" "name" $authorName -}}
-{{- with $authorImage }}{{ $authorObj = merge $authorObj (dict "image" .) }}{{ end -}}
-{{- with $authorURL }}{{ $authorObj = merge $authorObj (dict "url" .) }}{{ end -}}
-
 {{- $publisher := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
 {{- with $site.Params.organization.logo -}}
   {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
@@ -72,7 +63,13 @@
 
 {{- $mainEntity := dict "@type" "WebPage" "@id" $page.Permalink -}}
 
-{{- $schema := dict "@context" "https://schema.org" "@type" $articleType "headline" $page.Title "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00") "author" $authorObj "publisher" $publisher "mainEntityOfPage" $mainEntity "url" $page.Permalink "articleBody" $page.Plain "inLanguage" $page.Language.LanguageCode -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" $articleType "headline" $page.Title "author" $authorObj "publisher" $publisher "mainEntityOfPage" $mainEntity "url" $page.Permalink "articleBody" $page.Plain "inLanguage" $page.Language.LanguageCode -}}
+{{- if not $page.Date.IsZero -}}
+  {{- $schema = merge $schema (dict "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00")) -}}
+{{- end -}}
+{{- if not $page.Lastmod.IsZero -}}
+  {{- $schema = merge $schema (dict "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00")) -}}
+{{- end -}}
 {{- with $page.Description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
 {{- with $image }}{{ $schema = merge $schema (dict "image" .) }}{{ end -}}
 {{- with $page.Params.tags }}{{ $schema = merge $schema (dict "keywords" (delimit . ", ")) }}{{ end -}}
