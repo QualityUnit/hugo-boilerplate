@@ -13,13 +13,15 @@
     {{ else }}
       {{ with $page.Params.summary }}
         {{ $description = . }}
-      {{ else if eq $page.Kind "term" }}
-        {{ $description = printf "Browse %s articles, tutorials, product updates, and automation guides from FlowHunt." $page.Title }}
-      {{ else if eq $page.Kind "taxonomy" }}
-        {{ $description = printf "Browse FlowHunt articles by topic, including AI agents, automation workflows, tutorials, product updates, and technical guides." }}
       {{ else }}
-        {{ with site.Params.description }}
-          {{ $description = . }}
+        {{ if eq $page.Kind "term" }}
+          {{ $description = printf "Browse %s articles, tutorials, product updates, and automation guides from FlowHunt." $page.Title }}
+        {{ else if eq $page.Kind "taxonomy" }}
+          {{ $description = printf "Browse FlowHunt articles by topic, including AI agents, automation workflows, tutorials, product updates, and technical guides." }}
+        {{ else }}
+          {{ with site.Params.description }}
+            {{ $description = . }}
+          {{ end }}
         {{ end }}
       {{ end }}
     {{ end }}
