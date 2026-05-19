@@ -13,29 +13,7 @@
 }}
 {{ $ogLocale := index $ogLocaleMap site.Language.LanguageCode | default (replace site.Language.LanguageCode "-" "_") }}
 
-{{ $metaDescription := "" }}
-{{ if and (eq .Kind "term") (eq .Data.Singular "components") }}
-  {{ $componentName := partial "helpers/component-display-name.html" (dict "page" .) }}
-  {{ $metaDescription = printf "Explore flow templates that use the %s component. See related automations, integration examples, and ways to use this component in workflows." $componentName }}
-{{ else }}
-  {{ with .Params.description }}
-    {{ $metaDescription = . }}
-  {{ else }}
-    {{ with .Description }}
-      {{ $metaDescription = . }}
-    {{ else }}
-      {{ with .Params.summary }}
-        {{ $metaDescription = . }}
-      {{ else }}
-        {{ with site.Params.description }}
-          {{ $metaDescription = . }}
-        {{ end }}
-      {{ end }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-{{ $metaDescription = replace $metaDescription "[year]" (now.Format "2006") }}
-{{ $metaDescription = $metaDescription | plainify | htmlUnescape | chomp }}
+{{ $metaDescription := partial "helpers/page-meta-description.html" (dict "page" .) }}
 {{ if gt (len $metaDescription) 160 }}
   {{ $metaDescription = truncate 157 "..." $metaDescription }}
 {{ end }}

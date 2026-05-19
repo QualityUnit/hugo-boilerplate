@@ -51,11 +51,7 @@
 {{- end -}}
 
 {{- $pageName := partial "helpers/page-display-title.html" (dict "page" $page) -}}
-{{- $pageDescription := $page.Description -}}
-{{- if and (eq $page.Kind "term") (eq $page.Data.Singular "components") -}}
-  {{- $componentName := partial "helpers/component-display-name.html" (dict "page" $page) -}}
-  {{- $pageDescription = printf "Explore flow templates that use the %s component. See related automations, integration examples, and ways to use this component in workflows." $componentName -}}
-{{- end -}}
+{{- $pageDescription := partial "helpers/page-meta-description.html" (dict "page" $page) -}}
 
 {{- $schema := dict "@context" "https://schema.org" "@type" $pageType "@id" $page.Permalink "url" $page.Permalink "name" $pageName "inLanguage" $page.Language.LanguageCode "isPartOf" $isPartOf "publisher" $publisher -}}
 {{- if not $page.Date.IsZero -}}
