@@ -64,6 +64,15 @@
   {{- with .areaServed }}{{ $cp = merge $cp (dict "areaServed" .) }}{{ end -}}
   {{- $schema = merge $schema (dict "contactPoint" $cp) -}}
 {{- end -}}
+{{- with $org.founder -}}
+  {{- $founders := slice -}}
+  {{- range . -}}
+    {{- $person := dict "@type" "Person" "name" .name -}}
+    {{- with .url }}{{ $person = merge $person (dict "url" .) }}{{ end -}}
+    {{- $founders = $founders | append $person -}}
+  {{- end -}}
+  {{- $schema = merge $schema (dict "founder" $founders) -}}
+{{- end -}}
 {{- with $org.numberOfEmployees }}{{ $schema = merge $schema (dict "numberOfEmployees" .) }}{{ end -}}
 {{- with $org.vatID }}{{ $schema = merge $schema (dict "vatID" .) }}{{ end -}}
 {{- with $org.taxID }}{{ $schema = merge $schema (dict "taxID" .) }}{{ end -}}
