@@ -230,22 +230,6 @@ class KeywordMatcher:
                 return True
         return False
 
-    def should_skip_for_english_at_root(self, file_path: Path, public_dir: Path) -> bool:
-        """When English is at root, skip other language subdirectories."""
-        try:
-            rel_path = file_path.relative_to(public_dir)
-            first_part = rel_path.parts[0] if rel_path.parts else ''
-            # Skip if first directory looks like a language code (2-5 chars, lowercase)
-            if first_part and len(first_part) <= 5 and first_part.islower() and first_part.isalpha():
-                # Check if it's a known language directory (has index.html)
-                lang_index = public_dir / first_part / 'index.html'
-                if lang_index.exists():
-                    return True
-        except ValueError:
-            pass
-        return False
-
-
 def load_keywords(linkbuilding_dir: Path, lang: str) -> Dict[str, Dict]:
     """Load keywords from automatic and manual files.
 
@@ -418,7 +402,8 @@ def process_language(lang: str,
                     output_dir: Path,
                     default_lang_in_subdir: bool = True,
                     max_workers: int = 8,
-                    force: bool = False) -> Dict:
+                    force: bool = False,
+                    all_lang_codes: Optional[Set[str]] = None) -> Dict:
     """Process a single language and generate JSON files."""
     logger.info(f"\nProcessing language: {lang}")
 
@@ -481,15 +466,17 @@ def process_language(lang: str,
                 break
         if skip:
             continue
-        # When English is at root, skip other language subdirectories
-        if english_at_root:
+        # When English is at root, skip other language subdirectories.
+        # Match against the explicit set of configured language codes
+        # (derived from linkbuilding/automatic/*_automatic.json filenames in main()).
+        # The previous heuristic (≤5 chars + alpha + has index.html) falsely
+        # matched short English folders like blog/, about/, faq/.
+        if english_at_root and all_lang_codes:
             try:
                 rel_path = f.relative_to(public_dir)
                 first_part = rel_path.parts[0] if rel_path.parts else ''
-                if first_part and len(first_part) <= 5 and first_part.islower() and first_part.isalpha():
-                    lang_index = public_dir / first_part / 'index.html'
-                    if lang_index.exists():
-                        continue
+                if first_part in all_lang_codes:
+                    continue
             except ValueError:
                 pass
         html_files.append(f)
@@ -696,18 +683,26 @@ Examples:
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Find languages
+    # Discover the full set of configured language codes from the
+    # linkbuilding/automatic/ directory. This is the authoritative set
+    # used to identify other-language subdirectories under public/ when
+    # English is at the root — independent of which subset the user
+    # selected via --languages.
+    auto_files = list((linkbuilding_dir / 'automatic').glob('*_automatic.json'))
+    all_lang_codes = {f.stem.replace('_automatic', '') for f in auto_files}
+
+    # Find languages to process (may be a user-selected subset)
     if args.languages:
         languages = args.languages
     else:
-        auto_files = list((linkbuilding_dir / 'automatic').glob('*_automatic.json'))
-        languages = [f.stem.replace('_automatic', '') for f in auto_files]
+        languages = sorted(all_lang_codes)
 
     if not languages:
         logger.error("No languages found to process")
         sys.exit(1)
 
     logger.info(f"Processing {len(languages)} languages: {', '.join(languages)}")
+    logger.info(f"Known language codes (for subdir skip): {', '.join(sorted(all_lang_codes))}")
     logger.info("=" * 60)
 
     start_time = time.time()
@@ -720,7 +715,8 @@ Examples:
                 lang, linkbuilding_dir, public_dir, output_dir,
                 default_lang_in_subdir=default_lang_in_subdir,
                 max_workers=args.max_workers,
-                force=args.force
+                force=args.force,
+                all_lang_codes=all_lang_codes
             )
             if stats:
                 results.append(stats)
