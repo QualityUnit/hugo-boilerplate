@@ -91,6 +91,19 @@ def embed_with_cache(pages, model_name, cache_path, use_cache=True):
 
         _save(cache_path, cache)
         print(f"Embedding cache updated → {cache_path} ({len(cache)} entries)")
+
+        # Release the model + intermediate tensors so the next caller (e.g. the
+        # next language in a multi-language loop) doesn't pile another model on
+        # top of this one. gc.collect alone won't free CUDA-cached allocations.
+        del model, new_embs
+        import gc as _gc
+        _gc.collect()
+        try:
+            import torch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except ImportError:
+            pass
     else:
         print(f"Embedding cache: {hits}/{hits} hits (fully cached) → {cache_path}")
 

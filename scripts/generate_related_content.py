@@ -616,9 +616,18 @@ def process_language(args, lang):
     save_clustering_data(hierarchy_data, args.hugo_root, lang)
     print(f"[DEBUG] Clustering data generated successfully")
 
-    # Clean up memory for this language
+    # Clean up memory for this language. embed_with_cache already releases the
+    # model + CUDA cache once it's done embedding; this is a belt-and-braces
+    # collect for the per-language Python-side data (embeddings ndarray, FAISS
+    # index, file_data) before the next language starts.
     print(f"[DEBUG] Cleaning up memory...")
     gc.collect()
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except ImportError:
+        pass
     print(f"[DEBUG] Process end time for {lang}: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
 def main():
