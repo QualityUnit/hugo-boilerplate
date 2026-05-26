@@ -5,6 +5,8 @@ language_selector_title: "Saatavilla Olevat Kielet"
 glossary_subtitle: "Kattava lista termeistä ja määritelmistä"
 glossary_title: "Sanasto"
 home_title: "Etusivu"
+component_page_title: "%s-komponentti"
+integration_page_title: "%s-integraatio"
 
 # Search translations
 search_placeholder: "Haku..."

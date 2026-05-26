@@ -33,6 +33,8 @@ cookie_settings_analytics_description: "Kuki hizi hutusaidia kuelewa jinsi wagen
 cookie_settings_cancel: "Ghairi"
 cookie_settings_save: "Hifadhi Mapendekezo"
 home_title: "Nyumbani"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "Kamusi"
 no_terms_available: "Hakuna masharti yaliyopo"
 categories_title: "Jamii"

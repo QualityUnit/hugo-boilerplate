@@ -5,6 +5,8 @@ language_selector_title: "Beschikbare Talen"
 glossary_subtitle: "Een uitgebreide lijst van termen en definities"
 glossary_title: "Woordenlijst"
 home_title: "Home"
+component_page_title: "%s-component"
+integration_page_title: "%s-integratie"
 
 # Search translations
 search_placeholder: "Zoeken..."

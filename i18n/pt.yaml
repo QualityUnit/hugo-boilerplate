@@ -5,6 +5,8 @@ language_selector_title: "Idiomas Disponíveis"
 glossary_subtitle: "Uma lista abrangente de termos e definições"
 glossary_title: "Glossário"
 home_title: "Início"
+component_page_title: "Componente %s"
+integration_page_title: "Integração %s"
 
 # Search translations
 search_placeholder: "Pesquisar..."

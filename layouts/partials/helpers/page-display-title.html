@@ -1,0 +1,11 @@
+{{- $page := .page | default . -}}
+{{- $title := replace $page.Title "[year]" (now.Format "2006") -}}
+{{- if and (eq $page.Kind "term") (eq $page.Data.Singular "components") -}}
+  {{- $componentName := partial "helpers/component-display-name.html" (dict "page" $page) -}}
+  {{- $pattern := i18n "component_page_title" | default "%s Component" -}}
+  {{- $title = printf $pattern $componentName -}}
+{{- else if and (eq $page.Section "integrations") (not (in (lower $title) "integration")) -}}
+  {{- $pattern := i18n "integration_page_title" | default "%s Integration" -}}
+  {{- $title = printf $pattern $title -}}
+{{- end -}}
+{{- return ($title | htmlUnescape) -}}

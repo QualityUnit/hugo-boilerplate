@@ -1,0 +1,35 @@
+{{- $raw := .name | default .page.Title -}}
+{{- $display := $raw -}}
+{{- $matched := false -}}
+{{- with site.Data.related_content.en.components -}}
+  {{- range $key, $_ := . -}}
+    {{- if eq (lower $key) (lower $raw) -}}
+      {{- $display = $key -}}
+      {{- $matched = true -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $matched -}}
+  {{- $phrase := lower $display -}}
+  {{- range slice
+    "microsoft" "wordpress" "instagram" "linkedin" "available" "worksheet" "worksheets"
+    "workbook" "workbooks" "calendar" "channels" "contacts" "messages" "received"
+    "outlook" "planner" "hubspot" "onedrive" "profile" "replies" "reaction"
+    "folders" "history" "formula" "display" "google" "sheets" "slides" "delete"
+    "remove" "update" "create" "assign" "search" "thread" "events" "labels"
+    "contact" "folder" "channel" "message" "plugin" "charts" "ranges" "media"
+    "slack" "excel" "gmail" "todo" "docs" "send" "list" "view" "find" "add"
+    "get" "new" "row" "rows" "task" "tasks" "plan" "plans" "user" "users"
+    "file" "files" "post" "posts" "range" "chart" "label" "apply" "times" "event"
+  -}}
+    {{- $phrase = replace $phrase . (printf " %s " .) -}}
+  {{- end -}}
+  {{- $phrase = replaceRE "\\b([a-z]+) s\\b" "${1}s" $phrase -}}
+  {{- $display = title (replaceRE "\\s+" " " (strings.TrimSpace $phrase)) -}}
+{{- else -}}
+  {{- $display = replaceRE "([A-Z]+)([A-Z][a-z])" "$1 $2" $display -}}
+  {{- $display = replaceRE "([a-z])([A-Z])" "$1 $2" $display -}}
+  {{- $display = replaceRE "([A-Za-z])([0-9])" "$1 $2" $display -}}
+  {{- $display = replaceRE "([0-9])([A-Za-z])" "$1 $2" $display -}}
+{{- end -}}
+{{- return (strings.TrimSpace $display | htmlUnescape) -}}

@@ -5,6 +5,8 @@ language_selector_title: "زبان‌های موجود"
 glossary_subtitle: "فهرستی جامع از اصطلاحات و تعاریف"
 glossary_title: "فرهنگ لغات"
 home_title: "خانه"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 
 # Search translations
 search_placeholder: "جستجو..."

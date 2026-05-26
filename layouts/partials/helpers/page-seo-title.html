@@ -1,0 +1,17 @@
+{{- $page := .page | default . -}}
+{{- $title := "" -}}
+{{- with $page.Params.seo_title -}}
+  {{- $title = . -}}
+{{- else -}}
+  {{- with $page.Params.meta_title -}}
+    {{- $title = . -}}
+  {{- else -}}
+    {{- with $page.Params.browser_title -}}
+      {{- $title = . -}}
+    {{- else -}}
+      {{- $title = partial "helpers/page-display-title.html" (dict "page" $page) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $title = replace $title "[year]" (now.Format "2006") -}}
+{{- return ($title | htmlUnescape) -}}

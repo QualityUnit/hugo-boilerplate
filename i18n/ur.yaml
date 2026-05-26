@@ -53,6 +53,8 @@ cookie_settings_cancel: "منسوخ کریں"
 cookie_settings_save: "ترجیحات محفوظ کریں"
 
 home_title: "ہوم"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "اصطلاحات"
 no_terms_available: "کوئی اصطلاحات دستیاب نہیں"
 categories_title: "زمرہ جات"

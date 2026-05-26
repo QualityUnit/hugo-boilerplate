@@ -6,6 +6,8 @@ language_selector_title: "利用可能な言語"
 glossary_subtitle: "用語と定義の包括的なリスト"
 glossary_title: "用語集"
 home_title: "ホーム"
+component_page_title: "%sコンポーネント"
+integration_page_title: "%s統合"
 
 # Search translations
 search_placeholder: "検索..."

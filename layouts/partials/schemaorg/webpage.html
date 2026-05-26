@@ -50,8 +50,17 @@
   {{- $publisher = merge $publisher (dict "logo" $logo) -}}
 {{- end -}}
 
-{{- $schema := dict "@context" "https://schema.org" "@type" $pageType "@id" $page.Permalink "url" $page.Permalink "name" $page.Title "inLanguage" $page.Language.LanguageCode "isPartOf" $isPartOf "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00") "publisher" $publisher -}}
-{{- with $page.Description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
+{{- $pageName := partial "helpers/page-display-title.html" (dict "page" $page) -}}
+{{- $pageDescription := partial "helpers/page-meta-description.html" (dict "page" $page) -}}
+
+{{- $schema := dict "@context" "https://schema.org" "@type" $pageType "@id" $page.Permalink "url" $page.Permalink "name" $pageName "inLanguage" $page.Language.LanguageCode "isPartOf" $isPartOf "publisher" $publisher -}}
+{{- if not $page.Date.IsZero -}}
+  {{- $schema = merge $schema (dict "datePublished" ($page.Date.Format "2006-01-02T15:04:05Z07:00")) -}}
+{{- end -}}
+{{- if not $page.Lastmod.IsZero -}}
+  {{- $schema = merge $schema (dict "dateModified" ($page.Lastmod.Format "2006-01-02T15:04:05Z07:00")) -}}
+{{- end -}}
+{{- with $pageDescription }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
 {{- with $page.Params.image -}}
   {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
   {{- $schema = merge $schema (dict "image" $img) -}}

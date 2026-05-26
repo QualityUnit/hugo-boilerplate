@@ -5,6 +5,8 @@ language_selector_title: "উপলভ্য ভাষাসমূহ"
 glossary_subtitle: "শব্দ এবং সংজ্ঞার একটি বিস্তৃত তালিকা"
 glossary_title: "শব্দকোষ"
 home_title: "হোম"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 
 # Search translations
 search_placeholder: "অনুসন্ধান..."

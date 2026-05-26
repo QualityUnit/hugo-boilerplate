@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="{{ .Site.Language.Locale | default "en" }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="{{ .Permalink }}">
+    <title>Redirecting | {{ .Site.Title }}</title>
+    <meta http-equiv="refresh" content="0; url={{ .Permalink }}">
+    <script>
+      window.location.replace({{ .Permalink | jsonify | safeJS }});
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to <a href="{{ .Permalink }}">{{ .Permalink }}</a>.</p>
+  </body>
+</html>

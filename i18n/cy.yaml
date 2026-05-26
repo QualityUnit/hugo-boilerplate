@@ -34,6 +34,8 @@ cookie_settings_cancel: "Canslo"
 cookie_settings_save: "Cadw Dewisiadau"
 
 home_title: "Cartref"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "Geirfa"
 no_terms_available: "Dim termau ar gael"
 categories_title: "Categorïau"

@@ -5,6 +5,8 @@ language_selector_title: "Razpoložljivi jeziki"
 glossary_subtitle: "Izčrpen seznam izrazov in definicij"
 glossary_title: "Slovar"
 home_title: "Domov"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 
 # Search translations
 search_placeholder: "Iskanje..."

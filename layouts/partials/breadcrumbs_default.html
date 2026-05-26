@@ -10,7 +10,8 @@
 
 {{/* Add current page - .Ancestors does not include the current page, so we add it separately */}}
 {{ if not .IsHome }}
-  {{ $breadcrumbItems = $breadcrumbItems | append (dict "title" .Title "url" .RelPermalink) }}
+  {{ $currentTitle := partial "helpers/page-display-title.html" (dict "page" .) }}
+  {{ $breadcrumbItems = $breadcrumbItems | append (dict "title" $currentTitle "url" .RelPermalink) }}
 {{ end }}
 
 {{ partial "components/breadcrumbs/basic" (dict "items" $breadcrumbItems) }}

@@ -5,6 +5,8 @@ language_selector_title: "Tillgängliga språk"
 glossary_subtitle: "En omfattande lista över termer och definitioner"
 glossary_title: "Ordlista"
 home_title: "Hem"
+component_page_title: "%s-komponent"
+integration_page_title: "%s-integration"
 
 # Search translations
 search_placeholder: "Sök..."

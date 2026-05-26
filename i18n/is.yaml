@@ -5,6 +5,8 @@ language_selector_title: "Tiltæk Tungumál"
 glossary_subtitle: "Yfirgripsmikill listi af hugtökum og skilgreiningum"
 glossary_title: "Hugtakasafn"
 home_title: "Heim"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 
 # Glossary translations
 glossary_eyebrow: "Hugtakasafn"

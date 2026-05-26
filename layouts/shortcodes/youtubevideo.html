@@ -8,6 +8,7 @@
   - class: Additional CSS classes (optional)
   - width: Video width (optional, default: "100%")
   - height: Video height (optional, default: "auto")
+  - uploadDate: Stable upload date for VideoObject schema (optional, ISO date)
 @usage:
 {{< youtubevideo 
   videoID="dQw4w9WgXcQ" 
@@ -23,6 +24,7 @@
 {{ $class := default "" (.Get "class") }}
 {{ $width := default "100%" (.Get "width") }}
 {{ $height := default "auto" (.Get "height") }}
+{{ $uploadDate := .Get "uploadDate" }}
 
 {{ partial "components/media/video.html" (dict 
   "videoID" $videoID 
@@ -31,4 +33,6 @@
   "class" $class
   "width" $width
   "height" $height
+  "page" .Page
+  "uploadDate" $uploadDate
 ) }}

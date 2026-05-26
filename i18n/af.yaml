@@ -51,6 +51,8 @@ cookie_settings_analytics_description: "Hierdie koekies help ons om te verstaan 
 cookie_settings_cancel: "Kanselleer"
 cookie_settings_save: "Stoor Voorkeure"
 home_title: "Tuis"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 glossary_eyebrow: "Woordelys"
 no_terms_available: "Geen terme beskikbaar nie"
 categories_title: "Kategorieë"

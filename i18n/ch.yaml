@@ -33,6 +33,8 @@ cookie_settings_cancel: "Abbrechä"
 cookie_settings_save: "Präferenzä speicherä"
 
 home_title: "Dihei"
+component_page_title: "%s组件"
+integration_page_title: "%s集成"
 glossary_eyebrow: "Glossar"
 no_terms_available: "Kei Begriff verfuegbar"
 categories_title: "Kategorie"

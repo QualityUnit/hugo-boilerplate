@@ -5,6 +5,8 @@ language_selector_title: "Pieejamās valodas"
 glossary_subtitle: "Visaptverošs terminu un definīciju saraksts"
 glossary_title: "Glosārijs"
 home_title: "Sākums"
+component_page_title: "%s Component"
+integration_page_title: "%s Integration"
 
 # Search translations
 search_placeholder: "Meklēt..."

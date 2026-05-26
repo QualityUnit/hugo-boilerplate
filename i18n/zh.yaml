@@ -5,6 +5,8 @@ language_selector_title: "可用语言"
 glossary_subtitle: "术语和定义的全面列表"
 glossary_title: "术语表"
 home_title: "首页"
+component_page_title: "%s组件"
+integration_page_title: "%s集成"
 
 # Search translations
 search_placeholder: "搜索..."

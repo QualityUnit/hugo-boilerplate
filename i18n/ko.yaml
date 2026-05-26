@@ -5,6 +5,8 @@ language_selector_title: "사용 가능한 언어"
 glossary_subtitle: "용어 및 정의의 종합 목록"
 glossary_title: "용어집"
 home_title: "홈"
+component_page_title: "%s 컴포넌트"
+integration_page_title: "%s 통합"
 
 # Search translations
 search_placeholder: "검색..."

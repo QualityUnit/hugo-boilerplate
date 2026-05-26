@@ -5,6 +5,8 @@ language_selector_title: "اللغات المتاحة"
 glossary_subtitle: "قائمة شاملة بالمصطلحات والتعريفات"
 glossary_title: "المصطلحات"
 home_title: "الرئيسية"
+component_page_title: "مكون %s"
+integration_page_title: "تكامل %s"
 
 # Search translations
 search_placeholder: "البحث..."
