@@ -47,7 +47,7 @@ import umap
 from bs4 import BeautifulSoup
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from embedding_cache import cache_path_for, embed_with_cache
+from embedding_cache import EmbeddingCache, shared_sqlite_cache_path
 
 DEFAULT_MODEL = "Alibaba-NLP/gte-multilingual-base"
 DEFAULT_MAX_CHARS = 2000
@@ -64,7 +64,7 @@ def parse_args():
     p.add_argument("--hugo-root", default=".", help="Hugo project root (default: cwd)")
     p.add_argument("--content-dir", default=None, help="Override content dir (default: {hugo-root}/content)")
     p.add_argument("--output-dir", default=None, help="Override output dir (default: {hugo-root}/static/data/audit/{lang})")
-    p.add_argument("--cache-dir", default=None, help="Override cache dir (default: {hugo-root}/data/audit_cache)")
+    p.add_argument("--cache-path", default=None, help="SQLite embedding cache path (default: {hugo-root}/.audit_cache/embedding-cache.sqlite3)")
     p.add_argument("--model", default=DEFAULT_MODEL, help=f"Sentence-transformer model (default: {DEFAULT_MODEL})")
     p.add_argument("--max-chars", type=int, default=DEFAULT_MAX_CHARS, help="Max body chars fed to embedder")
     p.add_argument("--duplicate-threshold", type=float, default=DEFAULT_DUP_THRESHOLD, help="Cosine similarity above which pages are flagged as near-duplicates")
@@ -434,17 +434,18 @@ def main():
     hugo_root = Path(args.hugo_root).resolve()
     content_dir = Path(args.content_dir) if args.content_dir else hugo_root / "content"
     output_dir = Path(args.output_dir) if args.output_dir else hugo_root / "static" / "data" / "audit" / args.lang
-    if args.cache_dir:
-        cache_path = Path(args.cache_dir) / f"{args.lang}__{args.model.replace('/', '_').replace('-', '_')}.npz"
-    else:
-        cache_path = cache_path_for(hugo_root, args.lang, args.model)
+    cache_path = Path(args.cache_path) if args.cache_path else shared_sqlite_cache_path(hugo_root)
 
     pages = process_content_files(content_dir, args.lang, args.exclude_sections, args.max_chars)
     if not pages:
         print("No pages found — aborting.")
         return
 
-    embeddings = embed_with_cache(pages, args.model, cache_path, use_cache=not args.no_cache)
+    cache = EmbeddingCache(cache_path, args.model, enabled=not args.no_cache, cache_type="page")
+    embed_texts = [p["embed_text"] for p in pages]
+    embeddings = cache.encode(args.model, embed_texts, batch_size=32, show_progress_bar=True,
+                              desc="Page embeddings")
+    cache.close()
 
     site_centroid = l2_normalize(embeddings.mean(axis=0))
     site_metrics = focus_metrics(embeddings, site_centroid)

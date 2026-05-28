@@ -12,6 +12,9 @@
 # Before running, install the required libraries:
 # pip install torch transformers Pillow faiss-cpu tqdm
 
+import argparse
+import gc
+import hashlib
 import os
 from pathlib import Path
 from PIL import Image
@@ -21,6 +24,8 @@ import faiss
 import numpy as np
 from tqdm import tqdm
 import datetime
+
+from embedding_cache import EmbeddingCache, shared_sqlite_cache_path
 
 # --- Configuration ---
 SCRIPT_DIR = Path(__file__).parent.resolve()
@@ -32,6 +37,18 @@ DUPLICATE_LIMIT = 1000
 SIMILARITY_THRESHOLD = 1e-5
 # Resize width for normalization before feature extraction
 RESIZE_WIDTH = 300
+IMAGE_CACHE_MODEL = f"{MODEL_NAME}:image:v1:resize-width={RESIZE_WIDTH}"
+IMAGE_EMBEDDING_DIM = 768
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Find visually duplicate and unused images.")
+    parser.add_argument("--image-dir", default=str(IMAGE_DIR),
+                        help="Directory to scan for images (default: ../../../cdn-assets)")
+    parser.add_argument("--cache-path", default=None,
+                        help="SQLite embedding cache path (default: {hugo-root}/.audit_cache/embedding-cache.sqlite3)")
+    parser.add_argument("--no-cache", action="store_true", help="Disable persistent embedding cache")
+    return parser.parse_args()
 
 def find_image_files(directory):
     """Recursively finds all image files in a directory."""
@@ -63,6 +80,27 @@ def load_model():
     model.eval()
     return image_processor, model, device
 
+
+def release_model(model):
+    del model
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    if hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
+        try:
+            torch.mps.empty_cache()
+        except RuntimeError:
+            pass
+
+
+def image_cache_key(image_path):
+    """Hash image bytes so renamed duplicate files reuse the same vector."""
+    h = hashlib.sha256()
+    with open(image_path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
 def extract_features(image_path, image_processor, model, device):
     """Extracts a feature vector from a single image."""
     try:
@@ -85,17 +123,48 @@ def extract_features(image_path, image_processor, model, device):
         print(f"Warning: Could not process image {image_path}. Error: {e}")
         return None
 
-def get_all_embeddings(image_paths, image_processor, model, device):
+def get_all_embeddings(image_paths, cache):
     """Extracts embeddings for a list of image paths."""
-    embeddings = []
     valid_paths = []
-    print("Extracting features from images...")
-    for path in tqdm(image_paths, desc="Processing images"):
-        feature_vector = extract_features(path, image_processor, model, device)
-        if feature_vector is not None:
-            embeddings.append(feature_vector)
-            valid_paths.append(path)
-    return np.array(embeddings).astype('float32'), valid_paths
+    keys = []
+    key_to_path = {}
+
+    print("Hashing images for embedding cache...")
+    for path in tqdm(image_paths, desc="Hashing images"):
+        try:
+            key = image_cache_key(path)
+        except Exception as e:
+            print(f"Warning: Could not hash image {path}. Error: {e}")
+            continue
+        valid_paths.append(path)
+        keys.append(key)
+        key_to_path.setdefault(key, path)
+
+    if not keys:
+        return np.zeros((0, 0), dtype=np.float32), []
+
+    def compute_missing(missing_keys):
+        image_processor, model, device = load_model()
+        vectors = []
+        try:
+            for key in tqdm(missing_keys, desc="Processing image cache misses"):
+                feature_vector = extract_features(key_to_path[key], image_processor, model, device)
+                if feature_vector is None:
+                    feature_vector = np.zeros(IMAGE_EMBEDDING_DIM, dtype=np.float32)
+                vectors.append(feature_vector)
+        finally:
+            release_model(model)
+        return np.asarray(vectors, dtype=np.float32)
+
+    embeddings = cache.encode_by_keys(keys, compute_missing, desc="Image embeddings")
+    norms = np.linalg.norm(embeddings, axis=1)
+    keep = norms > 0
+    if not np.all(keep):
+        skipped = int(len(keep) - keep.sum())
+        print(f"Skipped {skipped} images without usable embeddings.")
+    filtered_embeddings = embeddings[keep].astype("float32")
+    filtered_paths = [path for path, ok in zip(valid_paths, keep) if ok]
+    return filtered_embeddings, filtered_paths
 
 def get_image_size(image_path):
     """Returns the pixel count (width * height) of an image."""
@@ -174,20 +243,26 @@ def find_unused_images(all_image_paths, project_root):
     return unused_images
 
 if __name__ == "__main__":
-    if not IMAGE_DIR.exists() or not IMAGE_DIR.is_dir():
-        print(f"Error: Image directory not found at '{IMAGE_DIR}'")
+    args = parse_args()
+    image_dir = Path(args.image_dir).resolve()
+    if not image_dir.exists() or not image_dir.is_dir():
+        print(f"Error: Image directory not found at '{image_dir}'")
     else:
         # Get project root for relative paths
         project_root = SCRIPT_DIR.parent.parent.parent.resolve()
+        cache_path = Path(args.cache_path) if args.cache_path else shared_sqlite_cache_path(project_root)
 
-        all_image_paths = find_image_files(IMAGE_DIR)
+        all_image_paths = find_image_files(image_dir)
 
         if not all_image_paths:
             print("No images found to process.")
         else:
-            processor, vit_model, dev = load_model()
-            image_embeddings, valid_image_paths = get_all_embeddings(all_image_paths, processor, vit_model, dev)
-            duplicates = find_duplicate_groups(image_embeddings, valid_image_paths)
+            cache = EmbeddingCache(cache_path, IMAGE_CACHE_MODEL, enabled=not args.no_cache, cache_type="image")
+            try:
+                image_embeddings, valid_image_paths = get_all_embeddings(all_image_paths, cache)
+                duplicates = find_duplicate_groups(image_embeddings, valid_image_paths)
+            finally:
+                cache.close()
 
             # Find unused images
             unused_images = find_unused_images(all_image_paths, project_root)

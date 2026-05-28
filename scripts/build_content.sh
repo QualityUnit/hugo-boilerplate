@@ -50,10 +50,7 @@ ALL_STEPS=(
     "generate_related_content"
     "generate_clustering"
     "generate_site_audit"
-    "generate_linkbuilding_keywords"
-    "regenerate_linkbuilding_keywords"
-    "extract_automatic_links"
-    "precompute_linkbuilding"
+    "generate_paragraph_linkbuilding"
     "preprocess_images"
 )
 
@@ -74,15 +71,12 @@ declare -A STEP_DESCRIPTIONS=(
     ["generate_related_content"]="Generate related content JSON (split by section)"
     ["generate_clustering"]="Generate website clustering visualization"
     ["generate_site_audit"]="Generate SEO site audit (focus score, radius, outliers, duplicates)"
-    ["generate_linkbuilding_keywords"]="Generate linkbuilding keywords"
-    ["regenerate_linkbuilding_keywords"]="REGENERATE linkbuilding (clears existing first)"
-    ["extract_automatic_links"]="Extract automatic links from content"
-    ["precompute_linkbuilding"]="Precompute file-centric linkbuilding (JSON)"
+    ["generate_paragraph_linkbuilding"]="Generate page-local [[lnks]] linkbuilding frontmatter"
     ["preprocess_images"]="Preprocess images for web delivery"
 )
 
 # Steps that should be unchecked by default
-UNCHECKED_BY_DEFAULT=("offload_images" "find_duplicate_images" "generate_clustering" "generate_site_audit" "preprocess_images" "regenerate_linkbuilding_keywords" "drop_all_keywords")
+UNCHECKED_BY_DEFAULT=("offload_images" "find_duplicate_images" "generate_clustering" "generate_site_audit" "generate_paragraph_linkbuilding" "preprocess_images" "drop_all_keywords")
 
 # Interactive checkbox menu function
 show_interactive_menu() {
@@ -270,11 +264,6 @@ else
         echo -e "${YELLOW}Missing: boto3${NC}"
         MISSING_DEPS=true
     fi
-    if ! "${VENV_DIR}/bin/python" -c "import ahocorasick" 2>/dev/null; then
-        echo -e "${YELLOW}Missing: pyahocorasick${NC}"
-        MISSING_DEPS=true
-    fi
-
     if [ "$MISSING_DEPS" = true ]; then
         echo -e "${YELLOW}Virtual environment exists but some dependencies are missing${NC}"
         NEED_INSTALL=true
@@ -298,11 +287,6 @@ if [ "$NEED_INSTALL" = true ]; then
     echo -e "${YELLOW}Installing requirements...${NC}"
     pip install -r "${SCRIPT_DIR}/requirements.txt"
 
-    # Install linkbuilding requirements (includes pyahocorasick for fast keyword matching)
-    if [ -f "${SCRIPT_DIR}/requirements-linkbuilding.txt" ]; then
-        echo -e "${YELLOW}Installing linkbuilding requirements...${NC}"
-        pip install -r "${SCRIPT_DIR}/requirements-linkbuilding.txt"
-    fi
 else
     echo -e "${GREEN}Skipping dependency installation - already installed${NC}"
 fi
@@ -313,16 +297,11 @@ fi
 STEPS_TO_RUN=()
 SKIP_MENU=false
 MAX_PARALLEL_TRANSLATIONS=100  # Default value for parallel translation processes
-# Cap for embedding-heavy steps (site_audit, clustering, linkbuilding_keywords).
+# Cap for embedding-heavy steps (site_audit, clustering).
 # Each background worker loads a sentence-transformer model (~1–2 GB resident),
 # so fanning out across all 20+ language dirs at once OOMs the machine.
 # Override via env.
 MAX_PARALLEL_EMBED="${MAX_PARALLEL_EMBED:-3}"
-# Cap for lighter parallel steps (extract_automatic_links). No ML model, just
-# markdown/HTML parsing — RAM per worker ~150-300 MB. Higher default than
-# MAX_PARALLEL_EMBED but still bounded so 30+ language dirs don't all spawn at
-# once on weaker machines. Override via env.
-MAX_PARALLEL_LINKS="${MAX_PARALLEL_LINKS:-8}"
 while [[ $# -gt 0 ]]; do
     case $1 in
         --step|--steps)
@@ -351,11 +330,9 @@ while [[ $# -gt 0 ]]; do
             echo "Environment variables:"
             echo "  FLOWHUNT_API_KEY           Required for the 'translate' step (or set in scripts/.env)"
             echo "  MAX_PARALLEL_EMBED         Cap on parallel embedding workers for ML-heavy steps"
-            echo "                             (clustering, site_audit, linkbuilding_keywords). Default: 3"
+            echo "                             (clustering, site_audit). Default: 3"
             echo "                             Each worker loads ~1-2 GB sentence-transformer model — lower"
             echo "                             this on machines with <32 GB RAM to avoid OOM/swap pressure."
-            echo "  MAX_PARALLEL_LINKS         Cap on parallel workers for extract_automatic_links."
-            echo "                             Default: 8. No ML; ~150-300 MB per worker (markdown/HTML)."
             echo ""
             echo "Available steps:"
             for step in "${ALL_STEPS[@]}"; do
@@ -367,7 +344,7 @@ while [[ $# -gt 0 ]]; do
             echo "  $0 --steps sync_translations,build_hugo"
             echo "  $0 --no-menu                                 # Run all steps without menu"
             echo "  $0 --steps translate --max-parallel 5        # Run translation with 5 parallel processes"
-            echo "  MAX_PARALLEL_EMBED=2 $0 --steps generate_linkbuilding_keywords  # Lower RAM usage"
+            echo "  $0 --steps generate_paragraph_linkbuilding      # Generate page-local [[lnks]] frontmatter"
             exit 0
             ;;
         *)
@@ -381,21 +358,6 @@ if [ ${#STEPS_TO_RUN[@]} -eq 0 ] && [ "$SKIP_MENU" = false ] && [ -t 0 ] && [ -t
     show_interactive_menu
     STEPS_TO_RUN=("${MENU_SELECTED_STEPS[@]}")
 fi
-
-# Pre-execution confirmation for dangerous steps (ask immediately after menu selection)
-for step in "${STEPS_TO_RUN[@]}"; do
-    if [ "$step" = "regenerate_linkbuilding_keywords" ]; then
-        echo -e "${RED}WARNING: You selected 'regenerate_linkbuilding_keywords'${NC}"
-        echo -e "${YELLOW}This will clear ALL existing linkbuilding attributes and regenerate them.${NC}"
-        echo ""
-        read -p "Are you sure you want to regenerate all linkbuilding keywords? (yes/no): " confirm
-        if [ "$confirm" != "yes" ]; then
-            echo -e "${YELLOW}Removing 'regenerate_linkbuilding_keywords' from steps to run.${NC}"
-            STEPS_TO_RUN=("${STEPS_TO_RUN[@]/regenerate_linkbuilding_keywords}")
-        fi
-        echo ""
-    fi
-done
 
 # Function to check for duplicate IDs in i18n YAML files
 check_duplicate_i18n_ids() {
@@ -600,184 +562,19 @@ print(f'Done. Dropped keywords from {dropped} files.')
             echo -e "${GREEN}Amplify redirects generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_amplify_redirects finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
-        generate_linkbuilding_keywords)
-            echo -e "${BLUE}=== Step 3.9: Generating Linkbuilding Keywords ===${NC}"
-            echo -e "${YELLOW}Running linkbuilding keyword generation for all languages...${NC}"
-            
-            # Start language extractions in parallel, capped at MAX_PARALLEL_EMBED workers
-            # to avoid OOM (each worker loads a ~1–2 GB sentence-transformer model).
-            echo -e "${YELLOW}Starting linkbuilding keyword generation (max ${MAX_PARALLEL_EMBED} parallel)...${NC}"
-            pids=()
-            active=0
+        generate_paragraph_linkbuilding)
+            echo -e "${BLUE}=== Step 3.9: Generating Page-local Linkbuilding [[lnks]] ===${NC}"
+            echo -e "${YELLOW}Generating paragraph-aware [[lnks]] for all content languages with one model load...${NC}"
+            mkdir -p "${HUGO_ROOT}/data/linkbuilding"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/generate_paragraph_linkbuilding.py --all-languages --write --remove-old-linkbuilding${NC}"
 
-            for lang_dir in "${HUGO_ROOT}/content"/*; do
-                if [ -d "$lang_dir" ]; then
-                    lang=$(basename "$lang_dir")
-                    echo -e "${YELLOW}[DEBUG] Starting linkbuilding keyword generation for language: $lang${NC}"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_paragraph_linkbuilding.py" \
+                --all-languages \
+                --write \
+                --remove-old-linkbuilding
 
-                    # Run generation in background (with virtual environment)
-                    (
-                        "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_linkbuilding_keywords.py" \
-                            --lang "$lang" \
-                            --top-k 10 \
-                            --min-keyword-freq 3 \
-                            --min-files 5 \
-                            --min-ngram 2 \
-                            --max-ngram 4 2>&1 | \
-                            sed "s/^/[$lang] /"
-
-                        if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                            echo -e "${GREEN}[$lang] Linkbuilding keywords generated successfully${NC}"
-                        else
-                            echo -e "${YELLOW}[$lang] Warning: Failed to generate linkbuilding keywords${NC}"
-                        fi
-                    ) &
-
-                    # Store the PID
-                    pids+=($!)
-                    active=$((active + 1))
-                    if (( active >= MAX_PARALLEL_EMBED )); then
-                        wait -n 2>/dev/null || wait "${pids[0]}"
-                        active=$((active - 1))
-                    fi
-                fi
-            done
-
-            # Wait for remaining background processes
-            echo -e "${YELLOW}Waiting for remaining language linkbuilding generations to complete...${NC}"
-            failed_langs=()
-            for pid in "${pids[@]}"; do
-                wait $pid
-                if [ $? -ne 0 ]; then
-                    failed_langs+=("$pid")
-                fi
-            done
-            
-            # Report results
-            if [ ${#failed_langs[@]} -eq 0 ]; then
-                echo -e "${GREEN}All linkbuilding keyword generations completed successfully!${NC}"
-            else
-                echo -e "${YELLOW}Some linkbuilding generations failed, but continuing...${NC}"
-            fi
-            
-            echo -e "${GREEN}Linkbuilding keyword generation completed!${NC}"
-            echo -e "${YELLOW}[DEBUG] Step generate_linkbuilding_keywords finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            ;;
-        regenerate_linkbuilding_keywords)
-            echo -e "${BLUE}=== Step: REGENERATING Linkbuilding Keywords (Clear + Generate) ===${NC}"
-            echo -e "${YELLOW}This will clear ALL existing linkbuilding attributes and regenerate them.${NC}"
-
-            # Step 1: Clear all existing linkbuilding attributes using line-based approach
-            echo -e "${YELLOW}Clearing existing linkbuilding attributes from all content files...${NC}"
-            "${VENV_DIR}/bin/python" << 'PYTHON_SCRIPT'
-import os
-import re
-
-content_dir = os.environ.get('HUGO_ROOT', '.') + '/content'
-removed_count = 0
-total_files = 0
-
-def remove_linkbuilding(content):
-    """Remove linkbuilding line from frontmatter using line-based approach."""
-    if not content.startswith('+++'):
-        return content, False
-
-    match = re.match(r'^(\+\+\+\s*\n)(.*?)(\n\+\+\+\s*\n?)(.*)', content, re.DOTALL)
-    if not match:
-        return content, False
-
-    opening, raw_fm, closing, body = match.groups()
-
-    if 'linkbuilding' not in raw_fm:
-        return content, False
-
-    # Remove linkbuilding line(s)
-    lines = raw_fm.split('\n')
-    filtered = [l for l in lines if not (l.strip().startswith('linkbuilding') and '=' in l)]
-
-    if len(filtered) == len(lines):
-        return content, False
-
-    new_fm = '\n'.join(filtered)
-    return f"{opening}{new_fm}{closing}{body}", True
-
-for root, dirs, files in os.walk(content_dir):
-    for file in files:
-        if file.endswith(".md"):
-            total_files += 1
-            file_path = os.path.join(root, file)
-            try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    content = f.read()
-
-                new_content, removed = remove_linkbuilding(content)
-                if removed:
-                    with open(file_path, 'w', encoding='utf-8') as f:
-                        f.write(new_content)
-                    removed_count += 1
-
-            except Exception as e:
-                print(f"Error processing {file_path}: {e}")
-
-print(f"Processed {total_files} markdown files")
-print(f"Removed linkbuilding from {removed_count} files")
-PYTHON_SCRIPT
-
-            echo -e "${GREEN}Cleared existing linkbuilding attributes!${NC}"
-
-            # Step 2: Generate new linkbuilding keywords (capped at MAX_PARALLEL_EMBED to avoid OOM)
-            echo -e "${YELLOW}Generating new linkbuilding keywords (max ${MAX_PARALLEL_EMBED} parallel)...${NC}"
-            pids=()
-            active=0
-
-            for lang_dir in "${HUGO_ROOT}/content"/*; do
-                if [ -d "$lang_dir" ]; then
-                    lang=$(basename "$lang_dir")
-                    echo -e "${YELLOW}[DEBUG] Starting linkbuilding keyword generation for language: $lang${NC}"
-
-                    (
-                        "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_linkbuilding_keywords.py" \
-                            --lang "$lang" \
-                            --top-k 10 \
-                            --min-keyword-freq 3 \
-                            --min-files 5 \
-                            --min-ngram 2 \
-                            --max-ngram 4 2>&1 | \
-                            sed "s/^/[$lang] /"
-
-                        if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                            echo -e "${GREEN}[$lang] Linkbuilding keywords regenerated successfully${NC}"
-                        else
-                            echo -e "${YELLOW}[$lang] Warning: Failed to regenerate linkbuilding keywords${NC}"
-                        fi
-                    ) &
-
-                    pids+=($!)
-                    active=$((active + 1))
-                    if (( active >= MAX_PARALLEL_EMBED )); then
-                        wait -n 2>/dev/null || wait "${pids[0]}"
-                        active=$((active - 1))
-                    fi
-                fi
-            done
-
-            echo -e "${YELLOW}Waiting for remaining language regenerations to complete...${NC}"
-            failed_langs=()
-            for pid in "${pids[@]}"; do
-                wait $pid
-                if [ $? -ne 0 ]; then
-                    failed_langs+=("$pid")
-                fi
-            done
-
-            if [ ${#failed_langs[@]} -eq 0 ]; then
-                echo -e "${GREEN}All linkbuilding keyword regenerations completed successfully!${NC}"
-            else
-                echo -e "${YELLOW}Some regenerations failed, but continuing...${NC}"
-            fi
-
-            echo -e "${GREEN}Linkbuilding keyword REGENERATION completed!${NC}"
-            echo -e "${YELLOW}[DEBUG] Step regenerate_linkbuilding_keywords finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+            echo -e "${GREEN}Paragraph linkbuilding generation completed!${NC}"
+            echo -e "${YELLOW}[DEBUG] Step generate_paragraph_linkbuilding finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_related_content)
             echo -e "${BLUE}=== Step 4: Generating Related Content JSON Files (Split by Section) ===${NC}"
@@ -900,68 +697,6 @@ PYTHON_SCRIPT
             echo -e "${GREEN}Site audit generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_site_audit finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
-        extract_automatic_links)
-            echo -e "${BLUE}=== Step 4.5: Extracting Automatic Links ===${NC}"
-            echo -e "${YELLOW}Extracting keywords from markdown frontmatter for linkbuilding...${NC}"
-            
-            # Create linkbuilding directory if it doesn't exist
-            mkdir -p "${HUGO_ROOT}/data/linkbuilding/automatic"
-            
-            # Start language extractions in parallel, capped at MAX_PARALLEL_LINKS
-            # workers (each ~150-300 MB markdown parser; 30+ at once spikes RAM).
-            echo -e "${YELLOW}Starting parallel extraction (max ${MAX_PARALLEL_LINKS} parallel)...${NC}"
-            pids=()
-            active=0
-
-            for lang_dir in "${HUGO_ROOT}/content"/*; do
-                if [ -d "$lang_dir" ]; then
-                    lang=$(basename "$lang_dir")
-                    echo -e "${YELLOW}[DEBUG] Starting extraction for language: $lang${NC}"
-
-                    # Run extraction in background (with virtual environment)
-                    (
-                        "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/extract_automatic_links.py" \
-                            --content-dir "${lang_dir}/" \
-                            --output "${HUGO_ROOT}/data/linkbuilding/automatic/${lang}_automatic.json" 2>&1 | \
-                            sed "s/^/[$lang] /"
-
-                        if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                            echo -e "${GREEN}[$lang] Automatic links extracted successfully${NC}"
-                        else
-                            echo -e "${YELLOW}[$lang] Warning: Failed to extract automatic links${NC}"
-                        fi
-                    ) &
-
-                    # Store the PID
-                    pids+=($!)
-                    active=$((active + 1))
-                    if (( active >= MAX_PARALLEL_LINKS )); then
-                        wait -n 2>/dev/null || wait "${pids[0]}"
-                        active=$((active - 1))
-                    fi
-                fi
-            done
-
-            # Wait for remaining background processes
-            echo -e "${YELLOW}Waiting for remaining language extractions to complete...${NC}"
-            failed_langs=()
-            for pid in "${pids[@]}"; do
-                wait $pid
-                if [ $? -ne 0 ]; then
-                    failed_langs+=("$pid")
-                fi
-            done
-            
-            # Report results
-            if [ ${#failed_langs[@]} -eq 0 ]; then
-                echo -e "${GREEN}All automatic link extractions completed successfully!${NC}"
-            else
-                echo -e "${YELLOW}Some extractions failed, but continuing...${NC}"
-            fi
-            
-            echo -e "${GREEN}Automatic link extraction completed!${NC}"
-            echo -e "${YELLOW}[DEBUG] Step extract_automatic_links finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            ;;
         build_hugo)
             echo -e "${BLUE}=== Step 2: Building Hugo Site (All Languages) ===${NC}"
             echo -e "${YELLOW}Building Hugo site to validate content and generate HTML files...${NC}"
@@ -1005,169 +740,6 @@ PYTHON_SCRIPT
             python "${SCRIPT_DIR}/split_sitemap.py" --public-dir "${HUGO_ROOT}/public"
             echo -e "${GREEN}Sitemap splitting completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step split_sitemap finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            ;;
-        precompute_linkbuilding)
-            echo -e "${BLUE}=== Step 4.8: Precomputing File-Centric Linkbuilding ===${NC}"
-            echo -e "${YELLOW}Analyzing content to create file-centric keyword mappings...${NC}"
-
-            # Ensure Hugo has been built
-            if [ ! -d "${HUGO_ROOT}/public" ]; then
-                echo -e "${YELLOW}Warning: Public directory not found. Building Hugo first...${NC}"
-                echo -e "${YELLOW}[DEBUG] Executing: hugo --minify --buildFuture${NC}"
-                cd "${HUGO_ROOT}"
-                hugo --minify --buildFuture
-                if [ $? -ne 0 ]; then
-                    echo -e "${YELLOW}Error: Hugo build failed. Cannot proceed with linkbuilding precomputation.${NC}"
-                    exit 1
-                fi
-            else
-                # Check if public directory is recent
-                if [ -f "${HUGO_ROOT}/public/index.html" ]; then
-                    public_age=$(( $(date +%s) - $(stat -f%m "${HUGO_ROOT}/public/index.html" 2>/dev/null || stat -c%Y "${HUGO_ROOT}/public/index.html" 2>/dev/null) ))
-                    if [ $public_age -gt 3600 ]; then
-                        echo -e "${YELLOW}Public directory is over 1 hour old. Rebuilding Hugo (all languages)...${NC}"
-                        cd "${HUGO_ROOT}"
-                        hugo --minify --buildFuture
-                    else
-                        echo -e "${GREEN}Public directory is recent (less than 1 hour old), skipping rebuild${NC}"
-                    fi
-                fi
-            fi
-
-            if [ -d "${HUGO_ROOT}/public" ]; then
-                # Create precomputed directory for file-centric YAML files
-                mkdir -p "${HUGO_ROOT}/data/linkbuilding/precomputed"
-
-                echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/precompute_linkbuilding_files.py${NC}"
-
-                "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/precompute_linkbuilding_files.py" \
-                    --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
-                    --public-dir "${HUGO_ROOT}/public" \
-                    --output-dir "${HUGO_ROOT}/data/linkbuilding/precomputed" \
-                    --max-workers 8
-
-                if [ $? -eq 0 ]; then
-                    echo -e "${GREEN}Linkbuilding precomputation completed!${NC}"
-
-                    # Show summary
-                    if [ -f "${HUGO_ROOT}/data/linkbuilding/precomputed/precomputation_summary.json" ]; then
-                        echo -e "${YELLOW}Precomputation summary:${NC}"
-                        "${VENV_DIR}/bin/python" -c "
-import json
-with open('${HUGO_ROOT}/data/linkbuilding/precomputed/precomputation_summary.json', 'r') as f:
-    data = json.load(f)
-    summary = data.get('summary', {})
-    print(f'  Languages processed: {summary.get(\"total_languages\", 0)}')
-    print(f'  HTML files indexed: {summary.get(\"total_html_files\", 0):,}')
-    print(f'  YAML files created: {summary.get(\"total_yaml_files\", 0)}')
-    print(f'  Keyword matches: {summary.get(\"total_keyword_matches\", 0):,}')
-"
-                    fi
-                else
-                    echo -e "${YELLOW}Warning: Linkbuilding precomputation failed${NC}"
-                fi
-            fi
-
-            echo -e "${YELLOW}[DEBUG] Step precompute_linkbuilding finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            ;;
-        apply_linkbuilding)
-            echo -e "${BLUE}=== Step 4.6: Applying Linkbuilding (Parallel) ===${NC}"
-            echo -e "${YELLOW}Running parallel linkbuilding for all languages...${NC}"
-            
-            # Log environment details for debugging
-            echo -e "${YELLOW}[DEBUG] Environment details:${NC}"
-            echo -e "  - Current directory: $(pwd)"
-            echo -e "  - HUGO_ROOT: ${HUGO_ROOT}"
-            echo -e "  - VENV_DIR: ${VENV_DIR}"
-            echo -e "  - VENV_DIR exists: $([ -d "${VENV_DIR}" ] && echo 'YES' || echo 'NO')"
-            echo -e "  - Python binary exists: $([ -f "${VENV_DIR}/bin/python" ] && echo 'YES' || echo 'NO')"
-            
-            # Check if the venv Python is accessible
-            if [ -f "${VENV_DIR}/bin/python" ]; then
-                echo -e "  - Python version: $(${VENV_DIR}/bin/python --version 2>&1)"
-                
-                # Check Python dependencies
-                echo -e "${YELLOW}[DEBUG] Checking Python dependencies:${NC}"
-                ${VENV_DIR}/bin/python -c "import bs4; print('  ✓ beautifulsoup4 version:', bs4.__version__)" 2>&1 || echo -e "  ${RED}✗ beautifulsoup4 NOT FOUND${NC}"
-                ${VENV_DIR}/bin/python -c "import yaml; print('  ✓ pyyaml installed')" 2>&1 || echo -e "  ${RED}✗ pyyaml NOT FOUND${NC}"
-            else
-                echo -e "  ${RED}ERROR: Python binary not found at ${VENV_DIR}/bin/python${NC}"
-                echo -e "  ${RED}Virtual environment may not be properly initialized${NC}"
-                exit 1
-            fi
-            
-            # Check if public directory exists
-            if [ ! -d "${HUGO_ROOT}/public" ]; then
-                echo -e "${RED}ERROR: Public directory not found at ${HUGO_ROOT}/public${NC}"
-                echo -e "${RED}Cannot run linkbuilding without Hugo build output.${NC}"
-                echo -e "${YELLOW}Please ensure Hugo build completes successfully before linkbuilding.${NC}"
-                exit 1
-            else
-                # Check what language directories were actually built
-                echo -e "${YELLOW}Checking built language directories:${NC}"
-                for lang_code in en ar cs da de es fi fr it ja ko nl no pl pt ro sk sv tr vi zh; do
-                    if [ "$lang_code" = "en" ]; then
-                        # English is at root
-                        if [ -f "${HUGO_ROOT}/public/index.html" ]; then
-                            echo -e "  ✓ English (en) - found at root"
-                        else
-                            echo -e "  ✗ English (en) - NOT FOUND"
-                        fi
-                    else
-                        if [ -d "${HUGO_ROOT}/public/${lang_code}" ]; then
-                            file_count=$(find "${HUGO_ROOT}/public/${lang_code}" -name "*.html" 2>/dev/null | wc -l)
-                            echo -e "  ✓ ${lang_code} - ${file_count} HTML files"
-                        else
-                            echo -e "  ✗ ${lang_code} - directory not found"
-                        fi
-                    fi
-                done
-                
-                # Check linkbuilding data directory
-                echo -e "${YELLOW}[DEBUG] Checking linkbuilding data:${NC}"
-                if [ -d "${HUGO_ROOT}/data/linkbuilding" ]; then
-                    echo -e "  ✓ Linkbuilding data directory exists"
-                    file_count=$(find "${HUGO_ROOT}/data/linkbuilding" -name "*.json" -o -name "*.yaml" 2>/dev/null | wc -l)
-                    echo -e "  - Found ${file_count} data files"
-                else
-                    echo -e "  ${RED}✗ Linkbuilding data directory NOT FOUND at ${HUGO_ROOT}/data/linkbuilding${NC}"
-                fi
-                
-                echo -e "${YELLOW}[DEBUG] Executing linkbuilding command:${NC}"
-                echo -e "  ${VENV_DIR}/bin/python ${SCRIPT_DIR}/linkbuilding_parallel.py \\"
-                echo -e "    --linkbuilding-dir ${HUGO_ROOT}/data/linkbuilding \\"
-                echo -e "    --public-dir ${HUGO_ROOT}/public \\"
-                echo -e "    --script-path ${SCRIPT_DIR}/linkbuilding.py \\"
-                echo -e "    --max-workers 8"
-                
-                # Run with explicit error capture
-                ERROR_LOG=$(mktemp)
-                "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/linkbuilding_parallel.py" \
-                    --linkbuilding-dir "${HUGO_ROOT}/data/linkbuilding" \
-                    --public-dir "${HUGO_ROOT}/public" \
-                    --script-path "${SCRIPT_DIR}/linkbuilding.py" \
-                    --max-workers 8 2>"${ERROR_LOG}"
-                
-                EXIT_CODE=$?
-                
-                # Show any error output
-                if [ -s "${ERROR_LOG}" ]; then
-                    echo -e "${YELLOW}[DEBUG] Stderr output from linkbuilding:${NC}"
-                    cat "${ERROR_LOG}"
-                fi
-                rm -f "${ERROR_LOG}"
-                
-                if [ $EXIT_CODE -eq 0 ]; then
-                    echo -e "${GREEN}Parallel linkbuilding completed successfully!${NC}"
-                else
-                    echo -e "${RED}ERROR: Linkbuilding failed with exit code $EXIT_CODE${NC}"
-                    echo -e "${YELLOW}Please check the error messages above for details.${NC}"
-                    # Exit with error code to properly report failure
-                    exit $EXIT_CODE
-                fi
-            fi
-            
-            echo -e "${YELLOW}[DEBUG] Step apply_linkbuilding finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         preprocess_images)
             echo -e "${BLUE}=== Step 5: Preprocessing Images ===${NC}"

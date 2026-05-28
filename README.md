@@ -86,9 +86,7 @@ Available steps:
 - `sync_content_attributes`: Ensure content attribute consistency
 - `generate_translation_urls`: Generate URL mappings for all languages
 - `generate_related_content`: Create related content data
-- `extract_automatic_links`: Extract keywords from frontmatter for linkbuilding
-- `precompute_linkbuilding`: Optimize linkbuilding files based on actual content
-- `apply_linkbuilding`: Apply linkbuilding to HTML files in public folder
+- `generate_paragraph_linkbuilding`: Generate page-local `[[lnks]]` frontmatter
 - `preprocess_images`: Optimize images for web delivery
 
 #### Requirements:
@@ -99,43 +97,26 @@ Available steps:
 
 The script will prompt for a FlowHunt API key if not already configured.
 
-### Linkbuilding Optimization
+### Linkbuilding
 
-The linkbuilding system includes smart optimization features:
+Linkbuilding is driven by page-local `[[lnks]]` frontmatter. Generate or refresh those entries with:
 
-#### Incremental Processing
-The `precompute_linkbuilding` step only processes languages that don't have optimized files yet:
-- Automatically skips languages with existing `*_optimized.json` files
-- Significantly speeds up repeated builds
-- Only recomputes when content changes
-
-#### Force Recomputation
-To recompute specific languages:
 ```bash
-# Method 1: Delete the optimized file for that language
-rm data/linkbuilding/optimized/de_optimized.json
-./themes/boilerplate/scripts/build_content.sh --step precompute_linkbuilding
-
-# Method 2: Use force flag for specific languages
-themes/boilerplate/scripts/.venv/bin/python themes/boilerplate/scripts/precompute_linkbuilding.py \
-  --linkbuilding-dir data/linkbuilding \
-  --public-dir public \
-  --output-dir data/linkbuilding/optimized \
-  --force-languages de fr es
-
-# Method 3: Force all languages
-themes/boilerplate/scripts/.venv/bin/python themes/boilerplate/scripts/precompute_linkbuilding.py \
-  --linkbuilding-dir data/linkbuilding \
-  --public-dir public \
-  --output-dir data/linkbuilding/optimized \
-  --force
+./themes/boilerplate/scripts/build_content.sh --step generate_paragraph_linkbuilding
 ```
 
-#### Performance Features
-- Processes 3 languages in parallel by default (configurable with `--parallel-languages`)
-- Skips unnecessary files (categories, tags, pagination)
-- Early stopping when all keywords are found
-- Deduplicates case-insensitive keywords automatically
+During local development, the gulp dev task applies those page-local links to generated HTML after Hugo builds.
+
+Preferred landing-page targets can be configured in `data/linkbuilding/preferred_targets.yaml`. The generator resolves each configured `file` against the current language content directory and uses that page's localized frontmatter `url`, so projects with language subdirectories and projects with per-language custom domains can both use the same config. The preferred layer is a best-effort minimum: `settings.min_links_per_page` asks the recommender to include at least that many links to preferred URLs per source page, but the link is only written when a matching anchor phrase exists in visible prose.
+
+The internal flow is:
+
+1. Load one language at a time, keeping links language-local.
+2. Embed page labels and source paragraphs through the shared `.audit_cache/embedding-cache.sqlite3` vector cache.
+3. Query a FAISS page-vector index for top paragraph targets instead of scoring every paragraph against every page.
+4. Merge normal semantic targets with weighted preferred landing-page targets, trying a small first stage before expanding to the full candidate set.
+5. Select an exact anchor phrase that already appears in the paragraph.
+6. Write explicit `[[lnks]]` entries to markdown frontmatter.
 
 ## Installation
 
@@ -606,44 +587,41 @@ Main content about the term goes here...
 
 ## Automatic Linkbuilding
 
-The theme provides an automatic linkbuilding feature that scans your content and replaces specified keywords with links. This is configured via YAML files in the `data/linkbuilding/` directory, with a separate file for each language (e.g., `en.yaml`, `de.yaml`).
+The theme generates explicit page-local `[[lnks]]` frontmatter before Hugo builds. Those entries contain the exact anchor text, target path, and title that the post-build linkbuilding step applies to generated HTML.
 
-### Configuration File Structure
-
-Each language-specific YAML file should contain a list of `keywords`. Each keyword entry defines the term to be linked, the target URL, and other options.
-
-Here's an example from `data/linkbuilding/en.yaml`:
-
-```yaml
-keywords:
-  - keyword: "mcp"
-    url: "/services/mcp-server-development/"
-    exact: false
-    priority: 1
-    title: "We can develop and host your own MCP server"
-  - keyword: "mcp server"
-    url: "/services/mcp-server-development/"
-    exact: false
-    priority: 1
-    title: "We can develop and host your own MCP server"
-  - keyword: "mcp servers"
-    url: "/services/mcp-server-development/"
-    exact: false
-    priority: 1
-    title: "We can develop and host your own MCP server"
+```toml
+[[lnks]]
+text = "AI chatbot"
+path = "/ai-chatbot/"
+title = "AI Chatbot Solutions"
 ```
 
-### Keyword Entry Fields:
+Preferred landing-page targets are configured in `data/linkbuilding/preferred_targets.yaml`:
 
--   `keyword`: (String) The actual word or phrase in your content that you want to turn into a link. The matching is case-insensitive by default.
--   `url`: (String) The destination URL for the link. This should typically be a site-relative path (e.g., `/services/your-service/`).
--   `exact`: (Boolean, optional, defaults to `false`) 
-    -   If `false` (default): The keyword will be matched even if it's part of a larger word (e.g., if keyword is "log", "logging" would also be matched). The matching is case-insensitive.
-    -   If `true`: The keyword will only be matched if it appears as an exact word (bounded by spaces or punctuation). The matching is case-sensitive.
--   `priority`: (Integer, optional, defaults to `1`) Used to determine which rule applies if multiple keywords could match the same text. Higher numbers usually mean higher priority. The linkbuilding module processes keywords based on their priority, with higher priority keywords being applied first.
--   `title`: (String, optional, defaults to the `keyword` value) The text to be used for the `title` attribute of the generated `<a>` HTML tag. This is often used for tooltips or to provide more context to search engines.
+```yaml
+settings:
+  min_links_per_page: 1
+  max_targets_per_language: 20
+  score_boost: 0.08
+targets:
+  - file: ai-chatbot.md
+    weight: 1.35
+```
 
-To add new linkbuilding rules, simply edit the appropriate `data/linkbuilding/<lang>.yaml` file and add new entries to the `keywords` list following this structure.
+Use `file` for portable, language-aware targets. The generator resolves the file in each language directory and uses that page's localized `url`. Use a language override with `url` only when a target cannot be represented by the same content file across languages.
+
+By default, the generator writes up to 12 `[[lnks]]` entries per source page
+and at most one automatic link per paragraph. The matching floors are tuned to
+favor broader coverage while still requiring a semantically relevant paragraph
+and an exact anchor phrase already present in the text.
+Anchor detection uses cheap lexical scoring by default. Semantic anchor
+embedding only runs when `--semantic-anchor-fallback` is passed, and anchor
+n-gram vectors are never persisted. The shared SQLite vector cache is split by
+type (`page`, `paragraph`, `image`) so large generated caches can be inspected
+or cleaned by vector type.
+The embedding model is loaded lazily and the script defaults to CPU with
+conservative Torch/OpenMP thread counts to avoid Apple MPS temp-file growth and
+CPU thread oversubscription.
 
 ## Using Theme Components
 
