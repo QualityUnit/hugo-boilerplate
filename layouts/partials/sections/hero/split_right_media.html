@@ -98,7 +98,7 @@
             {{/* Image Overlay (integrations, success-stories) */}}
             {{ partial "components/media/lazyimg.html" (dict
               "src" $overlayIcon
-              "alt" "Logo"
+              "alt" (printf "%s logo" ($heading | default "LiveAgent"))
               "class" (printf "%s object-contain" $overlayIconSizeImage)
               "noLazy" true
             ) }}
@@ -106,7 +106,7 @@
             {{/* Feature SVG icon */}}
             {{ partial "components/media/svg-icon.html" (dict
               "src" $overlayIcon
-              "alt" "Feature icon"
+              "alt" ""
               "class" (printf "%s %s" $overlayIconSizeSvg $overlayColor)
             ) }}
           {{ end }}
