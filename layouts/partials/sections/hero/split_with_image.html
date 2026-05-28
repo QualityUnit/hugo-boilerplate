@@ -242,7 +242,7 @@ Design Tokens:
                   {{/* Integration logo (Image Overlay) */}}
                   {{ partial "components/media/lazyimg.html" (dict
                     "src" $iconImageSrc
-                    "alt" "Integration logo"
+                    "alt" (printf "%s logo" ($heading | default "Integration"))
                     "class" (printf "%s object-contain" $overlayIconSizeIntegrations)
                     "noLazy" true
                   ) }}
@@ -250,7 +250,7 @@ Design Tokens:
                   {{/* Feature SVG icon (SVG Overlay) */}}
                   {{ partial "components/media/svg-icon.html" (dict
                     "src" $iconImageSrc
-                    "alt" "Feature icon"
+                    "alt" ""
                     "class" (printf "%s %s" $overlayIconSizeFeatures $config.overlayColor)
                   ) }}
                 {{ end }}
