@@ -45,24 +45,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.addEventListener('click', function(event) {
     if (event.target.closest('[data-cookie-consent="accept-all"]')) {
+      event.preventDefault();
       setConsent('all');
       hideBanner();
     }
 
     if (event.target.closest('[data-cookie-consent="accept-necessary"]')) {
+      event.preventDefault();
       setConsent('necessary');
       hideBanner();
     }
 
     if (event.target.closest('[data-cookie-consent="settings"]')) {
+      event.preventDefault();
       modal?.classList.remove('hidden');
     }
 
     if (event.target.closest('[data-cookie-settings-close]')) {
+      event.preventDefault();
       modal?.classList.add('hidden');
     }
 
     if (event.target.closest('[data-cookie-settings-save]')) {
+      event.preventDefault();
       const allowAnalytics = analyticsCheckbox?.checked || false;
       setConsent(allowAnalytics ? 'all' : 'necessary');
       modal?.classList.add('hidden');
