@@ -38,7 +38,7 @@ import numpy as np
 from sklearn.preprocessing import normalize
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from embedding_cache import cache_path_for, embed_with_cache
+from embedding_cache import EmbeddingCache, shared_sqlite_cache_path
 
 # Constants
 MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"  # Smaller model that works well with sentence-transformers
@@ -69,6 +69,9 @@ def parse_args():
                         help="Hugo root directory (default: two levels up from script location)")
     parser.add_argument("--domain", type=str, default="Website Pages",
                         help="Domain name to use as root node label in clustering visualization (default: Website Pages)")
+    parser.add_argument("--cache-path", type=str, default=None,
+                        help="SQLite embedding cache path (default: {hugo-root}/.audit_cache/embedding-cache.sqlite3)")
+    parser.add_argument("--no-cache", action="store_true", help="Disable embedding cache")
     return parser.parse_args()
 
 def extract_text_from_markdown(content):
@@ -205,10 +208,10 @@ def process_content_files(hugo_root=None, lang=None, content_dir=None, exclude_s
     print(f"Found {len(file_data)} content files")
     return file_data
 
-def generate_embeddings(file_data, model_name, hugo_root, lang, use_cache=True):
-    """Generate embeddings via the shared per-page cache (L2-normalized)."""
-    cache_path = cache_path_for(hugo_root, lang, model_name)
-    return embed_with_cache(file_data, model_name, cache_path, use_cache=use_cache)
+def generate_embeddings(file_data, model_name, cache):
+    """Generate embeddings via the shared text cache (L2-normalized)."""
+    embed_texts = [item["embed_text"] for item in file_data]
+    return cache.encode(model_name, embed_texts, batch_size=32, show_progress_bar=True, desc="Related content embeddings")
 
 def build_index(embeddings):
     """Build a FAISS index over already-normalized embeddings (IP == cosine)."""
@@ -569,7 +572,7 @@ def save_clustering_data(data, hugo_root, lang):
 
     print(f"Clustering data saved successfully")
 
-def process_language(args, lang):
+def process_language(args, lang, cache):
     """Process a single language."""
     import time
     print(f"\n[DEBUG] Processing language: {lang}")
@@ -589,10 +592,10 @@ def process_language(args, lang):
     
     print(f"[DEBUG] Found {len(file_data)} content files for {lang}")
     
-    # Generate embeddings (shared cache with generate_site_audit.py)
+    # Generate embeddings (shared cache with site audit, clustering, and linkbuilding)
     print(f"[DEBUG] Generating embeddings (using shared cache if available)...")
     print(f"[DEBUG] Model: {args.model}")
-    embeddings = generate_embeddings(file_data, args.model, args.hugo_root, lang)
+    embeddings = generate_embeddings(file_data, args.model, cache)
     print(f"[DEBUG] Embeddings ready for {len(embeddings)} files")
     
     # Find related content
@@ -616,10 +619,7 @@ def process_language(args, lang):
     save_clustering_data(hierarchy_data, args.hugo_root, lang)
     print(f"[DEBUG] Clustering data generated successfully")
 
-    # Clean up memory for this language. embed_with_cache already releases the
-    # model + CUDA cache once it's done embedding; this is a belt-and-braces
-    # collect for the per-language Python-side data (embeddings ndarray, FAISS
-    # index, file_data) before the next language starts.
+    # Clean up per-language Python-side data before the next language starts.
     print(f"[DEBUG] Cleaning up memory...")
     gc.collect()
     try:
@@ -641,6 +641,8 @@ def main():
     print(f"[DEBUG] Arguments:")
     print(f"[DEBUG] - Hugo root: {args.hugo_root}")
     print(f"[DEBUG] - Exclude sections: {args.exclude_sections}")
+    cache_path = Path(args.cache_path) if args.cache_path else shared_sqlite_cache_path(Path(args.hugo_root))
+    print(f"[DEBUG] - Embedding cache: {cache_path}")
     
     # Find all language directories
     if args.path:
@@ -662,12 +664,16 @@ def main():
     
     print(f"[DEBUG] Found {len(languages)} languages: {', '.join(languages)}")
     
-    # Process each language
-    for idx, lang in enumerate(languages, 1):
-        print(f"\n[DEBUG] Processing language {idx}/{len(languages)}: {lang}")
-        print(f"[DEBUG] Time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
-        process_language(args, lang)
-        print(f"[DEBUG] Completed language: {lang}")
+    cache = EmbeddingCache(cache_path, args.model, enabled=not args.no_cache, cache_type="page")
+    try:
+        # Process each language
+        for idx, lang in enumerate(languages, 1):
+            print(f"\n[DEBUG] Processing language {idx}/{len(languages)}: {lang}")
+            print(f"[DEBUG] Time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+            process_language(args, lang, cache)
+            print(f"[DEBUG] Completed language: {lang}")
+    finally:
+        cache.close()
     
     print(f"\n[DEBUG] ========== RELATED CONTENT GENERATOR FINISHED ===========")
     print(f"[DEBUG] End time: {time.strftime('%Y-%m-%d %H:%M:%S')}")

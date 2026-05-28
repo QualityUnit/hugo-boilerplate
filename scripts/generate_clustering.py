@@ -13,11 +13,11 @@ Usage:
 import os
 import json
 import argparse
+import sys
 import toml_frontmatter as frontmatter  # Use robust TOML parser
 from pathlib import Path
 from collections import defaultdict
 import numpy as np
-from sentence_transformers import SentenceTransformer
 from sklearn.cluster import HDBSCAN
 import markdown
 from bs4 import BeautifulSoup
@@ -25,6 +25,9 @@ import re
 import html
 import faiss
 import umap
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from embedding_cache import EmbeddingCache, shared_sqlite_cache_path
 
 # Constants
 MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"
@@ -99,6 +102,9 @@ def parse_args():
     parser.add_argument("--exclude-similarity-sections", type=str, nargs="+",
                         default=["affiliate-manager", "affiliate-program-directory"],
                         help="Sections to exclude from similarity report (default: affiliate-manager, affiliate-program-directory)")
+    parser.add_argument("--cache-path", type=str, default=None,
+                        help="SQLite embedding cache path (default: {hugo-root}/.audit_cache/embedding-cache.sqlite3)")
+    parser.add_argument("--no-cache", action="store_true", help="Disable embedding cache")
     return parser.parse_args()
 
 def clean_title(title):
@@ -219,16 +225,11 @@ def process_content_files(content_dir, lang, exclude_sections):
     print(f"Processed {len(pages)} pages")
     return pages
 
-def generate_embeddings(pages, model_name):
-    """Generate embeddings for pages."""
-    print(f"Loading model: {model_name}")
-    model = SentenceTransformer(model_name, trust_remote_code=True)
-
-    print("Generating embeddings...")
+def generate_embeddings(pages, model_name, cache, hugo_root):
+    """Embed pages using the shared SQLite cache."""
     texts = [page['text'] for page in pages]
-    embeddings = model.encode(texts, show_progress_bar=True, batch_size=32)
-
-    return embeddings
+    return cache.encode(model_name, texts, batch_size=32, show_progress_bar=True,
+                        desc="Page embeddings")
 
 def cluster_pages_by_section(pages, embeddings, min_cluster_size, min_samples):
     """Organize pages by section/directory, then cluster within each section."""
@@ -901,6 +902,9 @@ def main():
     content_dir = hugo_root / "content"
     static_output_dir = hugo_root / "static" / "data" / "clustering"
 
+    cache_path = Path(args.cache_path) if args.cache_path else shared_sqlite_cache_path(hugo_root)
+    cache = EmbeddingCache(cache_path, MODEL_NAME, enabled=not args.no_cache, cache_type="page")
+
     # Process content files
     pages = process_content_files(str(content_dir), args.lang, args.exclude_sections)
 
@@ -909,7 +913,7 @@ def main():
         return
 
     # Generate embeddings
-    embeddings = generate_embeddings(pages, MODEL_NAME)
+    embeddings = generate_embeddings(pages, MODEL_NAME, cache, hugo_root)
 
     # Cluster pages by section
     section_clusters = cluster_pages_by_section(pages, embeddings, args.min_cluster_size, args.min_samples)
@@ -985,6 +989,8 @@ def main():
         print(f"\nSimilar articles report saved to: {report_file}")
     else:
         print(f"\nNo similar articles found above {args.similarity_threshold:.0%} threshold")
+
+    cache.close()
 
 if __name__ == "__main__":
     main()
