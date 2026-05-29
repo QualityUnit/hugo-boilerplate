@@ -75,11 +75,11 @@
         
         <a href="{{ $href }}"
            class="inline-flex items-center text-sm hover:opacity-75 transition-opacity" 
-           title="{{ .Language.LanguageName }}"
-           aria-label="{{ .Language.LanguageName }}">
-          {{ partial "components/media/lazyimg.html" (dict 
+           title="{{ .Language.Label }}"
+           aria-label="{{ .Language.Label }}">
+          {{ partial "components/media/lazyimg.html" (dict
               "src" $flagUrl
-              "alt" .Language.LanguageName
+              "alt" .Language.Label
               "width" 24
               "height" 18
           ) }}
