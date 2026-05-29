@@ -35,9 +35,10 @@ LANG_CODES = {
 SKIP_TEXT_PARENTS = {
     "a", "button", "script", "style", "textarea", "select", "option",
     "code", "pre", "kbd", "samp", "svg", "math", "noscript",
+    "title", "head",
     "h1", "h2", "h3", "h4", "h5", "h6",
 }
-SKIP_TEXT_ANCESTORS = {"a", "h1", "h2", "h3", "h4", "h5", "h6"}
+SKIP_TEXT_ANCESTORS = {"a", "head", "h1", "h2", "h3", "h4", "h5", "h6"}
 
 _hugo_config_cache: dict[str, Any] = {}
 
