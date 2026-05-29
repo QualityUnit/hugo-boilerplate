@@ -36,9 +36,18 @@ SKIP_TEXT_PARENTS = {
     "a", "button", "script", "style", "textarea", "select", "option",
     "code", "pre", "kbd", "samp", "svg", "math", "noscript",
     "title", "head",
+    "label", "summary", "legend", "figcaption", "caption", "th",
+    "cite", "time",
     "h1", "h2", "h3", "h4", "h5", "h6",
 }
-SKIP_TEXT_ANCESTORS = {"a", "head", "h1", "h2", "h3", "h4", "h5", "h6"}
+# Container elements whose text should never be linkified, regardless of how
+# deeply nested it is (site chrome, forms, figures, quotes, contact blocks).
+SKIP_TEXT_ANCESTORS = {
+    "a", "head",
+    "nav", "header", "footer", "aside", "form", "figure", "blockquote",
+    "address",
+    "h1", "h2", "h3", "h4", "h5", "h6",
+}
 
 _hugo_config_cache: dict[str, Any] = {}
 
