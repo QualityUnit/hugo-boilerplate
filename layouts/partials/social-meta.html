@@ -11,7 +11,7 @@
   "ru" "ru_RU" "sk" "sk_SK" "sl" "sl_SI" "sv" "sv_SE" "tl" "tl_PH"
   "tr" "tr_TR" "uk" "uk_UA" "vi" "vi_VN" "zh-Hans" "zh_CN" "zh-Hant" "zh_TW"
 }}
-{{ $ogLocale := index $ogLocaleMap site.Language.LanguageCode | default (replace site.Language.LanguageCode "-" "_") }}
+{{ $ogLocale := index $ogLocaleMap site.Language.Locale | default (replace site.Language.Locale "-" "_") }}
 
 <!-- SEO Meta Tags -->
 <meta name="description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
