@@ -33,11 +33,30 @@ LANG_CODES = {
 }
 
 SKIP_TEXT_PARENTS = {
-    "a", "button", "script", "style", "textarea", "select", "option",
-    "code", "pre", "kbd", "samp", "svg", "math", "noscript",
+    # Inline/form elements that must not contain <a>
+    "a", "button", "label",
+    # Machine/metadata — never user-visible body content
+    "script", "style", "title", "meta", "link",
+    # Form inputs
+    "textarea", "select", "option", "input",
+    # Code / technical content
+    "code", "pre", "kbd", "samp",
+    # Embedded / special content
+    "svg", "math", "noscript",
+    # Headings — keep them link-free
     "h1", "h2", "h3", "h4", "h5", "h6",
 }
-SKIP_TEXT_ANCESTORS = {"a", "h1", "h2", "h3", "h4", "h5", "h6"}
+# Structural ancestors: skip the entire subtree of these elements.
+# Links are only inserted in visible body content — not in the page
+# chrome (header, nav, footer) or the document head.
+SKIP_TEXT_ANCESTORS = {
+    # Already-linked or heading context
+    "a", "h1", "h2", "h3", "h4", "h5", "h6",
+    # Document head — title, meta, OG tags, etc.
+    "head",
+    # Page chrome — navigation, site header, footer
+    "header", "footer", "nav",
+}
 
 _hugo_config_cache: dict[str, Any] = {}
 
