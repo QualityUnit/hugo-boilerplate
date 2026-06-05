@@ -42,6 +42,8 @@ def parse_toml_frontmatter(content: str) -> Tuple[dict, str]:
     Returns:
         Tuple of (metadata dict, body content)
     """
+    # Strip a leading BOM (not whitespace) so the +++ regex matches.
+    content = content.lstrip('﻿')
     # Match TOML frontmatter (between +++ markers)
     match = re.match(r'^\+\+\+\s*\n(.*?)\n\+\+\+\s*\n?(.*)', content, re.DOTALL)
 
@@ -190,7 +192,7 @@ class TOMLHandler:
     FM_BOUNDARY = re.compile(r'^\+\+\+\s*$', re.MULTILINE)
 
     def detect(self, text: str) -> bool:
-        return text.startswith('+++')
+        return text.lstrip('﻿').startswith('+++')
 
     def load(self, fm: str) -> dict:
         try:
@@ -228,6 +230,8 @@ def update_frontmatter_attribute(content: str, key: str, value: Any) -> str:
     Returns:
         Updated content with the attribute modified
     """
+    # Strip a leading BOM (not whitespace) so the +++ checks below match.
+    content = content.lstrip('﻿')
     if not content.startswith('+++'):
         return content
 

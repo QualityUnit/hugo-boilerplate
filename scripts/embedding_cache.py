@@ -16,6 +16,34 @@ from pathlib import Path
 
 import numpy as np
 
+# Load .env from the scripts directory so HF_TOKEN and other vars are available
+def _load_env():
+    env_path = Path(__file__).resolve().parent / ".env"
+    if not env_path.exists():
+        return
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            os.environ.setdefault(key.strip(), value.strip())
+
+_load_env()
+
+# Authenticate with HuggingFace if token is present
+def _hf_login():
+    token = os.environ.get("HF_TOKEN")
+    if not token:
+        return
+    try:
+        from huggingface_hub import login
+        login(token=token, add_to_git_credential=False)
+    except Exception:
+        pass
+
+_hf_login()
+
 
 def cache_path_for(hugo_root, lang, model_name):
     slug = model_name.replace("/", "_").replace("-", "_")
@@ -99,12 +127,7 @@ def embed_with_cache(pages, model_name, cache_path, use_cache=True):
         del model, new_embs
         import gc as _gc
         _gc.collect()
-        try:
-            import torch
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-        except ImportError:
-            pass
+        _free_device_cache()
     else:
         print(f"Embedding cache: {hits}/{hits} hits (fully cached) → {cache_path}")
 
@@ -116,9 +139,41 @@ def shared_sqlite_cache_path(hugo_root):
     return Path(hugo_root) / ".audit_cache" / "embedding-cache.sqlite3"
 
 
+def _free_device_cache():
+    """Release cached memory on whichever accelerator is active."""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            torch.mps.empty_cache()
+    except ImportError:
+        pass
+
+
+def detect_device() -> str:
+    """Detect the best available compute device: CUDA > MPS > CPU."""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            name = torch.cuda.get_device_name(0)
+            print(f"[device] CUDA detected: {name}")
+            return "cuda"
+        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            print("[device] Apple Silicon MPS detected")
+            return "mps"
+    except ImportError:
+        pass
+    print("[device] No GPU detected, using CPU")
+    return "cpu"
+
+
 def default_embedding_device() -> str:
-    """Default to CPU to avoid Apple MPS graph temp-file explosions."""
-    return os.environ.get("FLOWHUNT_EMBEDDING_DEVICE", "cpu")
+    """Return the best available device, with FLOWHUNT_EMBEDDING_DEVICE override."""
+    env = os.environ.get("FLOWHUNT_EMBEDDING_DEVICE")
+    if env:
+        return env
+    return detect_device()
 
 
 class EmbeddingCache:
@@ -306,9 +361,4 @@ class EmbeddingCache:
             import gc
             del embedder
             gc.collect()
-            try:
-                import torch
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-            except ImportError:
-                pass
+            _free_device_cache()

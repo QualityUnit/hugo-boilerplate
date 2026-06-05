@@ -51,7 +51,11 @@ en_content_dir = content_dir / 'en'
 
 def extract_front_matter(file_path):
     """Extract TOML front matter from markdown file"""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    # utf-8-sig strips a leading BOM if present. Without this, a BOM defeats the
+    # `^\s*\+\+\+` match below (the BOM is not whitespace), the front matter parses
+    # as empty, and callers wrongly prepend a fresh `+++ date +++` block — producing
+    # a broken double front matter.
+    with open(file_path, 'r', encoding='utf-8-sig') as f:
         content = f.read()
     
     # Look for front matter between +++ delimiters

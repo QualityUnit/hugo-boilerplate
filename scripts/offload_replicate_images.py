@@ -383,6 +383,8 @@ def process_md_file(md_path):
         print(f"!!! ERROR: Failed to read file {md_path}: {e}")
         return
     # Split TOML frontmatter and body
+    # Strip a leading BOM (not whitespace) so the +++ check below matches.
+    content = content.lstrip('﻿')
     if content.startswith('+++'):
         end_idx = content.find('+++', 3)
         if end_idx != -1:
