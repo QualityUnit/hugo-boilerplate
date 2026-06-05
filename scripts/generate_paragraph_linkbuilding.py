@@ -52,7 +52,7 @@ import toml_frontmatter as frontmatter
 from sync_translation_urls import ensure_url_slashes, get_directory_url_path, get_hugo_config
 
 
-MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"
+MODEL_NAME = "google/embeddinggemma-300m"
 
 _TOKEN_RE = re.compile(r"[^\W\d_][\w'’.-]*", re.UNICODE)
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
