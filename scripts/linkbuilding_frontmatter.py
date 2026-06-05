@@ -16,6 +16,7 @@ import json
 import os
 import re
 import sys
+import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -357,6 +358,64 @@ def _dedupe_keywords(keywords: list[Keyword]) -> list[Keyword]:
     return out
 
 
+def _load_page_keywords_fast(html_files: list[Path], content_dir: Path, public_dir: Path) -> dict[Path, list[Keyword]]:
+    """Fast path for --since-seconds mode: derive the .md file from the HTML path directly.
+
+    Avoids scanning all content files. Works for standard Hugo URL layouts where the
+    public path mirrors the content path. Falls back gracefully when no .md is found.
+    """
+    page_keywords: dict[Path, list[Keyword]] = {}
+    public_dir_abs = public_dir.resolve()
+    for html_path in html_files:
+        # Derive the relative URL from the HTML file path, e.g.
+        # public/blog/ai-support-paradox/index.html → /blog/ai-support-paradox/
+        # Resolve both paths to handle mix of absolute/relative inputs.
+        try:
+            rel = html_path.resolve().relative_to(public_dir_abs)
+        except ValueError:
+            continue
+        parts = rel.parts
+        if not parts or parts[-1] != "index.html":
+            continue
+        slug_parts = parts[:-1]  # drop index.html
+        # Try candidate .md file paths
+        candidates: list[Path] = []
+        if slug_parts:
+            # content/en/blog/ai-support-paradox.md
+            candidates.append(content_dir / Path(*slug_parts[:-1]) / (slug_parts[-1] + ".md") if len(slug_parts) > 1 else content_dir / (slug_parts[0] + ".md"))
+            # content/en/blog/ai-support-paradox/index.md
+            candidates.append(content_dir / Path(*slug_parts) / "index.md")
+        else:
+            candidates.append(content_dir / "_index.md")
+
+        for md_path in candidates:
+            if not md_path.exists():
+                continue
+            try:
+                raw = md_path.read_text(encoding="utf-8")
+                post = frontmatter.loads(raw, handler=frontmatter.TOMLHandler())
+            except Exception:
+                break
+            lnks = post.metadata.get("lnks") or []
+            if not isinstance(lnks, list) or not lnks:
+                break
+            keywords: list[Keyword] = []
+            for idx, item in enumerate(lnks):
+                if not isinstance(item, dict):
+                    continue
+                text = str(item.get("text") or item.get("keyword") or "").strip()
+                url = str(item.get("path") or item.get("url") or "").strip()
+                title = str(item.get("title") or "").strip()
+                if not text or not url:
+                    continue
+                keywords.append(Keyword(keyword=text, url=url, title=title,
+                                        priority=1000 - idx, exact_match=True))
+            if keywords:
+                page_keywords.setdefault(html_path, []).extend(keywords)
+            break
+    return page_keywords
+
+
 def _content_dirs(content_root: Path, lang: str | None) -> list[Path]:
     if lang:
         d = content_root / lang
@@ -383,17 +442,15 @@ def run(args: argparse.Namespace) -> int:
         lang = content_dir.name
         lang_public_dir = public_dir if lang == "en" else public_dir / lang
 
-        # Source 1: page-specific links from [[lnks]] frontmatter
-        page_keywords: dict[Path, list[Keyword]] = _load_page_keywords(content_dir, public_dir)
+        # --file: per-file dev mode — no rglob, no content scan, no global keywords.
+        dev_mode = bool(args.files)
 
-        # Source 2: global manual keywords from data/linkbuilding/<lang>.json
-        # Applied to ALL HTML files; pre-filtered per page against raw HTML before DOM parse.
-        global_keywords = _load_global_keywords(linkbuilding_dir, lang)
-        global_kw_data = [asdict(kw) for kw in global_keywords]
-
-        # Build the work list: HTML files in the language dir.
-        # For English (served at public/ root) exclude subdirs for other languages.
-        if lang_public_dir.exists():
+        if dev_mode:
+            # Only process the explicitly listed HTML files (resolve to absolute paths).
+            html_files = [Path(f).resolve() for f in args.files if Path(f).exists()]
+        elif lang_public_dir.exists():
+            # Build the full HTML file work list for normal (production) mode.
+            # For English (served at public/ root) exclude subdirs for other languages.
             if lang == "en":
                 html_files = sorted(
                     p for p in lang_public_dir.rglob("*.html")
@@ -402,8 +459,26 @@ def run(args: argparse.Namespace) -> int:
                 )
             else:
                 html_files = sorted(lang_public_dir.rglob("*.html"))
+
+            # --since-seconds: further limit to recently-modified files.
+            if args.since_seconds > 0:
+                cutoff = time.time() - args.since_seconds
+                html_files = [p for p in html_files if p.stat().st_mtime >= cutoff]
         else:
             html_files = []
+
+        # Source 1: page-specific links from [[lnks]] frontmatter.
+        # Dev mode uses a fast direct-path lookup to avoid scanning all content files.
+        if dev_mode:
+            page_keywords = _load_page_keywords_fast(html_files, content_dir, public_dir)
+            global_keywords: list[Keyword] = []  # skip global keywords in dev mode
+        else:
+            page_keywords = _load_page_keywords(content_dir, public_dir)
+            # Source 2: global manual keywords from data/linkbuilding/<lang>.json
+            # Applied to ALL HTML files; pre-filtered per page against raw HTML before DOM parse.
+            global_keywords = _load_global_keywords(linkbuilding_dir, lang)
+        global_kw_data = [asdict(kw) for kw in global_keywords]
+
         total_pages += len(page_keywords)
 
         # Work list: per-file only passes page-specific keywords.
@@ -465,6 +540,11 @@ def main() -> int:
                         help="Number of parallel worker processes")
     parser.add_argument("--include-manual", action="store_true",
                         help="Kept for backwards compatibility, no longer used.")
+    parser.add_argument("--since-seconds", type=float, default=0,
+                        help="Only process HTML files modified in the last N seconds.")
+    parser.add_argument("--file", action="append", dest="files", default=[],
+                        help="Dev mode: process only this specific HTML file (repeatable). "
+                             "Skips rglob, content scan, and global keywords for instant per-page rebuilds.")
     args = parser.parse_args()
     return run(args)
 
