@@ -220,6 +220,8 @@ def update_frontmatter(content: str, keywords: list[str]) -> str:
     corrupts complex TOML structures (nested tables, inline tables, booleans).
     The line-based approach safely adds/updates only the keywords line.
     """
+    # Strip a leading BOM (not whitespace) so the +++ checks below match.
+    content = content.lstrip('﻿')
     if not content.startswith('+++'):
         return content
 
@@ -257,7 +259,8 @@ def update_frontmatter(content: str, keywords: list[str]) -> str:
 def drop_keywords_from_file(file_path: Path) -> bool:
     """Remove keywords from a single file's frontmatter."""
     try:
-        content = file_path.read_text(encoding='utf-8')
+        # utf-8-sig strips a leading BOM so the +++ check below matches.
+        content = file_path.read_text(encoding='utf-8-sig')
         if not content.startswith('+++'):
             return False
 
