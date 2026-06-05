@@ -90,9 +90,13 @@ def extract_front_matter(file_path: Path) -> Tuple[str, Dict, str, str]:
     """Extract TOML front matter from markdown file
     Returns: (original_front_matter_text, parsed_dict, remaining_content, full_content)
     """
-    with open(file_path, 'r', encoding='utf-8') as f:
+    # utf-8-sig strips a leading BOM. Without this, a BOM defeats the `^\+\+\+`
+    # match below (the BOM is not whitespace), the front matter parses as empty,
+    # and update_front_matter_url_only prepends a fresh `+++ url +++` block —
+    # producing a broken double front matter.
+    with open(file_path, 'r', encoding='utf-8-sig') as f:
         content = f.read()
-    
+
     # Look for front matter between +++ delimiters
     match = re.match(r'^\+\+\+\s*\n*(.*?)\n*\+\+\+\s*\n*', content, re.DOTALL)
     if match:

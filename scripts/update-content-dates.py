@@ -43,7 +43,8 @@ def get_staged_files() -> list[str]:
 
 def read_blob(ref: str) -> str | None:
     code, out = git('show', ref)
-    return out if code == 0 else None
+    # Strip a leading BOM so the `^\+\+\+` front matter regexes below match.
+    return out.lstrip('﻿') if code == 0 else None
 
 
 def update_date(content: str, new_date: str) -> str:
@@ -92,7 +93,8 @@ def main() -> None:
 
         file_path = Path(repo_root) / rel_path
         try:
-            disk_content = file_path.read_text(encoding='utf-8')
+            # utf-8-sig strips a leading BOM so update_date's regex matches.
+            disk_content = file_path.read_text(encoding='utf-8-sig')
         except OSError:
             continue
 
