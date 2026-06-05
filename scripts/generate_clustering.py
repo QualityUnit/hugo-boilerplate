@@ -30,7 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from embedding_cache import EmbeddingCache, shared_sqlite_cache_path
 
 # Constants
-MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"
+MODEL_NAME = "google/embeddinggemma-300m"
 MIN_CLUSTER_SIZE = 5  # Minimum pages per cluster
 MIN_SAMPLES = 3  # Minimum samples for core point
 MAX_CLUSTER_SIZE = 5  # Maximum pages before creating subclusters (recursive subdivision)

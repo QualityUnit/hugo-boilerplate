@@ -49,7 +49,7 @@ from bs4 import BeautifulSoup
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from embedding_cache import EmbeddingCache, shared_sqlite_cache_path
 
-DEFAULT_MODEL = "Alibaba-NLP/gte-multilingual-base"
+DEFAULT_MODEL = "google/embeddinggemma-300m"
 DEFAULT_MAX_CHARS = 2000
 DEFAULT_DUP_THRESHOLD = 0.92
 DEFAULT_DUP_KNN = 10

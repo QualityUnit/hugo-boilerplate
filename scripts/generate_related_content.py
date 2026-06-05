@@ -41,7 +41,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from embedding_cache import EmbeddingCache, shared_sqlite_cache_path
 
 # Constants
-MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"  # Smaller model that works well with sentence-transformers
+MODEL_NAME = "google/embeddinggemma-300m"
 MAX_TEXT_LENGTH = 2000  # Align with generate_site_audit so embedding cache is shared
 TOP_K = 3  # Number of related content items to find
 
