@@ -78,7 +78,11 @@
 
         <div class="mx-auto flex flex-wrap {{ $justifyClass }} items-center gap-8 sm:gap-12 md:gap-16">
           {{ range $index, $logo := $logos }}
-            <div class="flex items-center justify-center">
+            {{/* min-h-12 reserves the logo row height so the flex strip doesn't
+                 collapse→expand as the lazy SVG logos load (these are SVGs, which
+                 Hugo's imageConfig can't measure, so lazyimg emits no width/height).
+                 Prevents a mobile CLS shift in the partner/customer logo strip. */}}
+            <div class="flex items-center justify-center min-h-12">
               {{ $class := "block max-h-12 h-10 lg:h-12 w-full object-contain" }}
               {{ if $logo.url }}<a href="{{ partial "helpers/get-translated-url.html" (dict "url" $logo.url) }}" target="_blank" rel="noopener noreferrer" title="{{ $logo.name }}">{{ end }}
                   {{ partial "components/media/lazyimg.html" (dict
