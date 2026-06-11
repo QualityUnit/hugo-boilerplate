@@ -4,6 +4,13 @@
   font-style: normal;
   font-weight: 100 900; /* supports all weights from 100-900 */
   src: url('/fonts/inter/Inter-VariableFont_opsz,wght.woff2') format('woff2-variations');
-  font-display: swap;
+  /* `optional` (not `swap`) to eliminate mobile CLS: on a cold load, if Inter
+     isn't ready by first paint the browser keeps the fallback for the whole
+     page instead of swapping mid-session. Inter's wider metrics reflow text on
+     narrow viewports (~29px hero shift on mobile vs ~1px on desktop), which was
+     the dominant cause of the mobile Core Web Vitals CLS regression. The font is
+     preloaded in head.html, so it makes the ~100ms `optional` window on most
+     visits; later visits use the cached font with zero shift. */
+  font-display: optional;
 }
 
