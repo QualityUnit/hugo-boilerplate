@@ -46,7 +46,7 @@ from tqdm import tqdm
 import faiss
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from embedding_cache import EmbeddingCache, default_embedding_device, shared_sqlite_cache_path
+from embedding_cache import EmbeddingCache, resolve_embedding_device, shared_sqlite_cache_path
 
 import toml_frontmatter as frontmatter
 from sync_translation_urls import ensure_url_slashes, get_directory_url_path, get_hugo_config
@@ -151,6 +151,7 @@ class LazySentenceTransformer:
     def __init__(self, model_name: str, device: str):
         self.model_name = model_name
         self.device = device
+        self.resolved_device = resolve_embedding_device(device)
         self._model = None
 
     def _ensure_model(self):
@@ -162,8 +163,8 @@ class LazySentenceTransformer:
                 torch.set_num_interop_threads(1)
             except Exception:
                 pass
-            print(f"Loading embedding model once: {self.model_name} on {self.device}")
-            self._model = SentenceTransformer(self.model_name, trust_remote_code=True, device=self.device)
+            print(f"Loading embedding model once: {self.model_name} on {self.resolved_device} (requested: {self.device})")
+            self._model = SentenceTransformer(self.model_name, trust_remote_code=True, device=self.resolved_device)
         return self._model
 
     def encode(self, *args, **kwargs):
@@ -176,7 +177,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--all-languages", action="store_true", help="Process every language directory under content/")
     parser.add_argument("--content-root", default="content", help="Hugo content root (default: content)")
     parser.add_argument("--model", default=MODEL_NAME, help=f"Embedding model (default: {MODEL_NAME})")
-    parser.add_argument("--device", default=default_embedding_device(), help="Embedding device (default: cpu; set FLOWHUNT_EMBEDDING_DEVICE or pass mps/cuda explicitly)")
+    parser.add_argument("--device", default="auto", help="Embedding device (default: auto; resolves to cuda, mps, xpu, or cpu; set FLOWHUNT_EMBEDDING_DEVICE or pass a device explicitly)")
     parser.add_argument("--top-k-per-page", type=int, default=12, help="Maximum lnks entries per source page")
     parser.add_argument("--top-k-per-paragraph", type=int, default=1, help="Maximum links per paragraph")
     parser.add_argument("--similarity-floor", type=float, default=0.52, help="Minimum paragraph-target similarity")

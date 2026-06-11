@@ -90,10 +90,7 @@ install_python_requirements() {
         echo -e "${YELLOW}Torch 2.6.x is not available for this Python/package index; falling back to latest available Torch.${NC}"
         pip install "torch>=2.9.0"
 
-        if [ -z "${FLOWHUNT_EMBEDDING_DEVICE:-}" ]; then
-            export FLOWHUNT_EMBEDDING_DEVICE=cpu
-            echo -e "${YELLOW}Using FLOWHUNT_EMBEDDING_DEVICE=cpu with fallback Torch to avoid Apple MPS regressions.${NC}"
-        fi
+        echo -e "${YELLOW}Embedding scripts will auto-detect GPU support unless FLOWHUNT_EMBEDDING_DEVICE is set.${NC}"
     fi
 
     requirements_without_torch="$(mktemp)"
@@ -103,24 +100,6 @@ install_python_requirements() {
         return 1
     fi
     rm -f "$requirements_without_torch"
-}
-
-prefer_cpu_for_newer_torch() {
-    if [ -n "${FLOWHUNT_EMBEDDING_DEVICE:-}" ]; then
-        return 0
-    fi
-
-    if "${VENV_DIR}/bin/python" - <<'PY' >/dev/null 2>&1
-from importlib.metadata import version
-
-parts = version("torch").split("+", 1)[0].split(".")
-major, minor = int(parts[0]), int(parts[1])
-raise SystemExit(0 if (major, minor) >= (2, 7) else 1)
-PY
-    then
-        export FLOWHUNT_EMBEDDING_DEVICE=cpu
-        echo -e "${YELLOW}Detected Torch >=2.7; using FLOWHUNT_EMBEDDING_DEVICE=cpu to avoid Apple MPS regressions.${NC}"
-    fi
 }
 
 # Steps that should be unchecked by default
@@ -324,7 +303,6 @@ fi
 # Activate the virtual environment
 echo -e "${YELLOW}Activating virtual environment...${NC}"
 source "${VENV_DIR}/bin/activate"
-prefer_cpu_for_newer_torch
 
 # Only install if needed
 if [ "$NEED_INSTALL" = true ]; then

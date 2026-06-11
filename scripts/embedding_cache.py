@@ -16,6 +16,8 @@ from pathlib import Path
 
 import numpy as np
 
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+
 # Load .env from the scripts directory so HF_TOKEN and other vars are available
 def _load_env():
     env_path = Path(__file__).resolve().parent / ".env"
@@ -104,7 +106,10 @@ def embed_with_cache(pages, model_name, cache_path, use_cache=True):
         print(f"Embedding cache: {hits} hits, {len(to_embed_texts)} misses → loading model {model_name}")
         from sentence_transformers import SentenceTransformer
 
-        model = SentenceTransformer(model_name, trust_remote_code=True)
+        requested_device = default_embedding_device()
+        device = resolve_embedding_device(requested_device)
+        print(f"Embedding cache: using device {device} (requested: {requested_device})")
+        model = SentenceTransformer(model_name, trust_remote_code=True, device=device)
         new_embs = model.encode(
             to_embed_texts,
             show_progress_bar=True,
@@ -152,16 +157,27 @@ def _free_device_cache():
 
 
 def detect_device() -> str:
-    """Detect the best available compute device: CUDA > MPS > CPU."""
+    """Detect the best available compute device: CUDA > MPS > XPU > CPU."""
     try:
         import torch
         if torch.cuda.is_available():
             name = torch.cuda.get_device_name(0)
             print(f"[device] CUDA detected: {name}")
             return "cuda"
-        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        if (
+            hasattr(torch.backends, "mps")
+            and torch.backends.mps.is_built()
+            and torch.backends.mps.is_available()
+        ):
             print("[device] Apple Silicon MPS detected")
             return "mps"
+        if hasattr(torch, "xpu") and torch.xpu.is_available():
+            try:
+                name = torch.xpu.get_device_name(0)
+            except Exception:
+                name = "Intel XPU"
+            print(f"[device] XPU detected: {name}")
+            return "xpu"
     except ImportError:
         pass
     print("[device] No GPU detected, using CPU")
@@ -169,10 +185,18 @@ def detect_device() -> str:
 
 
 def default_embedding_device() -> str:
-    """Return the best available device, with FLOWHUNT_EMBEDDING_DEVICE override."""
-    env = os.environ.get("FLOWHUNT_EMBEDDING_DEVICE")
+    """Return the requested embedding device, defaulting to auto."""
+    env = os.environ.get("FLOWHUNT_EMBEDDING_DEVICE", "").strip().lower()
     if env:
         return env
+    return "auto"
+
+
+def resolve_embedding_device(device: str | None = None) -> str:
+    """Resolve auto to the best available concrete compute device."""
+    requested = (device or default_embedding_device()).strip().lower()
+    if requested and requested != "auto":
+        return requested
     return detect_device()
 
 
@@ -204,6 +228,8 @@ class EmbeddingCache:
         self.cache_type = cache_type
         self.model = f"{model}::{cache_type}"
         self.device = device or default_embedding_device()
+        self.resolved_device = resolve_embedding_device(self.device)
+        print(f"[device] EmbeddingCache using device: {self.resolved_device} (requested: {self.device})")
         self.conn = None
         if not enabled:
             return
@@ -353,7 +379,7 @@ class EmbeddingCache:
     def _resolve(self, embedder_or_model):
         if isinstance(embedder_or_model, str):
             from sentence_transformers import SentenceTransformer
-            return SentenceTransformer(embedder_or_model, trust_remote_code=True, device=self.device)
+            return SentenceTransformer(embedder_or_model, trust_remote_code=True, device=self.resolved_device)
         return embedder_or_model
 
     def _release(self, embedder, embedder_or_model):
