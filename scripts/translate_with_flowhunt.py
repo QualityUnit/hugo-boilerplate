@@ -335,21 +335,41 @@ def check_session_results(api_instance, session_info, timeout=600):
             session_id=session_id,
             from_timestamp=from_ts
         )
-        events = json.loads(resp.data.decode('utf-8'))
+        raw = json.loads(resp.data.decode('utf-8'))
+
+        # Normalize: the API may return a plain list or a paginated wrapper dict
+        # (e.g. {"items": [...], "total": N}) — iterating a dict yields string keys
+        # which breaks event.get() calls below.
+        if isinstance(raw, list):
+            events = raw
+        elif isinstance(raw, dict):
+            events = raw.get('items', raw.get('data', []))
+        else:
+            events = []
 
         # Update timestamp for next poll
         for event in events:
+            if not isinstance(event, dict):
+                continue
+
             ts = event.get('created_at_timestamp')
             if ts:
-                session_info['from_timestamp'] = str(int(ts) + 1)
+                try:
+                    session_info['from_timestamp'] = str(int(ts) + 1)
+                except (ValueError, TypeError):
+                    pass
 
             action_type = event.get('action_type')
-            metadata = event.get('metadata', {})
+            metadata = event.get('metadata') or {}
+            if not isinstance(metadata, dict):
+                metadata = {}
 
             # Check for artefacts with translation file
             if action_type == 'artefacts':
                 artefacts = metadata.get('artefacts', [])
                 for art in artefacts:
+                    if not isinstance(art, dict):
+                        continue
                     name = art.get('name', '')
                     url = art.get('download_url', '')
                     if 'translation' in name.lower() and url:

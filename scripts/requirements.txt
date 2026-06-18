@@ -1,8 +1,7 @@
-# Prefer the older known-good Torch range when available. build_content.sh can
-# fall back to newer Torch on Python versions where 2.6 wheels are unavailable;
-# embedding scripts still auto-detect CUDA/MPS/XPU unless overridden with
+# Torch: no upper-bound pin — 2.12+ is in active use. build_content.sh and
+# embedding scripts auto-detect CUDA/MPS/XPU unless overridden with
 # FLOWHUNT_EMBEDDING_DEVICE.
-torch>=2.6.0,<2.7
+torch>=2.6.0
 # transformers pinned to <5.0 — the custom modeling.py shipped with
 # Alibaba-NLP/gte-multilingual-base targets transformers 4.x APIs and
 # raises IndexError on RoPE position computation under transformers 5.x.
@@ -23,7 +22,7 @@ tqdm
 python-dotenv
 requests>=2.31.0
 toml>=0.10.2
-flowhunt>=3.17.0
+flowhunt>=3.19.1
 nltk>=3.8
 numpy>=1.21.0
 scikit-learn>=1.0.0
