@@ -66,7 +66,7 @@
 {{ $controls := (and (not $useLightbox) (.controls | default true)) }}
 {{ $poster := .poster }}
 {{ $posterHeight := .posterHeight | default "" }}
-{{ $provider := .provider | default "youtube" }}
+{{ $provider := .provider | default "" }}
 {{ $pureVideo := .pureVideo | default false }}
 
 {{ $noLazy := .noLazy | default false }}
