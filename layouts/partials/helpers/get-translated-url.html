@@ -16,6 +16,19 @@
 {{- /* Handle external URLs and anchors - return as-is */ -}}
 {{- if or (hasPrefix $url "http://") (hasPrefix $url "https://") (hasPrefix $url "#") -}}
   {{- $url -}}
+{{- else if hasPrefix $url "/images/" -}}
+  {{- /* Static assets live in cdn-assets and are served from /images/. When the static-assets
+         CDN is enabled, non-image asset links (PDF/ZIP/video downloads) must point at the CDN
+         domain - on the web host the /images/* -> CDN rewrite only covers image extensions, so
+         these otherwise stay on the site domain and 404. See web-issues #4181.
+         If the CDN is NOT enabled (or the project doesn't use it), fall back to the original
+         relLangURL behaviour unchanged, so language-subdir setups are not affected. */ -}}
+  {{- $staticURL := partial "functions/get-static-url.html" (dict "path" $url) -}}
+  {{- if ne $staticURL $url -}}
+    {{- $staticURL -}}
+  {{- else -}}
+    {{- $url | relLangURL -}}
+  {{- end -}}
 {{- else -}}
   {{- /* Try to find the page and get its actual URL from frontmatter */ -}}
   {{- $contentPath := strings.TrimPrefix "/" (strings.TrimSuffix "/" $url) -}}
