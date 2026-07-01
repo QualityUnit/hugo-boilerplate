@@ -106,7 +106,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function updateAnalyticsConsent(allowed) {
-    if (typeof window.gtag === 'function') {
+    // Consent Mode update: skip when consent-core.js is present (LiveAgent) — it owns
+    // the full 7-parameter update and fires it on the same banner click. Firing this
+    // partial 4-parameter update too would duplicate it in the dataLayer. Sites without
+    // consent-core (e.g. PAP / FlowHunt) still fire it here as before.
+    if (typeof window.gtag === 'function' && !window.consentCore) {
       window.gtag('consent', 'update', {
         'analytics_storage': allowed ? 'granted' : 'denied',
         'ad_storage': allowed ? 'granted' : 'denied',
