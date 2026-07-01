@@ -12,6 +12,8 @@ Usage (called automatically by .husky/pre-commit):
   python3 themes/boilerplate/scripts/update-content-dates.py
 """
 
+from __future__ import annotations
+
 import re
 import subprocess
 import datetime
