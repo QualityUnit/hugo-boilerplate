@@ -63,6 +63,24 @@ SKIP_TEXT_ANCESTORS = {
     "aside", "form", "figure", "blockquote", "address",
 }
 
+# Opt-out marker: any element carrying this class excludes its ENTIRE subtree
+# from linkbuilding. Checked via find_parent (ancestor walk), so the opt-out is
+# inherited by every descendant text node at any depth — put it once on a
+# banner/section wrapper and nothing inside gets auto-linked.
+NO_LINKBUILDING_CLASS = "no-linkbuilding"
+
+
+def _is_linkbuilding_excluded(tag: Any) -> bool:
+    """True if this element opts out of linkbuilding via the marker class.
+
+    Used as a find_parent predicate so the opt-out is inherited by the whole
+    subtree: a text node is excluded if it OR any ancestor carries the class.
+    """
+    get = getattr(tag, "get", None)
+    if get is None:  # NavigableString / non-Tag — no attributes
+        return False
+    return NO_LINKBUILDING_CLASS in (get("class") or [])
+
 _hugo_config_cache: dict[str, Any] = {}
 
 
@@ -144,6 +162,7 @@ class LinkBuilder:
             and node.parent
             and node.parent.name not in SKIP_TEXT_PARENTS
             and not node.find_parent(SKIP_TEXT_ANCESTORS)
+            and not node.find_parent(_is_linkbuilding_excluded)
         ]
 
         for keyword in keywords:
