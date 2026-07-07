@@ -483,21 +483,21 @@ run_step() {
             fi
 
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/sync_translations.py${NC}"
-            python "${SCRIPT_DIR}/sync_translations.py"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/sync_translations.py"
             echo -e "${GREEN}Translation key sync completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step sync_translations finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         offload_images)
             echo -e "${BLUE}=== Step 2: Offload Images from Replicate ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/offload_replicate_images.py${NC}"
-            python "${SCRIPT_DIR}/offload_replicate_images.py"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/offload_replicate_images.py"
             echo -e "${GREEN}Offloading images completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step offload_images finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         find_duplicate_images)
             echo -e "${BLUE}=== Step 2.5: Finding Duplicate Images ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/find_duplicate_images.py${NC}"
-            python "${SCRIPT_DIR}/find_duplicate_images.py"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/find_duplicate_images.py"
             echo -e "${GREEN}Duplicate image search completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step find_duplicate_images finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
@@ -525,14 +525,14 @@ run_step() {
             
             echo -e "${YELLOW}Running FlowHunt translation script with max ${MAX_PARALLEL_TRANSLATIONS} parallel processes...${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translate_with_flowhunt.py --path ${HUGO_ROOT}/content --max-scheduled-tasks ${MAX_PARALLEL_TRANSLATIONS}${NC}"
-            python "${SCRIPT_DIR}/translate_with_flowhunt.py" --path "${HUGO_ROOT}/content" --max-scheduled-tasks "${MAX_PARALLEL_TRANSLATIONS}"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/translate_with_flowhunt.py" --path "${HUGO_ROOT}/content" --max-scheduled-tasks "${MAX_PARALLEL_TRANSLATIONS}"
             echo -e "${GREEN}Translation of missing content completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step translate finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         sync_content_attributes)
             echo -e "${BLUE}=== Step 3.5: Syncing Content Attributes ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/sync_content_attributes.py${NC}"
-            python "${SCRIPT_DIR}/sync_content_attributes.py"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/sync_content_attributes.py"
             echo -e "${GREEN}Content attributes sync completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step sync_content_attributes finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
@@ -571,21 +571,21 @@ print(f'Done. Dropped keywords from {dropped} files.')
         sync_translation_urls)
             echo -e "${BLUE}=== Step 3.6: Syncing Translation URLs ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/sync_translation_urls.py --hugo-root ${HUGO_ROOT}${NC}"
-            python "${SCRIPT_DIR}/sync_translation_urls.py" --hugo-root "${HUGO_ROOT}"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/sync_translation_urls.py" --hugo-root "${HUGO_ROOT}"
             echo -e "${GREEN}Translation URLs synced!${NC}"
             echo -e "${YELLOW}[DEBUG] Step sync_translation_urls finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_translation_urls)
             echo -e "${BLUE}=== Step 3.7: Generating Translation URLs Mapping ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translation-urls.py --hugo-root ${HUGO_ROOT}${NC}"
-            python "${SCRIPT_DIR}/translation-urls.py" --hugo-root "${HUGO_ROOT}"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/translation-urls.py" --hugo-root "${HUGO_ROOT}"
             echo -e "${GREEN}Translation URLs mapping completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_translation_urls finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         generate_amplify_redirects)
             echo -e "${BLUE}=== Step 3.8: Generating Amplify Redirects ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/generate_amplify_redirects_file.py --hugo-root ${HUGO_ROOT}${NC}"
-            python "${SCRIPT_DIR}/generate_amplify_redirects_file.py" --hugo-root "${HUGO_ROOT}"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_amplify_redirects_file.py" --hugo-root "${HUGO_ROOT}"
             echo -e "${GREEN}Amplify redirects generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_amplify_redirects finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
@@ -606,7 +606,7 @@ print(f'Done. Dropped keywords from {dropped} files.')
         generate_related_content)
             echo -e "${BLUE}=== Step 4: Generating Related Content JSON Files (Split by Section) ===${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/generate_related_content.py --path ${HUGO_ROOT}/content --hugo-root ${HUGO_ROOT} --exclude-sections author${NC}"
-            python "${SCRIPT_DIR}/generate_related_content.py" --path "${HUGO_ROOT}/content" --hugo-root "${HUGO_ROOT}" --exclude-sections "author"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_related_content.py" --path "${HUGO_ROOT}/content" --hugo-root "${HUGO_ROOT}" --exclude-sections "author"
             echo -e "${GREEN}Related content JSON generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_related_content finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
@@ -764,7 +764,7 @@ print(f'Done. Dropped keywords from {dropped} files.')
             echo -e "${BLUE}=== Step 2.1: Splitting Sitemap ===${NC}"
             echo -e "${YELLOW}Splitting monolithic sitemap.xml into per-sport sitemaps...${NC}"
             echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/split_sitemap.py --public-dir ${HUGO_ROOT}/public${NC}"
-            python "${SCRIPT_DIR}/split_sitemap.py" --public-dir "${HUGO_ROOT}/public"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/split_sitemap.py" --public-dir "${HUGO_ROOT}/public"
             echo -e "${GREEN}Sitemap splitting completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step split_sitemap finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
