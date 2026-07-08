@@ -459,7 +459,13 @@ def run(args: argparse.Namespace) -> int:
 
     for content_dir in _content_dirs(content_root, args.lang):
         lang = content_dir.name
-        lang_public_dir = public_dir if lang == "en" else public_dir / lang
+        # --content-at-root: each language is built as the default at public/ root
+        # (per-language / per-domain deploys, e.g. PostAffiliatePro). The HTML for the
+        # current language lives at public/ root, not public/<lang>/.
+        if args.content_at_root:
+            lang_public_dir = public_dir
+        else:
+            lang_public_dir = public_dir if lang == "en" else public_dir / lang
 
         # --file: per-file dev mode — no rglob, no content scan, no global keywords.
         dev_mode = bool(args.files)
@@ -469,8 +475,9 @@ def run(args: argparse.Namespace) -> int:
             html_files = [Path(f).resolve() for f in args.files if Path(f).exists()]
         elif lang_public_dir.exists():
             # Build the full HTML file work list for normal (production) mode.
-            # For English (served at public/ root) exclude subdirs for other languages.
-            if lang == "en":
+            # For a root build (English at public/ root, or --content-at-root per-language
+            # deploys) exclude any stray subdirs named after other languages.
+            if lang == "en" or args.content_at_root:
                 html_files = sorted(
                     p for p in lang_public_dir.rglob("*.html")
                     if p.relative_to(lang_public_dir).parts
@@ -555,6 +562,10 @@ def main() -> int:
     parser.add_argument("--public-dir", default="public")
     parser.add_argument("--linkbuilding-dir", default="data/linkbuilding")
     parser.add_argument("--lang", default="", help="Optional language code, e.g. en")
+    parser.add_argument("--content-at-root", action="store_true",
+                        help="Language is built as the default at public/ root "
+                             "(per-language / per-domain deploys, e.g. PostAffiliatePro). "
+                             "Forces lang_public_dir = public_dir for every language.")
     parser.add_argument("--file-workers", type=int, default=os.cpu_count() or 4,
                         help="Number of parallel worker processes")
     parser.add_argument("--include-manual", action="store_true",
