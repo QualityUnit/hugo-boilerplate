@@ -361,9 +361,11 @@ while [[ $# -gt 0 ]]; do
             echo "                             Each worker loads ~1-2 GB sentence-transformer model — lower"
             echo "                             this on machines with <32 GB RAM to avoid OOM/swap pressure."
             echo "  TRANSLATE_FILES            Space-separated English source paths to scope the 'translate'"
-            echo "                             step to (e.g. the files changed in a PR). Default: all files."
-            echo "  TRANSLATE_FORCE            Set to 'true' to re-translate/overwrite existing target files"
-            echo "                             during the 'translate' step. Default: skip existing."
+            echo "                             step to (e.g. the files changed in a PR). When set, only those"
+            echo "                             files are translated (add TRANSLATE_FORCE=true to also overwrite"
+            echo "                             their existing targets). When UNSET, the step falls back to a"
+            echo "                             forced whole-site run (--force), re-translating everything."
+            echo "  TRANSLATE_FORCE            Set to 'true' to also pass --force when TRANSLATE_FILES is set."
             echo ""
             echo "Available steps:"
             for step in "${ALL_STEPS[@]}"; do
@@ -527,18 +529,24 @@ run_step() {
                 exit 0
             fi
             
-            # Optional scoping (used by CI to translate only the files changed
-            # in a PR and/or re-translate existing targets). Both are empty by
-            # default, preserving the original whole-content behaviour.
+            # Scoping for the translate step:
             #   TRANSLATE_FILES  space-separated English source paths -> --files
             #   TRANSLATE_FORCE=true                                 -> --force
+            #
+            # When TRANSLATE_FILES is set, translate exactly those files (and
+            # add --force too if TRANSLATE_FORCE=true). When TRANSLATE_FILES is
+            # NOT set, fall back to a forced whole-site run (--force), i.e. every
+            # target is (re)translated and overwritten.
             translate_extra_args=()
             if [ -n "${TRANSLATE_FILES:-}" ]; then
                 # Intentional word-splitting: TRANSLATE_FILES is a space-separated list.
                 # shellcheck disable=SC2206
                 translate_extra_args+=(--files ${TRANSLATE_FILES})
-            fi
-            if [ "${TRANSLATE_FORCE:-}" = "true" ]; then
+                if [ "${TRANSLATE_FORCE:-}" = "true" ]; then
+                    translate_extra_args+=(--force)
+                fi
+            else
+                # No explicit file list -> fall back to --force.
                 translate_extra_args+=(--force)
             fi
 
