@@ -360,6 +360,10 @@ while [[ $# -gt 0 ]]; do
             echo "                             (clustering, site_audit). Default: 3"
             echo "                             Each worker loads ~1-2 GB sentence-transformer model — lower"
             echo "                             this on machines with <32 GB RAM to avoid OOM/swap pressure."
+            echo "  TRANSLATE_FILES            Space-separated English source paths to scope the 'translate'"
+            echo "                             step to (e.g. the files changed in a PR). Default: all files."
+            echo "  TRANSLATE_FORCE            Set to 'true' to re-translate/overwrite existing target files"
+            echo "                             during the 'translate' step. Default: skip existing."
             echo ""
             echo "Available steps:"
             for step in "${ALL_STEPS[@]}"; do
@@ -523,9 +527,24 @@ run_step() {
                 exit 0
             fi
             
+            # Optional scoping (used by CI to translate only the files changed
+            # in a PR and/or re-translate existing targets). Both are empty by
+            # default, preserving the original whole-content behaviour.
+            #   TRANSLATE_FILES  space-separated English source paths -> --files
+            #   TRANSLATE_FORCE=true                                 -> --force
+            translate_extra_args=()
+            if [ -n "${TRANSLATE_FILES:-}" ]; then
+                # Intentional word-splitting: TRANSLATE_FILES is a space-separated list.
+                # shellcheck disable=SC2206
+                translate_extra_args+=(--files ${TRANSLATE_FILES})
+            fi
+            if [ "${TRANSLATE_FORCE:-}" = "true" ]; then
+                translate_extra_args+=(--force)
+            fi
+
             echo -e "${YELLOW}Running FlowHunt translation script with max ${MAX_PARALLEL_TRANSLATIONS} parallel processes...${NC}"
-            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translate_with_flowhunt.py --path ${HUGO_ROOT}/content --max-scheduled-tasks ${MAX_PARALLEL_TRANSLATIONS}${NC}"
-            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/translate_with_flowhunt.py" --path "${HUGO_ROOT}/content" --max-scheduled-tasks "${MAX_PARALLEL_TRANSLATIONS}"
+            echo -e "${YELLOW}[DEBUG] Executing: python ${SCRIPT_DIR}/translate_with_flowhunt.py --path ${HUGO_ROOT}/content --max-scheduled-tasks ${MAX_PARALLEL_TRANSLATIONS} ${translate_extra_args[*]}${NC}"
+            "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/translate_with_flowhunt.py" --path "${HUGO_ROOT}/content" --max-scheduled-tasks "${MAX_PARALLEL_TRANSLATIONS}" "${translate_extra_args[@]}"
             echo -e "${GREEN}Translation of missing content completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step translate finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
