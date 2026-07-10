@@ -414,57 +414,125 @@ def download_translation(file_url):
         print(f"Error downloading translation from {file_url}: {str(e)}")
         return None
 
-def find_files_for_translation(content_dir, target_langs):
+def resolve_source_files(only_files, en_dir, content_dir):
+    """
+    Resolve an explicit list of source files (e.g. the files changed in a PR)
+    down to translatable English source files.
+
+    Each entry may be absolute, relative to the current working directory, or
+    relative to the content directory (so both `content/en/foo.md` from a repo
+    root and `en/foo.md` from the content dir work). Entries that do not exist,
+    live outside the English source tree, or are not translatable are skipped
+    with a warning.
+
+    Args:
+        only_files (list): Raw path strings to resolve
+        en_dir (Path): Path to the English source directory (content/en)
+        content_dir (Path): Path to the content directory
+
+    Returns:
+        list: Existing, de-duplicated, translatable English source Paths
+    """
+    en_dir_resolved = en_dir.resolve()
+    resolved = []
+    seen = set()
+
+    for raw in only_files:
+        candidate = Path(raw)
+        # Build the list of locations to try, in priority order.
+        if candidate.is_absolute():
+            attempts = [candidate]
+        else:
+            attempts = [Path.cwd() / candidate, content_dir / candidate]
+
+        chosen = next((p.resolve() for p in attempts if p.exists()), None)
+        if chosen is None:
+            print(f"  Skipping (not found): {raw}")
+            continue
+
+        # Only English source files drive translation; ignore anything else
+        # (e.g. a changed file under another language dir).
+        try:
+            rel = chosen.relative_to(en_dir_resolved)
+        except ValueError:
+            print(f"  Skipping (not under en/): {raw}")
+            continue
+
+        if not is_translatable_file(chosen):
+            print(f"  Skipping (not a translatable file type): {raw}")
+            continue
+
+        # Rebase onto the (possibly unresolved) en_dir the caller passed in, so
+        # downstream `relative_to(en_dir)` stays consistent even when the
+        # content path contains a symlink component (e.g. macOS /tmp).
+        normalized = en_dir / rel
+        if normalized not in seen:
+            seen.add(normalized)
+            resolved.append(normalized)
+
+    return resolved
+
+
+def find_files_for_translation(content_dir, target_langs, only_files=None, force=False):
     """
     Find all files that need translation
-    
+
     Args:
         content_dir (Path): Path to the content directory
         target_langs (list): List of target language codes
-        
+        only_files (list): Optional explicit list of English source files to
+            translate. When provided, the English tree is NOT walked and only
+            these files are considered.
+        force (bool): When True, (re)translate even if the target file already
+            exists, overwriting it. When False, existing targets are skipped.
+
     Returns:
         list: List of tuples (file_path, content, target_lang, target_file)
     """
     en_dir = content_dir / "en"
     translation_tasks = []
     files_already_exist = 0
-    
-    # Find all translatable files in the English directory
-    translatable_files = []
-    for root, _, files in os.walk(en_dir):
-        for file in files:
-            file_path = Path(root) / file
-            if is_translatable_file(file_path):
-                translatable_files.append(file_path)
-    
-    print(f"Found {len(translatable_files)} translatable files in the English directory")
-    
+
+    # Find the translatable English source files: either the explicit --files
+    # list, or a full walk of the English directory.
+    if only_files:
+        translatable_files = resolve_source_files(only_files, en_dir, content_dir)
+        print(f"Selected {len(translatable_files)} translatable file(s) from --files")
+    else:
+        translatable_files = []
+        for root, _, files in os.walk(en_dir):
+            for file in files:
+                file_path = Path(root) / file
+                if is_translatable_file(file_path):
+                    translatable_files.append(file_path)
+        print(f"Found {len(translatable_files)} translatable files in the English directory")
+
     if len(translatable_files) == 0:
         print("No translatable files found in the English directory")
         return [], 0
-    
+
     # Create the list of translation tasks
     for file_path in translatable_files:
         # Read the content of the file
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        
+
         # Get the relative path from the English directory
         rel_path = file_path.relative_to(en_dir)
-        
+
         # For each target language, check if translation is needed
         for target_lang in target_langs:
             target_dir = content_dir / target_lang
             target_file = target_dir / rel_path
-            
-            # Skip if the target file already exists
-            if target_file.exists():
+
+            # Skip if the target file already exists, unless --force was given.
+            if target_file.exists() and not force:
                 files_already_exist += 1
                 continue
-            
+
             # Add to translation tasks
             translation_tasks.append((file_path, content, target_lang, target_file))
-    
+
     return translation_tasks, files_already_exist
 
 def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled_tasks=500):
@@ -670,6 +738,7 @@ Examples:
   python translate_with_flowhunt.py --check-interval 30
   python translate_with_flowhunt.py --flow-id "custom-flow-id"
   python translate_with_flowhunt.py --max-scheduled-tasks 100
+  python translate_with_flowhunt.py --files content/en/foo.md content/en/bar.md --force
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -699,14 +768,31 @@ Examples:
         help="FlowHunt flow ID for translation service (default: %(default)s)",
         default=DEFAULT_FLOW_ID
     )
-    
+    parser.add_argument(
+        "--files",
+        nargs="*",
+        default=None,
+        help="Explicit list of English source files to translate (e.g. the files "
+             "changed in a PR). Paths may be absolute or relative to the current "
+             "directory or the content dir. When given, the English tree is not "
+             "walked and only these files are considered."
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-translate and overwrite target files even if they already exist "
+             "(default: existing translations are skipped)."
+    )
+
     args = parser.parse_args()
-    
+
     print(f"[DEBUG] Parsed arguments:")
     print(f"[DEBUG] - Path: {args.path}")
     print(f"[DEBUG] - Check interval: {args.check_interval} seconds")
     print(f"[DEBUG] - Max scheduled tasks: {args.max_scheduled_tasks}")
     print(f"[DEBUG] - Flow ID: {args.flow_id}")
+    print(f"[DEBUG] - Files: {args.files if args.files else 'ALL (full en/ walk)'}")
+    print(f"[DEBUG] - Force overwrite: {args.force}")
     
     # Convert to Path object
     content_dir = Path(args.path)
@@ -742,15 +828,24 @@ Examples:
     if not target_langs:
         print("No target language directories found.")
         sys.exit(0)
-    
+
+    # An explicitly-empty --files list (e.g. a PR that touched no English
+    # source files) means "nothing to translate" — never fall back to a full
+    # site walk, which would be a surprising and expensive no-scope run.
+    if args.files is not None and len(args.files) == 0:
+        print("--files was provided but empty; no files to translate. Exiting.")
+        sys.exit(0)
+
     print(f"Content directory: {content_dir}")
     print(f"Source language: en")
     print(f"Target languages: {', '.join(target_langs)}")
     print(f"Using FlowHunt flow ID: {args.flow_id}")
-    
+
     # Find files that need translation
     print(f"\n[DEBUG] ========== SCANNING FOR FILES TO TRANSLATE ===========")
-    translation_tasks, files_already_exist = find_files_for_translation(content_dir, target_langs)
+    translation_tasks, files_already_exist = find_files_for_translation(
+        content_dir, target_langs, only_files=args.files, force=args.force
+    )
     print(f"[DEBUG] ========== FILE SCAN COMPLETE ===========")
     
     print(f"Found {len(translation_tasks)} files that need translation")
