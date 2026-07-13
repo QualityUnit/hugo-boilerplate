@@ -2,6 +2,8 @@
 <html lang="{{ site.Language.Locale }}" dir="{{ or site.Language.Direction `ltr` }}" class="scroll-smooth scroll-pt-32">
 <head>
   {{ partialCached "head.html" . .Permalink }}
+  {{/* Region-aware consent (opt-in via [params.geoConsent]) — must run before first paint */}}
+  {{ partial "consent-head.html" . }}
 </head>
 <body class="antialiased bg-white dark:bg-gray-900 min-h-screen flex flex-col">
 
@@ -42,6 +44,9 @@
 
 <!-- Consolidated FAQ Schema (renders once per page with all accumulated FAQs) -->
 {{ partial "schemaorg/faq-consolidated.html" . }}
+
+{{/* Region-aware consent loader (opt-in via [params.geoConsent]) */}}
+{{ partial "geo-consent.html" . }}
 
 </body>
 </html>

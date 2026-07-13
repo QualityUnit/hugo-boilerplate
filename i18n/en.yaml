@@ -88,6 +88,7 @@ cookie_settings_marketing_description: "These cookies are used to measure the ef
 cookie_settings_functional_title: "Functional Cookies"
 cookie_settings_functional_description: "These cookies are used to remember your preferences and improve your experience."
 cookie_consent_reject_all: "Reject all"
+footer.your_privacy_choices: "Your Privacy Choices"
 cookie_consent_manage: "Manage preferences"
 cookie_settings_cancel: "Cancel"
 cookie_settings_save: "Save Preferences"
