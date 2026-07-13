@@ -1,0 +1,30 @@
+{{/*
+@component: Consent Footer Links
+@description: The two consent re-entry links for the site footer — renders ONLY when
+  the site has geo-gated consent enabled ([params.geoConsent], same switch as
+  consent-head.html / geo-consent.html):
+    1. "Cookie settings" — always visible; reopens the cookie-settings modal via the
+       theme's data-cookie-consent=settings handler. Required by the T&C / Privacy
+       Policy texts and by GDPR (withdrawing consent must stay as easy as giving it —
+       the banner disappears after the first choice).
+    2. "Your Privacy Choices" — hidden by default; consent-modal.js reveals it for
+       US visitors only (CCPA/CPRA opt-out, official CA AG icon §7015, shipped in the
+       theme's static/img/privacyoptions.svg). Opens the same settings modal.
+@params:
+  - linkClass: CSS classes for both links (optional; default matches the standard
+    footer bottom-menu styling)
+  - wrapper: "li" to wrap each link in <li> (for <ul> footers, e.g. FlowHunt),
+    empty/omitted for flex footers (LA/PAP bottom-menu)
+@example:
+  {{ partial "components/consent/footer-links.html" (dict) }}
+  {{ partial "components/consent/footer-links.html" (dict "wrapper" "li" "linkClass" "text-sm/6 text-gray-400 hover:text-white") }}
+*/}}
+{{- if site.Params.geoConsent -}}
+{{- $class := .linkClass | default "text-gray-400 hover:text-gray-300 transition-colors duration-200" -}}
+{{- $li := eq (.wrapper | default "") "li" -}}
+{{ if $li }}<li>{{ end }}<a href="#" data-cookie-consent="settings" class="{{ $class }}">{{ i18n "footer.cookie_settings" | default (i18n "cookie_settings_title") }}</a>{{ if $li }}</li>{{ end }}
+{{ if $li }}<li>{{ end }}<a id="your-privacy-choices" href="#" data-cookie-consent="settings" class="hidden {{ $class }} items-center gap-2">
+    <img src="{{ "/img/privacyoptions.svg" | relURL }}" alt="" width="30" height="14" class="inline-block align-middle">
+    {{ i18n "footer.your_privacy_choices" | default "Your Privacy Choices" }}
+</a>{{ if $li }}</li>{{ end }}
+{{- end -}}

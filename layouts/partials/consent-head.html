@@ -23,7 +23,7 @@
          - no consent_region yet (first visit)    → leave default-hidden; geo-consent.js
                                                      decides after the geo fetch
        The ?geo_country override is handled by geo-consent.js. */ -}}
-{{- if site.Params.geoConsent -}}
+{{- if and site.Params.geoConsent site.Params.geoConsent.endpoint -}}
 <style>
 #cookie-consent-banner { display: none; }
 html.cc-hide #cookie-consent-banner { display: none !important; }
