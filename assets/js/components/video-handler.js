@@ -288,23 +288,13 @@
         if (granted) {
             localStorage.setItem('video-consent', 'granted');
             document.cookie = 'video-consent=granted; path=/; max-age=31536000'; // 1 year
-            
-            // Try to sync with global cookie consent if possible
-            // But only do this if we don't already have a global cookie consent
-            var globalConsent = document.cookie.indexOf('cookie_consent_status=') > -1;
-            if (!globalConsent && typeof CookieManager !== 'undefined' && CookieManager.set) {
-                CookieManager.set('cookie_consent_status', 'all', 365);
-                
-                // If we have gtag, update consent there too
-                if (typeof window.gtag === 'function') {
-                    window.gtag('consent', 'update', {
-                        'analytics_storage': 'granted',
-                        'ad_storage': 'granted',
-                        'ad_user_data': 'granted',
-                        'ad_personalization': 'granted'
-                    });
-                }
-            }
+
+            // Deliberately NOT synced to the global cookie_consent_status: playing a
+            // video is consent for THIS embed only, not an "accept all" banner choice.
+            // The old sync here forged a full-consent cookie (suppressed the banner
+            // permanently and enabled every tracker for EU visitors) and fired a
+            // partial 4-param gtag update. The banner JS / consentCore own the global
+            // consent; this handler only READS it (checkGdprConsent above).
         } else {
             localStorage.removeItem('video-consent');
             document.cookie = 'video-consent=; path=/; max-age=0'; // Remove cookie
