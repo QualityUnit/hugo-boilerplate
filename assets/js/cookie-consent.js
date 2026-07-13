@@ -1,16 +1,21 @@
 /**
- * Cookie Consent Script
+ * Cookie Consent Script — two variants, selected by the rendered banner markup.
  *
- * Owns the blocking banner + 4-category settings modal (cookies-bar.html).
- * Consent is persisted in two cookies:
- *  - cookie_consent_status — legacy 2-state ('all' | 'necessary'), kept as the
- *    "a choice was made" marker (banner show/hide, backward compat). It is 'all'
- *    ONLY when every category is granted — it used to become 'all' whenever the
- *    Analytics switch was on, silently granting marketing.
- *  - cookie_consent_v2 — granular per-category choice ("a1m0f1" = analytics /
- *    marketing / functional). Wins over the legacy cookie when both exist.
- * Sites with a richer consent layer (window.consentCore, e.g. LiveAgent) keep
- * owning Google Consent Mode — the gtag update below is skipped for them.
+ * LEGACY (default cookies-bar variant): the original non-blocking bottom bar +
+ * 2-category settings modal. Behavior is intentionally byte-identical to the
+ * pre-rework script: single cookie_consent_status cookie ('all' | 'necessary'),
+ * Save maps "analytics on" -> 'all', vendor hooks keyed off analytics. Every
+ * site that has not opted into the consent rework stays on this path.
+ *
+ * V2 (blocking variant, opt-in via [params.cookieConsent] blocking = true —
+ * LiveAgent / PostAffiliatePro / FlowHunt / amicited): blocking modal +
+ * 4-category settings. Adds the granular cookie_consent_v2 ("a1m0f1") next to
+ * the legacy cookie (which is 'all' ONLY when every category is granted),
+ * per-category Google Consent Mode updates, marketing-driven vendor hooks.
+ * Skipped when window.consentCore owns Consent Mode (LiveAgent).
+ *
+ * The branch is detected from the data-consent-v2 attribute that only the
+ * blocking cookies-bar variant renders on #cookie-consent-banner.
  */
 
 const CookieManager = {
@@ -34,6 +39,124 @@ const CookieManager = {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+  const bannerEl = document.getElementById('cookie-consent-banner');
+  if (bannerEl && bannerEl.hasAttribute('data-consent-v2')) {
+    initConsentV2();
+  } else {
+    initConsentLegacy();
+  }
+});
+
+function initConsentLegacy() {
+  const banner = document.getElementById('cookie-consent-banner');
+  const modal = document.getElementById('cookie-settings-modal');
+  const analyticsCheckbox = document.getElementById('analytics-cookies');
+  const consentStatus = CookieManager.get('cookie_consent_status');
+
+  if (banner) {
+    banner.removeAttribute('style');
+  }
+
+  if (consentStatus) {
+    hideBanner();
+  } else {
+    showBanner();
+  }
+
+  if (consentStatus === 'all' && analyticsCheckbox) {
+    analyticsCheckbox.checked = true;
+    updateAnalyticsConsent(true);
+  }
+
+  document.addEventListener('click', function(event) {
+    if (event.target.closest('[data-cookie-consent="accept-all"]')) {
+      event.preventDefault();
+      setConsent('all');
+      hideBanner();
+    }
+
+    if (event.target.closest('[data-cookie-consent="accept-necessary"]')) {
+      event.preventDefault();
+      setConsent('necessary');
+      hideBanner();
+    }
+
+    if (event.target.closest('[data-cookie-consent="settings"]')) {
+      event.preventDefault();
+      modal?.classList.remove('hidden');
+    }
+
+    if (event.target.closest('[data-cookie-settings-close]')) {
+      event.preventDefault();
+      modal?.classList.add('hidden');
+    }
+
+    if (event.target.closest('[data-cookie-settings-save]')) {
+      event.preventDefault();
+      const allowAnalytics = analyticsCheckbox?.checked || false;
+      setConsent(allowAnalytics ? 'all' : 'necessary');
+      modal?.classList.add('hidden');
+      hideBanner();
+    }
+  });
+
+  function hideBanner() {
+    if (banner) {
+      banner.removeAttribute('style');
+      banner.classList.add('cookie-hidden');
+      banner.style.display = 'none';
+      banner.style.visibility = 'hidden';
+      banner.style.opacity = '0';
+    }
+  }
+
+  function showBanner() {
+    if (banner) {
+      banner.classList.remove('cookie-hidden');
+      banner.style.display = 'block';
+      banner.style.visibility = 'visible';
+      banner.style.opacity = '1';
+    }
+  }
+
+  function setConsent(level) {
+    CookieManager.set('cookie_consent_status', level, 365);
+    updateAnalyticsConsent(level === 'all');
+    console.log('Cookie consent set to:', level); // Pre debugovanie
+    
+    // If user accepts all cookies, set YouTube GDPR consent too
+    if (level === 'all' && window.flowhuntMedia && window.flowhuntMedia.video && typeof window.flowhuntMedia.video.setGdprConsent === 'function') {
+      window.flowhuntMedia.video.setGdprConsent(true);
+    }
+  }
+
+  function updateAnalyticsConsent(allowed) {
+    // Consent Mode update: skip when consent-core.js is present (LiveAgent) — it owns
+    // the full 7-parameter update and fires it on the same banner click. Firing this
+    // partial 4-parameter update too would duplicate it in the dataLayer. Sites without
+    // consent-core (e.g. PAP / FlowHunt) still fire it here as before.
+    if (typeof window.gtag === 'function' && !window.consentCore) {
+      window.gtag('consent', 'update', {
+        'analytics_storage': allowed ? 'granted' : 'denied',
+        'ad_storage': allowed ? 'granted' : 'denied',
+        'ad_user_data': allowed ? 'granted' : 'denied',
+        'ad_personalization': allowed ? 'granted' : 'denied'
+      });
+    }
+    
+    // Update Capterra consent
+    if (typeof window.updateCapterraConsent === 'function') {
+      window.updateCapterraConsent(allowed);
+    }
+
+    // Update Meta Pixel consent
+    if (typeof window.updateMetaPixelConsent === 'function') {
+      window.updateMetaPixelConsent(allowed);
+    }
+  }
+}
+
+function initConsentV2() {
   const banner = document.getElementById('cookie-consent-banner');
   const modal = document.getElementById('cookie-settings-modal');
   const DAYS = 365;
@@ -193,4 +316,4 @@ document.addEventListener('DOMContentLoaded', function() {
       window.updateMetaPixelConsent(c.marketing);
     }
   }
-});
+}
