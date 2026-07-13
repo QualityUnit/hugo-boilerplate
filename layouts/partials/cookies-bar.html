@@ -76,16 +76,18 @@
 </div>
 
 {{/* Switch styling, scoped to the settings modal only (no text labels — the
-     on/off switch is the indicator, like Cookiebot/industry standard). */}}
+     on/off switch is the indicator, like Cookiebot/industry standard).
+     ON-state color = the site's own brand primary via --color-primary-400
+     (defined in each project's variables.css) — never a hardcoded brand hex. */}}
 <style>
   #cookie-settings-modal .cc-sw{position:relative;display:inline-block;width:44px;height:24px;flex:none}
   #cookie-settings-modal .cc-sw input{position:absolute;opacity:0;width:0;height:0;margin:0}
   #cookie-settings-modal .cc-sw-slider{position:absolute;inset:0;background:#52525b;border-radius:9999px;transition:background .2s;cursor:pointer}
   #cookie-settings-modal .cc-sw-slider::before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s}
-  #cookie-settings-modal .cc-sw input:checked + .cc-sw-slider{background:#fb923c}
+  #cookie-settings-modal .cc-sw input:checked + .cc-sw-slider{background:rgb(var(--color-primary-400))}
   #cookie-settings-modal .cc-sw input:checked + .cc-sw-slider::before{transform:translateX(20px)}
   #cookie-settings-modal .cc-sw input:disabled + .cc-sw-slider{opacity:.5;cursor:not-allowed}
-  #cookie-settings-modal .cc-sw input:focus-visible + .cc-sw-slider{outline:2px solid #fb923c;outline-offset:2px}
+  #cookie-settings-modal .cc-sw input:focus-visible + .cc-sw-slider{outline:2px solid rgb(var(--color-primary-400));outline-offset:2px}
 </style>
 
 <!-- Cookie Settings Modal (hidden by default) — Necessary + Analytics as switches.
