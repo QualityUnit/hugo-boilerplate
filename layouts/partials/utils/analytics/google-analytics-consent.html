@@ -3,6 +3,7 @@
 @description: Implementuje Google Analytics s podporou cookie consent systému. Automaticky detekuje ID merania podľa jazykovej verzie.
 @params:
   - gaMeasurementID: ID merania Google Analytics (zo Site.Language.Params.gaMeasurementID alebo Site.Params.gaMeasurementID)
+  - gaMeasurementID2: Optional second GA4 measurement ID for languages that require dual tracking
 @usage:
   {{ partial "utils/analytics/google-analytics-consent.html" . }}
 */}}
@@ -19,6 +20,9 @@
 {{ if not $analyticsID }}
   {{ $analyticsID = .Site.Params.gaMeasurementID | default "" }}
 {{ end }}
+
+{{/* Optional second measurement ID — language param wins, otherwise fall back to site param */}}
+{{ $analyticsID2 := .Site.Language.Params.gaMeasurementID2 | default .Site.Params.gaMeasurementID2 | default "" }}
 
 {{/* Only proceed if we have a valid analytics ID */}}
 {{ if $analyticsID }}
@@ -43,36 +47,80 @@
 
     var consentStatus = getCookie('cookie_consent_status');
 
-    if (consentStatus === 'all') {
-      // Returning user who previously accepted all cookies
+    // Granular per-category choice (cookie_consent_v2 = "a1m0f1", written by
+    // consent-core.js on the banner/settings clicks). Wins over the legacy 2-state
+    // cookie — that one can't express partial choices (Save maps analytics→'all').
+    var granularMatch = /^a([01])m([01])f([01])$/.exec(getCookie('cookie_consent_v2') || '');
+
+    if (granularMatch) {
+      var gA = granularMatch[1] === '1', gM = granularMatch[2] === '1', gF = granularMatch[3] === '1';
+      gtag('consent', 'default', {
+        'ad_storage': gM ? 'granted' : 'denied',
+        'ad_user_data': gM ? 'granted' : 'denied',
+        'ad_personalization': gM ? 'granted' : 'denied',
+        'analytics_storage': gA ? 'granted' : 'denied',
+        'functionality_storage': gF ? 'granted' : 'denied',
+        'personalization_storage': gF ? 'granted' : 'denied',
+        'security_storage': 'granted'
+      });
+    } else if (consentStatus === 'all') {
+      // Returning visitor who previously accepted all cookies — grant immediately.
       gtag('consent', 'default', {
         'ad_storage': 'granted',
         'ad_user_data': 'granted',
         'ad_personalization': 'granted',
-        'analytics_storage': 'granted'
+        'analytics_storage': 'granted',
+        'functionality_storage': 'granted',
+        'personalization_storage': 'granted',
+        'security_storage': 'granted'
       });
-    } else {
-      // EEA + UK: denied by default (GDPR)
-      // Google handles region detection client-side — no server GeoIP needed
+    } else if (consentStatus === 'necessary') {
+      // Returning visitor who rejected non-essential cookies — deny immediately
+      // (no region needed: this is the visitor's explicit, already-known choice).
       gtag('consent', 'default', {
         'ad_storage': 'denied',
         'ad_user_data': 'denied',
         'ad_personalization': 'denied',
         'analytics_storage': 'denied',
-        'region': ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB']
+        'functionality_storage': 'denied',
+        'personalization_storage': 'denied',
+        'security_storage': 'granted'
+      });
+    } else {
+      // No prior choice — Google detects the visitor's country SERVER-SIDE and applies
+      // the matching default synchronously (no client GeoIP, no tracking-loss window).
+      //
+      // Single source of truth for "consent required" = geo-consent.js CONSENT_REQUIRED.
+      // Keep this list in sync with it:
+      //   EU-27 + EEA (IS, LI, NO) + UK (GB) + Switzerland (CH, nFADP)
+      //   + Canada (CA, all provinces — Law 25) + Brazil (BR, LGPD).
+      // These are denied-by-default + get the banner. Everything else — including all
+      // of the US (opt-OUT model: trackers run by default, the footer "Your Privacy
+      // Choices" link handles opt-out) — falls through to the granted default below.
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied',
+        'functionality_storage': 'denied',
+        'personalization_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500,
+        'region': ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB','CH','CA','BR']
       });
 
-      // Rest of world: granted by default
+      // Rest of world (incl. all US): granted by default — non-consent regions are not
+      // pending, so no wait_for_update.
       gtag('consent', 'default', {
         'ad_storage': 'granted',
         'ad_user_data': 'granted',
         'ad_personalization': 'granted',
-        'analytics_storage': 'granted'
+        'analytics_storage': 'granted',
+        'functionality_storage': 'granted',
+        'personalization_storage': 'granted',
+        'security_storage': 'granted'
       });
     }
-
-    // Wait up to 500ms for CMP to restore returning user consent before firing tags
-    gtag('consent', 'default', { 'wait_for_update': 500 });
 
     // Pass ad click info in URLs when cookies denied (critical for cross-domain tracking)
     // Reference: https://developers.google.com/tag-platform/security/guides/consent?consentmode=advanced#url_passthrough
@@ -89,8 +137,16 @@
           'ad_storage': allowed ? 'granted' : 'denied',
           'ad_user_data': allowed ? 'granted' : 'denied',
           'ad_personalization': allowed ? 'granted' : 'denied',
-          'analytics_storage': allowed ? 'granted' : 'denied'
+          'analytics_storage': allowed ? 'granted' : 'denied',
+          'functionality_storage': allowed ? 'granted' : 'denied',
+          'personalization_storage': allowed ? 'granted' : 'denied',
+          'security_storage': 'granted'
         });
+
+        // ads_data_redaction follows consent: false when granted (full ad click
+        // identifiers), true when denied (redacted). Must reset on same-session
+        // revoke to avoid leaking identifiers after a granted → denied switch.
+        gtag('set', 'ads_data_redaction', !allowed);
       }
     };
   </script>
@@ -98,31 +154,39 @@
   {{/* STEP 2: Load gtag.js AFTER consent defaults are set */}}
   <script async src="https://www.googletagmanager.com/gtag/js?id={{ $analyticsID }}"></script>
 
-  {{/* STEP 3: Configure GA4 */}}
+  {{/* STEP 3: Configure GA4 — primary ID and optional second ID */}}
   <script>
     gtag('js', new Date());
+
+    {{/* Build shared domain list for cross-domain linker */}}
+    {{- $domains := slice -}}
+    {{- range site.Home.AllTranslations -}}
+      {{- $url := .Permalink -}}
+      {{- if $url -}}
+        {{- $domain := (urls.Parse $url).Host -}}
+        {{- if not (in $domains $domain) -}}
+          {{- $domains = $domains | append $domain -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+
     gtag('config', '{{ $analyticsID }}', {
       'allow_google_signals': true,
       'allow_enhanced_conversions': true,
       'linker': {
-        'domains': [
-          {{- $domains := slice -}}
-          {{- range site.Home.AllTranslations -}}
-            {{- $url := .Permalink -}}
-            {{- if $url -}}
-              {{- $domain := (urls.Parse $url).Host -}}
-              {{- if not (in $domains $domain) -}}
-                {{- $domains = $domains | append $domain -}}
-              {{- end -}}
-            {{- end -}}
-          {{- end -}}
-          {{- range $index, $domain := $domains -}}
-            {{- if $index -}}, {{- end -}}
-            "{{ $domain }}"
-          {{- end -}}
-        ],
+        'domains': [{{ range $index, $domain := $domains }}{{ if $index }}, {{ end }}"{{ $domain }}"{{ end }}],
         'accept_incoming': true
       }
     });
+    {{ if $analyticsID2 -}}
+    gtag('config', '{{ $analyticsID2 }}', {
+      'allow_google_signals': true,
+      'allow_enhanced_conversions': true,
+      'linker': {
+        'domains': [{{ range $index, $domain := $domains }}{{ if $index }}, {{ end }}"{{ $domain }}"{{ end }}],
+        'accept_incoming': true
+      }
+    });
+    {{- end }}
   </script>
 {{ end }}

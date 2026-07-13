@@ -1,0 +1,40 @@
+{{- /* Consent system loader — geo detection + consent-core bridge. OPT-IN theme
+       component: emits nothing unless the site sets [params.geoConsent] (see
+       consent-head.html, which must be included in <head> alongside this partial
+       before </body>).
+
+       geo-consent.js  : fetches the edge geo endpoint → consent_region cookie +
+                         geo:ready event; owns banner visibility via cc-hide/cc-show.
+       consent-core.js : region-aware granular Consent Mode layer (cookie_consent_v2)
+                         bridging the theme cookie banner; exposes window.__consent +
+                         the consentUpdate event that tracking partials subscribe to.
+       consent-modal.js: settings-switch sync + US-only "Your Privacy Choices"
+                         footer link reveal (element id your-privacy-choices).
+
+       Endpoint via site.Params.geoConsent.endpoint — REQUIRED, no default
+       (see infrastructure-issues#2310). */ -}}
+{{- /* The endpoint must be set EXPLICITLY — there is deliberately no default.
+       The QU geo endpoint is CORS-allowlisted to authorised brand domains only;
+       a site that merely copies the params without authorisation gets the GDPR-safe
+       fallback (banner for everyone, tracking denied until consent). */ -}}
+{{- if and site.Params.geoConsent site.Params.geoConsent.endpoint -}}
+{{- $endpoint := site.Params.geoConsent.endpoint -}}
+{{- $v := partialCached "helpers/build-timestamp.html" . -}}
+{{- /* No-JS safety: the banner is display:none by default (consent-head.html) and
+       revealed by JS. If JS is disabled we cannot detect the region, so show the
+       banner — a GDPR-safe fallback for EU visitors. */ -}}
+<noscript><style>#cookie-consent-banner{display:block !important}</style></noscript>
+{{- /* Warm the connection to the geo endpoint early so the (deferred) geo fetch pays
+       only the request RTT, not DNS+TCP+TLS setup. `crossorigin` matches the fetch's
+       anonymous CORS mode (credentials:'omit') so the connection is actually reused. */ -}}
+<link rel="preconnect" href="{{ $endpoint }}" crossorigin>
+{{- if fileExists "static/js/geo-consent.js" -}}
+<script src="/js/geo-consent.js?v={{ $v }}" data-geo-endpoint="{{ $endpoint }}" defer></script>
+{{- end -}}
+{{- if fileExists "static/js/consent-core.js" -}}
+<script src="/js/consent-core.js?v={{ $v }}" defer></script>
+{{- end -}}
+{{- if fileExists "static/js/consent-modal.js" -}}
+<script src="/js/consent-modal.js?v={{ $v }}" defer></script>
+{{- end -}}
+{{- end -}}

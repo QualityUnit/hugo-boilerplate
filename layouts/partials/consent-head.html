@@ -1,0 +1,39 @@
+{{- /* Region-aware consent head block — OPT-IN theme component. Emits nothing unless
+       the site enables geo-gated consent via config:
+
+         [params.geoConsent]
+             endpoint = "https://geo.liveagent.com/"
+
+       Include this partial inside <head> (baseof + any standalone layouts that define
+       their own <head>), together with geo-consent.html before </body>.
+
+       Two parts, both render-blocking-cheap and dependency-free:
+
+       1) CSS: the banner is hidden by DEFAULT (prevents the pre-JS paint flash) and its
+          visibility is driven by classes on <html> — `cc-hide` (!important, beats the
+          banner JS inline display) / `cc-show` (non-important so the JS .cookie-hidden
+          still wins after a choice) / `cc-settings-open` (banner hidden while the
+          settings modal is open). No-JS safety lives in geo-consent.html (<noscript>).
+
+       2) Synchronous visibility decision BEFORE first paint, so REPEAT visitors get the
+          correct banner state instantly with no wait for the deferred geo fetch:
+         - prior choice (cookie_consent_status)  → cc-hide (never show again)
+         - consent_region = row (non-EU)         → cc-hide
+         - consent_region = eu                    → cc-show (reveal immediately)
+         - no consent_region yet (first visit)    → leave default-hidden; geo-consent.js
+                                                     decides after the geo fetch
+       The ?geo_country override is handled by geo-consent.js. */ -}}
+{{- if and site.Params.geoConsent site.Params.geoConsent.endpoint -}}
+<style>
+#cookie-consent-banner { display: none; }
+html.cc-hide #cookie-consent-banner { display: none !important; }
+html.cc-show #cookie-consent-banner { display: block; }
+html.cc-settings-open #cookie-consent-banner { display: none !important; }
+</style>
+<script>
+(function(){var d=document.documentElement;function k(n){var m=document.cookie.match('(?:^|; )'+n+'=([^;]*)');return m?m[1]:null;}
+if(k('cookie_consent_status')){d.classList.add('cc-hide');return;}
+var r=k('consent_region');
+if(r==='row'){d.classList.add('cc-hide');}else if(r==='eu'){d.classList.add('cc-show');}})();
+</script>
+{{- end -}}
