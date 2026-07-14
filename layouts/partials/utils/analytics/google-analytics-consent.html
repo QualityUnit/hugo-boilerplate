@@ -47,77 +47,70 @@
 
     var consentStatus = getCookie('cookie_consent_status');
 
-    // Granular per-category choice (cookie_consent_v2 = "a1m0f1", written by
-    // consent-core.js on the banner/settings clicks). Wins over the legacy 2-state
-    // cookie — that one can't express partial choices (Save maps analytics→'all').
+    // Granular per-category choice (cookie_consent_v2 = "a1m0f1", written by the
+    // banner JS / consent-core on the banner and settings clicks). Wins over the
+    // legacy 2-state cookie — that one can't express partial choices.
     var granularMatch = /^a([01])m([01])f([01])$/.exec(getCookie('cookie_consent_v2') || '');
-
+    var stored = null;
     if (granularMatch) {
-      var gA = granularMatch[1] === '1', gM = granularMatch[2] === '1', gF = granularMatch[3] === '1';
-      gtag('consent', 'default', {
-        'ad_storage': gM ? 'granted' : 'denied',
-        'ad_user_data': gM ? 'granted' : 'denied',
-        'ad_personalization': gM ? 'granted' : 'denied',
-        'analytics_storage': gA ? 'granted' : 'denied',
-        'functionality_storage': gF ? 'granted' : 'denied',
-        'personalization_storage': gF ? 'granted' : 'denied',
-        'security_storage': 'granted'
-      });
+      stored = { a: granularMatch[1] === '1', m: granularMatch[2] === '1', f: granularMatch[3] === '1' };
     } else if (consentStatus === 'all') {
-      // Returning visitor who previously accepted all cookies — grant immediately.
-      gtag('consent', 'default', {
-        'ad_storage': 'granted',
-        'ad_user_data': 'granted',
-        'ad_personalization': 'granted',
-        'analytics_storage': 'granted',
-        'functionality_storage': 'granted',
-        'personalization_storage': 'granted',
-        'security_storage': 'granted'
-      });
+      stored = { a: true, m: true, f: true };
     } else if (consentStatus === 'necessary') {
-      // Returning visitor who rejected non-essential cookies — deny immediately
-      // (no region needed: this is the visitor's explicit, already-known choice).
-      gtag('consent', 'default', {
-        'ad_storage': 'denied',
-        'ad_user_data': 'denied',
-        'ad_personalization': 'denied',
-        'analytics_storage': 'denied',
-        'functionality_storage': 'denied',
-        'personalization_storage': 'denied',
-        'security_storage': 'granted'
-      });
-    } else {
-      // No prior choice — Google detects the visitor's country SERVER-SIDE and applies
-      // the matching default synchronously (no client GeoIP, no tracking-loss window).
-      //
-      // Single source of truth for "consent required" = geo-consent.js CONSENT_REQUIRED.
-      // Keep this list in sync with it:
-      //   EU-27 + EEA (IS, LI, NO) + UK (GB) + Switzerland (CH, nFADP)
-      //   + Canada (CA, all provinces — Law 25) + Brazil (BR, LGPD).
-      // These are denied-by-default + get the banner. Everything else — including all
-      // of the US (opt-OUT model: trackers run by default, the footer "Your Privacy
-      // Choices" link handles opt-out) — falls through to the granted default below.
-      gtag('consent', 'default', {
-        'ad_storage': 'denied',
-        'ad_user_data': 'denied',
-        'ad_personalization': 'denied',
-        'analytics_storage': 'denied',
-        'functionality_storage': 'denied',
-        'personalization_storage': 'denied',
-        'security_storage': 'granted',
-        'wait_for_update': 500,
-        'region': ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB','CH','CA','BR']
-      });
+      stored = { a: false, m: false, f: false };
+    }
 
-      // Rest of world (incl. all US): granted by default — non-consent regions are not
-      // pending, so no wait_for_update.
-      gtag('consent', 'default', {
-        'ad_storage': 'granted',
-        'ad_user_data': 'granted',
-        'ad_personalization': 'granted',
-        'analytics_storage': 'granted',
-        'functionality_storage': 'granted',
-        'personalization_storage': 'granted',
+    // The DEFAULT is ALWAYS the same region-scoped pair — identical for first-time
+    // and returning visitors. Google Ads compliance reads the gcd hit parameter:
+    // a stored choice must surface as denied-by-default -> granted-by-UPDATE, never
+    // as a bare granted DEFAULT (that pattern reads as "everyone is granted by
+    // default" and has triggered Google Ads enforcement for advertisers).
+    //
+    // Single source of truth for "consent required" = geo-consent.js CONSENT_REQUIRED.
+    // Keep this list in sync with it:
+    //   EU-27 + EEA (IS, LI, NO) + UK (GB) + Switzerland (CH, nFADP)
+    //   + Canada (CA, all provinces — Law 25) + Brazil (BR, LGPD).
+    // These are denied-by-default + get the banner. Everything else — including all
+    // of the US (opt-OUT model: trackers run by default, the footer "Your Privacy
+    // Choices" link handles opt-out) — falls through to the granted default below.
+    // Google detects the visitor's country SERVER-SIDE and applies the matching
+    // default synchronously (no client GeoIP, no tracking-loss window).
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'functionality_storage': 'denied',
+      'personalization_storage': 'denied',
+      'security_storage': 'granted',
+      'wait_for_update': 500,
+      'region': ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB','CH','CA','BR']
+    });
+
+    // Rest of world (incl. all US): granted by default — non-consent regions are not
+    // pending, so no wait_for_update.
+    gtag('consent', 'default', {
+      'ad_storage': 'granted',
+      'ad_user_data': 'granted',
+      'ad_personalization': 'granted',
+      'analytics_storage': 'granted',
+      'functionality_storage': 'granted',
+      'personalization_storage': 'granted',
+      'security_storage': 'granted'
+    });
+
+    // Returning visitor with a stored choice: apply it IMMEDIATELY as an UPDATE.
+    // Both commands sit in the same queue before gtag.js loads, so the very first
+    // hit already carries the granted/denied state — no tracking-loss window, and
+    // the gcd parameter shows the compliant default->update transition.
+    if (stored) {
+      gtag('consent', 'update', {
+        'ad_storage': stored.m ? 'granted' : 'denied',
+        'ad_user_data': stored.m ? 'granted' : 'denied',
+        'ad_personalization': stored.m ? 'granted' : 'denied',
+        'analytics_storage': stored.a ? 'granted' : 'denied',
+        'functionality_storage': stored.f ? 'granted' : 'denied',
+        'personalization_storage': stored.f ? 'granted' : 'denied',
         'security_storage': 'granted'
       });
     }
@@ -126,9 +119,11 @@
     // Reference: https://developers.google.com/tag-platform/security/guides/consent?consentmode=advanced#url_passthrough
     gtag('set', 'url_passthrough', true);
 
-    // Redact ad click identifiers when ad_storage is denied
+    // Redact ad click identifiers when ad_storage is denied. With a stored granted
+    // marketing choice, redaction is off from the first hit (full gclid); in every
+    // other state it stays on until a real grant arrives via consent update.
     // Reference: https://developers.google.com/tag-platform/security/guides/consent?consentmode=advanced#ads_data_redaction
-    gtag('set', 'ads_data_redaction', true);
+    gtag('set', 'ads_data_redaction', stored ? !stored.m : true);
 
     // Consent update function — called by cookie consent banner
     window.updateGoogleAnalyticsConsent = function(allowed) {
