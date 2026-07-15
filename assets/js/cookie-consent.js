@@ -38,14 +38,20 @@ const CookieManager = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-  const bannerEl = document.getElementById('cookie-consent-banner');
-  if (bannerEl && bannerEl.hasAttribute('data-consent-v2')) {
-    initConsentV2();
-  } else {
-    initConsentLegacy();
-  }
-});
+// Idempotency guard — this module ships in the theme main.js bundle AND as the
+// cookie-consent-standalone component (for layouts that bypass baseof and don't
+// load main.js). If both end up on one page, initialize only once.
+if (!window.__ccBannerJsLoaded) {
+  window.__ccBannerJsLoaded = true;
+  document.addEventListener('DOMContentLoaded', function() {
+    const bannerEl = document.getElementById('cookie-consent-banner');
+    if (bannerEl && bannerEl.hasAttribute('data-consent-v2')) {
+      initConsentV2();
+    } else {
+      initConsentLegacy();
+    }
+  });
+}
 
 function initConsentLegacy() {
   const banner = document.getElementById('cookie-consent-banner');
