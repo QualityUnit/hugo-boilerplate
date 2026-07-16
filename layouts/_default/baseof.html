@@ -6,6 +6,7 @@
   {{ partial "consent-head.html" . }}
 </head>
 <body class="antialiased bg-white dark:bg-gray-900 min-h-screen flex flex-col">
+{{ partial "gtm-noscript.html" . }}
 
 {{ $showPromoBanner := and 
     site.Params.promoBanner.enable 

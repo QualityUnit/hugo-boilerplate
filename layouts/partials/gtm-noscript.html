@@ -1,0 +1,10 @@
+{{- /* GTM noscript iframe — emit RIGHT AFTER the opening <body> tag. Renders only
+     for languages with the server-side GTM loader enabled (gtmNsUrl language
+     param — see utils/analytics/google-analytics-consent.html for the loader
+     counterpart). Sites overriding baseof or using standalone layouts include
+     this partial themselves. */ -}}
+{{- with site.Params.gtmNsUrl }}
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="{{ . | safeURL }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+{{- end }}
