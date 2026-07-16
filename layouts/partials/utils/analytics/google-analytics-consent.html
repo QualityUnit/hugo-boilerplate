@@ -160,7 +160,10 @@
        after <body> by the site's baseof/standalone layouts.
 
        gtag mode (default): the original direct gtag.js load + config below. */ -}}
-  {{- $gtmLoaderUrl := .Site.Language.Params.gtmLoaderUrl | default "" -}}
+  {{- /* site.Params is language-merged: single-domain multilingual sites set the
+       params once in [params]; per-domain-per-language sites (LA) set them under
+       [languages.XX.params]. */ -}}
+{{- $gtmLoaderUrl := site.Params.gtmLoaderUrl | default "" -}}
   {{- if $gtmLoaderUrl }}
   <!-- Google Tag Manager (server-side loader) -->
   <script>(function(w,d,s,l){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src="{{ $gtmLoaderUrl | safeURL }}";f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer');</script>
