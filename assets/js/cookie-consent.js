@@ -22,7 +22,12 @@ const CookieManager = {
   set(name, value, days) {
     const date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
+    // Optional Domain (window.__consentCookieDomain, set by cookies-bar.html from
+    // [params.cookieConsent] cookieDomain) so the consent cookie is shared across
+    // subdomains of one registrable domain. Unset (default) → host-only, unchanged.
+    const dom = (typeof window.__consentCookieDomain === 'string' && window.__consentCookieDomain)
+      ? `;Domain=${window.__consentCookieDomain}` : '';
+    document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/${dom}`;
   },
 
   get(name) {

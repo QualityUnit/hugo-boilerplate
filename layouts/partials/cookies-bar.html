@@ -17,6 +17,14 @@
 */}}
 {{- $blocking := false -}}
 {{- with site.Params.cookieConsent -}}{{- $blocking = .blocking | default false -}}{{- end -}}
+{{- /* Optional cookie Domain so the consent cookie is shared across subdomains of
+       one registrable domain (e.g. ".flowhunt.io" → www / app / api read the same
+       choice). Set via [params.cookieConsent] cookieDomain. Consumed by
+       consent-core.js + cookie-consent.js. Parse-time inline so it runs before the
+       deferred consent scripts. No param → host-only cookie, unchanged. */ -}}
+{{- with site.Params.cookieConsent }}{{ with .cookieDomain }}
+<script>window.__consentCookieDomain={{ . | jsonify }};</script>
+{{ end }}{{ end -}}
 {{- if $blocking -}}
 {{/* Theme setup */}}
 {{ $theme := .theme | default "light" }}

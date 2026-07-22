@@ -43,10 +43,18 @@
     var m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
     return m ? decodeURIComponent(m[1]) : null;
   }
+  // Optional cookie Domain (set by cookies-bar.html from [params.cookieConsent]
+  // cookieDomain, e.g. ".flowhunt.io"). Lets the consent cookie be shared across
+  // subdomains of one registrable domain (www → app → api) so the app can read
+  // the visitor's choice natively. Unset (default) → host-only, unchanged.
+  function cookieDomainAttr() {
+    var d = window.__consentCookieDomain;
+    return (typeof d === 'string' && d) ? '; Domain=' + d : '';
+  }
   function setCookie(name, value, days) {
     var exp = new Date(Date.now() + days * 864e5).toUTCString();
     document.cookie = name + '=' + encodeURIComponent(value) +
-      '; expires=' + exp + '; path=/; SameSite=Lax';
+      '; expires=' + exp + '; path=/; SameSite=Lax' + cookieDomainAttr();
   }
 
   function region() {
