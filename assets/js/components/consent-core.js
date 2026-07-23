@@ -79,23 +79,22 @@
     return { a: false, m: false, f: false, src: r === 'eu' ? 'region-eu' : 'region-unknown' };
   }
 
-  function apply() {
+  // apply(fromInteraction): re-derive consent, expose it, and fire the internal
+  // consentUpdate event. The Google Consent Mode `update` is pushed ONLY on a real
+  // interaction (banner click / programmatic set/grantAll) — NOT on page-load init.
+  // On init a stored choice is already surfaced as a denied-default → granted-UPDATE
+  // by STEP 1 inline in google-analytics-consent.html (runs before the GTM loader);
+  // re-emitting the same update from here on every load was a duplicate `consent
+  // update` (+ `ads_data_redaction`) in the dataLayer. window.__consent and the
+  // consentUpdate event still fire on init so tracking partials react regardless.
+  function apply(fromInteraction) {
     var c = derive();
     window.__consent = {
       necessary: true, analytics: c.a, marketing: c.m, functional: c.f,
       region: region(), source: c.src
     };
 
-    // Push a Google Consent Mode UPDATE only when the visitor actually interacted
-    // with the cookie bar (src 'choice' = cookie_consent_status set, incl. implicit
-    // consent via consentCore.grantAll/set). For a region-derived default there is
-    // nothing to update: the correct state is already set by the consent DEFAULT in
-    // google-analytics-consent.html (EU/opt-in → denied, ROW → granted). Firing an
-    // update there is redundant noise in the dataLayer, and for ROW the spec is
-    // explicit — no update is sent without interaction. window.__consent and the
-    // internal `consentUpdate` event below STILL fire for region defaults, so the
-    // wired tracking partials react to the auto-granted ROW state as before.
-    if (c.src === 'choice' && typeof window.gtag === 'function') {
+    if (fromInteraction && c.src === 'choice' && typeof window.gtag === 'function') {
       window.gtag('consent', 'update', {
         'analytics_storage': c.a ? 'granted' : 'denied',
         'ad_storage': c.m ? 'granted' : 'denied',
@@ -137,12 +136,12 @@
       if (functional === undefined) functional = marketing; // pre-v2 2-arg callers
       writeGranular(analytics, marketing, functional);
       setCookie(LEGACY, (analytics && marketing && functional) ? 'all' : 'necessary', DAYS);
-      apply();
+      apply(true); // programmatic consent = interaction → emit the Consent Mode update
     },
     grantAll: function () {
       writeGranular(true, true, true);
       setCookie(LEGACY, 'all', DAYS);
-      apply();
+      apply(true); // implicit consent (trial signup) → emit the update
       hideThemeBanner();
     },
     get: function () { return window.__consent || null; }
@@ -187,7 +186,7 @@
           switchOn('functional-cookies'));
       }
       if (e.target.closest('[data-cookie-consent], [data-cookie-settings-save]')) {
-        setTimeout(apply, 60);
+        setTimeout(function () { apply(true); }, 60); // banner click = interaction → emit update
       }
     });
   }
