@@ -41,7 +41,7 @@
 {{ if $poster }}
   {{ $thumbnailUrl = partial "functions/get-static-url.html" (dict "path" $poster) }}
 {{ else }}
-  {{ $thumbnailUrl = print "https://i.ytimg.com/vi_webp/" $videoID "/sddefault.webp" }}
+  {{ $thumbnailUrl = print "https://i.ytimg.com/vi/" $videoID "/hqdefault.jpg" }}
 {{ end }}
 
 {{/* Determine uploadDate: caller-provided > page Date > omit. Previously   */}}
