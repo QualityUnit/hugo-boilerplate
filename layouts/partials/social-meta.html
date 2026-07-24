@@ -31,7 +31,7 @@
 {{ if .Params.image }}
   {{ $ogImage = partial "functions/get-static-url.html" (dict "path" .Params.image) }}
 {{ else if .Params.youtubeVideoID }}
-  {{ $ogImage = printf "https://i.ytimg.com/vi_webp/%s/sddefault.webp" .Params.youtubeVideoID }}
+  {{ $ogImage = printf "https://i.ytimg.com/vi/%s/hqdefault.jpg" .Params.youtubeVideoID }}
 {{ end }}
 
 <!-- Default image fallback with existence check -->
