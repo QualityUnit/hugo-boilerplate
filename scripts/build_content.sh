@@ -24,6 +24,33 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 THEME_DIR="$(dirname "$SCRIPT_DIR")"
 HUGO_ROOT="$(dirname "$(dirname "$THEME_DIR")")"
 
+# Load scripts/.env so the settings documented in .env.example actually apply.
+# Both this script (MAX_PARALLEL_EMBED) and the Python steps it spawns
+# (HF_TOKEN, FLOWHUNT_API_KEY) read these from the environment, and only
+# three of the Python scripts call load_dotenv() themselves. Exporting here
+# covers every step uniformly. Values already set in the calling shell win,
+# so `MAX_PARALLEL_EMBED=1 ./build_content.sh` still overrides the file.
+if [ -f "${SCRIPT_DIR}/.env" ]; then
+    while IFS= read -r env_line || [ -n "$env_line" ]; do
+        # Skip blanks and comments; only accept KEY=value lines
+        [[ "$env_line" =~ ^[[:space:]]*# ]] && continue
+        [[ "$env_line" =~ ^[[:space:]]*$ ]] && continue
+        [[ "$env_line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]] || continue
+
+        env_key="${BASH_REMATCH[1]}"
+        env_val="${BASH_REMATCH[2]}"
+        # Strip surrounding quotes, if any
+        env_val="${env_val%\"}"; env_val="${env_val#\"}"
+        env_val="${env_val%\'}"; env_val="${env_val#\'}"
+
+        # Don't clobber anything the caller already exported
+        if [ -z "${!env_key:-}" ]; then
+            export "$env_key=$env_val"
+        fi
+    done < "${SCRIPT_DIR}/.env"
+    unset env_line env_key env_val
+fi
+
 # Colors for output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
