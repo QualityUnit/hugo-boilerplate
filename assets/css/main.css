@@ -1,3 +1,16 @@
+/*
+  TODO(v4-compat): hover
+  v4 gates `hover:` behind @media (hover: hover) so it no longer fires on touch
+  devices. That is the better behaviour and this override should be the FIRST
+  compat entry removed — it is kept only so the upgrade ships pixel-identical.
+  747 `hover:` usages are affected.
+
+  Declared HERE, above the @imports, on purpose: a custom variant only applies to
+  @apply that Tailwind processes AFTER the declaration, and components/floating-cta.css
+  is inlined by the import below. Declared further down it would miss those.
+*/
+@custom-variant hover (&:hover);
+
 /* 🎨 CSS IMPORTS - ALL IMPORTS MUST BE FIRST */
 @import './variables.css' layer(base);
 @import './fonts.css' layer(base);
@@ -26,13 +39,20 @@
 */
 @config '../../../../tailwind.config.js';
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+/* ================================================================ */
+/* TODO(v4-compat): Tailwind v3 defaults restored                   */
+/* ---------------------------------------------------------------- */
+/* Everything in this block exists only to keep the v4 upgrade       */
+/* visually identical to v3. Each entry is independent and can be    */
+/* removed on its own once the markup no longer relies on it.        */
+/* Removal order, easiest first: hover -> placeholder -> cursor ->   */
+/* ring -> border-color (that last one touches ~555 call sites).     */
+/* ================================================================ */
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
+/*
+  border-color: v3 defaulted to gray-200, v4 defaults to currentcolor.
+  ~555 usages of a bare `border` rely on this.
+  To remove: give every such element an explicit border-<color> utility.
 */
 @layer base {
   *,
@@ -43,6 +63,43 @@
     border-color: var(--color-gray-200, currentcolor);
   }
 }
+
+/*
+  placeholder: v3 defaulted to gray-400 (via @tailwindcss/forms), v4 uses
+  currentColor at 50% opacity — which reads much darker on our inputs.
+  To remove: audit input contrast, then delete.
+*/
+@layer base {
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+}
+
+/*
+  cursor: v3 preflight set `cursor: pointer` on buttons, v4 sets `default`.
+  To remove: add `cursor-pointer` to button components.
+*/
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/*
+  ring: v3 defaulted to 3px / blue-500. v4 defaults to 1px / currentColor.
+  The upgrade tool already rewrote bare `ring` to `ring-3` at the call sites,
+  so this only restores the default COLOUR for rings with no explicit colour.
+  To remove: add an explicit ring-<color> wherever a ring utility appears alone.
+*/
+@theme {
+  /* Literal rather than var(--color-blue-500): v3's computed default was
+     rgba(59,130,246,.5) — blue-500 at 50% alpha, not full opacity. Spelling it
+     out in rgb() also keeps it working on browsers without oklch support. */
+  --default-ring-color: rgb(59 130 246 / 0.5);
+}
+
 
 /* 🎨 CORE STYLES */
 

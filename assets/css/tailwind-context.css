@@ -24,3 +24,15 @@
 */
 @import 'tailwindcss';
 @config '../../../../tailwind.config.js';
+
+/*
+  TODO(v4-compat): hover — must be repeated here, not only in main.css.
+
+  A stylesheet that @references this file does NOT see variants declared in
+  main.css, so without this line an `@apply hover:*` in e.g. a project's
+  custom.css would still emit v4's @media (hover: hover) gate while the same
+  @apply in main.css would not — the two bundles would disagree on touch devices.
+
+  Remove together with the matching entry in main.css.
+*/
+@custom-variant hover (&:hover);
