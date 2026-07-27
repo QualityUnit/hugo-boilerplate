@@ -43,10 +43,10 @@ Parameters:
   - wordAlternatives: Comma separated words to alternate with
 - sectionPaddingY: Custom vertical padding using Tailwind classes (default: "max-md:pt-0 py-12 lg:py-16")
 - backgroundColor: Custom background color class
-- overlayPosition: Position of icon overlay (default: "top-[5.69rem] left-[1.25rem]", for success-stories: "top-12 right-3 xl:-right-10")
+- overlayPosition: Position of icon overlay (default: "top-[5.69rem] left-5", for success-stories: "top-12 right-3 xl:-right-10")
 - overlaySize: Size of overlay container (default: "w-[7.88rem] h-[7.88rem]")
-- overlayIconSizeIntegrations: Size of integration icons (default: "w-[6.25rem] h-[6.25rem]")
-- overlayIconSizeFeatures: Size of feature icons (default: "w-[4.25rem] h-[4.25rem]")
+- overlayIconSizeIntegrations: Size of integration icons (default: "w-25 h-25")
+- overlayIconSizeFeatures: Size of feature icons (default: "w-17 h-17")
 - overlayShadowClass: CSS class for overlay shadow (default: "hero-overlay-shadow")
 - contentLeftPadding: Left padding for content area (default: "lg:pr-0")
 - customBackground: Custom background image path for integrations type (optional)
@@ -146,10 +146,10 @@ Design Tokens:
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
 {{/* Overlay configuration */}}
-{{ $overlayPosition := .overlayPosition | default "top-[5.69rem] left-[1.25rem]" }}
+{{ $overlayPosition := .overlayPosition | default "top-[5.69rem] left-5" }}
 {{ $overlaySize := .overlaySize | default "w-[7.88rem] h-[7.88rem]" }}
-{{ $overlayIconSizeIntegrations := .overlayIconSizeIntegrations | default "w-[6.25rem] h-[6.25rem]" }}
-{{ $overlayIconSizeFeatures := .overlayIconSizeFeatures | default "w-[4.25rem] h-[4.25rem]" }}
+{{ $overlayIconSizeIntegrations := .overlayIconSizeIntegrations | default "w-25 h-25" }}
+{{ $overlayIconSizeFeatures := .overlayIconSizeFeatures | default "w-17 h-17" }}
 {{ $overlayShadowClass := .overlayShadowClass | default "hero-overlay-shadow" }}
 {{ $overflowClass := "overflow-hidden" }}
 
@@ -201,14 +201,14 @@ Design Tokens:
 {{/* Overlay position - right for success-stories, left for others */}}
 {{ if $config.overlayPositionRight }}
   {{ $overlayPosition = "top-12 right-3 xl:-right-10" }}
-  {{ $overlaySize = "w-auto h-[8.75rem]" }}
+  {{ $overlaySize = "w-auto h-35" }}
   {{ $overflowClass = "overflow-hidden xl:overflow-visible" }}
 {{ end }}
 
 <div class="split-with-image-hero {{ if $backgroundColor }}{{ $backgroundColor }}{{ else if $isDark }}dark section-bg-dark{{ else if $isAlternate }}section-bg-alternate{{ else }}section-bg-light{{ end }} {{ $sectionPaddingY }}">
   <div class="wrapper lg:flex lg:justify-between lg:items-stretch gap-x-8 lg:flex-row-reverse">
     <div class="hidden lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 xl:left-0">
-      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full {{ $overflowClass }} mx-auto max-w-[38rem] max-h-full">
+      <div class="relative rounded-lg {{ $imageContainerPaddingY }} flex items-start justify-center w-full {{ $overflowClass }} mx-auto max-w-152 max-h-full">
         {{ if and $video $video.enabled }}
           {{/* Display video with popup */}}
           {{ partial "components/media/video.html" (dict 
@@ -237,7 +237,7 @@ Design Tokens:
               ) }}
             {{ else }}
               {{/* Standard Single Icon Overlay */}}
-              <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
+              <div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-linear-to-b from-gray-50 to-gray-50 opacity-80 flex items-center justify-center backdrop-blur-xs {{ $overlayShadowClass }}">
                 {{ if eq $config.overlayMode "image" }}
                   {{/* Integration logo (Image Overlay) */}}
                   {{ partial "components/media/lazyimg.html" (dict

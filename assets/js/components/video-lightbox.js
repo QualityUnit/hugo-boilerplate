@@ -243,13 +243,13 @@
     function createLightboxOverlay() {
         var overlay = document.createElement('div');
         overlay.id = 'video-lightbox-overlay';
-        overlay.className = 'hidden fixed inset-0 bg-black bg-opacity-90 z-[9999] opacity-0 transition-opacity duration-300';
+        overlay.className = 'hidden fixed inset-0 bg-black bg-opacity-90 z-9999 opacity-0 transition-opacity duration-300';
         overlay.setAttribute('role', 'dialog');
         overlay.setAttribute('aria-modal', 'true');
         overlay.setAttribute('aria-label', 'Video player');
         
         overlay.innerHTML = `
-            <button class="fixed top-4 right-4 bg-black bg-opacity-70 border-none text-white text-3xl cursor-pointer z-[10002] w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-opacity-90 hover:scale-110" id="video-lightbox-close" aria-label="Close video">
+            <button class="fixed top-4 right-4 bg-black bg-opacity-70 border-none text-white text-3xl cursor-pointer z-10002 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-opacity-90 hover:scale-110" id="video-lightbox-close" aria-label="Close video">
                 ×
             </button>
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-6xl max-h-[90%] bg-black rounded-lg overflow-hidden shadow-[0_25px_50px_rgba(0,0,0,0.5)]">
@@ -479,15 +479,15 @@ function openVideoInLightbox(videoData) {
                     <p class="mb-4">This video cannot be embedded directly in the lightbox.</p>
                     ${fallbackUrl ? `
                         <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                            <a href="${fallbackUrl}" target="_blank" rel="noopener noreferrer" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                            <a href="${fallbackUrl}" target="_blank" rel="noopener noreferrer" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-sm">
                                 Watch on YouTube
                             </a>
-                            <button class="bg-transparent hover:bg-gray-700 text-white font-semibold py-2 px-4 border border-white hover:border-transparent rounded close-video-btn">
+                            <button class="bg-transparent hover:bg-gray-700 text-white font-semibold py-2 px-4 border border-white hover:border-transparent rounded-sm close-video-btn">
                                 Close
                             </button>
                         </div>
                     ` : `
-                        <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded close-video-btn">
+                        <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-sm close-video-btn">
                             Close
                         </button>
                     `}

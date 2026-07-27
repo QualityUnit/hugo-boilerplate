@@ -101,3 +101,216 @@
   --color-brand-text: #0ea5e9;
   --color-brand-icon: #0ea5e9;
 }
+
+/* PROJECT VARIABLES - Custom colors for this project */
+
+@layer base {
+  :root {
+  /* LiveAgent Brand Orange Colors */
+  --color-primary-50: 255 247 237;
+  --color-primary-100: 255 237 213;
+  --color-primary-200: 254 215 170;
+  --color-primary-300: 253 186 116;
+  --color-primary-400: 251 146 60;
+  --color-primary-500: 249 115 22;
+  --color-primary-600: 234 88 12;
+  --color-primary-700: 194 65 12;
+  --color-primary-800: 154 52 18;
+  --color-primary-900: 124 45 18;
+  --color-primary-950: 67 20 7;
+  --color-primary: 251 146 60;
+
+  /* Gray colors (neutral palette) */
+  --color-gray-50: 250 250 250;
+  --color-gray-100: 245 245 245;
+  --color-gray-200: 229 229 229;
+  --color-gray-300: 212 212 212;
+  --color-gray-400: 163 163 163;
+  --color-gray-500: 115 115 115;
+  --color-gray-600: 82 82 82;
+  --color-gray-700: 64 64 64;
+  --color-gray-800: 38 38 38;
+  --color-gray-900: 23 23 23;
+  --color-gray-950: 10 10 10;
+
+  /* Button colors - neutral dark */
+  --color-button-primary: var(--color-gray-900);
+  --color-button-primary-hover: var(--color-gray-800);
+  --color-button-primary-dark: var(--color-primary-400);
+  --color-button-primary-dark-hover: var(--color-primary-300);
+  --color-button-primary-outline: var(--color-gray-900);
+
+  /* Brand colors */
+  --color-brand-surface: var(--color-primary);
+  --color-brand-dark-surface: var(--color-primary);
+  --color-brand-surface-secondary: var(--color-primary-500); /* -20% opacity */
+  --color-brand-dark-surface-secondary: var(--color-primary-500); /* -20% opacity */
+  --color-brand-border: var(--color-primary-300);
+  --color-brand-dark-border: var(--color-primary-300);
+  --color-brand-text: var(--color-primary);
+  --color-brand-dark-text: var(--color-primary);
+  --color-brand-icon: var(--color-primary);
+  --color-brand-dark-icon: var(--color-primary);
+  --color-brand-underlight: var(--color-primary-300);
+  --color-brand-dark-underlight: var(--color-primary-900);
+  }
+}
+/* PROJECT VARIABLES - Custom colors for this project */
+
+@layer base {
+  :root {
+  /* LiveAgent Brand Orange Colors */
+  --color-primary-50: 255 247 237;
+  --color-primary-100: 255 237 213;
+  --color-primary-200: 254 215 170;
+  --color-primary-300: 253 186 116;
+  --color-primary-400: 251 146 60;
+  --color-primary-500: 249 115 22;
+  --color-primary-600: 234 88 12;
+  --color-primary-700: 194 65 12;
+  --color-primary-800: 154 52 18;
+  --color-primary-900: 124 45 18;
+  --color-primary-950: 67 20 7;
+  --color-primary: 251 146 60;
+
+  /* Gray colors (neutral palette) */
+  --color-gray-50: 250 250 250;
+  --color-gray-100: 245 245 245;
+  --color-gray-200: 229 229 229;
+  --color-gray-300: 212 212 212;
+  --color-gray-400: 163 163 163;
+  --color-gray-500: 115 115 115;
+  --color-gray-600: 82 82 82;
+  --color-gray-700: 64 64 64;
+  --color-gray-800: 38 38 38;
+  --color-gray-900: 23 23 23;
+  --color-gray-950: 10 10 10;
+
+  /* Button colors - neutral dark */
+  --color-button-primary: var(--color-gray-900);
+  --color-button-primary-hover: var(--color-gray-800);
+  --color-button-primary-dark: var(--color-primary-400);
+  --color-button-primary-dark-hover: var(--color-primary-300);
+  --color-button-primary-outline: var(--color-gray-900);
+
+  /* Brand colors */
+  --color-brand-surface: var(--color-primary);
+  --color-brand-dark-surface: var(--color-primary);
+  --color-brand-surface-secondary: var(--color-primary-500); /* -20% opacity */
+  --color-brand-dark-surface-secondary: var(--color-primary-500); /* -20% opacity */
+  --color-brand-border: var(--color-primary-300);
+  --color-brand-dark-border: var(--color-primary-300);
+  --color-brand-text: var(--color-primary);
+  --color-brand-dark-text: var(--color-primary);
+  --color-brand-icon: var(--color-primary);
+  --color-brand-dark-icon: var(--color-primary);
+  --color-brand-underlight: var(--color-primary-300);
+  --color-brand-dark-underlight: var(--color-primary-900);
+  }
+}
+/* PROJECT VARIABLES - Custom colors for this project */
+
+@layer base {
+  :root {
+  /* LiveAgent Brand Orange Colors */
+  --color-primary-50: 255 247 237;
+  --color-primary-100: 255 237 213;
+  --color-primary-200: 254 215 170;
+  --color-primary-300: 253 186 116;
+  --color-primary-400: 251 146 60;
+  --color-primary-500: 249 115 22;
+  --color-primary-600: 234 88 12;
+  --color-primary-700: 194 65 12;
+  --color-primary-800: 154 52 18;
+  --color-primary-900: 124 45 18;
+  --color-primary-950: 67 20 7;
+  --color-primary: 251 146 60;
+
+  /* Gray colors (neutral palette) */
+  --color-gray-50: 250 250 250;
+  --color-gray-100: 245 245 245;
+  --color-gray-200: 229 229 229;
+  --color-gray-300: 212 212 212;
+  --color-gray-400: 163 163 163;
+  --color-gray-500: 115 115 115;
+  --color-gray-600: 82 82 82;
+  --color-gray-700: 64 64 64;
+  --color-gray-800: 38 38 38;
+  --color-gray-900: 23 23 23;
+  --color-gray-950: 10 10 10;
+
+  /* Button colors - neutral dark */
+  --color-button-primary: var(--color-gray-900);
+  --color-button-primary-hover: var(--color-gray-800);
+  --color-button-primary-dark: var(--color-primary-400);
+  --color-button-primary-dark-hover: var(--color-primary-300);
+  --color-button-primary-outline: var(--color-gray-900);
+
+  /* Brand colors */
+  --color-brand-surface: var(--color-primary);
+  --color-brand-dark-surface: var(--color-primary);
+  --color-brand-surface-secondary: var(--color-primary-500); /* -20% opacity */
+  --color-brand-dark-surface-secondary: var(--color-primary-500); /* -20% opacity */
+  --color-brand-border: var(--color-primary-300);
+  --color-brand-dark-border: var(--color-primary-300);
+  --color-brand-text: var(--color-primary);
+  --color-brand-dark-text: var(--color-primary);
+  --color-brand-icon: var(--color-primary);
+  --color-brand-dark-icon: var(--color-primary);
+  --color-brand-underlight: var(--color-primary-300);
+  --color-brand-dark-underlight: var(--color-primary-900);
+  }
+}
+/* PROJECT VARIABLES - Custom colors for this project */
+
+@layer base {
+  :root {
+  /* LiveAgent Brand Orange Colors */
+  --color-primary-50: 255 247 237;
+  --color-primary-100: 255 237 213;
+  --color-primary-200: 254 215 170;
+  --color-primary-300: 253 186 116;
+  --color-primary-400: 251 146 60;
+  --color-primary-500: 249 115 22;
+  --color-primary-600: 234 88 12;
+  --color-primary-700: 194 65 12;
+  --color-primary-800: 154 52 18;
+  --color-primary-900: 124 45 18;
+  --color-primary-950: 67 20 7;
+  --color-primary: 251 146 60;
+
+  /* Gray colors (neutral palette) */
+  --color-gray-50: 250 250 250;
+  --color-gray-100: 245 245 245;
+  --color-gray-200: 229 229 229;
+  --color-gray-300: 212 212 212;
+  --color-gray-400: 163 163 163;
+  --color-gray-500: 115 115 115;
+  --color-gray-600: 82 82 82;
+  --color-gray-700: 64 64 64;
+  --color-gray-800: 38 38 38;
+  --color-gray-900: 23 23 23;
+  --color-gray-950: 10 10 10;
+
+  /* Button colors - neutral dark */
+  --color-button-primary: var(--color-gray-900);
+  --color-button-primary-hover: var(--color-gray-800);
+  --color-button-primary-dark: var(--color-primary-400);
+  --color-button-primary-dark-hover: var(--color-primary-300);
+  --color-button-primary-outline: var(--color-gray-900);
+
+  /* Brand colors */
+  --color-brand-surface: var(--color-primary);
+  --color-brand-dark-surface: var(--color-primary);
+  --color-brand-surface-secondary: var(--color-primary-500); /* -20% opacity */
+  --color-brand-dark-surface-secondary: var(--color-primary-500); /* -20% opacity */
+  --color-brand-border: var(--color-primary-300);
+  --color-brand-dark-border: var(--color-primary-300);
+  --color-brand-text: var(--color-primary);
+  --color-brand-dark-text: var(--color-primary);
+  --color-brand-icon: var(--color-primary);
+  --color-brand-dark-icon: var(--color-primary);
+  --color-brand-underlight: var(--color-primary-300);
+  --color-brand-dark-underlight: var(--color-primary-900);
+  }
+}

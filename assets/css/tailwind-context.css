@@ -1,0 +1,26 @@
+/*
+  @reference target for stylesheets compiled STANDALONE.
+
+  FOR @reference ONLY — never @import this file. `main.css` carries its own copy of
+  these two lines, because `@config` cannot be nested inside an @import.
+
+  Who needs it: any stylesheet that goes through Tailwind on its own and uses
+  @apply — `components/floating-cta.css` here, `assets/css/custom.css` and
+  `assets/css/components/*.css` in a consuming project. Such a file has no theme
+  context of its own; in v3 that was fine, in v4 it is a hard build failure
+  ("Cannot apply unknown utility class"). @reference supplies the context without
+  emitting anything into that file's output.
+
+  Why this file rather than referencing `main.css` directly: `main.css` @imports
+  several of those same component stylesheets, so pointing their @reference back at
+  `main.css` is circular — it fails with "Exceeded maximum recursion depth". This
+  file imports nothing local, so it is safe to reference from anywhere.
+
+  KEEP IN SYNC with the @import/@config pair at the top of main.css.
+
+  The @config path resolves the CONSUMER's root config, not the theme's own — see
+  the longer comment in main.css. Hugo always mounts this theme at
+  `themes/boilerplate/`, so four levels up is the consumer root for every site.
+*/
+@import 'tailwindcss';
+@config '../../../../tailwind.config.js';

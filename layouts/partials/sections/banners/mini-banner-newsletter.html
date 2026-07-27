@@ -35,22 +35,22 @@
 <div class="newsletter-box min-h-[72px] rounded-xl border border-gray-200 overflow-hidden my-6">
   <div class="bg-gray-100 min-h-[72px] flex flex-col lg:flex-row lg:items-center gap-4 p-3 md:p-4 lg:py-3">
     <div class="flex items-center gap-3 lg:mr-auto">
-      <div class="bg-gray-100 p-2 flex-shrink-0 rounded-l-lg">
+      <div class="bg-gray-100 p-2 shrink-0 rounded-l-lg">
         {{ $logo := site.Params.logo_icon }}
         {{ if and $logo (fileExists (printf "cdn-assets/%s" $logo)) }}
           {{ $logoUrl := partial "functions/get-static-url.html" (dict "path" (printf "/images/%s" $logo)) }}
-          <img src="{{ $logoUrl }}" alt="{{ i18n "header.logo_alt" | default "Logo" }}" width="36" class="w-8 md:w-9 object-contain !my-0 !block" loading="lazy" />
+          <img src="{{ $logoUrl }}" alt="{{ i18n "header.logo_alt" | default "Logo" }}" width="36" class="w-8 md:w-9 object-contain my-0! block!" loading="lazy" />
         {{ else }}
           {{ partial "icons/envelope-solid" "w-8 md:w-9 text-primary-600" }}
         {{ end }}
       </div>
       <div class="min-w-0 flex-1">
-        <h3 class="text-sm lg:text-base font-semibold leading-tight !my-0 truncate">{{ $heading }}</h3>
-        <p class="text-xs lg:text-sm !my-0 !mt-0.5 line-clamp-2">{{ $description }}</p>
+        <h3 class="text-sm lg:text-base font-semibold leading-tight my-0! truncate">{{ $heading }}</h3>
+        <p class="text-xs lg:text-sm my-0! mt-0.5! line-clamp-2">{{ $description }}</p>
       </div>
     </div>
 
-    <form class="flex-shrink-0 w-full lg:w-auto newsletter-form"
+    <form class="shrink-0 w-full lg:w-auto newsletter-form"
       data-error-email="{{ i18n "newsletter.error_email" | default "Please enter a valid email address" }}"
       action="{{ $action }}"
       method="post"
@@ -68,7 +68,7 @@
             autocomplete="email"
             required
             placeholder="{{ $placeholder }}"
-            class="w-full lg:w-64 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            class="w-full lg:w-64 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           <div style="position: absolute; left: -5000px;" aria-hidden="true">
             <input type="text" name="b_18d6ab6093f8e6cdbbd783635_22b687a6cc" tabindex="-1" value="">

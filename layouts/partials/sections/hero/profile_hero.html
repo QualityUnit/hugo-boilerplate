@@ -46,9 +46,9 @@
 <section class="wrapper my-16 lg:my-24">
   <div class="flex flex-col md:flex-row py-2.5">
       <!-- Left Column - Content -->
-      <div class="mx-auto py-8 pr-8 w-full md:w-1/2 flex items-center flex-shrink-0 order-2 md:order-1">
+      <div class="mx-auto py-8 pr-8 w-full md:w-1/2 flex items-center shrink-0 order-2 md:order-1">
         <div>
-          <h1 class="mb-[1.875rem] text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-heading">
+          <h1 class="mb-7.5 text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-heading">
             {{ $heading }}
           </h1>
           {{ if $description }}
@@ -94,7 +94,7 @@
       <!-- Right Column - Image -->
       <div class="mx-auto w-full md:w-1/2 order-1 md:order-2">
         <div class="relative max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
-          <div class="{{ $avatarContainerSize }} p-3 flex items-center justify-center absolute top-20 rounded-full bg-white/80 backdrop-blur-sm border ">
+          <div class="{{ $avatarContainerSize }} p-3 flex items-center justify-center absolute top-20 rounded-full bg-white/80 backdrop-blur-xs border ">
             <div class="[&>picture]:object-fit rounded-full {{ $avatarSize }} overflow-hidden">
               {{ partial "components/media/lazyimg.html" (dict
                   "src" $imageSrc

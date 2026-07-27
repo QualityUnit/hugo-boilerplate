@@ -36,9 +36,9 @@
     {{- $isLast := eq (add $index 1) (len $items) -}}
     <li class="flex items-center">
       {{- if $isLast -}}
-      <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $item.url) }}" class="text-sm font-medium text-heading hover:text-gray-700 break-words" aria-current="page">{{ $item.title }}</a>
+      <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $item.url) }}" class="text-sm font-medium text-heading hover:text-gray-700 wrap-break-word" aria-current="page">{{ $item.title }}</a>
       {{- else -}}
-      <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $item.url) }}" class="text-sm font-medium text-secondary hover:text-gray-700 break-words">{{ $item.title }}</a>
+      <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $item.url) }}" class="text-sm font-medium text-secondary hover:text-gray-700 wrap-break-word">{{ $item.title }}</a>
       <span class="mx-2 lg:mx-4 text-gray-300 dark:text-gray-600 whitespace-nowrap">/</span>
       {{- end -}}
     </li>

@@ -4,14 +4,14 @@
 
 <div class="bg-white dark:bg-gray-900 mt-6">
     <div class="wrapper">
-        <div class="mx-auto max-w-none prose prose-lg hover:prose-a:text-primary">
+        <div class="mx-auto max-w-none prose prose-lg prose-a:hover:text-primary">
 
             <div class="search-container py-6 gap-x-2 relative flex w-full md:w-80">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                    {{ partial "icons/magnifying-glass" "w-4 h-4 text-tertiary" }}
                 </span>
                 <input type="search" name="q" id="search-query" autocomplete="off"
-                    class="hide-search-clear px-9 py-1.5 w-full border border-gray-600 dark:border-gray-700 rounded-md focus:outline-none focus:ring-0 focus:ring-transparent focus:border-gray-400 transition" />
+                    class="hide-search-clear px-9 py-1.5 w-full border border-gray-600 dark:border-gray-700 rounded-md focus:outline-hidden focus:ring-0 focus:ring-transparent focus:border-gray-400 transition" />
                 <button type="button" id="clear-search" aria-label="{{ i18n "search_clear_aria" }}"
                     class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-0">
                     {{ partial "icons/x-mark" "w-4 h-4 text-tertiary" }}
@@ -26,10 +26,10 @@
             <div id="contact-url" class="hidden" data-url="{{ partial "helpers/get-translated-url.html" (dict "url" "/contact/") }}"></div> 
 
             <script id="search-result-template" type="text/x-js-template">
-                <article id="summary-${key}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-[52rem] h-full flex flex-col">
+                <article id="summary-${key}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-208 h-full flex flex-col">
                     <div class="flex items-center justify-between items-center flex-wrap md:flex-nowrap gap-x-4">
                         <h3 class="text-lg/6 font-semibold text-heading group-hover:text-primary w-full md:w-3/4">
-                            <a href="${link}" class="hover:text-primary focus:outline-none">
+                            <a href="${link}" class="hover:text-primary focus:outline-hidden">
                             <span class="absolute inset-0" aria-hidden="true"></span>
                             ${title}
                             </a>
@@ -37,7 +37,7 @@
                         <div class="date-reading-time-container flex items-center justify-end text-secondary text-xs mt-3 md:mt-0 w-full md:w-1/4"></div>
                     </div>
 
-                    <p class="mt-5 text-sm/5 text-tertiary line-clamp-3 flex-grow">${snippet}</p>
+                    <p class="mt-5 text-sm/5 text-tertiary line-clamp-3 grow">${snippet}</p>
 
                     <div class="tags-container mt-6 flex flex-wrap gap-2"></div>
                 </article>
@@ -116,7 +116,7 @@
                                 : `<span class="relative ml-3 inline-flex items-center rounded-md border border-gray-primary surface-primary px-4 py-2 text-sm font-semibold text-secondary cursor-not-allowed">Next ${chevronRight}</span>`}
                         </div>`;
                         // Desktop: full pagination
-                        html += `<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full max-w-[52rem] not-prose">
+                        html += `<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full max-w-208 not-prose">
                             <div>
                                 <p class="text-sm text-secondary">
                                     Showing <span class="font-semibold">${startItem}</span> to <span class="font-semibold">${endItem}</span> of <span class="font-semibold">${total}</span> results
@@ -135,7 +135,7 @@
 
                                         if (totalPages <= maxVisiblePages) {
                                             return n === page
-                                                ? `<span aria-current="page" class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">${n}</span>`
+                                                ? `<span aria-current="page" class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">${n}</span>`
                                                 : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
                                         } else {
                                             if (
@@ -144,7 +144,7 @@
                                                 (n >= page - halfVisible && n <= page + halfVisible)
                                             ) {
                                                 return n === page
-                                                    ? `<span aria-current="page" class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">${n}</span>`
+                                                    ? `<span aria-current="page" class="relative z-10 inline-flex items-center surface-brand px-4 py-2 text-sm font-semibold icon-on-brand focus:z-20 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:surface-brand">${n}</span>`
                                                     : `<button data-page="${n}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-heading ring-1 ring-inset ring-gray-300 hover:surface-secondary focus:z-20 focus:outline-offset-0">${n}</button>`;
                                             } else if (
                                                 (n === page - halfVisible - 1 && page - halfVisible > 1) ||
@@ -282,10 +282,10 @@
                                 let safeReadingTime = item.readingTime != null ? item.readingTime : '';
 
                                 let articleHtml = `
-                                    <article id="summary-${refIndex}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-[52rem] h-full flex flex-col">
+                                    <article id="summary-${refIndex}" class="group relative rounded-2xl not-prose border border-gray-200 surface-secondary p-6 my-6 shadow-lg max-w-208 h-full flex flex-col">
                                         <div class="flex items-center justify-between gap-x-4 items-center flex-wrap md:flex-nowrap">
                                             <h3 class="text-lg/6 font-semibold text-heading group-hover:text-primary w-full md:w-3/4">
-                                                <a href="${safePermalink}" class="hover:text-primary focus:outline-none">
+                                                <a href="${safePermalink}" class="hover:text-primary focus:outline-hidden">
                                                 <span class="absolute inset-0" aria-hidden="true"></span>
                                                 ${safeTitle}
                                                 </a>
@@ -305,7 +305,7 @@
                                 }
 
                                 articleHtml += `
-                                        </div> <p class="mt-5 text-sm/5 text-tertiary line-clamp-3 flex-grow">${snippet}</p>
+                                        </div> <p class="mt-5 text-sm/5 text-tertiary line-clamp-3 grow">${snippet}</p>
                                 `;
 
                                 if (Array.isArray(item.tags) && item.tags.length > 0) {
@@ -313,7 +313,7 @@
                                     let tagsHtml = '';
                                     const maxTags = 3;
                                     const tagBaseUrl = '/tags/';
-                                    const tagClass = 'badge-base badge-gray badge-with-border not-prose whitespace-nowrap [&_a]:no-underline [&_a]:!text-inherit [&_a]:px-0.5 [&_.link-building-link]:!no-underline [&_.link-building-link]:!text-inherit';
+                                    const tagClass = 'badge-base badge-gray badge-with-border not-prose whitespace-nowrap [&_a]:no-underline [&_a]:text-inherit! [&_a]:px-0.5 [&_.link-building-link]:no-underline! [&_.link-building-link]:text-inherit!';
                                     const shownTags = item.tags.slice(0, maxTags);
                                     shownTags.forEach(tag => {
                                         if (tag != null) {

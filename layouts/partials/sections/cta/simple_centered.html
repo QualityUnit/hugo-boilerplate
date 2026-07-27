@@ -65,7 +65,7 @@
         {{/* Primary CTA Button */}}
         {{ if $useLegacyColors }}
           {{/* Legacy mode: use custom color classes for backward compatibility */}}
-          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $primaryCta.url) }}" class="rounded-md bg-{{ $primaryCtaColor }} px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-{{ $primaryCtaHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $primaryCtaColor }}">{{ $primaryCta.text }}</a>
+          <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $primaryCta.url) }}" class="rounded-md bg-{{ $primaryCtaColor }} px-3.5 py-2.5 text-sm font-semibold text-white shadow-2xs hover:bg-{{ $primaryCtaHoverColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $primaryCtaColor }}">{{ $primaryCta.text }}</a>
         {{ else }}
           {{/* Modern mode: use buttons partial */}}
           {{ partial "components/buttons/buttons.html" (dict
