@@ -102,11 +102,12 @@
       {{ range $products }}
       <div>
         <div class="relative">
-          <div class="aspect-w-4 aspect-h-3 overflow-hidden rounded-xl bg-gray-100">
+          <div class="aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
             {{ partial "components/media/lazyimg.html" (dict 
               "src" .imageUrl 
               "alt" .imageAlt
               "class" "size-full object-cover object-center group-hover:opacity-75"
+              "figureClass" "size-full"
               "maxWidth" 400
             ) }}
           </div>
