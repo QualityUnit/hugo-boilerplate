@@ -125,13 +125,13 @@ interest. Card heights are dynamically calculated based on their content.
             {{ $cornerClass := "" }}
             {{ if $roundedCorners }}
             {{ if and $isFirstInRow $isFirstRow }}
-            {{ $cornerClass = "lg:rounded-tl-[2rem]" }}
+            {{ $cornerClass = "lg:rounded-tl-4xl" }}
             {{ else if and $isThirdInRow $isFirstRow }}
-            {{ $cornerClass = "lg:rounded-tr-[2rem]" }}
+            {{ $cornerClass = "lg:rounded-tr-4xl" }}
             {{ else if and $isFirstInRow $isLastRow }}
-            {{ $cornerClass = "lg:rounded-bl-[2rem]" }}
+            {{ $cornerClass = "lg:rounded-bl-4xl" }}
             {{ else if and $isThirdInRow $isLastRow }}
-            {{ $cornerClass = "lg:rounded-br-[2rem]" }}
+            {{ $cornerClass = "lg:rounded-br-4xl" }}
             {{ end }}
             {{ end }}
             <li class="relative group splide__slide md:h-full rounded-2xl {{ $cornerClass }}">

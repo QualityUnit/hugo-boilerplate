@@ -132,7 +132,7 @@
                     {{ $columnCount := add (len $tiersComparison) 1 }}
                     {{ $columnWidthVar := div 100.0 (len $tiersComparison) }}
                     {{ if gt (len $featureCategories) $visibleCategories }}
-                    <div id="comparison-gradient-overlay" class="relative after:content-[''] after:block after:w-full after:h-full after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:bottom-0 after:left-0 after:pointer-events-none after:transition-opacity">
+                    <div id="comparison-gradient-overlay" class="relative after:content-[''] after:block after:w-full after:h-full after:bg-linear-to-t after:from-white after:to-transparent after:absolute after:bottom-0 after:left-0 after:pointer-events-none after:transition-opacity">
                     {{ end }}
                     <div class="relative">
                         {{ range $index, $tier := $tiersComparison }}

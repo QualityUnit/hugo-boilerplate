@@ -102,7 +102,7 @@
       {{ range $products }}
       <div>
         <div class="relative">
-          <div class="aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
+          <div class="aspect-4/3 overflow-hidden rounded-xl bg-gray-100">
             {{ partial "components/media/lazyimg.html" (dict 
               "src" .imageUrl 
               "alt" .imageAlt

@@ -80,7 +80,7 @@
     <div class="mt-10 space-y-12 lg:grid lg:grid-cols-3 lg:gap-x-8 lg:space-y-0">
       {{ range $categories }}
       <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="group block">
-        <div class="aspect-[3/2] overflow-hidden rounded-xl group-hover:opacity-75 lg:aspect-[5/2]">
+        <div class="aspect-3/2 overflow-hidden rounded-xl group-hover:opacity-75 lg:aspect-5/2">
           {{ partial "components/media/lazyimg.html" (dict 
             "src" .imageUrl 
             "alt" .imageAlt

@@ -66,7 +66,7 @@
 {{ $darkClass := cond $isDark "dark" "" }}
 {{ $gridGap := .gridGap | default "gap-x-16 gap-y-12 lg:gap-y-24" }}
 
-{{ $iconClass := "w-7 h-7 p-1 rounded-lg flex-shrink-0 product-icon" }}
+{{ $iconClass := "w-7 h-7 p-1 rounded-lg shrink-0 product-icon" }}
 {{ $iconWrapperClass := "size-10 p-2 surface-brand rounded-lg flex items-center justify-center" }}
 
 <div class="{{ $theme }}">
@@ -90,7 +90,7 @@
           {{ range $features }}
           <div class="relative pl-0">
             {{ if .icon }}
-              <div class="{{ $iconWrapperClass }} mb-6 flex-shrink-0">
+              <div class="{{ $iconWrapperClass }} mb-6 shrink-0">
                 {{ partial "components/media/icon.html" (dict "icon" .icon "class" (printf "%s icon-on-brand" $iconClass)) }}
               </div>
             {{ end }}

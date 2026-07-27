@@ -1,3 +1,13 @@
+/*
+  NOT compiled standalone — this file is @imported by ../main.css and gets its
+  Tailwind context from there. It must therefore NOT carry its own @reference:
+  the referenced context declares @config, and once this file is inlined into
+  main.css that becomes a nested @config, which v4 rejects.
+
+  Consequently it must be EXCLUDED from any "compile every components/*.css on its
+  own" task (see the glob in the consumer's gulpfile). Nothing loads
+  /css/floating-cta.css directly, so the standalone artifact was unused anyway.
+*/
 /* ================================================================ */
 /* FLOATING CTA COMPONENT */
 /* A sticky CTA that floats next to blog content on the right side */

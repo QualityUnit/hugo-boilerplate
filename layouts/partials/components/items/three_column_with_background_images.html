@@ -11,7 +11,7 @@
   - centerHeading: Whether to center the heading and description (optional, default: true)
   - cardBgColor: Card background color class (optional, default: "bg-gray-900")
   - cardPadding: Card padding classes (optional, default: "px-8 pt-80 pb-8 sm:pt-48 lg:pt-80")
-  - gradientOverlay: Gradient overlay class for images (optional, default: "bg-gradient-to-t from-gray-900 via-gray-900/40")
+  - gradientOverlay: Gradient overlay class for images (optional, default: "bg-linear-to-t from-gray-900 via-gray-900/40")
   - ringColor: Ring color class (optional, default: "ring-gray-900/10")
   - titleColor: Item title color (optional, default: "text-white")
   - dateColor: Date text color (optional, default: "text-gray-300")
@@ -95,7 +95,7 @@
 {{/* Item styling */}}
 {{ $cardBgColor := .cardBgColor | default "bg-gray-900" }}
 {{ $cardPadding := .cardPadding | default "px-8 pt-80 pb-8 sm:pt-48 lg:pt-80" }}
-{{ $gradientOverlay := .gradientOverlay | default "bg-gradient-to-t from-gray-900 via-gray-900/40" }}
+{{ $gradientOverlay := .gradientOverlay | default "bg-linear-to-t from-gray-900 via-gray-900/40" }}
 {{ $ringColor := .ringColor | default "ring-gray-900/10" }}
 {{ $titleColor := .titleColor | default "text-white" }}
 {{ $dateColor := .dateColor | default "text-gray-300" }}

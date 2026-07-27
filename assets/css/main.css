@@ -1,521 +1,726 @@
 /* 🎨 CSS IMPORTS - ALL IMPORTS MUST BE FIRST */
-@import "./variables.css";
-@import "./fonts.css";
-@import "./typewriter.css";
-@import "./lazy-images.css";
-@import "./lazy-videos.css";
-@import "./components/floating-cta.css";
+@import './variables.css' layer(base);
+@import './fonts.css' layer(base);
+@import './typewriter.css' layer(base);
+@import './lazy-images.css' layer(base);
+@import './lazy-videos.css' layer(base);
+@import './components/floating-cta.css' layer(base);
 
 /* 🎯 TAILWIND LAYERS */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/*
+  Resolve the CONSUMER's root tailwind.config.js, not the theme's own.
+
+  Under v3 the config was auto-detected from cwd, which is the consuming repo's
+  root — `themes/boilerplate/tailwind.config.js` was never read by a consumer that
+  has its own config. v4 has no cwd auto-detection, so the path must be explicit.
+
+  Hugo always mounts this theme at `themes/boilerplate/`, so four levels up is the
+  consumer's root for every site. Do not "fix" this to `../../`; that points at the
+  theme's own config (a template) and silently swaps the whole palette.
+
+  Kept inline rather than pulled from tailwind-context.css because `@config`
+  cannot be nested inside an @import. tailwind-context.css duplicates these two
+  lines for @reference consumers — keep the two in sync.
+*/
+@config '../../../../tailwind.config.js';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 /* 🎨 CORE STYLES */
-@layer components {
-  /* Cookie consent styles - simplified */
-  .cookie-hidden {
-    @apply hidden !important;
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
 
+@utility cookie-hidden {
+  /* Cookie consent styles - simplified */
+  @apply hidden!;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+@utility section-bg-light {
   /* ================================================================ */
   /* 🎨 SECTION BACKGROUNDS */
   /* ================================================================ */
-  
-  .section-bg-light {
-    @apply bg-white;
-    /* Light background, typically for white or neutral sections */
-  }
+  @apply bg-white;
+  /* Light background, typically for white or neutral sections */
+}
 
-  .section-bg-alternate {
-    @apply bg-gray-50;
-    /* Alternate background, light gray in light mode, dark gray in dark mode */
-  }
+@utility section-bg-alternate {
+  @apply bg-gray-50;
+  /* Alternate background, light gray in light mode, dark gray in dark mode */
+}
 
-  .section-bg-dark {
-    @apply bg-gray-900;
-    /* Dark background, used for contrast or "dark mode" sections */
-  }
+@utility section-bg-dark {
+  @apply bg-gray-900;
+  /* Dark background, used for contrast or "dark mode" sections */
 
-  .section-bg-dark a[data-lb], .bg-gray-900 a[data-lb] {
+  & a[data-lb] {
     @apply text-primary-500 hover:text-primary-700;
   }
+}
 
+/*
+  Must stay a plain descendant rule. The v4 upgrade tool turned the original
+  `.section-bg-dark a[data-lb], .bg-gray-900 a[data-lb]` selector into two
+  `@utility` blocks — but `@utility bg-gray-900` shadows Tailwind's own
+  `bg-gray-900` utility and would stop it setting a background at all.
+*/
+@layer components {
+  .bg-gray-900 a[data-lb] {
+    @apply text-primary-500 hover:text-primary-700;
+  }
+}
+
+@utility wrapper {
   /* ================================================================ */
   /* 📦 WRAPPER CLASSES */
   /* ================================================================ */
-  
-  .wrapper {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-  .wrapper-narrow {
-    @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-  .wrapper-content {
-    @apply max-w-4xl px-4 sm:px-6 lg:px-8;
-  }
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 
-  .wrapper .wrapper-content {
+  & .wrapper-content {
     @apply px-0;
   }
-  .wrapper-content .wrapper {
+  .wrapper-content & {
     @apply px-0;
   }
+}
 
+@utility wrapper-narrow {
+  @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+@utility wrapper-content {
+  @apply max-w-4xl px-4 sm:px-6 lg:px-8;
+
+  .wrapper & {
+    @apply px-0;
+  }
+  & .wrapper {
+    @apply px-0;
+  }
+}
+
+@utility surface-primary {
   /* ================================================================ */
   /* 🏠 SURFACE STYLES */
   /* ================================================================ */
-  
-  .surface-primary {
-    @apply bg-white dark:bg-gray-900;
-    /* Primary surface background – white in light mode, dark gray in dark mode */
-  }
+  @apply bg-white dark:bg-gray-900;
+  /* Primary surface background – white in light mode, dark gray in dark mode */
+}
 
-  .surface-secondary {
-    @apply bg-gray-50 dark:bg-gray-400/10;
-    /* Secondary surface background – light gray in light mode, very light gray in dark mode */
-  }
+@utility surface-secondary {
+  @apply bg-gray-50 dark:bg-gray-400/10;
+  /* Secondary surface background – light gray in light mode, very light gray in dark mode */
+}
 
-  .surface-brand, .product-bg-primary {
-    @apply bg-brand-surface dark:bg-brand-dark-surface;
-    /* Brand surface background – brand primary in light mode, brand secondary in dark mode */
-  }
+@utility surface-brand {
+  @apply bg-brand-surface dark:bg-brand-dark-surface;
+  /* Brand surface background – brand primary in light mode, brand secondary in dark mode */
+}
 
-  .surface-brand-secondary, .product-surface {
-    @apply bg-brand-surface-secondary/20 dark:bg-brand-dark-surface-secondary/20;
-    /* Brand surface background – brand primary in light mode, brand secondary in dark mode */
-  }
+@utility product-bg-primary {
+  @apply bg-brand-surface dark:bg-brand-dark-surface;
+  /* Brand surface background – brand primary in light mode, brand secondary in dark mode */
+}
 
-  .surface-underlight, .product-underlight {
-    @apply bg-brand-underlight dark:bg-brand-dark-underlight;
-    /* Brand underlight background – brand primary in light mode, brand secondary in dark mode */
-  }
+@utility surface-brand-secondary {
+  @apply bg-brand-surface-secondary/20 dark:bg-brand-dark-surface-secondary/20;
+  /* Brand surface background – brand primary in light mode, brand secondary in dark mode */
+}
 
+@utility product-surface {
+  @apply bg-brand-surface-secondary/20 dark:bg-brand-dark-surface-secondary/20;
+  /* Brand surface background – brand primary in light mode, brand secondary in dark mode */
+}
+
+@utility surface-underlight {
+  @apply bg-brand-underlight dark:bg-brand-dark-underlight;
+  /* Brand underlight background – brand primary in light mode, brand secondary in dark mode */
+}
+
+@utility product-underlight {
+  @apply bg-brand-underlight dark:bg-brand-dark-underlight;
+  /* Brand underlight background – brand primary in light mode, brand secondary in dark mode */
+}
+
+@utility border-gray-primary {
   /* ================================================================ */
   /* BORDER STYLES */
   /* ================================================================ */
 
   /* Border gray primary - "border primary" in design*/
-  .border-gray-primary, .surface-border {
-    @apply border-gray-300 dark:border-gray-600;
-    /* Primary border – light gray in light mode, darker gray in dark mode */
-  }
+  @apply border-gray-300 dark:border-gray-600;
+  /* Primary border – light gray in light mode, darker gray in dark mode */
   /* Form elements with surface border */
-  input.border-gray-primary,
-  select.border-gray-primary,
-  textarea.border-gray-primary {
-    @apply border-gray-300 dark:border-gray-600 !important;
+  &input {
+    @apply border-gray-300! dark:border-gray-600!;
   }
+  & select {
+    @apply border-gray-300! dark:border-gray-600!;
+  }
+  & textarea {
+    @apply border-gray-300! dark:border-gray-600!;
+  }
+}
 
-  .border-secondary, .surface-divider {
-    @apply border-gray-200 dark:border-gray-700;
-    /* Secondary border – light gray in light mode, darker gray in dark mode */
-  }
+@utility surface-border {
+  @apply border-gray-300 dark:border-gray-600;
+  /* Primary border – light gray in light mode, darker gray in dark mode */
+}
+
+@utility border-secondary {
+  @apply border-gray-200 dark:border-gray-700;
+  /* Secondary border – light gray in light mode, darker gray in dark mode */
+}
+
+@utility surface-divider {
+  @apply border-gray-200 dark:border-gray-700;
+  /* Secondary border – light gray in light mode, darker gray in dark mode */
 
   /* For compatibility with older naming */
-  .surface-divider {
-    @apply border-t;
-  }
+  @apply border-t;
+}
 
-  .border-brand, .product-border {
-    @apply border-brand-border dark:border-brand-dark-border;
-    /* Brand border – brand color in light mode, lighter brand-600 in dark mode */
-  }
+@utility border-brand {
+  @apply border-brand-border dark:border-brand-dark-border;
+  /* Brand border – brand color in light mode, lighter brand-600 in dark mode */
+}
 
-   /* 📝 TEXT STYLES */
-   /* Heading - "text primary" in design*/
-  .text-heading  {
-    @apply text-gray-900 dark:text-white;
-    /* Main heading text – black in light mode, white in dark mode */
-  }
+@utility product-border {
+  @apply border-brand-border dark:border-brand-dark-border;
+  /* Brand border – brand color in light mode, lighter brand-600 in dark mode */
+}
 
-  .text-secondary, .text-body {
-    @apply text-gray-600 dark:text-gray-300;
-    /* Body text – medium gray in light mode, light gray in dark mode */
-  }
+@utility text-heading {
+  /* 📝 TEXT STYLES */
+  /* Heading - "text primary" in design*/
+  @apply text-gray-900 dark:text-white;
+  /* Main heading text – black in light mode, white in dark mode */
+}
 
-  .text-tertiary, .text-muted {
-    @apply text-gray-500 dark:text-gray-400;
-    /* Subtle/secondary text – slightly muted for less emphasis */
-  }
+@utility text-secondary {
+  @apply text-gray-600 dark:text-gray-300;
+  /* Body text – medium gray in light mode, light gray in dark mode */
+}
 
-  .text-placeholder {
-    @apply text-gray-400 dark:text-gray-500;
-    /* Placeholder text – light gray in light mode, slightly darker in dark mode */
-  }
+@utility text-body {
+  @apply text-gray-600 dark:text-gray-300;
+  /* Body text – medium gray in light mode, light gray in dark mode */
+}
 
-  .text-brand, .product-primary, .product-text {
-    @apply text-brand-text dark:text-brand-dark-text;
-    /* Brand text – brand color in light mode, lighter brand-400 in dark mode */
-  }
+@utility text-tertiary {
+  @apply text-gray-500 dark:text-gray-400;
+  /* Subtle/secondary text – slightly muted for less emphasis */
+}
 
+@utility text-muted {
+  @apply text-gray-500 dark:text-gray-400;
+  /* Subtle/secondary text – slightly muted for less emphasis */
+}
+
+@utility text-placeholder {
+  @apply text-gray-400 dark:text-gray-500;
+  /* Placeholder text – light gray in light mode, slightly darker in dark mode */
+}
+
+@utility text-brand {
+  @apply text-brand-text dark:text-brand-dark-text;
+  /* Brand text – brand color in light mode, lighter brand-400 in dark mode */
+}
+
+@utility product-primary {
+  @apply text-brand-text dark:text-brand-dark-text;
+  /* Brand text – brand color in light mode, lighter brand-400 in dark mode */
+}
+
+@utility product-text {
+  @apply text-brand-text dark:text-brand-dark-text;
+  /* Brand text – brand color in light mode, lighter brand-400 in dark mode */
+}
+
+@utility icon-gray {
   /* 🎨 ICON STYLES */
-  .icon-gray {
-    @apply text-gray-400 dark:text-gray-500;
-    /* Gray icon color – light gray in light mode, slightly darker in dark mode */
-  }
+  @apply text-gray-400 dark:text-gray-500;
+  /* Gray icon color – light gray in light mode, slightly darker in dark mode */
+}
 
-  .icon-brand, .product-icon {
-    @apply text-brand-icon dark:text-brand-dark-icon;
-    /* Brand icon color – brand color in light mode, lighter brand-400 in dark mode */
-  }
+@utility icon-brand {
+  @apply text-brand-icon dark:text-brand-dark-icon;
+  /* Brand icon color – brand color in light mode, lighter brand-400 in dark mode */
+}
 
-  .icon-on-gray, .icon-secondary {
-    @apply text-gray-600 dark:text-gray-300;
-    /* On gray icon color – light gray in light mode, slightly darker in dark mode */
-  }
+@utility product-icon {
+  @apply text-brand-icon dark:text-brand-dark-icon;
+  /* Brand icon color – brand color in light mode, lighter brand-400 in dark mode */
+}
 
-  .icon-on-brand, .icon-primary {
-    @apply text-white dark:text-white;
-    /* On brand icon color – brand color in light mode, lighter brand-400 in dark mode */
-  }
+@utility icon-on-gray {
+  @apply text-gray-600 dark:text-gray-300;
+  /* On gray icon color – light gray in light mode, slightly darker in dark mode */
+}
 
+@utility icon-secondary {
+  @apply text-gray-600 dark:text-gray-300;
+  /* On gray icon color – light gray in light mode, slightly darker in dark mode */
+}
+
+@utility icon-on-brand {
+  @apply text-white dark:text-white;
+  /* On brand icon color – brand color in light mode, lighter brand-400 in dark mode */
+}
+
+@utility icon-primary {
+  @apply text-white dark:text-white;
+  /* On brand icon color – brand color in light mode, lighter brand-400 in dark mode */
+}
+
+@utility error-border {
   /* INPUT ERRORS STYLES */
-  .error-border {
-    @apply border-red-500 dark:border-red-400;
-    /* Input errors – red border in light mode, darker red in dark mode */
-  }
+  @apply border-red-500 dark:border-red-400;
+  /* Input errors – red border in light mode, darker red in dark mode */
+}
 
-  .error-text {
-      @apply text-red-500 dark:text-red-400;
-      /* Input errors – red text in light mode, darker red in dark mode */
-  }
+@utility error-text {
+  @apply text-red-500 dark:text-red-400;
+  /* Input errors – red text in light mode, darker red in dark mode */
+}
 
-  .error-placeholder {
-    @apply placeholder:text-red-400 dark:placeholder:text-red-300;
-    /* Input errors placeholder – red text in light mode, darker red in dark mode */
-  }
+@utility error-placeholder {
+  @apply placeholder:text-red-400 dark:placeholder:text-red-300;
+  /* Input errors placeholder – red text in light mode, darker red in dark mode */
+}
 
+@utility success-border {
   /* INPUT SUCCESS STYLES */
-  .success-border {
-    @apply border-green-500 dark:border-green-400;
-    /* Input success – green border in light mode, darker green in dark mode */
-  }
+  @apply border-green-500 dark:border-green-400;
+  /* Input success – green border in light mode, darker green in dark mode */
+}
 
-  .success-text {
-    @apply text-green-500 dark:text-green-400;
-    /* Input success – green text in light mode, darker green in dark mode */
-  }
+@utility success-text {
+  @apply text-green-500 dark:text-green-400;
+  /* Input success – green text in light mode, darker green in dark mode */
+}
 
-  .success-placeholder{
-    @apply placeholder:text-green-400 dark:placeholder:text-green-300;
-    /* Input success placeholder – green text in light mode, darker green in dark mode */
-  }  
+@utility success-placeholder {
+  @apply placeholder:text-green-400 dark:placeholder:text-green-300;
+  /* Input success placeholder – green text in light mode, darker green in dark mode */
+}
 
+@utility link-building-link {
   /* 🔗 LINK STYLES */
-  .link-building-link {
-    @apply underline hover:text-primary;
-  }
+  @apply underline hover:text-primary;
+}
 
-
+@utility btn-transition {
   /* ================================================================ */
   /* 🔘 BUTTON SYSTEM (from main-old.css) */
   /* ================================================================ */
 
   /* Common button transition */
-  .btn-transition {
-    @apply transition-all duration-300 ease-in-out;
-  }
+  @apply transition-all duration-300 ease-in-out;
+}
 
+@utility btn-primary {
   /* Primary button on light backgrounds – white text, customizable background */
-  .btn-primary {
-    @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-sm text-white bg-button-primary hover:bg-button-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-button-primary-outline btn-transition;
-  }
+  @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-xs text-white bg-button-primary hover:bg-button-primary-hover focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-button-primary-outline btn-transition;
+}
 
+@utility btn-primary-alternate {
   /* Primary button on light alternate backgrounds – white text, customizable background */
-  .btn-primary-alternate {
-    @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-sm text-white bg-button-primary hover:bg-button-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-button-primary-outline btn-transition;
-  }
+  @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-xs text-white bg-button-primary hover:bg-button-primary-hover focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-button-primary-outline btn-transition;
+}
 
+@utility btn-primary-dark {
   /* Primary button on dark backgrounds – customizable background for contrast */
-  .btn-primary-dark {
-    @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-sm text-white bg-button-primary-dark hover:bg-button-primary-dark-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-button-primary-dark btn-transition;
-  }
+  @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-xs text-white bg-button-primary-dark hover:bg-button-primary-dark-hover focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-button-primary-dark btn-transition;
+}
 
+@utility btn-primary-alternate-dark {
   /* Primary button on dark alternate backgrounds – white background with dark text */
-  .btn-primary-alternate-dark {
-    @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-sm text-gray-900 bg-white hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-100 btn-transition;
-  }
-  
+  @apply inline-flex items-center justify-center text-sm font-semibold rounded-md shadow-xs text-gray-900 bg-white hover:bg-gray-100 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-100 btn-transition;
+}
+
+@utility btn-secondary {
   /* Secondary button – customizable colors for all states */
-  .btn-secondary {
-    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-sm bg-button-secondary border-button-secondary-border text-button-secondary-text hover:border-button-secondary-border-hover btn-transition;
-  }
+  @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-xs bg-button-secondary border-button-secondary-border text-button-secondary-text hover:border-button-secondary-border-hover btn-transition;
+}
 
+@utility btn-secondary-alternate {
   /* Secondary button for alternate light backgrounds – customizable colors */
-  .btn-secondary-alternate {
-    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md bg-button-secondary border-button-secondary-border text-button-secondary-text hover:border-button-secondary-border-hover btn-transition;
-  }
+  @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md bg-button-secondary border-button-secondary-border text-button-secondary-text hover:border-button-secondary-border-hover btn-transition;
+}
 
+@utility btn-secondary-dark {
   /* Secondary button for dark backgrounds – customizable dark colors */
-  .btn-secondary-dark {
-    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-sm bg-button-secondary-dark/10 text-button-secondary-dark-text border-button-secondary-dark-border hover:border-button-secondary-dark-border-hover btn-transition;
-  }
+  @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-xs bg-button-secondary-dark/10 text-button-secondary-dark-text border-button-secondary-dark-border hover:border-button-secondary-dark-border-hover btn-transition;
+}
 
+@utility btn-secondary-alternate-dark {
   /* Secondary button for dark alternate backgrounds – customizable dark colors */
-  .btn-secondary-alternate-dark {
-    @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-sm text-button-secondary-dark-text border-button-secondary-dark-border hover:border-button-secondary-dark-border-hover btn-transition;
-  }
+  @apply inline-flex items-center justify-center text-sm font-semibold border rounded-md shadow-xs text-button-secondary-dark-text border-button-secondary-dark-border hover:border-button-secondary-dark-border-hover btn-transition;
+}
 
+@utility btn-text {
   /* Minimal text button – customizable text colors */
-  .btn-text {
-    @apply text-sm font-semibold text-button-text hover:text-button-text-hover btn-transition;
-  }
-  
+  @apply text-sm font-semibold text-button-text hover:text-button-text-hover btn-transition;
+}
+
+@utility btn-text-dark {
   /* Minimal text button for dark backgrounds – customizable dark text colors */
-  .btn-text-dark {
-    @apply text-sm font-semibold text-button-text-dark hover:text-button-text-dark-hover btn-transition;
-  }
+  @apply text-sm font-semibold text-button-text-dark hover:text-button-text-dark-hover btn-transition;
+}
 
+@utility btn-arrow {
   /* Button arrow animation */
-  .btn-arrow {
-    @apply font-semibold inline-block transition-transform duration-300;
-  }
+  @apply font-semibold inline-block transition-transform duration-300;
+}
 
+@utility badge-base {
   /* ================================================================ */
   /* 🏷️ BADGE SYSTEM (from badges.css) */
   /* ================================================================ */
 
   /* Base styles for all badges */
-  .badge-base {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md leading-4 tracking-[0.216px];
-  }
+  @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-md leading-4 tracking-[0.216px];
+}
 
+@utility badge-gray {
   /* Color schemes for badges */
-  .badge-gray {
-    @apply bg-gray-100 dark:bg-gray-400/20 text-gray-500 dark:text-gray-400;
-  }
-  .badge-red {
-    @apply bg-red-100 dark:bg-red-300/20 text-red-700 dark:text-red-300;
-  }
-  .badge-yellow {
-    @apply bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-500;
-  }
-  .badge-green {
-    @apply bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400;
-  }
-  .badge-blue {
-    @apply bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400;
-  }
-  .badge-purple {
-    @apply bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400;
-  }
-  .badge-indigo {
-    @apply bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400;
-  }
-  .badge-pink {
-    @apply bg-pink-100 dark:bg-pink-500/20 text-pink-700 dark:text-pink-400;
-  }
-  .badge-orange {
-    @apply bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400;
-  }
-  .badge-teal {
-    @apply bg-teal-100 dark:bg-teal-500/20 text-teal-700 dark:text-teal-400;
-  }
-  .badge-cyan {
-    @apply bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400;
-  }
-  .badge-lime {
-    @apply bg-lime-100 dark:bg-lime-500/20 text-lime-700 dark:text-lime-400;
-  }
-  .badge-emerald {
-    @apply bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400;
-  }
-  .badge-sky {
-    @apply bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-400;
-  }
-  .badge-violet {
-    @apply bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400;
-  }
-  .badge-fuchsia {
-    @apply bg-fuchsia-100 dark:bg-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-400;
-  }
-  .badge-rose {
-    @apply bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400;
-  }
-  .badge-amber {
-    @apply bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400;
-  }
-  .badge-slate {
-    @apply bg-slate-100 dark:bg-slate-400/20 text-slate-700 dark:text-slate-400;
-  }
-
-  /* Class for adding border */
-  .badge-with-border {
-    @apply border; /* Just add border, the color will be from the badge color */
-  }
+  @apply bg-gray-100 dark:bg-gray-400/20 text-gray-500 dark:text-gray-400;
 
   /* Border colors for badges with border */
-  .badge-gray.badge-with-border {
-      @apply border-gray-500/20 dark:border-gray-400/20;
-  }
-  .badge-red.badge-with-border {
-      @apply border-red-500/20 dark:border-red-300/20;
-  }
-  .badge-yellow.badge-with-border {
-      @apply border-yellow-500/20 dark:border-yellow-500/20;
-  }
-  .badge-green.badge-with-border {
-      @apply border-green-500/20 dark:border-green-500/20;
-  }
-  .badge-blue.badge-with-border {
-      @apply border-blue-500/20 dark:border-blue-500/20;
-  }
-  .badge-purple.badge-with-border {
-      @apply border-purple-500/20 dark:border-purple-500/20;
-  }
-  .badge-indigo.badge-with-border {
-      @apply border-indigo-500/20 dark:border-indigo-500/20;
-  }
-  .badge-pink.badge-with-border {
-      @apply border-pink-500/20 dark:border-pink-500/20;
-  }
-  .badge-orange.badge-with-border {
-      @apply border-orange-500/20 dark:border-orange-500/20;
-  }
-  .badge-teal.badge-with-border {
-      @apply border-teal-500/20 dark:border-teal-500/20;
-  }
-  .badge-cyan.badge-with-border {
-      @apply border-cyan-500/20 dark:border-cyan-500/20;
-  }
-  .badge-lime.badge-with-border {
-      @apply border-lime-500/20 dark:border-lime-500/20;
-  }
-  .badge-emerald.badge-with-border {
-      @apply border-emerald-500/20 dark:border-emerald-500/20;
-  }
-  .badge-sky.badge-with-border {
-      @apply border-sky-500/20 dark:border-sky-500/20;
-  }
-  .badge-violet.badge-with-border {
-      @apply border-violet-500/20 dark:border-violet-500/20;
-  }
-  .badge-fuchsia.badge-with-border {
-      @apply border-fuchsia-500/20 dark:border-fuchsia-500/20;
-  }
-  .badge-rose.badge-with-border {
-      @apply border-rose-500/20 dark:border-rose-500/20;
-  }
-  .badge-amber.badge-with-border {
-      @apply border-amber-500/20 dark:border-amber-500/20;
-  }
-  .badge-slate.badge-with-border {
-      @apply border-slate-500/20 dark:border-slate-400/20;
+  &.badge-with-border {
+    @apply border-gray-500/20 dark:border-gray-400/20;
   }
 }
 
-/* 🛠️ UTILITIES */
-@layer utilities {
-  /* Custom utility classes */
-  .text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    /* Light text shadow for subtle depth */
+@utility badge-red {
+  @apply bg-red-100 dark:bg-red-300/20 text-red-700 dark:text-red-300;
+  &.badge-with-border {
+    @apply border-red-500/20 dark:border-red-300/20;
   }
+}
 
-  .hide-search-clear::-webkit-search-cancel-button {
+@utility badge-yellow {
+  @apply bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-500;
+  &.badge-with-border {
+    @apply border-yellow-500/20 dark:border-yellow-500/20;
+  }
+}
+
+@utility badge-green {
+  @apply bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400;
+  &.badge-with-border {
+    @apply border-green-500/20 dark:border-green-500/20;
+  }
+}
+
+@utility badge-blue {
+  @apply bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400;
+  &.badge-with-border {
+    @apply border-blue-500/20 dark:border-blue-500/20;
+  }
+}
+
+@utility badge-purple {
+  @apply bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400;
+  &.badge-with-border {
+    @apply border-purple-500/20 dark:border-purple-500/20;
+  }
+}
+
+@utility badge-indigo {
+  @apply bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400;
+  &.badge-with-border {
+    @apply border-indigo-500/20 dark:border-indigo-500/20;
+  }
+}
+
+@utility badge-pink {
+  @apply bg-pink-100 dark:bg-pink-500/20 text-pink-700 dark:text-pink-400;
+  &.badge-with-border {
+    @apply border-pink-500/20 dark:border-pink-500/20;
+  }
+}
+
+@utility badge-orange {
+  @apply bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400;
+  &.badge-with-border {
+    @apply border-orange-500/20 dark:border-orange-500/20;
+  }
+}
+
+@utility badge-teal {
+  @apply bg-teal-100 dark:bg-teal-500/20 text-teal-700 dark:text-teal-400;
+  &.badge-with-border {
+    @apply border-teal-500/20 dark:border-teal-500/20;
+  }
+}
+
+@utility badge-cyan {
+  @apply bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400;
+  &.badge-with-border {
+    @apply border-cyan-500/20 dark:border-cyan-500/20;
+  }
+}
+
+@utility badge-lime {
+  @apply bg-lime-100 dark:bg-lime-500/20 text-lime-700 dark:text-lime-400;
+  &.badge-with-border {
+    @apply border-lime-500/20 dark:border-lime-500/20;
+  }
+}
+
+@utility badge-emerald {
+  @apply bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400;
+  &.badge-with-border {
+    @apply border-emerald-500/20 dark:border-emerald-500/20;
+  }
+}
+
+@utility badge-sky {
+  @apply bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-400;
+  &.badge-with-border {
+    @apply border-sky-500/20 dark:border-sky-500/20;
+  }
+}
+
+@utility badge-violet {
+  @apply bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400;
+  &.badge-with-border {
+    @apply border-violet-500/20 dark:border-violet-500/20;
+  }
+}
+
+@utility badge-fuchsia {
+  @apply bg-fuchsia-100 dark:bg-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-400;
+  &.badge-with-border {
+    @apply border-fuchsia-500/20 dark:border-fuchsia-500/20;
+  }
+}
+
+@utility badge-rose {
+  @apply bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400;
+  &.badge-with-border {
+    @apply border-rose-500/20 dark:border-rose-500/20;
+  }
+}
+
+@utility badge-amber {
+  @apply bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400;
+  &.badge-with-border {
+    @apply border-amber-500/20 dark:border-amber-500/20;
+  }
+}
+
+@utility badge-slate {
+  @apply bg-slate-100 dark:bg-slate-400/20 text-slate-700 dark:text-slate-400;
+  &.badge-with-border {
+    @apply border-slate-500/20 dark:border-slate-400/20;
+  }
+}
+
+@utility badge-with-border {
+  /* Class for adding border */
+  @apply border; /* Just add border, the color will be from the badge color */
+
+  /* Border colors for badges with border */
+  &.badge-gray {
+    @apply border-gray-500/20 dark:border-gray-400/20;
+  }
+  &.badge-red {
+    @apply border-red-500/20 dark:border-red-300/20;
+  }
+  &.badge-yellow {
+    @apply border-yellow-500/20 dark:border-yellow-500/20;
+  }
+  &.badge-green {
+    @apply border-green-500/20 dark:border-green-500/20;
+  }
+  &.badge-blue {
+    @apply border-blue-500/20 dark:border-blue-500/20;
+  }
+  &.badge-purple {
+    @apply border-purple-500/20 dark:border-purple-500/20;
+  }
+  &.badge-indigo {
+    @apply border-indigo-500/20 dark:border-indigo-500/20;
+  }
+  &.badge-pink {
+    @apply border-pink-500/20 dark:border-pink-500/20;
+  }
+  &.badge-orange {
+    @apply border-orange-500/20 dark:border-orange-500/20;
+  }
+  &.badge-teal {
+    @apply border-teal-500/20 dark:border-teal-500/20;
+  }
+  &.badge-cyan {
+    @apply border-cyan-500/20 dark:border-cyan-500/20;
+  }
+  &.badge-lime {
+    @apply border-lime-500/20 dark:border-lime-500/20;
+  }
+  &.badge-emerald {
+    @apply border-emerald-500/20 dark:border-emerald-500/20;
+  }
+  &.badge-sky {
+    @apply border-sky-500/20 dark:border-sky-500/20;
+  }
+  &.badge-violet {
+    @apply border-violet-500/20 dark:border-violet-500/20;
+  }
+  &.badge-fuchsia {
+    @apply border-fuchsia-500/20 dark:border-fuchsia-500/20;
+  }
+  &.badge-rose {
+    @apply border-rose-500/20 dark:border-rose-500/20;
+  }
+  &.badge-amber {
+    @apply border-amber-500/20 dark:border-amber-500/20;
+  }
+  &.badge-slate {
+    @apply border-slate-500/20 dark:border-slate-400/20;
+  }
+}
+
+@utility text-shadow {
+  /* Custom utility classes */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Light text shadow for subtle depth */
+}
+
+@utility hide-search-clear {
+  &::-webkit-search-cancel-button {
     appearance: none;
     @apply hidden;
   }
+}
 
+@utility toc-select {
   /* TOC select appearance reset */
-  .toc-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-  }
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 
-  .toc-select::-ms-expand {
+  &::-ms-expand {
     display: none;
   }
+}
 
+@utility hero-overlay-shadow {
   /* Hero overlay shadow */
-  .hero-overlay-shadow {
-    box-shadow: 0.25rem 0.54rem 0.34rem -0.29rem rgba(0, 0, 0, 0.06), 0.245rem 0.538rem 0.343rem -0.294rem rgba(0, 0, 0, 0.06);
-  }
+  box-shadow:
+    0.25rem 0.54rem 0.34rem -0.29rem rgba(0, 0, 0, 0.06),
+    0.245rem 0.538rem 0.343rem -0.294rem rgba(0, 0, 0, 0.06);
+}
 
-  /* Eliminate focus outline for iframes */
-  iframe {
-    outline: none !important;
-  }
-
+@utility prose-links {
   /* ================================================================ */
   /* 📝 PROSE STYLES */
   /* ================================================================ */
-  
-  .prose-links {
-    @apply prose-a:text-secondary prose-a:font-normal prose-a:underline;
-    /* Standard prose with custom link styling */
-  }
+  @apply prose-a:text-secondary prose-a:font-normal prose-a:underline;
+  /* Standard prose with custom link styling */
 
-  .prose-links a:not([class^="btn-"]),
-  a.prose-links:not([class^="btn-"]) {
+  & a:not([class^='btn-']) {
     text-decoration-line: underline !important;
     text-underline-offset: 0.16em;
     text-decoration-thickness: from-font;
   }
-  
-  .prose-links a:hover:not([class^="btn-"]),
-  a.prose-links:hover:not([class^="btn-"]) {
+
+  & a:not([class^='btn-']) {
+    text-decoration-line: underline !important;
+    text-underline-offset: 0.16em;
+    text-decoration-thickness: from-font;
+  }
+
+  & a:hover:not([class^='btn-']) {
     @apply text-brand-text;
   }
-  
+
+  & a:hover:not([class^='btn-']) {
+    @apply text-brand-text;
+  }
+}
+
+@utility scrollbar-custom {
   /* ================================================================ */
   /* CUSTOM SCROLLBAR */
   /* ================================================================ */
-
-  .scrollbar-custom {
-    overflow: auto;
-  }
-  .scrollbar-custom::-webkit-scrollbar {
+  overflow: auto;
+  &::-webkit-scrollbar {
     width: 4px;
   }
 
-  .scrollbar-custom::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     @apply bg-gray-400 rounded-md;
   }
 
-  .scrollbar-custom::-webkit-scrollbar-track {
+  &::-webkit-scrollbar-track {
     @apply bg-transparent;
   }
+}
 
+@utility text-glow-primary {
   /*
   * Text shadow primary styles
   */
-  .text-glow-primary {
-    -webkit-filter: drop-shadow(-1px -1px 0 rgba(140, 200, 253, 0.8))
-      drop-shadow(1px -1px 0 rgba(140, 200, 253, 0.8))
-      drop-shadow(-1px 1px 0 rgba(140, 200, 253, 0.8))
-      drop-shadow(1px 1px 0 rgba(140, 200, 253, 0.8))
-      drop-shadow(0 0 9px rgba(87, 171, 250, 0.5));
-    filter: drop-shadow(-1px -1px 0 rgba(140, 200, 253, 0.8))
-      drop-shadow(1px -1px 0 rgba(140, 200, 253, 0.8))
-      drop-shadow(-1px 1px 0 rgba(140, 200, 253, 0.8))
-      drop-shadow(1px 1px 0 rgba(140, 200, 253, 0.8))
-      drop-shadow(0 0 9px rgba(87, 171, 250, 0.5));
-  }
-  
+  -webkit-filter: drop-shadow(-1px -1px 0 rgba(140, 200, 253, 0.8))
+    drop-shadow(1px -1px 0 rgba(140, 200, 253, 0.8))
+    drop-shadow(-1px 1px 0 rgba(140, 200, 253, 0.8))
+    drop-shadow(1px 1px 0 rgba(140, 200, 253, 0.8))
+    drop-shadow(0 0 9px rgba(87, 171, 250, 0.5));
+  filter: drop-shadow(-1px -1px 0 rgba(140, 200, 253, 0.8))
+    drop-shadow(1px -1px 0 rgba(140, 200, 253, 0.8))
+    drop-shadow(-1px 1px 0 rgba(140, 200, 253, 0.8))
+    drop-shadow(1px 1px 0 rgba(140, 200, 253, 0.8))
+    drop-shadow(0 0 9px rgba(87, 171, 250, 0.5));
+}
+
+@utility single-content {
   /*
   * Prose figure styles for single pages
   */
-  .single-content figure {
+  & figure {
     text-align: center;
   }
-  
-  .single-content figure picture {
+
+  & figure picture {
     display: inline-block;
     max-width: 100%;
     margin-left: auto;
     margin-right: auto;
   }
 
-  .single-content figure img {
+  & figure img {
     max-width: 100%;
     height: auto;
     display: inline-block;
+  }
+}
+
+/* 🛠️ UTILITIES */
+@layer utilities {
+  /* Eliminate focus outline for iframes */
+  iframe {
+    outline: none !important;
   }
 }

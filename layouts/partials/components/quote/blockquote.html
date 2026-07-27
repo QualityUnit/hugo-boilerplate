@@ -31,10 +31,10 @@
   {{ $logoUrlWithDomain = partial "functions/get-static-url.html" (dict "path" $logoUrl) }}
 {{ end }}
 
-<div class="flex flex-col sm:flex-row items-center gap-4 p-6 bg-gray-50 rounded-lg shadow-sm my-8">
+<div class="flex flex-col sm:flex-row items-center gap-4 p-6 bg-gray-50 rounded-lg shadow-xs my-8">
     {{ if $imageUrl }}
-        <div class="flex-shrink-0">
-            <img src="{{ $imageUrlWithDomain }}" alt="{{ $name }}" class="w-16 h-16 rounded-full object-cover shadow-sm">
+        <div class="shrink-0">
+            <img src="{{ $imageUrlWithDomain }}" alt="{{ $name }}" class="w-16 h-16 rounded-full object-cover shadow-xs">
         </div>
     {{ end }}
 
@@ -51,7 +51,7 @@
     </div>
 
     {{ if $logoUrl }}
-        <div class="flex-shrink-0">
+        <div class="shrink-0">
             <img src="{{ $logoUrlWithDomain }}" alt="Company logo" class="h-12 object-contain">
         </div>
     {{ end }}

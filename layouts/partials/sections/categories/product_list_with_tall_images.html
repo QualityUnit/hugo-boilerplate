@@ -74,7 +74,7 @@
     <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
       {{ range $products }}
       <a href="{{ partial "helpers/get-translated-url.html" (dict "url" .url) }}" class="group">
-        <div class="aspect-square w-full overflow-hidden rounded-xl bg-gray-200 xl:aspect-[7/8]">
+        <div class="aspect-square w-full overflow-hidden rounded-xl bg-gray-200 xl:aspect-7/8">
           {{ partial "components/media/lazyimg.html" (dict 
             "src" .imageUrl
             "alt" .imageAlt

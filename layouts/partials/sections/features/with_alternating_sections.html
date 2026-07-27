@@ -112,7 +112,7 @@
                 <ul class="mt-4 pl-0 space-y-2">
                   {{ range $feature.listItems }}
                     <li class="flex items-start pl-0">
-                      <svg class="h-4 w-4 text-primary mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <svg class="h-4 w-4 text-primary mt-0.5 mr-2 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                       </svg>
                       <span class="{{ $textClasses }} text-gray-600">{{ . }}</span>
@@ -152,7 +152,7 @@
             <div class="flex-auto {{ $imageColClasses }} {{ if eq $layoutSize "balanced" }}lg:col-start-7{{ else if eq $layoutSize "wide-text" }}lg:col-start-8 xl:col-start-9{{ else }}lg:col-start-6 xl:col-start-5{{ end }} lg:row-start-1">
               <!-- Image with frame, shadow and decorative gradient -->
               <div class="relative">
-                <div class="absolute -inset-x-4 -bottom-4 top-8 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent rounded-2xl blur-xl"></div>
+                <div class="absolute -inset-x-4 -bottom-4 top-8 bg-linear-to-r from-primary/20 via-primary/10 to-transparent rounded-2xl blur-xl"></div>
                 <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10">
                   {{ partial "components/media/lazyimg.html" (dict
                     "src" $feature.imageUrl
@@ -170,7 +170,7 @@
                 <ul class="mt-4 pl-0 space-y-2">
                   {{ range $feature.listItems }}
                     <li class="flex items-start pl-0">
-                      {{ partial "icons/check" "w-4 h-4 text-primary mt-0.5 mr-2 flex-shrink-0" }}
+                      {{ partial "icons/check" "w-4 h-4 text-primary mt-0.5 mr-2 shrink-0" }}
                       <span class="{{ $textClasses }} text-gray-600">{{ . }}</span>
                     </li>
                   {{ end }}
@@ -208,7 +208,7 @@
             <div class="flex-auto {{ $imageColClasses }} {{ $imageColStartClasses }} lg:row-start-1">
               <!-- Image with frame, shadow and decorative gradient -->
               <div class="relative">
-                <div class="absolute -inset-x-4 -bottom-4 top-8 bg-gradient-to-l from-primary/20 via-primary/10 to-transparent rounded-2xl blur-xl"></div>
+                <div class="absolute -inset-x-4 -bottom-4 top-8 bg-linear-to-l from-primary/20 via-primary/10 to-transparent rounded-2xl blur-xl"></div>
                 <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10">
                   {{ partial "components/media/lazyimg.html" (dict
                     "src" $feature.imageUrl
