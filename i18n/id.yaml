@@ -139,3 +139,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Diterbitkan pada %s oleh %s."
 published_on: "Diterbitkan pada %s."
 last_modified_on_at: "Terakhir diubah pada %s pukul %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Halaman ini sudah tidak ada"
+not_found.description: "Halaman yang Anda cari mungkin telah dipindahkan atau dihapus."
+not_found.back_home: "Kembali ke halaman utama"

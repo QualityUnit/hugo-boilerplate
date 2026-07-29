@@ -141,3 +141,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "发表于 %s，作者：%s。"
 published_on: "发表于 %s。"
 last_modified_on_at: "最后修改于 %s %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "此页面已不存在"
+not_found.description: "您访问的页面可能已被移动或删除。"
+not_found.back_home: "返回首页"

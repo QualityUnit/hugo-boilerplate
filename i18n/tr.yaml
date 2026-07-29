@@ -140,3 +140,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "%s tarihinde %s tarafından yayınlandı."
 published_on: "%s tarihinde yayınlandı."
 last_modified_on_at: "%s tarihinde %s saatinde son güncellendi"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Bu sayfa artık mevcut değil"
+not_found.description: "Aradığınız sayfa taşınmış veya kaldırılmış olabilir."
+not_found.back_home: "Ana sayfaya dön"

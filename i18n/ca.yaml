@@ -138,3 +138,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Publicat el %s per %s."
 published_on: "Publicat el %s."
 last_modified_on_at: "Última modificació el %s a les %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Aquesta pàgina ja no existeix"
+not_found.description: "És possible que la pàgina que busques s'hagi mogut o eliminat."
+not_found.back_home: "Tornar a la pàgina d'inici"

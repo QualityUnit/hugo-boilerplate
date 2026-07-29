@@ -1,0 +1,8 @@
+# pt-br i18n translations (boilerplate theme defaults)
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Esta página não existe mais"
+not_found.description: "A página que você procura pode ter sido movida ou removida."
+not_found.back_home: "Voltar para a página inicial"

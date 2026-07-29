@@ -129,3 +129,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Publikuar më %s nga %s."
 published_on: "Publikuar më %s."
 last_modified_on_at: "Përditësuar së fundmi më %s në %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Kjo faqe nuk ekziston më"
+not_found.description: "Faqja që kërkoni mund të jetë zhvendosur ose hequr."
+not_found.back_home: "Kthehu në faqen kryesore"

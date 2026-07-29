@@ -1,0 +1,35 @@
+{{- /* 404 — Page not found (theme default, shared by every boilerplate site).
+
+       Served by the hosting layer for any unmatched URL. AWS Amplify redirect rules
+       only support 200/301/302/404 (no 410), so a removed URL is answered with this
+       page and an HTTP 404 — for search engines that deindexes just like a 410.
+
+       A normal page: header, footer and tracking come from baseof like everywhere
+       else. Wording comes from the not_found.* i18n keys (shipped for every language
+       in the theme's i18n/, each with an English fallback).
+
+       Each site must switch its chat widget and contact box off for `.Kind "404"`,
+       otherwise visitors who land on a dead URL open support tickets from it — which
+       is the reason this page exists. In LiveAgent that is layouts/partials/footer.html
+       and layouts/partials/tracking/liveagent-chat.html. */ -}}
+{{ define "main" }}
+<section class="wrapper py-16 sm:py-24 lg:py-32">
+  <div class="max-w-2xl mx-auto text-center">
+    <p class="text-base/7 font-semibold text-brand">404</p>
+    <h1 class="mt-4 text-3xl font-semibold tracking-tight text-balance text-heading sm:text-5xl">
+      {{ i18n "not_found.heading" | default "This page no longer exists" }}
+    </h1>
+    <p class="mt-6 text-lg/8 text-secondary">
+      {{ i18n "not_found.description" | default "The page you're looking for may have been moved or removed." }}
+    </p>
+    <div class="mt-10 flex items-center justify-center">
+      {{ partial "components/buttons/buttons.html" (dict
+          "text" (i18n "not_found.back_home" | default "Back to homepage")
+          "url" "/"
+          "variant" "primary"
+          "size" "xl"
+      ) }}
+    </div>
+  </div>
+</section>
+{{ end }}

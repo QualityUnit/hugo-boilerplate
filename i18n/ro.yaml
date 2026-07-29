@@ -139,3 +139,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Publicat la %s de %s."
 published_on: "Publicat la %s."
 last_modified_on_at: "Ultima modificare la %s la %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Această pagină nu mai există"
+not_found.description: "Pagina căutată ar fi putut fi mutată sau ștearsă."
+not_found.back_home: "Înapoi la pagina principală"

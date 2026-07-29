@@ -129,3 +129,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Cyhoeddwyd ar %s gan %s."
 published_on: "Cyhoeddwyd ar %s."
 last_modified_on_at: "Diweddarwyd ddiwethaf ar %s am %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Nid yw'r dudalen hon yn bodoli mwyach"
+not_found.description: "Efallai bod y dudalen rydych yn chwilio amdani wedi'i symud neu ei dileu."
+not_found.back_home: "Yn ôl i'r hafan"

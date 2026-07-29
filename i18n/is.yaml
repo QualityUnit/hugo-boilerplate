@@ -138,3 +138,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Birt þann %s af %s."
 published_on: "Birt þann %s."
 last_modified_on_at: "Síðast breytt þann %s kl. %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Þessi síða er ekki lengur til"
+not_found.description: "Síðan sem þú leitar að hefur mögulega verið færð eða fjarlægð."
+not_found.back_home: "Til baka á forsíðuna"

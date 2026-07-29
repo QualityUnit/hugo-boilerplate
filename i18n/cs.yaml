@@ -140,3 +140,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Publikováno dne %s od %s."
 published_on: "Publikováno dne %s."
 last_modified_on_at: "Naposledy upraveno dne %s v %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Tato stránka již neexistuje"
+not_found.description: "Stránku, kterou hledáte, jsme možná přesunuli nebo odstranili."
+not_found.back_home: "Zpět na domovskou stránku"
