@@ -1,0 +1,8 @@
+# zh-hans i18n translations (boilerplate theme defaults)
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "此页面已不存在"
+not_found.description: "您访问的页面可能已被移动或删除。"
+not_found.back_home: "返回首页"

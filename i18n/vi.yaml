@@ -127,3 +127,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Được xuất bản vào %s bởi %s."
 published_on: "Được xuất bản vào %s."
 last_modified_on_at: "Chỉnh sửa lần cuối vào %s lúc %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Trang này không còn tồn tại"
+not_found.description: "Trang bạn đang tìm có thể đã được chuyển hoặc xóa."
+not_found.back_home: "Về trang chủ"

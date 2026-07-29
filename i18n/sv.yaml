@@ -141,3 +141,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Publicerad den %s av %s."
 published_on: "Publicerad den %s."
 last_modified_on_at: "Senast ändrad den %s kl %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Den här sidan finns inte längre"
+not_found.description: "Sidan du letar efter kan ha flyttats eller tagits bort."
+not_found.back_home: "Tillbaka till startsidan"

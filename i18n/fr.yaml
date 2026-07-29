@@ -140,3 +140,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Publié le %s par %s."
 published_on: "Publié le %s."
 last_modified_on_at: "Dernière modification le %s à %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Cette page n'existe plus"
+not_found.description: "La page que vous recherchez a peut-être été déplacée ou supprimée."
+not_found.back_home: "Retour à la page d'accueil"

@@ -129,3 +129,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Objavljeno dana %s od strane %s."
 published_on: "Objavljeno dana %s."
 last_modified_on_at: "Poslednja izmena dana %s u %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Ova stranica više ne postoji"
+not_found.description: "Stranica koju tražite je možda premeštena ili uklonjena."
+not_found.back_home: "Nazad na početnu stranu"

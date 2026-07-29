@@ -141,3 +141,10 @@ promo_offer_in_menu: "-75% OFF"
 published_on_by: "Gepubliceerd op %s door %s."
 published_on: "Gepubliceerd op %s."
 last_modified_on_at: "Laatst gewijzigd op %s om %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Deze pagina bestaat niet meer"
+not_found.description: "De pagina die je zoekt is mogelijk verplaatst of verwijderd."
+not_found.back_home: "Terug naar de homepage"
