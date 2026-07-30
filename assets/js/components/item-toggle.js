@@ -91,8 +91,12 @@ function getHiddenItemClass(containerType) {
     return classMap[containerType] || classMap['items'];
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initItemToggle);
+// Script may be inserted after DOMContentLoaded already fired
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initItemToggle);
+} else {
+    initItemToggle();
+}
 
 // Re-initialize for dynamically added content
 window.reinitItemToggle = initItemToggle;
