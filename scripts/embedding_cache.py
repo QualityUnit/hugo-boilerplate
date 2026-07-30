@@ -47,6 +47,71 @@ def _hf_login():
 _hf_login()
 
 
+def nonfinite_mask(embs):
+    """Boolean mask of rows containing NaN or Inf."""
+    embs = np.asarray(embs)
+    if embs.ndim != 2:
+        return np.zeros(len(embs), dtype=bool)
+    return ~np.isfinite(embs).all(axis=1)
+
+
+def repair_nonfinite(embs, texts, embedder, *, batch_size=32, desc="Embeddings"):
+    """Re-encode NaN/Inf rows on CPU; zero out whatever stays broken.
+
+    Apple's MPS backend intermittently returns non-finite vectors for
+    embeddinggemma — same texts and same fp32 weights give 4/6 NaN rows on
+    mps and 0/6 on cpu, on an otherwise idle machine. One poisoned vector is
+    enough to NaN a whole site centroid and abort faiss k-means, so repair
+    before the value reaches a caller or the cache.
+
+    Returns (embs, unrepaired_mask). Rows still non-finite after the CPU
+    retry are replaced with zeros so downstream maths stays finite; callers
+    should refuse to persist them so the next run can try again.
+    """
+    embs = np.asarray(embs, dtype=np.float32)
+    bad = nonfinite_mask(embs)
+    if not bad.any():
+        return embs, bad
+
+    bad_idx = np.flatnonzero(bad)
+    print(f"{desc}: {len(bad_idx)} non-finite embedding(s) detected → retrying on CPU")
+
+    original_device = None
+    try:
+        original_device = str(embedder.device)
+    except AttributeError:
+        pass
+
+    if original_device is not None and not original_device.startswith("cpu"):
+        try:
+            embedder.to("cpu")
+            retry = embedder.encode(
+                [texts[i] for i in bad_idx],
+                batch_size=batch_size,
+                show_progress_bar=False,
+                normalize_embeddings=True,
+            )
+            embs[bad_idx] = np.asarray(retry, dtype=np.float32)
+        except Exception as e:
+            print(f"{desc}: CPU retry failed ({e})")
+        finally:
+            try:
+                embedder.to(original_device)
+            except Exception:
+                pass
+    else:
+        print(f"{desc}: already on CPU — no fallback device available")
+
+    unrepaired = nonfinite_mask(embs)
+    if unrepaired.any():
+        print(f"{desc}: {int(unrepaired.sum())} embedding(s) still non-finite → zeroed, not cached")
+        embs[unrepaired] = 0.0
+    else:
+        print(f"{desc}: all {len(bad_idx)} repaired on CPU")
+
+    return embs, unrepaired
+
+
 def cache_path_for(hugo_root, lang, model_name):
     slug = model_name.replace("/", "_").replace("-", "_")
     return Path(hugo_root) / ".audit_cache" / f"{lang}__{slug}.npz"
@@ -268,6 +333,8 @@ class EmbeddingCache:
             embs = embedder.encode(texts, batch_size=batch_size,
                                    show_progress_bar=show_progress_bar,
                                    normalize_embeddings=True)
+            embs, _ = repair_nonfinite(embs, texts, embedder,
+                                       batch_size=batch_size, desc=desc)
             self._release(embedder, embedder_or_model)
             return np.asarray(embs, dtype=np.float32)
 
@@ -279,6 +346,7 @@ class EmbeddingCache:
                 seen_keys[k] = t
 
         cached: dict = {}
+        poisoned = 0
         unique = list(seen_keys)
         for start in range(0, len(unique), 900):
             chunk = unique[start:start + 900]
@@ -289,7 +357,17 @@ class EmbeddingCache:
                 [self.model, *chunk],
             ).fetchall()
             for key, dim, blob in rows:
-                cached[key] = np.frombuffer(blob, dtype=np.float32, count=dim)
+                vec = np.frombuffer(blob, dtype=np.float32, count=dim)
+                # Vectors poisoned by an earlier run (see repair_nonfinite)
+                # count as misses, so a stale NaN self-heals instead of
+                # crashing every future run that reads it.
+                if not np.isfinite(vec).all():
+                    poisoned += 1
+                    continue
+                cached[key] = vec
+
+        if poisoned:
+            print(f"{desc}: {poisoned} cached vector(s) were non-finite → discarded, re-embedding")
 
         missing = [k for k in unique if k not in cached]
         if missing:
@@ -301,10 +379,16 @@ class EmbeddingCache:
                                        show_progress_bar=show_progress_bar,
                                        normalize_embeddings=True)
             new_embs = np.asarray(new_embs, dtype=np.float32)
+            new_embs, unrepaired = repair_nonfinite(new_embs, missing_texts, embedder,
+                                                    batch_size=batch_size, desc=desc)
             rows_to_insert = []
-            for k, vec in zip(missing, new_embs):
+            for pos, (k, vec) in enumerate(zip(missing, new_embs)):
                 vec32 = vec.astype(np.float32)
                 cached[k] = vec32
+                # Persisting a NaN would make this failure permanent for every
+                # later run; leave it out so the next one re-embeds instead.
+                if unrepaired[pos]:
+                    continue
                 rows_to_insert.append((self.model, k, int(vec32.shape[0]), vec32.tobytes()))
             self.conn.executemany(
                 "INSERT OR REPLACE INTO embeddings (model, text_hash, dim, vector) VALUES (?, ?, ?, ?)",
@@ -349,7 +433,10 @@ class EmbeddingCache:
                 [self.model, *chunk],
             ).fetchall()
             for key, dim, blob in rows:
-                cached[key] = np.frombuffer(blob, dtype=np.float32, count=dim)
+                vec = np.frombuffer(blob, dtype=np.float32, count=dim)
+                if not np.isfinite(vec).all():
+                    continue  # treat as a miss; see repair_nonfinite
+                cached[key] = vec
 
         missing = [k for k in unique if k not in cached]
         if missing:
@@ -361,10 +448,17 @@ class EmbeddingCache:
                     f"{desc}: compute_missing returned {new_embs.shape[0]} vectors "
                     f"for {len(missing)} cache misses"
                 )
+            bad = nonfinite_mask(new_embs)
+            if bad.any():
+                print(f"{desc}: {int(bad.sum())} non-finite vector(s) → zeroed, not cached")
+                new_embs = new_embs.copy()
+                new_embs[bad] = 0.0
             rows_to_insert = []
-            for k, vec in zip(missing, new_embs):
+            for pos, (k, vec) in enumerate(zip(missing, new_embs)):
                 vec32 = vec.astype(np.float32)
                 cached[k] = vec32
+                if bad[pos]:
+                    continue
                 rows_to_insert.append((self.model, k, int(vec32.shape[0]), vec32.tobytes()))
             self.conn.executemany(
                 "INSERT OR REPLACE INTO embeddings (model, text_hash, dim, vector) VALUES (?, ?, ?, ?)",
