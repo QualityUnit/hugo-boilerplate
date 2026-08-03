@@ -4,7 +4,10 @@
 <!-- Favicon -->
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/favicon.ico">
-{{ if .Params.private }}
+{{/* /404.html itself answers with HTTP 200, so without this it is a crawlable,
+     indexable page — a "this page no longer exists" result in the SERP. The 404
+     responses it is served for are never indexed anyway; the status code decides. */}}
+{{ if or .Params.private (eq .Kind "404") }}
 <meta name="robots" content="noindex, nofollow">
 {{ end }}
 
