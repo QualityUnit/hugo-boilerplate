@@ -134,7 +134,7 @@ copy_error: "Másolási hiba"
 
 # Promotional offers
 promo_offer: "Akció"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% KEDVEZMÉNY"
 
 # Publication info
 published_on_by: "Közzétéve ekkor: %s, szerző: %s."
@@ -147,3 +147,12 @@ last_modified_on_at: "Utoljára módosítva: %s, időpont: %s"
 not_found.heading: "Ez az oldal már nem létezik"
 not_found.description: "A keresett oldalt valószínűleg áthelyeztük vagy eltávolítottuk."
 not_found.back_home: "Vissza a főoldalra"
+
+cookie_settings_marketing_title: "Marketing Sütik"
+cookie_settings_marketing_description: "Ezeket a sütiket a hirdetési kampányaink hatékonyságának mérésére és a releváns hirdetések harmadik féltől származó platformokon történő támogatására használjuk."
+cookie_settings_functional_title: "Funkcionális Sütik"
+cookie_settings_functional_description: "Ezeket a sütiket az Ön preferenciáinak megjegyzésére és a felhasználói élmény javítására használjuk."
+cookie_consent_reject_all: "Összes Elutasítása"
+footer.your_privacy_choices: "Az Ön Adatvédelmi Választásai"
+footer.cookie_settings: "Süti beállítások"
+cookie_consent_manage: "Beállítások kezelése"

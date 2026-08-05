@@ -133,7 +133,7 @@ copy_error: "Greška pri kopiranju"
 
 # Promotional offers
 promo_offer: "Ograničena ponuda"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% POPUSTA"
 
 # Publication info
 published_on_by: "Objavljeno %s od %s."
@@ -146,3 +146,12 @@ last_modified_on_at: "Zadnja izmjena %s u %s"
 not_found.heading: "Ova stranica više ne postoji"
 not_found.description: "Stranica koju tražite možda je premještena ili uklonjena."
 not_found.back_home: "Natrag na početnu stranicu"
+
+cookie_settings_marketing_title: "Marketinški kolačići"
+cookie_settings_marketing_description: "Ovi kolačići koriste se za mjerenje učinkovitosti naših reklamnih kampanja i podržavanje relevantnog oglašavanja na platformama trećih strana."
+cookie_settings_functional_title: "Funkcionalni kolačići"
+cookie_settings_functional_description: "Ovi kolačići koriste se za pamćenje vaših preferencija i poboljšanje vašeg iskustva."
+cookie_consent_reject_all: "Odbij sve"
+footer.your_privacy_choices: "Vaši izbori privatnosti"
+footer.cookie_settings: "Postavke kolačića"
+cookie_consent_manage: "Upravljanje preferencijama"

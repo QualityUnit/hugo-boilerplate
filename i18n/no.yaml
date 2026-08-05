@@ -134,7 +134,7 @@ copy_error: "Kopieringsfeil"
 
 # Promotional offers
 promo_offer: "Begrenset tilbud"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% RABATT"
 
 # Publication info
 published_on_by: "Publisert den %s av %s."
@@ -147,3 +147,12 @@ last_modified_on_at: "Sist endret den %s kl. %s"
 not_found.heading: "Denne siden finnes ikke lenger"
 not_found.description: "Siden du leter etter kan ha blitt flyttet eller fjernet."
 not_found.back_home: "Tilbake til forsiden"
+
+cookie_settings_marketing_title: "Markedsføringscookies"
+cookie_settings_marketing_description: "Disse informasjonskapslene brukes til å måle effektiviteten av våre annonsekampanjer og støtte relevant annonsering på tredjepartsplattformer."
+cookie_settings_functional_title: "Funksjonelle informasjonskapsler"
+cookie_settings_functional_description: "Disse informasjonskapslene brukes til å huske dine preferanser og forbedre din opplevelse."
+cookie_consent_reject_all: "Avslå alle"
+footer.your_privacy_choices: "Dine personvernvalg"
+footer.cookie_settings: "Cookie-innstillinger"
+cookie_consent_manage: "Administrer preferanser"

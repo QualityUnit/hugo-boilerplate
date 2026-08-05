@@ -132,7 +132,7 @@ copy_error: "কপি করতে সমস্যা হয়েছে"
 
 # Promotional offers
 promo_offer: "সীমিত সময়ের অফার"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% ছাড়"
 
 # Publication info
 published_on_by: "প্রকাশিত হয়েছে %s তারিখে %s দ্বারা।"
@@ -145,3 +145,12 @@ last_modified_on_at: "সর্বশেষ পরিবর্তিত হয�
 not_found.heading: "এই পৃষ্ঠাটি আর নেই"
 not_found.description: "আপনি যে পৃষ্ঠাটি খুঁজছেন তা সরানো বা মুছে ফেলা হয়ে থাকতে পারে।"
 not_found.back_home: "হোমপেজে ফিরে যান"
+
+cookie_settings_marketing_title: "মার্কেটিং কুকি"
+cookie_settings_marketing_description: "এই কুকিগুলি আমাদের বিজ্ঞাপন প্রচারণার কার্যকারিতা পরিমাপ করতে এবং তৃতীয় পক্ষের প্ল্যাটফর্মে প্রাসঙ্গিক বিজ্ঞাপন সমর্থন করতে ব্যবহৃত হয়।"
+cookie_settings_functional_title: "কার্যকরী কুকি"
+cookie_settings_functional_description: "এই কুকিগুলি আপনার পছন্দগুলি মনে রাখতে এবং আপনার অভিজ্ঞতা উন্নত করতে ব্যবহৃত হয়।"
+cookie_consent_reject_all: "সব প্রত্যাখ্যান করুন"
+footer.your_privacy_choices: "আপনার গোপনীয়তা পছন্দ"
+footer.cookie_settings: "কুকি সেটিংস"
+cookie_consent_manage: "পছন্দ পরিচালনা করুন"

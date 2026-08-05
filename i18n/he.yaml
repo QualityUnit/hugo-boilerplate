@@ -133,7 +133,7 @@ copy_error: "שגיאת העתקה"
 
 # Promotional offers
 promo_offer: "הצעה מוגבלת"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% הנחה"
 
 # Publication info
 published_on_by: "פורסם בתאריך %s על ידי %s."
@@ -146,3 +146,12 @@ last_modified_on_at: "עודכן לאחרונה בתאריך %s בשעה %s"
 not_found.heading: "הדף הזה אינו קיים יותר"
 not_found.description: "ייתכן שהדף שאתם מחפשים הועבר או הוסר."
 not_found.back_home: "חזרה לדף הבית"
+
+cookie_settings_marketing_title: "עוגיות שיווק"
+cookie_settings_marketing_description: "עוגיות אלו משמשות למדידת האפקטיביות של קמפיינים פרסומיים שלנו ולתמיכה בפרסום רלוונטי בפלטפורמות של צדדים שלישיים."
+cookie_settings_functional_title: "עוגיות פונקציונליות"
+cookie_settings_functional_description: "עוגיות אלו משמשות לזכור את ההעדפות שלך ולשפר את החוויה שלך."
+cookie_consent_reject_all: "דחה הכל"
+footer.your_privacy_choices: "בחירות הפרטיות שלך"
+footer.cookie_settings: "הגדרות עוגיות"
+cookie_consent_manage: "ניהול העדפות"

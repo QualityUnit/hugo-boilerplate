@@ -119,7 +119,7 @@ copy_error: "Kopieer fout"
 
 # Promotional offers
 promo_offer: "Beperkte aanbod"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% AFSLAG"
 
 # Publication info
 published_on_by: "Gepubliseer op %s deur %s."
@@ -132,3 +132,12 @@ last_modified_on_at: "Laas gewysig op %s om %s"
 not_found.heading: "Hierdie bladsy bestaan nie meer nie"
 not_found.description: "Die bladsy wat jy soek is moontlik geskuif of verwyder."
 not_found.back_home: "Terug na die tuisblad"
+
+cookie_settings_marketing_title: "Bemarking Koekies"
+cookie_settings_marketing_description: "Hierdie koekies word gebruik om die doeltreffendheid van ons advertensieveldtogte te meet en relevante advertensies op derdeparty-platforms te ondersteun."
+cookie_settings_functional_title: "Funksionele Koekies"
+cookie_settings_functional_description: "Hierdie koekies word gebruik om jou voorkeure te onthou en jou ervaring te verbeter."
+cookie_consent_reject_all: "Verwerp Alles"
+footer.your_privacy_choices: "Jou Privaatheidskeuses"
+footer.cookie_settings: "Koekie-instellings"
+cookie_consent_manage: "Bestuur voorkeure"

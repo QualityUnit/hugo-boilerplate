@@ -132,7 +132,7 @@ copy_error: "Villa við afritun"
 
 # Promotional offers
 promo_offer: "Takmörkuð tilboð"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% AFSLÁTTUR"
 
 # Publication info
 published_on_by: "Birt þann %s af %s."
@@ -145,3 +145,12 @@ last_modified_on_at: "Síðast breytt þann %s kl. %s"
 not_found.heading: "Þessi síða er ekki lengur til"
 not_found.description: "Síðan sem þú leitar að hefur mögulega verið færð eða fjarlægð."
 not_found.back_home: "Til baka á forsíðuna"
+
+cookie_settings_marketing_title: "Markaðskökur"
+cookie_settings_marketing_description: "Þessar kökur eru notaðar til að mæla árangur auglýsingaherferða okkar og til að styðja viðeigandi auglýsingar á vettvangi þriðja aðila."
+cookie_settings_functional_title: "Virkni Kökur"
+cookie_settings_functional_description: "Þessar kökur eru notaðar til að muna óskir þínar og bæta upplifun þína."
+cookie_consent_reject_all: "Hafna Öllu"
+footer.your_privacy_choices: "Persónuverndarvalkostir Þínir"
+footer.cookie_settings: "Kökustillingar"
+cookie_consent_manage: "Stjórna óskum"

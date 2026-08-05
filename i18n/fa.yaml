@@ -134,7 +134,7 @@ copy_error: "خطا در کپی"
 
 # Promotional offers
 promo_offer: "پیشنهاد محدود"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% تخفیف"
 
 # Publication info
 published_on_by: "منتشر شده در %s توسط %s."
@@ -147,3 +147,12 @@ last_modified_on_at: "آخرین ویرایش در %s ساعت %s"
 not_found.heading: "این صفحه دیگر وجود ندارد"
 not_found.description: "صفحه‌ای که به دنبال آن هستید ممکن است جابه‌جا یا حذف شده باشد."
 not_found.back_home: "بازگشت به صفحه اصلی"
+
+cookie_settings_marketing_title: "کوکی‌های بازاریابی"
+cookie_settings_marketing_description: "این کوکی‌ها برای سنجش اثربخشی کمپین‌های تبلیغاتی ما و پشتیبانی از تبلیغات مرتبط در پلتفرم‌های شخص ثالث استفاده می‌شوند."
+cookie_settings_functional_title: "کوکی‌های کاربردی"
+cookie_settings_functional_description: "این کوکی‌ها برای به خاطر سپردن ترجیحات شما و بهبود تجربه شما استفاده می‌شوند."
+cookie_consent_reject_all: "رد همه"
+footer.your_privacy_choices: "انتخاب‌های حریم خصوصی شما"
+footer.cookie_settings: "تنظیمات کوکی"
+cookie_consent_manage: "مدیریت ترجیحات"

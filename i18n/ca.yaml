@@ -132,7 +132,7 @@ copy_error: "Error en copiar"
 
 # Promotional offers
 promo_offer: "Oferta limitada"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% DE DESCOMPTE"
 
 # Publication info
 published_on_by: "Publicat el %s per %s."
@@ -145,3 +145,12 @@ last_modified_on_at: "Última modificació el %s a les %s"
 not_found.heading: "Aquesta pàgina ja no existeix"
 not_found.description: "És possible que la pàgina que busques s'hagi mogut o eliminat."
 not_found.back_home: "Tornar a la pàgina d'inici"
+
+cookie_settings_marketing_title: "Cookies de Màrqueting"
+cookie_settings_marketing_description: "Aquestes cookies s'utilitzen per mesurar l'eficàcia de les nostres campanyes publicitàries i per donar suport a publicitat rellevant en plataformes de tercers."
+cookie_settings_functional_title: "Cookies Funcionals"
+cookie_settings_functional_description: "Aquestes cookies s'utilitzen per recordar les teves preferències i millorar la teva experiència."
+cookie_consent_reject_all: "Rebutjar Tot"
+footer.your_privacy_choices: "Les Teves Opcions de Privacitat"
+footer.cookie_settings: "Configuració de cookies"
+cookie_consent_manage: "Gestionar preferències"

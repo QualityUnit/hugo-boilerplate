@@ -133,7 +133,7 @@ copy_error: "Błąd kopiowania"
 
 # Promotional offers
 promo_offer: "Promocja"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% RABATU"
 
 # Publication info
 published_on_by: "Opublikowano %s przez %s."
@@ -146,3 +146,12 @@ last_modified_on_at: "Ostatnia modyfikacja %s o %s"
 not_found.heading: "Ta strona już nie istnieje"
 not_found.description: "Strona, której szukasz, mogła zostać przeniesiona lub usunięta."
 not_found.back_home: "Powrót na stronę główną"
+
+cookie_settings_marketing_title: "Pliki Cookie Marketingowe"
+cookie_settings_marketing_description: "Te pliki cookie służą do mierzenia skuteczności naszych kampanii reklamowych oraz wspierania odpowiedniej reklamy na platformach stron trzecich."
+cookie_settings_functional_title: "Pliki Cookie Funkcjonalne"
+cookie_settings_functional_description: "Te pliki cookie są używane do zapamiętywania Twoich preferencji i poprawy Twojego doświadczenia."
+cookie_consent_reject_all: "Odrzuć wszystkie"
+footer.your_privacy_choices: "Twoje Opcje Prywatności"
+footer.cookie_settings: "Ustawienia cookies"
+cookie_consent_manage: "Zarządzaj preferencjami"

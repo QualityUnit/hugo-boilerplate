@@ -134,7 +134,7 @@ copy_error: "Chyba při kopírování"
 
 # Promotional offers
 promo_offer: "Limitovaná nabídka"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% SLEVA"
 
 # Publication info
 published_on_by: "Publikováno dne %s od %s."
@@ -147,3 +147,12 @@ last_modified_on_at: "Naposledy upraveno dne %s v %s"
 not_found.heading: "Tato stránka již neexistuje"
 not_found.description: "Stránku, kterou hledáte, jsme možná přesunuli nebo odstranili."
 not_found.back_home: "Zpět na domovskou stránku"
+
+cookie_settings_marketing_title: "Marketingové cookies"
+cookie_settings_marketing_description: "Tyto cookies se používají k měření efektivity našich reklamních kampaní a k podpoře relevantní reklamy na platformách třetích stran."
+cookie_settings_functional_title: "Funkční cookies"
+cookie_settings_functional_description: "Tyto cookies se používají k zapamatování vašich preferencí a ke zlepšení vašeho zážitku."
+cookie_consent_reject_all: "Odmítnout vše"
+footer.your_privacy_choices: "Vaše možnosti ochrany soukromí"
+footer.cookie_settings: "Nastavení cookies"
+cookie_consent_manage: "Správa předvoleb"

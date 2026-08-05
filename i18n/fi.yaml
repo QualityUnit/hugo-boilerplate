@@ -133,7 +133,7 @@ copy_error: "Kopiointivirhe"
 
 # Promotional offers
 promo_offer: "Rajoitettu tarjous"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% ALENNUS"
 
 # Publication info
 published_on_by: "Julkaistu %s, kirjoittanut %s."
@@ -146,3 +146,12 @@ last_modified_on_at: "Viimeksi muokattu %s klo %s"
 not_found.heading: "Tätä sivua ei ole enää"
 not_found.description: "Etsimäsi sivu on saatettu siirtää tai poistaa."
 not_found.back_home: "Takaisin etusivulle"
+
+cookie_settings_marketing_title: "Markkinointievästeet"
+cookie_settings_marketing_description: "Näitä evästeitä käytetään mainoskampanjoidemme tehokkuuden mittaamiseen ja asiaankuuluvan mainonnan tukemiseen kolmannen osapuolen alustoilla."
+cookie_settings_functional_title: "Toiminnalliset Evästeet"
+cookie_settings_functional_description: "Näitä evästeitä käytetään mieltymystesi muistamiseen ja kokemuksesi parantamiseen."
+cookie_consent_reject_all: "Hylkää Kaikki"
+footer.your_privacy_choices: "Tietosuojavalintasi"
+footer.cookie_settings: "Evästeasetukset"
+cookie_consent_manage: "Hallitse asetuksia"

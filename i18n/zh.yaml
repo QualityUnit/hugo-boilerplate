@@ -135,7 +135,7 @@ copy_error: "复制时出错"
 
 # Promotional offers
 promo_offer: "限时优惠"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% 折扣"
 
 # Publication info
 published_on_by: "发表于 %s，作者：%s。"
@@ -148,3 +148,12 @@ last_modified_on_at: "最后修改于 %s %s"
 not_found.heading: "此页面已不存在"
 not_found.description: "您访问的页面可能已被移动或删除。"
 not_found.back_home: "返回首页"
+
+cookie_settings_marketing_title: "营销 Cookie"
+cookie_settings_marketing_description: "这些 cookie 用于衡量我们广告活动的效果，并支持第三方平台上的相关广告。"
+cookie_settings_functional_title: "功能性 Cookie"
+cookie_settings_functional_description: "这些 cookie 用于记住您的偏好设置并改善您的体验。"
+cookie_consent_reject_all: "拒绝全部"
+footer.your_privacy_choices: "您的隐私选择"
+footer.cookie_settings: "Cookie 设置"
+cookie_consent_manage: "管理偏好设置"

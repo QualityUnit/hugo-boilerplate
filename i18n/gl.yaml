@@ -124,7 +124,7 @@ copy_error: "Error ao copiar"
 
 # Promotional offers
 promo_offer: "Oferta limitada"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% DE DESCONTO"
 
 # Publication info
 published_on_by: "Publicado o %s por %s."
@@ -137,3 +137,12 @@ last_modified_on_at: "Última modificación o %s ás %s"
 not_found.heading: "Esta páxina xa non existe"
 not_found.description: "É posible que a páxina que buscas se movese ou se eliminase."
 not_found.back_home: "Volver á páxina de inicio"
+
+cookie_settings_marketing_title: "Cookies de marketing"
+cookie_settings_marketing_description: "Estas cookies úsanse para medir a eficacia das nosas campañas publicitarias e para apoiar publicidade relevante en plataformas de terceiros."
+cookie_settings_functional_title: "Cookies funcionais"
+cookie_settings_functional_description: "Estas cookies úsanse para recordar as túas preferencias e mellorar a túa experiencia."
+cookie_consent_reject_all: "Rexeitar todas"
+footer.your_privacy_choices: "As túas opcións de privacidade"
+footer.cookie_settings: "Configuración de cookies"
+cookie_consent_manage: "Xestionar preferencias"

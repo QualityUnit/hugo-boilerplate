@@ -134,7 +134,7 @@ copy_error: "خطأ في النسخ"
 
 # Promotional offers
 promo_offer: "عرض محدود"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "خصم 75%"
 
 # Publication info
 published_on_by: "نُشر في %s بواسطة %s."
@@ -147,3 +147,12 @@ last_modified_on_at: "آخر تعديل في %s الساعة %s"
 not_found.heading: "هذه الصفحة لم تعد موجودة"
 not_found.description: "قد تكون الصفحة التي تبحث عنها قد نُقلت أو أُزيلت."
 not_found.back_home: "العودة إلى الصفحة الرئيسية"
+
+cookie_settings_marketing_title: "ملفات تعريف الارتباط التسويقية"
+cookie_settings_marketing_description: "تُستخدم هذه الملفات لقياس فعالية حملاتنا الإعلانية ودعم الإعلانات ذات الصلة على منصات الجهات الخارجية."
+cookie_settings_functional_title: "ملفات تعريف الارتباط الوظيفية"
+cookie_settings_functional_description: "تُستخدم هذه الملفات لتذكر تفضيلاتك وتحسين تجربتك."
+cookie_consent_reject_all: "رفض الكل"
+footer.your_privacy_choices: "خيارات الخصوصية الخاصة بك"
+footer.cookie_settings: "إعدادات ملفات تعريف الارتباط"
+cookie_consent_manage: "إدارة التفضيلات"

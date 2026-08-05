@@ -133,7 +133,7 @@ copy_error: "Eroare la copiere"
 
 # Promotional offers
 promo_offer: "Ofertă limitată"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% REDUCERE"
 
 # Publication info
 published_on_by: "Publicat la %s de %s."
@@ -146,3 +146,12 @@ last_modified_on_at: "Ultima modificare la %s la %s"
 not_found.heading: "Această pagină nu mai există"
 not_found.description: "Pagina căutată ar fi putut fi mutată sau ștearsă."
 not_found.back_home: "Înapoi la pagina principală"
+
+cookie_settings_marketing_title: "Cookie-uri de marketing"
+cookie_settings_marketing_description: "Aceste cookie-uri sunt folosite pentru a măsura eficiența campaniilor noastre publicitare și pentru a susține publicitate relevantă pe platforme terțe."
+cookie_settings_functional_title: "Cookie-uri funcționale"
+cookie_settings_functional_description: "Aceste cookie-uri sunt folosite pentru a vă reține preferințele și a vă îmbunătăți experiența."
+cookie_consent_reject_all: "Respinge tot"
+footer.your_privacy_choices: "Opțiunile dvs. de confidențialitate"
+footer.cookie_settings: "Setări cookie-uri"
+cookie_consent_manage: "Gestionează preferințele"

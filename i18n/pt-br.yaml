@@ -1,4 +1,159 @@
-# pt-br i18n translations (boilerplate theme defaults)
+# Brazilian Portuguese translations
+min_read: "min de leitura"
+frequently_asked_questions: "Perguntas Frequentes"
+language_selector_title: "Idiomas Disponíveis"
+glossary_subtitle: "Uma lista completa de termos e definições"
+glossary_title: "Glossário"
+home_title: "Início"
+
+# Search translations
+search_placeholder: "Pesquisar..."
+search_title: "Pesquisa"
+search_submit_aria: "Enviar pesquisa"
+search_clear_aria: "Limpar pesquisa"
+search_clear_title: "Limpar pesquisa"
+search_clear_btn: "Limpar"
+search_close: "Fechar pesquisa"
+search_loading: "Carregando..."
+search_view_all_results: "Ver todos os resultados"
+search_no_results: "Nenhum resultado encontrado."
+search_no_results_for: "Nenhum resultado encontrado para"
+search_suggestions: "Sugestões:"
+search_suggestion_spell: "Verifique se todas as palavras estão escritas corretamente."
+search_suggestion_broaden: "Amplie suas palavras-chave."
+search_suggestion_terms: "Tente usar termos diferentes ou explore outras categorias."
+search_chat_link: "Ou converse com a gente →"
+search_error_loading: "Erro ao carregar os resultados da pesquisa."
+search_error_performing: "Erro ao realizar a pesquisa."
+search_not_available: "A funcionalidade de pesquisa não está disponível. Tente novamente mais tarde."
+search_initializing: "A pesquisa ainda está sendo inicializada. Tente novamente."
+search_no_results_description: "Tente mudar sua pesquisa - algo incrível pode estar a poucas palavras de distância."
+search_no_content_preview: "Nenhuma pré-visualização de conteúdo disponível"
+search_untitled: "Sem título"
+search_results_found: "Encontrado %d resultado para %s"
+search_results_found_plural: "Encontrados %d resultados para %s"
+
+# Glossary translations
+glossary_eyebrow: "Glossário"
+no_terms_available: "Nenhum termo disponível"
+
+# Category page translations
+categories_title: "Categorias"
+categories_browse_all: "Ver todo o conteúdo por categoria"
+category_eyebrow: "Categoria"
+category_browse_content: "Ver todo o conteúdo na categoria %s"
+category_no_content_found: "Nenhum conteúdo encontrado nesta categoria"
+category_try_browsing: "Tente ver outras categorias ou buscar conteúdo"
+category_other_categories: "Outras Categorias"
+
+# CTA translations
+cta_default_heading: "Amplie seu conhecimento com nossos recursos"
+cta_default_description: "Explore nossa biblioteca completa de artigos, guias e tutoriais para aprofundar seu entendimento sobre conceitos-chave e ficar por dentro das últimas novidades."
+cta_default_primary_text: "Ver recursos"
+cta_default_secondary_text: "Fale com nossos especialistas"
+
+# Content type translations
+content_article_singular: "artigo"
+content_article_plural: "artigos"
+
+# Tags page translations
+tags_title: "Tags"
+tags_browse_all: "Ver todo o conteúdo por tópico"
+tag_eyebrow: "Tag"
+tag_browse_content: "Ver todo o conteúdo com a tag %s"
+tag_no_content_found: "Nenhum conteúdo encontrado com essa tag"
+tag_try_browsing: "Tente ver outras tags ou buscar conteúdo"
+tag_pagination_page: "%d / %d (%d)"
+tag_pagination_previous: "Anterior"
+tag_pagination_next: "Próximo"
+tag_other_tags: "Outras Tags"
+show_less: "Mostrar menos"
+show_more: "mais"
+
+# Cookie consent translations
+cookie_consent_title: "Consentimento de Cookies"
+cookie_consent_message: "Usamos cookies para melhorar sua experiência de navegação e analisar nosso tráfego."
+cookie_consent_accept_all: "Aceitar Todos"
+cookie_consent_accept_necessary: "Rejeitar Todos"
+cookie_consent_settings: "Configurações de Cookies"
+cookie_settings_title: "Configurações de Cookies"
+cookie_settings_close: "Fechar"
+cookie_settings_necessary_title: "Cookies Necessários"
+
+cookie_settings_necessary_description: "Esses cookies são necessários para o funcionamento do site e não podem ser desativados."
+cookie_settings_analytics_title: "Cookies de Análise"
+cookie_settings_analytics_description: "Esses cookies nos ajudam a entender como os visitantes interagem com nosso site."
+cookie_settings_marketing_title: "Cookies de Marketing"
+cookie_settings_marketing_description: "Esses cookies são usados para medir a eficácia das nossas campanhas publicitárias e apoiar publicidade relevante em plataformas de terceiros."
+cookie_settings_functional_title: "Cookies Funcionais"
+cookie_settings_functional_description: "Esses cookies são usados para lembrar suas preferências e melhorar sua experiência."
+cookie_consent_reject_all: "Rejeitar todos"
+footer.your_privacy_choices: "Suas Escolhas de Privacidade"
+footer.cookie_settings: "Configurações de cookies"
+cookie_consent_manage: "Gerenciar preferências"
+cookie_settings_cancel: "Cancelar"
+cookie_settings_save: "Salvar Preferências"
+
+# Pagination translations
+pagination_previous: "Anterior"
+pagination_next: "Próximo"
+pagination_showing: "Mostrando"
+pagination_to: "a"
+pagination_of: "de"
+pagination_results: "resultados"
+pagination_browse_all: "Ver todo o conteúdo em"
+
+# FAQ translations
+faq_heading: "Perguntas frequentes"
+faq_description: "Encontre respostas para as perguntas mais comuns sobre este tópico."
+
+# Pricing page translations
+pricing_tagline: "Preços"
+pricing_title: "Preços que crescem com você"
+pricing_description: "Escolha um plano acessível repleto dos melhores recursos para engajar seu público, criar fidelidade e impulsionar as vendas."
+pricing_comparison_title: "Comparar Planos"
+pricing_comparison_description: "Veja a comparação dos nossos planos e escolha o melhor para você"
+pricing_monthly_label: "Mensal"
+pricing_yearly_label: "Anual"
+pricing_show_more: "Mostrar mais"
+pricing_show_less: "Mostrar menos"
+pricing_toggle_aria_label: "Alternar a visibilidade da tabela de comparação de preços"
+
+wantMore: "Quer mais?"
+
+learnMore: "Saiba mais"
+
+# Post type translations
+read_more_post: "Leia mais"
+no_posts_found: "Nenhum post encontrado"
+minutes_read: "min de leitura"
+get_started: "Comece agora"
+
+# AI training courses translations
+courses.session: "Sessão"
+courses.format: "Formato"
+courses.you_will_learn: "Você vai aprender:"
+courses.or: "ou"
+
+# Icon card translations
+icon.card.btn: "Ver"
+
+# Attachments
+attachments.title: "Anexos"
+
+# Copy code functionality
+copy_code: "Copiar código"
+copy_success: "Copiado!"
+copy_error: "Erro ao copiar"
+
+# Promotional offers
+promo_offer: "Black Friday"
+promo_offer_in_menu: "-75% DE DESCONTO"
+
+# Publication info
+published_on_by: "Publicado em %s por %s."
+published_on: "Publicado em %s."
+last_modified_on_at: "Última modificação em %s às %s"
 
 # =============================================================================
 # 404 - PAGE NOT FOUND

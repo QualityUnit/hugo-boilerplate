@@ -133,7 +133,7 @@ copy_error: "Грешка при копиране"
 
 # Promotional offers
 promo_offer: "Ограничено предложение"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% ОТСТЪПКА"
 
 # Publication info
 published_on_by: "Публикувано на %s от %s."
@@ -146,3 +146,12 @@ last_modified_on_at: "Последна промяна на %s в %s"
 not_found.heading: "Тази страница вече не съществува"
 not_found.description: "Страницата, която търсите, може да е преместена или премахната."
 not_found.back_home: "Обратно към началната страница"
+
+cookie_settings_marketing_title: "Маркетингови бисквитки"
+cookie_settings_marketing_description: "Тези бисквитки се използват за измерване на ефективността на нашите рекламни кампании и за поддържане на релевантни реклами на платформи на трети страни."
+cookie_settings_functional_title: "Функционални бисквитки"
+cookie_settings_functional_description: "Тези бисквитки се използват за запомняне на вашите предпочитания и подобряване на вашето изживяване."
+cookie_consent_reject_all: "Отхвърли всички"
+footer.your_privacy_choices: "Вашите опции за поверителност"
+footer.cookie_settings: "Настройки на бисквитките"
+cookie_consent_manage: "Управление на предпочитанията"

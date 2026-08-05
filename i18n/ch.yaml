@@ -121,7 +121,7 @@ search_results_found_plural: "Found %d results for %s"
 
 # Promotional offers
 promo_offer: "Begrenztes Angebot"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% RABATT"
 
 # Publication info
 published_on_by: "Veröffentlicht am %s vo %s."
@@ -134,3 +134,12 @@ last_modified_on_at: "Zletscht bearbeitet am %s um %s"
 not_found.heading: "Diese Seite existiert nicht mehr"
 not_found.description: "Die gesuchte Seite wurde möglicherweise verschoben oder gelöscht."
 not_found.back_home: "Zurück zur Startseite"
+
+cookie_settings_marketing_title: "Marketing Cookies"
+cookie_settings_marketing_description: "Die Cookies wärdid bruucht, um d'Wirksamkeit vo üsne Werbekampagnä z'measä und relevanti Werbig uf Drittanbieter-Plattforme z'unterstütz."
+cookie_settings_functional_title: "Funktionali Cookies"
+cookie_settings_functional_description: "Die Cookies wärdid bruucht, um dini Iistellige z'spiichärä und dis Erlebnis z'verbessärä."
+cookie_consent_reject_all: "Alli ablehnä"
+footer.your_privacy_choices: "Dini Dateschutz-Wahl"
+footer.cookie_settings: "Cookie-Iistellige"
+cookie_consent_manage: "Iistellige verwaltä"

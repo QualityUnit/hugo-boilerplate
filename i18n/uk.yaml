@@ -134,7 +134,7 @@ copy_error: "Помилка копіювання"
 
 # Promotional offers
 promo_offer: "Обмежена пропозиція"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% ЗНИЖКА"
 
 # Publication info
 published_on_by: "Опубліковано %s користувачем %s."
@@ -147,3 +147,12 @@ last_modified_on_at: "Останнє оновлення %s о %s"
 not_found.heading: "Ця сторінка більше не існує"
 not_found.description: "Можливо, сторінку було переміщено або видалено."
 not_found.back_home: "Повернутися на головну"
+
+cookie_settings_marketing_title: "Маркетингові файли cookie"
+cookie_settings_marketing_description: "Ці файли cookie використовуються для вимірювання ефективності наших рекламних кампаній та підтримки релевантної реклами на платформах третіх сторін."
+cookie_settings_functional_title: "Функціональні файли cookie"
+cookie_settings_functional_description: "Ці файли cookie використовуються для запам'ятовування ваших уподобань і покращення вашого досвіду."
+cookie_consent_reject_all: "Відхилити всі"
+footer.your_privacy_choices: "Ваші налаштування конфіденційності"
+footer.cookie_settings: "Налаштування cookie"
+cookie_consent_manage: "Керувати налаштуваннями"
