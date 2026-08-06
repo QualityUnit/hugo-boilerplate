@@ -682,10 +682,22 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
             if completed_in_batch > 0:
                 print(f"[DEBUG] Completed {completed_in_batch} tasks in this batch")
 
-            # Schedule new tasks to replace completed ones, maintaining max_scheduled_tasks
-            tasks_to_schedule = min(completed_in_batch, len(remaining_tasks))
+            # Refill the queue up to max_scheduled_tasks.
+            #
+            # This used to schedule min(completed_in_batch, ...) — one new task
+            # per completed one. A task whose session could not be created is
+            # never "completed", so every creation failure shrank the queue by
+            # one permanently, and once the queue hit zero the loop span forever:
+            # nothing pending to complete, therefore nothing scheduled, therefore
+            # nothing pending. A run that hit 401 on its first five creations sat
+            # at 0/369 for hours until the job timeout killed it.
+            #
+            # Refilling by free slots instead makes the queue self-healing, and
+            # guarantees the loop terminates even when every creation fails.
+            free_slots = max(0, max_scheduled_tasks - len(pending_sessions))
+            tasks_to_schedule = min(free_slots, len(remaining_tasks))
             if tasks_to_schedule > 0:
-                print(f"[DEBUG] Scheduling {tasks_to_schedule} new tasks to replace completed ones")
+                print(f"[DEBUG] Scheduling {tasks_to_schedule} new task(s) to refill the queue")
 
             for i in range(tasks_to_schedule):
                 file_path, content, target_lang, target_file = remaining_tasks.pop(0)
@@ -705,6 +717,18 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                     all_failed_tasks.append((file_path, target_lang, target_file))
 
                 scheduling_progress.update(1)
+
+            # Nothing in flight and not one session could be created this round:
+            # the next round will fail identically (bad key, wrong workspace, API
+            # down), so stop instead of grinding the whole backlog into the same
+            # error and emitting one traceback per file.
+            if tasks_to_schedule > 0 and newly_scheduled == 0 and not pending_sessions:
+                print(f"[ERROR] Could not create any translation session out of "
+                      f"{tasks_to_schedule} attempt(s), and nothing is in flight. Aborting.")
+                print("[ERROR] A 401 here usually means FLOWHUNT_API_KEY was issued in a "
+                      "different workspace than FLOWHUNT_WORKSPACE_ID — workspace-scoped "
+                      "calls return 401 while unscoped ones still succeed.")
+                break
 
             # Update progress
             processing_progress.update(completed_in_batch)
