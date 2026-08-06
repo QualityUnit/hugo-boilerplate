@@ -35,7 +35,7 @@
 {{- with $service.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
 {{- with $service.serviceType }}{{ $schema = merge $schema (dict "serviceType" .) }}{{ end -}}
 {{- with $service.image -}}
-  {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $img := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $schema = merge $schema (dict "image" $img) -}}
 {{- end -}}
 {{- with $service.areaServed }}{{ $schema = merge $schema (dict "areaServed" .) }}{{ else }}{{ $schema = merge $schema (dict "areaServed" "Worldwide") }}{{ end -}}
@@ -67,7 +67,7 @@
   {{- with .description }}{{ $svc = merge $svc (dict "description" .) }}{{ end -}}
   {{- with .serviceType }}{{ $svc = merge $svc (dict "serviceType" .) }}{{ end -}}
   {{- with .image -}}
-    {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+    {{- $img := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
     {{- $svc = merge $svc (dict "image" $img) -}}
   {{- end -}}
   {{- with .areaServed }}{{ $svc = merge $svc (dict "areaServed" .) }}{{ else }}{{ $svc = merge $svc (dict "areaServed" "Worldwide") }}{{ end -}}

@@ -43,7 +43,7 @@
     {{ if $authorPage }}
       {{ $authorName = $authorPage.Title }}
       {{ with $authorPage.Params.image }}
-        {{ $authorImage = (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) }}
+        {{ $authorImage = (partial "functions/get-absolute-static-url.html" (dict "path" .)) }}
       {{ end }}
       {{ $authorURL = $authorPage.Permalink }}
     {{ end }}
@@ -53,11 +53,11 @@
 {{/* Get article image */}}
 {{ $image := "" }}
 {{ with $page.Params.image }}
-  {{ $image = (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) }}
+  {{ $image = (partial "functions/get-absolute-static-url.html" (dict "path" .)) }}
 {{ else with $page.Params.featured_image }}
-  {{ $image = (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) }}
+  {{ $image = (partial "functions/get-absolute-static-url.html" (dict "path" .)) }}
 {{ else with $site.Params.defaultImage }}
-  {{ $image = (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) }}
+  {{ $image = (partial "functions/get-absolute-static-url.html" (dict "path" .)) }}
 {{ end }}
 
 {{- $authorObj := dict "@type" "Person" "name" $authorName -}}
@@ -66,7 +66,7 @@
 
 {{- $publisher := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
 {{- with $site.Params.organization.logo -}}
-  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $publisher = merge $publisher (dict "logo" $logo) -}}
 {{- end -}}
 

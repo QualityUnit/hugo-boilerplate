@@ -39,7 +39,7 @@
 {{- with $org.legalName }}{{ $schema = merge $schema (dict "legalName" .) }}{{ end -}}
 {{- with $org.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
 {{- with $org.logo -}}
-  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $schema = merge $schema (dict "logo" $logo) -}}
 {{- end -}}
 {{- with $org.email }}{{ $schema = merge $schema (dict "email" .) }}{{ end -}}

@@ -70,7 +70,7 @@
 {{- with $software.requirements }}{{ $schema = merge $schema (dict "requirements" .) }}{{ end -}}
 {{- with $software.featureList }}{{ $schema = merge $schema (dict "featureList" .) }}{{ end -}}
 {{- with $software.screenshot -}}
-  {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $img := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $schema = merge $schema (dict "screenshot" $img) -}}
 {{- end -}}
 {{- with $software.offers -}}

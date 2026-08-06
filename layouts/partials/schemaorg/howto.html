@@ -50,7 +50,7 @@
 {{- $stepItems := slice -}}
 {{- range $index, $step := $steps -}}
   {{- $item := dict "@type" "HowToStep" "position" (add $index 1) "name" $step.name "text" $step.text -}}
-  {{- with $step.image }}{{ $item = merge $item (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
+  {{- with $step.image }}{{ $item = merge $item (dict "image" (partial "functions/get-absolute-static-url.html" (dict "path" .))) }}{{ end -}}
   {{- with $step.url }}{{ $item = merge $item (dict "url" .) }}{{ end -}}
   {{- $stepItems = $stepItems | append $item -}}
 {{- end -}}
@@ -58,7 +58,7 @@
 {{- $schema := dict "@context" "https://schema.org" "@type" "HowTo" "name" $name "step" $stepItems -}}
 {{- with $description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
 {{- with $image -}}
-  {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $img := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $schema = merge $schema (dict "image" $img) -}}
 {{- end -}}
 {{- with .totalTime }}{{ $schema = merge $schema (dict "totalTime" .) }}{{ end -}}
