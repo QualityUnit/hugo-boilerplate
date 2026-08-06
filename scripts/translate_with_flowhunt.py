@@ -581,6 +581,7 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
         failed_tasks = []
         total_scheduled = 0
         total_completed = 0
+        aborted = False
 
         print(f"\nStarting translation of {len(translation_tasks)} files")
         print(f"Maintaining up to {max_scheduled_tasks} tasks in the queue at all times")
@@ -728,6 +729,7 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                 print("[ERROR] A 401 here usually means FLOWHUNT_API_KEY was issued in a "
                       "different workspace than FLOWHUNT_WORKSPACE_ID — workspace-scoped "
                       "calls return 401 while unscoped ones still succeed.")
+                aborted = True
                 break
 
             # Update progress
@@ -757,6 +759,14 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
     print(f"[DEBUG] Files failed: {len(all_failed_tasks)}")
     print(f"[DEBUG] Total files processed: {len(all_completed_tasks) + len(all_failed_tasks)}")
     print(f"[DEBUG] Translation process completed at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    # Exit non-zero so the caller fails. Without this the abort above returned
+    # normally, build_content.sh printed "Translation of missing content
+    # completed!" and the workflow went green having translated nothing — the
+    # exact silent-success the abort was added to prevent.
+    if aborted:
+        print("[ERROR] Aborted before any translation succeeded — failing the run.")
+        sys.exit(1)
 
 def main():
     """Main function to parse arguments and process files"""
