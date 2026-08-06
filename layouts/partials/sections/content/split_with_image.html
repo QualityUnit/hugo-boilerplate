@@ -196,6 +196,13 @@ Design Tokens:
           "info"    "text-blue-500"
           "muted"   "text-gray-400"
         }}
+        {{ $hasDescriptions := false }}
+        {{ range $features }}
+          {{ if .description }}
+            {{ $hasDescriptions = true }}
+          {{ end }}
+        {{ end }}
+        {{ if $hasDescriptions }}
         <dl class="mt-6 max-w-full space-y-3 text-normal text-secondary lg:max-w-full">
           {{ range $features }}
           <div class="relative pl-9">
@@ -215,6 +222,23 @@ Design Tokens:
           </div>
           {{ end }}
         </dl>
+        {{ else }}
+        {{/* No descriptions -- flat list, not term/definition pairs, so ul/li not dl/dt/dd. */}}
+        <ul class="mt-6 max-w-full space-y-3 text-normal text-secondary lg:max-w-full">
+          {{ range $features }}
+          <li class="relative pl-9">
+            {{ if .icon }}
+              {{ $rawColor := .iconColor | default "primary" }}
+              {{ $iconColorClass := index $iconColorMap $rawColor | default $rawColor }}
+              <span class="absolute left-1 top-1 size-5 {{ $iconColorClass }}">
+                {{ partial "components/media/icon.html" (dict "icon" .icon) }}
+              </span>
+            {{ end }}
+            <span class="text-heading">{{ .title }}</span>
+          </li>
+          {{ end }}
+        </ul>
+        {{ end }}
         {{ end }}
 
         {{/* Numbered Features */}}
