@@ -327,8 +327,13 @@ def generate_json_per_section(related_content, hugo_root, output_dir, lang):
 
         output_file = os.path.join(lang_output_path, f"{section}.json")
 
+        # sort_keys: page keys are emitted in dict insertion order, which varies
+        # between runs because results are collected with --max-parallel. Without
+        # this every run rewrites every file even when nothing changed, burying
+        # the real edits in a ~215k-line diff. The related-file arrays are ranked
+        # by similarity and are left in their computed order.
         with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(section_data, f, ensure_ascii=False, indent=2)
+            json.dump(section_data, f, ensure_ascii=False, indent=2, sort_keys=True)
 
         file_count += 1
         total_entries += len(section_data)
