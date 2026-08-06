@@ -68,11 +68,22 @@ if not api_key:
     print("Please set the FLOWHUNT_API_KEY environment variable or add it to the .env file")
     sys.exit(1)
 
-# Default FlowHunt flow ID for translation service (new session-based flow)
-DEFAULT_FLOW_ID = '9df82032-0c90-4a60-8538-5d724590562b'
+# Default FlowHunt flow ID for translation service (new session-based flow).
+# Override with FLOWHUNT_FLOW_ID or --flow-id.
+DEFAULT_FLOW_ID = os.getenv('FLOWHUNT_FLOW_ID', '9df82032-0c90-4a60-8538-5d724590562b')
 
-# Default workspace ID for LiveAgent translations
-DEFAULT_WORKSPACE_ID = '70ff1135-5ce6-42a7-8abe-ec03f58e828e'
+# Workspace that owns the translation flow.
+#
+# FlowHunt API keys are scoped to a single workspace — a key issued in
+# workspace A cannot act on workspace B, and every workspace-scoped call
+# (create_flow_session, GET /v2/flows/{id}, …) answers 401 while unscoped ones
+# like /v2/credits/balance still return 200. That asymmetry makes it look like
+# a bad key when it is really a workspace mismatch.
+#
+# Hard-coding LiveAgentWP here forced every downstream project to use a key
+# from that one workspace. Override with FLOWHUNT_WORKSPACE_ID or
+# --workspace-id to point at the workspace your own key belongs to.
+DEFAULT_WORKSPACE_ID = os.getenv('FLOWHUNT_WORKSPACE_ID', '70ff1135-5ce6-42a7-8abe-ec03f58e828e')
 
 # Map of folder names to full language names
 LANGUAGE_MAP = {
@@ -769,6 +780,13 @@ Examples:
         default=DEFAULT_FLOW_ID
     )
     parser.add_argument(
+        "--workspace-id",
+        help="FlowHunt workspace that owns the flow. Must be the workspace the "
+             "API key was issued in — a key from another workspace gets 401 on "
+             "every workspace-scoped call (default: %(default)s)",
+        default=DEFAULT_WORKSPACE_ID
+    )
+    parser.add_argument(
         "--files",
         nargs="*",
         default=None,
@@ -791,6 +809,7 @@ Examples:
     print(f"[DEBUG] - Check interval: {args.check_interval} seconds")
     print(f"[DEBUG] - Max scheduled tasks: {args.max_scheduled_tasks}")
     print(f"[DEBUG] - Flow ID: {args.flow_id}")
+    print(f"[DEBUG] - Workspace ID: {args.workspace_id}")
     print(f"[DEBUG] - Files: {args.files if args.files else 'ALL (full en/ walk)'}")
     print(f"[DEBUG] - Force overwrite: {args.force}")
     
@@ -798,7 +817,7 @@ Examples:
     content_dir = Path(args.path)
 
     print(f"[DEBUG] Getting workspace ID...")
-    workspace_id = get_workspace_id()
+    workspace_id = get_workspace_id(args.workspace_id)
     if not workspace_id:
         print("[ERROR] Unable to retrieve workspace ID. Please check your API key.")
         sys.exit(1)
