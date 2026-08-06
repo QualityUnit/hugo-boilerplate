@@ -140,6 +140,13 @@ LANGUAGE_MAP = {
     'pt-br': 'Brazilian Portuguese',
     'zh-cn': 'Simplified Chinese',
     'zh-tw': 'Traditional Chinese',
+    # Directory names in use that are not ISO 639-1. An unmapped code is passed
+    # to the flow verbatim (LANGUAGE_MAP.get(code, code)), so content/jp/ would
+    # ask the model to "translate to jp" instead of to Japanese.
+    'jp': 'Japanese',            # LiveAgent uses jp/, not ja/
+    'zh-hans': 'Simplified Chinese',
+    'zh-hant': 'Traditional Chinese',
+    'tl': 'Filipino',
     'en-gb': 'British English',
     'en-us': 'American English',
     'es-mx': 'Mexican Spanish',
