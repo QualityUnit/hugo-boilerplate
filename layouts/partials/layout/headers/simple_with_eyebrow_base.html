@@ -54,7 +54,9 @@
       {{ if $eyebrow }}
         <p class="text-base font-semibold product-text">{{ $eyebrow }}</p>
       {{ end }}
-      <h2 class="{{ if $eyebrow }}{{ $headingMargin }}{{ end }} text-5xl font-semibold tracking-[-2.832px] text-heading">{{ $heading }}</h2>
+      {{ if $heading }}
+        <h2 class="{{ if $eyebrow }}{{ $headingMargin }}{{ end }} text-5xl font-semibold tracking-[-2.832px] text-heading">{{ $heading }}</h2>
+      {{ end }}
       {{ if $description }}
         <p class="{{ $descriptionMargin }} text-lg text-pretty text-secondary sm:text-xl/8 prose-links">{{ $description | safeHTML }}</p>
       {{ end }}
