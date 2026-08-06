@@ -33,7 +33,7 @@
 {{- $manufacturer := dict "@type" "Organization" "name" $site.Title -}}
 {{- $schema := dict "@context" "https://schema.org" "@type" "Product" "name" $product.name "manufacturer" $manufacturer -}}
 {{- with $product.description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
-{{- with $product.image }}{{ $schema = merge $schema (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
+{{- with $product.image }}{{ $schema = merge $schema (dict "image" (partial "functions/get-absolute-static-url.html" (dict "path" .))) }}{{ end -}}
 {{- with $product.sku }}{{ $schema = merge $schema (dict "sku" .) }}{{ end -}}
 {{- with $product.mpn }}{{ $schema = merge $schema (dict "mpn" .) }}{{ end -}}
 {{- with $product.brand -}}
@@ -82,7 +82,7 @@
   {{- $manufacturer := dict "@type" "Organization" "name" $site.Title -}}
   {{- $prod := dict "@context" "https://schema.org" "@type" "Product" "name" .name "manufacturer" $manufacturer -}}
   {{- with .description }}{{ $prod = merge $prod (dict "description" .) }}{{ end -}}
-  {{- with .image }}{{ $prod = merge $prod (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
+  {{- with .image }}{{ $prod = merge $prod (dict "image" (partial "functions/get-absolute-static-url.html" (dict "path" .))) }}{{ end -}}
   {{- with .sku }}{{ $prod = merge $prod (dict "sku" .) }}{{ end -}}
   {{- with .brand -}}
     {{- $prod = merge $prod (dict "brand" (dict "@type" "Brand" "name" .)) -}}

@@ -32,11 +32,11 @@
 {{ if and $name $description $thumbnailUrl $uploadDate }}
 {{- $publisher := dict "@type" "Organization" "name" $site.Title "url" $site.BaseURL -}}
 {{- with $site.Params.organization.logo -}}
-  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $publisher = merge $publisher (dict "logo" $logo) -}}
 {{- end -}}
 
-{{- $schema := dict "@context" "https://schema.org" "@type" "VideoObject" "name" $name "description" $description "thumbnailUrl" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" $thumbnailUrl)) "uploadDate" $uploadDate "publisher" $publisher -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" "VideoObject" "name" $name "description" $description "thumbnailUrl" (partial "functions/get-absolute-static-url.html" (dict "path" $thumbnailUrl)) "uploadDate" $uploadDate "publisher" $publisher -}}
 {{- with .contentUrl }}{{ $schema = merge $schema (dict "contentUrl" .) }}{{ end -}}
 {{- with .embedUrl }}{{ $schema = merge $schema (dict "embedUrl" .) }}{{ end -}}
 {{- if and .width .height }}{{ $schema = merge $schema (dict "width" .width "height" .height) }}{{ end -}}

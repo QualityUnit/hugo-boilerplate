@@ -41,7 +41,7 @@
         {{ if $authorPage }}
             {{ $authorName = $authorPage.Title }}
             {{ with $authorPage.Params.image }}
-                {{ $authorImage = (printf "%s%s" $.Site.BaseURL (strings.TrimPrefix "/" .)) }}
+                {{ $authorImage = (partial "functions/get-absolute-static-url.html" (dict "path" .)) }}
             {{ end }}
             {{ $authorRole = $authorPage.Params.role }}
             {{ $authorDescription = $authorPage.Description | default $authorPage.Params.description }}

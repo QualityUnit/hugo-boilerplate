@@ -31,7 +31,7 @@
 {{ if and $title $description $datePosted }}
 {{- $hiringOrg := dict "@type" "Organization" "name" (.hiringOrganization | default $site.Title) "url" $site.BaseURL -}}
 {{- with $site.Params.organization.logo -}}
-  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $hiringOrg = merge $hiringOrg (dict "logo" $logo) -}}
 {{- end -}}
 

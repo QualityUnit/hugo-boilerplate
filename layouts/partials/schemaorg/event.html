@@ -45,7 +45,7 @@
   {{- $schema = merge $schema (dict "eventStatus" "https://schema.org/EventScheduled") -}}
 {{- end -}}
 {{- with .image -}}
-  {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $img := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $schema = merge $schema (dict "image" $img) -}}
 {{- end -}}
 

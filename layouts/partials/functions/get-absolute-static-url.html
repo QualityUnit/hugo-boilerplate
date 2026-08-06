@@ -1,0 +1,29 @@
+{{/*
+@function: Get Absolute Static URL
+@description: Returns an absolute URL for a static asset - the CDN domain when staticAssets is
+              enabled, otherwise the site baseURL. Use this wherever an absolute URL is required
+              (structured data, meta tags, feeds), so those URLs stay in sync with the CDN-aware
+              image components.
+@params:
+  - path: Path to the static asset (required)
+@returns: Absolute URL to the static asset. Inputs that are already absolute (http://, https://, //)
+          are returned unchanged.
+@example:
+  {{ $imageUrl := partial "functions/get-absolute-static-url.html" (dict "path" .Params.image) }}
+  {{ $img := dict "@type" "ImageObject" "url" $imageUrl }}
+*/}}
+
+{{ $path := .path }}
+{{ $result := $path }}
+
+{{ if not (or (hasPrefix $path "http://") (hasPrefix $path "https://") (hasPrefix $path "//")) }}
+  {{ $normalized := printf "/%s" (strings.TrimPrefix "/" $path) }}
+  {{ $static := partial "functions/get-static-url.html" (dict "path" $normalized) }}
+  {{ if hasPrefix $static "http" }}
+    {{ $result = $static }}
+  {{ else }}
+    {{ $result = printf "%s%s" site.BaseURL (strings.TrimPrefix "/" $static) }}
+  {{ end }}
+{{ end }}
+
+{{ return $result }}
