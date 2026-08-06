@@ -68,11 +68,22 @@ if not api_key:
     print("Please set the FLOWHUNT_API_KEY environment variable or add it to the .env file")
     sys.exit(1)
 
-# Default FlowHunt flow ID for translation service (new session-based flow)
-DEFAULT_FLOW_ID = '9df82032-0c90-4a60-8538-5d724590562b'
+# Default FlowHunt flow ID for translation service (new session-based flow).
+# Override with FLOWHUNT_FLOW_ID or --flow-id.
+DEFAULT_FLOW_ID = os.getenv('FLOWHUNT_FLOW_ID', '9df82032-0c90-4a60-8538-5d724590562b')
 
-# Default workspace ID for LiveAgent translations
-DEFAULT_WORKSPACE_ID = '70ff1135-5ce6-42a7-8abe-ec03f58e828e'
+# Workspace that owns the translation flow.
+#
+# FlowHunt API keys are scoped to a single workspace — a key issued in
+# workspace A cannot act on workspace B, and every workspace-scoped call
+# (create_flow_session, GET /v2/flows/{id}, …) answers 401 while unscoped ones
+# like /v2/credits/balance still return 200. That asymmetry makes it look like
+# a bad key when it is really a workspace mismatch.
+#
+# Hard-coding LiveAgentWP here forced every downstream project to use a key
+# from that one workspace. Override with FLOWHUNT_WORKSPACE_ID or
+# --workspace-id to point at the workspace your own key belongs to.
+DEFAULT_WORKSPACE_ID = os.getenv('FLOWHUNT_WORKSPACE_ID', '70ff1135-5ce6-42a7-8abe-ec03f58e828e')
 
 # Map of folder names to full language names
 LANGUAGE_MAP = {
@@ -671,10 +682,22 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
             if completed_in_batch > 0:
                 print(f"[DEBUG] Completed {completed_in_batch} tasks in this batch")
 
-            # Schedule new tasks to replace completed ones, maintaining max_scheduled_tasks
-            tasks_to_schedule = min(completed_in_batch, len(remaining_tasks))
+            # Refill the queue up to max_scheduled_tasks.
+            #
+            # This used to schedule min(completed_in_batch, ...) — one new task
+            # per completed one. A task whose session could not be created is
+            # never "completed", so every creation failure shrank the queue by
+            # one permanently, and once the queue hit zero the loop span forever:
+            # nothing pending to complete, therefore nothing scheduled, therefore
+            # nothing pending. A run that hit 401 on its first five creations sat
+            # at 0/369 for hours until the job timeout killed it.
+            #
+            # Refilling by free slots instead makes the queue self-healing, and
+            # guarantees the loop terminates even when every creation fails.
+            free_slots = max(0, max_scheduled_tasks - len(pending_sessions))
+            tasks_to_schedule = min(free_slots, len(remaining_tasks))
             if tasks_to_schedule > 0:
-                print(f"[DEBUG] Scheduling {tasks_to_schedule} new tasks to replace completed ones")
+                print(f"[DEBUG] Scheduling {tasks_to_schedule} new task(s) to refill the queue")
 
             for i in range(tasks_to_schedule):
                 file_path, content, target_lang, target_file = remaining_tasks.pop(0)
@@ -694,6 +717,18 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                     all_failed_tasks.append((file_path, target_lang, target_file))
 
                 scheduling_progress.update(1)
+
+            # Nothing in flight and not one session could be created this round:
+            # the next round will fail identically (bad key, wrong workspace, API
+            # down), so stop instead of grinding the whole backlog into the same
+            # error and emitting one traceback per file.
+            if tasks_to_schedule > 0 and newly_scheduled == 0 and not pending_sessions:
+                print(f"[ERROR] Could not create any translation session out of "
+                      f"{tasks_to_schedule} attempt(s), and nothing is in flight. Aborting.")
+                print("[ERROR] A 401 here usually means FLOWHUNT_API_KEY was issued in a "
+                      "different workspace than FLOWHUNT_WORKSPACE_ID — workspace-scoped "
+                      "calls return 401 while unscoped ones still succeed.")
+                break
 
             # Update progress
             processing_progress.update(completed_in_batch)
@@ -769,6 +804,13 @@ Examples:
         default=DEFAULT_FLOW_ID
     )
     parser.add_argument(
+        "--workspace-id",
+        help="FlowHunt workspace that owns the flow. Must be the workspace the "
+             "API key was issued in — a key from another workspace gets 401 on "
+             "every workspace-scoped call (default: %(default)s)",
+        default=DEFAULT_WORKSPACE_ID
+    )
+    parser.add_argument(
         "--files",
         nargs="*",
         default=None,
@@ -791,6 +833,7 @@ Examples:
     print(f"[DEBUG] - Check interval: {args.check_interval} seconds")
     print(f"[DEBUG] - Max scheduled tasks: {args.max_scheduled_tasks}")
     print(f"[DEBUG] - Flow ID: {args.flow_id}")
+    print(f"[DEBUG] - Workspace ID: {args.workspace_id}")
     print(f"[DEBUG] - Files: {args.files if args.files else 'ALL (full en/ walk)'}")
     print(f"[DEBUG] - Force overwrite: {args.force}")
     
@@ -798,7 +841,7 @@ Examples:
     content_dir = Path(args.path)
 
     print(f"[DEBUG] Getting workspace ID...")
-    workspace_id = get_workspace_id()
+    workspace_id = get_workspace_id(args.workspace_id)
     if not workspace_id:
         print("[ERROR] Unable to retrieve workspace ID. Please check your API key.")
         sys.exit(1)
