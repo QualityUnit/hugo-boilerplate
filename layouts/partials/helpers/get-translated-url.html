@@ -15,7 +15,7 @@
 
 {{- /* Handle external URLs and anchors - return as-is */ -}}
 {{- if or (hasPrefix $url "http://") (hasPrefix $url "https://") (hasPrefix $url "#") -}}
-  {{- $url -}}
+  {{- $url | safeHTML -}}
 {{- else if hasPrefix $url "/images/" -}}
   {{- /* Static assets live in cdn-assets and are served from /images/. When the static-assets
          CDN is enabled, non-image asset links (PDF/ZIP/video downloads) must point at the CDN
