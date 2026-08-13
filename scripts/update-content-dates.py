@@ -43,6 +43,14 @@ def get_staged_files() -> list[str]:
     ]
 
 
+def is_merge_or_rebase_in_progress(repo_root: str) -> bool:
+    # During a merge/rebase, staged files can differ from HEAD purely because
+    # they picked up someone else's already-dated changes — not because the
+    # author edited them. Bumping the date in that case is wrong.
+    git_dir = Path(repo_root) / '.git'
+    return any((git_dir / name).exists() for name in ('MERGE_HEAD', 'rebase-merge', 'rebase-apply'))
+
+
 def read_blob(ref: str) -> str | None:
     code, out = git('show', ref)
     # Strip a leading BOM so the `^\+\+\+` front matter regexes below match.
@@ -74,6 +82,9 @@ def update_date(content: str, new_date: str) -> str:
 def main() -> None:
     _, repo_root = git('rev-parse', '--show-toplevel')
     repo_root = repo_root.strip()
+
+    if is_merge_or_rebase_in_progress(repo_root):
+        return
 
     staged_files = get_staged_files()
     if not staged_files:
