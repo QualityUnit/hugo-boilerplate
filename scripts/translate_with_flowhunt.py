@@ -67,6 +67,8 @@ except ImportError:  # Python < 3.11
     def _toml_loads(text):
         return toml.loads(text)
 
+import translation_url_policy as url_policy
+
 # Load environment variables from .env file
 script_dir = os.path.dirname(os.path.abspath(__file__))
 hugo_root = os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))  # Adjusted to point to the correct root
@@ -254,15 +256,22 @@ def split_toml_frontmatter(text):
     return parts[0], parts[1], parts[2]
 
 
-def validate_toml_frontmatter(text):
+def validate_toml_frontmatter(text, require_frontmatter=False):
     """
     Check the TOML frontmatter of a translated file.
 
     Returns None when the frontmatter parses (or when there is none to check),
     otherwise the parse error as a string.
+
+    ``require_frontmatter`` is set for markdown files, where a missing +++
+    block is itself the bug: the flow occasionally returns only the body, and
+    treating that as "nothing to check" shipped a page with no title, url or
+    date at all (content/sl/blog/best-trouble-ticket-system.md, run #3).
     """
     split = split_toml_frontmatter(text)
     if split is None:
+        if require_frontmatter:
+            return 'no TOML frontmatter (+++ block) in translated file'
         return None
     try:
         _toml_loads(split[1])
@@ -357,6 +366,72 @@ def repair_toml_frontmatter(text):
         return None, []
 
     return before + FRONTMATTER_DELIM + candidate + FRONTMATTER_DELIM + body, repaired_lines
+
+
+# Cache of "URLs already claimed", one index per language. Built lazily because
+# it walks ~1500 files per language and most runs touch only a few languages.
+_URL_INDEX_CACHE = {}
+
+
+def apply_url_policy(translated_text, source_file, target_file, target_lang):
+    """
+    Give a translated page the URL it should have.
+
+    The flow returns the English ``url`` verbatim, so without this every
+    translation lands on the English path — outside its own language's section
+    and, for a re-translated page, on a different URL than the one already
+    published and indexed. See translation_url_policy for the rules.
+
+    Returns (text, note) where note is a one-line log entry, or (text, None)
+    when nothing applied.
+    """
+    lang_dir = None
+    for parent in target_file.parents:
+        if parent.name == target_lang:
+            lang_dir = parent
+            break
+    if lang_dir is None:
+        return translated_text, None
+
+    content_dir = lang_dir.parent
+    hugo_root = content_dir.parent
+    rel_path = target_file.relative_to(lang_dir).as_posix()
+
+    try:
+        en_url = url_policy.read_url(source_file.read_text(encoding='utf-8-sig'))
+    except OSError:
+        return translated_text, None
+    if not en_url:
+        return translated_text, None
+
+    if target_lang not in _URL_INDEX_CACHE:
+        _URL_INDEX_CACHE[target_lang] = url_policy.build_url_index(content_dir, target_lang)
+
+    url, alias, reason = url_policy.resolve_url(
+        en_url=en_url,
+        translated_url=url_policy.read_url(translated_text),
+        rel_path=rel_path,
+        lang=target_lang,
+        content_dir=content_dir,
+        hugo_root=hugo_root,
+        url_index=_URL_INDEX_CACHE[target_lang],
+    )
+
+    if not url:
+        return translated_text, f'{target_file}: url unchanged - {reason}'
+
+    updated = url_policy.apply_url(translated_text, url, alias)
+
+    # Claim the address so a later file in the same run cannot take it too.
+    _URL_INDEX_CACHE[target_lang][url] = str(target_file)
+    if alias:
+        _URL_INDEX_CACHE[target_lang][alias] = str(target_file)
+
+    note = f'{target_file}: url = {url}'
+    if alias:
+        note += f' (+ alias {alias})'
+    note += f' - {reason}'
+    return updated, note
 
 
 def get_target_languages(content_dir):
@@ -831,7 +906,9 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                                 # Validate the TOML frontmatter before writing,
                                 # repairing it where the fix is unambiguous. See
                                 # validate_toml_frontmatter() for why.
-                                frontmatter_error = validate_toml_frontmatter(translated_text)
+                                is_markdown = target_file.suffix.lower() in ('.md', '.markdown')
+                                frontmatter_error = validate_toml_frontmatter(
+                                    translated_text, require_frontmatter=is_markdown)
 
                                 if frontmatter_error:
                                     fixed_text, fixed_lines = repair_toml_frontmatter(translated_text)
@@ -851,6 +928,14 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                                         print(f"[INVALID FRONTMATTER] writing it anyway — this page "
                                               f"will fail the Hugo build until it is fixed by hand")
                                         invalid_frontmatter.append((target_file, frontmatter_error))
+
+                                # Give the page its own language's URL. The
+                                # flow returns the English one verbatim.
+                                if is_markdown and not frontmatter_error:
+                                    translated_text, url_note = apply_url_policy(
+                                        translated_text, file_path, target_file, target_lang)
+                                    if url_note:
+                                        print(f"[URL] {url_note}")
 
                                 # Ensure the target directory exists
                                 os.makedirs(target_file.parent, exist_ok=True)
