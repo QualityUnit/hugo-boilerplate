@@ -39,6 +39,7 @@ Examples:
 """
 
 import os
+import re
 import sys
 import argparse
 import time
@@ -50,6 +51,21 @@ from dotenv import load_dotenv
 import flowhunt
 from pprint import pprint
 from functools import wraps
+
+# TOML reader for validating translated frontmatter. tomllib is stdlib from
+# 3.11 (the version the translate-content workflow pins); the `toml` package is
+# already in requirements.txt and covers anyone running this on an older local
+# interpreter.
+try:
+    import tomllib
+
+    def _toml_loads(text):
+        return tomllib.loads(text)
+except ImportError:  # Python < 3.11
+    import toml
+
+    def _toml_loads(text):
+        return toml.loads(text)
 
 # Load environment variables from .env file
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -196,6 +212,152 @@ def get_workspace_id(workspace_id=None):
 def is_translatable_file(file_path):
     """Check if a file should be translated based on extension"""
     return file_path.suffix.lower() in ['.md', '.markdown', '.yaml', '.yml', '.html', '.txt']
+
+
+# ---------------------------------------------------------------------------
+# Translated frontmatter validation
+#
+# The translation flow regularly returns TOML frontmatter Hugo cannot
+# unmarshal. Two failure modes seen in production so far:
+#
+#   answer = "…viens pogas "Saglabāt" klikšķis…"   unescaped inner quote
+#   question =="Kokio nukreipimo rodiklio…"        duplicated '='
+#
+# An unescaped quote terminates the basic string early, so Hugo aborts the
+# whole language build ("unmarshal failed: toml: expected newline but got …").
+# One bad page takes down all ~1500 pages of that language, and Hugo only
+# reports the first error per language, so they surface one at a time.
+#
+# Repairing what is deterministically repairable keeps those pages translated;
+# anything left over is written anyway and reported, because a broken file can
+# be fixed by hand while a missing one has to be re-translated.
+# ---------------------------------------------------------------------------
+
+FRONTMATTER_DELIM = '+++'
+
+# A single-line TOML assignment: key, one-or-more '=', gap, then the value.
+_KEY_EQ_RE = re.compile(r'^(\s*[A-Za-z_][A-Za-z0-9_-]*\s*)(=+)(\s*)(.*)$')
+
+
+def split_toml_frontmatter(text):
+    """
+    Split a Hugo file into (before, frontmatter, body) around the +++ fences.
+
+    Returns None when the text does not open with a TOML frontmatter block —
+    YAML frontmatter, .html and .txt files are simply not our business.
+    """
+    if not text.startswith(FRONTMATTER_DELIM):
+        return None
+    parts = text.split(FRONTMATTER_DELIM, 2)
+    if len(parts) < 3:
+        return None
+    return parts[0], parts[1], parts[2]
+
+
+def validate_toml_frontmatter(text):
+    """
+    Check the TOML frontmatter of a translated file.
+
+    Returns None when the frontmatter parses (or when there is none to check),
+    otherwise the parse error as a string.
+    """
+    split = split_toml_frontmatter(text)
+    if split is None:
+        return None
+    try:
+        _toml_loads(split[1])
+        return None
+    except Exception as e:
+        return str(e)
+
+
+def _repair_toml_line(line):
+    """
+    Try to repair one malformed `key = "value"` line.
+
+    Handles a duplicated assignment operator and unescaped ASCII double quotes
+    inside the value, including the case where the closing quote is missing
+    altogether. Returns the repaired line, or None when no repair applies.
+    """
+    m = _KEY_EQ_RE.match(line)
+    if not m:
+        return None
+
+    key, _eq, _gap, value = m.groups()
+
+    # Multi-line basic strings are out of scope — never reflow them.
+    if value.startswith('"""') or not value.startswith('"'):
+        return None
+
+    stripped = value.rstrip()
+    trailing = value[len(stripped):]
+
+    inner = stripped[1:]
+    if inner.endswith('"'):
+        inner = inner[:-1]
+
+    # Escape every double quote that is not escaped already. A missing closing
+    # quote is handled implicitly: inner simply runs to end of line and gets a
+    # fresh closing quote below.
+    inner = re.sub(r'(?<!\\)"', r'\\"', inner)
+
+    return f'{key.rstrip()} = "{inner}"{trailing}'
+
+
+def repair_toml_frontmatter(text):
+    """
+    Attempt to repair malformed TOML frontmatter.
+
+    Only lines that fail to parse on their own are touched, and a repair is
+    kept only if the repaired line parses. The rebuilt frontmatter is then
+    parsed as a whole, so a repair that fixes one line while breaking the
+    document is discarded rather than written.
+
+    Returns (repaired_text, repaired_line_numbers), or (None, []) when the
+    frontmatter could not be made to parse.
+    """
+    split = split_toml_frontmatter(text)
+    if split is None:
+        return None, []
+    before, frontmatter, body = split
+
+    lines = frontmatter.split('\n')
+    repaired_lines = []
+
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        # Blank lines, comments and table headers are never the problem, and
+        # array/multi-line continuations must not be parsed in isolation.
+        if not stripped or stripped.startswith('#') or stripped.startswith('['):
+            continue
+        try:
+            _toml_loads(stripped)
+            continue  # this line is fine by itself
+        except Exception:
+            pass
+
+        fixed = _repair_toml_line(line)
+        if fixed is None or fixed == line:
+            continue
+        try:
+            _toml_loads(fixed.strip())
+        except Exception:
+            continue  # repair did not help — leave the original alone
+
+        lines[i] = fixed
+        repaired_lines.append(i + 1)
+
+    if not repaired_lines:
+        return None, []
+
+    candidate = '\n'.join(lines)
+    try:
+        _toml_loads(candidate)
+    except Exception:
+        return None, []
+
+    return before + FRONTMATTER_DELIM + candidate + FRONTMATTER_DELIM + body, repaired_lines
+
 
 def get_target_languages(content_dir):
     """
@@ -573,6 +735,11 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
         # Lists to track completed and failed tasks across all batches
         all_completed_tasks = []
         all_failed_tasks = []
+        # Frontmatter outcomes, reported in the run summary: pages whose TOML
+        # was repaired on the way in, and pages written with frontmatter that
+        # still does not parse and therefore need a human.
+        repaired_frontmatter = []
+        invalid_frontmatter = []
 
         # Process translations while maintaining max_scheduled_tasks in queue
         remaining_tasks = translation_tasks.copy()
@@ -644,19 +811,52 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                                 # Trim all whitespace from the translated text
                                 translated_text = translated_text.strip()
 
+                                # Unwrap the markdown code fence the model
+                                # sometimes puts around the whole file. This used
+                                # to happen inside the `with open(..., 'w')`
+                                # block below — i.e. after the target file had
+                                # already been truncated — so any error in here
+                                # left a 0-byte file behind. It also has to run
+                                # before the frontmatter check, or the leading
+                                # fence hides the +++ delimiter.
+                                if translated_text.startswith("```"):
+                                    translated_text = translated_text[3:]
+                                if translated_text.endswith("```"):
+                                    translated_text = translated_text[:-3]
+                                # Also remove markdown code block language markers
+                                if translated_text.startswith("markdown\n"):
+                                    translated_text = translated_text[9:]
+                                translated_text = translated_text.strip()
+
+                                # Validate the TOML frontmatter before writing,
+                                # repairing it where the fix is unambiguous. See
+                                # validate_toml_frontmatter() for why.
+                                frontmatter_error = validate_toml_frontmatter(translated_text)
+
+                                if frontmatter_error:
+                                    fixed_text, fixed_lines = repair_toml_frontmatter(translated_text)
+                                    if fixed_text:
+                                        translated_text = fixed_text
+                                        frontmatter_error = None
+                                        line_list = ', '.join(str(n) for n in fixed_lines)
+                                        print(f"[REPAIRED] {target_file}: invalid TOML frontmatter "
+                                              f"fixed on line(s) {line_list}")
+                                        repaired_frontmatter.append((target_file, line_list))
+                                    else:
+                                        # Written anyway, on purpose: a broken
+                                        # file can be fixed in the PR, a missing
+                                        # one silently leaves the page
+                                        # untranslated and needs a whole re-run.
+                                        print(f"[INVALID FRONTMATTER] {target_file}: {frontmatter_error}")
+                                        print(f"[INVALID FRONTMATTER] writing it anyway — this page "
+                                              f"will fail the Hugo build until it is fixed by hand")
+                                        invalid_frontmatter.append((target_file, frontmatter_error))
+
                                 # Ensure the target directory exists
                                 os.makedirs(target_file.parent, exist_ok=True)
 
                                 # Write the translated content to the target file
                                 with open(target_file, 'w', encoding='utf-8') as f:
-                                    # If translated text starts or ends with ```, remove it
-                                    if translated_text.startswith("```"):
-                                        translated_text = translated_text[3:]
-                                    if translated_text.endswith("```"):
-                                        translated_text = translated_text[:-3]
-                                    # Also remove markdown code block language markers
-                                    if translated_text.startswith("markdown\n"):
-                                        translated_text = translated_text[9:]
                                     f.write(translated_text)
 
                                 # Add to completed tasks
@@ -758,6 +958,26 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
     print(f"[DEBUG] Files translated successfully: {len(all_completed_tasks)}")
     print(f"[DEBUG] Files failed: {len(all_failed_tasks)}")
     print(f"[DEBUG] Total files processed: {len(all_completed_tasks) + len(all_failed_tasks)}")
+    print(f"[DEBUG] Frontmatter repaired: {len(repaired_frontmatter)}")
+    print(f"[DEBUG] Frontmatter still invalid: {len(invalid_frontmatter)}")
+
+    if repaired_frontmatter:
+        print("\n[DEBUG] Pages whose TOML frontmatter was repaired automatically:")
+        for target_file, line_list in repaired_frontmatter:
+            print(f"[DEBUG]   {target_file} (line(s) {line_list})")
+
+    if invalid_frontmatter:
+        # Loud and last, so it is the final thing in the job log: these pages
+        # were written with frontmatter Hugo cannot parse and will fail the
+        # per-language build until someone fixes them.
+        print(f"\n[ERROR] {len(invalid_frontmatter)} page(s) have invalid TOML frontmatter "
+              f"and WILL FAIL the Hugo build:")
+        for target_file, error in invalid_frontmatter:
+            print(f"[ERROR]   {target_file}")
+            print(f"[ERROR]     {error}")
+        print("[ERROR] The files were written on purpose so the translation is not lost. "
+              "Fix the frontmatter quoting in the PR.")
+
     print(f"[DEBUG] Translation process completed at {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Exit non-zero so the caller fails. Without this the abort above returned
