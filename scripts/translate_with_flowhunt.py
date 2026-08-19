@@ -68,6 +68,7 @@ except ImportError:  # Python < 3.11
         return toml.loads(text)
 
 import translation_url_policy as url_policy
+from translation_body_check import check_body
 
 # Load environment variables from .env file
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -234,6 +235,11 @@ def is_translatable_file(file_path):
 # anything left over is written anyway and reported, because a broken file can
 # be fixed by hand while a missing one has to be re-translated.
 # ---------------------------------------------------------------------------
+
+# How many times one (file, language) task may be attempted before it is
+# reported as failed. Stalled flow sessions are transient, so a retry usually
+# succeeds; three attempts keeps a genuinely broken page from looping.
+MAX_TASK_ATTEMPTS = 3
 
 FRONTMATTER_DELIM = '+++'
 
@@ -461,6 +467,24 @@ def initialize_api_client():
     
     return flowhunt.ApiClient(configuration)
 
+def slug_translation_enabled():
+    """
+    Whether the flow should translate the slug in `url` for this project.
+
+    Tied to the same opt-in as the URL policy: a repo that has not committed
+    data/translation-url-policy.toml gets its `url` back untouched. That
+    matters because the flow is shared by every QualityUnit Hugo site, and a
+    translated `url` written without the policy's guard rails would land a page
+    on the wrong path - on the subfolder sites it would overwrite the English
+    page outright.
+    """
+    try:
+        return url_policy.load_policy(hugo_root) is not None
+    except Exception as exc:
+        print(f"[URL] cannot read the url policy ({exc}) - asking the flow to leave slugs alone")
+        return False
+
+
 def create_translation_session(api_instance, file_path, content, target_lang, flow_id, workspace_id):
     """
     Create a FlowHunt flow session for translation using the new session-based API
@@ -496,6 +520,10 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
                 "target_language": language_name,
                 "filename": filename,
                 "today": time.strftime("%Y-%m-%d %H:00:00"),
+                # "yes" asks the flow to translate the last segment of `url`.
+                # Everything it returns still goes through translation_url_policy,
+                # which owns the prefix, collisions and the ASCII guard.
+                "translate_slug": "yes" if slug_translation_enabled() else "no",
             }
         )
 
@@ -595,7 +623,13 @@ def check_session_results(api_instance, session_info, timeout=600):
         else:
             events = []
 
-        # Update timestamp for next poll
+        # The poll cursor may only move AFTER the whole batch has been
+        # examined. Advancing it inside the loop skipped any event that came
+        # after a later-timestamped one in the same response - and the
+        # artefacts event is sent exactly once, so losing it meant waiting out
+        # the full timeout for a translation that had already been delivered.
+        max_ts = None
+
         for event in events:
             if not isinstance(event, dict):
                 continue
@@ -603,9 +637,11 @@ def check_session_results(api_instance, session_info, timeout=600):
             ts = event.get('created_at_timestamp')
             if ts:
                 try:
-                    session_info['from_timestamp'] = str(int(ts) + 1)
+                    ts_int = int(ts)
                 except (ValueError, TypeError):
-                    pass
+                    ts_int = None
+                if ts_int is not None and (max_ts is None or ts_int > max_ts):
+                    max_ts = ts_int
 
             action_type = event.get('action_type')
             metadata = event.get('metadata') or {}
@@ -628,13 +664,16 @@ def check_session_results(api_instance, session_info, timeout=600):
                 print(f"[ERROR] Session {session_id} failed")
                 return True, None
 
+        if max_ts is not None:
+            session_info['from_timestamp'] = str(max_ts + 1)
+
         # Not ready yet
         return False, None
 
     except Exception as e:
-        # Don't print errors on every check to avoid spam
-        if 'start_time' in session_info and time.time() - session_info['start_time'] > 60:
-            print(f"Error checking session results for {session_info.get('session_id')}: {str(e)}")
+        # Report every failure. Swallowing the first 60 seconds of errors made a
+        # real API failure look identical to "still working".
+        print(f"[WARN] polling session {session_info.get('session_id')} failed: {str(e)[:160]}")
         return False, None
 
 
@@ -810,11 +849,17 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
         # Lists to track completed and failed tasks across all batches
         all_completed_tasks = []
         all_failed_tasks = []
+        # Attempts per (source file, language), for the retry pass below.
+        attempts = {}
+        retried = 0
         # Frontmatter outcomes, reported in the run summary: pages whose TOML
         # was repaired on the way in, and pages written with frontmatter that
         # still does not parse and therefore need a human.
         repaired_frontmatter = []
         invalid_frontmatter = []
+        # Body problems: shortcodes or JSON parameters the flow broke or
+        # dropped. Collected per file and reported in the summary.
+        body_issues = []
 
         # Process translations while maintaining max_scheduled_tasks in queue
         remaining_tasks = translation_tasks.copy()
@@ -929,6 +974,24 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                                               f"will fail the Hugo build until it is fixed by hand")
                                         invalid_frontmatter.append((target_file, frontmatter_error))
 
+                                # Structural check on the body. The flow drops
+                                # or mangles shortcode delimiters, JSON
+                                # parameters and whole shortcodes, and none of
+                                # that is visible in the frontmatter. Reported,
+                                # never repaired: a missing brace could belong
+                                # in several places, so a human decides.
+                                if is_markdown:
+                                    try:
+                                        reference = file_path.read_text(encoding='utf-8-sig')
+                                    except OSError:
+                                        reference = None
+                                    body_problems = check_body(translated_text, reference)
+                                    if body_problems:
+                                        print(f"[BODY] {target_file}: {len(body_problems)} problem(s)")
+                                        for problem in body_problems:
+                                            print(f"[BODY]   {problem}")
+                                        body_issues.append((target_file, body_problems))
+
                                 # Give the page its own language's URL. The
                                 # flow returns the English one verbatim.
                                 if is_markdown and not frontmatter_error:
@@ -1028,6 +1091,34 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                       f"Just completed: {completed_in_batch} | "
                       f"Just scheduled: {newly_scheduled}")
 
+            # Re-queue what failed this round. A stalled session is the most
+            # common failure by far: the flow stops emitting events part-way
+            # through and never sends the artefact or a `failed` event, so the
+            # session times out with the page simply not translated (verified by
+            # replaying two timed-out sessions from their first event - el
+            # stopped after 31s, ru after 308s, neither ever delivered).
+            #
+            # That is transient, so retrying the same task usually succeeds. Up
+            # to MAX_TASK_ATTEMPTS tries per task; anything still failing after
+            # that is reported. Without this a run quietly published 26 of 28
+            # languages and looked green.
+            if failed_tasks and not aborted:
+                for task in failed_tasks:
+                    file_path, target_lang, target_file = task
+                    key = (str(file_path), target_lang)
+                    attempts[key] = attempts.get(key, 1) + 1
+                    if attempts[key] <= MAX_TASK_ATTEMPTS:
+                        print(f"[RETRY] {target_file} (attempt {attempts[key]} of {MAX_TASK_ATTEMPTS})")
+                        try:
+                            content = file_path.read_text(encoding='utf-8')
+                        except OSError as exc:
+                            print(f"[RETRY] cannot re-read {file_path}: {exc}")
+                            continue
+                        remaining_tasks.append((file_path, content, target_lang, target_file))
+                        all_failed_tasks.remove(task)
+                        retried += 1
+                failed_tasks = []
+
         # Close the progress bars
         scheduling_progress.close()
         processing_progress.close()
@@ -1050,6 +1141,60 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
         print("\n[DEBUG] Pages whose TOML frontmatter was repaired automatically:")
         for target_file, line_list in repaired_frontmatter:
             print(f"[DEBUG]   {target_file} (line(s) {line_list})")
+
+    print(f"[DEBUG] Bodies with structural problems: {len(body_issues)}")
+    print(f"[DEBUG] Tasks retried: {retried}")
+
+    if body_issues:
+        print(f"\n[ERROR] {len(body_issues)} page(s) have shortcode or JSON problems in the body. "
+              f"These break the Hugo build or silently drop content:")
+        for target_file, problems in body_issues:
+            print(f"[ERROR]   {target_file}")
+            for problem in problems:
+                print(f"[ERROR]     {problem}")
+
+    if all_failed_tasks:
+        print(f"\n[ERROR] {len(all_failed_tasks)} translation(s) never arrived after "
+              f"{MAX_TASK_ATTEMPTS} attempts — those pages are NOT translated:")
+        for file_path, target_lang, target_file in all_failed_tasks:
+            print(f"[ERROR]   {target_lang}: {target_file}")
+        print("[ERROR] Re-run the workflow to pick them up — existing files are skipped, "
+              "so only the missing ones are translated.")
+
+    # Surface the same numbers in the GitHub job summary. They used to live only
+    # in the raw log, so a run that translated 195 of 198 files still showed a
+    # green tick and a PR link with nothing to suggest three pages were missing.
+    summary_path = os.getenv('GITHUB_STEP_SUMMARY')
+    if summary_path:
+        try:
+            with open(summary_path, 'a', encoding='utf-8') as fh:
+                fh.write("\n## Translation results\n\n")
+                fh.write(f"- Translated: **{len(all_completed_tasks)}**\n")
+                fh.write(f"- Failed: **{len(all_failed_tasks)}**"
+                         f"{' ⚠️' if all_failed_tasks else ''}\n")
+                fh.write(f"- Retried: {retried}\n")
+                fh.write(f"- Frontmatter repaired: {len(repaired_frontmatter)}\n")
+                fh.write(f"- Frontmatter still invalid: {len(invalid_frontmatter)}"
+                         f"{' ⚠️' if invalid_frontmatter else ''}\n")
+                fh.write(f"- Body problems: {len(body_issues)}"
+                         f"{' ⚠️' if body_issues else ''}\n")
+                if all_failed_tasks:
+                    fh.write("\n### Not translated\n\n")
+                    for _fp, lang, tf in all_failed_tasks:
+                        fh.write(f"- `{lang}` — `{tf}`\n")
+                    fh.write("\nRe-run the workflow to pick these up.\n")
+                if invalid_frontmatter:
+                    fh.write("\n### Invalid front matter (will fail the Hugo build)\n\n")
+                    for tf, err in invalid_frontmatter:
+                        fh.write(f"- `{tf}` — {err}\n")
+                if body_issues:
+                    fh.write("\n### Body problems\n\n")
+                    for tf, problems in body_issues:
+                        fh.write(f"- `{tf}`\n")
+                        for problem in problems:
+                            fh.write(f"  - {problem}\n")
+        except OSError as exc:
+            print(f"[WARN] could not write the job summary: {exc}")
 
     if invalid_frontmatter:
         # Loud and last, so it is the final thing in the job log: these pages
