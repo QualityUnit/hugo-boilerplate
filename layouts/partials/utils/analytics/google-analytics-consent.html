@@ -4,6 +4,9 @@
 @params:
   - gaMeasurementID: ID merania Google Analytics (zo Site.Language.Params.gaMeasurementID alebo Site.Params.gaMeasurementID)
   - gaMeasurementID2: Optional second GA4 measurement ID for languages that require dual tracking
+  - gtmLoaderUrl: Stape server-side GTM loader URL — when set, replaces gtag.js with the GTM loader
+  - gtmNsUrl: GTM noscript iframe URL — emitted by partials/gtm-noscript.html right after <body>
+  - gtmUidCookie: First-party cookie holding the Cookie Keeper user id (default "_ga")
 @usage:
   {{ partial "utils/analytics/google-analytics-consent.html" . }}
 */}}
@@ -165,8 +168,31 @@
        [languages.XX.params]. */ -}}
 {{- $gtmLoaderUrl := site.Params.gtmLoaderUrl | default "" -}}
   {{- if $gtmLoaderUrl }}
+  {{- /* Stape custom loader with Cookie Keeper support.
+
+       Safari 16.4+ caps first-party cookies set via document.cookie at 7 days,
+       so a returning visitor looks brand new and attribution breaks. Stape's
+       Cookie Keeper fixes this server-side: it needs the visitor's first-party
+       user id passed as &bi=<uid>, and the container script must be requested
+       from the "kp"-prefixed path that carries the restore logic.
+
+       The snippet needs the loader URL in three pieces — origin, container
+       script name, encoded config query — so derive them from the single
+       gtmLoaderUrl param instead of adding per-site config. On Safari 16.4+
+       with a first-party user id available, the container path gets the "kp"
+       prefix and the id rides along as &bi=<uid>; every other browser loads
+       the exact URL from the config.
+
+       Opt out per site by setting gtmUidCookie to a cookie that never exists;
+       override the id source with gtmUidCookie (default "_ga") when the Stape
+       Custom Loader is configured with a different user identifier cookie. */ -}}
+  {{- $u := urls.Parse $gtmLoaderUrl -}}
+  {{- $gtmOrigin := printf "%s://%s" $u.Scheme $u.Host -}}
+  {{- $gtmScript := strings.TrimSuffix ".js" (strings.TrimPrefix "/" $u.Path) -}}
+  {{- $gtmQuery := $u.RawQuery -}}
+  {{- $gtmUidCookie := site.Params.gtmUidCookie | default "_ga" -}}
   <!-- Google Tag Manager (server-side loader) -->
-  <script>(function(w,d,s,l){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src="{{ $gtmLoaderUrl | safeURL }}";f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer');</script>
+  <script>(function(w,d,s,l,origin,name,query,uidKey){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var bi='';try{var v=new RegExp('Version/([0-9._]+)(.*Mobile)?.*Safari.*').exec(navigator.userAgent);if(v&&parseFloat(v[1])>=16.4){var uid,c=d.cookie.split(';');for(var i=0;i<c.length;i++){var kv=c[i].split('=');if(kv[0].trim()===uidKey){uid=kv.slice(1).join('=');break;}}if(uid){bi='&bi='+encodeURIComponent(uid);name=name.length>8?name.replace(/([a-z]{8}$)/,'kp$1'):'kp'+name;}}}catch(e){}var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src=origin+'/'+name+'.js?'+query+bi;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',"{{ $gtmOrigin }}","{{ $gtmScript }}","{{ $gtmQuery }}","{{ $gtmUidCookie }}");</script>
   <!-- End Google Tag Manager -->
   {{- else }}
   {{/* STEP 2: Load gtag.js AFTER consent defaults are set */}}
