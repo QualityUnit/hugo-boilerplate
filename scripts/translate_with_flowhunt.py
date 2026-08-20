@@ -1161,40 +1161,79 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
         print("[ERROR] Re-run the workflow to pick them up — existing files are skipped, "
               "so only the missing ones are translated.")
 
-    # Surface the same numbers in the GitHub job summary. They used to live only
-    # in the raw log, so a run that translated 195 of 198 files still showed a
-    # green tick and a PR link with nothing to suggest three pages were missing.
-    summary_path = os.getenv('GITHUB_STEP_SUMMARY')
-    if summary_path:
+    # Build one report and write it wherever it needs to be seen. These numbers
+    # used to exist only in the raw job log, so a run that translated 195 of 198
+    # files still showed a green tick, a PR link, and nothing to suggest three
+    # pages were missing. Written to:
+    #   GITHUB_STEP_SUMMARY       - the Actions run page
+    #   TRANSLATION_REPORT_FILE   - pasted into the PR body by the workflow, so
+    #                               whoever reviews the content sees it without
+    #                               opening the log
+    incomplete = len(all_failed_tasks) + len(invalid_frontmatter) + len(body_issues)
+
+    report = []
+    if incomplete:
+        report.append(f"> [!WARNING]\n> **{incomplete} page(s) in this PR are not "
+                      f"complete.** Details below - do not merge without checking them.\n")
+    report.append("## Translation results\n")
+    report.append("| | |\n|---|---|")
+    report.append(f"| Translated | **{len(all_completed_tasks)}** |")
+    report.append(f"| Never arrived | **{len(all_failed_tasks)}**"
+                  f"{' warning' if all_failed_tasks else ''} |")
+    report.append(f"| Retried | {retried} |")
+    report.append(f"| Front matter repaired | {len(repaired_frontmatter)} |")
+    report.append(f"| Front matter still invalid | **{len(invalid_frontmatter)}** |")
+    report.append(f"| Structural problems in the body | **{len(body_issues)}** |")
+    report.append("")
+
+    if all_failed_tasks:
+        report.append("### Never arrived - these pages are NOT translated\n")
+        for _fp, lang, tf in all_failed_tasks:
+            report.append(f"- `{lang}` - `{tf}`")
+        report.append("\nRe-run the workflow to pick them up: existing files are skipped, "
+                      "so only the missing ones are translated.\n")
+
+    if invalid_frontmatter:
+        report.append("### Invalid front matter - these WILL fail the Hugo build\n")
+        for tf, err in invalid_frontmatter:
+            report.append(f"- `{tf}`\n  - {err}")
+        report.append("")
+
+    if body_issues:
+        truncated = [(tf, ps) for tf, ps in body_issues
+                     if any('truncated' in p for p in ps)]
+        others = [(tf, ps) for tf, ps in body_issues
+                  if not any('truncated' in p for p in ps)]
+        if truncated:
+            report.append(f"### Truncated - the flow stopped writing part-way "
+                          f"({len(truncated)} page(s))\n")
+            report.append("Content is missing. The markdown is still valid, so the build "
+                          "passes and the loss is invisible without this check.\n")
+            for tf, ps in truncated:
+                report.append(f"- `{tf}`")
+                for problem in ps:
+                    report.append(f"  - {problem}")
+            report.append("")
+        if others:
+            report.append(f"### Other structural problems ({len(others)} page(s))\n")
+            for tf, ps in others:
+                report.append(f"- `{tf}`")
+                for problem in ps:
+                    report.append(f"  - {problem}")
+            report.append("")
+
+    report_text = "\n".join(report)
+
+    for env_var, mode in (('GITHUB_STEP_SUMMARY', 'a'), ('TRANSLATION_REPORT_FILE', 'w')):
+        path = os.getenv(env_var)
+        if not path:
+            continue
         try:
-            with open(summary_path, 'a', encoding='utf-8') as fh:
-                fh.write("\n## Translation results\n\n")
-                fh.write(f"- Translated: **{len(all_completed_tasks)}**\n")
-                fh.write(f"- Failed: **{len(all_failed_tasks)}**"
-                         f"{' ⚠️' if all_failed_tasks else ''}\n")
-                fh.write(f"- Retried: {retried}\n")
-                fh.write(f"- Frontmatter repaired: {len(repaired_frontmatter)}\n")
-                fh.write(f"- Frontmatter still invalid: {len(invalid_frontmatter)}"
-                         f"{' ⚠️' if invalid_frontmatter else ''}\n")
-                fh.write(f"- Body problems: {len(body_issues)}"
-                         f"{' ⚠️' if body_issues else ''}\n")
-                if all_failed_tasks:
-                    fh.write("\n### Not translated\n\n")
-                    for _fp, lang, tf in all_failed_tasks:
-                        fh.write(f"- `{lang}` — `{tf}`\n")
-                    fh.write("\nRe-run the workflow to pick these up.\n")
-                if invalid_frontmatter:
-                    fh.write("\n### Invalid front matter (will fail the Hugo build)\n\n")
-                    for tf, err in invalid_frontmatter:
-                        fh.write(f"- `{tf}` — {err}\n")
-                if body_issues:
-                    fh.write("\n### Body problems\n\n")
-                    for tf, problems in body_issues:
-                        fh.write(f"- `{tf}`\n")
-                        for problem in problems:
-                            fh.write(f"  - {problem}\n")
+            with open(path, mode, encoding='utf-8') as fh:
+                fh.write("\n" + report_text + "\n")
         except OSError as exc:
-            print(f"[WARN] could not write the job summary: {exc}")
+            print(f"[WARN] could not write {env_var} ({path}): {exc}")
+
 
     if invalid_frontmatter:
         # Loud and last, so it is the final thing in the job log: these pages
