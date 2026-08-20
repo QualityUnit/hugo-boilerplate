@@ -133,9 +133,25 @@ copy_error: "Kopeerimisviga"
 
 # Promotional offers
 promo_offer: "Piiratud pakkumine"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% SOODUSTUST"
 
 # Publication info
 published_on_by: "Avaldatud %s, autor %s."
 published_on: "Avaldatud %s."
 last_modified_on_at: "Viimati muudetud %s kell %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Seda lehte enam ei ole"
+not_found.description: "Otsitud leht võib olla teisaldatud või eemaldatud."
+not_found.back_home: "Tagasi avalehele"
+
+cookie_settings_marketing_title: "Turunduse Küpsised"
+cookie_settings_marketing_description: "Neid küpsiseid kasutatakse meie reklaamikampaaniate tulemuslikkuse mõõtmiseks ja asjakohase reklaami toetamiseks kolmandate osapoolte platvormidel."
+cookie_settings_functional_title: "Funktsionaalsed Küpsised"
+cookie_settings_functional_description: "Neid küpsiseid kasutatakse teie eelistuste meelde jätmiseks ja teie kasutuskogemuse parandamiseks."
+cookie_consent_reject_all: "Lükka Kõik Tagasi"
+footer.your_privacy_choices: "Sinu Privaatsusvalikud"
+footer.cookie_settings: "Küpsiste seaded"
+cookie_consent_manage: "Halda eelistusi"

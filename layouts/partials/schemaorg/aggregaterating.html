@@ -32,7 +32,7 @@
 {{- $schema := dict "@context" "https://schema.org" "@type" $itemType "name" $itemName "aggregateRating" $rating -}}
 {{- with .url }}{{ $schema = merge $schema (dict "url" .) }}{{ else }}{{ $schema = merge $schema (dict "url" $site.BaseURL) }}{{ end -}}
 {{- with .description }}{{ $schema = merge $schema (dict "description" .) }}{{ end -}}
-{{- with .image }}{{ $schema = merge $schema (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
+{{- with .image }}{{ $schema = merge $schema (dict "image" (partial "functions/get-absolute-static-url.html" (dict "path" .))) }}{{ end -}}
 <script type="application/ld+json">
 {{- $schema | jsonify | safeJS -}}
 </script>

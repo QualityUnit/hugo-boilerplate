@@ -123,9 +123,25 @@ copy_error: "Żball fil-kopjar"
 
 # Promotional offers
 promo_offer: "Offerta Limitata"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% TNAQQIS"
 
 # Informazzjoni dwar il-pubblikazzjoni
 published_on_by: "Ippubblikat fil-%s minn %s."
 published_on: "Ippubblikat fil-%s."
 last_modified_on_at: "Aġġornat l-aħħar fil-%s fis-%s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Din il-paġna ma teżistix aktar"
+not_found.description: "Il-paġna li qed tfittex forsi ġiet mibdula jew imħassra."
+not_found.back_home: "Lura lejn il-paġna prinċipali"
+
+cookie_settings_marketing_title: "Cookies tal-Marketing"
+cookie_settings_marketing_description: "Dawn il-cookies jintużaw biex ikejlu l-effettività tal-kampanji tar-reklamar tagħna u biex jappoġġjaw reklamar rilevanti fuq pjattaformi ta' partijiet terzi."
+cookie_settings_functional_title: "Cookies Funzjonali"
+cookie_settings_functional_description: "Dawn il-cookies jintużaw biex jiftakru l-preferenzi tiegħek u jtejbu l-esperjenza tiegħek."
+cookie_consent_reject_all: "Iċħad Kollox"
+footer.your_privacy_choices: "L-Għażliet tal-Privatezza Tiegħek"
+footer.cookie_settings: "Settings tal-cookies"
+cookie_consent_manage: "Immaniġġja l-preferenzi"

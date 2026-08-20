@@ -123,9 +123,25 @@ copy_error: "Gwall copïo"
 
 # Promotional offers
 promo_offer: "Cynnig Cyfyngedig"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% I FFWRDD"
 
 # Gwybodaeth cyhoeddi
 published_on_by: "Cyhoeddwyd ar %s gan %s."
 published_on: "Cyhoeddwyd ar %s."
 last_modified_on_at: "Diweddarwyd ddiwethaf ar %s am %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Nid yw'r dudalen hon yn bodoli mwyach"
+not_found.description: "Efallai bod y dudalen rydych yn chwilio amdani wedi'i symud neu ei dileu."
+not_found.back_home: "Yn ôl i'r hafan"
+
+cookie_settings_marketing_title: "Cwcis Marchnata"
+cookie_settings_marketing_description: "Defnyddir y cwcis hyn i fesur effeithiolrwydd ein hymgyrchoedd hysbysebu ac i gefnogi hysbysebu perthnasol ar lwyfannau trydydd parti."
+cookie_settings_functional_title: "Cwcis Swyddogaethol"
+cookie_settings_functional_description: "Defnyddir y cwcis hyn i gofio eich dewisiadau a gwella eich profiad."
+cookie_consent_reject_all: "Gwrthod Pob Un"
+footer.your_privacy_choices: "Eich Dewisiadau Preifatrwydd"
+footer.cookie_settings: "Gosodiadau cwcis"
+cookie_consent_manage: "Rheoli dewisiadau"

@@ -50,7 +50,7 @@
 {{- with .itemOffered -}}
   {{- $item := dict "@type" (.type | default "Product") "name" .name -}}
   {{- with .description }}{{ $item = merge $item (dict "description" .) }}{{ end -}}
-  {{- with .image }}{{ $item = merge $item (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
+  {{- with .image }}{{ $item = merge $item (dict "image" (partial "functions/get-absolute-static-url.html" (dict "path" .))) }}{{ end -}}
   {{- $schema = merge $schema (dict "itemOffered" $item) -}}
 {{- end -}}
 {{- with .eligibleRegion }}{{ $schema = merge $schema (dict "eligibleRegion" .) }}{{ end -}}

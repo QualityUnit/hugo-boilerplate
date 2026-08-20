@@ -135,9 +135,25 @@ copy_error: "Fel vid kopiering"
 
 # Promotional offers
 promo_offer: "Begränsad erbjudande"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% RABATT"
 
 # Publication info
 published_on_by: "Publicerad den %s av %s."
 published_on: "Publicerad den %s."
 last_modified_on_at: "Senast ändrad den %s kl %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Den här sidan finns inte längre"
+not_found.description: "Sidan du letar efter kan ha flyttats eller tagits bort."
+not_found.back_home: "Tillbaka till startsidan"
+
+cookie_settings_marketing_title: "Marknadsföringscookies"
+cookie_settings_marketing_description: "Dessa cookies används för att mäta effektiviteten av våra annonskampanjer och stödja relevant annonsering på tredjepartsplattformar."
+cookie_settings_functional_title: "Funktionella cookies"
+cookie_settings_functional_description: "Dessa cookies används för att komma ihåg dina preferenser och förbättra din upplevelse."
+cookie_consent_reject_all: "Avvisa alla"
+footer.your_privacy_choices: "Dina sekretessval"
+footer.cookie_settings: "Cookie-inställningar"
+cookie_consent_manage: "Hantera preferenser"

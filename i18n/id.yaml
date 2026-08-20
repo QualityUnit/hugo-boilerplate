@@ -133,9 +133,25 @@ copy_error: "Kesalahan penyalinan"
 
 # Promotional offers
 promo_offer: "Penawaran terbatas"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% DISKON"
 
 # Publication info
 published_on_by: "Diterbitkan pada %s oleh %s."
 published_on: "Diterbitkan pada %s."
 last_modified_on_at: "Terakhir diubah pada %s pukul %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Halaman ini sudah tidak ada"
+not_found.description: "Halaman yang Anda cari mungkin telah dipindahkan atau dihapus."
+not_found.back_home: "Kembali ke halaman utama"
+
+cookie_settings_marketing_title: "Cookie Pemasaran"
+cookie_settings_marketing_description: "Cookie ini digunakan untuk mengukur efektivitas kampanye iklan kami dan mendukung iklan yang relevan di platform pihak ketiga."
+cookie_settings_functional_title: "Cookie Fungsional"
+cookie_settings_functional_description: "Cookie ini digunakan untuk mengingat preferensi Anda dan meningkatkan pengalaman Anda."
+cookie_consent_reject_all: "Tolak Semua"
+footer.your_privacy_choices: "Pilihan Privasi Anda"
+footer.cookie_settings: "Pengaturan cookie"
+cookie_consent_manage: "Kelola preferensi"

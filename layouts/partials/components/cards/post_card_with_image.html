@@ -83,6 +83,7 @@
 
 {{/* Date & Permalink */}}
 {{ $date := partial "helpers/format-date.html" (dict "date" $page.Date) }}
+{{ $isoDate := $page.Date.Format "2006-01-02" }}
 {{ $permalink := $page.RelPermalink }}
 
 {{/* Show date & reading time section */}}
@@ -121,7 +122,7 @@
     <div class="flex items-center gap-4 my-2.5 pt-2">
       <span class="flex items-center text-xs font-normal text-secondary">
         {{ if $page.Date }}
-          <time datetime="{{ $date }}">{{ $date }}</time>
+          <time datetime="{{ $isoDate }}">{{ $date }}</time>
         {{ end }}
         {{ if $page.ReadingTime }}
           {{ if $page.Date }}

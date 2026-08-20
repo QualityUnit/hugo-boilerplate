@@ -135,9 +135,25 @@ copy_error: "Kopieringsfejl"
 
 # Promotional offers
 promo_offer: "Begrænset tilbud"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% RABAT"
 
 # Publication info
 published_on_by: "Udgivet den %s af %s."
 published_on: "Udgivet den %s."
 last_modified_on_at: "Sidst ændret den %s kl. %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Denne side findes ikke længere"
+not_found.description: "Siden, du leder efter, er måske blevet flyttet eller fjernet."
+not_found.back_home: "Tilbage til forsiden"
+
+cookie_settings_marketing_title: "Marketingcookies"
+cookie_settings_marketing_description: "Disse cookies bruges til at måle effektiviteten af vores annoncekampagner og til at understøtte relevant annoncering på tredjepartsplatforme."
+cookie_settings_functional_title: "Funktionelle Cookies"
+cookie_settings_functional_description: "Disse cookies bruges til at huske dine præferencer og forbedre din oplevelse."
+cookie_consent_reject_all: "Afvis alle"
+footer.your_privacy_choices: "Dine Privatlivsvalg"
+footer.cookie_settings: "Cookie-indstillinger"
+cookie_consent_manage: "Administrer præferencer"

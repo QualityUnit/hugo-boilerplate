@@ -36,7 +36,7 @@
   {{- if $item.url -}}
     {{- $thing := dict "@type" "Thing" "name" $item.name "url" $item.url -}}
     {{- with $item.description }}{{ $thing = merge $thing (dict "description" .) }}{{ end -}}
-    {{- with $item.image }}{{ $thing = merge $thing (dict "image" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .))) }}{{ end -}}
+    {{- with $item.image }}{{ $thing = merge $thing (dict "image" (partial "functions/get-absolute-static-url.html" (dict "path" .))) }}{{ end -}}
     {{- $element = merge $element (dict "item" $thing) -}}
   {{- else -}}
     {{- $element = merge $element (dict "name" $item.name) -}}

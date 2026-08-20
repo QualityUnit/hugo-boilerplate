@@ -45,13 +45,13 @@
 {{ if and $name $description }}
 {{- $providerOrg := dict "@type" "Organization" "name" (.provider | default $site.Title) "url" $site.BaseURL -}}
 {{- with $site.Params.organization.logo -}}
-  {{- $logo := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $logo := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $providerOrg = merge $providerOrg (dict "logo" $logo) -}}
 {{- end -}}
 
 {{- $schema := dict "@context" "https://schema.org" "@type" "Course" "name" $name "description" $description "provider" $providerOrg "url" ($page.Permalink | default $site.BaseURL) -}}
 {{- with .image -}}
-  {{- $img := dict "@type" "ImageObject" "url" (printf "%s%s" $site.BaseURL (strings.TrimPrefix "/" .)) -}}
+  {{- $img := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $schema = merge $schema (dict "image" $img) -}}
 {{- end -}}
 {{- with .courseMode }}{{ $schema = merge $schema (dict "courseMode" .) }}{{ end -}}

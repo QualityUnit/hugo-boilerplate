@@ -134,9 +134,25 @@ copy_error: "Chyba kopírovania"
 
 # Promotional offers
 promo_offer: "Limitovaná ponuka"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% ZĽAVA"
 
 # Publication info
 published_on_by: "Publikované dňa %s autorom %s."
 published_on: "Publikované dňa %s."
 last_modified_on_at: "Naposledy upravené dňa %s o %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Táto stránka už neexistuje"
+not_found.description: "Stránku, ktorú hľadáte, sme možno presunuli alebo odstránili."
+not_found.back_home: "Späť na domovskú stránku"
+
+cookie_settings_marketing_title: "Marketingové cookies"
+cookie_settings_marketing_description: "Tieto cookies sa používajú na meranie efektivity našich reklamných kampaní a na podporu relevantnej reklamy na platformách tretích strán."
+cookie_settings_functional_title: "Funkčné cookies"
+cookie_settings_functional_description: "Tieto cookies sa používajú na uloženie vašich preferencií a zlepšenie vášho zážitku."
+cookie_consent_reject_all: "Odmietnuť všetky"
+footer.your_privacy_choices: "Vaše možnosti ochrany súkromia"
+footer.cookie_settings: "Nastavenia cookies"
+cookie_consent_manage: "Správa preferencií"

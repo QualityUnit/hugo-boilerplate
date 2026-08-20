@@ -134,9 +134,25 @@ copy_error: "Kopyalama hatası"
 
 # Promotional offers
 promo_offer: "Sınırlı teklif"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% İNDİRİM"
 
 # Publication info
 published_on_by: "%s tarihinde %s tarafından yayınlandı."
 published_on: "%s tarihinde yayınlandı."
 last_modified_on_at: "%s tarihinde %s saatinde son güncellendi"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Bu sayfa artık mevcut değil"
+not_found.description: "Aradığınız sayfa taşınmış veya kaldırılmış olabilir."
+not_found.back_home: "Ana sayfaya dön"
+
+cookie_settings_marketing_title: "Pazarlama Çerezleri"
+cookie_settings_marketing_description: "Bu çerezler, reklam kampanyalarımızın etkinliğini ölçmek ve üçüncü taraf platformlarda ilgili reklamları desteklemek için kullanılır."
+cookie_settings_functional_title: "İşlevsel Çerezler"
+cookie_settings_functional_description: "Bu çerezler, tercihlerinizi hatırlamak ve deneyiminizi iyileştirmek için kullanılır."
+cookie_consent_reject_all: "Tümünü Reddet"
+footer.your_privacy_choices: "Gizlilik Tercihleriniz"
+footer.cookie_settings: "Çerez ayarları"
+cookie_consent_manage: "Tercihleri yönet"

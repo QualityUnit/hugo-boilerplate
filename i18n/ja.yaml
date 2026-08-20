@@ -134,7 +134,7 @@ copy_error: "コピーエラー"
 
 # Promotional offers
 promo_offer: "限定オファー"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% オフ"
 
 # Publication info
 published_on_by: "%s によって %s に公開されました。"
@@ -142,3 +142,19 @@ published_on: "%s に公開されました。"
 last_modified_on_at: "%s の %s に最終更新されました"
 
 learnMore: "詳しく見る"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "このページは存在しません"
+not_found.description: "お探しのページは移動または削除された可能性があります。"
+not_found.back_home: "ホームページに戻る"
+
+cookie_settings_marketing_title: "マーケティングクッキー"
+cookie_settings_marketing_description: "これらのクッキーは、広告キャンペーンの効果を測定し、サードパーティプラットフォームでの関連広告をサポートするために使用されます。"
+cookie_settings_functional_title: "機能性クッキー"
+cookie_settings_functional_description: "これらのクッキーは、お客様の設定を記憶し、体験を向上させるために使用されます。"
+cookie_consent_reject_all: "すべて拒否"
+footer.your_privacy_choices: "プライバシーの選択"
+footer.cookie_settings: "クッキー設定"
+cookie_consent_manage: "設定を管理"

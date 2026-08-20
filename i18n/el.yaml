@@ -135,9 +135,25 @@ copy_error: "Σφάλμα αντιγραφής"
 
 # Promotional offers
 promo_offer: "Περιορισμένη προσφορά"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% ΕΚΠΤΩΣΗ"
 
 # Publication info
 published_on_by: "Δημοσιεύτηκε στις %s από %s."
 published_on: "Δημοσιεύτηκε στις %s."
 last_modified_on_at: "Τελευταία τροποποίηση στις %s, ώρα %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Αυτή η σελίδα δεν υπάρχει πλέον"
+not_found.description: "Η σελίδα που αναζητάτε μπορεί να έχει μετακινηθεί ή να έχει αφαιρεθεί."
+not_found.back_home: "Επιστροφή στην αρχική σελίδα"
+
+cookie_settings_marketing_title: "Cookies Μάρκετινγκ"
+cookie_settings_marketing_description: "Αυτά τα cookies χρησιμοποιούνται για τη μέτρηση της αποτελεσματικότητας των διαφημιστικών μας καμπανιών και για την υποστήριξη σχετικών διαφημίσεων σε πλατφόρμες τρίτων."
+cookie_settings_functional_title: "Λειτουργικά Cookies"
+cookie_settings_functional_description: "Αυτά τα cookies χρησιμοποιούνται για να θυμούνται τις προτιμήσεις σας και να βελτιώνουν την εμπειρία σας."
+cookie_consent_reject_all: "Απόρριψη Όλων"
+footer.your_privacy_choices: "Οι Επιλογές Απορρήτου σας"
+footer.cookie_settings: "Ρυθμίσεις cookies"
+cookie_consent_manage: "Διαχείριση προτιμήσεων"

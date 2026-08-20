@@ -135,9 +135,25 @@ copy_error: "Ошибка копирования"
 
 # Promotional offers
 promo_offer: "Ограниченное предложение"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% СКИДКА"
 
 # Publication info
 published_on_by: "Опубликовано %s, автор %s."
 published_on: "Опубликовано %s."
 last_modified_on_at: "Последнее изменение %s в %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Эта страница больше не существует"
+not_found.description: "Возможно, страница была перемещена или удалена."
+not_found.back_home: "Вернуться на главную"
+
+cookie_settings_marketing_title: "Маркетинговые файлы cookie"
+cookie_settings_marketing_description: "Эти файлы cookie используются для измерения эффективности наших рекламных кампаний и поддержки релевантной рекламы на платформах третьих сторон."
+cookie_settings_functional_title: "Функциональные файлы cookie"
+cookie_settings_functional_description: "Эти файлы cookie используются для запоминания ваших предпочтений и улучшения вашего опыта."
+cookie_consent_reject_all: "Отклонить все"
+footer.your_privacy_choices: "Ваши настройки конфиденциальности"
+footer.cookie_settings: "Настройки cookie"
+cookie_consent_manage: "Управление настройками"

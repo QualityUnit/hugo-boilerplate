@@ -123,9 +123,25 @@ copy_error: "Gabim në kopjim"
 
 # Promotional offers
 promo_offer: "Ofertë e kufizuar"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% ZBRITJE"
 
 # Publication info
 published_on_by: "Publikuar më %s nga %s."
 published_on: "Publikuar më %s."
 last_modified_on_at: "Përditësuar së fundmi më %s në %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Kjo faqe nuk ekziston më"
+not_found.description: "Faqja që kërkoni mund të jetë zhvendosur ose hequr."
+not_found.back_home: "Kthehu në faqen kryesore"
+
+cookie_settings_marketing_title: "Cookies të Marketingut"
+cookie_settings_marketing_description: "Këto cookies përdoren për të matur efektivitetin e fushatave tona reklamuese dhe për të mbështetur reklamat relevante në platforma të palëve të treta."
+cookie_settings_functional_title: "Cookies Funksionale"
+cookie_settings_functional_description: "Këto cookies përdoren për të mbajtur mend preferencat tuaja dhe për të përmirësuar përvojën tuaj."
+cookie_consent_reject_all: "Refuzo të Gjitha"
+footer.your_privacy_choices: "Zgjedhjet Tuaja të Privatësisë"
+footer.cookie_settings: "Cilësimet e cookies"
+cookie_consent_manage: "Menaxho preferencat"

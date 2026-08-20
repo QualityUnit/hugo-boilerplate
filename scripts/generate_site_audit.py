@@ -47,7 +47,7 @@ import umap
 from bs4 import BeautifulSoup
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from embedding_cache import EmbeddingCache, shared_sqlite_cache_path
+from embedding_cache import EmbeddingCache, nonfinite_mask, shared_sqlite_cache_path
 
 DEFAULT_MODEL = "google/embeddinggemma-300m"
 DEFAULT_MAX_CHARS = 2000
@@ -446,6 +446,21 @@ def main():
     embeddings = cache.encode(args.model, embed_texts, batch_size=32, show_progress_bar=True,
                               desc="Page embeddings")
     cache.close()
+
+    # Last line of defence: the cache repairs non-finite vectors on CPU, but if
+    # anything slips through, drop those pages instead of letting a single NaN
+    # poison the site centroid and abort faiss k-means 200 lines later.
+    bad = nonfinite_mask(embeddings)
+    if bad.any():
+        print(f"WARNING: dropping {int(bad.sum())} page(s) with non-finite embeddings:")
+        for i in np.flatnonzero(bad):
+            print(f"  - {pages[i]['file_path']}")
+        keep = ~bad
+        pages = [p for p, k in zip(pages, keep) if k]
+        embeddings = embeddings[keep]
+        if not pages:
+            print("No usable embeddings left — aborting.")
+            return
 
     site_centroid = l2_normalize(embeddings.mean(axis=0))
     site_metrics = focus_metrics(embeddings, site_centroid)

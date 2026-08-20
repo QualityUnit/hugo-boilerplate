@@ -103,7 +103,7 @@
         {{ if $authorsInCategory }}
           <div id="{{ $letter }}" class="py-10">
             <h2 class="text-5xl font-semibold text-heading">{{ $letter }}</h2>
-            <ul class="mt-8 grid gap-16 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="mt-8 grid gap-16 sm:grid-cols-2 lg:grid-cols-3">
               {{ range sort $authorsInCategory "Title" }}
                 {{ partial "components/cards/post_card_with_image.html" (
                   dict "page" .
@@ -119,7 +119,7 @@
                   "descriptionLength" $descriptionLength
                 ) }}
               {{ end }}
-            </ul>
+            </div>
           </div>
         {{ end }}
       {{ end }}

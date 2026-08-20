@@ -121,9 +121,25 @@ copy_error: "Lỗi khi sao chép"
 
 # Promotional offers
 promo_offer: "Ưu đãi có hạn"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% GIẢM GIÁ"
 
 # Publication info
 published_on_by: "Được xuất bản vào %s bởi %s."
 published_on: "Được xuất bản vào %s."
 last_modified_on_at: "Chỉnh sửa lần cuối vào %s lúc %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Trang này không còn tồn tại"
+not_found.description: "Trang bạn đang tìm có thể đã được chuyển hoặc xóa."
+not_found.back_home: "Về trang chủ"
+
+cookie_settings_marketing_title: "Cookie Marketing"
+cookie_settings_marketing_description: "Những cookie này được sử dụng để đo lường hiệu quả của các chiến dịch quảng cáo của chúng tôi và hỗ trợ quảng cáo phù hợp trên các nền tảng của bên thứ ba."
+cookie_settings_functional_title: "Cookie Chức Năng"
+cookie_settings_functional_description: "Những cookie này được sử dụng để ghi nhớ tùy chọn của bạn và cải thiện trải nghiệm của bạn."
+cookie_consent_reject_all: "Từ Chối Tất Cả"
+footer.your_privacy_choices: "Lựa Chọn Quyền Riêng Tư Của Bạn"
+footer.cookie_settings: "Cài đặt cookie"
+cookie_consent_manage: "Quản lý tùy chọn"

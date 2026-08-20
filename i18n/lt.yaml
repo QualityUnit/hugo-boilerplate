@@ -133,9 +133,25 @@ copy_error: "Kopijavimo klaida"
 
 # Promotional offers
 promo_offer: "Ribotas pasiūlymas"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% NUOLAIDA"
 
 # Publication info
 published_on_by: "Paskelbta %s, autorius %s."
 published_on: "Paskelbta %s."
 last_modified_on_at: "Paskutinį kartą atnaujinta %s, %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Šio puslapio nebėra"
+not_found.description: "Ieškomas puslapis galėjo būti perkeltas arba pašalintas."
+not_found.back_home: "Atgal į pradinį puslapį"
+
+cookie_settings_marketing_title: "Rinkodaros slapukai"
+cookie_settings_marketing_description: "Šie slapukai naudojami mūsų reklamos kampanijų efektyvumui įvertinti ir svarbiai reklamai trečiųjų šalių platformose palaikyti."
+cookie_settings_functional_title: "Funkciniai slapukai"
+cookie_settings_functional_description: "Šie slapukai naudojami jūsų nuostatoms prisiminti ir jūsų patirčiai pagerinti."
+cookie_consent_reject_all: "Atmesti visus"
+footer.your_privacy_choices: "Jūsų privatumo pasirinkimai"
+footer.cookie_settings: "Slapukų nustatymai"
+cookie_consent_manage: "Tvarkyti nuostatas"

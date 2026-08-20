@@ -133,9 +133,25 @@ copy_error: "Napaka pri kopiranju"
 
 # Promotional offers
 promo_offer: "Omejena ponudba"
-promo_offer_in_menu: "-75% OFF"
+promo_offer_in_menu: "-75% POPUST"
 
 # Publication info
 published_on_by: "Objavljeno dne %s avtorja %s."
 published_on: "Objavljeno dne %s."
 last_modified_on_at: "Nazadnje spremenjeno dne %s ob %s"
+
+# =============================================================================
+# 404 - PAGE NOT FOUND
+# =============================================================================
+not_found.heading: "Ta stran ne obstaja več"
+not_found.description: "Stran, ki jo iščete, je bila morda premaknjena ali odstranjena."
+not_found.back_home: "Nazaj na domačo stran"
+
+cookie_settings_marketing_title: "Trženjski piškotki"
+cookie_settings_marketing_description: "Ti piškotki se uporabljajo za merjenje učinkovitosti naših oglaševalskih kampanj in za podpiranje ustreznega oglaševanja na platformah tretjih oseb."
+cookie_settings_functional_title: "Funkcionalni piškotki"
+cookie_settings_functional_description: "Ti piškotki se uporabljajo za pomnjenje vaših preferenc in izboljšanje vaše izkušnje."
+cookie_consent_reject_all: "Zavrni vse"
+footer.your_privacy_choices: "Vaše izbire zasebnosti"
+footer.cookie_settings: "Nastavitve piškotkov"
+cookie_consent_manage: "Upravljanje preferenc"
