@@ -21,6 +21,12 @@ can be fixed in the PR, a missing one has to be translated again.
 import json
 import re
 
+# Markdown ATX headings, ## and deeper. The count per level is a structural
+# invariant: a translation renames a heading, it does not add or remove one.
+# Length is NOT such an invariant - Russian runs ~65% longer than English on the
+# same page and Vietnamese ~45%, so comparing sizes would only produce noise.
+_HEADING_RE = re.compile(r'^(#{2,6})\s+\S', re.M)
+
 # Opening shortcode: {{< name ... >}} or {{% name ... %}}, closing: {{< /name >}}
 _OPEN_RE = re.compile(r'\{\{[<%]\s*(?!/)([a-zA-Z0-9_-]+)')
 _CLOSE_RE = re.compile(r'\{\{[<%]\s*/\s*([a-zA-Z0-9_-]+)')
@@ -72,6 +78,14 @@ def _json_blocks(text):
                 break
 
 
+def _heading_counts(text):
+    counts = {}
+    for m in _HEADING_RE.finditer(text or ''):
+        level = len(m.group(1))
+        counts[level] = counts.get(level, 0) + 1
+    return counts
+
+
 def check_body(text, reference=None):
     """
     Report structural problems in a translated body.
@@ -88,6 +102,20 @@ def check_body(text, reference=None):
     for m in _MALFORMED_DELIM_RE.finditer(text or ''):
         line = (text[:m.start()].count('\n')) + 1
         problems.append(f'line {line}: malformed shortcode delimiter {m.group(0)[:40]!r}')
+
+    # Missing headings mean the flow stopped early. That is how 24 of 28
+    # translations of one page lost their last two sections - the text simply
+    # ends mid-list, which is still valid markdown, so the build passed and the
+    # loss shipped unnoticed.
+    if reference is not None:
+        mine = _heading_counts(text)
+        theirs = _heading_counts(reference)
+        for level in sorted(set(mine) | set(theirs)):
+            got, want = mine.get(level, 0), theirs.get(level, 0)
+            if got != want:
+                problems.append(
+                    f'has {got} H{level} heading(s), the english source has {want}'
+                    + (' - the translation looks truncated' if got < want else ''))
 
     def counts(t):
         opens = {}
