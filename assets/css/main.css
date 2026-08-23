@@ -72,7 +72,11 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    /* rgb(): the palette in variables.css stores channels, not colours, so a
+       bare var() here yields `229 229 229` — not a valid border-color, which
+       silently falls back to currentcolor and undoes the whole point of this
+       compat rule. */
+    border-color: rgb(var(--color-gray-200, 229 229 229) / 1);
   }
 }
 
@@ -84,7 +88,8 @@
 @layer base {
   input::placeholder,
   textarea::placeholder {
-    color: var(--color-gray-400);
+    /* Channels, not a colour — see the border-color note above. */
+    color: rgb(var(--color-gray-400, 156 163 175) / 1);
   }
 }
 
