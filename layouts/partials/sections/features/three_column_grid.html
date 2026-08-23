@@ -18,7 +18,11 @@
 {{ $isDark := eq $theme "dark" }}
 {{ $darkClass := cond $isDark "dark" "" }}
 
-{{ $iconClass := "w-7 h-7 p-1 rounded-lg shrink-0 product-icon" }}
+{{/* No product-icon here: the only call site pairs this with icon-on-brand, and under
+     Tailwind v4 custom utilities are emitted in sorted order rather than source order,
+     so product-icon now lands after icon-on-brand and wins the `color` — painting the
+     icon brand-on-brand, i.e. invisible against the surface-brand wrapper. */}}
+{{ $iconClass := "w-7 h-7 p-1 rounded-lg shrink-0" }}
 {{ $iconWrapperClass := "size-10 p-2 surface-brand rounded-lg flex items-center justify-center" }}
 
 <div class="{{ $darkClass }}">
