@@ -161,10 +161,10 @@
     function createLightboxOverlay() {
         const overlay = document.createElement('div');
         overlay.id = 'video-lightbox-overlay';
-        overlay.className = 'hidden fixed inset-0 bg-black bg-opacity-90 z-9999 opacity-0 transition-opacity duration-300';
+        overlay.className = 'hidden fixed inset-0 bg-black/90 z-9999 opacity-0 transition-opacity duration-300';
         
         overlay.innerHTML = `
-            <button class="absolute top-4 right-4 bg-black bg-opacity-70 border-none text-white text-3xl cursor-pointer z-10002 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-opacity-90 hover:scale-110 pointer-events-auto" id="video-lightbox-close" aria-label="Close video">
+            <button class="absolute top-4 right-4 bg-black/70 border-none text-white text-3xl cursor-pointer z-10002 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-black/90 hover:scale-110 pointer-events-auto" id="video-lightbox-close" aria-label="Close video">
                 ×
             </button>
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-6xl max-h-[90%] bg-black rounded-lg overflow-hidden shadow-[0_25px_50px_rgba(0,0,0,0.5)] pointer-events-auto">

@@ -94,7 +94,7 @@
      Same z as the banner (later in DOM → paints above it); z-50 sat below the
      blocking banner AND below the top promo bar. -->
 <div id="cookie-settings-modal" class="fixed inset-0 z-99999 hidden {{ $darkClass }}">
-    <div class="absolute inset-0 bg-black bg-opacity-50" data-cookie-settings-close></div>
+    <div class="absolute inset-0 bg-black/50" data-cookie-settings-close></div>
     {{/* Same centering pattern as the banner above: mobile docked to the bottom,
          desktop (sm+) vertically centered — replaces the theme's mx-auto mt-20. */}}
     <div class="pointer-events-none absolute inset-0 flex items-end justify-center p-4 pb-20 sm:items-center sm:pb-4">
@@ -241,7 +241,7 @@
 
 <!-- Cookie Settings Modal (hidden by default) -->
 <div id="cookie-settings-modal" class="fixed inset-0 z-50 hidden {{ $darkClass }}">
-    <div class="absolute inset-0 bg-black bg-opacity-50" data-cookie-settings-close></div>
+    <div class="absolute inset-0 bg-black/50" data-cookie-settings-close></div>
     <div class="relative mx-auto max-w-xl p-4 sm:p-6 section-bg-light dark:section-bg-dark rounded-xl shadow-xl mt-20">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-heading text-xl font-bold">{{ i18n "cookie_settings_title" }}</h2>
