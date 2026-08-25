@@ -370,6 +370,20 @@
 }
 
 /*
+  table cell padding: v3's preflight reset margin and padding on a short list of
+  elements; v4 resets padding on `*`, which strips the 1px the user agent gives
+  every th and td. It is one pixel per cell, but the comparison tables are dense
+  enough that the rows shift.
+  To remove: give the table components explicit padding utilities.
+*/
+@layer base {
+  th,
+  td {
+    padding: 1px;
+  }
+}
+
+/*
   placeholder: v3 defaulted to gray-400 (via @tailwindcss/forms), v4 uses
   currentColor at 50% opacity — which reads much darker on our inputs.
   To remove: audit input contrast, then delete.
