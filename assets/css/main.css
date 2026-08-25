@@ -434,10 +434,6 @@
 @utility section-bg-dark {
   @apply bg-gray-900;
   /* Dark background, used for contrast or "dark mode" sections */
-
-  & a[data-lb] {
-    @apply text-primary-500 hover:text-primary-700;
-  }
 }
 
 /*
@@ -457,12 +453,66 @@
   /* 📦 WRAPPER CLASSES */
   /* ================================================================ */
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
 
-  & .wrapper-content {
+/* ================================================================ */
+/* Descendant rules for the utilities above                         */
+/* ---------------------------------------------------------------- */
+/* These used to live inside their @utility blocks as `& figure`,    */
+/* `& .wrapper-content` and so on. Tailwind v4 emits a nested rule   */
+/* that uses a combinator with the ampersand left unresolved, so it  */
+/* lands in the bundle as a literal `& figure` and matches nothing:  */
+/* figures in single pages lost their sizing, nested wrappers        */
+/* stacked 64px of horizontal padding, prose links lost their        */
+/* underline, and selects and textareas lost their border colour.    */
+/* Compound nesting (`&input`, `&.badge-with-border`) is fine and    */
+/* stays where it was — only combinators are affected.               */
+/*                                                                   */
+/* In `utilities` so specificity decides against the single-class    */
+/* utilities, which is how it behaved under v3.                      */
+/* ================================================================ */
+@layer utilities {
+  /* Nested wrappers must not stack their horizontal padding. */
+  .wrapper .wrapper-content,
+  .wrapper-content .wrapper {
     @apply px-0;
   }
-  .wrapper-content & {
-    @apply px-0;
+
+  /* Prose figure styles for single pages */
+  .single-content figure {
+    text-align: center;
+  }
+
+  .single-content figure picture {
+    display: inline-block;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .single-content figure img {
+    max-width: 100%;
+    height: auto;
+    display: inline-block;
+  }
+
+  .prose-links a:not([class^='btn-']) {
+    text-decoration-line: underline !important;
+    text-underline-offset: 0.16em;
+    text-decoration-thickness: from-font;
+  }
+
+  .prose-links a:hover:not([class^='btn-']) {
+    @apply text-brand-text;
+  }
+
+  .border-gray-primary select,
+  .border-gray-primary textarea {
+    @apply border-gray-300! dark:border-gray-600!;
+  }
+
+  .section-bg-dark a[data-lb] {
+    @apply text-primary-500 hover:text-primary-700;
   }
 }
 
@@ -472,13 +522,6 @@
 
 @utility wrapper-content {
   @apply max-w-4xl px-4 sm:px-6 lg:px-8;
-
-  .wrapper & {
-    @apply px-0;
-  }
-  & .wrapper {
-    @apply px-0;
-  }
 }
 
 @utility surface-primary {
@@ -534,12 +577,6 @@
   /* Primary border – light gray in light mode, darker gray in dark mode */
   /* Form elements with surface border */
   &input {
-    @apply border-gray-300! dark:border-gray-600!;
-  }
-  & select {
-    @apply border-gray-300! dark:border-gray-600!;
-  }
-  & textarea {
     @apply border-gray-300! dark:border-gray-600!;
   }
 }
@@ -1002,26 +1039,6 @@
   /* ================================================================ */
   @apply prose-a:text-secondary prose-a:font-normal prose-a:underline;
   /* Standard prose with custom link styling */
-
-  & a:not([class^='btn-']) {
-    text-decoration-line: underline !important;
-    text-underline-offset: 0.16em;
-    text-decoration-thickness: from-font;
-  }
-
-  & a:not([class^='btn-']) {
-    text-decoration-line: underline !important;
-    text-underline-offset: 0.16em;
-    text-decoration-thickness: from-font;
-  }
-
-  & a:hover:not([class^='btn-']) {
-    @apply text-brand-text;
-  }
-
-  & a:hover:not([class^='btn-']) {
-    @apply text-brand-text;
-  }
 }
 
 @utility scrollbar-custom {
@@ -1058,27 +1075,8 @@
     drop-shadow(0 0 9px rgba(87, 171, 250, 0.5));
 }
 
-@utility single-content {
-  /*
-  * Prose figure styles for single pages
-  */
-  & figure {
-    text-align: center;
-  }
-
-  & figure picture {
-    display: inline-block;
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  & figure img {
-    max-width: 100%;
-    height: auto;
-    display: inline-block;
-  }
-}
+/* single-content is defined in the descendant block near the wrapper rules —
+   every rule it had used a combinator, which @utility cannot express in v4. */
 
 /* 🛠️ UTILITIES */
 @layer utilities {
