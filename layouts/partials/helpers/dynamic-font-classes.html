@@ -8,26 +8,48 @@
 {{ $fontSizeClass := "text-5xl lg:text-6xl" }}
 {{ $headingTracking := "tracking-[-2.832px]" }}
 
+{{/*
+  The line height belongs with the font size, because the two interact.
+  A named size like text-6xl carries its own line height; an arbitrary one like
+  text-[1.5rem] does not. Under v3 a `leading-*` class next to a named size was
+  simply ignored — the font-size utility came later in the stylesheet and won —
+  so callers could hardcode leading-tight and get the named size's own leading
+  for the big headings and leading-tight for the arbitrary ones.
+
+  v4 resolves this through a --tw-leading custom property that the font-size
+  utility defers to, so leading-tight suddenly applied everywhere and the large
+  headings grew from 60px to 75px per line. Returning the value per branch keeps
+  what actually shipped instead of relying on which rule happens to come last.
+*/}}
+{{ $lineHeightClass := "leading-none" }}
+
 {{/* Only apply dynamic sizing for lengths that benefit from it */}}
 {{ if gt $headingLength 120 }}
   {{ $fontSizeClass = "text-xl lg:text-[1.5rem]" }}
   {{ $headingTracking = "tracking-tight" }}
+  {{ $lineHeightClass = "leading-tight" }}
 {{ else if gt $headingLength 100 }}
   {{ $fontSizeClass = "text-xl lg:text-[1.6rem] xl:text-[1.75rem]" }}
   {{ $headingTracking = "tracking-tight" }}
+  {{ $lineHeightClass = "leading-tight" }}
 {{ else if gt $headingLength 85 }}
   {{ $fontSizeClass = "text-2xl lg:text-[1.75rem] xl:text-[2rem]" }}
   {{ $headingTracking = "tracking-tight" }}
+  {{ $lineHeightClass = "leading-tight" }}
 {{ else if gt $headingLength 70 }}
   {{ $fontSizeClass = "text-2xl lg:text-[2rem] xl:text-[2.25rem]" }}
   {{ $headingTracking = "tracking-tight" }}
+  {{ $lineHeightClass = "leading-tight" }}
 {{ else if gt $headingLength 60 }}
   {{ $fontSizeClass = "text-3xl lg:text-[2.5rem] xl:text-[2.75rem]" }}
   {{ $headingTracking = "tracking-tight" }}
+  {{ $lineHeightClass = "leading-tight" }}
 {{ else if gt $headingLength 50 }}
   {{ $fontSizeClass = "text-3xl lg:text-[3rem] xl:text-[3.25rem]" }}
+  {{ $lineHeightClass = "leading-tight" }}
 {{ else if gt $headingLength 40 }}
   {{ $fontSizeClass = "text-4xl lg:text-[3.5rem] xl:text-[3.75rem]" }}
+  {{ $lineHeightClass = "leading-tight" }}
 {{ end }}
 
-{{ return (dict "fontSizeClass" $fontSizeClass "headingTracking" $headingTracking) }}
+{{ return (dict "fontSizeClass" $fontSizeClass "headingTracking" $headingTracking "lineHeightClass" $lineHeightClass) }}

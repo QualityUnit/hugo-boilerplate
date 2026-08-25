@@ -287,12 +287,13 @@ Design Tokens:
           {{ end }}
           {{ if $heading }}
             {{ $headingLength := len $heading }}
-            {{ $lineHeightClass := "leading-tight" }}
-
-            {{/* Get dynamic font classes from shared partial */}}
+            {{/* Get dynamic font classes from shared partial. The line height comes
+                 from there too: it depends on whether the branch picked a named size,
+                 which carries its own, or an arbitrary one, which does not. */}}
             {{ $fontConfig := partial "helpers/dynamic-font-classes.html" (dict "headingLength" $headingLength) }}
             {{ $fontSizeClass := $fontConfig.fontSizeClass }}
             {{ $headingTracking := $fontConfig.headingTracking }}
+            {{ $lineHeightClass := $fontConfig.lineHeightClass }}
             
             {{/* Build typewriter attributes efficiently */}}
             {{ $typewriterAttrs := "" }}
