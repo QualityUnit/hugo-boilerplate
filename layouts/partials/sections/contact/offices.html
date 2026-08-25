@@ -22,7 +22,12 @@
           </span>
           <div>
             {{ range .address }}
-            <p class="m-0 p-0">{{ . }}</p>
+            {{/* Important markers: this sits inside .prose, whose paragraph margins
+                 are a tie with a plain m-0 on specificity. Under v3 the utility came
+                 later in the stylesheet and won; v4 emits utilities sorted and the
+                 prose rule now wins, which added 20px above and below every address
+                 line. */}}
+            <p class="m-0! p-0!">{{ . }}</p>
             {{ end }}
           </div>
         </div>

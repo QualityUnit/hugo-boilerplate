@@ -468,52 +468,53 @@
 /* Compound nesting (`&input`, `&.badge-with-border`) is fine and    */
 /* stays where it was — only combinators are affected.               */
 /*                                                                   */
-/* In `utilities` so specificity decides against the single-class    */
-/* utilities, which is how it behaved under v3.                      */
+/* Unlayered, like everything else the consumer concatenates onto    */
+/* the bundle. A layer here would lose to any unlayered stylesheet   */
+/* the page loads (splide.css, the standalone component bundles) and */
+/* to the project's own custom.css, regardless of specificity. Left  */
+/* unlayered, specificity decides — which is how v3 resolved it.     */
 /* ================================================================ */
-@layer utilities {
-  /* Nested wrappers must not stack their horizontal padding. */
-  .wrapper .wrapper-content,
-  .wrapper-content .wrapper {
-    @apply px-0;
-  }
+/* Nested wrappers must not stack their horizontal padding. */
+.wrapper .wrapper-content,
+.wrapper-content .wrapper {
+  @apply px-0;
+}
 
-  /* Prose figure styles for single pages */
-  .single-content figure {
-    text-align: center;
-  }
+/* Prose figure styles for single pages */
+.single-content figure {
+  text-align: center;
+}
 
-  .single-content figure picture {
-    display: inline-block;
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
+.single-content figure picture {
+  display: inline-block;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  .single-content figure img {
-    max-width: 100%;
-    height: auto;
-    display: inline-block;
-  }
+.single-content figure img {
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+}
 
-  .prose-links a:not([class^='btn-']) {
-    text-decoration-line: underline !important;
-    text-underline-offset: 0.16em;
-    text-decoration-thickness: from-font;
-  }
+.prose-links a:not([class^='btn-']) {
+  text-decoration-line: underline !important;
+  text-underline-offset: 0.16em;
+  text-decoration-thickness: from-font;
+}
 
-  .prose-links a:hover:not([class^='btn-']) {
-    @apply text-brand-text;
-  }
+.prose-links a:hover:not([class^='btn-']) {
+  @apply text-brand-text;
+}
 
-  .border-gray-primary select,
-  .border-gray-primary textarea {
-    @apply border-gray-300! dark:border-gray-600!;
-  }
+.border-gray-primary select,
+.border-gray-primary textarea {
+  @apply border-gray-300! dark:border-gray-600!;
+}
 
-  .section-bg-dark a[data-lb] {
-    @apply text-primary-500 hover:text-primary-700;
-  }
+.section-bg-dark a[data-lb] {
+  @apply text-primary-500 hover:text-primary-700;
 }
 
 @utility wrapper-narrow {
