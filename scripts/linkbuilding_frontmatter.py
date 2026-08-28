@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Apply Hugo linkbuilding from two sources:
+"""Apply Hugo linkbuilding from three sources:
 
-1. Page-local ``[[lnks]]`` frontmatter — manually curated per-page links.
-2. Global ``data/linkbuilding/<lang>.json`` — manually maintained keyword→URL list.
+1. Page-local ``[[lnks_man]]`` frontmatter — hand-authored links that automated
+   generation must never touch. Highest priority.
+2. Page-local ``[[lnks]]`` frontmatter — links written by
+   ``generate_paragraph_linkbuilding.py``; regenerated on every run.
+3. Global ``data/linkbuilding/<lang>.json`` — manually maintained keyword→URL list.
 
 Both are applied in a single pass per HTML file. Global keywords are pre-filtered
 against raw HTML before BeautifulSoup is invoked, so only keywords that actually
@@ -282,8 +285,39 @@ def _html_path_for_url(public_dir: Path, url: str) -> Path:
     return public_dir / path / "index.html"
 
 
+# Page-local link sources, highest priority first. ``lnks_man`` is hand-authored
+# and is never rewritten by generate_paragraph_linkbuilding.py, so it wins over a
+# generated ``lnks`` entry that claims the same anchor text.
+PAGE_LINK_KEYS = (("lnks_man", 2000), ("lnks", 1000))
+
+
+def _keywords_from_metadata(metadata: dict) -> list[Keyword]:
+    """Build page-local keywords from both frontmatter link tables."""
+    keywords: list[Keyword] = []
+    seen: set[str] = set()
+    for key, base_priority in PAGE_LINK_KEYS:
+        items = metadata.get(key) or []
+        if not isinstance(items, list):
+            continue
+        for idx, item in enumerate(items):
+            if not isinstance(item, dict):
+                continue
+            text = str(item.get("text") or item.get("keyword") or "").strip()
+            url = str(item.get("path") or item.get("url") or "").strip()
+            title = str(item.get("title") or "").strip()
+            if not text or not url:
+                continue
+            dedup = text.casefold()
+            if dedup in seen:
+                continue
+            seen.add(dedup)
+            keywords.append(Keyword(keyword=text, url=url, title=title,
+                                    priority=base_priority - idx, exact_match=True))
+    return keywords
+
+
 def _load_page_keywords(content_dir: Path, public_dir: Path) -> dict[Path, list[Keyword]]:
-    """Read [[lnks]] from every .md file and map to HTML paths in public/."""
+    """Read [[lnks_man]] and [[lnks]] from every .md file and map to HTML paths in public/."""
     page_keywords: dict[Path, list[Keyword]] = {}
     for file_path in sorted(content_dir.rglob("*.md")):
         if any(part.startswith(".") for part in file_path.parts):
@@ -295,22 +329,7 @@ def _load_page_keywords(content_dir: Path, public_dir: Path) -> dict[Path, list[
             print(f"Warning: failed to parse {file_path}: {exc}", file=sys.stderr)
             continue
 
-        lnks = post.metadata.get("lnks") or []
-        if not isinstance(lnks, list) or not lnks:
-            continue
-
-        keywords: list[Keyword] = []
-        for idx, item in enumerate(lnks):
-            if not isinstance(item, dict):
-                continue
-            text = str(item.get("text") or item.get("keyword") or "").strip()
-            url = str(item.get("path") or item.get("url") or "").strip()
-            title = str(item.get("title") or "").strip()
-            if not text or not url:
-                continue
-            keywords.append(Keyword(keyword=text, url=url, title=title,
-                                    priority=1000 - idx, exact_match=True))
-
+        keywords = _keywords_from_metadata(post.metadata)
         if not keywords:
             continue
 
@@ -415,20 +434,7 @@ def _load_page_keywords_fast(html_files: list[Path], content_dir: Path, public_d
                 post = frontmatter.loads(raw, handler=frontmatter.TOMLHandler())
             except Exception:
                 break
-            lnks = post.metadata.get("lnks") or []
-            if not isinstance(lnks, list) or not lnks:
-                break
-            keywords: list[Keyword] = []
-            for idx, item in enumerate(lnks):
-                if not isinstance(item, dict):
-                    continue
-                text = str(item.get("text") or item.get("keyword") or "").strip()
-                url = str(item.get("path") or item.get("url") or "").strip()
-                title = str(item.get("title") or "").strip()
-                if not text or not url:
-                    continue
-                keywords.append(Keyword(keyword=text, url=url, title=title,
-                                        priority=1000 - idx, exact_match=True))
+            keywords = _keywords_from_metadata(post.metadata)
             if keywords:
                 page_keywords.setdefault(html_path, []).extend(keywords)
             break
@@ -493,7 +499,7 @@ def run(args: argparse.Namespace) -> int:
         else:
             html_files = []
 
-        # Source 1: page-specific links from [[lnks]] frontmatter.
+        # Source 1: page-specific links from [[lnks_man]] and [[lnks]] frontmatter.
         # Dev mode uses a fast direct-path lookup to avoid scanning all content files.
         if dev_mode:
             page_keywords = _load_page_keywords_fast(html_files, content_dir, public_dir)
@@ -557,7 +563,7 @@ def run(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Apply linkbuilding from Hugo [[lnks]] frontmatter")
+    parser = argparse.ArgumentParser(description="Apply linkbuilding from Hugo [[lnks_man]] and [[lnks]] frontmatter")
     parser.add_argument("--content-root", default="content")
     parser.add_argument("--public-dir", default="public")
     parser.add_argument("--linkbuilding-dir", default="data/linkbuilding")
