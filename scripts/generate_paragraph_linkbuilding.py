@@ -64,8 +64,24 @@ _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 _MARKDOWN_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 _SHORTCODE_RE = re.compile(r"{{[<%].*?[>%]}}", re.DOTALL)
 _SHORTCODE_OPEN_RE = re.compile(r"^\s*{{[<%]\s*([A-Za-z0-9_-]+)\b")
+# Utility and navigation paths that never take part in linkbuilding.
+#
+# Two groups, deliberately different, because the old single-group pattern ended
+# in an optional "/?" with nothing after it — so every branch matched as a bare
+# prefix. "/contact-center-software/" matched the "contact" branch and the page
+# was dropped from _load_pages entirely: it could neither receive links nor
+# generate any, in all 29 languages.
+#
+#   EXACT  — a real content page can legitimately start with these words
+#            (/contact-center-software/, /account-gratuito/, /cart-abandonment/),
+#            so they only match as a complete path segment.
+#   PREFIX — legal and system paths, where any sub-path is one too
+#            (/privacy-policy/, /privacy-beleid/, /terms-and-conditions/, /wp-admin/…).
 _NAV_PATH_RE = re.compile(
-    r"^/(about-us|cart|checkout|login|sign[-_]?in|sign[-_]?up|account|search|contact|terms|privacy|legal|admin|wp-admin|cdn-cgi)/?",
+    r"^/(?:"
+    r"(?:about-us|account|cart|checkout|contact(?:-us)?|login|search|sign[-_]?in|sign[-_]?up)(?=/|$)"
+    r"|(?:admin|cdn-cgi|legal|privacy|terms|wp-admin)"
+    r")",
     re.I,
 )
 _STOPWORDS = {
