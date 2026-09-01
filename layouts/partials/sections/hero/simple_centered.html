@@ -101,7 +101,7 @@
 {{ $search := merge (dict "searchFields" (slice "title" "content" "tags" "categories")) $search }}
 
 <div class="{{ $darkClass }}">
-  <div class="section-bg-light dark:section-bg-dark relative z-[1]">
+  <div class="section-bg-light dark:section-bg-dark relative z-1">
     <div class="relative isolate">
         <div class="wrapper {{ $padding }}">
           <div class="mx-auto max-w-2xl text-center">
@@ -174,11 +174,11 @@
           </div>
 
           {{ if $image.src }}
-            <div class="max-md:hidden mt-16 flow-root sm:mt-[4.5rem]">
+            <div class="max-md:hidden mt-16 flow-root sm:mt-18">
               <div class="relative mx-auto max-w-[1145px]">
                 <!-- Decorative background gradient -->
-                <div class="absolute -inset-4 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-2xl blur-xl"></div>
-                <div class="absolute -inset-1 bg-gradient-to-br from-primary/30 via-transparent to-primary/30 rounded-xl"></div>
+                <div class="absolute -inset-4 bg-linear-to-r from-primary/20 via-primary/10 to-primary/20 rounded-2xl blur-xl"></div>
+                <div class="absolute -inset-1 bg-linear-to-br from-primary/30 via-transparent to-primary/30 rounded-xl"></div>
                 <!-- Image with frame -->
                 <div class="relative bg-white p-2 rounded-xl shadow-2xl ring-1 ring-gray-900/10 {{ $imgBgClass }}">
                   {{ $isYouTube := or (findRE `youtube\.com` $image.src) (findRE `youtu\.be` $image.src) }}

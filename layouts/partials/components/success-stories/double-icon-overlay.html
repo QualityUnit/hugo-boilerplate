@@ -24,10 +24,10 @@ Usage:
 {{ $primaryIcon := .primaryIcon }}
 {{ $secondaryIcon := .secondaryIcon }}
 {{ $overlayPosition := .overlayPosition | default "top-12 right-3 xl:-right-10" }}
-{{ $overlaySize := .overlaySize | default "h-[8.75rem]" }}
+{{ $overlaySize := .overlaySize | default "h-35" }}
 {{ $overlayShadowClass := .overlayShadowClass | default "hero-overlay-shadow" }}
 
-<div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-50 opacity-90 flex items-center justify-center backdrop-blur-sm {{ $overlayShadowClass }}">
+<div class="absolute {{ $overlayPosition }} z-10 {{ $overlaySize }} rounded-xl border border-gray-200 bg-linear-to-b from-gray-50 to-gray-50 opacity-90 flex items-center justify-center backdrop-blur-xs {{ $overlayShadowClass }}">
   <div class="hidden sm:flex items-center justify-center h-full py-6 px-8 text-gray-600">
     {{/* Primary Icon (Company Logo) */}}
     {{ if $primaryIcon }}

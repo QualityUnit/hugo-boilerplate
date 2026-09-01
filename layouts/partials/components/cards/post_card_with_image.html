@@ -21,7 +21,7 @@
   - cardHeight: Minimum height of the card in pixels (optional, default: 556)
   - cardWrapperClasses: Additional CSS classes for wrapper card (optional, default "")
   - imageClasses: Additional CSS classes for the image (optional, default: "w-full h-full object-cover")
-  - imageWrapperClasses: Additional CSS classes for the image wrapper (optional, default: "h-48 min-h-[15.3125rem] overflow-hidden")
+  - imageWrapperClasses: Additional CSS classes for the image wrapper (optional, default: "h-48 min-h-61.25 overflow-hidden")
   - descriptionLength: Maximum length of the description in characters (optional, default: 160)
   - contentPadding: Padding of content path (optional, default "p-8")
   - contentAlign: Alignment of the content within the card (optional, default: "left")
@@ -50,7 +50,7 @@
 {{ end }}
 
 {{ $cardClasses := printf "h-full min-h-[%s] %s" $cardHeight $cardWrapperClasses }}
-{{ $imageWrapperClasses := .imageWrapperClasses | default "h-48 min-h-[15.3125rem] overflow-hidden" }}
+{{ $imageWrapperClasses := .imageWrapperClasses | default "h-48 min-h-61.25 overflow-hidden" }}
 {{ $descriptionLength := .descriptionLength | default 160 }}
 
 {{ $contentPadding := .contentPadding | default "p-8" }}
@@ -104,7 +104,7 @@
     </div>
   {{ end }}
 
-  <div class="flex flex-col flex-grow {{ $contentPadding }} {{ $contentAlignClass }}">
+  <div class="flex flex-col grow {{ $contentPadding }} {{ $contentAlignClass }}">
     {{/* Icon */}}
     {{ if $icon }}
       <div class="mb-2">
@@ -115,7 +115,7 @@
     <h3 class="text-lg/6 font-semibold text-heading group-hover:text-tertiary transition-colors duration-300">
       {{ $displayTitle }}
     </h3>
-    <p class="mt-5 text-sm leading-6 text-secondary font-normal line-clamp-3 flex-grow overflow-hidden">{{ $description }}</p>
+    <p class="mt-5 text-sm leading-6 text-secondary font-normal line-clamp-3 grow overflow-hidden">{{ $description }}</p>
     
     {{/* Date, Reading Time */}}
     {{ if $showDateReadingTime }}

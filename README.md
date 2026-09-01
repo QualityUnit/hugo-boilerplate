@@ -3,6 +3,39 @@
 A clean and minimal Hugo theme designed for QualityUnit websites with a focus on performance, SEO, and responsive design. 
 This theme includes Tailwind CSS integration, comprehensive SEO features, responsive image processing, and multilingual support out of the box.
 
+---
+
+> ## ⚠️ This theme requires Tailwind CSS v4
+>
+> **Bumping the submodule pointer without upgrading your project to Tailwind v4 will
+> break your build.** The theme's stylesheets use `@import "tailwindcss"`, `@config`,
+> `@utility` and `@reference`, none of which exist in v3.
+>
+> Your project needs, at minimum:
+>
+> ```jsonc
+> // package.json
+> "tailwindcss": "^4.3.3",
+> "@tailwindcss/postcss": "^4.3.3",
+> // and REMOVE: autoprefixer, postcss-import, @tailwindcss/aspect-ratio
+> ```
+>
+> ```js
+> // gulpfile.js — the PostCSS chain
+> const tailwindcss = require('@tailwindcss/postcss');
+> postcss([ tailwindcss(), cssnano() ])
+> ```
+>
+> **Before you migrate, read [Migrating a project to Tailwind v4](#migrating-a-project-to-tailwind-v4)
+> further down.** There are four failure modes that are not obvious and cost real
+> debugging time — standalone stylesheets using `@apply`, the `@config` path, the
+> `aspect-ratio` plugin, and `hover:` behaviour.
+>
+> Pin to the last v3 commit if you are not ready:
+> `git checkout 2517448 -- themes/boilerplate` (or keep your existing pointer).
+
+---
+
 
 ## Projects running this theme
 - [AiMingle](https://www.aimingle.cz/) - https://github.com/QualityUnit/aimingle-hugo
@@ -172,31 +205,36 @@ You need to create a `package.json` file in your project root (not in the theme 
     "build": "gulp css && gulp js"
   },
   "devDependencies": {
-    "@tailwindcss/aspect-ratio": "^0.4.2",
-    "@tailwindcss/forms": "^0.5.7",
-    "@tailwindcss/typography": "^0.5.10",
-    "autoprefixer": "^10.4.21",
+    "@tailwindcss/forms": "^0.5.11",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@tailwindcss/typography": "^0.5.20",
     "cssnano": "^7.0.7",
     "esbuild": "^0.25.5",
     "gulp": "^5.0.1",
     "gulp-postcss": "^10.0.0",
     "postcss": "^8.4.31",
     "postcss-cli": "^10.1.0",
-    "postcss-import": "^16.1.0",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.3.3",
     "yargs": "^18.0.0"
   }
 }
 ```
 
+Three packages that a v3 setup had are deliberately absent:
+
+| Removed | Why |
+|---|---|
+| `autoprefixer` | `@tailwindcss/postcss` applies vendor prefixes itself, via Lightning CSS |
+| `postcss-import` | v4 inlines `@import` itself |
+| `@tailwindcss/aspect-ratio` | declares no v4 support; v4 has `aspect-*` natively |
+
 ### Build System Overview
 
 The theme uses a Gulp-based build system that:
 
-1. **CSS Processing**: 
-   - Processes CSS `@import` statements with postcss-import
-   - Compiles Tailwind CSS with PostCSS
-   - Adds vendor prefixes with autoprefixer
+1. **CSS Processing**:
+   - Compiles Tailwind CSS with `@tailwindcss/postcss`, which also inlines
+     `@import` and applies vendor prefixes
    - Minifies output with cssnano
 2. **JavaScript Bundling**: Uses ESBuild for fast bundling and minification
 3. **Watch Mode**: Provides live reloading during development
@@ -209,9 +247,7 @@ The build system requires a `gulpfile.js` in your project root:
 ```javascript
 const gulp = require('gulp');
 const postcss = require('gulp-postcss');
-const postcssImport = require('postcss-import');
-const tailwindcss = require('tailwindcss');
-const autoprefixer = require('autoprefixer');
+const tailwindcss = require('@tailwindcss/postcss');
 const esbuild = require('esbuild');
 const { spawn } = require('child_process');
 const cssnano = require('cssnano');
@@ -224,13 +260,10 @@ const cssDest = 'static/css';
 const jsEntryPoints = ['themes/boilerplate/assets/js/main.js'];
 const jsDest = 'static/js';
 
-// CSS build with @import processing
 function buildCSS() {
     return gulp.src(cssSrc)
         .pipe(postcss([
-            postcssImport,    // Process @import statements first
-            tailwindcss,
-            autoprefixer,
+            tailwindcss(),   // also inlines @import and adds vendor prefixes
             cssnano()
         ]))
         .pipe(gulp.dest(cssDest));
@@ -239,37 +272,43 @@ function buildCSS() {
 // Build tasks and configuration...
 ```
 
+If you also compile `assets/css/components/*.css` individually, **exclude any
+component stylesheet that `main.css` already `@import`s** — currently
+`components/floating-cta.css`. See
+[Migrating a project to Tailwind v4](#migrating-a-project-to-tailwind-v4) for why.
+
 ## PostCSS Configuration
 
 ### Required Setup
 
-This theme uses Tailwind CSS which is processed through Gulp and PostCSS. You **must** create a `postcss.config.js` file in your project root (not in the theme directory) with the following content:
+Create a `postcss.config.js` in your project root (not in the theme directory):
 
 ```javascript
 // postcss.config.js in your project root
 module.exports = {
   plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
+    '@tailwindcss/postcss': {},
   },
 };
 ```
 
+Note that if your `gulpfile.js` builds its own PostCSS plugin array — as the
+example above does — this file is never read. It applies only to direct
+`postcss-cli` invocations.
+
 ### Tailwind Configuration
 
-The theme includes a pre-configured `tailwind.config.js` that:
-
-1. Scans the correct template directories for class usage
-2. Includes necessary Tailwind plugins
-3. Provides custom color schemes and utilities
+The theme keeps using a JavaScript `tailwind.config.js`, loaded from CSS with
+`@config`. Your project supplies its own; the copy inside the theme directory is
+only a template for projects that have none.
 
 ```javascript
-// tailwind.config.js example
+// tailwind.config.js in YOUR project root
 module.exports = {
     darkMode: 'class',
     content: [
         './layouts/**/*.html',
-        './themes/boilerplate/layouts/**/*.html', 
+        './themes/boilerplate/layouts/**/*.html',
         './themes/boilerplate/assets/js/**/*.js',
     ],
     theme: {
@@ -280,38 +319,136 @@ module.exports = {
     plugins: [
         require('@tailwindcss/typography'),
         require('@tailwindcss/forms'),
-        require('@tailwindcss/aspect-ratio'),
     ],
 };
 ```
+
+`content` still works under `@config`. Two keys do **not**: `safelist` and
+`corePlugins`. Replace a safelist with `@source inline("...")` in your CSS.
 
 ### Build Process Integration
 
 The Gulp build system automatically:
 
-1. **Processes @import statements**: Uses postcss-import to inline imported CSS files
-2. **Compiles Tailwind CSS**: Runs Tailwind CSS compilation with PostCSS
-3. **Applies Autoprefixer**: Adds vendor prefixes for browser compatibility  
-4. **Minifies Output**: Uses cssnano for production-ready CSS
-5. **Watches Changes**: Rebuilds CSS when source files change
+1. **Compiles Tailwind CSS**: `@tailwindcss/postcss` resolves `@import`, `@config`
+   and `@apply`, and applies vendor prefixes
+2. **Minifies Output**: Uses cssnano for production-ready CSS
+3. **Watches Changes**: Rebuilds CSS when source files change
 
 ### CSS Import System
 
-The theme supports CSS imports in the main CSS file:
-
 ```css
 /* themes/boilerplate/assets/css/main.css */
-@import "./fonts.css";
-@import "./typewriter.css";
-@import "./lazy-images.css";
-@import "./lazy-videos.css";
+@custom-variant hover (&:hover);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './variables.css' layer(base);
+@import './fonts.css' layer(base);
+@import './typewriter.css' layer(base);
+
+@import 'tailwindcss';
+@config '../../../../tailwind.config.js';
 ```
 
-The `postcss-import` plugin automatically inlines these imports during the build process, creating a single minified CSS file in `static/css/main.css`.
+`@config` points **four levels up**, at your project's root config — not the
+theme's own. Hugo always mounts the theme at `themes/boilerplate/`, so this path is
+correct for every project. Do not "fix" it to `../../`.
+
+Tailwind inlines these imports during the build, producing a single minified
+`static/css/main.css`.
+
+## Migrating a project to Tailwind v4
+
+Reference implementation: **LiveAgent** — see qualityunit/hugo-boilerplate#384 and
+the matching LiveAgent-hugo PR.
+
+Run the official codemod first; it handles the bulk of the class renames well,
+including Hugo's `{{- … -}}` delimiters:
+
+```bash
+npx @tailwindcss/upgrade      # requires a clean git tree
+```
+
+Then deal with the parts it cannot know about.
+
+### 1. Standalone stylesheets that use `@apply`
+
+A stylesheet compiled by Tailwind on its own, with no `@import "tailwindcss"`, was
+perfectly legal in v3. In v4 it is a **hard build failure**:
+
+```
+Cannot apply unknown utility class `sm:px-6`.
+```
+
+It needs `@reference` to get theme context without emitting anything:
+
+```css
+@reference "../../themes/boilerplate/assets/css/tailwind-context.css";
+```
+
+Point it at `tailwind-context.css`, **never at `main.css`** — `main.css` imports
+component stylesheets, so referencing it back is circular
+("Exceeded maximum recursion depth").
+
+And a file that `main.css` already `@import`s must have **no** `@reference` at all
+— the referenced context declares `@config`, which becomes a nested `@config`
+once `main.css` inlines the file, and v4 rejects that. Exclude such files from any
+"compile every `components/*.css` individually" task instead.
+
+### 2. The `@config` path
+
+The codemod writes `@config '../../tailwind.config.js'`, which resolves to the
+**theme's** config. Under v3 the config came from the working directory, i.e. your
+project's root config; the theme's copy was never read. Left uncorrected this
+silently swaps your entire palette. The theme's `main.css` already uses the right
+path — check yours if you add your own entrypoint.
+
+### 3. Dropping `@tailwindcss/aspect-ratio`
+
+Not just a class rename. The plugin also styled the *direct child*:
+
+```css
+.aspect-w-4 > * { position: absolute; inset: 0; width: 100%; height: 100% }
+```
+
+Native `aspect-ratio` does not. Where the child is a wrapper — `lazyimg` renders a
+`<figure>`, so the `class` parameter lands on the inner `<img>` — the wrapper has no
+height and images collapse. Pass `"figureClass" "size-full"` alongside `"class"`.
+
+### 4. `hover:` on touch devices
+
+v4 gates `hover:` behind `@media (hover: hover)`. The theme currently overrides that
+back to v3 behaviour with `@custom-variant hover (&:hover)`, declared in **both**
+`main.css` and `tailwind-context.css` — a stylesheet reaching Tailwind through
+`@reference` does not see variants declared in `main.css`, and the two bundles would
+otherwise disagree on touch devices.
+
+The override does **not** reach `@apply hover:*` inside files that `main.css`
+imports; those are resolved before the variant takes effect. Write them as explicit
+`&:hover { @apply … }` blocks.
+
+### Compatibility layer
+
+`main.css` carries a `TODO(v4-compat)` block restoring five v3 defaults —
+`border-color`, `placeholder`, button `cursor`, ring colour, and `hover:`. Entries
+are independent and meant to be removed one at a time, easiest first:
+
+```
+hover → placeholder → cursor → ring → border-color
+```
+
+`border-color` is last because it affects roughly 555 call sites.
+
+### Browser support
+
+v4 targets Chrome 111+ / Safari 16.4+ / Firefox 128+. In practice v4.1+ emits
+fallbacks and older browsers still render usably. What genuinely breaks below those
+versions is Tailwind's **default** palette, which is defined in `oklch()` with no
+fallback — badges and coloured callouts lose their background. Colours declared as
+`rgb(var(--x) / <alpha-value>)` in your config, which is how the theme's brand
+palette works, are unaffected.
+
+Measure before worrying: check your GA4 share of Windows 7 (Chrome caps at 109) and
+macOS Catalina (Safari caps at 15.6).
 
 ## JavaScript Bundling with ESBuild
 
@@ -362,7 +499,18 @@ If you encounter build errors:
 
 **Common Issues:**
 
-- **MIME type errors**: Usually resolved by properly configuring postcss-import plugin
+- **`Cannot apply unknown utility class ...`** — a stylesheet compiled on its own is
+  using `@apply` with no Tailwind context. Add `@reference` to
+  `tailwind-context.css`. See
+  [Migrating a project to Tailwind v4](#migrating-a-project-to-tailwind-v4).
+- **`@config cannot be nested`** — a file that `main.css` `@import`s carries a
+  `@reference` (or its own `@config`). Remove it and exclude that file from any
+  standalone-compile task.
+- **`Exceeded maximum recursion depth`** — a `@reference` points at `main.css`.
+  Point it at `tailwind-context.css` instead.
+- **Colours all wrong after upgrading** — `@config` is resolving the theme's own
+  config instead of your project's. It must be four levels up from
+  `themes/boilerplate/assets/css/`.
 - **Missing CSS files**: Ensure all @import paths are correct and files exist
 - **Build failures**: Check that all dependencies are installed and paths are correct
 

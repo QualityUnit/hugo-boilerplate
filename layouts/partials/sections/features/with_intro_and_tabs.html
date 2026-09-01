@@ -92,7 +92,7 @@
     {{ $content | safeHTML }}
   {{ else if eq $type "code" }}
     <div class="bg-gray-900 text-white p-5 rounded-lg not-prose">
-      <code class="p-0 m-0 whitespace-pre-wrap break-words">{{ $content }}</code>
+      <code class="p-0 m-0 whitespace-pre-wrap wrap-break-word">{{ $content }}</code>
     </div>
   {{ else if eq $type "button" }}
     <div class="mt-6 not-prose">
@@ -106,7 +106,7 @@
     <ul class="pl-0 space-y-4 {{ if eq $listType "checks" }}my-10{{ else }}mt-10{{ end }}">
       {{ range $index, $item := $items }}
         <li class="flex pl-0">
-          <span class="flex-shrink-0 flex mt-2 mr-3 {{ if eq $listType "numbers" }}items-center justify-center rounded-full bg-primary icon-on-brand text-[10px] h-5 w-5{{ else if eq $listType "checks" }}product-icon{{ else }}justify-center product-icon{{ end }}">
+          <span class="shrink-0 flex mt-2 mr-3 {{ if eq $listType "numbers" }}items-center justify-center rounded-full bg-primary icon-on-brand text-[10px] h-5 w-5{{ else if eq $listType "checks" }}product-icon{{ else }}justify-center product-icon{{ end }}">
             {{ if eq $listType "checks" }}
               {{ partial "icons/check-circle-solid" "w-5 h-5 product-icon" }}
             {{ else if eq $listType "numbers" }}
@@ -180,7 +180,7 @@
         </div>
 
         <div class="w-full mx-auto">
-          <div class="flex overflow-x-auto w-full md:-mx-[2rem]">
+          <div class="flex overflow-x-auto w-full md:-mx-8">
             <div class="flex-auto border-b border-gray-primary w-full">
               <div class="flex md:px-8 w-full" aria-orientation="horizontal" role="tablist">
                 {{ range $index, $tab := $tabs }}

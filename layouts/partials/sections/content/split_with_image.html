@@ -114,7 +114,7 @@ Design Tokens:
   {{ end }}
   <div class="wrapper flex flex-col lg:flex-row lg:justify-between lg:items-stretch {{ if not $videoUrl }}gap-x-8{{ end }}{{ if eq $layout "image-right" }} lg:flex-row-reverse{{ end }}">
     <div class="lg:flex lg:w-1/2 lg:items-start lg:shrink lg:grow-0 xl:relative xl:inset-y-0 {{ if eq $layout "image-right" }}xl:left-0{{ else }}xl:right-0{{ end }}">
-      <div class="group/video relative rounded-lg {{ $mediaContainerPaddingY }} flex items-start justify-center w-full mx-auto max-w-[38rem] {{ if $videoUrl }}h-full overflow-hidden max-h-[35rem]{{ end }}">
+      <div class="group/video relative rounded-lg {{ $mediaContainerPaddingY }} flex items-start justify-center w-full mx-auto max-w-152 {{ if $videoUrl }}h-full overflow-hidden max-h-140{{ end }}">
         {{ if $videoUrl }}
           <div class="relative flex w-full h-full">
             {{/* Display video */}}
@@ -128,15 +128,15 @@ Design Tokens:
                   "pureVideo" $pureVideo
                   "useLightbox" true
                   "showPlayOverlay" true
-                  "playBtnClass" "white-circle-bounce size-[5.5rem] md:size-[7.75rem] rounded-full backdrop-blur-[3px]"
-                  "playBtnInnerClass" "bg-white relative size-[4.5rem] md:size-24 rounded-full hover:scale-105 transition-transform duration-300"
+                  "playBtnClass" "white-circle-bounce size-22 md:size-31 rounded-full backdrop-blur-[3px]"
+                  "playBtnInnerClass" "bg-white relative size-18 md:size-24 rounded-full hover:scale-105 transition-transform duration-300"
                   "svgClass" "size-10 md:size-14 ml-1 text-[#4F46E5] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
               ) }}
               {{ if or $videoTitle $videoDescription }}
               <div class="absolute left-5 bottom-5 flex items-end z-30">
                   <div class="text-white">
                   {{ if $videoTitle }}
-                      <h3 class="font-semibold text-opacity-75">{{ $videoTitle }}</h3>
+                      <h3 class="font-semibold">{{ $videoTitle }}</h3>
                   {{ end }}
                   {{ if $videoDescription }}
                       <p class="text-sm mt-1.5 tracking-[-0.28px] group-hover/video:underline">
@@ -291,7 +291,7 @@ Design Tokens:
 
         {{/* Main content */}}
         {{ if $markdownContent }}
-          <div class="mt-10 max-w-full text-secondary prose-links lg:max-w-full [&_p]:mb-5 [&_h1]:mb-5 [&_h2]:mb-5 [&_h3]:mb-5 [&_h4]:mb-5 [&_h5]:mb-5 [&_h6]:mb-5 [&_ul]:mb-5 [&_ol]:mb-5 [&_*:last-child]:mb-0 [&_pre]:overflow-x-hidden [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:font-sans [&_code]:whitespace-pre-wrap [&_code]:break-words [&_code]:font-sans">
+          <div class="mt-10 max-w-full text-secondary prose-links lg:max-w-full [&_p]:mb-5 [&_h1]:mb-5 [&_h2]:mb-5 [&_h3]:mb-5 [&_h4]:mb-5 [&_h5]:mb-5 [&_h6]:mb-5 [&_ul]:mb-5 [&_ol]:mb-5 [&_*:last-child]:mb-0 [&_pre]:overflow-x-hidden [&_pre]:whitespace-pre-wrap [&_pre]:wrap-break-word [&_pre]:font-sans [&_code]:whitespace-pre-wrap [&_code]:wrap-break-word [&_code]:font-sans">
             {{ if $contentAsHTML }}
                 {{ $markdownContent | safeHTML }}
             {{ else }}

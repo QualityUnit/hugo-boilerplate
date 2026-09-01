@@ -18,7 +18,11 @@
 {{ $isDark := eq $theme "dark" }}
 {{ $darkClass := cond $isDark "dark" "" }}
 
-{{ $iconClass := "w-7 h-7 p-1 rounded-lg flex-shrink-0 product-icon" }}
+{{/* No product-icon here: the only call site pairs this with icon-on-brand, and under
+     Tailwind v4 custom utilities are emitted in sorted order rather than source order,
+     so product-icon now lands after icon-on-brand and wins the `color` — painting the
+     icon brand-on-brand, i.e. invisible against the surface-brand wrapper. */}}
+{{ $iconClass := "w-7 h-7 p-1 rounded-lg shrink-0" }}
 {{ $iconWrapperClass := "size-10 p-2 surface-brand rounded-lg flex items-center justify-center" }}
 
 <div class="{{ $darkClass }}">
@@ -87,7 +91,7 @@
           {{ range $index, $feature := $features }}
           <div class="relative px-6 lg:px-8 py-8 {{ if lt $index (sub $featuresLen 1) }}lg:border-r border-gray-200 dark:border-gray-700{{ end }} {{ if ge $index 3 }}border-t border-gray-200 dark:border-gray-700{{ end }}">
             {{ if .icon }}
-              <div class="{{ $iconWrapperClass }} mb-6 flex-shrink-0">
+              <div class="{{ $iconWrapperClass }} mb-6 shrink-0">
                 {{ partial "components/media/icon.html" (dict "icon" .icon "class" (printf "%s icon-on-brand" $iconClass)) }}
               </div>
             {{ end }}

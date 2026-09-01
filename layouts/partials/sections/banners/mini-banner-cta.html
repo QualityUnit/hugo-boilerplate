@@ -37,26 +37,26 @@
 <div class="mini-banner-cta min-h-[72px] rounded-xl border border-gray-200 overflow-hidden my-6">
   <div class="bg-gray-100 min-h-[72px] flex flex-col lg:flex-row lg:items-center gap-4 p-3 md:p-4 lg:py-3">
     <div class="flex items-center gap-3 lg:mr-auto">
-      <div class="bg-gray-100 p-2 flex-shrink-0 rounded-l-lg">
+      <div class="bg-gray-100 p-2 shrink-0 rounded-l-lg">
         {{ $logo := site.Params.logo_icon }}
         {{ if and $logo (fileExists (printf "cdn-assets/%s" $logo)) }}
           {{ $logoUrl := partial "functions/get-static-url.html" (dict "path" (printf "/images/%s" $logo)) }}
-          <img src="{{ $logoUrl }}" alt="{{ i18n "header.logo_alt" | default "Logo" }}" width="36" class="w-8 md:w-9 object-contain !my-0 !block" loading="lazy" />
+          <img src="{{ $logoUrl }}" alt="{{ i18n "header.logo_alt" | default "Logo" }}" width="36" class="w-8 md:w-9 object-contain my-0! block!" loading="lazy" />
         {{ else }}
           {{ partial "icons/rocket-launch-solid" "w-8 md:w-9 text-primary-600" }}
         {{ end }}
       </div>
       <div class="min-w-0 flex-1">
-        <h3 class="text-sm lg:text-base font-semibold leading-tight !my-0 truncate">{{ $heading }}</h3>
-        <p class="text-xs lg:text-sm !my-0 !mt-0.5 line-clamp-2">{{ $description }}</p>
+        <h3 class="text-sm lg:text-base font-semibold leading-tight my-0! truncate">{{ $heading }}</h3>
+        <p class="text-xs lg:text-sm my-0! mt-0.5! line-clamp-2">{{ $description }}</p>
       </div>
     </div>
 
-    <div class="flex flex-col sm:flex-row gap-2 lg:flex-shrink-0">
-      <a href="{{ $primaryUrl }}" class="btn-primary px-3.5 py-2.5 text-center whitespace-nowrap !no-underline not-prose group">
+    <div class="flex flex-col sm:flex-row gap-2 lg:shrink-0">
+      <a href="{{ $primaryUrl }}" class="btn-primary px-3.5 py-2.5 text-center whitespace-nowrap no-underline! not-prose group">
         {{ $primaryText }}
       </a>
-      <a href="{{ $secondaryUrl }}" class="btn-secondary px-3.5 py-2.5 text-sm text-center whitespace-nowrap !no-underline">
+      <a href="{{ $secondaryUrl }}" class="btn-secondary px-3.5 py-2.5 text-sm text-center whitespace-nowrap no-underline!">
         {{ $secondaryText }}
       </a>
     </div>

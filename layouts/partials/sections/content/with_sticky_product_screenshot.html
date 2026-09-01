@@ -52,7 +52,7 @@
 
 <div class="relative isolate overflow-hidden {{ $bgColor }} {{ $padding }} lg:overflow-visible lg:px-0">
   <div class="absolute inset-0 -z-10 overflow-hidden">
-    <svg class="absolute top-0 left-[max(50%,25rem)] h-[64rem] w-[128rem] -translate-x-1/2 {{ $patternColor }} [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)]" aria-hidden="true">
+    <svg class="absolute top-0 left-[max(50%,25rem)] h-256 w-[128rem] -translate-x-1/2 {{ $patternColor }} mask-[radial-gradient(64rem_64rem_at_top,white,transparent)]" aria-hidden="true">
       <defs>
         <pattern id="e813992c-7d03-4cc4-a2bd-151760b470a0" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse">
           <path d="M100 200V.5M.5 .5H200" fill="none" />
@@ -78,7 +78,7 @@
       {{ partial "components/media/lazyimg.html" (dict 
         "src" $screenshot 
         "alt" $screenshotAlt
-        "class" "w-[48rem] max-w-none rounded-xl bg-gray-900 ring-1 shadow-xl ring-gray-400/10 sm:w-[57rem]"
+        "class" "w-3xl max-w-none rounded-xl bg-gray-900 ring-1 shadow-xl ring-gray-400/10 sm:w-228"
       ) }}
     </div>
     <div class="lg:col-span-2 lg:col-start-1 lg:row-start-2 lg:mx-auto lg:grid lg:w-full lg:max-w-7xl lg:grid-cols-2 lg:gap-x-8 lg:px-8">
