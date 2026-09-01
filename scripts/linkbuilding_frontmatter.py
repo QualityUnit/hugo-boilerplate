@@ -316,7 +316,29 @@ def _keywords_from_metadata(metadata: dict) -> list[Keyword]:
     return keywords
 
 
-def _load_page_keywords(content_dir: Path, public_dir: Path) -> dict[Path, list[Keyword]]:
+def _lang_url_carries_prefix(hugo_root: Path, lang: str) -> bool:
+    """Does the URL Hugo produces for this language already contain its language segment?
+
+    Hugo decides this by whether the language has its own baseURL:
+
+      own baseURL   -> the language is its own site; URLs carry no language segment
+                       LiveAgent: liveagent.cz + "/chaport-migrace/"
+      no baseURL    -> the language is a subfolder of one site; Hugo prefixes it
+                       FlowHunt: flowhunt.io + "/fr/ai-flow-templates/"
+
+    Read it from config rather than probing the filesystem: a built site also contains
+    alias stubs (public/es/es/... on FlowHunt), and guessing from what exists on disk
+    picks those up and injects into a redirect page instead of the real one.
+    """
+    try:
+        languages = _get_hugo_config_cached(hugo_root).get("languages") or {}
+        entry = languages.get(lang) or {}
+        return not str(entry.get("baseURL") or "").strip()
+    except Exception:
+        return False
+
+
+def _load_page_keywords(content_dir: Path, html_root: Path) -> dict[Path, list[Keyword]]:
     """Read [[lnks_man]] and [[lnks]] from every .md file and map to HTML paths in public/."""
     page_keywords: dict[Path, list[Keyword]] = {}
     for file_path in sorted(content_dir.rglob("*.md")):
@@ -334,7 +356,7 @@ def _load_page_keywords(content_dir: Path, public_dir: Path) -> dict[Path, list[
             continue
 
         page_url = _url_for_file(file_path, content_dir, post.metadata or {})
-        html_path = _html_path_for_url(public_dir, page_url)
+        html_path = _html_path_for_url(html_root, page_url)
         page_keywords.setdefault(html_path, []).extend(keywords)
     return page_keywords
 
@@ -473,6 +495,22 @@ def run(args: argparse.Namespace) -> int:
         else:
             lang_public_dir = public_dir if lang == "en" else public_dir / lang
 
+        # Where the built HTML for THIS language's pages lives, which is not always
+        # lang_public_dir. Hugo prefixes URLs with the language only when that language
+        # has no baseURL of its own, so the two site layouts need different roots:
+        #
+        #   own baseURL (LiveAgent)  url "/chaport-migrace/"  -> public/cs/ + url
+        #   no baseURL  (FlowHunt)   url "/fr/ai-flow..."     -> public/   + url
+        #
+        # --content-at-root stays an explicit override for per-language root builds.
+        if args.content_at_root or lang_public_dir == public_dir:
+            html_root, layout = public_dir, "content at root"
+        elif _lang_url_carries_prefix(content_root.parent, lang):
+            html_root, layout = public_dir, "shared domain, language in URL"
+        else:
+            html_root, layout = lang_public_dir, "per-language domain"
+        print(f"[{lang}] layout: {layout} -> HTML under {html_root}")
+
         # --file: per-file dev mode — no rglob, no content scan, no global keywords.
         dev_mode = bool(args.files)
 
@@ -502,16 +540,17 @@ def run(args: argparse.Namespace) -> int:
         # Source 1: page-specific links from [[lnks_man]] and [[lnks]] frontmatter.
         # Dev mode uses a fast direct-path lookup to avoid scanning all content files.
         if dev_mode:
-            page_keywords = _load_page_keywords_fast(html_files, content_dir, public_dir)
+            page_keywords = _load_page_keywords_fast(html_files, content_dir, html_root)
             global_keywords: list[Keyword] = []  # skip global keywords in dev mode
         else:
-            page_keywords = _load_page_keywords(content_dir, public_dir)
+            page_keywords = _load_page_keywords(content_dir, html_root)
             # Source 2: global manual keywords from data/linkbuilding/<lang>.json
             # Applied to ALL HTML files; pre-filtered per page against raw HTML before DOM parse.
             global_keywords = _load_global_keywords(linkbuilding_dir, lang)
         global_kw_data = [asdict(kw) for kw in global_keywords]
 
-        total_pages += len(page_keywords)
+        lang_pages = len(page_keywords)
+        total_pages += lang_pages
 
         # Work list: per-file only passes page-specific keywords.
         # Global keywords are loaded once per worker via initializer.
@@ -551,6 +590,18 @@ def run(args: argparse.Namespace) -> int:
         total_modified += lang_modified
         total_links += lang_links
         print(f"[{lang}] processed {lang_processed} files, modified {lang_modified}, added {lang_links} links")
+
+        # Frontmatter said there is work to do, yet no HTML file was touched. That is
+        # never a content problem — it means the [[lnks]]/[[lnks_man]] entries were
+        # mapped to HTML paths that do not exist, so the whole page-local source was
+        # silently discarded. Shout, because the run still "succeeds" otherwise.
+        if lang_pages > 0 and lang_processed == 0:
+            print(
+                f"::warning::[{lang}] {lang_pages} page(s) carry [[lnks]] but no HTML file was "
+                f"processed — page-local links were dropped. Expected HTML under "
+                f"{html_root}; check that this is where the build actually wrote them.",
+                file=sys.stderr,
+            )
 
     summary = {
         "pages_with_lnks": total_pages,
