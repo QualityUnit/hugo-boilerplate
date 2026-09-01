@@ -14,6 +14,12 @@
   emitted by the blocking variant, so legacy sites keep the exact pre-rework JS
   behavior (legacy cookie only, analytics-driven vendor hooks).
 @params: title, message, policyText, policyUrl, theme (light|dark) — same for both variants.
+  position (center|bottom) — blocking variant only, desktop placement of the card.
+  Default "center". Pass "bottom" on pages whose only call to action sits mid-screen
+  (the 404 page: label, heading, one sentence, one button) — the centered card lands
+  exactly on that button, so the first paint reads as a page with no way out. Mobile
+  is bottom-docked either way. A site that varies this per page must give partialCached
+  a variant key (e.g. `.Kind`), otherwise the first rendered page wins for all.
 */}}
 {{- $blocking := false -}}
 {{- with site.Params.cookieConsent -}}{{- $blocking = .blocking | default false -}}{{- end -}}
@@ -33,6 +39,7 @@
 {{- $rejectAllText := (i18n "cookie_consent_reject_all") | default (i18n "cookie_consent_accept_necessary") -}}
 {{- $manageText := (i18n "cookie_consent_manage") | default (i18n "cookie_consent_settings") -}}
 {{- $bannerId := "cookie-consent-banner" -}}
+{{- $position := .position | default "center" -}}
 
 {{/* Blocking center modal (issue #4193): the OUTER element keeps display:block
      (theme cookie-consent.js forces inline display on it) — the card is centered by
@@ -42,8 +49,11 @@
 <div id="{{ $bannerId }}" data-cookie-consent-banner data-consent-v2 class="fixed inset-0 z-[99999] {{ $darkClass }}">
     <div class="absolute inset-0 bg-black/30"></div>
     {{/* Mobile: dock the card to the bottom so the (stacked) buttons sit in the
-         thumb zone, Accept last = lowest. Desktop (sm+): vertically centered. */}}
-    <div class="pointer-events-none absolute inset-0 flex items-end justify-center p-4 pb-20 sm:items-center sm:pb-4">
+         thumb zone, Accept last = lowest. Desktop (sm+): vertically centered, unless
+         the caller passed position="bottom" — then the card stays docked at both sizes.
+         The settings modal below is always centered: it is opened by a deliberate click,
+         so it never hides something the visitor had not already seen. */}}
+    <div class="pointer-events-none absolute inset-0 flex items-end justify-center p-4 pb-20 {{ if eq $position "center" }}sm:items-center {{ end }}sm:pb-4">
         <div role="dialog" aria-modal="true" aria-labelledby="cookie-consent-title" class="pointer-events-auto w-full max-w-xl rounded-xl section-bg-light dark:section-bg-dark p-6 ring-1 shadow-lg ring-gray-900/10">
             <p class="text-secondary text-sm/6"><strong id="cookie-consent-title" class="text-heading text-md mb-4 font-semibold">{{ $title }}</strong><br> {{ $message }} See our <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $policyUrl) }}" class="font-semibold text-primary hover:text-primary-500">{{ $policyText }}</a>.</p>
             <div class="mt-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
