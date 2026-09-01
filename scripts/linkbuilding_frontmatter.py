@@ -502,16 +502,17 @@ def run(args: argparse.Namespace) -> int:
         # Source 1: page-specific links from [[lnks_man]] and [[lnks]] frontmatter.
         # Dev mode uses a fast direct-path lookup to avoid scanning all content files.
         if dev_mode:
-            page_keywords = _load_page_keywords_fast(html_files, content_dir, public_dir)
+            page_keywords = _load_page_keywords_fast(html_files, content_dir, lang_public_dir)
             global_keywords: list[Keyword] = []  # skip global keywords in dev mode
         else:
-            page_keywords = _load_page_keywords(content_dir, public_dir)
+            page_keywords = _load_page_keywords(content_dir, lang_public_dir)
             # Source 2: global manual keywords from data/linkbuilding/<lang>.json
             # Applied to ALL HTML files; pre-filtered per page against raw HTML before DOM parse.
             global_keywords = _load_global_keywords(linkbuilding_dir, lang)
         global_kw_data = [asdict(kw) for kw in global_keywords]
 
-        total_pages += len(page_keywords)
+        lang_pages = len(page_keywords)
+        total_pages += lang_pages
 
         # Work list: per-file only passes page-specific keywords.
         # Global keywords are loaded once per worker via initializer.
@@ -551,6 +552,18 @@ def run(args: argparse.Namespace) -> int:
         total_modified += lang_modified
         total_links += lang_links
         print(f"[{lang}] processed {lang_processed} files, modified {lang_modified}, added {lang_links} links")
+
+        # Frontmatter said there is work to do, yet no HTML file was touched. That is
+        # never a content problem — it means the [[lnks]]/[[lnks_man]] entries were
+        # mapped to HTML paths that do not exist, so the whole page-local source was
+        # silently discarded. Shout, because the run still "succeeds" otherwise.
+        if lang_pages > 0 and lang_processed == 0:
+            print(
+                f"::warning::[{lang}] {lang_pages} page(s) carry [[lnks]] but no HTML file was "
+                f"processed — page-local links were dropped. Expected HTML under "
+                f"{lang_public_dir}; check that this is where the build actually wrote them.",
+                file=sys.stderr,
+            )
 
     summary = {
         "pages_with_lnks": total_pages,
