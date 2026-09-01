@@ -316,7 +316,31 @@ def _keywords_from_metadata(metadata: dict) -> list[Keyword]:
     return keywords
 
 
-def _load_page_keywords(content_dir: Path, public_dir: Path) -> dict[Path, list[Keyword]]:
+def _resolve_html_path(page_url: str, public_dir: Path, lang_public_dir: Path) -> Path:
+    """Locate the built HTML for a content file across the two site layouts we support.
+
+    Whether a page URL already carries its language segment depends on the site:
+
+      per-language domains (LiveAgent)   url "/chaport-migrace/"
+                                         -> public/cs/chaport-migrace/index.html
+      one domain, language subfolders    url "/fr/ai-flow-templates/"
+      (FlowHunt)                         -> public/fr/ai-flow-templates/index.html
+
+    Prefixing blindly breaks the second layout; not prefixing breaks the first. Rather
+    than infer the layout from config, try the language root and fall back to the
+    shared one, so the answer comes from what the build actually produced. When the two
+    roots are equal (English, or --content-at-root) this is a single check.
+    """
+    lang_path = _html_path_for_url(lang_public_dir, page_url)
+    if lang_public_dir == public_dir:
+        return lang_path
+    if lang_path.exists():
+        return lang_path
+    shared_path = _html_path_for_url(public_dir, page_url)
+    return shared_path if shared_path.exists() else lang_path
+
+
+def _load_page_keywords(content_dir: Path, public_dir: Path, lang_public_dir: Path) -> dict[Path, list[Keyword]]:
     """Read [[lnks_man]] and [[lnks]] from every .md file and map to HTML paths in public/."""
     page_keywords: dict[Path, list[Keyword]] = {}
     for file_path in sorted(content_dir.rglob("*.md")):
@@ -334,7 +358,7 @@ def _load_page_keywords(content_dir: Path, public_dir: Path) -> dict[Path, list[
             continue
 
         page_url = _url_for_file(file_path, content_dir, post.metadata or {})
-        html_path = _html_path_for_url(public_dir, page_url)
+        html_path = _resolve_html_path(page_url, public_dir, lang_public_dir)
         page_keywords.setdefault(html_path, []).extend(keywords)
     return page_keywords
 
@@ -502,10 +526,10 @@ def run(args: argparse.Namespace) -> int:
         # Source 1: page-specific links from [[lnks_man]] and [[lnks]] frontmatter.
         # Dev mode uses a fast direct-path lookup to avoid scanning all content files.
         if dev_mode:
-            page_keywords = _load_page_keywords_fast(html_files, content_dir, lang_public_dir)
+            page_keywords = _load_page_keywords_fast(html_files, content_dir, public_dir)
             global_keywords: list[Keyword] = []  # skip global keywords in dev mode
         else:
-            page_keywords = _load_page_keywords(content_dir, lang_public_dir)
+            page_keywords = _load_page_keywords(content_dir, public_dir, lang_public_dir)
             # Source 2: global manual keywords from data/linkbuilding/<lang>.json
             # Applied to ALL HTML files; pre-filtered per page against raw HTML before DOM parse.
             global_keywords = _load_global_keywords(linkbuilding_dir, lang)
