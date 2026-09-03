@@ -361,11 +361,14 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    /* rgb(): the palette in variables.css stores channels, not colours, so a
-       bare var() here yields `229 229 229` — not a valid border-color, which
-       silently falls back to currentcolor and undoes the whole point of this
-       compat rule. */
-    border-color: rgb(var(--color-gray-200, 229 229 229) / 1);
+    /* --color-gray-200 is Tailwind v4's own built-in default-palette token —
+       always defined, already a complete color (oklch(...)), never the
+       project's "raw channels" convention used by custom brand colors in
+       variables.css. Wrapping it in rgb(var(...) / 1) nests a color() inside
+       rgb(), which is invalid CSS: the whole declaration got dropped and fell
+       straight back to currentcolor, silently undoing this compat rule for
+       every plain border-color-less border. Reference the variable directly. */
+    border-color: var(--color-gray-200, #e5e7eb);
   }
 }
 
