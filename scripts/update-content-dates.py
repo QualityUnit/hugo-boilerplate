@@ -43,11 +43,19 @@ def get_staged_files() -> list[str]:
     ]
 
 
-def is_merge_or_rebase_in_progress(repo_root: str) -> bool:
+def is_merge_or_rebase_in_progress() -> bool:
     # During a merge/rebase, staged files can differ from HEAD purely because
     # they picked up someone else's already-dated changes — not because the
     # author edited them. Bumping the date in that case is wrong.
-    git_dir = Path(repo_root) / '.git'
+    #
+    # MERGE_HEAD/rebase-merge/rebase-apply live in the per-worktree git dir,
+    # which is NOT <repo_root>/.git when repo_root is a linked worktree (there,
+    # .git is a file pointing at .../main/.git/worktrees/<name>). Ask git for
+    # the real path instead of assuming <repo_root>/.git is a directory.
+    code, out = git('rev-parse', '--absolute-git-dir')
+    if code != 0:
+        return False
+    git_dir = Path(out.strip())
     return any((git_dir / name).exists() for name in ('MERGE_HEAD', 'rebase-merge', 'rebase-apply'))
 
 
@@ -83,7 +91,7 @@ def main() -> None:
     _, repo_root = git('rev-parse', '--show-toplevel')
     repo_root = repo_root.strip()
 
-    if is_merge_or_rebase_in_progress(repo_root):
+    if is_merge_or_rebase_in_progress():
         return
 
     staged_files = get_staged_files()
