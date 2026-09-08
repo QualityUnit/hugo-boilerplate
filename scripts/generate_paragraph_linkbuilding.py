@@ -841,6 +841,32 @@ def _preferred_targets_for_language(
     return preferred
 
 
+def _source_has_room(
+    count: int,
+    preferred_count: int,
+    top_k: int,
+    min_preferred: int,
+    *,
+    is_preferred: bool,
+    has_preferred_targets: bool,
+) -> bool:
+    """May this source page accept one more link to this target?
+
+    ``top_k`` (--top-k-per-page) is a hard ceiling for every page. While the page
+    still owes preferred links (``preferred_count < min_preferred``) that many slots
+    are reserved for them, so a non-preferred target may not take the last ones —
+    the preferred minimum is met *inside* the cap instead of on top of it. With no
+    preferred targets in the language nothing is reserved; otherwise the default
+    ``min_links_per_page`` of 1 would silently cost every page one slot.
+    """
+    if count >= top_k:
+        return False
+    if is_preferred or not has_preferred_targets:
+        return True
+    reserved = max(0, min_preferred - preferred_count)
+    return count < top_k - reserved
+
+
 def _candidate_target_order(
     scores: dict[int, float],
     preferred_indices: dict[int, float],
@@ -944,8 +970,7 @@ def _recommend_links(
         for local_i, (source_i, para_i, paragraph) in enumerate(paragraph_rows[start:end]):
             progress.update(1)
             if per_source_count.get(source_i, 0) >= args.top_k_per_page:
-                if per_source_preferred_count.get(source_i, 0) >= preferred_settings.min_links_per_page:
-                    continue
+                continue  # hard ceiling — preferred targets get a reserved slot in _source_has_room
             source = pages[source_i]
             para_vec = para_embs[start + local_i]
             search_scores = {
@@ -978,7 +1003,14 @@ def _recommend_links(
                 for target_i_raw in stage_order:
                     target_i = int(target_i_raw)
                     is_preferred = target_i in preferred_indices
-                    if per_source_count.get(source_i, 0) >= args.top_k_per_page and not (is_preferred and preferred_needed):
+                    if not _source_has_room(
+                        per_source_count.get(source_i, 0),
+                        per_source_preferred_count.get(source_i, 0),
+                        args.top_k_per_page,
+                        preferred_settings.min_links_per_page,
+                        is_preferred=is_preferred,
+                        has_preferred_targets=bool(preferred_indices),
+                    ):
                         continue
                     if target_i == source_i:
                         continue
