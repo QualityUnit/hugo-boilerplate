@@ -113,7 +113,6 @@ class Keyword:
     url: str
     title: str = ""
     priority: int = 0
-    exact_match: bool = False
 
 
 @dataclass
@@ -475,7 +474,7 @@ def _keywords_from_metadata(metadata: dict) -> list[Keyword]:
                 continue
             seen.add(dedup)
             keywords.append(Keyword(keyword=text, url=url, title=title,
-                                    priority=base_priority - idx, exact_match=True))
+                                    priority=base_priority - idx))
     return keywords
 
 
@@ -548,21 +547,28 @@ def _parse_keyword_items(items: Any) -> list[Keyword]:
             priority = int(priority)
         except (TypeError, ValueError):
             priority = 0
-        exact = bool(item.get("Exact", item.get("exact", False)))
-        keywords.append(Keyword(keyword=text, url=url, title=title,
-                                priority=priority, exact_match=exact))
+        # A legacy "Exact" field may still be present in the JSON; it was never read.
+        keywords.append(Keyword(keyword=text, url=url, title=title, priority=priority))
     return keywords
 
 
 def _load_global_keywords(linkbuilding_dir: Path, lang: str) -> list[Keyword]:
-    """Load manually maintained global keywords for this language.
+    """Load the manually maintained global keywords for this language.
 
-    Merges two sources (highest priority wins on dedup):
-      - data/linkbuilding/all.json   — applied to every language
-      - data/linkbuilding/<lang>.json — language-specific additions
+    Only ``data/linkbuilding/<lang>.json`` is read. A language-independent
+    ``all.json`` used to be merged in as well; it pushed English anchors and
+    404 targets onto every non-English domain (LiveAgent-hugo#624), so a file by
+    that name is now ignored with a warning instead of silently re-enabling that.
     """
     keywords: list[Keyword] = []
-    for filename in ("all.json", f"{lang}.json"):
+    stray = linkbuilding_dir / "all.json"
+    if stray.exists():
+        print(
+            f"::warning::{stray} is ignored — the injector reads only <lang>.json; "
+            f"move its rows into the language files or delete it.",
+            file=sys.stderr,
+        )
+    for filename in (f"{lang}.json",):
         path = linkbuilding_dir / filename
         if not path.exists():
             continue
@@ -832,14 +838,20 @@ def main() -> int:
                         help="Lower clamp for the word-count policy (default 3).")
     parser.add_argument("--links-max", type=int, default=40,
                         help="Upper clamp for the word-count policy (default 40).")
-    parser.add_argument("--include-manual", action="store_true",
-                        help="Kept for backwards compatibility, no longer used.")
     parser.add_argument("--since-seconds", type=float, default=0,
                         help="Only process HTML files modified in the last N seconds.")
     parser.add_argument("--file", action="append", dest="files", default=[],
                         help="Dev mode: process only this specific HTML file (repeatable). "
                              "Skips rglob, content scan, and global keywords for instant per-page rebuilds.")
+    # Deprecated no-op, hidden from --help. Still sent by FlowHunt-hugo's gulpfile
+    # (gulpfile.js:604); dropping it would make their gulp linkbuilding fail with
+    # "unrecognized arguments" on the next theme bump. Remove only after that
+    # caller has been updated.
+    parser.add_argument("--include-manual", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.include_manual:
+        print("::warning::--include-manual is deprecated and ignored (manual links come from "
+              "[[lnks_man]] frontmatter); remove the flag from the calling script.", file=sys.stderr)
     return run(args)
 
 
