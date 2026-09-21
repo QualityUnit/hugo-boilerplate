@@ -2,7 +2,12 @@
 """Generate paragraph-aware Hugo linkbuilding frontmatter.
 
 This replaces the old page-level ``linkbuilding = [...]`` keyword list with
-explicit ``[[lnks]]`` entries:
+explicit ``[[lnks]]`` entries.
+
+Hand-authored links live in a separate ``[[lnks_man]]`` table. This script never
+reads, rewrites or removes ``lnks_man``; it only regenerates ``lnks``. Anchor
+texts already claimed by ``lnks_man`` are skipped so the two tables cannot
+produce competing links for the same phrase. Entries:
 
     [[lnks]]
     text = "AI chatbot"
@@ -59,8 +64,24 @@ _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 _MARKDOWN_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 _SHORTCODE_RE = re.compile(r"{{[<%].*?[>%]}}", re.DOTALL)
 _SHORTCODE_OPEN_RE = re.compile(r"^\s*{{[<%]\s*([A-Za-z0-9_-]+)\b")
+# Utility and navigation paths that never take part in linkbuilding.
+#
+# Two groups, deliberately different, because the old single-group pattern ended
+# in an optional "/?" with nothing after it — so every branch matched as a bare
+# prefix. "/contact-center-software/" matched the "contact" branch and the page
+# was dropped from _load_pages entirely: it could neither receive links nor
+# generate any, in all 29 languages.
+#
+#   EXACT  — a real content page can legitimately start with these words
+#            (/contact-center-software/, /account-gratuito/, /cart-abandonment/),
+#            so they only match as a complete path segment.
+#   PREFIX — legal and system paths, where any sub-path is one too
+#            (/privacy-policy/, /privacy-beleid/, /terms-and-conditions/, /wp-admin/…).
 _NAV_PATH_RE = re.compile(
-    r"^/(about-us|cart|checkout|login|sign[-_]?in|sign[-_]?up|account|search|contact|terms|privacy|legal|admin|wp-admin|cdn-cgi)/?",
+    r"^/(?:"
+    r"(?:about-us|account|cart|checkout|contact(?:-us)?|login|search|sign[-_]?in|sign[-_]?up)(?=/|$)"
+    r"|(?:admin|cdn-cgi|legal|privacy|terms|wp-admin)"
+    r")",
     re.I,
 )
 _STOPWORDS = {
@@ -199,7 +220,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--no-cache", action="store_true", help="Disable persistent embedding cache")
     parser.add_argument("--preferred-targets", default="data/linkbuilding/preferred_targets.yaml", help="YAML file with weighted preferred target pages")
     parser.add_argument("--output", default="", help="Optional JSON report path")
-    parser.add_argument("--write", action="store_true", help="Write [[lnks]] and remove old linkbuilding frontmatter")
+    parser.add_argument("--write", action="store_true", help="Write [[lnks]] (never touches [[lnks_man]]) and remove old linkbuilding frontmatter")
     parser.add_argument("--remove-old-linkbuilding", action="store_true", help="Remove linkbuilding even for pages without generated lnks")
     return parser.parse_args()
 
@@ -1137,6 +1158,29 @@ def _remove_array_table(lines: list[str], table: str) -> list[str]:
     return out
 
 
+def _manual_anchor_texts(fm_lines: list[str]) -> set[str]:
+    """Anchor texts already claimed by the hand-authored [[lnks_man]] table.
+
+    Generated links must not compete with a manual link for the same phrase, so
+    these are excluded from the regenerated [[lnks]] table.
+    """
+    texts: set[str] = set()
+    in_table = False
+    for line in fm_lines:
+        stripped = line.strip()
+        if stripped == "[[lnks_man]]":
+            in_table = True
+            continue
+        if in_table and stripped.startswith("[") and stripped.endswith("]"):
+            in_table = False
+            continue
+        if in_table:
+            m = re.match(r'text\s*=\s*"(.*)"\s*$', stripped)
+            if m:
+                texts.add(m.group(1).strip().casefold())
+    return texts
+
+
 def _update_frontmatter(path: Path, recs: list[LinkRec], *, remove_old_linkbuilding: bool) -> bool:
     raw = path.read_text(encoding="utf-8")
     match = re.match(r"^(\+\+\+\s*\n)(.*?)(\n\+\+\+\s*\n?)(.*)", raw, re.DOTALL)
@@ -1146,6 +1190,11 @@ def _update_frontmatter(path: Path, recs: list[LinkRec], *, remove_old_linkbuild
     lines = fm.splitlines()
     if remove_old_linkbuilding:
         lines = _remove_key_line(lines, "linkbuilding")
+    # Drop generated links whose anchor text a manual [[lnks_man]] entry already owns.
+    manual = _manual_anchor_texts(lines)
+    if manual:
+        recs = [r for r in recs if r.text.strip().casefold() not in manual]
+    # Only the generated table is rewritten; [[lnks_man]] is left untouched.
     lines = _remove_array_table(lines, "lnks")
     while lines and not lines[-1].strip():
         lines.pop()
