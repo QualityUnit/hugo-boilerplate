@@ -84,7 +84,7 @@
 
 <div class="relative {{ $bgColor }}">
   <!-- Background pattern -->
-  <div class="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:14px_24px]"></div>
+  <div class="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[14px_24px]"></div>
   
   {{ if $image }}
     {{ if eq $imagePosition "left" }}
@@ -92,7 +92,7 @@
         {{ partial "components/media/lazyimg.html" (dict 
           "src" $image 
           "alt" $imageAlt
-          "class" "aspect-[3/2] w-full object-cover lg:absolute lg:inset-0 lg:aspect-auto lg:h-full"
+          "class" "aspect-3/2 w-full object-cover lg:absolute lg:inset-0 lg:h-full"
           "maxWidth" 1024
         ) }}
       </div>
@@ -101,7 +101,7 @@
         {{ partial "components/media/lazyimg.html" (dict 
           "src" $image 
           "alt" $imageAlt
-          "class" "aspect-[3/2] w-full object-cover lg:absolute lg:inset-0 lg:aspect-auto lg:h-full"
+          "class" "aspect-3/2 w-full object-cover lg:absolute lg:inset-0 lg:h-full"
           "maxWidth" 1024
         ) }}
       </div>

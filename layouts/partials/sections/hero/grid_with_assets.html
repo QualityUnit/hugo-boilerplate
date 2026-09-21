@@ -82,7 +82,7 @@
 {{ $badgeColorClass := index $badgeColors $headingBadgeColor | default (index $badgeColors "primary") }}
 
 <div class="{{ $darkClass }}">
-  <div class="section-bg-light dark:section-bg-dark relative z-[1]">
+  <div class="section-bg-light dark:section-bg-dark relative z-1">
     <div class="relative isolate overflow-hidden">
 
       {{/* Full-height vertical lines at wrapper edges */}}
@@ -120,11 +120,11 @@
             <rect width="100%" height="100%" stroke-width="0" fill="url(#hero-grid-pattern)" />
           </svg>
           {{/* Bottom gradient fade - center */}}
-          <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white dark:from-gray-900 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-white dark:from-gray-900 to-transparent"></div>
           {{/* Bottom left corner gradient */}}
-          <div class="absolute bottom-0 left-0 w-1/3 h-32 bg-gradient-to-tr from-white dark:from-gray-900 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 w-1/3 h-32 bg-linear-to-tr from-white dark:from-gray-900 to-transparent"></div>
           {{/* Bottom right corner gradient */}}
-          <div class="absolute bottom-0 right-0 w-1/3 h-32 bg-gradient-to-tl from-white dark:from-gray-900 to-transparent"></div>
+          <div class="absolute bottom-0 right-0 w-1/3 h-32 bg-linear-to-tl from-white dark:from-gray-900 to-transparent"></div>
         </div>
 
         {{/* Content area with top/bottom padding */}}
@@ -148,7 +148,7 @@
               {{ $placeholder := printf "[%s]" $headingBadge }}
               {{ if $headingBadgeIcon }}
                 {{/* Icon badge - rounded box with icon */}}
-                {{ $badgeHTML := printf `<span class="inline-flex items-center justify-center rounded-xl %s p-2 align-middle mx-2 shadow-sm ring-1 ring-inset ring-gray-900/10"><svg class="h-6 w-6 sm:h-8 sm:w-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" /></svg></span>` $badgeColorClass }}
+                {{ $badgeHTML := printf `<span class="inline-flex items-center justify-center rounded-xl %s p-2 align-middle mx-2 shadow-xs ring-1 ring-inset ring-gray-900/10"><svg class="h-6 w-6 sm:h-8 sm:w-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" /></svg></span>` $badgeColorClass }}
                 {{ $processedHeading = replace $processedHeading $placeholder $badgeHTML }}
               {{ else }}
                 {{/* Text badge - pill style */}}
@@ -259,10 +259,10 @@
                      data-video-use-lightbox="true"
                      data-video-fallback-url="https://www.youtube.com/watch?v={{ $videoID }}">
                   {{/* Video preview card - no thumbnail, just play icon and text */}}
-                  <div class="lazy-video-thumbnail bg-gray-900 backdrop-blur rounded-lg shadow-xl cursor-pointer hover:scale-105 transition-transform p-3" data-video-trigger="true">
+                  <div class="lazy-video-thumbnail bg-gray-900 backdrop-blur-sm rounded-lg shadow-xl cursor-pointer hover:scale-105 transition-transform p-3" data-video-trigger="true">
                     <div class="flex gap-3 items-center">
                       {{/* Play icon in frame */}}
-                      <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-primary-600 flex items-center justify-center">
+                      <div class="shrink-0 w-12 h-12 rounded-lg bg-primary-600 flex items-center justify-center">
                         <svg class="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M8 5v14l11-7z"/>
                         </svg>

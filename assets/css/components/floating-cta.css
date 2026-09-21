@@ -1,3 +1,13 @@
+/*
+  NOT compiled standalone — this file is @imported by ../main.css and gets its
+  Tailwind context from there. It must therefore NOT carry its own @reference:
+  the referenced context declares @config, and once this file is inlined into
+  main.css that becomes a nested @config, which v4 rejects.
+
+  Consequently it must be EXCLUDED from any "compile every components/*.css on its
+  own" task (see the glob in the consumer's gulpfile). Nothing loads
+  /css/floating-cta.css directly, so the standalone artifact was unused anyway.
+*/
 /* ================================================================ */
 /* FLOATING CTA COMPONENT */
 /* A sticky CTA that floats next to blog content on the right side */
@@ -55,7 +65,17 @@
 
 /* Dark theme button override - white on dark */
 .floating-cta--dark .floating-cta__action .btn-primary {
-  @apply bg-white text-gray-900 hover:bg-gray-100;
+  @apply bg-white text-gray-900;
+
+  /* Written as an explicit &:hover rather than `@apply hover:bg-gray-100`.
+     This file is @imported by main.css and Tailwind resolves its @apply before
+     main.css's `@custom-variant hover` is in effect, so the shorthand would still
+     emit v4's @media (hover: hover) gate and behave differently from v3 on touch.
+     Drop the nesting and go back to the shorthand once that compat entry is
+     removed. */
+  &:hover {
+    @apply bg-gray-100;
+  }
 }
 
 /* ================================================================ */
@@ -249,8 +269,13 @@
 }
 
 .floating-cta__secondary a {
-  @apply text-xs hover:underline transition-colors;
+  @apply text-xs transition-colors;
   color: #94a3b8;
+
+  /* Explicit &:hover — see the note on .floating-cta--dark .btn-primary above. */
+  &:hover {
+    @apply underline;
+  }
 }
 
 .floating-cta__secondary a:hover {

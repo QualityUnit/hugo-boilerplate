@@ -430,17 +430,17 @@
             if (fallbackUrl) {
                 errorHtml += `
                     <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                        <a href="${fallbackUrl}" target="_blank" rel="noopener noreferrer" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                        <a href="${fallbackUrl}" target="_blank" rel="noopener noreferrer" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-sm">
                             Watch on YouTube
                         </a>
-                        <button class="bg-transparent hover:bg-gray-700 text-white font-semibold py-2 px-4 border border-white hover:border-transparent rounded close-video-btn">
+                        <button class="bg-transparent hover:bg-gray-700 text-white font-semibold py-2 px-4 border border-white hover:border-transparent rounded-sm close-video-btn">
                             Close
                         </button>
                     </div>
                 `;
             } else {
                 errorHtml += `
-                    <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded close-video-btn">
+                    <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-sm close-video-btn">
                         Close
                     </button>
                 `;

@@ -51,7 +51,7 @@
                 </p>
               </div>
               <div>
-                <nav class="isolate inline-flex -space-x-px rounded-xl shadow-sm" aria-label="Pagination">
+                <nav class="isolate inline-flex -space-x-px rounded-xl shadow-xs" aria-label="Pagination">
                   {{ if $paginator.HasPrev }}
                     <a href="{{ $paginator.Prev.URL }}" class="relative inline-flex items-center rounded-l-xl px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
                       <span class="sr-only">{{ i18n "pagination_previous" }}</span>
@@ -70,7 +70,7 @@
                   
                   {{ range $paginator.Pagers }}
                     {{ if eq . $paginator }}
-                      <span aria-current="page" class="relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ .PageNumber }}</span>
+                      <span aria-current="page" class="relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ .PageNumber }}</span>
                     {{ else }}
                       <a href="{{ .URL }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">{{ .PageNumber }}</a>
                     {{ end }}

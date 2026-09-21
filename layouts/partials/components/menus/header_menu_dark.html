@@ -136,7 +136,7 @@
     </div>
     <div class="flex flex-1 items-center justify-end gap-x-6">
       <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $loginUrl) }}" class="hidden text-sm/6 font-semibold text-white hover:text-white lg:block">{{ $loginText }}</a>
-      <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $ctaUrl) }}" class="rounded-md {{ $ctaBgColor }} px-3 py-2 text-sm font-semibold {{ $ctaTextColor }} shadow-xs {{ $ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $ctaText }}</a>
+      <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $ctaUrl) }}" class="rounded-md {{ $ctaBgColor }} px-3 py-2 text-sm font-semibold {{ $ctaTextColor }} shadow-2xs {{ $ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $ctaText }}</a>
     </div>
     <div class="flex lg:hidden">
       <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-xl p-2.5 text-white" aria-expanded="false" aria-controls="{{ $mobileMenuId }}">
@@ -151,7 +151,7 @@
   <!-- Mobile menu, hidden by default -->
   <div id="{{ $mobileMenuId }}" class="lg:hidden hidden" role="dialog" aria-modal="true">
     <!-- Background backdrop, show/hide based on slide-over state. -->
-    <div class="fixed inset-0 z-10 bg-black bg-opacity-50"></div>
+    <div class="fixed inset-0 z-10 bg-black/50"></div>
     <div class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-gray-900 px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-700 transform transition-transform duration-300 ease-in-out translate-x-full">
       <div class="flex items-center gap-x-6">
         <a href="{{ "/" | relLangURL }}" class="-m-1.5 p-1.5">
@@ -162,7 +162,7 @@
             "class" (printf "%s w-auto" $logoHeight)
           ) }}
         </a>
-        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $ctaUrl) }}" class="ml-auto rounded-md {{ $ctaBgColor }} px-3 py-2 text-sm font-semibold {{ $ctaTextColor }} shadow-xs {{ $ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $ctaText }}</a>
+        <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $ctaUrl) }}" class="ml-auto rounded-md {{ $ctaBgColor }} px-3 py-2 text-sm font-semibold {{ $ctaTextColor }} shadow-2xs {{ $ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{{ $ctaText }}</a>
         <button type="button" class="-m-2.5 rounded-xl p-2.5 text-white close-mobile-menu">
           <span class="sr-only">Close menu</span>
           <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">

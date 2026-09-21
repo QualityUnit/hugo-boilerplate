@@ -28,8 +28,8 @@
 
 {{ if $headers }}
   {{ $baseClass := "toc-dropdown-container" }}
-  {{ $positionClass := "top-[5rem] sm:top-[5.25rem] fixed left-0 right-0" }}
-  {{ $appearanceClass := "surface-primary border-y border-gray-primary shadow-sm z-40 py-3" }}
+  {{ $positionClass := "top-20 sm:top-21 fixed left-0 right-0" }}
+  {{ $appearanceClass := "surface-primary border-y border-gray-primary shadow-xs z-40 py-3" }}
   {{ $transitionClass := "transition-transform duration-300 transform -translate-y-full opacity-0" }}
   {{ $allClasses := printf "%s %s %s %s %s" $baseClass $positionClass $appearanceClass $transitionClass $class }}
   
@@ -107,7 +107,7 @@
         if (dynamicDropdown) return dynamicDropdown;
 
         dynamicDropdown = document.createElement('ul');
-        dynamicDropdown.className = 'fixed surface-primary border border-gray-primary rounded-md shadow-lg max-h-60 overflow-y-auto hidden z-[9999]';
+        dynamicDropdown.className = 'fixed surface-primary border border-gray-primary rounded-md shadow-lg max-h-60 overflow-y-auto hidden z-9999';
         dynamicDropdown.innerHTML = optionsContainer.querySelector('ul').innerHTML;
         
         // Add event listeners to the new list items

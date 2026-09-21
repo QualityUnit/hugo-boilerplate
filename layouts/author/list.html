@@ -1,14 +1,14 @@
 {{ define "main" }}
 {{ partial "breadcrumbs_default.html" . }}
 
-  <div class="bg-white mt-[4.625rem]">
+  <div class="bg-white mt-18.5">
 
     {{ partial "hero_default.html" . }}
     {{ $letters := slice "0-9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" }}
     {{ $authorSection := site.GetPage "/author" }}
     {{ $authors := $authorSection.Pages }}
     {{ $cardHeight := 26.875 }}
-    {{ $cardWrapperClasses := "py-10 px-8 min-h-[26.875rem]" }}
+    {{ $cardWrapperClasses := "py-10 px-8 min-h-107.5" }}
     {{ $imageWrapperClasses := "mx-auto w-56 h-56 overflow-hidden" }}
     {{ $imageClasses := "w-full h-full object-cover rounded-full" }}
     {{ $descriptionLength := 70 }}
@@ -38,7 +38,7 @@
         {{ end }}
       {{ end }}
     {{ end }}
-    <div id="alphabetNav" class="w-full bg-white mt-5 sticky top-20 md:top-[5.25rem] z-[45] transition-all duration-300">
+    <div id="alphabetNav" class="w-full bg-white mt-5 sticky top-20 md:top-21 z-45 transition-all duration-300">
       <div class="wrapper">
         <div class="grid grid-cols-2 lg:hidden">
           <select class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pl-3 pr-8 text-base " id="alphabetSelect">

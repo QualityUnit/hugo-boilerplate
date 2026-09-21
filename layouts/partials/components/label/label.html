@@ -110,8 +110,8 @@
   </a>
 {{ else }}
   <span class="{{ $badgeClass }} {{ $classes }} not-prose whitespace-nowrap
-    [&_a]:no-underline [&_a]:!text-inherit [&_a]:px-0.5
-    [&_.link-building-link]:!no-underline [&_.link-building-link]:!text-inherit">
+    [&_a]:no-underline [&_a]:text-inherit! [&_a]:px-0.5
+    [&_.link-building-link]:no-underline! [&_.link-building-link]:text-inherit!">
     {{ $content | safeHTML }}
   </span>
 {{ end }}

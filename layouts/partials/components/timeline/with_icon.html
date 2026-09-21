@@ -16,13 +16,13 @@
             {{ end }}
         </span>
       </div>
-      <div class="-translate-y-1.5 pb-8 text-slate-600 w-full overflow-hidden break-words">
+      <div class="-translate-y-1.5 pb-8 text-slate-600 w-full overflow-hidden wrap-break-word">
         <p class="font-sans text-base font-bold text-slate-800 antialiased dark:text-white">{{ $item.title }}</p>
         {{ if $item.description }}<small class="mt-2 font-sans text-sm text-slate-600 antialiased">{{ $item.description }}</small>{{end}}
         {{ if $item.code }}
           <p class="mt-2 font-bold font-sans text-sm text-slate-600 antialiased">{{ $sourceCodeTitle | default (i18n "source_code") | default "Code:" }}</p>
-          <pre class="mt-2 rounded-xl bg-gray-800 p-4 text-sm text-white dark:bg-slate-800 w-full whitespace-pre-line break-words">
-            <code class="block w-full text-white whitespace-pre-line break-words">{{ $item.code }}</code>
+          <pre class="mt-2 rounded-xl bg-gray-800 p-4 text-sm text-white dark:bg-slate-800 w-full whitespace-pre-line wrap-break-word">
+            <code class="block w-full text-white whitespace-pre-line wrap-break-word">{{ $item.code }}</code>
           </pre>
         {{ end }}
       </div>

@@ -71,7 +71,7 @@
     {{ if $page.Params.tags }}
     <div class="flex flex-wrap gap-1 mb-1">
       {{ range first 2 $page.Params.tags }}
-        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-brand-50 text-brand-700">
+        <span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-medium bg-brand-50 text-brand-700">
           {{ . }}
         </span>
       {{ end }}

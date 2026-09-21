@@ -9,20 +9,48 @@
 */}}
 
 <style>
-  :root {
-    /* === Primary Theme Colors === */
-    --color-primary: {{ .Site.Params.theme.colors.primary | default "#1a73e8" }};
-    --color-primary-light: {{ .Site.Params.theme.colors.primaryLight | default "#4285f4" }};
-    --color-primary-dark: {{ .Site.Params.theme.colors.primaryDark | default "#1557b0" }};
+  /*
+    Tailwind v4 puts everything main.css emits into cascade layers, and an
+    unlayered declaration beats a layered one whatever the order. This block
+    renders before main.css and declares --color-primary, the same name the
+    palette in assets/css/variables.css uses, so unlayered it wins and hands
+    every `rgb(var(--color-primary) / 1)` utility a hex where channels are
+    expected. That is an invalid value, and it reads on screen as the primary
+    colour vanishing site-wide.
 
-    --color-secondary: {{ .Site.Params.theme.colors.secondary | default "#34a853" }};
-    --color-accent: {{ .Site.Params.theme.colors.accent | default "#fbbc05" }};
+    So these go in a layer of their own, declared ahead of every layer
+    main.css uses. First declaration wins the ordering, so `theme-defaults`
+    is the weakest layer on the page and anything main.css ships overrides
+    it — the precedence these defaults always had under v3. Naming the
+    Tailwind layers in the same statement also stops this block, which the
+    browser parses first, from reordering them.
 
-    --color-text: {{ .Site.Params.theme.colors.text | default "#202124" }};
-    --color-background: {{ .Site.Params.theme.colors.background | default "#ffffff" }};
+    A dedicated layer rather than `base`: main.css nests its palette in a
+    `base` sub-layer, and a rule sitting directly in `base` would outrank a
+    sub-layer of it. Staying out of that hierarchy keeps the fix from
+    depending on how Tailwind happens to nest its output.
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(to right, var(--color-primary), var(--color-primary-light));
+    The utility classes below stay unlayered on purpose: that is what they
+    were under v3, and nothing in main.css declares them.
+  */
+  @layer theme-defaults, properties, theme, base, components, utilities;
+
+  @layer theme-defaults {
+    :root {
+      /* === Primary Theme Colors === */
+      --color-primary: {{ .Site.Params.theme.colors.primary | default "#1a73e8" }};
+      --color-primary-light: {{ .Site.Params.theme.colors.primaryLight | default "#4285f4" }};
+      --color-primary-dark: {{ .Site.Params.theme.colors.primaryDark | default "#1557b0" }};
+
+      --color-secondary: {{ .Site.Params.theme.colors.secondary | default "#34a853" }};
+      --color-accent: {{ .Site.Params.theme.colors.accent | default "#fbbc05" }};
+
+      --color-text: {{ .Site.Params.theme.colors.text | default "#202124" }};
+      --color-background: {{ .Site.Params.theme.colors.background | default "#ffffff" }};
+
+      /* Gradients */
+      --gradient-primary: linear-gradient(to right, var(--color-primary), var(--color-primary-light));
+    }
   }
 
   /* === Utilities === */

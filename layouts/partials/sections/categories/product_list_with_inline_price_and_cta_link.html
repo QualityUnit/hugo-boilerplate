@@ -94,16 +94,17 @@
       {{ range $products }}
       <div class="group relative">
         <div class="relative">
-          <div class="aspect-w-4 aspect-h-3 overflow-hidden rounded-xl bg-gray-100">
+          <div class="aspect-4/3 overflow-hidden rounded-xl bg-gray-100">
             {{ partial "components/media/lazyimg.html" (dict 
               "src" .imageUrl
               "alt" .imageAlt
               "class" "h-full w-full object-cover object-center group-hover:opacity-75"
+              "figureClass" "size-full"
               "maxWidth" 400
             ) }}
           </div>
           <div class="absolute inset-0 flex items-end p-4 opacity-0 group-hover:opacity-100" aria-hidden="true">
-            <div class="w-full rounded-md bg-white/75 px-4 py-2 text-center text-sm font-medium text-gray-900 backdrop-blur-sm backdrop-filter">{{ $ctaText }}</div>
+            <div class="w-full rounded-md bg-white/75 px-4 py-2 text-center text-sm font-medium text-gray-900 backdrop-blur-xs backdrop-filter">{{ $ctaText }}</div>
           </div>
         </div>
         <div class="mt-4 flex items-center justify-between space-x-8 text-base font-medium text-gray-900">

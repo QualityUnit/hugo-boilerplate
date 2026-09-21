@@ -75,9 +75,9 @@ Parameters:
 {{ end }}
 
 <div class="visual-section section-bg-light {{ $padding }}">
-  <div class="wrapper flex flex-wrap gap-y-[0.625rem] items-center text-center">
+  <div class="wrapper flex flex-wrap gap-y-2.5 items-center text-center">
     <div class="flex-col w-full">
-        <div class="flex flex-col gap-y-[1.875rem] max-w-2xl mx-auto">
+        <div class="flex flex-col gap-y-7.5 max-w-2xl mx-auto">
             {{ if $heading }}
                 <h2 class="text-4xl sm:text-5xl font-semibold lg:text-7xl text-heading leading-none text-pretty">{{ $heading }}</h2>
             {{ end }}
@@ -102,15 +102,15 @@ Parameters:
                   "controlsList" $controlsList
                   "useLightbox" (not $pureVideo)
                   "showPlayOverlay" (not $pureVideo)
-                  "playBtnClass" "white-circle-bounce size-[5.5rem] md:size-[7.75rem] rounded-full backdrop-blur-[3px]"
-                  "playBtnInnerClass" "bg-white relative size-[4.5rem] md:size-24 rounded-full hover:scale-105 transition-transform duration-300"
+                  "playBtnClass" "white-circle-bounce size-22 md:size-31 rounded-full backdrop-blur-[3px]"
+                  "playBtnInnerClass" "bg-white relative size-18 md:size-24 rounded-full hover:scale-105 transition-transform duration-300"
                   "svgClass" "size-10 md:size-14 ml-1 text-[#4F46E5] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
               ) }}
               {{ if or $videoTitle $videoDescription }}
               <div class="absolute left-5 bottom-5 flex items-end z-30">
                   <div class="text-white">
                   {{ if $videoTitle }}
-                      <h3 class="font-semibold text-opacity-75">{{ $videoTitle }}</h3>
+                      <h3 class="font-semibold">{{ $videoTitle }}</h3>
                   {{ end }}
                   {{ if $videoDescription }}
                       <p class="text-sm mt-1.5 tracking-[-0.28px] group-hover/video:underline">

@@ -14,30 +14,30 @@
     --color-primary-800: 30 64 175;     /* #1e40af */
     --color-primary-900: 30 58 138;     /* #1e3a8a */
     --color-primary-950: 23 37 84;      /* #172554 */
-    
+
     /* 🔘 BUTTON COLOR SYSTEM - Complete set for all button types */
-    
+
     /* Primary Button Variables */
     --color-button-primary: 37 99 235;                    /* primary/600 - light bg */
     --color-button-primary-hover: 29 78 216;              /* primary/700 - light hover */
     --color-button-primary-dark: 59 130 246;              /* primary/500 - dark bg */
     --color-button-primary-dark-hover: 96 165 250;        /* primary/400 - dark hover */
     --color-button-primary-outline: 37 99 235;            /* primary/600 - outline color */
-    
+
     /* Secondary Button Variables */
     --color-button-secondary-bg: 255 255 255;             /* white background */
     --color-button-secondary-text: 17 24 39;              /* gray/900 text */
     --color-button-secondary-border: 209 213 219;         /* gray/300 border */
     --color-button-secondary-border-hover: 156 163 175;   /* gray/400 border hover */
     --color-button-secondary-bg-hover: 156 163 175;       /* gray/400 with opacity */
-    
+
     /* Secondary Dark Button Variables */
     --color-button-secondary-dark-text: 255 255 255;      /* white text */
     --color-button-secondary-dark-bg: 255 255 255;        /* white with opacity */
     --color-button-secondary-dark-border: 75 85 99;       /* gray/600 border */
     --color-button-secondary-dark-border-hover: 107 114 128; /* gray/500 border hover */
     --color-button-secondary-dark-bg-hover: 255 255 255;  /* white with opacity */
-    
+
     /* Text Button Variables */
     --color-button-text: 17 24 39;                        /* gray/900 */
     --color-button-text-hover: 107 114 128;               /* gray/500 */
@@ -60,44 +60,6 @@
     --color-brand-dark-icon: var(--color-primary-500);              /* #118AF7 */
     --color-brand-dark-underlight: var(--color-primary-900);        /* #0F4176 */
   }
-  
-}
-/* Betmana Custom Variables */
-/* This file will be merged with theme variables */
 
-:root {
-  /* Primary brand colors */
-  --color-primary: #0ea5e9;
-  --color-primary-hover: #0284c7;
-  --color-primary-dark: #075985;
-
-  /* Button colors */
-  --color-button-primary: #0ea5e9;
-  --color-button-primary-hover: #0284c7;
-
-  /* Brand colors */
-  --color-brand-surface: #f0f9ff;
-  --color-brand-border: #0ea5e9;
-  --color-brand-text: #0ea5e9;
-  --color-brand-icon: #0ea5e9;
 }
 
-/* Betmana Custom Variables */
-/* This file will be merged with theme variables */
-
-:root {
-  /* Primary brand colors */
-  --color-primary: #0ea5e9;
-  --color-primary-hover: #0284c7;
-  --color-primary-dark: #075985;
-
-  /* Button colors */
-  --color-button-primary: #0ea5e9;
-  --color-button-primary-hover: #0284c7;
-
-  /* Brand colors */
-  --color-brand-surface: #f0f9ff;
-  --color-brand-border: #0ea5e9;
-  --color-brand-text: #0ea5e9;
-  --color-brand-icon: #0ea5e9;
-}

@@ -81,8 +81,8 @@
     </video>
 {{ if not $pureVideo }}
       {{ if $showPlayOverlay }}
-        <div class="video-play-overlay absolute inset-0 flex items-center justify-center pointer-events-none bg-gray-900 bg-opacity-50">
-          <div class="video-play-button w-32 h-32 p-8 flex items-center justify-center bg-blue-600 bg-opacity-90 rounded-full text-white">
+        <div class="video-play-overlay absolute inset-0 flex items-center justify-center pointer-events-none bg-gray-900/50">
+          <div class="video-play-button w-32 h-32 p-8 flex items-center justify-center bg-blue-600/90 rounded-full text-white">
             {{ partial "icons/play-solid.html" (dict "class" "w-8 h-8") }}
           </div>
         </div>

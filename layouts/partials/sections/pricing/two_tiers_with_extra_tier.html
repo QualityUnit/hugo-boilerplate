@@ -197,7 +197,7 @@
     </div>
     <div class="relative mt-6">
       <p class="mx-auto max-w-2xl text-lg font-medium text-pretty text-{{ $descriptionColor }} sm:text-xl/8">{{ $description }}</p>
-      <svg viewBox="0 0 1208 1024" class="absolute -top-10 left-1/2 -z-10 h-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)] sm:-top-12 md:-top-20 lg:-top-12 xl:top-0">
+      <svg viewBox="0 0 1208 1024" class="absolute -top-10 left-1/2 -z-10 h-256 -translate-x-1/2 mask-[radial-gradient(closest-side,white,transparent)] sm:-top-12 md:-top-20 lg:-top-12 xl:top-0">
         <ellipse cx="604" cy="512" fill="url(#gradient-{{ now.Unix }})" rx="604" ry="512" />
         <defs>
           <radialGradient id="gradient-{{ now.Unix }}">
@@ -232,7 +232,7 @@
                 {{ end }}
               </ul>
             </div>
-            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $tier.cta.url) }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md bg-{{ $tier.ctaBgColor }} px-3.5 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} shadow-xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaBgColor }}">{{ $tier.cta.text }}</a>
+            <a href="{{ partial "helpers/get-translated-url.html" (dict "url" $tier.cta.url) }}" aria-describedby="{{ $tier.id }}" class="mt-8 block rounded-md bg-{{ $tier.ctaBgColor }} px-3.5 py-2 text-center text-sm/6 font-semibold text-{{ $tier.ctaColor }} shadow-2xs hover:bg-{{ $tier.ctaHoverBgColor }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-{{ $tier.ctaBgColor }}">{{ $tier.cta.text }}</a>
           </div>
           {{ end }}
 

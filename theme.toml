@@ -1,7 +1,13 @@
 name = 'FlowHunt Boilerplate'
-description = 'A clean and minimal Hugo boilerplate theme'
-version = '1.0.0'
+description = 'A clean and minimal Hugo boilerplate theme. REQUIRES Tailwind CSS v4 (>=4.3.3) — see README.'
+version = '2.0.0'
 license = 'MIT'
+
+# Tailwind CSS v4 is required as of version 2.0.0. A project still on v3 will fail
+# to build against this theme: the stylesheets use @import "tailwindcss", @config,
+# @utility and @reference, none of which exist in v3.
+# Migration guide: README.md -> "Migrating a project to Tailwind v4"
+# Last v3-compatible theme commit: 2517448
 
 # The home page of the theme, where the source can be found
 homepage = 'https://github.com/qualityunit/repo'

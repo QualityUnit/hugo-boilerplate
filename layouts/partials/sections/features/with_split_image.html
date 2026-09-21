@@ -41,7 +41,7 @@
             <p class="{{ if $subheading }}mt-4 {{ end }}text-5xl sm:text-7xl font-semibold tracking-tight text-heading">{{ $heading }}</p>
             <p class="mt-9 text-tertiary prose-links prose-a:text-tertiary">{{ $description | safeHTML }}</p>
           </div>
-          <div class="mt-[4.5rem] rounded-xl">
+          <div class="mt-18 rounded-xl">
             {{ partial "components/media/lazyimg.html" (dict 
               "src" $imageUrl
               "alt" $imageAlt
