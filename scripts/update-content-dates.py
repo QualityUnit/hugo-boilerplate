@@ -56,7 +56,23 @@ def is_merge_or_rebase_in_progress() -> bool:
     if code != 0:
         return False
     git_dir = Path(out.strip())
-    return any((git_dir / name).exists() for name in ('MERGE_HEAD', 'rebase-merge', 'rebase-apply'))
+    return any((git_dir / name).exists() for name in (
+        'MERGE_HEAD', 'rebase-merge', 'rebase-apply', 'CHERRY_PICK_HEAD', 'REVERT_HEAD',
+    ))
+
+
+def default_branch_ref() -> str | None:
+    # The integration branch the commit will eventually land on. A staged body
+    # that already matches it did not originate with this author (it arrived via
+    # merge, rebase, cherry-pick or a branch update), so it must not be re-dated.
+    code, out = git('symbolic-ref', '-q', '--short', 'refs/remotes/origin/HEAD')
+    candidates = [out.strip()] if code == 0 and out.strip() else []
+    candidates += ['origin/main', 'main']
+    for ref in candidates:
+        code, _ = git('rev-parse', '--verify', '-q', f'{ref}^{{commit}}')
+        if code == 0:
+            return ref
+    return None
 
 
 def read_blob(ref: str) -> str | None:
@@ -99,6 +115,7 @@ def main() -> None:
         return
 
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    base_ref = default_branch_ref()
     updated: list[str] = []
 
     for rel_path in staged_files:
@@ -111,6 +128,11 @@ def main() -> None:
         head_text = read_blob(f'HEAD:{rel_path}')
         if head_text is not None and extract_body(head_text) == staged_body:
             continue  # only frontmatter changed — skip
+
+        if base_ref is not None:
+            base_text = read_blob(f'{base_ref}:{rel_path}')
+            if base_text is not None and extract_body(base_text) == staged_body:
+                continue  # body already on the default branch — not this author's edit
 
         file_path = Path(repo_root) / rel_path
         try:
