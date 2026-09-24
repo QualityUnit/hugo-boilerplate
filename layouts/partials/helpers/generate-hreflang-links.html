@@ -1,192 +1,82 @@
 {{/*
-@helper: Generate Hreflang Alternate Links
-@description: Generates all hreflang alternate link tags for SEO, including existing translations and constructed URLs for missing translations
-@params:
-  .currentPage (object): The current page object
-  .defaultLang (string): The default language code (optional, defaults to "en")
-@returns: HTML string with all hreflang link tags
-@example:
-  {{ partial "helpers/generate-hreflang-links.html" (dict "currentPage" . "defaultLang" "en") | safeHTML }}
+  Emit only actual language equivalents. Hugo pages are authoritative for
+  languages in this build; the translation URL data covers languages built
+  separately (for example, on another domain). Never substitute a homepage
+  for a missing translation.
 */}}
+{{- $page := .currentPage -}}
+{{- if not (or $page.Params.private (eq $page.Kind "404")) -}}
 
-{{ $currentPage := .currentPage }}
-{{ $defaultLang := .defaultLang | default "en" }}
-{{ $links := slice }}
-{{ $filePath := "" }}
+{{- $urls := dict $page.Language.Lang $page.Permalink -}}
+{{- range $page.Translations -}}
+  {{- $urls = merge $urls (dict .Language.Lang .Permalink) -}}
+{{- end -}}
 
-{{/* Always try to get the file path, either from .File or construct it */}}
-{{ if $currentPage.File }}
-  {{ $filePath = $currentPage.File.Path }}
-{{ end }}
+{{- $builtLanguages := dict -}}
+{{- range hugo.Sites -}}
+  {{- $builtLanguages = merge $builtLanguages (dict .Language.Lang .Language) -}}
+{{- end -}}
 
-{{/* If no file path yet, construct from URL */}}
-{{ if not $filePath }}
-  {{ $pagePath := $currentPage.RelPermalink }}
-  
-  {{/* Remove language prefix if present */}}
-  {{ $langPrefix := printf "/%s/" $currentPage.Language.Lang }}
-  {{ if hasPrefix $pagePath $langPrefix }}
-    {{ $pagePath = strings.TrimPrefix $langPrefix $pagePath }}
-  {{ end }}
-  
-  {{/* Clean up the path */}}
-  {{ $pagePath = strings.TrimPrefix "/" $pagePath }}
-  {{ $pagePath = strings.TrimSuffix "/" $pagePath }}
-  
-  {{/* Construct the file path */}}
-  {{ if eq $pagePath "" }}
-    {{ $filePath = "_index.md" }}
-  {{ else if strings.Contains $pagePath "/" }}
-    {{/* Has subdirectory */}}
-    {{ $filePath = printf "%s.md" $pagePath }}
-  {{ else }}
-    {{/* Root level page */}}
-    {{ $filePath = printf "%s.md" $pagePath }}
-  {{ end }}
-{{ end }}
-
-{{ $pagePath := strings.TrimPrefix (print "/" $currentPage.Language.Lang "/") $currentPage.RelPermalink }}
-
-<!-- Check if current page has a meaningful path (not just root) -->
-{{ $currentPageHasPath := and (ne $pagePath "") (ne $pagePath "/") }}
-
-{{ $allLanguagesData := hugo.Data.all_languages }}
-{{ if $allLanguagesData }}
-  <!-- Use unified language data when available -->
-  {{ with $allLanguagesData }}
-    {{ range $code, $langData := .languages }}
-      <!-- Use get-language-url helper to get the correct URL for this language -->
-      {{ $href := partial "helpers/get-language-url.html" (dict 
-          "code" $code 
-          "langData" $langData 
-          "currentPage" $currentPage 
+{{- $allLanguages := hugo.Data.all_languages -}}
+{{- with $allLanguages -}}
+  {{- $filePath := "" -}}
+  {{- with $page.File -}}
+    {{- $filePath = .Path -}}
+  {{- end -}}
+  {{- /* Pages without a source file can still use Hugo's native translations. */ -}}
+  {{- range $code, $language := .languages -}}
+    {{- if and (not (index $builtLanguages $code)) $filePath -}}
+      {{- $url := partial "helpers/get-language-url.html" (dict
+          "code" $code
+          "langData" $language
+          "currentPage" $page
           "filePath" $filePath
-      ) }}
+          "requireTranslation" true
+      ) -}}
+      {{- with $url -}}
+        {{- $urls = merge $urls (dict $code .) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
 
-      <!-- Only include if we got a valid URL -->
-      {{ if $href }}
-        <!-- Get hreflang attribute -->
-        {{ $hreflang := $langData.params.bcp47Lang | default $code }}
-        
-        <!-- Create hreflang link with full URL -->
-        {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s">` $hreflang $href }}
-        {{ $links = $links | append $link }}
-      {{ end }}
-    {{ end }}
-  {{ end }}
-{{ else }}
-  <!-- Fallback to existing translations approach -->
-  
-  <!-- Add links for existing translations -->
-  {{ range $currentPage.Translations }}
-    {{ $hreflang := .Language.Params.bcp47Lang | default .Language.Lang }}
-    {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s">` $hreflang .Permalink }}
-    {{ $links = $links | append $link }}
-  {{ end }}
+{{- if gt (len $urls) 1 -}}
+  {{- $links := slice -}}
+  {{- range $code, $url := $urls -}}
+    {{- $language := index $builtLanguages $code -}}
+    {{- $tag := $code -}}
+    {{- with $language -}}
+      {{- $tag = .LanguageCode | default $code -}}
+    {{- end -}}
+    {{- with $allLanguages -}}
+      {{- with index .languages $code -}}
+        {{- $tag = .params.bcp47Lang | default $tag -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $links = $links | append (dict "tag" $tag "url" $url) -}}
+  {{- end -}}
 
-  <!-- Add link for current page -->
-  {{ $currentHreflang := $currentPage.Language.Params.bcp47Lang | default $currentPage.Language.Lang }}
-  {{ $currentLink := printf `<link rel="alternate" hreflang="%s" href="%s">` $currentHreflang $currentPage.Permalink }}
-  {{ $links = $links | append $currentLink }}
+  {{- /* x-default is optional and must point to an actual cluster member. */ -}}
+  {{- $defaultCode := .defaultLang -}}
+  {{- if not $defaultCode -}}
+    {{- with $allLanguages -}}
+      {{- $defaultCode = .defaultLanguage -}}
+    {{- end -}}
+  {{- end -}}
+  {{- /* A full multilingual build knows the project's default site. A build
+         containing only one language needs an explicit defaultLanguage in
+         all_languages data to avoid inconsistent cross-domain fallbacks. */ -}}
+  {{- if and (not $defaultCode) (gt (len hugo.Sites) 1) -}}
+    {{- $defaultCode = hugo.Sites.Default.Language.Lang -}}
+  {{- end -}}
+  {{- with $defaultCode -}}
+    {{- with index $urls . -}}
+      {{- $links = $links | append (dict "tag" "x-default" "url" .) -}}
+    {{- end -}}
+  {{- end -}}
 
-  <!-- Add links for languages without translations (construct URLs) -->
-  {{ range site.Home.AllTranslations }}
-      {{ $langCode := .Language.Lang }}
-      {{ $hasTranslation := false }}
-      
-      <!-- Check if this language has a translation -->
-      {{ range $currentPage.Translations }}
-          {{ if eq .Language.Lang $langCode }}
-              {{ $hasTranslation = true }}
-          {{ end }}
-      {{ end }}
-      
-      <!-- If no translation exists and it's not the current page language -->
-      {{ if and (not $hasTranslation) (ne $langCode $currentPage.Language.Lang) }}
-          {{ $langBaseURL := .Permalink }}
-          {{ $langBaseWithoutSlash := strings.TrimSuffix "/" $langBaseURL }}
-          {{/* Ensure pagePath doesn't start with slash to avoid double slash */}}
-          {{ $cleanPagePath := strings.TrimPrefix "/" $pagePath }}
-          {{ $langURL := print $langBaseWithoutSlash "/" $cleanPagePath }}
-          
-          <!-- Check if we should include this link -->
-          {{ $shouldIncludeLink := true }}
-          {{ if $currentPageHasPath }}
-            <!-- If canonical has path, only include if we successfully constructed the path -->
-            {{ if or (eq $pagePath "") (eq $pagePath "/") }}
-              {{ $shouldIncludeLink = false }}
-            {{ end }}
-          {{ end }}
-          
-          {{ if $shouldIncludeLink }}
-            {{ $hreflang := .Language.Params.bcp47Lang | default .Language.Lang }}
-            {{/* langURL already contains the full path constructed on line 80 */}}
-            {{ $link := printf `<link rel="alternate" hreflang="%s" href="%s">` $hreflang $langURL }}
-            {{ $links = $links | append $link }}
-          {{ end }}
-      {{ end }}
-  {{ end }}
-{{ end }}
-
-<!-- Generate x-default link -->
-{{ $xDefaultURL := $currentPage.Permalink }}
-{{ $found := false }}
-
-{{ if $allLanguagesData }}
-  <!-- Use all_languages data to find default language -->
-  {{ with $allLanguagesData }}
-    {{ $defaultLangData := index .languages $defaultLang }}
-    {{ if $defaultLangData }}
-      {{ $xDefaultURL = partial "helpers/get-language-url.html" (dict 
-          "code" $defaultLang 
-          "langData" $defaultLangData 
-          "currentPage" $currentPage 
-          "filePath" $filePath
-      ) }}
-      
-      <!-- x-default URL is already generated by get-language-url helper -->
-      {{ $found = true }}
-    {{ end }}
-  {{ end }}
-{{ else }}
-  <!-- Fallback to existing translations approach -->
-  
-  <!-- Look for default language translation -->
-  {{ range $currentPage.Translations }}
-      {{ if eq .Language.Lang $defaultLang }}
-          {{ $xDefaultURL = .Permalink }}
-          {{ $found = true }}
-      {{ end }}
-  {{ end }}
-
-  <!-- If no default language translation and current page isn't default language, construct URL -->
-  {{ if (not $found) }}
-      {{ range site.Home.AllTranslations }}
-          {{ if eq .Language.Lang $defaultLang }}
-              {{ $defaultBaseURL := .Permalink }}
-              {{ $defaultBaseWithoutSlash := strings.TrimSuffix "/" $defaultBaseURL }}
-              {{ $constructedXDefaultURL := print $defaultBaseWithoutSlash "/" $pagePath }}
-              
-              <!-- Check if we should use the constructed URL -->
-              {{ if $currentPageHasPath }}
-                <!-- Only use constructed URL if we have a meaningful path -->
-                {{ if and (ne $pagePath "") (ne $pagePath "/") }}
-                  {{ $xDefaultURL = $constructedXDefaultURL }}
-                  {{ $found = true }}
-                {{ end }}
-              {{ else }}
-                {{ $xDefaultURL = $constructedXDefaultURL }}
-                {{ $found = true }}
-              {{ end }}
-          {{ end }}
-      {{ end }}
-  {{ end }}
-{{ end }}
-
-{{ $xDefaultLink := printf `<link rel="alternate" hreflang="x-default" href="%s">` $xDefaultURL }}
-{{ $links = $links | append $xDefaultLink }}
-
-<!-- Output all links -->
-{{ range $links }}
-{{ . | safeHTML}}
-{{ end }}
+  {{- range $links }}
+<link rel="alternate" hreflang="{{ .tag }}" href="{{ .url }}">
+  {{- end -}}
+{{- end -}}
+{{- end -}}

@@ -7,6 +7,7 @@
   .currentPage (Page): The current Hugo page object
   .filePath (string): The file path relative to content directory (optional)
   .permalink (string): Direct permalink override (optional)
+  .requireTranslation (bool): Return an empty URL unless this page has an exact mapping
 @returns: The full URL for the specified language
 */}}
 
@@ -15,19 +16,22 @@
 {{ $currentPage := .currentPage }}
 {{ $filePath := .filePath }}
 {{ $permalink := .permalink }}
+{{ $requireTranslation := .requireTranslation | default false }}
 {{ $currentLangCode := $currentPage.Language.Lang }}
 
 {{ $href := "" }}
 
 {{ if $langData }}
   {{/* Set up base domain */}}
-  {{ $baseDomain := $langData.baseDomainName }}
-  {{ if (in $currentPage.Permalink "localhost") }}
+  {{ $baseDomain := strings.TrimSuffix "/" ($langData.baseDomainName | default "") }}
+  {{ if and (not $requireTranslation) (in $currentPage.Permalink "localhost") }}
     {{ $baseDomain = "" }}
   {{ end }}
   
   {{/* Default URL using language base URL */}}
-  {{ $href = printf "%s%s" $baseDomain $langData.baseURL }}
+  {{ if not $requireTranslation }}
+    {{ $href = printf "%s%s" $baseDomain $langData.baseURL }}
+  {{ end }}
   
   {{/* Try to load from precomputed translation URLs */}}
   {{ if $filePath }}
@@ -63,13 +67,14 @@
             {{ if eq $langData.baseURL "/" }}
               {{ $langPrefix := printf "/%s/" $code }}
               {{ if hasPrefix $cleanUrl $langPrefix }}
-                {{ $cleanUrl = strings.TrimPrefix $langPrefix $cleanUrl }}
-                {{ if not $cleanUrl }}
-                  {{ $cleanUrl = "/" }}
-                {{ end }}
+                {{ $cleanUrl = printf "/%s" (strings.TrimPrefix $langPrefix $cleanUrl) }}
               {{ end }}
             {{ end }}
-            {{ $href = printf "%s%s" $baseDomain $cleanUrl }}
+            {{ if or (hasPrefix $cleanUrl "https://") (hasPrefix $cleanUrl "http://") }}
+              {{ $href = $cleanUrl }}
+            {{ else }}
+              {{ $href = printf "%s%s" $baseDomain $cleanUrl }}
+            {{ end }}
           {{ end }}
         {{ end }}
       {{ end }}
@@ -77,6 +82,11 @@
   {{ end }}
 {{ else if $permalink }}
   {{ $href = $permalink }}
+{{ end }}
+
+{{/* hreflang requires a fully qualified URL; navigation may still use relative URLs. */}}
+{{ if and $requireTranslation (not (or (hasPrefix $href "https://") (hasPrefix $href "http://"))) }}
+  {{ $href = "" }}
 {{ end }}
 
 {{ return $href }}
