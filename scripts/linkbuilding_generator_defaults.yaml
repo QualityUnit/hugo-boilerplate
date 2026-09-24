@@ -1,0 +1,88 @@
+# Default site vocabulary for generate_paragraph_linkbuilding.py.
+#
+# These values reproduce the generator's behaviour from before the site config
+# existed (they were hard-coded for FlowHunt). A site overrides them by adding
+# data/linkbuilding/generator.yaml to its Hugo root with the same keys
+# (--generator-config). A key present there replaces the default list wholesale;
+# keys left out keep the values below. The run log prints which config was used.
+#
+# brand_terms            the site's own brand words. An anchor made only of brand
+#                        and generic words is rejected, and a target keyword made
+#                        only of brand, generic and function words earns no
+#                        exact-keyword bonus.
+# generic_terms          words that never make an anchor specific to its target.
+# shortcode_param_names  shortcode parameter names, lower-case. A paragraph that
+#                        mentions two of them is leaked markup, not prose (any
+#                        `name="` inside a paragraph is rejected regardless).
+# nav_path_patterns      regular expressions matched (case-insensitive, re.search)
+#                        against the canonical URL path. Pages that match neither
+#                        receive nor emit links, on top of the built-in list
+#                        (/login, /search, /cart, /checkout, /contact, /privacy…).
+# stopwords.source       builtin      the generator's English list for every language
+#                        file         data/linkbuilding/stopwords/<lang>.toml with
+#                                     `words = ["der", "die", ...]`; directory
+#                                     configurable with stopwords.dir
+#                        stopwordsiso the stopwords-iso package (jp→ja, zh-hans→zh,
+#                                     pt-br→pt); requires `pip install stopwordsiso`
+#                        A language without a list falls back to the English list;
+#                        the run log names the source for every language.
+# stopwords.extra        words added on top of the source per language,
+#                        e.g. { de: [bzw], sk: [resp] }
+
+brand_terms: [flowhunt, ai, mcp, llm]
+
+generic_terms:
+  - flowhunt
+  - copilot
+  - ai
+  - mcp
+  - llm
+  - tool
+  - tools
+  - agent
+  - agents
+  - automation
+  - workflow
+  - workflows
+  - platform
+  - chatbot
+  - chatbots
+  - ready
+  - use
+  - using
+  - help
+  - helps
+  - key
+  - point
+  - points
+  - inside
+  - paste
+  - better
+  - best
+  - create
+  - build
+  - make
+  - content
+  - page
+  - pages
+  - guide
+  - learn
+  - need
+  - needs
+  - feature
+  - features
+  - text
+  - title
+  - image
+  - images
+  - link
+  - links
+  - button
+
+shortcode_param_names: [imaged, imagealt, linktext, categorycolor, primarycta]
+
+nav_path_patterns: []
+
+stopwords:
+  source: builtin
+  extra: {}
