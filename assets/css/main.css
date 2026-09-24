@@ -32,7 +32,7 @@
 @import './components/floating-cta.css' layer(base);
 
 /* 🎯 TAILWIND LAYERS */
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
 
 /*
   Resolve the CONSUMER's root tailwind.config.js, not the theme's own.

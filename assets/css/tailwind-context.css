@@ -22,7 +22,7 @@
   the longer comment in main.css. Hugo always mounts this theme at
   `themes/boilerplate/`, so four levels up is the consumer root for every site.
 */
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
 @config '../../../../tailwind.config.js';
 
 /*
