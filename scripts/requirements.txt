@@ -24,6 +24,10 @@ requests>=2.31.0
 toml>=0.10.2
 flowhunt>=3.19.1
 nltk>=3.8
+# stopwordsiso: optional per-language stopword source for
+# generate_paragraph_linkbuilding.py (generator.yaml: stopwords.source: stopwordsiso).
+# Exact pin: the word lists change between releases and so would the anchors.
+stopwordsiso==0.7.1
 numpy>=1.21.0
 scikit-learn>=1.0.0
 hdbscan>=0.8.33

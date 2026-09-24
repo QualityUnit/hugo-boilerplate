@@ -22,6 +22,12 @@ The algorithm mirrors the site-audit paragraph-link recommender:
    are unusually relevant to the target;
 4. select an exact anchor span already present in the paragraph by combining
    semantic anchor-target similarity, lexical target overlap, and specificity.
+
+Site vocabulary (brand words, generic words, shortcode parameter names, extra
+navigation paths, stopword source) is not hard-coded. The theme defaults live in
+``linkbuilding_generator_defaults.yaml`` next to this script and a site overrides
+them with ``data/linkbuilding/generator.yaml`` (``--generator-config``). Stopwords
+are loaded per language; the run log names the source used for every language.
 """
 
 from __future__ import annotations
@@ -84,7 +90,11 @@ _NAV_PATH_RE = re.compile(
     r")",
     re.I,
 )
-_STOPWORDS = {
+# Built-in English function words. This is the fallback stopword list: it applies to
+# every language when the site config does not choose a per-language source (the
+# behaviour before the site config existed) and to any language whose configured
+# source has no list for it.
+_ENGLISH_STOPWORDS = {
     "the", "a", "an", "and", "or", "but", "of", "to", "in", "on", "at", "for",
     "with", "by", "from", "as", "is", "was", "are", "were", "be", "been",
     "this", "that", "these", "those", "it", "its", "our", "your", "their",
@@ -96,15 +106,15 @@ _STOPWORDS = {
     "text", "title", "image", "images", "alt", "url", "link", "links", "try",
     "now", "free", "schedule", "demo",
 }
-_BRAND_ONLY = {"flowhunt", "ai", "mcp", "llm"}
-_GENERIC_TARGET_TERMS = {
-    "flowhunt", "copilot", "ai", "mcp", "llm", "tool", "tools", "agent", "agents",
-    "automation", "workflow", "workflows", "platform", "chatbot", "chatbots",
-    "ready", "use", "using", "help", "helps", "key", "point", "points", "inside",
-    "paste", "better", "best", "create", "build", "make", "content", "page",
-    "pages", "guide", "learn", "need", "needs", "feature", "features",
-    "text", "title", "image", "images", "link", "links", "button",
-}
+# Site vocabulary (brand words, generic words, shortcode parameter names, extra
+# navigation paths, stopword source) is not hard-coded here. The theme ships its
+# defaults in linkbuilding_generator_defaults.yaml next to this script; a site
+# overrides them in data/linkbuilding/generator.yaml — see _load_site_config().
+_DEFAULTS_CONFIG_PATH = Path(__file__).resolve().parent / "linkbuilding_generator_defaults.yaml"
+# `heading="…"`: a shortcode parameter that leaked into the paragraph text.
+_SHORTCODE_PARAM_RE = re.compile(r'\w+="')
+# Hugo content directory codes that differ from the stopwords-iso language codes.
+_STOPWORDSISO_LANG_MAP = {"jp": "ja", "zh-hans": "zh", "pt-br": "pt"}
 _BAD_ANCHORS = {
     "link text", "learn more", "read more", "try now", "try it now", "try it free",
     "schedule a demo", "book a demo", "get started", "click here",
@@ -168,6 +178,30 @@ class AnchorCandidate:
     length_bonus: float
 
 
+@dataclass
+class SiteConfig:
+    """Site vocabulary: theme defaults merged with the site's generator.yaml."""
+    brand_terms: set[str]
+    generic_terms: set[str]
+    shortcode_param_names: tuple[str, ...]
+    nav_path_patterns: tuple[re.Pattern, ...]
+    stopwords_source: str  # builtin | file | stopwordsiso
+    stopwords_dir: Path
+    stopwords_extra: dict[str, set[str]]
+    label: str  # what was loaded, for the log line
+
+
+@dataclass
+class SiteRules:
+    """SiteConfig resolved for one language: the sets the anchor filters consult."""
+    stopwords: set[str]
+    brand_terms: set[str]
+    generic_terms: set[str]
+    nonspecific_terms: set[str]  # brand | generic — tokens that never make an anchor target-specific
+    shortcode_param_names: tuple[str, ...]
+    nav_path_patterns: tuple[re.Pattern, ...]
+
+
 class LazySentenceTransformer:
     def __init__(self, model_name: str, device: str):
         self.model_name = model_name
@@ -219,6 +253,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--cache-path", default="", help="SQLite embedding cache path (default: .audit_cache/embedding-cache.sqlite3)")
     parser.add_argument("--no-cache", action="store_true", help="Disable persistent embedding cache")
     parser.add_argument("--preferred-targets", default="data/linkbuilding/preferred_targets.yaml", help="YAML file with weighted preferred target pages")
+    parser.add_argument("--generator-config", default="data/linkbuilding/generator.yaml", help="YAML site config: brand/generic terms, shortcode parameter names, nav path patterns, stopword source (theme defaults when missing)")
     parser.add_argument("--output", default="", help="Optional JSON report path")
     parser.add_argument("--write", action="store_true", help="Write [[lnks]] (never touches [[lnks_man]]) and remove old linkbuilding frontmatter")
     parser.add_argument("--remove-old-linkbuilding", action="store_true", help="Remove linkbuilding even for pages without generated lnks")
@@ -256,8 +291,11 @@ def _canonical_path(url: str) -> str:
     return path
 
 
-def _is_nav_url(url: str) -> bool:
-    return bool(_NAV_PATH_RE.match(_canonical_path(url)))
+def _is_nav_url(url: str, rules: SiteRules) -> bool:
+    path = _canonical_path(url)
+    if _NAV_PATH_RE.match(path):
+        return True
+    return any(pattern.search(path) for pattern in rules.nav_path_patterns)
 
 
 def _url_for_file(file_path: Path, content_dir: Path, metadata: dict[str, Any]) -> str:
@@ -318,18 +356,21 @@ def _strip_hugo_markup(body: str) -> str:
     return "\n".join(out)
 
 
-def _looks_like_structured_data(text: str) -> bool:
+def _looks_like_structured_data(text: str, rules: SiteRules) -> bool:
     if not text:
+        return True
+    # A shortcode parameter (`heading="…"`) means the paragraph is leaked markup, not prose.
+    if _SHORTCODE_PARAM_RE.search(text):
         return True
     structural = sum(text.count(ch) for ch in "{}[]=:\"")
     if structural / max(1, len(text)) > 0.08:
         return True
     lower = text.lower()
-    ui_terms = sum(1 for term in ("imaged", "imagealt", "linktext", "categorycolor", "primarycta") if term in lower)
+    ui_terms = sum(1 for term in rules.shortcode_param_names if term in lower)
     return ui_terms >= 2
 
 
-def _paragraphs_from_markdown(body: str) -> list[str]:
+def _paragraphs_from_markdown(body: str, rules: SiteRules) -> list[str]:
     cleaned = _strip_hugo_markup(body)
     html = markdown.markdown(cleaned, extensions=["tables", "fenced_code"])
     soup = BeautifulSoup(html, "html.parser")
@@ -337,12 +378,12 @@ def _paragraphs_from_markdown(body: str) -> list[str]:
     for node in soup.find_all(["p", "li"]):
         text = _normalize_space(node.get_text(" "))
         words = _tokens(text)
-        if len(words) >= 18 and not text.startswith("{{") and not _looks_like_structured_data(text):
+        if len(words) >= 18 and not text.startswith("{{") and not _looks_like_structured_data(text, rules):
             paragraphs.append(text)
     if paragraphs:
         return paragraphs
     text = _markdown_text(cleaned)
-    return [p for p in _SENTENCE_SPLIT_RE.split(text) if len(_tokens(p)) >= 18 and not _looks_like_structured_data(p)]
+    return [p for p in _SENTENCE_SPLIT_RE.split(text) if len(_tokens(p)) >= 18 and not _looks_like_structured_data(p, rules)]
 
 
 def _existing_link_targets(body: str) -> set[str]:
@@ -355,7 +396,7 @@ def _existing_link_targets(body: str) -> set[str]:
     return targets
 
 
-def _load_pages(content_dir: Path, max_pages: int = 0) -> list[Page]:
+def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0) -> list[Page]:
     pages: list[Page] = []
     for file_path in _content_files(content_dir, max_pages=max_pages):
         raw = file_path.read_text(encoding="utf-8")
@@ -366,9 +407,9 @@ def _load_pages(content_dir: Path, max_pages: int = 0) -> list[Page]:
         if not title and not description:
             continue
         url = _url_for_file(file_path, content_dir, meta)
-        if _is_nav_url(url):
+        if _is_nav_url(url, rules):
             continue
-        paragraphs = _paragraphs_from_markdown(post.content)
+        paragraphs = _paragraphs_from_markdown(post.content, rules)
         if not paragraphs:
             continue
         keywords = [str(k).strip() for k in (meta.get("keywords") or []) if str(k).strip()]
@@ -397,7 +438,7 @@ def _content_files(content_dir: Path, max_pages: int = 0) -> list[Path]:
     return files
 
 
-def _candidate_ngrams(text: str, min_n: int = 2, max_n: int = 5) -> list[str]:
+def _candidate_ngrams(text: str, rules: SiteRules, min_n: int = 2, max_n: int = 5) -> list[str]:
     seen: set[str] = set()
     out: list[str] = []
     for segment in _SENTENCE_SPLIT_RE.split(text or ""):
@@ -408,11 +449,18 @@ def _candidate_ngrams(text: str, min_n: int = 2, max_n: int = 5) -> list[str]:
             for i in range(0, len(tokens) - n + 1):
                 window = tokens[i:i + n]
                 lower_tokens = [t.lower().strip(".'’") for t in window]
-                if all(t in _STOPWORDS for t in lower_tokens):
+                content_tokens = [t for t in lower_tokens if t not in rules.stopwords]
+                # A short phrase (up to three content words) must be free of function
+                # words anywhere; a longer one may carry them inside but not at either
+                # edge. "Zendesk is the name", "die Beantwortung von" and "point of
+                # contact" fall, "help desk for small teams" stays.
+                if len(content_tokens) <= 3:
+                    if len(content_tokens) < len(lower_tokens):
+                        continue
+                elif lower_tokens[0] in rules.stopwords or lower_tokens[-1] in rules.stopwords:
                     continue
-                if lower_tokens[0] in _STOPWORDS or lower_tokens[-1] in _STOPWORDS:
-                    continue
-                if all(t in _BRAND_ONLY for t in lower_tokens):
+                # Brand and generic words alone never identify a target ("LiveAgent AI", "best tools").
+                if not content_tokens or all(t in rules.nonspecific_terms for t in content_tokens):
                     continue
                 phrase = _normalize_space(" ".join(window)).strip(".,;:!?")
                 if phrase.lower() in _BAD_ANCHORS:
@@ -430,28 +478,28 @@ def _candidate_ngrams(text: str, min_n: int = 2, max_n: int = 5) -> list[str]:
     return out
 
 
-def _target_terms(page: Page) -> set[str]:
+def _target_terms(page: Page, rules: SiteRules) -> set[str]:
     # Anchor eligibility should be based on stable target labels, not every
     # descriptive word. Descriptions contain generic terms like "daily" or
     # "seconds" that make poor exact anchors.
     text = " ".join([page.title, _slug_to_text(page.url), " ".join(page.keywords)]).lower()
-    return {t.lower() for t in _tokens(text) if len(t) > 2 and t.lower() not in _STOPWORDS}
+    return {t.lower() for t in _tokens(text) if len(t) > 2 and t.lower() not in rules.stopwords}
 
 
-def _target_info(page: Page) -> TargetInfo:
+def _target_info(page: Page, rules: SiteRules) -> TargetInfo:
     return TargetInfo(
-        terms=_target_terms(page),
+        terms=_target_terms(page, rules),
         keywords=[k.lower().strip() for k in page.keywords if k.lower().strip()],
         title_lower=page.title.lower(),
         slug_lower=_slug_to_text(page.url).lower().strip(),
     )
 
 
-def _anchor_candidate_infos(candidates: list[str]) -> list[AnchorCandidate]:
+def _anchor_candidate_infos(candidates: list[str], rules: SiteRules) -> list[AnchorCandidate]:
     infos: list[AnchorCandidate] = []
     for idx, phrase in enumerate(candidates):
         phrase_tokens = [t.lower().strip(".'’") for t in _tokens(phrase)]
-        content_tokens = [t for t in phrase_tokens if t not in _STOPWORDS]
+        content_tokens = [t for t in phrase_tokens if t not in rules.stopwords]
         if not content_tokens:
             continue
         infos.append(AnchorCandidate(
@@ -464,14 +512,16 @@ def _anchor_candidate_infos(candidates: list[str]) -> list[AnchorCandidate]:
     return infos
 
 
-def _exact_keyword_bonus(anchor: str, target: Page, target_info: TargetInfo | None = None) -> float:
+def _exact_keyword_bonus(anchor: str, target: Page, target_info: TargetInfo | None = None, *, rules: SiteRules) -> float:
     a = anchor.lower()
     keywords = target_info.keywords if target_info is not None else [k.lower().strip() for k in target.keywords]
     for k in keywords:
         if not k:
             continue
         keyword_tokens = [t.lower() for t in _tokens(k)]
-        if not any(t not in _GENERIC_TARGET_TERMS and t not in _STOPWORDS for t in keyword_tokens):
+        # A keyword made of brand, generic and function words only ("LiveAgent", "AI tool")
+        # earns nothing: it would reward every anchor that merely mentions the brand.
+        if not any(t not in rules.nonspecific_terms and t not in rules.stopwords for t in keyword_tokens):
             continue
         if a == k:
             return 0.16
@@ -480,12 +530,12 @@ def _exact_keyword_bonus(anchor: str, target: Page, target_info: TargetInfo | No
     return 0.0
 
 
-def _exact_keyword_bonus_for_candidate(candidate: AnchorCandidate, target_info: TargetInfo) -> float:
+def _exact_keyword_bonus_for_candidate(candidate: AnchorCandidate, target_info: TargetInfo, rules: SiteRules) -> float:
     for keyword in target_info.keywords:
         if not keyword:
             continue
         keyword_tokens = [t.lower() for t in _tokens(keyword)]
-        if not any(t not in _GENERIC_TARGET_TERMS and t not in _STOPWORDS for t in keyword_tokens):
+        if not any(t not in rules.nonspecific_terms and t not in rules.stopwords for t in keyword_tokens):
             continue
         if candidate.lower == keyword:
             return 0.16
@@ -494,41 +544,41 @@ def _exact_keyword_bonus_for_candidate(candidate: AnchorCandidate, target_info: 
     return 0.0
 
 
-def _anchor_is_target_specific(anchor: str, target_terms: set[str], overlap: float, exact_bonus: float) -> bool:
+def _anchor_is_target_specific(anchor: str, target_terms: set[str], overlap: float, exact_bonus: float, rules: SiteRules) -> bool:
     if exact_bonus > 0:
         return True
     tokens = [t.lower().strip(".'’") for t in _tokens(anchor)]
-    content_tokens = [t for t in tokens if t not in _STOPWORDS]
+    content_tokens = [t for t in tokens if t not in rules.stopwords]
     if len(content_tokens) < 2:
         return False
     matched = [t for t in content_tokens if t in target_terms]
-    specific_matches = [t for t in matched if t not in _GENERIC_TARGET_TERMS]
-    # Require a non-generic target token so "FlowHunt" or "Copilot" alone does
+    specific_matches = [t for t in matched if t not in rules.nonspecific_terms]
+    # Require a non-generic, non-brand target token so the brand name alone does
     # not make a vague phrase eligible.
     return bool(specific_matches)
 
 
-def _anchor_candidate_is_target_specific(candidate: AnchorCandidate, target_terms: set[str], exact_bonus: float) -> bool:
+def _anchor_candidate_is_target_specific(candidate: AnchorCandidate, target_terms: set[str], exact_bonus: float, rules: SiteRules) -> bool:
     if exact_bonus > 0:
         return True
     if len(candidate.content_tokens) < 2:
         return False
     matched = [t for t in candidate.content_tokens if t in target_terms]
-    specific_matches = [t for t in matched if t not in _GENERIC_TARGET_TERMS]
+    specific_matches = [t for t in matched if t not in rules.nonspecific_terms]
     return bool(specific_matches)
 
 
-def _lexical_anchor_score(anchor: str, target: Page, target_info: TargetInfo | None = None) -> tuple[float, float, float]:
-    terms = target_info.terms if target_info is not None else _target_terms(target)
+def _lexical_anchor_score(anchor: str, target: Page, target_info: TargetInfo | None = None, *, rules: SiteRules) -> tuple[float, float, float]:
+    terms = target_info.terms if target_info is not None else _target_terms(target, rules)
     phrase_tokens = [t.lower().strip(".'’") for t in _tokens(anchor)]
-    content_tokens = [t for t in phrase_tokens if t not in _STOPWORDS]
+    content_tokens = [t for t in phrase_tokens if t not in rules.stopwords]
     if not content_tokens:
         return 0.0, 0.0, 0.0
     matched = [t for t in content_tokens if t in terms]
-    specific_matches = [t for t in matched if t not in _GENERIC_TARGET_TERMS]
+    specific_matches = [t for t in matched if t not in rules.nonspecific_terms]
     overlap = len(matched) / max(1, len(content_tokens))
     specific_overlap = len(specific_matches) / max(1, len(content_tokens))
-    exact_bonus = _exact_keyword_bonus(anchor, target, target_info)
+    exact_bonus = _exact_keyword_bonus(anchor, target, target_info, rules=rules)
     length_bonus = min(0.10, max(0, len(content_tokens) - 2) * 0.025)
     title = target_info.title_lower if target_info is not None else target.title.lower()
     slug_text = target_info.slug_lower if target_info is not None else _slug_to_text(target.url).lower().strip()
@@ -550,12 +600,12 @@ def _lexical_anchor_score(anchor: str, target: Page, target_info: TargetInfo | N
     return score, overlap, exact_bonus
 
 
-def _lexical_anchor_score_candidate(candidate: AnchorCandidate, target_info: TargetInfo) -> tuple[float, float, float]:
+def _lexical_anchor_score_candidate(candidate: AnchorCandidate, target_info: TargetInfo, rules: SiteRules) -> tuple[float, float, float]:
     matched = [t for t in candidate.content_tokens if t in target_info.terms]
-    specific_matches = [t for t in matched if t not in _GENERIC_TARGET_TERMS]
+    specific_matches = [t for t in matched if t not in rules.nonspecific_terms]
     overlap = len(matched) / max(1, len(candidate.content_tokens))
     specific_overlap = len(specific_matches) / max(1, len(candidate.content_tokens))
-    exact_bonus = _exact_keyword_bonus_for_candidate(candidate, target_info)
+    exact_bonus = _exact_keyword_bonus_for_candidate(candidate, target_info, rules)
     label_bonus = 0.0
     if candidate.lower == target_info.title_lower or candidate.lower == target_info.slug_lower:
         label_bonus = 0.25
@@ -573,14 +623,14 @@ def _lexical_anchor_score_candidate(candidate: AnchorCandidate, target_info: Tar
     return score, overlap, exact_bonus
 
 
-def _anchor_finalists(candidates: list[str], target: Page, target_info: TargetInfo, max_candidates: int) -> list[str]:
+def _anchor_finalists(candidates: list[str], target: Page, target_info: TargetInfo, max_candidates: int, rules: SiteRules) -> list[str]:
     if not candidates:
         return []
     terms = target_info.terms
     scored: list[tuple[float, int, str]] = []
     for idx, phrase in enumerate(candidates):
-        lexical_score, overlap, exact_bonus = _lexical_anchor_score(phrase, target, target_info)
-        if not _anchor_is_target_specific(phrase, terms, overlap, exact_bonus):
+        lexical_score, overlap, exact_bonus = _lexical_anchor_score(phrase, target, target_info, rules=rules)
+        if not _anchor_is_target_specific(phrase, terms, overlap, exact_bonus, rules):
             continue
         if lexical_score <= 0:
             continue
@@ -591,13 +641,13 @@ def _anchor_finalists(candidates: list[str], target: Page, target_info: TargetIn
     return [phrase for _, _, phrase in scored[:max_candidates]]
 
 
-def _anchor_finalist_infos(candidates: list[AnchorCandidate], target_info: TargetInfo, max_candidates: int) -> list[AnchorCandidate]:
+def _anchor_finalist_infos(candidates: list[AnchorCandidate], target_info: TargetInfo, max_candidates: int, rules: SiteRules) -> list[AnchorCandidate]:
     if not candidates:
         return []
     scored: list[tuple[float, int, AnchorCandidate]] = []
     for candidate in candidates:
-        lexical_score, _, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info)
-        if not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus):
+        lexical_score, _, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info, rules)
+        if not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus, rules):
             continue
         if lexical_score <= 0:
             continue
@@ -615,11 +665,12 @@ def _best_lexical_anchor(
     *,
     fit: float,
     lift: float,
+    rules: SiteRules,
 ) -> tuple[str, float, float]:
     best = ("", -1.0, 0.0)
     for phrase in candidates:
-        lexical_score, overlap, exact_bonus = _lexical_anchor_score(phrase, target, target_info)
-        if not _anchor_is_target_specific(phrase, target_info.terms, overlap, exact_bonus):
+        lexical_score, overlap, exact_bonus = _lexical_anchor_score(phrase, target, target_info, rules=rules)
+        if not _anchor_is_target_specific(phrase, target_info.terms, overlap, exact_bonus, rules):
             continue
         confidence = min(1.0, 0.62 + lexical_score * 0.35)
         score = (
@@ -638,11 +689,12 @@ def _best_lexical_anchor_from_infos(
     *,
     fit: float,
     lift: float,
+    rules: SiteRules,
 ) -> tuple[str, float, float]:
     best = ("", -1.0, 0.0)
     for candidate in candidates:
-        lexical_score, overlap, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info)
-        if not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus):
+        lexical_score, overlap, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info, rules)
+        if not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus, rules):
             continue
         confidence = min(1.0, 0.62 + lexical_score * 0.35)
         score = (
@@ -695,6 +747,7 @@ def _best_anchor_for_target(
     *,
     fit: float,
     lift: float,
+    rules: SiteRules,
 ) -> tuple[str, float, float]:
     if not candidates or candidate_embs.size == 0:
         return "", 0.0, 0.0
@@ -705,15 +758,15 @@ def _best_anchor_for_target(
     best = ("", -1.0, 0.0)
     for idx, phrase in enumerate(candidates):
         phrase_tokens = [t.lower().strip(".'’") for t in _tokens(phrase)]
-        content_tokens = [t for t in phrase_tokens if t not in _STOPWORDS]
+        content_tokens = [t for t in phrase_tokens if t not in rules.stopwords]
         if not content_tokens:
             continue
         overlap = sum(1 for t in content_tokens if t in terms) / max(1, len(content_tokens))
         length_bonus = min(0.10, max(0, len(content_tokens) - 2) * 0.025)
-        exact_bonus = _exact_keyword_bonus(phrase, target, target_info)
+        exact_bonus = _exact_keyword_bonus(phrase, target, target_info, rules=rules)
         semantic = float(semantic_scores[idx])
         confidence = max(0.0, min(1.0, (semantic + 1.0) / 2.0))
-        if not _anchor_is_target_specific(phrase, terms, overlap, exact_bonus):
+        if not _anchor_is_target_specific(phrase, terms, overlap, exact_bonus, rules):
             continue
         score = (
             confidence * 0.48
@@ -737,6 +790,7 @@ def _best_anchor_from_vector_map(
     *,
     fit: float,
     lift: float,
+    rules: SiteRules,
 ) -> tuple[str, float, float]:
     if not candidates:
         return "", 0.0, 0.0
@@ -744,7 +798,7 @@ def _best_anchor_from_vector_map(
     candidate_embs = np.asarray([vector_map[p] for p in phrases], dtype=np.float32)
     if not phrases or candidate_embs.size == 0:
         return "", 0.0, 0.0
-    return _best_anchor_for_target(phrases, candidate_embs, target, target_info, target_vec, fit=fit, lift=lift)
+    return _best_anchor_for_target(phrases, candidate_embs, target, target_info, target_vec, fit=fit, lift=lift, rules=rules)
 
 
 def _page_text(page: Page) -> str:
@@ -841,6 +895,131 @@ def _preferred_targets_for_language(
     return preferred
 
 
+def _read_yaml_mapping(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        data = yaml.safe_load(handle) or {}
+    if not isinstance(data, dict):
+        raise ValueError(f"{path}: the top level must be a mapping")
+    return data
+
+
+def _term_set(values: Any, *, key: str, path: Path) -> set[str]:
+    if values is None:
+        return set()
+    if not isinstance(values, (list, tuple, set)):
+        raise ValueError(f"{path}: '{key}' must be a list of words")
+    return {str(v).strip().lower() for v in values if str(v).strip()}
+
+
+def _load_site_config(path: str | Path) -> SiteConfig:
+    """Theme defaults, overridden key by key from the site's generator.yaml.
+
+    Unlike the preferred-targets loader this never returns silently when the site
+    file is missing: the log always says which config a run used, because a
+    mis-typed path once ran a whole language on the wrong vocabulary unnoticed.
+    """
+    defaults = _read_yaml_mapping(_DEFAULTS_CONFIG_PATH)
+    site_path = Path(path)
+    if site_path.is_file():
+        merged = dict(defaults)
+        merged.update(_read_yaml_mapping(site_path))
+        source_path, label = site_path, str(site_path)
+    else:
+        merged = defaults
+        source_path, label = _DEFAULTS_CONFIG_PATH, f"{site_path} not found, theme defaults from {_DEFAULTS_CONFIG_PATH.name}"
+
+    stopwords = merged.get("stopwords") or {}
+    if not isinstance(stopwords, dict):
+        raise ValueError(f"{source_path}: 'stopwords' must be a mapping with a 'source' key")
+    source = str(stopwords.get("source") or "builtin").strip().lower()
+    if source not in ("builtin", "file", "stopwordsiso"):
+        raise ValueError(f"{source_path}: stopwords.source must be builtin, file or stopwordsiso, got {source!r}")
+    extra_raw = stopwords.get("extra") or {}
+    if not isinstance(extra_raw, dict):
+        raise ValueError(f"{source_path}: stopwords.extra must map language codes to lists of words")
+    patterns = merged.get("nav_path_patterns") or []
+    if not isinstance(patterns, list):
+        raise ValueError(f"{source_path}: 'nav_path_patterns' must be a list of regular expressions")
+
+    config = SiteConfig(
+        brand_terms=_term_set(merged.get("brand_terms"), key="brand_terms", path=source_path),
+        generic_terms=_term_set(merged.get("generic_terms"), key="generic_terms", path=source_path),
+        shortcode_param_names=tuple(sorted(_term_set(merged.get("shortcode_param_names"), key="shortcode_param_names", path=source_path))),
+        nav_path_patterns=tuple(re.compile(str(p), re.I) for p in patterns),
+        stopwords_source=source,
+        stopwords_dir=Path(str(stopwords.get("dir") or "data/linkbuilding/stopwords")),
+        stopwords_extra={
+            str(lang).lower(): _term_set(words, key=f"stopwords.extra.{lang}", path=source_path)
+            for lang, words in extra_raw.items()
+        },
+        label=label,
+    )
+    print(
+        f"Generator config: {label} "
+        f"(brand {len(config.brand_terms)}, generic {len(config.generic_terms)}, "
+        f"shortcode params {len(config.shortcode_param_names)}, nav patterns {len(config.nav_path_patterns)}, "
+        f"stopwords source={source})"
+    )
+    return config
+
+
+def _load_stopword_file(path: Path) -> set[str]:
+    """data/linkbuilding/stopwords/<lang>.toml: ``words = ["der", "die", ...]``."""
+    text = path.read_text(encoding="utf-8")
+    try:
+        import tomllib  # Python 3.11+
+    except ModuleNotFoundError:  # pragma: no cover - older interpreters
+        import toml as tomllib
+    data = tomllib.loads(text)
+    words = data.get("words")
+    if not isinstance(words, list):
+        raise ValueError(f"{path}: expected a `words = [...]` array")
+    return {str(w).strip().lower() for w in words if str(w).strip()}
+
+
+def _stopwords_for_language(config: SiteConfig, lang: str) -> tuple[set[str], str]:
+    """Return (stopwords, description); the description is what the run log prints."""
+    code = lang.lower()
+    fallback = f"falling back to the built-in English list ({len(_ENGLISH_STOPWORDS)} words)"
+    if config.stopwords_source == "file":
+        path = config.stopwords_dir / f"{code}.toml"
+        if path.is_file():
+            words = _load_stopword_file(path)
+            return words, f"{len(words)} words, source=file ({path})"
+        return set(_ENGLISH_STOPWORDS), f"source=file but no {path}; {fallback}"
+    if config.stopwords_source == "stopwordsiso":
+        try:
+            import stopwordsiso
+        except ModuleNotFoundError as exc:
+            raise SystemExit(
+                "stopwords.source is 'stopwordsiso' but the package is not installed "
+                "(pip install -r scripts/requirements.txt)"
+            ) from exc
+        iso = _STOPWORDSISO_LANG_MAP.get(code, code.split("-")[0])
+        if stopwordsiso.has_lang(iso):
+            words = {str(w).strip().lower() for w in stopwordsiso.stopwords(iso)}
+            return words, f"{len(words)} words, source=stopwordsiso ({iso})"
+        return set(_ENGLISH_STOPWORDS), f"source=stopwordsiso has no list for {iso!r}; {fallback}"
+    return set(_ENGLISH_STOPWORDS), f"built-in English list ({len(_ENGLISH_STOPWORDS)} words), source=builtin"
+
+
+def _site_rules(config: SiteConfig, lang: str) -> SiteRules:
+    stopwords, description = _stopwords_for_language(config, lang)
+    extra = config.stopwords_extra.get(lang.lower(), set())
+    if extra:
+        stopwords = stopwords | extra
+        description += f", +{len(extra)} extra"
+    print(f"[{lang}] Stopwords: {description}")
+    return SiteRules(
+        stopwords=stopwords,
+        brand_terms=set(config.brand_terms),
+        generic_terms=set(config.generic_terms),
+        nonspecific_terms=config.brand_terms | config.generic_terms,
+        shortcode_param_names=config.shortcode_param_names,
+        nav_path_patterns=config.nav_path_patterns,
+    )
+
+
 def _source_has_room(
     count: int,
     preferred_count: int,
@@ -905,10 +1084,12 @@ def _recommend_links(
     paragraph_cache: EmbeddingCache,
     preferred_urls: dict[str, float] | None = None,
     preferred_settings: PreferredTargetSettings | None = None,
+    *,
+    rules: SiteRules,
 ) -> list[LinkRec]:
     preferred_urls = preferred_urls or {}
     preferred_settings = preferred_settings or PreferredTargetSettings(min_links_per_page=0)
-    target_infos = [_target_info(page) for page in pages]
+    target_infos = [_target_info(page, rules) for page in pages]
     page_texts = [_clip_text(_page_text(page), args.max_page_chars) for page in pages]
     page_embs = page_cache.encode(
         embedder,
@@ -1033,15 +1214,15 @@ def _recommend_links(
                         continue
 
                     if paragraph_candidates is None:
-                        paragraph_candidates = _candidate_ngrams(paragraph)
+                        paragraph_candidates = _candidate_ngrams(paragraph, rules)
                         if not paragraph_candidates:
                             break
-                        paragraph_candidate_infos = _anchor_candidate_infos(paragraph_candidates)
+                        paragraph_candidate_infos = _anchor_candidate_infos(paragraph_candidates, rules)
                         if not paragraph_candidate_infos:
                             break
 
                     target_info = target_infos[target_i]
-                    candidates = _anchor_finalist_infos(paragraph_candidate_infos or [], target_info, args.max_anchor_candidates)
+                    candidates = _anchor_finalist_infos(paragraph_candidate_infos or [], target_info, args.max_anchor_candidates, rules)
                     if not candidates:
                         continue
                     stage_candidates.append((target_i, target, target_info, fit, lift, is_preferred, candidates))
@@ -1051,7 +1232,7 @@ def _recommend_links(
 
                 for target_i, target, target_info, fit, lift, is_preferred, candidates in stage_candidates:
                     lexical_anchor, lexical_score, lexical_conf = _best_lexical_anchor_from_infos(
-                        candidates, target_info, fit=fit, lift=lift
+                        candidates, target_info, fit=fit, lift=lift, rules=rules
                     )
                     anchor_floor = preferred_settings.anchor_floor if is_preferred and preferred_needed else args.anchor_floor
                     if not lexical_anchor or lexical_score < anchor_floor:
@@ -1104,6 +1285,7 @@ def _recommend_links(
                         page_embs[target_i],
                         fit=fit,
                         lift=lift,
+                        rules=rules,
                     )
                     anchor_floor = preferred_settings.anchor_floor if is_preferred and preferred_needed else args.anchor_floor
                     if not anchor or anchor_score < anchor_floor:
@@ -1279,6 +1461,7 @@ def _process_language(
     args: argparse.Namespace,
     preferred_config: dict[str, Any],
     preferred_settings: PreferredTargetSettings,
+    site_config: SiteConfig,
     *,
     multi_language: bool,
 ) -> tuple[bool, int]:
@@ -1287,7 +1470,8 @@ def _process_language(
         print(f"Content directory not found: {content_dir}", file=sys.stderr)
         return False, 0
 
-    pages = _load_pages(content_dir, max_pages=args.max_pages)
+    rules = _site_rules(site_config, lang)
+    pages = _load_pages(content_dir, rules, max_pages=args.max_pages)
     if not pages:
         print("No pages found with title/description and paragraphs.", file=sys.stderr)
         return False, 0
@@ -1296,7 +1480,7 @@ def _process_language(
     preferred_urls = _preferred_targets_for_language(pages, preferred_config, lang, preferred_settings)
     if preferred_urls:
         print(f"[{lang}] Preferred targets: {len(preferred_urls)} URLs, min {preferred_settings.min_links_per_page} per page")
-    recs = _recommend_links(pages, embedder, args, page_cache, paragraph_cache, preferred_urls, preferred_settings)
+    recs = _recommend_links(pages, embedder, args, page_cache, paragraph_cache, preferred_urls, preferred_settings, rules=rules)
     rows = _to_json_rows(recs)
     print(f"[{lang}] Generated {len(recs)} paragraph link recommendations")
 
@@ -1345,6 +1529,7 @@ def main() -> int:
     paragraph_cache = EmbeddingCache(cache_path, args.model, enabled=not args.no_cache, device=args.device, cache_type="paragraph")
     preferred_config = _load_preferred_target_config(args.preferred_targets)
     preferred_settings = _preferred_settings(preferred_config)
+    site_config = _load_site_config(args.generator_config)
     failed_langs: list[str] = []
     processed = 0
     changed_total = 0
@@ -1358,6 +1543,7 @@ def main() -> int:
                 args,
                 preferred_config,
                 preferred_settings,
+                site_config,
                 multi_language=len(content_dirs) > 1,
             )
             if ok:
