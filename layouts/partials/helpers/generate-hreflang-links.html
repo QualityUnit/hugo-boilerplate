@@ -63,6 +63,12 @@
       {{- $defaultCode = .defaultLanguage -}}
     {{- end -}}
   {{- end -}}
+  {{- /* A full multilingual build knows the project's default site. A build
+         containing only one language needs an explicit defaultLanguage in
+         all_languages data to avoid inconsistent cross-domain fallbacks. */ -}}
+  {{- if and (not $defaultCode) (gt (len hugo.Sites) 1) -}}
+    {{- $defaultCode = hugo.Sites.Default.Language.Lang -}}
+  {{- end -}}
   {{- with $defaultCode -}}
     {{- with index $urls . -}}
       {{- $links = $links | append (dict "tag" "x-default" "url" .) -}}
