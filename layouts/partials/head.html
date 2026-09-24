@@ -15,7 +15,7 @@
 {{ with .Permalink }}<link rel="canonical" href="{{ . }}">{{ end }}
 
 <!-- Generate hreflang alternate links -->
-{{ ( partialCached "helpers/generate-hreflang-links.html" (dict "currentPage" . "defaultLang" "en") .Permalink ) | safeHTML }}
+{{ ( partialCached "helpers/generate-hreflang-links.html" (dict "currentPage" .) .Permalink ) | safeHTML }}
 {{ partial "social-meta.html" . | safeHTML }}
 {{ partialCached "head/variables.html" . }}
 <!-- Schema.org Structured Data -->
@@ -40,4 +40,3 @@
 {{ if templates.Exists "partials/tracking/tracking-scripts.html" }}
   {{ partial "tracking/tracking-scripts.html" . }}
 {{ end }}
-
