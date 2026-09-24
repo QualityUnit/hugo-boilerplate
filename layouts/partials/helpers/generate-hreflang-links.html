@@ -13,8 +13,8 @@
 {{- end -}}
 
 {{- $builtLanguages := dict -}}
-{{- range site.Languages -}}
-  {{- $builtLanguages = merge $builtLanguages (dict .Lang .) -}}
+{{- range hugo.Sites -}}
+  {{- $builtLanguages = merge $builtLanguages (dict .Language.Lang .Language) -}}
 {{- end -}}
 
 {{- $allLanguages := hugo.Data.all_languages -}}
