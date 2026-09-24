@@ -410,7 +410,24 @@ def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0) -> list
         if _is_nav_url(url, rules):
             continue
         paragraphs = _paragraphs_from_markdown(post.content, rules)
-        if not paragraphs:
+        # A page without prose paragraphs stays in the pool as a link *target*; it
+        # only cannot be a link *source*. Targets are embedded from url, title,
+        # description and keywords (_page_text), so they need no paragraphs.
+        #
+        # This goes beyond QualityUnit/web-issues#4252, which asked only for the
+        # `name="` guard in _looks_like_structured_data. Shortcode-only landing pages
+        # (product pages, "alternative" pages, the homepage) have no markdown prose;
+        # until that guard they sat in the pool thanks to their leaked shortcode
+        # parameters, and with it they had no paragraph left. Dropping them here
+        # cost LiveAgent 13 of its 18 preferred targets and every generated inbound
+        # link to them (611 -> 0 on the first de run), which defeats the preferred
+        # target mechanism. S6 (QualityUnit/web-issues#4253) reads paragraphs from
+        # the rendered HTML, which makes these pages regular targets on that path;
+        # on the markdown fallback path this rule stays.
+        #
+        # Section, author and category lists (_index.md) are the exception: without
+        # prose they stay out of the pool, as they always did.
+        if not paragraphs and file_path.name == "_index.md":
             continue
         keywords = [str(k).strip() for k in (meta.get("keywords") or []) if str(k).strip()]
         pages.append(Page(
@@ -1473,10 +1490,12 @@ def _process_language(
     rules = _site_rules(site_config, lang)
     pages = _load_pages(content_dir, rules, max_pages=args.max_pages)
     if not pages:
-        print("No pages found with title/description and paragraphs.", file=sys.stderr)
+        print("No pages found with title/description.", file=sys.stderr)
         return False, 0
 
-    print(f"[{lang}] Loaded {len(pages)} pages from {content_dir}")
+    targets_only = sum(1 for page in pages if not page.paragraphs)
+    print(f"[{lang}] Loaded {len(pages)} pages from {content_dir}"
+          + (f" ({targets_only} without prose paragraphs: link targets only)" if targets_only else ""))
     preferred_urls = _preferred_targets_for_language(pages, preferred_config, lang, preferred_settings)
     if preferred_urls:
         print(f"[{lang}] Preferred targets: {len(preferred_urls)} URLs, min {preferred_settings.min_links_per_page} per page")
