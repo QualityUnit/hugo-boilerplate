@@ -19,11 +19,20 @@
 #                        receive nor emit links, on top of the built-in list
 #                        (/login, /search, /cart, /checkout, /contact, /privacy…).
 # stopwords.source       builtin      the generator's English list for every language
+#                                     and the edge-only window rule (the behaviour
+#                                     before the site config existed)
 #                        file         data/linkbuilding/stopwords/<lang>.toml with
 #                                     `words = ["der", "die", ...]`; directory
-#                                     configurable with stopwords.dir
-#                        stopwordsiso the stopwords-iso package (jp→ja, zh-hans→zh,
-#                                     pt-br→pt); requires `pip install stopwordsiso`
+#                                     configurable with stopwords.dir. Also switches
+#                                     on the strict rule for short anchor windows
+#                                     (no stopword anywhere in a phrase of up to
+#                                     three content words).
+#                        Keep the lists to function words (articles, prepositions,
+#                        conjunctions, pronouns, auxiliaries), 50-200 words per
+#                        language. Off-the-shelf lists such as stopwords-iso are far
+#                        too broad for anchor filtering (its English list has 1 298
+#                        words including help, system, information, work); use them
+#                        at most as raw material for a curated file.
 #                        A language without a list falls back to the English list;
 #                        the run log names the source for every language.
 # stopwords.extra        words added on top of the source per language,

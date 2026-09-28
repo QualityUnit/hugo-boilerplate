@@ -113,8 +113,6 @@ _ENGLISH_STOPWORDS = {
 _DEFAULTS_CONFIG_PATH = Path(__file__).resolve().parent / "linkbuilding_generator_defaults.yaml"
 # `heading="…"`: a shortcode parameter that leaked into the paragraph text.
 _SHORTCODE_PARAM_RE = re.compile(r'\w+="')
-# Hugo content directory codes that differ from the stopwords-iso language codes.
-_STOPWORDSISO_LANG_MAP = {"jp": "ja", "zh-hans": "zh", "pt-br": "pt"}
 _BAD_ANCHORS = {
     "link text", "learn more", "read more", "try now", "try it now", "try it free",
     "schedule a demo", "book a demo", "get started", "click here",
@@ -185,7 +183,7 @@ class SiteConfig:
     generic_terms: set[str]
     shortcode_param_names: tuple[str, ...]
     nav_path_patterns: tuple[re.Pattern, ...]
-    stopwords_source: str  # builtin | file | stopwordsiso
+    stopwords_source: str  # builtin | file
     stopwords_dir: Path
     stopwords_extra: dict[str, set[str]]
     label: str  # what was loaded, for the log line
@@ -200,6 +198,10 @@ class SiteRules:
     nonspecific_terms: set[str]  # brand | generic — tokens that never make an anchor target-specific
     shortcode_param_names: tuple[str, ...]
     nav_path_patterns: tuple[re.Pattern, ...]
+    # Reject a short window (up to three content tokens) that carries a stopword
+    # anywhere, not only at the edges. Opt-in with stopwords.source: file — a site
+    # without per-language lists keeps the edge-only rule it always had.
+    strict_short_windows: bool
 
 
 class LazySentenceTransformer:
@@ -396,6 +398,15 @@ def _existing_link_targets(body: str) -> set[str]:
     return targets
 
 
+def _is_hidden_page(meta: dict[str, Any]) -> bool:
+    """Pages Hugo does not build (draft) or that must not be indexed (private,
+    noindex, robots noindex) never take part, neither as a source nor as a target:
+    a link to them is a 404 or a link to a page kept out of search."""
+    if meta.get("draft") is True or meta.get("private") is True or meta.get("noindex") is True:
+        return True
+    return "noindex" in str(meta.get("robots") or "").lower()
+
+
 def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0) -> list[Page]:
     pages: list[Page] = []
     for file_path in _content_files(content_dir, max_pages=max_pages):
@@ -405,6 +416,8 @@ def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0) -> list
         title = str(meta.get("title") or "").strip()
         description = str(meta.get("description") or meta.get("shortDescription") or "").strip()
         if not title and not description:
+            continue
+        if _is_hidden_page(meta):
             continue
         url = _url_for_file(file_path, content_dir, meta)
         if _is_nav_url(url, rules):
@@ -467,11 +480,13 @@ def _candidate_ngrams(text: str, rules: SiteRules, min_n: int = 2, max_n: int = 
                 window = tokens[i:i + n]
                 lower_tokens = [t.lower().strip(".'’") for t in window]
                 content_tokens = [t for t in lower_tokens if t not in rules.stopwords]
-                # A short phrase (up to three content words) must be free of function
-                # words anywhere; a longer one may carry them inside but not at either
-                # edge. "Zendesk is the name", "die Beantwortung von" and "point of
-                # contact" fall, "help desk for small teams" stays.
-                if len(content_tokens) <= 3:
+                # With per-language stopword lists (strict_short_windows) a short phrase
+                # of up to three content words must be free of function words anywhere;
+                # a longer one may carry them inside but not at either edge. "Zendesk is
+                # the name", "die Beantwortung von" and "point of contact" fall, "help
+                # desk for small teams" stays. Without such lists only the edges are
+                # checked, as before the site config existed.
+                if rules.strict_short_windows and len(content_tokens) <= 3:
                     if len(content_tokens) < len(lower_tokens):
                         continue
                 elif lower_tokens[0] in rules.stopwords or lower_tokens[-1] in rules.stopwords:
@@ -949,8 +964,8 @@ def _load_site_config(path: str | Path) -> SiteConfig:
     if not isinstance(stopwords, dict):
         raise ValueError(f"{source_path}: 'stopwords' must be a mapping with a 'source' key")
     source = str(stopwords.get("source") or "builtin").strip().lower()
-    if source not in ("builtin", "file", "stopwordsiso"):
-        raise ValueError(f"{source_path}: stopwords.source must be builtin, file or stopwordsiso, got {source!r}")
+    if source not in ("builtin", "file"):
+        raise ValueError(f"{source_path}: stopwords.source must be builtin or file, got {source!r}")
     extra_raw = stopwords.get("extra") or {}
     if not isinstance(extra_raw, dict):
         raise ValueError(f"{source_path}: stopwords.extra must map language codes to lists of words")
@@ -1004,19 +1019,6 @@ def _stopwords_for_language(config: SiteConfig, lang: str) -> tuple[set[str], st
             words = _load_stopword_file(path)
             return words, f"{len(words)} words, source=file ({path})"
         return set(_ENGLISH_STOPWORDS), f"source=file but no {path}; {fallback}"
-    if config.stopwords_source == "stopwordsiso":
-        try:
-            import stopwordsiso
-        except ModuleNotFoundError as exc:
-            raise SystemExit(
-                "stopwords.source is 'stopwordsiso' but the package is not installed "
-                "(pip install -r scripts/requirements.txt)"
-            ) from exc
-        iso = _STOPWORDSISO_LANG_MAP.get(code, code.split("-")[0])
-        if stopwordsiso.has_lang(iso):
-            words = {str(w).strip().lower() for w in stopwordsiso.stopwords(iso)}
-            return words, f"{len(words)} words, source=stopwordsiso ({iso})"
-        return set(_ENGLISH_STOPWORDS), f"source=stopwordsiso has no list for {iso!r}; {fallback}"
     return set(_ENGLISH_STOPWORDS), f"built-in English list ({len(_ENGLISH_STOPWORDS)} words), source=builtin"
 
 
@@ -1034,6 +1036,7 @@ def _site_rules(config: SiteConfig, lang: str) -> SiteRules:
         nonspecific_terms=config.brand_terms | config.generic_terms,
         shortcode_param_names=config.shortcode_param_names,
         nav_path_patterns=config.nav_path_patterns,
+        strict_short_windows=config.stopwords_source == "file",
     )
 
 
