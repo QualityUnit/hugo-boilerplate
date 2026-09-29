@@ -8,8 +8,9 @@
 3. Global ``data/linkbuilding/<lang>.json`` — manually maintained keyword→URL list.
 
 Both are applied in a single pass per HTML file. Global keywords are pre-filtered
-against raw HTML before BeautifulSoup is invoked, so only keywords that actually
-appear in the page text reach the DOM search — keeping the apply step fast.
+against the HTML source (character references decoded) before BeautifulSoup is
+invoked, so only keywords that actually appear in the page text reach the DOM
+search — keeping the apply step fast.
 
 How many links a page gets (``LinkConfig.cap_for``):
 
@@ -28,6 +29,7 @@ against the cap and block their URL / anchor text, so a second pass over the sam
 from __future__ import annotations
 
 import argparse
+import html as html_lib
 import json
 import os
 import re
@@ -37,65 +39,32 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup, NavigableString
 import toml_frontmatter as frontmatter
 from sync_translation_urls import ensure_url_slashes, get_directory_url_path, get_hugo_config
+# Which text is linkable and where a language's HTML lives: shared with
+# generate_paragraph_linkbuilding.py, which must pick anchors from the same text.
+# The skip sets, the marker class and _is_linkbuilding_excluded used to be defined
+# here and stay importable under these names for scripts that read them.
+from linkbuilding_html import (  # noqa: F401
+    NO_LINKBUILDING_CLASS,
+    SKIP_TEXT_ANCESTORS,
+    SKIP_TEXT_PARENTS,
+    canonical_path as _canonical_path,
+    html_path_for_url as _html_path_for_url,
+    is_linkbuilding_excluded as _is_linkbuilding_excluded,
+    keyword_pattern as _keyword_pattern,
+    lang_url_carries_prefix,
+    language_html_root,
+    linkable_text_nodes,
+)
 
 
 LANG_CODES = {
     "ar", "cs", "da", "de", "en", "es", "fi", "fr", "it", "ja", "ko",
     "nl", "no", "pl", "pt", "ro", "sk", "sv", "tr", "vi", "zh",
 }
-
-SKIP_TEXT_PARENTS = {
-    # Inline/form elements that must not contain <a>
-    "a", "button", "label", "summary", "legend",
-    # Machine/metadata — never user-visible body content
-    "script", "style", "title", "meta", "link",
-    # Form inputs
-    "textarea", "select", "option", "input",
-    # Code / technical content
-    "code", "pre", "kbd", "samp",
-    # Embedded / special content
-    "svg", "math", "noscript",
-    # Headings — keep them link-free
-    "h1", "h2", "h3", "h4", "h5", "h6",
-    # Caption / table header / inline semantic — not prose
-    "figcaption", "caption", "th", "cite", "time",
-}
-# Structural ancestors: skip the entire subtree of these elements.
-# Links are only inserted in visible body prose — not in page chrome,
-# document head, quotes, sidebars, forms, figures, or contact blocks.
-SKIP_TEXT_ANCESTORS = {
-    # Already-linked or heading context
-    "a", "h1", "h2", "h3", "h4", "h5", "h6",
-    # Document head — title, meta, OG tags, etc.
-    "head",
-    # Page chrome — navigation, site header, footer
-    "header", "footer", "nav",
-    # Structural containers that should stay link-free
-    "aside", "form", "figure", "blockquote", "address",
-}
-
-# Opt-out marker: any element carrying this class excludes its ENTIRE subtree
-# from linkbuilding. Checked via find_parent (ancestor walk), so the opt-out is
-# inherited by every descendant text node at any depth — put it once on a
-# banner/section wrapper and nothing inside gets auto-linked.
-NO_LINKBUILDING_CLASS = "no-linkbuilding"
-
-
-def _is_linkbuilding_excluded(tag: Any) -> bool:
-    """True if this element opts out of linkbuilding via the marker class.
-
-    Used as a find_parent predicate so the opt-out is inherited by the whole
-    subtree: a text node is excluded if it OR any ancestor carries the class.
-    """
-    get = getattr(tag, "get", None)
-    if get is None:  # NavigableString / non-Tag — no attributes
-        return False
-    return NO_LINKBUILDING_CLASS in (get("class") or [])
 
 _hugo_config_cache: dict[str, Any] = {}
 
@@ -184,11 +153,6 @@ def _word_count(nodes: list[NavigableString]) -> int:
     return sum(_count_words(str(node)) for node in nodes if type(node) is NavigableString)
 
 
-def _keyword_pattern(keyword: str) -> re.Pattern[str]:
-    escaped = re.escape(keyword.strip())
-    return re.compile(rf"(?<![\w-]){escaped}(?![\w-])", re.IGNORECASE)
-
-
 class LinkBuilder:
     def __init__(
         self,
@@ -216,10 +180,7 @@ class LinkBuilder:
         except UnicodeDecodeError:
             html = html_path.read_text(encoding="utf-8", errors="ignore")
 
-        # Pre-filter: only keep keywords that appear anywhere in the raw HTML.
-        # This eliminates most global keywords per page before the expensive DOM parse.
-        html_lower = html.lower()
-        applicable = [kw for kw in self.keywords if kw.keyword.lower() in html_lower]
+        applicable = self.applicable_keywords(html)
         if not applicable:
             return False
 
@@ -232,6 +193,20 @@ class LinkBuilder:
         self.stats.total_files_modified += 1
         self.stats.total_links_added += links_added
         return True
+
+    def applicable_keywords(self, html: str) -> list[Keyword]:
+        """Pre-filter: only keep keywords that appear anywhere in the page's HTML.
+
+        This eliminates most global keywords per page before the expensive DOM parse.
+        The HTML is compared with its character references decoded: Hugo writes the
+        typographic apostrophe and quotes as entities ("customer&rsquo;s",
+        "centre d&rsquo;appels"), so against the raw source every keyword containing one
+        was dropped here although the DOM pass would have found it.
+        generate_paragraph_linkbuilding.py runs the same filter when it checks its
+        suggestions, so what it keeps is what this injector applies.
+        """
+        html_lower = html_lib.unescape(html).lower()
+        return [kw for kw in self.keywords if kw.keyword.lower() in html_lower]
 
     def _apply_links(self, soup: BeautifulSoup, keywords: list[Keyword]) -> int:
         added = 0
@@ -251,14 +226,7 @@ class LinkBuilder:
         # Collect valid text nodes ONCE — reused across all keywords.
         # After inserting a link, the replaced node is detached (parent → None)
         # and the surrounding text fragments are appended so later keywords can match them.
-        valid_nodes: list[NavigableString] = [
-            node for node in soup.find_all(string=True)
-            if isinstance(node, NavigableString)
-            and node.parent
-            and node.parent.name not in SKIP_TEXT_PARENTS
-            and not node.find_parent(SKIP_TEXT_ANCESTORS)
-            and not node.find_parent(_is_linkbuilding_excluded)
-        ]
+        valid_nodes: list[NavigableString] = linkable_text_nodes(soup)
 
         # Linkable prose words. Existing prose-links anchors sit inside <a>, which the
         # list above excludes, so their text is added back — pass 1 and pass 2 must
@@ -324,6 +292,38 @@ class LinkBuilder:
         return added
 
 
+@dataclass
+class DryRun:
+    """What the injector would do on one page (see dry_run_page)."""
+    applied: set[tuple[str, str]]   # (href, anchor text casefolded) of every link it inserted
+    prefiltered: set[str]           # casefolded keywords that passed the HTML pre-filter
+    linkable_text: list[str]        # the page's linkable text nodes before insertion
+
+
+def dry_run_page(html: str, page_metadata: dict, global_keywords: list[Keyword], page_url: str = "") -> DryRun:
+    """Apply the links to an in-memory copy of one page as a deploy would, without a cap.
+
+    ``page_metadata`` carries the page's ``lnks_man`` / ``lnks`` tables; they are merged
+    with ``global_keywords`` exactly as _process_file_worker merges them. Nothing is
+    written. generate_paragraph_linkbuilding.py uses this to keep only the suggestions
+    this injector will apply.
+    """
+    keywords = _dedupe_keywords(global_keywords + _keywords_from_metadata(page_metadata))
+    builder = LinkBuilder(keywords, LinkConfig(max_links_per_page=10**9), page_url=page_url)
+    prefiltered = builder.applicable_keywords(html)
+    soup = BeautifulSoup(html, "lxml")
+    linkable = [str(node) for node in linkable_text_nodes(soup)]
+    before = {(str(a.get("href") or ""), a.get_text().strip().casefold()) for a in soup.find_all("a", class_="prose-links")}
+    builder._apply_links(soup, prefiltered)
+    after = {(str(a.get("href") or ""), a.get_text().strip().casefold()) for a in soup.find_all("a", class_="prose-links")}
+    return DryRun(applied=after - before, prefiltered={kw.keyword.casefold() for kw in prefiltered}, linkable_text=linkable)
+
+
+def load_global_keywords(linkbuilding_dir: Path, lang: str) -> list[Keyword]:
+    """The global keyword list the injector applies for ``lang`` (data/linkbuilding/<lang>.json)."""
+    return _load_global_keywords(linkbuilding_dir, lang)
+
+
 # Per-worker globals set via initializer — avoids pickling global keywords per file
 _worker_global_keywords: list[Keyword] = []
 _worker_config: LinkConfig = LinkConfig()
@@ -358,15 +358,6 @@ def _process_file_worker(
     return asdict(builder.stats)
 
 
-def _canonical_path(url: str) -> str:
-    path = urlparse(str(url or "")).path or str(url or "")
-    if not path.startswith("/"):
-        path = "/" + path
-    if path != "/" and not path.endswith("/"):
-        path += "/"
-    return path
-
-
 def _url_for_file(file_path: Path, content_dir: Path, metadata: dict[str, Any]) -> str:
     url = str(metadata.get("url") or "").strip()
     if url:
@@ -391,13 +382,6 @@ def _url_for_file(file_path: Path, content_dir: Path, metadata: dict[str, Any]) 
     elif path.endswith("/index"):
         path = path[:-len("/index")] + "/"
     return _canonical_path(path)
-
-
-def _html_path_for_url(public_dir: Path, url: str) -> Path:
-    path = _canonical_path(url).strip("/")
-    if not path:
-        return public_dir / "index.html"
-    return public_dir / path / "index.html"
 
 
 def _url_for_html_path(html_root: Path, html_path: Path) -> str:
@@ -479,23 +463,9 @@ def _keywords_from_metadata(metadata: dict) -> list[Keyword]:
 
 
 def _lang_url_carries_prefix(hugo_root: Path, lang: str) -> bool:
-    """Does the URL Hugo produces for this language already contain its language segment?
-
-    Hugo decides this by whether the language has its own baseURL:
-
-      own baseURL   -> the language is its own site; URLs carry no language segment
-                       LiveAgent: liveagent.cz + "/chaport-migrace/"
-      no baseURL    -> the language is a subfolder of one site; Hugo prefixes it
-                       FlowHunt: flowhunt.io + "/fr/ai-flow-templates/"
-
-    Read it from config rather than probing the filesystem: a built site also contains
-    alias stubs (public/es/es/... on FlowHunt), and guessing from what exists on disk
-    picks those up and injects into a redirect page instead of the real one.
-    """
+    """See linkbuilding_html.lang_url_carries_prefix; reads the cached Hugo config."""
     try:
-        languages = _get_hugo_config_cached(hugo_root).get("languages") or {}
-        entry = languages.get(lang) or {}
-        return not str(entry.get("baseURL") or "").strip()
+        return lang_url_carries_prefix(_get_hugo_config_cached(hugo_root), lang)
     except Exception:
         return False
 
@@ -677,28 +647,15 @@ def run(args: argparse.Namespace) -> int:
 
     for content_dir in _content_dirs(content_root, args.lang):
         lang = content_dir.name
-        # --content-at-root: each language is built as the default at public/ root
-        # (per-language / per-domain deploys, e.g. PostAffiliatePro). The HTML for the
-        # current language lives at public/ root, not public/<lang>/.
-        if args.content_at_root:
-            lang_public_dir = public_dir
-        else:
-            lang_public_dir = public_dir if lang == "en" else public_dir / lang
-
-        # Where the built HTML for THIS language's pages lives, which is not always
-        # lang_public_dir. Hugo prefixes URLs with the language only when that language
-        # has no baseURL of its own, so the two site layouts need different roots:
-        #
-        #   own baseURL (LiveAgent)  url "/chaport-migrace/"  -> public/cs/ + url
-        #   no baseURL  (FlowHunt)   url "/fr/ai-flow..."     -> public/   + url
-        #
+        # Where this language's HTML lives (public/ root, public/<lang>/) and what its
+        # page URLs resolve against — see linkbuilding_html.language_html_root.
         # --content-at-root stays an explicit override for per-language root builds.
-        if args.content_at_root or lang_public_dir == public_dir:
-            html_root, layout = public_dir, "content at root"
-        elif _lang_url_carries_prefix(content_root.parent, lang):
-            html_root, layout = public_dir, "shared domain, language in URL"
-        else:
-            html_root, layout = lang_public_dir, "per-language domain"
+        lang_public_dir, html_root, layout = language_html_root(
+            public_dir,
+            lang,
+            content_at_root=args.content_at_root,
+            url_carries_prefix=lambda: _lang_url_carries_prefix(content_root.parent, lang),
+        )
         print(f"[{lang}] layout: {layout} -> HTML under {html_root}")
 
         # --file: per-file dev mode — no rglob, no content scan, no global keywords.
@@ -735,7 +692,7 @@ def run(args: argparse.Namespace) -> int:
         else:
             page_keywords, page_meta = _load_page_keywords(content_dir, html_root)
             # Source 2: global manual keywords from data/linkbuilding/<lang>.json
-            # Applied to ALL HTML files; pre-filtered per page against raw HTML before DOM parse.
+            # Applied to ALL HTML files; pre-filtered per page against the HTML source before DOM parse.
             global_keywords = _load_global_keywords(linkbuilding_dir, lang)
         global_kw_data = [asdict(kw) for kw in global_keywords]
 
