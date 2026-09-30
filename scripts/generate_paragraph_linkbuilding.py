@@ -28,6 +28,18 @@ navigation paths, stopword source) is not hard-coded. The theme defaults live in
 ``linkbuilding_generator_defaults.yaml`` next to this script and a site overrides
 them with ``data/linkbuilding/generator.yaml`` (``--generator-config``). Stopwords
 are loaded per language; the run log names the source used for every language.
+
+Two paragraph sources (QualityUnit/web-issues#4253):
+
+- ``--public-dir <built site>`` (the HTML path): paragraphs are the text of the
+  built pages that the deploy injector (``linkbuilding_frontmatter.py``) may link —
+  both scripts share ``linkbuilding_html.py``. Anchors never cross a clause
+  (``,;:`` brackets, quotes, dashes), a target's own keyword/title/slug phrase found
+  verbatim wins over any word window, a page never gets the same anchor text twice,
+  and every suggestion is run through the injector before it is written; the log
+  and the JSON report say how many were kept and why the rest were not.
+- without it (the markdown path): paragraphs come from the markdown source and
+  anchors are picked exactly as before, for sites that do not build before generating.
 """
 
 from __future__ import annotations
@@ -52,7 +64,7 @@ os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
 import markdown
 import numpy as np
 import yaml
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 from tqdm import tqdm
 import faiss
 
@@ -61,6 +73,16 @@ from embedding_cache import EmbeddingCache, resolve_embedding_device, shared_sql
 
 import toml_frontmatter as frontmatter
 from sync_translation_urls import ensure_url_slashes, get_directory_url_path, get_hugo_config
+from linkbuilding_html import (
+    SKIP_TEXT_ANCESTORS,
+    html_path_for_url,
+    is_linkable_text_node,
+    is_linkbuilding_excluded,
+    keyword_pattern,
+    lang_url_carries_prefix,
+    language_html_root,
+)
+import linkbuilding_frontmatter as injector
 
 
 MODEL_NAME = "google/embeddinggemma-300m"
@@ -118,6 +140,39 @@ _BAD_ANCHORS = {
     "schedule a demo", "book a demo", "get started", "click here",
 }
 
+# --- HTML path (--public-dir) ------------------------------------------------------
+# These constants, the _html_*/_clause_*/_exact_* helpers, _html_anchor_for_target and
+# _validate_with_injector are used only when paragraphs come from the built HTML.
+# Without --public-dir the generator behaves exactly as before
+# (QualityUnit/web-issues#4253: the markdown fallback must keep its output).
+#
+# A paragraph is the text of one block element. Text that belongs to the wording but
+# where the injector may not insert a link (an inline <a>, <code>, <time>…) stays in the
+# paragraph — it is embedded — but is a hard boundary for anchors.
+_HTML_BLOCK_TAGS = frozenset({"p", "li", "td", "dd", "dt", "div", "section", "article", "main", "body"})
+# Subtrees that are not paragraph wording at all: the injector's skipped ancestors
+# (except <a>, which is inline wording), plus machine and form content.
+_HTML_NON_TEXT_ANCESTORS = frozenset(
+    (SKIP_TEXT_ANCESTORS - {"a"})
+    | {"script", "style", "noscript", "template", "svg", "math", "title", "pre",
+       "textarea", "select", "option", "button", "label", "legend", "summary",
+       "figcaption", "caption", "th"}
+)
+# Clause boundaries: sentence ends, clause punctuation, brackets, quotes, dashes. An
+# anchor never crosses one — "point, Support Team" can only yield "Support Team".
+# ‘ ’ are single quotation marks at a word edge ("the ‘help desk software’ today") and
+# apostrophes inside a word ("Zendesk’s", "d’appels"), so only the edge ones split; a
+# hyphen inside a word does not split either. The Arabic comma, semicolon and question
+# mark are included; CJK punctuation is S7's (QualityUnit/web-issues#4254), together
+# with CJK word boundaries.
+_CLAUSE_SPLIT_RE = re.compile(r"[.!?…؟](?=\s|$)|[,;:()\[\]{}\"“”„«»‹›—–،؛]|(?<!\w)[‘’]|[‘’](?!\w)|\s[-‐]\s")
+# A word the anchor windows may use: a whole token, nothing glued to it ("$19/mo",
+# "and/or", "&" are boundaries — "mo Zendesk" came from "$19/mo Zendesk").
+_WINDOW_WORD_RE = re.compile(r"[^\W\d_][\w'’.-]*")
+# An elided function word glued to the next word: French l’/d’/qu’, Italian dell’/nell’.
+# Which prefixes count comes from the language's stopword list, not from here.
+_ELISION_RE = re.compile(r"^([^\W\d_]{1,6})['’](?=[^\W\d_])")
+
 
 @dataclass
 class Page:
@@ -130,6 +185,12 @@ class Page:
     body: str
     paragraphs: list[str]
     existing_targets: set[str] = field(default_factory=set)
+    # HTML path only: for every paragraph, its clauses of linkable text (the only
+    # places an anchor may come from), the built file and the hand-authored
+    # [[lnks_man]] entries the injector will apply first. None on the markdown path.
+    clauses: list[list[str]] | None = None
+    html_path: Path | None = None
+    manual_links: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -147,6 +208,8 @@ class LinkRec:
     lift: float
     anchor_score: float
     anchor_confidence: float
+    # HTML path: where the anchor came from — "exact:<tier>" or "window". Empty on the markdown path.
+    anchor_source: str = ""
 
 
 @dataclass
@@ -165,6 +228,9 @@ class TargetInfo:
     keywords: list[str]
     title_lower: str
     slug_lower: str
+    # HTML path: exact phrases looked up in a clause before any window scoring, as
+    # (tier, phrase), best first — see _exact_labels.
+    exact_labels: list[tuple[str, str]] = field(default_factory=list)
 
 
 @dataclass
@@ -245,7 +311,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--page-batch-size", type=int, default=48, help="Embedding batch size for pages")
     parser.add_argument("--paragraph-batch-size", type=int, default=24, help="Embedding batch size for paragraphs")
     parser.add_argument("--anchor-batch-size", type=int, default=64, help="Embedding batch size for anchor candidates")
-    parser.add_argument("--max-anchor-candidates", type=int, default=8, help="Maximum lexical anchor finalists embedded per target")
+    parser.add_argument("--max-anchor-candidates", type=int, default=8, help="Maximum lexical anchor finalists embedded per target (markdown path; the HTML path scores every window)")
     parser.add_argument("--semantic-anchor-fallback", action="store_true", help="Embed anchor finalists only when lexical scoring does not find an accepted anchor")
     parser.add_argument("--initial-targets-per-paragraph", type=int, default=5, help="Target candidates tried before expanding to the full candidate set")
     parser.add_argument("--top-targets-per-paragraph", type=int, default=12, help="Candidate target pages checked per paragraph")
@@ -256,6 +322,12 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--no-cache", action="store_true", help="Disable persistent embedding cache")
     parser.add_argument("--preferred-targets", default="data/linkbuilding/preferred_targets.yaml", help="YAML file with weighted preferred target pages")
     parser.add_argument("--generator-config", default="data/linkbuilding/generator.yaml", help="YAML site config: brand/generic terms, shortcode parameter names, nav path patterns, stopword source (theme defaults when missing)")
+    parser.add_argument("--public-dir", default="", help="Built Hugo site to read paragraphs from instead of the markdown source, "
+                        "laid out as the injector's --public-dir (English at the root, other languages under <lang>/ or in "
+                        "the URL, from the Hugo config). Without it the markdown path runs unchanged")
+    parser.add_argument("--content-at-root", action="store_true", help="With --public-dir: the language was built on its own, "
+                        "its pages at the root of --public-dir (a single-language build) — the injector's flag of the same name")
+    parser.add_argument("--linkbuilding-dir", default="data/linkbuilding", help="Directory of the injector's <lang>.json keyword lists; with --public-dir every anchor is checked against the injector, which applies those first")
     parser.add_argument("--output", default="", help="Optional JSON report path")
     parser.add_argument("--write", action="store_true", help="Write [[lnks]] (never touches [[lnks_man]]) and remove old linkbuilding frontmatter")
     parser.add_argument("--remove-old-linkbuilding", action="store_true", help="Remove linkbuilding even for pages without generated lnks")
@@ -388,6 +460,197 @@ def _paragraphs_from_markdown(body: str, rules: SiteRules) -> list[str]:
     return [p for p in _SENTENCE_SPLIT_RE.split(text) if len(_tokens(p)) >= 18 and not _looks_like_structured_data(p, rules)]
 
 
+def _html_blocks(soup: BeautifulSoup) -> list[list[tuple[str, bool]]]:
+    """The wording of every block element of the page, as (text, linkable) pieces in document order.
+
+    Only <main> is read when the page has one. Everything outside it is chrome that
+    every page repeats (the cookie dialog, the contact box) — prose the injector may
+    link, but not what a page is about.
+    """
+    root = soup.find("main") or soup.body or soup
+    blocks: dict[int, list[tuple[str, bool]]] = {}
+    last_node: dict[int, Any] = {}
+    for node in root.find_all(string=True):
+        if type(node) is not NavigableString:  # comments, CDATA, doctype
+            continue
+        parent = node.parent
+        if parent is None or parent.name in _HTML_NON_TEXT_ANCESTORS:
+            continue
+        if node.find_parent(_HTML_NON_TEXT_ANCESTORS) or node.find_parent(is_linkbuilding_excluded):
+            continue
+        block = parent if parent.name in _HTML_BLOCK_TAGS else node.find_parent(_HTML_BLOCK_TAGS)
+        pieces = blocks.setdefault(id(block), [])
+        if pieces and _separated(last_node[id(block)], node):
+            # "software<br>handles" must not read "softwarehandles"; "Live<em>Agent</em>" stays one word.
+            pieces.append((" ", False))
+        pieces.append((str(node), is_linkable_text_node(node)))
+        last_node[id(block)] = node
+    return list(blocks.values())
+
+
+def _separated(previous: Any, node: Any) -> bool:
+    """Is there a <br> or skipped text between two text nodes of one paragraph?"""
+    element = node.previous_element
+    while element is not None and element is not previous:
+        if isinstance(element, NavigableString) or getattr(element, "name", None) == "br":
+            return True
+        element = element.previous_element
+    return False
+
+
+def _linkable_clauses(pieces: list[tuple[str, bool]]) -> list[str]:
+    """Clauses of the linkable pieces, raw — never merged across text nodes.
+
+    The injector matches an anchor inside one text node, so "<strong>help</strong> desk"
+    can never become the link "help desk": every piece is split on its own, and the
+    clause text is kept exactly as in the HTML so the written anchor matches it.
+    """
+    clauses: list[str] = []
+    for text, linkable in pieces:
+        if not linkable:
+            continue
+        clauses.extend(c for c in _CLAUSE_SPLIT_RE.split(text) if _WINDOW_WORD_RE.search(c))
+    return clauses
+
+
+def _paragraphs_from_html(html_path: Path, rules: SiteRules) -> tuple[list[str], list[list[str]]]:
+    """Paragraphs of a built page and, for each, its linkable clauses.
+
+    Same length rule as the markdown path (18+ tokens). A paragraph repeated on the
+    page (templates render some sections twice for mobile and desktop) counts once.
+    """
+    soup = BeautifulSoup(html_path.read_text(encoding="utf-8", errors="ignore"), "lxml")
+    paragraphs: list[str] = []
+    clauses: list[list[str]] = []
+    seen: set[str] = set()
+    for pieces in _html_blocks(soup):
+        text = _normalize_space("".join(piece for piece, _ in pieces))
+        if text in seen or len(_tokens(text)) < 18 or _looks_like_structured_data(text, rules):
+            continue
+        para_clauses = _linkable_clauses(pieces)
+        if not para_clauses:
+            continue
+        seen.add(text)
+        paragraphs.append(text)
+        clauses.append(para_clauses)
+    return paragraphs, clauses
+
+
+def _clause_word_runs(clause: str) -> list[list[tuple[int, int, str]]]:
+    """Runs of adjacent whole words in a clause, as (start, end, word) spans.
+
+    A run breaks at anything that is not a single space between two words — a word
+    with a digit or symbol glued to it, a double space, a line break — so a window
+    never bridges "$19/mo" or "and/or".
+    """
+    runs: list[list[tuple[int, int, str]]] = [[]]
+    pos = 0
+    for match in re.finditer(r"\S+", clause):
+        word = match.group(0)
+        if runs[-1] and clause[pos:match.start()] != " ":
+            runs.append([])
+        if _WINDOW_WORD_RE.fullmatch(word):
+            runs[-1].append((match.start(), match.end(), word))
+        elif runs[-1]:
+            runs.append([])
+        pos = match.end()
+    return [run for run in runs if run]
+
+
+def _clause_candidates(clauses: list[str], rules: SiteRules, min_n: int = 2, max_n: int = 5) -> list[str]:
+    """The fallback anchor windows of the HTML path: 5→2 words inside one clause, raw text."""
+    seen: set[str] = set()
+    out: list[str] = []
+    for clause in clauses:
+        for run in _clause_word_runs(clause):
+            for n in range(max_n, min_n - 1, -1):
+                for i in range(0, len(run) - n + 1):
+                    window = run[i:i + n]
+                    start = window[0][0]
+                    words = [word for _, _, word in window]
+                    # A window may not start with an elided function word: "l’assistance
+                    # client" becomes "assistance client"; "we’re using" is dropped.
+                    elision = _ELISION_RE.match(words[0])
+                    if elision and elision.group(1).lower() in rules.stopwords:
+                        rest = words[0][elision.end():]
+                        if len(rest) < 3:
+                            continue
+                        start += elision.end()
+                        words[0] = rest
+                    phrase = clause[start:window[-1][1]]
+                    if _window_rejected(words, phrase, rules):
+                        continue
+                    lower = phrase.lower()
+                    if 5 <= len(phrase) <= 72 and lower not in seen:
+                        seen.add(lower)
+                        out.append(phrase)
+                    if len(out) >= 160:
+                        return out
+    return out
+
+
+def _exact_labels(page: Page, rules: SiteRules) -> list[tuple[str, str]]:
+    """Phrases that name a target, looked up verbatim in a clause before any window.
+
+    QualityUnit/web-issues#4253 step 3 orders three tiers: (a) canonical phrases (S8,
+    #4255), (b) the target's search queries (S11, #4258), (c) its keywords, title and
+    slug. Neither (a) nor (b) exists yet; they go in front of the list returned here —
+    (b) needs its own matcher (content words in order within a clause, prefix-tolerant)
+    rather than the injector's exact pattern used for (a) and (c).
+
+    Tier (c): every keyword, every clause of the title ("Help Desk Software | LiveAgent"
+    gives "Help Desk Software"), the last slug segment as words. Function words are
+    trimmed off both edges. A label must be two or more words (or one hyphenated
+    compound), carry a word that is neither brand, generic nor a function word, and have
+    no digit or symbol. Most words first, then most characters; a full tie keeps the
+    order keywords, title, slug.
+    """
+    raw: list[tuple[str, str]] = [("keyword", k) for k in page.keywords]
+    for part in re.split(r"\s[|·•/]\s", page.title):
+        raw.extend(("title", clause) for clause in _CLAUSE_SPLIT_RE.split(part))
+    segments = [s for s in _canonical_path(page.url).strip("/").split("/") if s]
+    if segments:
+        raw.append(("slug", segments[-1].replace("-", " ").replace("_", " ")))
+
+    labels: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for tier, text in raw:
+        words = _normalize_space(text).split(" ")
+        while words and words[0].lower().strip(".'’") in rules.stopwords:
+            words.pop(0)
+        while words and words[-1].lower().strip(".'’") in rules.stopwords:
+            words.pop()
+        if not words or not all(_WINDOW_WORD_RE.fullmatch(w) for w in words):
+            continue
+        if len(words) < 2 and "-" not in words[0]:
+            continue
+        lower_tokens = [w.lower().strip(".'’") for w in words]
+        if all(t in rules.nonspecific_terms or t in rules.stopwords for t in lower_tokens):
+            continue
+        label = " ".join(words)
+        lower = label.lower()
+        if not 5 <= len(label) <= 72 or lower in _BAD_ANCHORS or lower in seen:
+            continue
+        seen.add(lower)
+        labels.append((tier, label))
+    labels.sort(key=lambda item: (-len(item[1].split(" ")), -len(item[1])))
+    return labels
+
+
+def _exact_anchor(clauses: list[str], labels: list[tuple[str, str]], used: set[str]) -> tuple[str, str] | None:
+    """The first label found in a clause, with the injector's own pattern: (tier, text as written on the page)."""
+    for tier, label in labels:
+        pattern = keyword_pattern(label)
+        for clause in clauses:
+            match = pattern.search(clause)
+            if match:
+                text = clause[match.start():match.end()]
+                if text.casefold() not in used:
+                    return tier, text
+                break
+    return None
+
+
 def _existing_link_targets(body: str) -> set[str]:
     targets = set()
     for href in _MARKDOWN_LINK_RE.findall(body or ""):
@@ -407,8 +670,15 @@ def _is_hidden_page(meta: dict[str, Any]) -> bool:
     return "noindex" in str(meta.get("robots") or "").lower()
 
 
-def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0) -> list[Page]:
+def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0, html_root: Path | None = None) -> list[Page]:
+    """Every page that takes part, as a source (it has paragraphs) and/or a target.
+
+    ``html_root`` switches to the HTML path: paragraphs come from the built page, and a
+    content file with no built page is left out altogether — a link to it would be a
+    404, and the injector could not apply the page's own links either.
+    """
     pages: list[Page] = []
+    not_built = 0
     for file_path in _content_files(content_dir, max_pages=max_pages):
         raw = file_path.read_text(encoding="utf-8")
         post = frontmatter.loads(raw, handler=frontmatter.TOMLHandler())
@@ -421,6 +691,33 @@ def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0) -> list
             continue
         url = _url_for_file(file_path, content_dir, meta)
         if _is_nav_url(url, rules):
+            continue
+        keywords = [str(k).strip() for k in (meta.get("keywords") or []) if str(k).strip()]
+        manual_links = [item for item in (meta.get("lnks_man") or []) if isinstance(item, dict)]
+        if html_root is not None:
+            # HTML path. Shortcode-only pages and section pages (_index.md) are regular
+            # pages here: whatever Hugo renders as prose is their text. List pages that
+            # should never be a target (authors, categories) are excluded by the site's
+            # nav_path_patterns, not by a rule on the file name.
+            html_path = html_path_for_url(html_root, url)
+            if not html_path.is_file():
+                not_built += 1
+                continue
+            paragraphs, clauses = _paragraphs_from_html(html_path, rules)
+            pages.append(Page(
+                path=file_path,
+                rel_path=str(file_path.relative_to(content_dir)).replace("\\", "/"),
+                url=url,
+                title=title,
+                description=description,
+                keywords=keywords,
+                body=post.content,
+                paragraphs=paragraphs,
+                existing_targets=_existing_link_targets(post.content),
+                clauses=clauses,
+                html_path=html_path,
+                manual_links=manual_links,
+            ))
             continue
         paragraphs = _paragraphs_from_markdown(post.content, rules)
         # A page without prose paragraphs stays in the pool as a link *target*; it
@@ -442,7 +739,6 @@ def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0) -> list
         # prose they stay out of the pool, as they always did.
         if not paragraphs and file_path.name == "_index.md":
             continue
-        keywords = [str(k).strip() for k in (meta.get("keywords") or []) if str(k).strip()]
         pages.append(Page(
             path=file_path,
             rel_path=str(file_path.relative_to(content_dir)).replace("\\", "/"),
@@ -454,7 +750,42 @@ def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0) -> list
             paragraphs=paragraphs,
             existing_targets=_existing_link_targets(post.content),
         ))
+    if not_built:
+        print(f"[{content_dir.name}] {not_built} content files have no built page under {html_root}: left out")
+    if html_root is not None:
+        _drop_teaser_paragraphs(pages, content_dir.name)
     return pages
+
+
+def _teaser_key(text: str) -> str:
+    return _normalize_space(text.replace("’", "'")).casefold()
+
+
+def _drop_teaser_paragraphs(pages: list[Page], lang: str) -> None:
+    """HTML path: drop paragraphs that are another page's ``description``.
+
+    Templates render related-article cards and teaser blocks inside <main>; their text
+    is the linked page's description, and the card already links there. Taken as
+    prose, such a paragraph fits exactly that page and yields a second link to it
+    (1 003 of 42 371 EN paragraphs). The page's own description (the hero line) stays,
+    also when another page carries the same description.
+    """
+    owners: dict[str, set[str]] = {}
+    for page in pages:
+        if page.description:
+            owners.setdefault(_teaser_key(page.description), set()).add(page.url)
+    dropped = 0
+    for page in pages:
+        kept = [
+            (paragraph, clauses)
+            for paragraph, clauses in zip(page.paragraphs, page.clauses or [])
+            if page.url in owners.get(_teaser_key(paragraph), {page.url})
+        ]
+        dropped += len(page.paragraphs) - len(kept)
+        page.paragraphs = [paragraph for paragraph, _ in kept]
+        page.clauses = [clauses for _, clauses in kept]
+    if dropped:
+        print(f"[{lang}] {dropped} paragraphs are another page's description (teaser cards): not used as prose")
 
 
 def _content_files(content_dir: Path, max_pages: int = 0) -> list[Path]:
@@ -468,6 +799,33 @@ def _content_files(content_dir: Path, max_pages: int = 0) -> list[Path]:
     return files
 
 
+def _window_rejected(window: list[str], phrase: str, rules: SiteRules) -> bool:
+    """Is this token window unfit to be an anchor? ``phrase`` is the text it would write."""
+    lower_tokens = [t.lower().strip(".'’") for t in window]
+    content_tokens = [t for t in lower_tokens if t not in rules.stopwords]
+    # With per-language stopword lists (strict_short_windows) a short phrase
+    # of up to three content words must be free of function words anywhere;
+    # a longer one may carry them inside but not at either edge. "Zendesk is
+    # the name", "die Beantwortung von" and "point of contact" fall, "help
+    # desk for small teams" stays. Without such lists only the edges are
+    # checked, as before the site config existed.
+    if rules.strict_short_windows and len(content_tokens) <= 3:
+        if len(content_tokens) < len(lower_tokens):
+            return True
+    elif lower_tokens[0] in rules.stopwords or lower_tokens[-1] in rules.stopwords:
+        return True
+    # Brand and generic words alone never identify a target ("LiveAgent AI", "best tools").
+    if not content_tokens or all(t in rules.nonspecific_terms for t in content_tokens):
+        return True
+    if phrase.lower() in _BAD_ANCHORS:
+        return True
+    if re.search(r"\d", phrase):
+        return True
+    if phrase.count(".") or phrase.count(":") or phrase.count(";"):
+        return True
+    return False
+
+
 def _candidate_ngrams(text: str, rules: SiteRules, min_n: int = 2, max_n: int = 5) -> list[str]:
     seen: set[str] = set()
     out: list[str] = []
@@ -478,28 +836,8 @@ def _candidate_ngrams(text: str, rules: SiteRules, min_n: int = 2, max_n: int = 
         for n in range(max_n, min_n - 1, -1):
             for i in range(0, len(tokens) - n + 1):
                 window = tokens[i:i + n]
-                lower_tokens = [t.lower().strip(".'’") for t in window]
-                content_tokens = [t for t in lower_tokens if t not in rules.stopwords]
-                # With per-language stopword lists (strict_short_windows) a short phrase
-                # of up to three content words must be free of function words anywhere;
-                # a longer one may carry them inside but not at either edge. "Zendesk is
-                # the name", "die Beantwortung von" and "point of contact" fall, "help
-                # desk for small teams" stays. Without such lists only the edges are
-                # checked, as before the site config existed.
-                if rules.strict_short_windows and len(content_tokens) <= 3:
-                    if len(content_tokens) < len(lower_tokens):
-                        continue
-                elif lower_tokens[0] in rules.stopwords or lower_tokens[-1] in rules.stopwords:
-                    continue
-                # Brand and generic words alone never identify a target ("LiveAgent AI", "best tools").
-                if not content_tokens or all(t in rules.nonspecific_terms for t in content_tokens):
-                    continue
                 phrase = _normalize_space(" ".join(window)).strip(".,;:!?")
-                if phrase.lower() in _BAD_ANCHORS:
-                    continue
-                if re.search(r"\d", phrase):
-                    continue
-                if phrase.count(".") or phrase.count(":") or phrase.count(";"):
+                if _window_rejected(window, phrase, rules):
                     continue
                 lower = phrase.lower()
                 if 5 <= len(phrase) <= 72 and lower not in seen:
@@ -524,6 +862,7 @@ def _target_info(page: Page, rules: SiteRules) -> TargetInfo:
         keywords=[k.lower().strip() for k in page.keywords if k.lower().strip()],
         title_lower=page.title.lower(),
         slug_lower=_slug_to_text(page.url).lower().strip(),
+        exact_labels=_exact_labels(page, rules) if page.clauses is not None else [],
     )
 
 
@@ -728,14 +1067,70 @@ def _best_lexical_anchor_from_infos(
         lexical_score, overlap, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info, rules)
         if not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus, rules):
             continue
-        confidence = min(1.0, 0.62 + lexical_score * 0.35)
-        score = (
-            lexical_score * 0.72
-            + min(0.14, max(0.0, fit - 0.55) * 0.45)
-            + min(0.10, max(0.0, lift) * 1.8)
-        )
+        score, confidence = _anchor_score_with_fit(lexical_score, fit, lift)
         if score > best[1]:
             best = (candidate.phrase, score, confidence)
+    return best
+
+
+def _anchor_score_with_fit(lexical_score: float, fit: float, lift: float) -> tuple[float, float]:
+    """(score, confidence) of a lexical anchor for a target, both paths."""
+    confidence = min(1.0, 0.62 + lexical_score * 0.35)
+    score = (
+        lexical_score * 0.72
+        + min(0.14, max(0.0, fit - 0.55) * 0.45)
+        + min(0.10, max(0.0, lift) * 1.8)
+    )
+    return score, confidence
+
+
+def _html_anchor_for_target(
+    clauses: list[str],
+    candidates: list[AnchorCandidate],
+    target: Page,
+    target_info: TargetInfo,
+    *,
+    fit: float,
+    lift: float,
+    rules: SiteRules,
+    used: set[str],
+) -> tuple[str, float, float, str] | None:
+    """HTML path: (anchor, score, confidence, source) for one target, or None.
+
+    An exact target label in a clause wins outright (step 3); only without one are the
+    windows scored. Windows are ranked by score, then by fewer words outside the
+    target's terms, then by position (step 5) — position alone used to decide between
+    six windows tied at 0.389, and "point Support" beat "Support Team". ``used`` holds
+    the anchor texts the source page already carries (casefolded): the injector links a
+    text once per page, so a second entry with the same text is dead on arrival.
+
+    This is where issue step 6 (one record per anchor text) is enforced, first come
+    first served in paragraph order: the first target that takes a text keeps it, not
+    necessarily the one with the highest lift, and the next paragraph looks for another
+    anchor instead of producing a duplicate. The lift-ordered dedupe in
+    _validate_with_injector is only a safety net behind it.
+    """
+    exact = _exact_anchor(clauses, target_info.exact_labels, used)
+    if exact is not None:
+        tier, text = exact
+        lexical_score, _, _ = _lexical_anchor_score(text, target, target_info, rules=rules)
+        score, confidence = _anchor_score_with_fit(lexical_score, fit, lift)
+        return text, score, confidence, f"exact:{tier}"
+
+    best: tuple[str, float, float, str] | None = None
+    best_key: tuple[float, int, int] | None = None
+    for candidate in candidates:
+        if candidate.phrase.casefold() in used:
+            continue
+        lexical_score, _, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info, rules)
+        if lexical_score <= 0 or not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus, rules):
+            continue
+        score, confidence = _anchor_score_with_fit(lexical_score, fit, lift)
+        outside = sum(1 for t in candidate.content_tokens if t not in target_info.terms)
+        key = (round(score, 9), -outside, -candidate.index)
+        if best_key is None or key > best_key:
+            best_key = key
+            best = (candidate.phrase, score, confidence, "window")
     return best
 
 
@@ -1155,6 +1550,9 @@ def _recommend_links(
     per_source_preferred_count: dict[int, int] = {}
     per_paragraph_count: dict[tuple[int, int], int] = {}
     per_source_target_seen: set[tuple[int, int]] = set()
+    # HTML path: anchor texts each source page already carries, casefolded, seeded with its [[lnks_man]].
+    html_mode = any(page.clauses is not None for page in pages)
+    per_source_texts: dict[int, set[str]] = {}
     preferred_indices = {
         idx: weight for idx, page in enumerate(pages)
         if (weight := preferred_urls.get(_canonical_path(page.url))) is not None
@@ -1233,6 +1631,22 @@ def _recommend_links(
                     if lift < lift_floor:
                         continue
 
+                    if html_mode:
+                        # HTML path: clause-bounded candidates, exact labels first, new tie-break.
+                        clauses = source.clauses[para_i]
+                        if paragraph_candidate_infos is None:
+                            paragraph_candidate_infos = _anchor_candidate_infos(_clause_candidates(clauses, rules), rules)
+                        used = per_source_texts.setdefault(source_i, {
+                            str(item.get("text") or "").strip().casefold() for item in source.manual_links
+                        })
+                        choice = _html_anchor_for_target(
+                            clauses, paragraph_candidate_infos, target, target_infos[target_i],
+                            fit=fit, lift=lift, rules=rules, used=used,
+                        )
+                        if choice is not None:
+                            stage_candidates.append((target_i, target, target_infos[target_i], fit, lift, is_preferred, choice))
+                        continue
+
                     if paragraph_candidates is None:
                         paragraph_candidates = _candidate_ngrams(paragraph, rules)
                         if not paragraph_candidates:
@@ -1249,6 +1663,40 @@ def _recommend_links(
 
                 if not stage_candidates:
                     continue
+
+                if html_mode:
+                    for target_i, target, target_info, fit, lift, is_preferred, choice in stage_candidates:
+                        anchor, anchor_score, anchor_conf, anchor_source = choice
+                        anchor_floor = preferred_settings.anchor_floor if is_preferred and preferred_needed else args.anchor_floor
+                        if anchor_score < anchor_floor:
+                            continue
+                        recs.append(LinkRec(
+                            source_path=source.path,
+                            source_rel_path=source.rel_path,
+                            source_url=source.url,
+                            paragraph_index=para_i,
+                            paragraph=paragraph[:360],
+                            target_url=target.url,
+                            target_title=target.title,
+                            text=anchor,
+                            title=target.description or target.title,
+                            fit=round(fit, 4),
+                            lift=round(lift, 4),
+                            anchor_score=round(anchor_score, 4),
+                            anchor_confidence=round(anchor_conf, 4),
+                            anchor_source=anchor_source,
+                        ))
+                        per_source_count[source_i] = per_source_count.get(source_i, 0) + 1
+                        if is_preferred:
+                            per_source_preferred_count[source_i] = per_source_preferred_count.get(source_i, 0) + 1
+                        per_paragraph_count[(source_i, para_i)] = per_paragraph_count.get((source_i, para_i), 0) + 1
+                        per_source_target_seen.add((source_i, target_i))
+                        per_source_texts[source_i].add(anchor.casefold())
+                        accepted_for_paragraph = True
+                        break
+                    if accepted_for_paragraph:
+                        break
+                    continue  # the semantic anchor fallback is a markdown-path option
 
                 for target_i, target, target_info, fit, lift, is_preferred, candidates in stage_candidates:
                     lexical_anchor, lexical_score, lexical_conf = _best_lexical_anchor_from_infos(
@@ -1352,6 +1800,8 @@ def _format_toml_string(value: str) -> str:
 def _lnks_toml(recs: list[LinkRec]) -> str:
     blocks: list[str] = []
     seen: set[tuple[str, str]] = set()
+    # Inline on purpose: scripts/clean-linkbuilding-anchors.py (LiveAgent-hugo) lifts this
+    # function out of the source on its own, so it may not call other helpers.
     for rec in sorted(recs, key=lambda r: (-r.lift, -r.anchor_score, r.text.lower())):
         key = (rec.text.lower(), rec.target_url)
         if key in seen:
@@ -1443,8 +1893,76 @@ def _update_frontmatter(path: Path, recs: list[LinkRec], *, remove_old_linkbuild
     return False
 
 
+def _lnks_order(rec: LinkRec) -> tuple[float, float, str]:
+    """The order _lnks_toml writes a page's entries in — and so the injector's priority among them.
+
+    Keep in step with the key inlined in _lnks_toml.
+    """
+    return (-rec.lift, -rec.anchor_score, rec.text.lower())
+
+
+def _validate_with_injector(pages: list[Page], recs: list[LinkRec], linkbuilding_dir: Path, lang: str) -> tuple[list[LinkRec], dict[str, int]]:
+    """HTML path, step 7: keep only the suggestions the injector will actually apply.
+
+    Per source page, in the order the entries are written: drop a text claimed by
+    [[lnks_man]], drop a repeated text (keep the first = highest lift; a safety net —
+    _html_anchor_for_target already never picks a text the page carries), then run
+    the injector itself — its LinkBuilder, with [[lnks_man]], the candidate [[lnks]] and
+    the global <lang>.json keywords, exactly as a deploy merges them, but with no link
+    cap — on the page's HTML. A suggestion the injector did not insert is rejected:
+    ``dropped_by_prefilter`` when the injector's HTML pre-filter drops it,
+    ``text_not_in_linkable_html`` when its text matches no linkable text node at all,
+    ``taken_by_another_link`` when an earlier link took the text or the target URL.
+    Returns the kept suggestions and the rejected counts by reason.
+    """
+    by_path = {page.path: page for page in pages}
+    global_keywords = injector.load_global_keywords(linkbuilding_dir, lang)
+    grouped: dict[Path, list[LinkRec]] = {}
+    for rec in recs:
+        grouped.setdefault(rec.source_path, []).append(rec)
+    kept: list[LinkRec] = []
+    rejected = {"claimed_by_lnks_man": 0, "duplicate_text": 0, "dropped_by_prefilter": 0,
+                "text_not_in_linkable_html": 0, "taken_by_another_link": 0}
+    for path, page_recs in grouped.items():
+        page = by_path[path]
+        manual = {str(item.get("text") or "").strip().casefold() for item in page.manual_links}
+        seen: set[str] = set()
+        candidates: list[LinkRec] = []
+        for rec in sorted(page_recs, key=_lnks_order):
+            key = rec.text.strip().casefold()
+            if key in manual:
+                rejected["claimed_by_lnks_man"] += 1
+            elif key in seen:
+                rejected["duplicate_text"] += 1
+            else:
+                seen.add(key)
+                candidates.append(rec)
+        if not candidates:
+            continue
+        try:
+            html = page.html_path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            html = page.html_path.read_text(encoding="utf-8", errors="ignore")
+        items = {
+            "lnks_man": page.manual_links,
+            "lnks": [{"text": r.text, "path": r.target_url, "title": r.title or r.target_title} for r in candidates],
+        }
+        run = injector.dry_run_page(html, items, global_keywords, page_url=page.url)
+        for rec in candidates:
+            if (rec.target_url, rec.text.strip().casefold()) in run.applied:
+                kept.append(rec)
+            elif rec.text.strip().casefold() not in run.prefiltered:
+                rejected["dropped_by_prefilter"] += 1
+            elif any(keyword_pattern(rec.text).search(text) for text in run.linkable_text):
+                rejected["taken_by_another_link"] += 1
+            else:
+                rejected["text_not_in_linkable_html"] += 1
+    kept.sort(key=lambda r: (r.source_rel_path, -r.lift, -r.anchor_score))
+    return kept, rejected
+
+
 def _to_json_rows(recs: list[LinkRec]) -> list[dict[str, Any]]:
-    return [
+    rows = [
         {
             "source_file": rec.source_rel_path,
             "source_url": rec.source_url,
@@ -1461,6 +1979,34 @@ def _to_json_rows(recs: list[LinkRec]) -> list[dict[str, Any]]:
         }
         for rec in recs
     ]
+    for row, rec in zip(rows, recs):
+        if rec.anchor_source:  # HTML path only; markdown-path rows keep their exact shape
+            row["anchor_source"] = rec.anchor_source
+    return rows
+
+
+def _html_root_for_language(public_dir: str, lang: str, content_dir: Path, *, content_at_root: bool) -> tuple[Path, str]:
+    """Where this language's built pages resolve their URLs: (root, layout for the log).
+
+    The injector's own resolution (linkbuilding_html.language_html_root), so both read
+    the same files.
+    """
+    hugo_root = content_dir.resolve().parent.parent
+
+    def url_carries_prefix() -> bool:
+        # Same fallback as the injector's _lang_url_carries_prefix: an unreadable Hugo config means "no prefix".
+        try:
+            return lang_url_carries_prefix(get_hugo_config(hugo_root), lang)
+        except Exception:
+            return False
+
+    _, root, layout = language_html_root(
+        Path(public_dir),
+        lang,
+        content_at_root=content_at_root,
+        url_carries_prefix=url_carries_prefix,
+    )
+    return root, layout
 
 
 def _language_dirs(content_root: Path, args: argparse.Namespace) -> list[Path]:
@@ -1491,7 +2037,16 @@ def _process_language(
         return False, 0
 
     rules = _site_rules(site_config, lang)
-    pages = _load_pages(content_dir, rules, max_pages=args.max_pages)
+    html_root = None
+    if args.public_dir:
+        html_root, layout = _html_root_for_language(args.public_dir, lang, content_dir, content_at_root=args.content_at_root)
+        if not html_root.is_dir():
+            print(f"[{lang}] No built site at {html_root} ({layout}); build Hugo before generating", file=sys.stderr)
+            return False, 0
+        print(f"[{lang}] Paragraphs from built HTML: {layout} -> {html_root}")
+        if args.semantic_anchor_fallback:
+            print(f"::warning::[{lang}] --semantic-anchor-fallback is a markdown-path option and is ignored with --public-dir", file=sys.stderr)
+    pages = _load_pages(content_dir, rules, max_pages=args.max_pages, html_root=html_root)
     if not pages:
         print("No pages found with title/description.", file=sys.stderr)
         return False, 0
@@ -1503,6 +2058,17 @@ def _process_language(
     if preferred_urls:
         print(f"[{lang}] Preferred targets: {len(preferred_urls)} URLs, min {preferred_settings.min_links_per_page} per page")
     recs = _recommend_links(pages, embedder, args, page_cache, paragraph_cache, preferred_urls, preferred_settings, rules=rules)
+    report: dict[str, Any] | None = None
+    if html_root is not None:
+        suggested = len(recs)
+        recs, rejected = _validate_with_injector(pages, recs, Path(args.linkbuilding_dir), lang)
+        sources: dict[str, int] = {}
+        for rec in recs:
+            sources[rec.anchor_source] = sources.get(rec.anchor_source, 0) + 1
+        report = {"suggested": suggested, "written": len(recs), "rejected": rejected, "anchor_source": dict(sorted(sources.items()))}
+        print(f"[{lang}] Validated against the injector: {suggested} suggested, {len(recs)} kept; rejected "
+              + ", ".join(f"{reason} {count}" for reason, count in rejected.items())
+              + "; anchors from " + ", ".join(f"{source} {count}" for source, count in report["anchor_source"].items()))
     rows = _to_json_rows(recs)
     print(f"[{lang}] Generated {len(recs)} paragraph link recommendations")
 
@@ -1511,7 +2077,10 @@ def _process_language(
         if multi_language:
             out_path = out_path.with_name(f"{out_path.stem}-{lang}{out_path.suffix}")
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(json.dumps({"recommendations": rows}, indent=2, ensure_ascii=False), encoding="utf-8")
+        payload: dict[str, Any] = {"recommendations": rows}
+        if report is not None:
+            payload["report"] = report
+        out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"[{lang}] Wrote {out_path}")
 
     changed = 0
