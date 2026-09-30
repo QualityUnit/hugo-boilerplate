@@ -160,10 +160,12 @@ _HTML_NON_TEXT_ANCESTORS = frozenset(
 )
 # Clause boundaries: sentence ends, clause punctuation, brackets, quotes, dashes. An
 # anchor never crosses one — "point, Support Team" can only yield "Support Team".
-# Apostrophes are not boundaries ("Zendesk’s"), and neither is a hyphen inside a word.
-# The Arabic comma, semicolon and question mark are included; CJK punctuation is S7's
-# (QualityUnit/web-issues#4254), together with CJK word boundaries.
-_CLAUSE_SPLIT_RE = re.compile(r"[.!?…؟](?=\s|$)|[,;:()\[\]{}\"“”„«»‹›—–،؛]|\s[-‐]\s")
+# ‘ ’ are single quotation marks at a word edge ("the ‘help desk software’ today") and
+# apostrophes inside a word ("Zendesk’s", "d’appels"), so only the edge ones split; a
+# hyphen inside a word does not split either. The Arabic comma, semicolon and question
+# mark are included; CJK punctuation is S7's (QualityUnit/web-issues#4254), together
+# with CJK word boundaries.
+_CLAUSE_SPLIT_RE = re.compile(r"[.!?…؟](?=\s|$)|[,;:()\[\]{}\"“”„«»‹›—–،؛]|(?<!\w)[‘’]|[‘’](?!\w)|\s[-‐]\s")
 # A word the anchor windows may use: a whole token, nothing glued to it ("$19/mo",
 # "and/or", "&" are boundaries — "mo Zendesk" came from "$19/mo Zendesk").
 _WINDOW_WORD_RE = re.compile(r"[^\W\d_][\w'’.-]*")
@@ -765,7 +767,8 @@ def _drop_teaser_paragraphs(pages: list[Page], lang: str) -> None:
     Templates render related-article cards and teaser blocks inside <main>; their text
     is the linked page's description, and the card already links there. Taken as
     prose, such a paragraph fits exactly that page and yields a second link to it
-    (1 003 of 42 371 EN paragraphs). The page's own description (the hero line) stays.
+    (1 003 of 42 371 EN paragraphs). The page's own description (the hero line) stays,
+    also when another page carries the same description.
     """
     owners: dict[str, set[str]] = {}
     for page in pages:
@@ -776,7 +779,7 @@ def _drop_teaser_paragraphs(pages: list[Page], lang: str) -> None:
         kept = [
             (paragraph, clauses)
             for paragraph, clauses in zip(page.paragraphs, page.clauses or [])
-            if owners.get(_teaser_key(paragraph), {page.url}) <= {page.url}
+            if page.url in owners.get(_teaser_key(paragraph), {page.url})
         ]
         dropped += len(page.paragraphs) - len(kept)
         page.paragraphs = [paragraph for paragraph, _ in kept]
@@ -1100,6 +1103,12 @@ def _html_anchor_for_target(
     six windows tied at 0.389, and "point Support" beat "Support Team". ``used`` holds
     the anchor texts the source page already carries (casefolded): the injector links a
     text once per page, so a second entry with the same text is dead on arrival.
+
+    This is where issue step 6 (one record per anchor text) is enforced, first come
+    first served in paragraph order: the first target that takes a text keeps it, not
+    necessarily the one with the highest lift, and the next paragraph looks for another
+    anchor instead of producing a duplicate. The lift-ordered dedupe in
+    _validate_with_injector is only a safety net behind it.
     """
     exact = _exact_anchor(clauses, target_info.exact_labels, used)
     if exact is not None:
@@ -1896,7 +1905,8 @@ def _validate_with_injector(pages: list[Page], recs: list[LinkRec], linkbuilding
     """HTML path, step 7: keep only the suggestions the injector will actually apply.
 
     Per source page, in the order the entries are written: drop a text claimed by
-    [[lnks_man]], drop a repeated text (keep the first = highest lift, step 6), then run
+    [[lnks_man]], drop a repeated text (keep the first = highest lift; a safety net —
+    _html_anchor_for_target already never picks a text the page carries), then run
     the injector itself — its LinkBuilder, with [[lnks_man]], the candidate [[lnks]] and
     the global <lang>.json keywords, exactly as a deploy merges them, but with no link
     cap — on the page's HTML. A suggestion the injector did not insert is rejected:
