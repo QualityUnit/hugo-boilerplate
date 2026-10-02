@@ -37,6 +37,17 @@
 #                        the run log names the source for every language.
 # stopwords.extra        words added on top of the source per language,
 #                        e.g. { de: [bzw], sk: [resp] }
+# cjk_languages          content language codes written without spaces between
+#                        words, mapped to their script: ja (Japanese) or zh
+#                        (Chinese). HTML path (--public-dir) only: a paragraph counts
+#                        CJK characters instead of words, clauses also split on CJK
+#                        punctuation, and anchors are only the target's own keywords /
+#                        title / slug found verbatim in a clause (2-12 characters,
+#                        two or more words, not all of them brand / generic / function
+#                        words), never word windows. Words are split by
+#                        fugashi + unidic-lite (ja) or jieba (zh), see linkbuilding_cjk.py.
+# cjk_multiword_terms    CJK labels of two or more words that the segmenter reads as
+#                        one dictionary word, e.g. チケッティングシステム (ticketing system).
 
 brand_terms: [flowhunt, ai, mcp, llm]
 
@@ -95,3 +106,7 @@ nav_path_patterns: []
 stopwords:
   source: builtin
   extra: {}
+
+cjk_languages: {jp: ja, zh-hans: zh}
+
+cjk_multiword_terms: []
