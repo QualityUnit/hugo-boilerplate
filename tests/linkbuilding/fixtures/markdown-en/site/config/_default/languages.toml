@@ -1,0 +1,5 @@
+[en]
+    baseURL = 'https://www.liveagent.com/'
+    languageName = 'English'
+    weight = 1
+    contentDir = 'content/en'
