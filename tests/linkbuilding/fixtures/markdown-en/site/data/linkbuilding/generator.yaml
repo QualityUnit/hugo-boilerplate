@@ -1,0 +1,162 @@
+# Site vocabulary for the semantic linkbuilding generator
+# (themes/boilerplate/scripts/generate_paragraph_linkbuilding.py, --generator-config).
+#
+# Why this file exists
+# -------------------
+# The generator is shared by LiveAgent, PostAffiliatePro, FlowHunt and AmICited and
+# used to carry FlowHunt's vocabulary as constants: an English-only stopword list,
+# `flowhunt` as the brand, FlowHunt shortcode parameter names. On LiveAgent that
+# meant no stopword filter in 28 languages, "LiveAgent" in 8-9 % of EN anchors and
+# no usable anchor on /integrations/flowhunt/ (QualityUnit/web-issues#4252).
+# Every key here replaces the theme default of the same name wholesale; a key left
+# out keeps the theme default (themes/boilerplate/scripts/linkbuilding_generator_defaults.yaml).
+#
+# Stopwords are the NEGATIVE filter for anchor windows only (a phrase of up to three
+# content words may not contain one, a longer one may not start or end with one). What an
+# anchor SHOULD be is decided elsewhere (S8/S11) — do not try to make these lists
+# perfect, keep them to function words.
+
+# Words that are our brand. An anchor made only of brand and generic words is
+# rejected ("LiveAgent AI", "company as LiveAgent"), and a target keyword made only
+# of such words earns no exact-keyword bonus. Tokens are compared whole and
+# lower-case, so declined forms have to be listed: these are every form with 50+
+# occurrences in content/ (Finnish, Estonian, Hungarian, Slavic suffixes).
+brand_terms:
+  - liveagent
+  - liveagent's
+  - liveagent’s
+  - liveagents
+  - liveagenta
+  - liveagentu
+  - liveagente
+  - liveagentom
+  - liveagentem
+  - liveagentov
+  - liveagentova
+  - liveagentove
+  - liveagentovim
+  - liveagenti
+  - liveagentin
+  - liveagentia
+  - liveagentiin
+  - liveagentissa
+  - liveagentista
+  - liveagentilla
+  - liveagentille
+  - liveagentile
+  - liveagentil
+  - liveagentis
+  - liveagentist
+  - liveagentisse
+  - liveagentiga
+  - liveagent'i
+  - liveagent'iga
+  - liveagent'is
+  - liveagentet
+  - liveagentben
+  - liveagentbe
+  - liveagentre
+  - liveagenttel
+
+# Words that never make an anchor specific to its target. The theme default minus
+# the FlowHunt product words (flowhunt, copilot, mcp, llm) and minus chatbot(s),
+# which is a LiveAgent product page topic, not filler.
+generic_terms:
+  - ai
+  - tool
+  - tools
+  - agent
+  - agents
+  - automation
+  - workflow
+  - workflows
+  - platform
+  - ready
+  - use
+  - using
+  - help
+  - helps
+  - key
+  - point
+  - points
+  - inside
+  - paste
+  - better
+  - best
+  - create
+  - build
+  - make
+  - content
+  - page
+  - pages
+  - guide
+  - learn
+  - need
+  - needs
+  - feature
+  - features
+  - text
+  - title
+  - image
+  - images
+  - link
+  - links
+  - button
+
+# Parameter names of our shortcodes. A paragraph mentioning two of them is leaked
+# shortcode markup, not prose. The check runs on lower-cased text, so the names are
+# written lower-case here (primaryText in the shortcode -> primarytext). Only
+# compound names are listed on purpose: the check is a substring match, so plain
+# words that also occur in prose (heading, description, image, link, layout) would
+# drop real paragraphs.
+shortcode_param_names:
+  - primarytext
+  - secondarytext
+  - maxwidthcontent
+  - imagealt
+  - imageurl
+  - linktext
+  - buttonstyle
+  - showheading
+  - headingtag
+  - headingalign
+  - headingmaxwidth
+  - headingcomparison
+  - descriptioncomparison
+  - secondaryctatext
+  - secondaryctaurl
+  - ctaprimarytext
+  - ctaprimaryurl
+  - ctasecondarytext
+  - ctasecondaryurl
+  - videourl
+  - videoposter
+  - videoenabled
+  - contentleftpadding
+  - sectionverticalspacing
+  - mediacontainerpaddingy
+  - gridgap
+  - classcontainer
+  - allowcellwrap
+  - allowheaderwrap
+  - announcementenabled
+  - featuresfonts
+  - backgroundcolor
+
+# Utility pages that neither receive nor emit links, on top of the theme's built-in
+# /login, /search, /cart, /checkout, /contact, /privacy… list. /login/ and /search/
+# keep their English path on every LiveAgent domain, so only the localized contact
+# page (content/<lang>/about/contact.md, custom `url` per language) needs a pattern.
+# Both segments are listed: the "contacts" feature page (/funkcie/kontakty/) must
+# stay a normal content page.
+nav_path_patterns:
+  - "^/(about|a-propos|anna|apie|despre-noi|guanyuwomen|meist|o-kompanii|o-nama|o-nas|om|om-os|over-ons|par-mums|rolunk|schetika|sobre-nos|sobre-nosotros|su-di-noi|tungkol-sa|ueber-uns|ve-chung-toi|za-nas)/(contact|kontakt|kontakt-et|kontact|contacto|contatti|contato|kontaktai|kontakti|kontakty|kapcsolatok|za-kontakti|altawasol|epikoinwnia|lien-he|lianxiwomen)/$"
+
+# Per-language stopwords: the curated function-word lists from web-issues#4248,
+# data/linkbuilding/stopwords/<lang>.toml — the same files scripts/clean-linkbuilding-anchors.py
+# uses, so the generator and the cleanup agree on what a stopword is. Languages
+# without a list (en, jp, zh-hans) fall back to the generator's built-in English list
+# and the run log says so; jp and zh-hans get real word boundaries only with S7.
+stopwords:
+  source: file
+  extra: {}

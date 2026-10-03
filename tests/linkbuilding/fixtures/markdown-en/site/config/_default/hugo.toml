@@ -1,0 +1,6 @@
+# Trimmed copy of the LiveAgent site config: only what the generator reads.
+languageCode = 'en-US'
+title = 'LiveAgent'
+theme = 'boilerplate'
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = false

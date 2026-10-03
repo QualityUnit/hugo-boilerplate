@@ -82,10 +82,78 @@ def linkable_text_nodes(soup: BeautifulSoup) -> list[NavigableString]:
     return [node for node in soup.find_all(string=True) if is_linkable_text_node(node)]
 
 
-def keyword_pattern(keyword: str) -> re.Pattern[str]:
-    """The injector's match for an anchor text: case-insensitive, not inside a word or a hyphenated compound."""
-    escaped = re.escape(keyword.strip())
-    return re.compile(rf"(?<![\w-]){escaped}(?![\w-])", re.IGNORECASE)
+# Japanese and Chinese script: the iteration and closing marks 々 〆 〇, kana, CJK
+# ideographs (+ extension A, compatibility), half-width katakana. These languages write no spaces, so a CJK character next to
+# an anchor is not "inside a word" — every CJK neighbour is a valid boundary.
+CJK_CHARS = "\u3005-\u3007\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f"
+CJK_RE = re.compile(f"[{CJK_CHARS}]")
+# A character that continues a word: \w that is not CJK, or a hyphen.
+_WORD_CONTINUATION_RE = re.compile(rf"[^\W{CJK_CHARS}]|-")
+_WORD_RUN_RE = re.compile(rf"[^\W{CJK_CHARS}]+")
+_KANA_RE = re.compile("[\u3041-\u3096\u30a1-\u30fa\uff66-\uff9d]")
+# Japanese and Chinese write no spaces, so their words are estimated from characters.
+# Measured on 60 LiveAgent academy pages against the same German pages (2026-10):
+# Japanese ~3.1 CJK characters per German word, Chinese ~1.8. Japanese prose is
+# largely kana, Chinese has none — text whose CJK characters are at least 10 % kana
+# is Japanese (a stray Japanese name in Chinese text does not flip it).
+CJK_CHARS_PER_WORD_JA = 3.0
+CJK_CHARS_PER_WORD_ZH = 1.8
+
+
+def estimated_words(texts: list[str]) -> int:
+    """Words in ``texts``: runs of non-CJK letters/digits, plus CJK characters / chars-per-word.
+
+    The CJK characters are summed over all texts before dividing, so how a text is
+    cut into pieces does not change the result. Without CJK this is the plain
+    ``\\w+`` count.
+    """
+    runs = sum(len(_WORD_RUN_RE.findall(text)) for text in texts)
+    cjk = sum(len(CJK_RE.findall(text)) for text in texts)
+    if not cjk:
+        return runs
+    kana = sum(len(_KANA_RE.findall(text)) for text in texts)
+    per_word = CJK_CHARS_PER_WORD_JA if kana * 10 >= cjk else CJK_CHARS_PER_WORD_ZH
+    return runs + int(cjk / per_word)
+
+
+class KeywordPattern:
+    """``search`` like a compiled pattern, for an anchor text with word boundaries.
+
+    Not a single regular expression with lookarounds: a character class holding the
+    CJK ranges costs ~7 ms to compile (~0.05 ms for ``[\\w-]``), once per keyword, and
+    the generator and the injector build tens of thousands of these per run. Here the
+    keyword itself is a plain case-insensitive literal and the two neighbours of a
+    match are checked with one shared, precompiled class.
+    """
+
+    __slots__ = ("_literal",)
+
+    def __init__(self, keyword: str) -> None:
+        self._literal = re.compile(re.escape(keyword.strip()), re.IGNORECASE)
+
+    def search(self, text: str) -> re.Match[str] | None:
+        if not self._literal.pattern:  # an empty keyword links nothing (and would never advance)
+            return None
+        pos = 0
+        while True:
+            match = self._literal.search(text, pos)
+            if match is None:
+                return None
+            start, end = match.span()
+            if not (start > 0 and _WORD_CONTINUATION_RE.match(text, start - 1)) and not _WORD_CONTINUATION_RE.match(text, end):
+                return match
+            pos = start + 1
+
+
+def keyword_pattern(keyword: str) -> KeywordPattern:
+    """The injector's match for an anchor text: case-insensitive, not inside a word or a hyphenated compound.
+
+    Only Latin-script letters, digits and ``-`` count as "inside a word". A CJK
+    neighbour does not: "ヘルプデスク" matches in "優れたヘルプデスクを", and
+    "LiveAgent" in "LiveAgentは". On text without CJK this is the
+    ``(?<![\\w-])…(?![\\w-])`` boundary it always was.
+    """
+    return KeywordPattern(keyword)
 
 
 def canonical_path(url: str) -> str:

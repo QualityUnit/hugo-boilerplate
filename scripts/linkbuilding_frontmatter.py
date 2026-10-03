@@ -32,7 +32,6 @@ import argparse
 import html as html_lib
 import json
 import os
-import re
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -52,6 +51,7 @@ from linkbuilding_html import (  # noqa: F401
     SKIP_TEXT_ANCESTORS,
     SKIP_TEXT_PARENTS,
     canonical_path as _canonical_path,
+    estimated_words,
     html_path_for_url as _html_path_for_url,
     is_linkbuilding_excluded as _is_linkbuilding_excluded,
     keyword_pattern as _keyword_pattern,
@@ -133,24 +133,22 @@ def _links_per_1000_words(stats: LinkStats) -> float:
     return round(1000 * (stats.existing_links + stats.total_links_added) / stats.total_words, 2)
 
 
-_WORD_RE = re.compile(r"\w+")
+def _page_words(texts: list[str]) -> int:
+    """Words of a page's linkable prose (``estimated_words``: CJK counted by characters).
 
-
-def _count_words(text: str) -> int:
-    """Words = runs of letters/digits (``\\w+``).
-
-    Deliberately not ``str.split()``: an inserted anchor splits a text node at a word
-    boundary (``_keyword_pattern`` guarantees the characters around the match are not
-    ``\\w``), so every ``\\w+`` run survives the split intact and pass 1 and pass 2 count
-    the same words. With ``split()`` a ``.`` left behind after an anchor becomes an extra
-    token and the cap could drift by one on a re-run.
+    Deliberately not ``str.split()``: an inserted anchor splits a text node where
+    ``_keyword_pattern`` guarantees no word continues across the cut, so every run
+    survives the split intact and pass 1 and pass 2 count the same words. With
+    ``split()`` a ``.`` left behind after an anchor becomes an extra token and the cap
+    could drift by one on a re-run. CJK characters are summed over the whole page
+    before dividing, so where an anchor cuts a CJK run does not matter either.
     """
-    return len(_WORD_RE.findall(text))
+    return estimated_words(texts)
 
 
-def _word_count(nodes: list[NavigableString]) -> int:
-    """Word count across plain text nodes (comments, CDATA etc. excluded)."""
-    return sum(_count_words(str(node)) for node in nodes if type(node) is NavigableString)
+def _plain_texts(nodes: list[NavigableString]) -> list[str]:
+    """Plain text nodes only (comments, CDATA etc. excluded)."""
+    return [str(node) for node in nodes if type(node) is NavigableString]
 
 
 class LinkBuilder:
@@ -231,7 +229,7 @@ class LinkBuilder:
         # Linkable prose words. Existing prose-links anchors sit inside <a>, which the
         # list above excludes, so their text is added back — pass 1 and pass 2 must
         # measure the same page the same way.
-        words = _word_count(valid_nodes) + sum(_count_words(a.get_text()) for a in existing)
+        words = _page_words(_plain_texts(valid_nodes) + [a.get_text() for a in existing])
         cap = self.config.cap_for(words, self.page_max)
         self.stats.total_words += words
         self.stats.existing_links += pre_existing

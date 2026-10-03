@@ -1,0 +1,225 @@
+{
+ "en/academy/customer-service-duties.md": {
+  "sha256": "ee20cb409e9b1ae0e6ab82402c427db96e59398260ffb42b7246d7278e8fe0f6",
+  "lnks": [
+   [
+    "customer service",
+    "/academy/customer-service-metrics/"
+   ],
+   [
+    "customer service",
+    "/blog/zendesk-alternative/"
+   ],
+   [
+    "customer service",
+    "/academy/customer-service-skills/"
+   ],
+   [
+    "help desk",
+    "/blog/free-help-desk-software/"
+   ],
+   [
+    "What exactly",
+    "/blog/liveagent-affordable-ai-help-desk-vs-zendesk-small-business/"
+   ],
+   [
+    "help desk",
+    "/blog/help-desk-software-for-small-business/"
+   ]
+  ]
+ },
+ "en/academy/customer-service-metrics.md": {
+  "sha256": "5213ff087e52181cb13da4344ae13f2faa63a61d9eba007c0c29e6ed0dd06db4",
+  "lnks": [
+   [
+    "business and become loyal brand",
+    "/blog/liveagent-affordable-ai-help-desk-vs-zendesk-small-business/"
+   ],
+   [
+    "customer service",
+    "/academy/customer-service-duties/"
+   ],
+   [
+    "excellent customer",
+    "/blog/free-help-desk-software/"
+   ],
+   [
+    "customer service",
+    "/blog/zendesk-alternative/"
+   ],
+   [
+    "customer service",
+    "/academy/customer-service-skills/"
+   ],
+   [
+    "customer support",
+    "/blog/help-desk-software-for-small-business/"
+   ]
+  ]
+ },
+ "en/academy/customer-service-skills.md": {
+  "sha256": "45c80d5eda0678b5aedd97e5d514c3826dc364ad62805fce1d9117fe6cb09f90",
+  "lnks": [
+   [
+    "excellent customer",
+    "/blog/free-help-desk-software/"
+   ],
+   [
+    "customer service",
+    "/blog/help-desk-software-for-small-business/"
+   ],
+   [
+    "software asking",
+    "/blog/zendesk-alternative/"
+   ],
+   [
+    "customer service",
+    "/academy/customer-service-metrics/"
+   ],
+   [
+    "improve your customers' overall experience",
+    "/academy/customer-service-duties/"
+   ],
+   [
+    "hear what",
+    "/blog/liveagent-affordable-ai-help-desk-vs-zendesk-small-business/"
+   ]
+  ]
+ },
+ "en/blog/free-help-desk-software.md": {
+  "sha256": "f99cafe1a4baaf3d56b23dc27174263909bc93d4721d7baceac5c6c190a78ee5",
+  "lnks": [
+   [
+    "Zoho Desk",
+    "/blog/help-desk-software-for-small-business/"
+   ],
+   [
+    "mo Zendesk",
+    "/blog/liveagent-affordable-ai-help-desk-vs-zendesk-small-business/"
+   ],
+   [
+    "small customer",
+    "/academy/customer-service-skills/"
+   ],
+   [
+    "Zoho Desk",
+    "/blog/zendesk-alternative/"
+   ],
+   [
+    "plans Freshdesk Zendesk Freshservice HelpCrunch",
+    "/academy/customer-service-duties/"
+   ],
+   [
+    "Jira Service",
+    "/academy/customer-service-metrics/"
+   ]
+  ]
+ },
+ "en/blog/help-desk-software-for-small-business.md": {
+  "sha256": "4e5f48a89912da30cc5c69acb42002360e407415a42c9765654c631f72b64b7d",
+  "lnks": [
+   [
+    "customer support",
+    "/blog/free-help-desk-software/"
+   ],
+   [
+    "customer support",
+    "/academy/customer-service-skills/"
+   ],
+   [
+    "help desk",
+    "/blog/zendesk-alternative/"
+   ],
+   [
+    "small businesses",
+    "/blog/liveagent-affordable-ai-help-desk-vs-zendesk-small-business/"
+   ],
+   [
+    "enhance customer",
+    "/academy/customer-service-metrics/"
+   ],
+   [
+    "managing customer",
+    "/academy/customer-service-duties/"
+   ]
+  ]
+ },
+ "en/blog/liveagent-affordable-ai-help-desk-vs-zendesk-small-business.md": {
+  "sha256": "262fa02da7e663e5b8ae14f7db4cdd5a9f4b7621910c282d65586b65dc21c56b",
+  "lnks": [
+   [
+    "small business",
+    "/blog/help-desk-software-for-small-business/"
+   ],
+   [
+    "how complex",
+    "/academy/customer-service-skills/"
+   ],
+   [
+    "Zendesk bills",
+    "/blog/zendesk-alternative/"
+   ],
+   [
+    "point Support",
+    "/blog/free-help-desk-software/"
+   ],
+   [
+    "agent per month on top",
+    "/academy/customer-service-metrics/"
+   ]
+  ]
+ },
+ "en/blog/zendesk-alternative.md": {
+  "sha256": "6ae8b5d5c349b7111fb8851ff4ffbe884bb6a37d2f05fa5dd3155c37970f5b84",
+  "lnks": [
+   [
+    "customer support",
+    "/help-desk-software/"
+   ],
+   [
+    "Zendesk's software",
+    "/blog/free-help-desk-software/"
+   ],
+   [
+    "Neglecting customer",
+    "/blog/help-desk-software-for-small-business/"
+   ],
+   [
+    "including Zendesk",
+    "/blog/liveagent-affordable-ai-help-desk-vs-zendesk-small-business/"
+   ],
+   [
+    "customer support",
+    "/ticketing-software/"
+   ],
+   [
+    "flexibility Customers",
+    "/academy/customer-service-skills/"
+   ],
+   [
+    "Streamlined customer",
+    "/academy/customer-service-metrics/"
+   ],
+   [
+    "service after",
+    "/academy/customer-service-duties/"
+   ],
+   [
+    "customer service",
+    "/live-chat-software/"
+   ]
+  ]
+ },
+ "en/help-desk-software.md": {
+  "sha256": "4dec3ec9ffd614d581eb615da8ba61c7bcd1053f265844728a235b6b3e5a1940",
+  "lnks": []
+ },
+ "en/live-chat-software.md": {
+  "sha256": "1899d1f16fdb959659cc35e7f0d78109eeb795269154e80c0ef7f8d161461d27",
+  "lnks": []
+ },
+ "en/ticketing-software.md": {
+  "sha256": "3a0093db710085469175c6312e55055e2ca38202a0d0ee0b948e20bbd6d8855f",
+  "lnks": []
+ }
+}

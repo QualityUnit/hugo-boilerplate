@@ -74,7 +74,9 @@ from embedding_cache import EmbeddingCache, resolve_embedding_device, shared_sql
 import toml_frontmatter as frontmatter
 from sync_translation_urls import ensure_url_slashes, get_directory_url_path, get_hugo_config
 from linkbuilding_html import (
+    CJK_RE,
     SKIP_TEXT_ANCESTORS,
+    estimated_words,
     html_path_for_url,
     is_linkable_text_node,
     is_linkbuilding_excluded,
@@ -83,6 +85,7 @@ from linkbuilding_html import (
     language_html_root,
 )
 import linkbuilding_frontmatter as injector
+from linkbuilding_cjk import SCRIPTS as CJK_SCRIPTS, CjkWordCounter
 
 
 MODEL_NAME = "google/embeddinggemma-300m"
@@ -163,9 +166,20 @@ _HTML_NON_TEXT_ANCESTORS = frozenset(
 # ‘ ’ are single quotation marks at a word edge ("the ‘help desk software’ today") and
 # apostrophes inside a word ("Zendesk’s", "d’appels"), so only the edge ones split; a
 # hyphen inside a word does not split either. The Arabic comma, semicolon and question
-# mark are included; CJK punctuation is S7's (QualityUnit/web-issues#4254), together
-# with CJK word boundaries.
+# mark are included.
 _CLAUSE_SPLIT_RE = re.compile(r"[.!?…؟](?=\s|$)|[,;:()\[\]{}\"“”„«»‹›—–،؛]|(?<!\w)[‘’]|[‘’](?!\w)|\s[-‐]\s")
+# cjk_languages (QualityUnit/web-issues#4254): also the full-width sentence and clause
+# marks, which need no space after them — 。！？、；： and the full-width comma ，
+# (Chinese), corner and lenticular brackets 「」『』【】, title marks 《》〈〉 and
+# full-width parentheses （）. A CJK sentence end is followed directly by the next
+# sentence, so without these a clause would run across it.
+_CJK_CLAUSE_SPLIT_RE = re.compile(_CLAUSE_SPLIT_RE.pattern + r"|[。！？、；：，「」『』【】《》〈〉（）]")
+
+
+def _split_clauses(text: str, rules: SiteRules) -> list[str]:
+    return (_CJK_CLAUSE_SPLIT_RE if rules.cjk else _CLAUSE_SPLIT_RE).split(text)
+
+
 # A word the anchor windows may use: a whole token, nothing glued to it ("$19/mo",
 # "and/or", "&" are boundaries — "mo Zendesk" came from "$19/mo Zendesk").
 _WINDOW_WORD_RE = re.compile(r"[^\W\d_][\w'’.-]*")
@@ -252,6 +266,8 @@ class SiteConfig:
     stopwords_source: str  # builtin | file
     stopwords_dir: Path
     stopwords_extra: dict[str, set[str]]
+    cjk_languages: dict[str, str]  # language code -> "ja" | "zh"
+    cjk_multiword_terms: frozenset[str]
     label: str  # what was loaded, for the log line
 
 
@@ -268,6 +284,12 @@ class SiteRules:
     # anywhere, not only at the edges. Opt-in with stopwords.source: file — a site
     # without per-language lists keeps the edge-only rule it always had.
     strict_short_windows: bool
+    # Japanese / Chinese (cjk_languages): no spaces between words. HTML path only —
+    # paragraph length by characters, CJK clause punctuation, CJK exact labels counted
+    # in words by a segmenter, no word windows (QualityUnit/web-issues#4254).
+    cjk: bool = False
+    cjk_words: CjkWordCounter | None = None
+    cjk_multiword_terms: frozenset[str] = frozenset()
 
 
 class LazySentenceTransformer:
@@ -498,7 +520,7 @@ def _separated(previous: Any, node: Any) -> bool:
     return False
 
 
-def _linkable_clauses(pieces: list[tuple[str, bool]]) -> list[str]:
+def _linkable_clauses(pieces: list[tuple[str, bool]], rules: SiteRules) -> list[str]:
     """Clauses of the linkable pieces, raw — never merged across text nodes.
 
     The injector matches an anchor inside one text node, so "<strong>help</strong> desk"
@@ -509,15 +531,25 @@ def _linkable_clauses(pieces: list[tuple[str, bool]]) -> list[str]:
     for text, linkable in pieces:
         if not linkable:
             continue
-        clauses.extend(c for c in _CLAUSE_SPLIT_RE.split(text) if _WINDOW_WORD_RE.search(c))
+        clauses.extend(c for c in _split_clauses(text, rules) if _WINDOW_WORD_RE.search(c))
     return clauses
+
+
+def _long_enough(paragraph: str, rules: SiteRules) -> bool:
+    """18+ words. In cjk_languages the words are estimated from characters, as the
+    injector counts them for its link cap: 18 words = 54 Japanese or 33 Chinese
+    CJK characters (QualityUnit/web-issues#4254)."""
+    if rules.cjk and CJK_RE.search(paragraph):
+        return estimated_words([paragraph]) >= 18
+    return len(_tokens(paragraph)) >= 18
 
 
 def _paragraphs_from_html(html_path: Path, rules: SiteRules) -> tuple[list[str], list[list[str]]]:
     """Paragraphs of a built page and, for each, its linkable clauses.
 
-    Same length rule as the markdown path (18+ tokens). A paragraph repeated on the
-    page (templates render some sections twice for mobile and desktop) counts once.
+    Same length rule as the markdown path (18+ tokens; cjk_languages by characters,
+    see _long_enough). A paragraph repeated on the page (templates render some
+    sections twice for mobile and desktop) counts once.
     """
     soup = BeautifulSoup(html_path.read_text(encoding="utf-8", errors="ignore"), "lxml")
     paragraphs: list[str] = []
@@ -525,9 +557,9 @@ def _paragraphs_from_html(html_path: Path, rules: SiteRules) -> tuple[list[str],
     seen: set[str] = set()
     for pieces in _html_blocks(soup):
         text = _normalize_space("".join(piece for piece, _ in pieces))
-        if text in seen or len(_tokens(text)) < 18 or _looks_like_structured_data(text, rules):
+        if text in seen or not _long_enough(text, rules) or _looks_like_structured_data(text, rules):
             continue
-        para_clauses = _linkable_clauses(pieces)
+        para_clauses = _linkable_clauses(pieces, rules)
         if not para_clauses:
             continue
         seen.add(text)
@@ -558,7 +590,14 @@ def _clause_word_runs(clause: str) -> list[list[tuple[int, int, str]]]:
 
 
 def _clause_candidates(clauses: list[str], rules: SiteRules, min_n: int = 2, max_n: int = 5) -> list[str]:
-    """The fallback anchor windows of the HTML path: 5→2 words inside one clause, raw text."""
+    """The fallback anchor windows of the HTML path: 5→2 words inside one clause, raw text.
+
+    None in cjk_languages: without spaces a CJK clause is one "word", and the spaces
+    that do occur sit around Latin words ("LiveAgent の AI ハンドオフ"), so a window
+    would only glue fragments together. CJK anchors come from _exact_labels alone.
+    """
+    if rules.cjk:
+        return []
     seen: set[str] = set()
     out: list[str] = []
     for clause in clauses:
@@ -604,10 +643,17 @@ def _exact_labels(page: Page, rules: SiteRules) -> list[tuple[str, str]]:
     compound), carry a word that is neither brand, generic nor a function word, and have
     no digit or symbol. Most words first, then most characters; a full tie keeps the
     order keywords, title, slug.
+
+    In cjk_languages a label with CJK characters has no spaces to count words by: it is
+    kept at 2-12 characters (QualityUnit/web-issues#4254 step 3) and its words are
+    split into words by a segmenter (linkbuilding_cjk): two or more, not all of them
+    brand, generic or function words — unless the site lists the label in
+    cjk_multiword_terms (dictionary compounds such as チケッティングシステム "ticketing
+    system" that the segmenter reads as one word). The other rules apply.
     """
     raw: list[tuple[str, str]] = [("keyword", k) for k in page.keywords]
     for part in re.split(r"\s[|·•/]\s", page.title):
-        raw.extend(("title", clause) for clause in _CLAUSE_SPLIT_RE.split(part))
+        raw.extend(("title", clause) for clause in _split_clauses(part, rules))
     segments = [s for s in _canonical_path(page.url).strip("/").split("/") if s]
     if segments:
         raw.append(("slug", segments[-1].replace("-", " ").replace("_", " ")))
@@ -622,15 +668,25 @@ def _exact_labels(page: Page, rules: SiteRules) -> list[tuple[str, str]]:
             words.pop()
         if not words or not all(_WINDOW_WORD_RE.fullmatch(w) for w in words):
             continue
-        if len(words) < 2 and "-" not in words[0]:
+        label = " ".join(words)
+        cjk_label = rules.cjk and CJK_RE.search(label) is not None
+        if not cjk_label and len(words) < 2 and "-" not in words[0]:
             continue
         lower_tokens = [w.lower().strip(".'’") for w in words]
         if all(t in rules.nonspecific_terms or t in rules.stopwords for t in lower_tokens):
             continue
-        label = " ".join(words)
         lower = label.lower()
-        if not 5 <= len(label) <= 72 or lower in _BAD_ANCHORS or lower in seen:
+        min_len, max_len = (2, 12) if cjk_label else (5, 72)
+        if not min_len <= len(label) <= max_len or lower in _BAD_ANCHORS or lower in seen:
             continue
+        if cjk_label and lower not in rules.cjk_multiword_terms:
+            # The two Latin rules above, per segmenter word: two or more words, and not
+            # all of them brand, generic or function words (AI機能 = "AI" + "feature").
+            cjk_words = [w.lower() for w in rules.cjk_words.words(label)]
+            if len(cjk_words) < 2:
+                continue
+            if all(w in rules.nonspecific_terms or w in rules.stopwords for w in cjk_words):
+                continue
         seen.add(lower)
         labels.append((tier, label))
     labels.sort(key=lambda item: (-len(item[1].split(" ")), -len(item[1])))
@@ -1134,7 +1190,11 @@ def _html_anchor_for_target(
     return best
 
 
-def _paragraph_eligible(paragraph: str) -> bool:
+def _paragraph_eligible(paragraph: str, cjk_rules: SiteRules | None = None) -> bool:
+    """``cjk_rules``: HTML path in a cjk_language — the paragraph passed _long_enough
+    by characters, which the token count below would undo."""
+    if cjk_rules is not None and cjk_rules.cjk and CJK_RE.search(paragraph):
+        return _long_enough(paragraph, cjk_rules)
     tokens = _tokens(paragraph)
     if len(tokens) < 18:
         return False
@@ -1367,6 +1427,9 @@ def _load_site_config(path: str | Path) -> SiteConfig:
     patterns = merged.get("nav_path_patterns") or []
     if not isinstance(patterns, list):
         raise ValueError(f"{source_path}: 'nav_path_patterns' must be a list of regular expressions")
+    cjk_languages = merged.get("cjk_languages") or {}
+    if not isinstance(cjk_languages, dict) or any(str(s).strip().lower() not in CJK_SCRIPTS for s in cjk_languages.values()):
+        raise ValueError(f"{source_path}: 'cjk_languages' must map language codes to {' or '.join(CJK_SCRIPTS)}")
 
     config = SiteConfig(
         brand_terms=_term_set(merged.get("brand_terms"), key="brand_terms", path=source_path),
@@ -1379,13 +1442,16 @@ def _load_site_config(path: str | Path) -> SiteConfig:
             str(lang).lower(): _term_set(words, key=f"stopwords.extra.{lang}", path=source_path)
             for lang, words in extra_raw.items()
         },
+        cjk_languages={str(code).strip().lower(): str(script).strip().lower() for code, script in cjk_languages.items()},
+        cjk_multiword_terms=frozenset(_term_set(merged.get("cjk_multiword_terms"), key="cjk_multiword_terms", path=source_path)),
         label=label,
     )
+    cjk = ", ".join(f"{code}={script}" for code, script in sorted(config.cjk_languages.items())) or "none"
     print(
         f"Generator config: {label} "
         f"(brand {len(config.brand_terms)}, generic {len(config.generic_terms)}, "
         f"shortcode params {len(config.shortcode_param_names)}, nav patterns {len(config.nav_path_patterns)}, "
-        f"stopwords source={source})"
+        f"stopwords source={source}, cjk languages {cjk}, cjk multi-word terms {len(config.cjk_multiword_terms)})"
     )
     return config
 
@@ -1424,6 +1490,7 @@ def _site_rules(config: SiteConfig, lang: str) -> SiteRules:
         stopwords = stopwords | extra
         description += f", +{len(extra)} extra"
     print(f"[{lang}] Stopwords: {description}")
+    script = config.cjk_languages.get(lang.lower())
     return SiteRules(
         stopwords=stopwords,
         brand_terms=set(config.brand_terms),
@@ -1432,6 +1499,10 @@ def _site_rules(config: SiteConfig, lang: str) -> SiteRules:
         shortcode_param_names=config.shortcode_param_names,
         nav_path_patterns=config.nav_path_patterns,
         strict_short_windows=config.stopwords_source == "file",
+        cjk=script is not None,
+        # The segmenter library loads on the first CJK label; a missing one ends the run.
+        cjk_words=CjkWordCounter(script) if script is not None else None,
+        cjk_multiword_terms=config.cjk_multiword_terms,
     )
 
 
@@ -1518,7 +1589,7 @@ def _recommend_links(
     paragraph_rows: list[tuple[int, int, str]] = []
     for page_i, page in enumerate(pages):
         for para_i, paragraph in enumerate(page.paragraphs):
-            if not _paragraph_eligible(paragraph):
+            if not _paragraph_eligible(paragraph, rules if page.clauses is not None else None):
                 continue
             paragraph_rows.append((page_i, para_i, paragraph))
 
