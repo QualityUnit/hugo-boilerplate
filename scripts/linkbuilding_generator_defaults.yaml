@@ -42,12 +42,15 @@
 #                        (Chinese). HTML path (--public-dir) only: a paragraph counts
 #                        CJK characters instead of words, clauses also split on CJK
 #                        punctuation, and anchors are only the target's own keywords /
-#                        title / slug found verbatim in a clause (2-12 characters,
+#                        title / slug found verbatim in a clause (at most 6 estimated words,
 #                        two or more words, not all of them brand / generic / function
 #                        words), never word windows. Words are split by
 #                        fugashi + unidic-lite (ja) or jieba (zh), see linkbuilding_cjk.py.
 # cjk_multiword_terms    CJK labels of two or more words that the segmenter reads as
 #                        one dictionary word, e.g. チケッティングシステム (ticketing system).
+# cjk_one_word_terms     CJK labels of one word that the segmenter cuts in two, e.g.
+#                        电子邮件 (e-mail): dropped as a whole label, but an ordinary
+#                        word inside a longer one (电子邮件自动化 "e-mail automation").
 
 brand_terms: [flowhunt, ai, mcp, llm]
 
@@ -110,3 +113,5 @@ stopwords:
 cjk_languages: {jp: ja, zh-hans: zh}
 
 cjk_multiword_terms: []
+
+cjk_one_word_terms: []

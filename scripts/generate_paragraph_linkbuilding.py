@@ -176,6 +176,9 @@ _CLAUSE_SPLIT_RE = re.compile(r"[.!?…؟](?=\s|$)|[,;:()\[\]{}\"“”„«»�
 _CJK_CLAUSE_SPLIT_RE = re.compile(_CLAUSE_SPLIT_RE.pattern + r"|[。！？、；：，「」『』【】《》〈〉（）]")
 
 
+_CJK_LABEL_MAX_WORDS = 6
+
+
 def _split_clauses(text: str, rules: SiteRules) -> list[str]:
     return (_CJK_CLAUSE_SPLIT_RE if rules.cjk else _CLAUSE_SPLIT_RE).split(text)
 
@@ -268,6 +271,7 @@ class SiteConfig:
     stopwords_extra: dict[str, set[str]]
     cjk_languages: dict[str, str]  # language code -> "ja" | "zh"
     cjk_multiword_terms: frozenset[str]
+    cjk_one_word_terms: frozenset[str]
     label: str  # what was loaded, for the log line
 
 
@@ -290,6 +294,7 @@ class SiteRules:
     cjk: bool = False
     cjk_words: CjkWordCounter | None = None
     cjk_multiword_terms: frozenset[str] = frozenset()
+    cjk_one_word_terms: frozenset[str] = frozenset()
 
 
 class LazySentenceTransformer:
@@ -644,12 +649,17 @@ def _exact_labels(page: Page, rules: SiteRules) -> list[tuple[str, str]]:
     no digit or symbol. Most words first, then most characters; a full tie keeps the
     order keywords, title, slug.
 
-    In cjk_languages a label with CJK characters has no spaces to count words by: it is
-    kept at 2-12 characters (QualityUnit/web-issues#4254 step 3) and its words are
-    split into words by a segmenter (linkbuilding_cjk): two or more, not all of them
-    brand, generic or function words — unless the site lists the label in
-    cjk_multiword_terms (dictionary compounds such as チケッティングシステム "ticketing
-    system" that the segmenter reads as one word). The other rules apply.
+    In cjk_languages a label with CJK characters has no spaces to count words by. It is
+    kept at 2+ characters and at most 6 estimated words (estimated_words: up to 20
+    characters of Japanese with kana, 12 of Chinese, a Latin name is one word; the
+    issue suggested 2-12 characters, which cut ライブチャットソフトウェア "live chat
+    software"). It is split into words by a segmenter (linkbuilding_cjk): two or more,
+    not all of them brand, generic or function words. Site lists adjust the segmenter:
+    cjk_multiword_terms are labels it reads as one word although they are two
+    (チケッティングシステム "ticketing system") and are kept; cjk_one_word_terms are
+    labels it cuts in two although they are one word (电子邮件 "e-mail") and are dropped
+    as a whole label, but count as ordinary words inside a longer one. The other rules
+    apply.
     """
     raw: list[tuple[str, str]] = [("keyword", k) for k in page.keywords]
     for part in re.split(r"\s[|·•/]\s", page.title):
@@ -676,21 +686,51 @@ def _exact_labels(page: Page, rules: SiteRules) -> list[tuple[str, str]]:
         if all(t in rules.nonspecific_terms or t in rules.stopwords for t in lower_tokens):
             continue
         lower = label.lower()
-        min_len, max_len = (2, 12) if cjk_label else (5, 72)
-        if not min_len <= len(label) <= max_len or lower in _BAD_ANCHORS or lower in seen:
+        if cjk_label:
+            # At most 6 words, estimated like the paragraph length and the link cap: up
+            # to 20 characters of Japanese with kana, 12 of Chinese (and of kanji-only
+            # Japanese); a Latin name counts as one word.
+            length_ok = len(label) >= 2 and estimated_words([label]) <= _CJK_LABEL_MAX_WORDS
+        else:
+            length_ok = 5 <= len(label) <= 72
+        if not length_ok or lower in _BAD_ANCHORS or lower in seen:
             continue
+        if cjk_label and lower in rules.cjk_one_word_terms:
+            continue  # one English word that the segmenter cuts in two (电子邮件 "e-mail")
         if cjk_label and lower not in rules.cjk_multiword_terms:
             # The two Latin rules above, per segmenter word: two or more words, and not
             # all of them brand, generic or function words (AI機能 = "AI" + "feature").
-            cjk_words = [w.lower() for w in rules.cjk_words.words(label)]
-            if len(cjk_words) < 2:
+            groups = rules.cjk_words.groups(label)
+            if sum(len(words) for _, words in groups) < 2:
                 continue
-            if all(w in rules.nonspecific_terms or w in rules.stopwords for w in cjk_words):
+            if _cjk_all_nonspecific(groups, rules.nonspecific_terms | rules.stopwords):
                 continue
         seen.add(lower)
         labels.append((tier, label))
     labels.sort(key=lambda item: (-len(item[1].split(" ")), -len(item[1])))
     return labels
+
+
+def _cjk_all_nonspecific(groups: tuple[tuple[str, tuple[str, ...]], ...], nonspecific: set[str] | frozenset[str]) -> bool:
+    """Is a CJK label made only of brand, generic and function words?
+
+    ``groups`` are the segmenter's tokens (written form, words). The label is covered
+    when it splits into consecutive runs of tokens that are each listed — by their
+    joined written form, so 自動化 matches although its word is 自動, and 工作 + 流
+    matches 工作流 although the segmenter cut it in two — or, for a single token, by
+    all of its words.
+    """
+    covered = [True] + [False] * len(groups)
+    for start in range(len(groups)):
+        if not covered[start]:
+            continue
+        written = ""
+        for end in range(start, len(groups)):
+            written += groups[end][0]
+            single_by_words = end == start and all(w.lower() in nonspecific for w in groups[start][1])
+            if written.lower() in nonspecific or single_by_words:
+                covered[end + 1] = True
+    return covered[-1]
 
 
 def _exact_anchor(clauses: list[str], labels: list[tuple[str, str]], used: set[str]) -> tuple[str, str] | None:
@@ -1444,6 +1484,7 @@ def _load_site_config(path: str | Path) -> SiteConfig:
         },
         cjk_languages={str(code).strip().lower(): str(script).strip().lower() for code, script in cjk_languages.items()},
         cjk_multiword_terms=frozenset(_term_set(merged.get("cjk_multiword_terms"), key="cjk_multiword_terms", path=source_path)),
+        cjk_one_word_terms=frozenset(_term_set(merged.get("cjk_one_word_terms"), key="cjk_one_word_terms", path=source_path)),
         label=label,
     )
     cjk = ", ".join(f"{code}={script}" for code, script in sorted(config.cjk_languages.items())) or "none"
@@ -1451,7 +1492,7 @@ def _load_site_config(path: str | Path) -> SiteConfig:
         f"Generator config: {label} "
         f"(brand {len(config.brand_terms)}, generic {len(config.generic_terms)}, "
         f"shortcode params {len(config.shortcode_param_names)}, nav patterns {len(config.nav_path_patterns)}, "
-        f"stopwords source={source}, cjk languages {cjk}, cjk multi-word terms {len(config.cjk_multiword_terms)})"
+        f"stopwords source={source}, cjk languages {cjk}, cjk multi-word terms {len(config.cjk_multiword_terms)}, cjk one-word terms {len(config.cjk_one_word_terms)})"
     )
     return config
 
@@ -1503,6 +1544,7 @@ def _site_rules(config: SiteConfig, lang: str) -> SiteRules:
         # The segmenter library loads on the first CJK label; a missing one ends the run.
         cjk_words=CjkWordCounter(script) if script is not None else None,
         cjk_multiword_terms=config.cjk_multiword_terms,
+        cjk_one_word_terms=config.cjk_one_word_terms,
     )
 
 

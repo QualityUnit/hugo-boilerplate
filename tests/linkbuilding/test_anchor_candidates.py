@@ -78,12 +78,13 @@ class ExactLabelsCjk(unittest.TestCase):
             "ライブ",                          # "live": one word
             "エクスペリエンス",                 # "experience": one word
             "統合する",                        # "integrate": one word + dependent verb
-            "カスタマーサービスソフトウェア",     # 15 characters: too long
+            "ライブチャットソフトウェア",         # live chat software, 13 characters: kept
         ])
         texts = [text for _, text in g._exact_labels(target, theme_rules("jp"))]
         self.assertIn("ヘルプデスクソフトウェア", texts)
         self.assertIn("ヘルプデスク", texts)
-        for dropped in ("ライブ", "エクスペリエンス", "統合する", "カスタマーサービスソフトウェア",
+        self.assertIn("ライブチャットソフトウェア", texts)
+        for dropped in ("ライブ", "エクスペリエンス", "統合する",
                         "AIエージェント搭載ヘルプデスクソフトウェア"):
             self.assertNotIn(dropped, texts)
 
@@ -106,13 +107,35 @@ class ExactLabelsCjk(unittest.TestCase):
         rules = dataclasses.replace(theme_rules("jp"), nonspecific_terms=frozenset({"ai", "liveagent", "機能", "ツール", "ボタン"}))
         self.assertEqual(sorted(text for _, text in g._exact_labels(target, rules)), ["カスタマーサポート", "チャットボタン"])
 
+    def test_cjk_generic_terms_in_written_form(self):
+        # The segmenter's word for 自動化 is 自動 (化 is a suffix) and it cuts AI工作流 into
+        # 工作 + 流; the listed written forms must still make the label generic.
+        jp = dataclasses.replace(theme_rules("jp"), nonspecific_terms=frozenset({"ai", "自動化"}))
+        self.assertEqual(g._exact_labels(page("/x/", "X", ["AI自動化", "マーケティング自動化"]), jp),
+                         [("keyword", "マーケティング自動化")])
+        zh = dataclasses.replace(theme_rules("zh-hans"), nonspecific_terms=frozenset({"ai", "自动化", "工作流"}))
+        self.assertEqual(sorted(t for _, t in g._exact_labels(page("/x/", "X", ["AI自动化", "AI工作流", "工作流管理"]), zh)),
+                         ["工作流管理"])
+
     def test_cjk_label_length_limits(self):
-        # 2-12 characters; checked on site exceptions, which skip the word rules.
-        target = page("/x/", "X", ["客", "客服", "カスタマーサポートチーム", "カスタマーサポートセンター"])
-        rules = dataclasses.replace(theme_rules("jp"), cjk_multiword_terms=frozenset(
-            {"客", "客服", "カスタマーサポートチーム", "カスタマーサポートセンター"}))
-        self.assertEqual(sorted(text for _, text in g._exact_labels(target, rules)),
-                         sorted(["客服", "カスタマーサポートチーム"]))  # 1 and 13 characters dropped
+        # 2+ characters and at most 6 estimated words: up to 20 characters of Japanese
+        # with kana, 12 of Chinese, a Latin name counting as one word. Checked on site
+        # exceptions, which skip the word rules.
+        ja = ["客", "客服", "カ" * 20, "カ" * 21]
+        rules = dataclasses.replace(theme_rules("jp"), cjk_multiword_terms=frozenset(ja))
+        self.assertEqual(sorted(text for _, text in g._exact_labels(page("/x/", "X", ja), rules)),
+                         sorted(["客服", "カ" * 20]))
+        zh = ["客" * 12, "客" * 13, "WhatsApp集成"]
+        rules = dataclasses.replace(theme_rules("zh-hans"), cjk_multiword_terms=frozenset(zh))
+        self.assertEqual(sorted(text for _, text in g._exact_labels(page("/x/", "X", zh), rules)),
+                         sorted(["客" * 12, "WhatsApp集成"]))
+
+    def test_cjk_one_word_terms(self):
+        # 电子邮件 ("e-mail") is two segmenter words: listed, it is dropped as a whole
+        # label but stays an ordinary word inside a longer one.
+        rules = dataclasses.replace(theme_rules("zh-hans"), cjk_one_word_terms=frozenset({"电子邮件"}))
+        self.assertEqual(g._exact_labels(page("/x/", "X", ["电子邮件", "电子邮件自动化"]), rules),
+                         [("keyword", "电子邮件自动化")])
 
     def test_title_is_split_on_cjk_punctuation(self):
         target = page("/x/", "ヘルプデスク、ライブチャット", [])

@@ -32,6 +32,12 @@ class Words(unittest.TestCase):
         self.assertEqual(CjkWordCounter("zh").words("客户服务"), ("客户", "服务"))
         self.assertEqual(CjkWordCounter("zh").words("LiveAgent的"), ("LiveAgent",))
 
+    def test_groups_keep_the_written_form(self):
+        self.assertEqual(CjkWordCounter("ja").groups("AI自動化"), (("AI", ("AI",)), ("自動化", ("自動",))))
+        self.assertEqual(CjkWordCounter("ja").groups("統合する"), (("統合する", ("統合",)),))
+        self.assertEqual(CjkWordCounter("zh").groups("客户服务"), (("客户服务", ("客户", "服务")),))
+        self.assertEqual(CjkWordCounter("zh").groups("重要性"), (("重要性", ("重要",)),))
+
 
 class Chinese(unittest.TestCase):
     counter = CjkWordCounter("zh")

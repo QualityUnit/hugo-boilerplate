@@ -21,9 +21,10 @@ class CjkLanguages(unittest.TestCase):
         self.assertEqual(config.cjk_multiword_terms, frozenset())
 
     def test_site_override_and_normalisation(self):
-        config = load("cjk_languages: {JA: ja, zh: ZH}\ncjk_multiword_terms: [セルフサービス]\n")
+        config = load("cjk_languages: {JA: ja, zh: ZH}\ncjk_multiword_terms: [セルフサービス]\ncjk_one_word_terms: [电子邮件]\n")
         self.assertEqual(config.cjk_languages, {"ja": "ja", "zh": "zh"})
         self.assertEqual(config.cjk_multiword_terms, frozenset({"セルフサービス"}))
+        self.assertEqual(config.cjk_one_word_terms, frozenset({"电子邮件"}))
 
     def test_switched_off(self):
         self.assertEqual(load("cjk_languages: {}\n").cjk_languages, {})
@@ -41,6 +42,10 @@ class CjkLanguages(unittest.TestCase):
         self.assertEqual(jp.cjk_words.script, "ja")
         self.assertFalse(de.cjk)
         self.assertIsNone(de.cjk_words)
+
+    def test_one_word_terms_reach_the_rules(self):
+        config = load("cjk_one_word_terms: [电子邮件]\n")
+        self.assertEqual(quiet(g._site_rules, config, "zh-hans").cjk_one_word_terms, frozenset({"电子邮件"}))
 
     def test_multiword_terms_reach_the_rules(self):
         config = load("cjk_multiword_terms: [セルフサービス]\n")

@@ -46,9 +46,13 @@ SCRIPTS = ("ja", "zh")
 class CjkWordCounter:
     """The words of a Japanese (``ja``) or Chinese (``zh``) label.
 
-    ``words(text)`` returns them in order (particles, suffixes and dependent verbs left
-    out), ``count(text)`` their number. The generator needs both: the count for the
-    two-word rule, the words to check that not every one of them is generic or a brand.
+    ``groups(text)`` returns, in order, each segmenter token as written together with
+    the words it counts as: (自動化, (自動,)) — the suffix 化 is not a word but stays
+    part of the token; (工作流, (工作, 流)); particles and symbols form no group.
+    ``words(text)`` is the flat list of words, ``count(text)`` their number. The
+    generator needs the count for the two-word rule and the groups to check that not
+    every part of a label is generic or a brand: a generic term may be listed in its
+    written form (自動化) or as its words.
     """
 
     def __init__(self, script: str) -> None:
@@ -56,7 +60,10 @@ class CjkWordCounter:
             raise ValueError(f"CJK script must be one of {', '.join(SCRIPTS)}, got {script!r}")
         self.script = script
         self._loaded = False
-        self.words = lru_cache(maxsize=None)(self._words)
+        self.groups = lru_cache(maxsize=None)(self._groups)
+
+    def words(self, text: str) -> tuple[str, ...]:
+        return tuple(word for _, words in self.groups(text) for word in words)
 
     def count(self, text: str) -> int:
         return len(self.words(text))
@@ -82,17 +89,26 @@ class CjkWordCounter:
             self._freq = jieba.dt.FREQ
         self._loaded = True
 
-    def _words(self, text: str) -> tuple[str, ...]:
+    def _groups(self, text: str) -> tuple[tuple[str, tuple[str, ...]], ...]:
         if not self._loaded:
             self._load()
         if self.script == "ja":
-            # pos2 非自立可能: verbs that only attach to the previous word — する in
-            # 統合する ("integrate") is not a second word.
-            return tuple(
-                word.surface for word in self._tagger(text)
-                if word.feature.pos1 not in _JA_NOT_WORDS and word.feature.pos2 != "非自立可能"
-            )
-        words: list[str] = []
+            # A word starts a group; a suffix or a dependent verb (pos2 非自立可能: する
+            # in 統合する "integrate") is no word of its own but joins the written form
+            # of the group before it; particles, auxiliaries and symbols end a group.
+            groups: list[list] = []
+            attach = False
+            for token in self._tagger(text):
+                pos1, pos2 = token.feature.pos1, token.feature.pos2
+                if pos1 not in _JA_NOT_WORDS and pos2 != "非自立可能":
+                    groups.append([token.surface, [token.surface]])
+                    attach = True
+                elif attach and (pos1 == "接尾辞" or pos2 == "非自立可能"):
+                    groups[-1][0] += token.surface
+                else:
+                    attach = False
+            return tuple((raw, tuple(words)) for raw, words in groups)
+        zh_groups: list[tuple[str, tuple[str, ...]]] = []
         for word in self._jieba.lcut(text):
             if not word.strip():
                 continue
@@ -104,8 +120,10 @@ class CjkWordCounter:
                 pieces = self._dictionary_pieces(word)
             else:
                 pieces = [word]
-            words.extend(p for p in pieces if not (len(p) == 1 and (p in _ZH_SUFFIXES or p in _ZH_FUNCTION_CHARS)))
-        return tuple(words)
+            kept = tuple(p for p in pieces if not (len(p) == 1 and (p in _ZH_SUFFIXES or p in _ZH_FUNCTION_CHARS)))
+            if kept:
+                zh_groups.append((word, kept))
+        return tuple(zh_groups)
 
     def _dictionary_pieces(self, word: str) -> list[str]:
         """The fewest dictionary words shorter than ``word`` that make it up (single characters always fit)."""
