@@ -89,6 +89,23 @@ def load(fp, handler=None) -> Post:
     return loads(content, handler=handler)
 
 
+_BARE_KEY_RE = re.compile(r"^[A-Za-z0-9_-]+$")
+
+
+def _format_toml_key(key: Any) -> str:
+    """Return ``key`` as a TOML key: bare when allowed, quoted otherwise.
+
+    TOML bare keys may only contain A-Z a-z 0-9 _ -. Anything else (spaces,
+    dots, unicode - e.g. ``Help Scout`` in a ``tiersComparison`` inline table)
+    must be a quoted key, or the frontmatter is invalid and Hugo fails to build.
+    """
+    key = str(key)
+    if _BARE_KEY_RE.match(key):
+        return key
+    escaped = key.replace('\\', '\\\\').replace('"', '\\"')
+    return f'"{escaped}"'
+
+
 def _format_toml_value(value: Any) -> str:
     """Format a Python value as a TOML value string."""
     if isinstance(value, str):
@@ -101,7 +118,7 @@ def _format_toml_value(value: Any) -> str:
         return str(value)
     elif isinstance(value, dict):
         # Format as TOML inline table
-        items = ', '.join(f'{k} = {_format_toml_value(v)}' for k, v in value.items())
+        items = ', '.join(f'{_format_toml_key(k)} = {_format_toml_value(v)}' for k, v in value.items())
         return f'{{ {items} }}'
     elif isinstance(value, list):
         if all(isinstance(v, str) for v in value):
@@ -133,6 +150,7 @@ def dumps(post: Post, handler=None) -> str:
     lines = ["+++"]
 
     for key, value in post.metadata.items():
+        key = _format_toml_key(key)
         if isinstance(value, str):
             # Use multi-line string for long content or content with newlines
             if '\n' in value or len(value) > 100:
@@ -155,6 +173,7 @@ def dumps(post: Post, handler=None) -> str:
                 for item in value:
                     lines.append(f'[[{key}]]')
                     for k, v in item.items():
+                        k = _format_toml_key(k)
                         if isinstance(v, str):
                             escaped = v.replace('\\', '\\\\').replace('"', '\\"')
                             if '\n' in v:
@@ -165,8 +184,11 @@ def dumps(post: Post, handler=None) -> str:
                                 lines.append(f'{k} = "{escaped}"')
                         elif isinstance(v, bool):
                             lines.append(f'{k} = {str(v).lower()}')
-                        else:
+                        elif isinstance(v, (int, float)):
                             lines.append(f'{k} = {v}')
+                        else:
+                            # dicts and lists must be TOML, not Python repr
+                            lines.append(f'{k} = {_format_toml_value(v)}')
                     lines.append('')
             else:
                 items = ', '.join(str(v) for v in value)
@@ -317,29 +339,29 @@ def safe_toml_dumps(data: dict) -> str:
 
     # Output simple values first
     for key, value in simple_values.items():
-        lines.append(f'{key} = {_format_toml_value(value)}')
+        lines.append(f'{_format_toml_key(key)} = {_format_toml_value(value)}')
 
     # Output nested tables
     for table_name, table_data in nested_tables.items():
         if lines:
             lines.append('')
-        lines.append(f'[{table_name}]')
+        lines.append(f'[{_format_toml_key(table_name)}]')
         for key, value in table_data.items():
             if isinstance(value, dict):
                 # Sub-table
                 lines.append('')
-                lines.append(f'[{table_name}.{key}]')
+                lines.append(f'[{_format_toml_key(table_name)}.{_format_toml_key(key)}]')
                 for k, v in value.items():
-                    lines.append(f'{k} = {_format_toml_value(v)}')
+                    lines.append(f'{_format_toml_key(k)} = {_format_toml_value(v)}')
             else:
-                lines.append(f'{key} = {_format_toml_value(value)}')
+                lines.append(f'{_format_toml_key(key)} = {_format_toml_value(value)}')
 
     # Output array of tables
     for table_name, items in array_tables.items():
         for item in items:
             if lines:
                 lines.append('')
-            lines.append(f'[[{table_name}]]')
+            lines.append(f'[[{_format_toml_key(table_name)}]]')
 
             # Separate simple values from nested in array items
             simple_item_values = {}
@@ -352,12 +374,12 @@ def safe_toml_dumps(data: dict) -> str:
                     simple_item_values[key] = value
 
             for key, value in simple_item_values.items():
-                lines.append(f'{key} = {_format_toml_value(value)}')
+                lines.append(f'{_format_toml_key(key)} = {_format_toml_value(value)}')
 
             for nested_key, nested_value in nested_item_values.items():
                 lines.append('')
-                lines.append(f'[{table_name}.{nested_key}]')
+                lines.append(f'[{_format_toml_key(table_name)}.{_format_toml_key(nested_key)}]')
                 for k, v in nested_value.items():
-                    lines.append(f'{k} = {_format_toml_value(v)}')
+                    lines.append(f'{_format_toml_key(k)} = {_format_toml_value(v)}')
 
     return '\n'.join(lines)
