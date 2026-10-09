@@ -40,6 +40,13 @@ Two paragraph sources (QualityUnit/web-issues#4253):
   and the JSON report say how many were kept and why the rest were not.
 - without it (the markdown path): paragraphs come from the markdown source and
   anchors are picked exactly as before, for sites that do not build before generating.
+
+Canonical phrases (QualityUnit/web-issues#4255, both paths): when the site has
+``canonical-phrases.toml`` in ``--linkbuilding-dir``, a phrase listed there is an anchor
+for its owner page only. No other target takes it as an anchor or earns the exact
+keyword bonus for it, and on the HTML path the owner looks for its phrases before its
+own keywords, title and slug. Without the file nothing changes. Every run prints the
+anchor texts that still point at more than one target.
 """
 
 from __future__ import annotations
@@ -83,6 +90,7 @@ from linkbuilding_html import (
     keyword_pattern,
     lang_url_carries_prefix,
     language_html_root,
+    load_canonical_phrases,
 )
 import linkbuilding_frontmatter as injector
 from linkbuilding_cjk import SCRIPTS as CJK_SCRIPTS, CjkWordCounter
@@ -248,6 +256,8 @@ class TargetInfo:
     # HTML path: exact phrases looked up in a clause before any window scoring, as
     # (tier, phrase), best first — see _exact_labels.
     exact_labels: list[tuple[str, str]] = field(default_factory=list)
+    # The target's URL path, for the canonical-phrase owner check.
+    url_path: str = ""
 
 
 @dataclass
@@ -295,6 +305,11 @@ class SiteRules:
     cjk_words: CjkWordCounter | None = None
     cjk_multiword_terms: frozenset[str] = frozenset()
     cjk_one_word_terms: frozenset[str] = frozenset()
+    # canonical-phrases.toml for this language (QualityUnit/web-issues#4255): casefolded
+    # phrase -> owner URL path, and per owner its phrases in file order (primary first).
+    # Empty when the site has no table — every check below is then a no-op.
+    canonical_owner: dict[str, str] = field(default_factory=dict)
+    canonical_by_owner: dict[str, list[str]] = field(default_factory=dict)
 
 
 class LazySentenceTransformer:
@@ -354,7 +369,7 @@ def _parse_args() -> argparse.Namespace:
                         "the URL, from the Hugo config). Without it the markdown path runs unchanged")
     parser.add_argument("--content-at-root", action="store_true", help="With --public-dir: the language was built on its own, "
                         "its pages at the root of --public-dir (a single-language build) — the injector's flag of the same name")
-    parser.add_argument("--linkbuilding-dir", default="data/linkbuilding", help="Directory of the injector's <lang>.json keyword lists; with --public-dir every anchor is checked against the injector, which applies those first")
+    parser.add_argument("--linkbuilding-dir", default="data/linkbuilding", help="Directory of the injector's <lang>.json keyword lists and of canonical-phrases.toml (optional); with --public-dir every anchor is checked against the injector")
     parser.add_argument("--output", default="", help="Optional JSON report path")
     parser.add_argument("--write", action="store_true", help="Write [[lnks]] (never touches [[lnks_man]]) and remove old linkbuilding frontmatter")
     parser.add_argument("--remove-old-linkbuilding", action="store_true", help="Remove linkbuilding even for pages without generated lnks")
@@ -733,12 +748,44 @@ def _cjk_all_nonspecific(groups: tuple[tuple[str, tuple[str, ...]], ...], nonspe
     return covered[-1]
 
 
-def _exact_anchor(clauses: list[str], labels: list[tuple[str, str]], used: set[str]) -> tuple[str, str] | None:
-    """The first label found in a clause, with the injector's own pattern: (tier, text as written on the page)."""
+def _reserved_for_another(text: str, target_path: str, rules: SiteRules) -> bool:
+    """Is ``text`` a canonical phrase whose owner is not ``target_path``?"""
+    owner = rules.canonical_owner.get(_normalize_space(text).casefold())
+    return owner is not None and owner != target_path
+
+
+def _inside_foreign_canonical(clause: str, start: int, end: int, target_path: str, rules: SiteRules) -> bool:
+    """Does clause[start:end] sit inside a longer canonical phrase that another page owns?
+
+    "customer service software" in "social media customer service software" belongs to
+    the owner of the longer phrase; the injector links that one there (longest first).
+    """
+    length = end - start
+    for phrase, owner in rules.canonical_owner.items():
+        if owner == target_path or len(phrase) <= length:
+            continue
+        for match in re.finditer(re.escape(phrase), clause, re.IGNORECASE):
+            if match.start() <= start and end <= match.end():
+                return True
+    return False
+
+
+def _exact_anchor(
+    clauses: list[str],
+    labels: list[tuple[str, str]],
+    used: set[str],
+    skip=None,
+) -> tuple[str, str] | None:
+    """The first label found in a clause, with the injector's own pattern: (tier, text as written on the page).
+
+    ``skip(clause, start, end)`` rejects a match, and the label is looked for in the next clause.
+    """
     for tier, label in labels:
         pattern = keyword_pattern(label)
         for clause in clauses:
             match = pattern.search(clause)
+            if match and skip is not None and skip(clause, match.start(), match.end()):
+                continue
             if match:
                 text = clause[match.start():match.end()]
                 if text.casefold() not in used:
@@ -953,12 +1000,28 @@ def _target_terms(page: Page, rules: SiteRules) -> set[str]:
 
 
 def _target_info(page: Page, rules: SiteRules) -> TargetInfo:
+    """A canonical phrase owned by another page is dropped from the keywords (no exact
+    bonus) and from the exact labels; the page's own canonical phrases go in front of
+    its exact labels as tier "canonical" (QualityUnit/web-issues#4253 step 3a)."""
+    url_path = _canonical_path(page.url)
+    exact_labels: list[tuple[str, str]] = []
+    if page.clauses is not None:
+        # Most words first, then most characters, like _exact_labels: "AI help desk
+        # software" is tried before "help desk software" so the longer phrase is not cut.
+        own = sorted(rules.canonical_by_owner.get(url_path, []), key=lambda p: (-len(p.split(" ")), -len(p)))
+        own_lower = {phrase.casefold() for phrase in own}
+        exact_labels = [("canonical", phrase) for phrase in own] + [
+            (tier, label) for tier, label in _exact_labels(page, rules)
+            if label.casefold() not in own_lower and not _reserved_for_another(label, url_path, rules)
+        ]
     return TargetInfo(
         terms=_target_terms(page, rules),
-        keywords=[k.lower().strip() for k in page.keywords if k.lower().strip()],
+        keywords=[k.lower().strip() for k in page.keywords
+                  if k.lower().strip() and not _reserved_for_another(k, url_path, rules)],
         title_lower=page.title.lower(),
         slug_lower=_slug_to_text(page.url).lower().strip(),
-        exact_labels=_exact_labels(page, rules) if page.clauses is not None else [],
+        exact_labels=exact_labels,
+        url_path=url_path,
     )
 
 
@@ -1096,6 +1159,8 @@ def _anchor_finalists(candidates: list[str], target: Page, target_info: TargetIn
     terms = target_info.terms
     scored: list[tuple[float, int, str]] = []
     for idx, phrase in enumerate(candidates):
+        if _reserved_for_another(phrase, target_info.url_path, rules):
+            continue
         lexical_score, overlap, exact_bonus = _lexical_anchor_score(phrase, target, target_info, rules=rules)
         if not _anchor_is_target_specific(phrase, terms, overlap, exact_bonus, rules):
             continue
@@ -1113,6 +1178,8 @@ def _anchor_finalist_infos(candidates: list[AnchorCandidate], target_info: Targe
         return []
     scored: list[tuple[float, int, AnchorCandidate]] = []
     for candidate in candidates:
+        if _reserved_for_another(candidate.phrase, target_info.url_path, rules):
+            continue
         lexical_score, _, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info, rules)
         if not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus, rules):
             continue
@@ -1206,7 +1273,11 @@ def _html_anchor_for_target(
     anchor instead of producing a duplicate. The lift-ordered dedupe in
     _validate_with_injector is only a safety net behind it.
     """
-    exact = _exact_anchor(clauses, target_info.exact_labels, used)
+    skip = None
+    if rules.canonical_owner:
+        def skip(clause: str, start: int, end: int) -> bool:
+            return _inside_foreign_canonical(clause, start, end, target_info.url_path, rules)
+    exact = _exact_anchor(clauses, target_info.exact_labels, used, skip)
     if exact is not None:
         tier, text = exact
         lexical_score, _, _ = _lexical_anchor_score(text, target, target_info, rules=rules)
@@ -1216,7 +1287,7 @@ def _html_anchor_for_target(
     best: tuple[str, float, float, str] | None = None
     best_key: tuple[float, int, int] | None = None
     for candidate in candidates:
-        if candidate.phrase.casefold() in used:
+        if candidate.phrase.casefold() in used or _reserved_for_another(candidate.phrase, target_info.url_path, rules):
             continue
         lexical_score, _, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info, rules)
         if lexical_score <= 0 or not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus, rules):
@@ -2132,6 +2203,40 @@ def _language_dirs(content_root: Path, args: argparse.Namespace) -> list[Path]:
     return [content_root / lang for lang in langs]
 
 
+def _apply_canonical_phrases(rules: SiteRules, linkbuilding_dir: Path, lang: str) -> None:
+    """Load canonical-phrases.toml for ``lang`` into ``rules`` and log what was loaded."""
+    rows, problems = load_canonical_phrases(linkbuilding_dir, lang)
+    for problem in problems:
+        print(f"::warning::{problem}", file=sys.stderr)
+    for phrase, url in rows:
+        rules.canonical_owner[phrase.casefold()] = url
+        rules.canonical_by_owner.setdefault(url, []).append(phrase)
+    if rows:
+        print(f"[{lang}] Canonical phrases: {len(rows)} phrases for {len(rules.canonical_by_owner)} pages")
+
+
+def _multi_target_report(recs: list[LinkRec], top: int = 20) -> dict[str, Any]:
+    """Anchor texts that point at more than one target across the language (QualityUnit/web-issues#4255).
+
+    ``share`` is the part of all links whose text is such a phrase — the issue's metric.
+    """
+    targets: dict[str, set[str]] = {}
+    links: dict[str, int] = {}
+    for rec in recs:
+        key = _normalize_space(rec.text).casefold()
+        targets.setdefault(key, set()).add(_canonical_path(rec.target_url))
+        links[key] = links.get(key, 0) + 1
+    multi = {key: urls for key, urls in targets.items() if len(urls) > 1}
+    affected = sum(links[key] for key in multi)
+    ranked = sorted(multi, key=lambda key: (-len(multi[key]), -links[key], key))
+    return {
+        "phrases": len(multi),
+        "links": affected,
+        "share": round(affected / len(recs), 4) if recs else 0.0,
+        "top": [{"text": key, "targets": len(multi[key]), "links": links[key]} for key in ranked[:top]],
+    }
+
+
 def _process_language(
     content_dir: Path,
     embedder,
@@ -2150,6 +2255,7 @@ def _process_language(
         return False, 0
 
     rules = _site_rules(site_config, lang)
+    _apply_canonical_phrases(rules, Path(args.linkbuilding_dir), lang)
     html_root = None
     if args.public_dir:
         html_root, layout = _html_root_for_language(args.public_dir, lang, content_dir, content_at_root=args.content_at_root)
@@ -2184,6 +2290,12 @@ def _process_language(
               + "; anchors from " + ", ".join(f"{source} {count}" for source, count in report["anchor_source"].items()))
     rows = _to_json_rows(recs)
     print(f"[{lang}] Generated {len(recs)} paragraph link recommendations")
+    multi = _multi_target_report(recs)
+    print(f"[{lang}] Anchor texts pointing at more than one target: {multi['phrases']} "
+          f"({multi['links']} of {len(recs)} links, {multi['share']:.1%})"
+          + "".join(f"\n[{lang}]   {row['text']!r}: {row['targets']} targets, {row['links']} links" for row in multi["top"][:10]))
+    if report is not None:
+        report["multi_target_phrases"] = multi
 
     if args.output:
         out_path = Path(args.output)
