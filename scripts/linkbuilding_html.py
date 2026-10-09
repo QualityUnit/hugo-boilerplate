@@ -148,9 +148,10 @@ class KeywordPattern:
 def keyword_pattern(keyword: str) -> KeywordPattern:
     """The injector's match for an anchor text: case-insensitive, not inside a word or a hyphenated compound.
 
-    Only Latin-script letters, digits and ``-`` count as "inside a word". A CJK
-    neighbour does not: "ヘルプデスク" matches in "優れたヘルプデスクを", and
-    "LiveAgent" in "LiveAgentは". On text without CJK this is the
+    A word character (``\\w``: letters of any script, digits, ``_``) or ``-`` next to
+    the match counts as "inside a word", except a Japanese / Chinese character
+    (``CJK_CHARS``), which does not: "ヘルプデスク" matches in "優れたヘルプデスクを",
+    and "LiveAgent" in "LiveAgentは". On text without CJK this is the
     ``(?<![\\w-])…(?![\\w-])`` boundary it always was.
     """
     return KeywordPattern(keyword)

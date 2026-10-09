@@ -17,7 +17,7 @@ def load(yaml_text):
 class CjkLanguages(unittest.TestCase):
     def test_theme_default(self):
         config = load("brand_terms: [acme]\n")
-        self.assertEqual(config.cjk_languages, {"jp": "ja", "zh-hans": "zh"})
+        self.assertEqual(config.cjk_languages, {"ja": "ja", "jp": "ja", "zh": "zh", "zh-hans": "zh"})
         self.assertEqual(config.cjk_multiword_terms, frozenset())
 
     def test_site_override_and_normalisation(self):

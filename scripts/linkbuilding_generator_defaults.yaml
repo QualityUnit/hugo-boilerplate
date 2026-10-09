@@ -46,6 +46,9 @@
 #                        two or more words, not all of them brand / generic / function
 #                        words), never word windows. Words are split by
 #                        fugashi + unidic-lite (ja) or jieba (zh), see linkbuilding_cjk.py.
+#                        A label with a symbol is never an anchor, the katakana middle
+#                        dot included (ナレッジ・ベース "knowledge base"). The default
+#                        covers the ISO codes (ja, zh) and LiveAgent's (jp, zh-hans).
 # cjk_multiword_terms    CJK labels of two or more words that the segmenter reads as
 #                        one dictionary word, e.g. チケッティングシステム (ticketing system).
 # cjk_one_word_terms     CJK labels of one word that the segmenter cuts in two, e.g.
@@ -110,7 +113,7 @@ stopwords:
   source: builtin
   extra: {}
 
-cjk_languages: {jp: ja, zh-hans: zh}
+cjk_languages: {ja: ja, jp: ja, zh: zh, zh-hans: zh}
 
 cjk_multiword_terms: []
 
