@@ -130,6 +130,26 @@ Available steps:
 
 The script will prompt for a FlowHunt API key if not already configured.
 
+### Translation checkpoints
+
+The translator writes each processed result atomically. Repositories can opt
+into durable publication by setting `TRANSLATION_CHECKPOINT_COMMAND` to a JSON
+argv array, for example `["python3", "/path/to/publisher.py", "checkpoint"]`.
+The command receives a JSON object on stdin with the absolute `path` and a
+`warnings` list. It must return zero only after publishing the file; failure or
+a 240-second hook timeout aborts the translator before further scheduling.
+Without the environment variable, translations are saved locally as before.
+
+Optional `TRANSLATION_TIME_BUDGET_SECONDS` limits translator runtime, and
+`TRANSLATION_DEADLINE_EPOCH` sets an absolute deadline including earlier setup.
+The earlier deadline wins. Reaching it produces a partial report and exits with
+status 2; unfinished sessions are left for the next run. A missing-file run
+skips targets already present, so the caller must restore its saved branch.
+The shared translator does not manage Git branches or PRs itself.
+
+Tests: `python -m unittest discover -s scripts/tests -v` with the translator's
+normal Python dependencies installed. Tests mock FlowHunt; no API calls are made.
+
 ### Linkbuilding
 
 Linkbuilding is driven by page-local `[[lnks]]` frontmatter. Generate or refresh those entries with:

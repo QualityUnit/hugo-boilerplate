@@ -69,6 +69,7 @@ except ImportError:  # Python < 3.11
 
 import translation_url_policy as url_policy
 from translation_body_check import check_body
+from translation_checkpoint import save_translation
 
 # Load environment variables from .env file
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -193,7 +194,7 @@ def retry_on_429(func, *args, max_retries=5, default_wait=2, **kwargs):
                         except (ValueError, TypeError):
                             pass
                 print(f"[RATE LIMIT] 429 received, waiting {wait_time}s before retry (attempt {attempt + 1}/{max_retries})")
-                time.sleep(wait_time)
+                time.sleep(min(wait_time, 60))
             else:
                 raise
 
@@ -530,7 +531,8 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
         create_session_rsp = retry_on_429(
             api_instance.create_flow_session,
             workspace_id=workspace_id,
-            flow_session_create_from_flow_request=from_flow_create_session_req
+            flow_session_create_from_flow_request=from_flow_create_session_req,
+            _request_timeout=60
         )
 
         session_id = create_session_rsp.session_id
@@ -549,7 +551,7 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
             if resp.status_code == 429 and attempt < 5:
                 wait_time = max(int(resp.headers.get("retry-after", "2") or "2"), 1)
                 print(f"[RATE LIMIT] 429 on attachment upload, waiting {wait_time}s (attempt {attempt + 1}/5)")
-                time.sleep(wait_time)
+                time.sleep(min(wait_time, 60))
                 continue
             resp.raise_for_status()
             break
@@ -563,7 +565,8 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
             session_id=session_id,
             flow_session_invoke_request=flowhunt.FlowSessionInvokeRequest(
                 message=translation_message
-            )
+            ),
+            _request_timeout=60
         )
 
         print(f"[DEBUG] Invoked translation in session {session_id}")
@@ -609,7 +612,8 @@ def check_session_results(api_instance, session_info, timeout=600):
         resp = retry_on_429(
             api_instance.poll_flow_response_without_preload_content,
             session_id=session_id,
-            from_timestamp=from_ts
+            from_timestamp=from_ts,
+            _request_timeout=60
         )
         raw = json.loads(resp.data.decode('utf-8'))
 
@@ -692,7 +696,7 @@ def download_translation(file_url):
         if not file_url.startswith('http'):
             return file_url
 
-        response = requests.get(file_url)
+        response = requests.get(file_url, timeout=60)
         response.raise_for_status()
         # Explicitly decode as UTF-8 for Hugo markdown content
         return response.content.decode('utf-8')
@@ -841,6 +845,13 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
 
     print(f"Translating {len(translation_tasks)} files with maximum {max_scheduled_tasks} tasks at a time")
     check_interval = 5  # Check every 5 seconds
+    budget = float(os.getenv('TRANSLATION_TIME_BUDGET_SECONDS', '0'))
+    deadline = time.monotonic() + budget if budget > 0 else float('inf')
+    if os.getenv('TRANSLATION_DEADLINE_EPOCH'):
+        # Includes dependency setup in build_content.sh, before this process.
+        deadline = min(deadline, time.monotonic() +
+                       float(os.environ['TRANSLATION_DEADLINE_EPOCH']) - time.time())
+    stopped_early = False
 
     # Initialize the API client
     with initialize_api_client() as api_client:
@@ -882,7 +893,10 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
         remaining_tasks = remaining_tasks[max_scheduled_tasks:]
 
         # Schedule initial batch of tasks
-        for file_path, content, target_lang, target_file in initial_batch:
+        for index, (file_path, content, target_lang, target_file) in enumerate(initial_batch):
+            if time.monotonic() >= deadline:
+                remaining_tasks.extend(initial_batch[index:])
+                break
             session_info = create_translation_session(
                 api_instance, file_path, content, target_lang, flow_id, workspace_id
             )
@@ -903,6 +917,10 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
 
         # Continue processing and scheduling until all tasks are completed
         while pending_sessions or remaining_tasks:
+            if time.monotonic() >= deadline:
+                stopped_early = True
+                print('[WARNING] Soft time limit reached; leaving unfinished pages for the next run.')
+                break
             # Wait for the check interval before checking results
             time.sleep(check_interval)
 
@@ -912,6 +930,8 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
             newly_scheduled = 0
 
             for session_id in session_ids:
+                if time.monotonic() >= deadline:
+                    break
                 file_path, target_lang, target_file, session_info = pending_sessions[session_id]
 
                 is_ready, result = check_session_results(api_instance, session_info)
@@ -951,6 +971,7 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                                 # Validate the TOML frontmatter before writing,
                                 # repairing it where the fix is unambiguous. See
                                 # validate_toml_frontmatter() for why.
+                                body_problems = []
                                 is_markdown = target_file.suffix.lower() in ('.md', '.markdown')
                                 frontmatter_error = validate_toml_frontmatter(
                                     translated_text, require_frontmatter=is_markdown)
@@ -1000,12 +1021,13 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                                     if url_note:
                                         print(f"[URL] {url_note}")
 
-                                # Ensure the target directory exists
-                                os.makedirs(target_file.parent, exist_ok=True)
-
-                                # Write the translated content to the target file
-                                with open(target_file, 'w', encoding='utf-8') as f:
-                                    f.write(translated_text)
+                                # Publish only fully processed, atomically saved files.
+                                # Hook failure exits the run, bypassing the per-file
+                                # error handler and avoiding further paid work.
+                                warnings = list(body_problems)
+                                if frontmatter_error:
+                                    warnings.append('Invalid frontmatter: ' + frontmatter_error)
+                                save_translation(target_file, translated_text, warnings)
 
                                 # Add to completed tasks
                                 completed_tasks.append((file_path, target_lang, target_file))
@@ -1049,6 +1071,8 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                 print(f"[DEBUG] Scheduling {tasks_to_schedule} new task(s) to refill the queue")
 
             for i in range(tasks_to_schedule):
+                if time.monotonic() >= deadline:
+                    break
                 file_path, content, target_lang, target_file = remaining_tasks.pop(0)
                 session_info = create_translation_session(
                     api_instance, file_path, content, target_lang, flow_id, workspace_id
@@ -1071,7 +1095,7 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
             # the next round will fail identically (bad key, wrong workspace, API
             # down), so stop instead of grinding the whole backlog into the same
             # error and emitting one traceback per file.
-            if tasks_to_schedule > 0 and newly_scheduled == 0 and not pending_sessions:
+            if tasks_to_schedule > 0 and newly_scheduled == 0 and not pending_sessions and time.monotonic() < deadline:
                 print(f"[ERROR] Could not create any translation session out of "
                       f"{tasks_to_schedule} attempt(s), and nothing is in flight. Aborting.")
                 print("[ERROR] A 401 here usually means FLOWHUNT_API_KEY was issued in a "
@@ -1086,7 +1110,8 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
             # Print status update
             if pending_sessions:
                 print(f"[STATUS] Sessions in queue: {len(pending_sessions)} | "
-                      f"Completed: {total_completed}/{len(translation_tasks)} | "
+                      f"Translated: {len(all_completed_tasks)}/{len(translation_tasks)} | "
+                      f"Finished attempts (including failures): {total_completed} | "
                       f"Remaining to schedule: {len(remaining_tasks)} | "
                       f"Just completed: {completed_in_batch} | "
                       f"Just scheduled: {newly_scheduled}")
@@ -1178,6 +1203,10 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
     report.append("## Translation results\n")
     report.append("| | |\n|---|---|")
     report.append(f"| Translated | **{len(all_completed_tasks)}** |")
+    unfinished = len(pending_sessions) + len(remaining_tasks)
+    report.append(f"| Unfinished (resume on next run) | **{unfinished}** |")
+    if stopped_early:
+        report.append('| Run status | Partial: soft time limit reached |')
     report.append(f"| Never arrived | **{len(all_failed_tasks)}**"
                   f"{' warning' if all_failed_tasks else ''} |")
     report.append(f"| Retried | {retried} |")
@@ -1253,6 +1282,8 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
     # normally, build_content.sh printed "Translation of missing content
     # completed!" and the workflow went green having translated nothing — the
     # exact silent-success the abort was added to prevent.
+    if stopped_early:
+        sys.exit(2)
     if aborted:
         print("[ERROR] Aborted before any translation succeeded — failing the run.")
         sys.exit(1)
