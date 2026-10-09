@@ -57,6 +57,10 @@ LANG_MAP = {
     'sv': 'sv', 'tr': 'tr', 'uk': 'uk', 'vi': 'vi', 'zh': 'zh',
     'he': 'he', 'hi': 'hi', 'th': 'th', 'el': 'el', 'bg': 'bg',
     'hr': 'hr', 'lt': 'lt', 'lv': 'lv', 'sl': 'sl', 'et': 'et',
+    # Content folders named differently from the ISO code (LiveAgent). Without these
+    # entries the folder fell back to English. YAKE has no Tagalog list and then uses
+    # its language-neutral one — still better than English stopwords.
+    'jp': 'ja', 'zh-hans': 'zh', 'pt-br': 'pt', 'tl': 'tl',
 }
 
 

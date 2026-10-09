@@ -1,0 +1,13 @@
+# What the linkbuilding tests import: the generator and the injector without the
+# embedding model (the tests use a fake embedder), so no torch / transformers.
+# Versions follow scripts/requirements.txt.
+numpy>=1.21.0
+faiss-cpu>=1.7.4
+pyyaml>=5.3
+markdown
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+tqdm
+fugashi>=1.3
+unidic-lite>=1.0.8
+jieba>=0.42.1
