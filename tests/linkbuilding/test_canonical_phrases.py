@@ -182,28 +182,17 @@ class Generator(unittest.TestCase):
         self.assertEqual(choice[0], "help desk software")
         self.assertEqual(choice[3], "exact:canonical")
 
-    def choose(self, target, clauses, *, guard=True):
+    def choose(self, target, clauses, *, page_text=None, guard=True):
+        """The HTML-path anchor for ``target`` from ``clauses`` of a source page whose
+        linkable text is ``page_text`` (default: just those clauses)."""
+        source = page("/blog/source/", "Source", [])
+        source.linkable_clauses = list(page_text if page_text is not None else clauses)
         info = g._target_info(target, self.rules)
         candidates = g._anchor_candidate_infos(g._clause_candidates(clauses, self.rules), self.rules)
         return g._html_anchor_for_target(
             clauses, candidates, target, info, fit=0.9, lift=0.2, rules=self.rules, used=set(),
-            guard=g._canonical_guard(clauses, self.rules) if guard else None,
+            guard=g._canonical_guard(source, self.rules) if guard else None,
         )
-
-    def test_exact_match_inside_a_foreign_phrase_tries_the_next_occurrence(self):
-        # Clause positions decide: the first "customer service software" belongs to the
-        # longer phrase of /social-media-customer-service/, the second one is free.
-        target = page("/customer-service-software/", "Customer Service Software", [])
-        clauses = ["the best social media customer service software and plain customer service software"]
-        guard = g._canonical_guard(clauses, self.rules)
-        info = g._target_info(target, self.rules)
-        tier, text = g._exact_anchor(clauses, info.exact_labels, set(),
-                                     lambda i, a, b: guard.span_blocked(i, a, b, "/customer-service-software/"))
-        self.assertEqual((tier, text), ("canonical", "customer service software"))
-        first = clauses[0].index("customer service software")
-        self.assertTrue(guard.span_blocked(0, first, first + 25, "/customer-service-software/"))
-        second = clauses[0].rindex("customer service software")
-        self.assertFalse(guard.span_blocked(0, second, second + 25, "/customer-service-software/"))
 
     def test_window_cut_out_of_a_foreign_phrase_is_rejected(self):
         # Review of hugo-boilerplate#420: "desk software" -> another page inside "help desk software".
@@ -221,10 +210,28 @@ class Generator(unittest.TestCase):
         choice = self.choose(target, clauses)
         self.assertFalse(choice and "call center software" in choice[0].casefold(), choice)
 
+    def test_foreign_phrase_elsewhere_on_the_page_blocks_the_anchor(self):
+        # The injector links an anchor's first occurrence on the page: "live chat" from this
+        # paragraph would land inside "live chat software" in an earlier list item.
+        self.rules.canonical_owner["live chat software"] = "/live-chat-software/"
+        target = page("/free-live-chat-software/", "Free Live Chat", ["live chat", "free chat"])
+        clauses = ["Add live chat to every page"]
+        self.assertEqual(self.choose(target, clauses)[0], "live chat")
+        choice = self.choose(target, clauses, page_text=["Best live chat software", *clauses])
+        self.assertNotEqual((choice or ("",))[0].casefold(), "live chat")
+
+    def test_exact_label_inside_a_foreign_phrase_is_rejected(self):
+        target = page("/customer-service-software/", "Customer Service Software", [])
+        clauses = ["the best social media customer service software for teams"]
+        choice = self.choose(target, clauses)
+        self.assertFalse(choice and choice[3] == "exact:canonical", choice)
+
     def test_owner_keeps_its_phrase_and_unrelated_windows_pass(self):
         clauses = ["Agencies compare help desk software", "ticket routing rules"]
         self.assertEqual(self.choose(self.owner, clauses)[0], "help desk software")
-        guard = g._canonical_guard(clauses, self.rules)
+        source = page("/blog/source/", "Source", [])
+        source.linkable_clauses = clauses
+        guard = g._canonical_guard(source, self.rules)
         self.assertFalse(guard.blocks("ticket routing", "/blog/x/"))
         self.assertFalse(guard.blocks("help desk software", "/help-desk-software/"))
         self.assertTrue(guard.blocks("help desk software", "/blog/x/"))
@@ -232,11 +239,23 @@ class Generator(unittest.TestCase):
     def test_plural_is_not_a_canonical_phrase(self):
         # Same word boundaries as the injector, which would never link "ticketing system" in "systems".
         self.rules.canonical_owner["ticketing system"] = "/ticketing-software/"
-        guard = g._canonical_guard(["two ticketing systems compared"], self.rules)
-        self.assertFalse(guard.blocks("ticketing systems", "/blog/x/"))
+        source = page("/blog/source/", "Source", [])
+        source.linkable_clauses = ["two ticketing systems compared"]
+        self.assertFalse(g._canonical_guard(source, self.rules).blocks("ticketing systems", "/blog/x/"))
 
     def test_no_guard_without_a_table(self):
-        self.assertIsNone(g._canonical_guard(["help desk software"], theme_rules("en")))
+        self.assertIsNone(g._canonical_guard(page("/x/", "X", []), theme_rules("en")))
+
+    def test_short_blocks_are_part_of_the_page_text(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            html = Path(tmp) / "index.html"
+            html.write_text("<html><body><main><ul><li>Best live chat software</li></ul>"
+                            "<p>" + "Our team adds live chat to every page so visitors get answers fast and the agents can help them right away. " * 2
+                            + "</p></main></body></html>", encoding="utf-8")
+            everything: list[str] = []
+            paragraphs, _ = g._paragraphs_from_html(html, self.rules, everything)
+        self.assertEqual(len(paragraphs), 1)  # the list item is too short to be a paragraph
+        self.assertIn("Best live chat software", everything)
 
     def test_no_table_no_change(self):
         rules = theme_rules("en")

@@ -216,6 +216,9 @@ class Page:
     clauses: list[list[str]] | None = None
     html_path: Path | None = None
     manual_links: list[dict[str, Any]] = field(default_factory=list)
+    # HTML path: every linkable clause of the page in document order, short blocks
+    # included — the text the injector searches for an anchor's first occurrence.
+    linkable_clauses: list[str] | None = None
 
 
 @dataclass
@@ -564,18 +567,23 @@ def _long_enough(paragraph: str, rules: SiteRules) -> bool:
     return len(_tokens(paragraph)) >= 18
 
 
-def _paragraphs_from_html(html_path: Path, rules: SiteRules) -> tuple[list[str], list[list[str]]]:
+def _paragraphs_from_html(
+    html_path: Path, rules: SiteRules, all_clauses: list[str] | None = None,
+) -> tuple[list[str], list[list[str]]]:
     """Paragraphs of a built page and, for each, its linkable clauses.
 
     Same length rule as the markdown path (18+ tokens; cjk_languages by characters,
     see _long_enough). A paragraph repeated on the page (templates render some
-    sections twice for mobile and desktop) counts once.
+    sections twice for mobile and desktop) counts once. ``all_clauses``, when given,
+    receives the linkable clauses of every block, short ones included.
     """
     soup = BeautifulSoup(html_path.read_text(encoding="utf-8", errors="ignore"), "lxml")
     paragraphs: list[str] = []
     clauses: list[list[str]] = []
     seen: set[str] = set()
     for pieces in _html_blocks(soup):
+        if all_clauses is not None:
+            all_clauses.extend(_linkable_clauses(pieces, rules))
         text = _normalize_space("".join(piece for piece, _ in pieces))
         if text in seen or not _long_enough(text, rules) or _looks_like_structured_data(text, rules):
             continue
@@ -761,9 +769,14 @@ class CanonicalGuard:
     phrase that another page owns, in either direction — neither cut out of it ("desk
     software" in "help desk software") nor containing it ("reliable call center
     software"). Otherwise the [[lnks]] entry, which the injector applies first, takes
-    the spot and the phrase never links to its owner there. ``texts`` are the clauses
-    (HTML path) or the paragraph (markdown path); phrases are found with the injector's
-    own word-bounded pattern, so a plural the injector would not link blocks nothing.
+    the spot and the phrase never links to its owner there.
+
+    One guard per source page, over all of its text: the injector links the first
+    occurrence of an anchor anywhere on the page, not necessarily in the paragraph the
+    generator picked it from, so any occurrence that overlaps counts. ``texts`` are all
+    linkable clauses (HTML path) or the paragraphs (markdown path). Phrases are found
+    with the injector's own word-bounded pattern, so a plural it would not link blocks
+    nothing.
     """
 
     def __init__(self, texts: list[str], rules: SiteRules):
@@ -775,10 +788,6 @@ class CanonicalGuard:
             for text in texts
         ]
         self._owners: dict[str, frozenset[str]] = {}
-
-    def span_blocked(self, index: int, start: int, end: int, target_path: str) -> bool:
-        """Does texts[index][start:end] overlap a phrase owned by a page other than ``target_path``?"""
-        return any(s < end and start < e and owner != target_path for s, e, owner in self.spans[index])
 
     def blocks(self, phrase: str, target_path: str) -> bool:
         """Does any occurrence of ``phrase`` in the texts overlap a phrase another page owns?"""
@@ -800,27 +809,19 @@ class CanonicalGuard:
         return bool(owners - {target_path})
 
 
-def _canonical_guard(texts: list[str], rules: SiteRules) -> CanonicalGuard | None:
-    return CanonicalGuard(texts, rules) if rules.canonical_owner else None
+def _canonical_guard(page: Page, rules: SiteRules) -> CanonicalGuard | None:
+    if not rules.canonical_owner:
+        return None
+    texts = page.linkable_clauses if page.linkable_clauses is not None else page.paragraphs
+    return CanonicalGuard(texts, rules)
 
 
-def _exact_anchor(
-    clauses: list[str],
-    labels: list[tuple[str, str]],
-    used: set[str],
-    skip=None,
-) -> tuple[str, str] | None:
-    """The first label found in a clause, with the injector's own pattern: (tier, text as written on the page).
-
-    ``skip(clause_index, start, end)`` rejects a match; the next occurrence of the label
-    is tried, in the same clause and then in the following ones. Without ``skip`` this is
-    the first occurrence, as before.
-    """
+def _exact_anchor(clauses: list[str], labels: list[tuple[str, str]], used: set[str]) -> tuple[str, str] | None:
+    """The first label found in a clause, with the injector's own pattern: (tier, text as written on the page)."""
     for tier, label in labels:
         pattern = keyword_pattern(label)
-        for index, clause in enumerate(clauses):
-            match = next((m for m in pattern.finditer(clause)
-                          if skip is None or not skip(index, m.start(), m.end())), None)
+        for clause in clauses:
+            match = pattern.search(clause)
             if match:
                 text = clause[match.start():match.end()]
                 if text.casefold() not in used:
@@ -881,7 +882,8 @@ def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0, html_ro
             if not html_path.is_file():
                 not_built += 1
                 continue
-            paragraphs, clauses = _paragraphs_from_html(html_path, rules)
+            linkable: list[str] | None = [] if rules.canonical_owner else None
+            paragraphs, clauses = _paragraphs_from_html(html_path, rules, linkable)
             pages.append(Page(
                 path=file_path,
                 rel_path=str(file_path.relative_to(content_dir)).replace("\\", "/"),
@@ -895,6 +897,7 @@ def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0, html_ro
                 clauses=clauses,
                 html_path=html_path,
                 manual_links=manual_links,
+                linkable_clauses=linkable,
             ))
             continue
         paragraphs = _paragraphs_from_markdown(post.content, rules)
@@ -1311,11 +1314,10 @@ def _html_anchor_for_target(
     anchor instead of producing a duplicate. The lift-ordered dedupe in
     _validate_with_injector is only a safety net behind it.
     """
-    skip = None
+    labels = target_info.exact_labels
     if guard is not None:
-        def skip(index: int, start: int, end: int) -> bool:
-            return guard.span_blocked(index, start, end, target_info.url_path)
-    exact = _exact_anchor(clauses, target_info.exact_labels, used, skip)
+        labels = [(tier, label) for tier, label in labels if not guard.blocks(label, target_info.url_path)]
+    exact = _exact_anchor(clauses, labels, used)
     if exact is not None:
         tier, text = exact
         lexical_score, _, _ = _lexical_anchor_score(text, target, target_info, rules=rules)
@@ -1777,6 +1779,14 @@ def _recommend_links(
     # HTML path: anchor texts each source page already carries, casefolded, seeded with its [[lnks_man]].
     html_mode = any(page.clauses is not None for page in pages)
     per_source_texts: dict[int, set[str]] = {}
+    # Canonical phrases: one guard per source page, built on first use (QualityUnit/web-issues#4255).
+    page_guards: dict[int, CanonicalGuard | None] = {}
+
+    def page_guard(source_i: int) -> CanonicalGuard | None:
+        if source_i not in page_guards:
+            page_guards[source_i] = _canonical_guard(pages[source_i], rules)
+        return page_guards[source_i]
+
     preferred_indices = {
         idx: weight for idx, page in enumerate(pages)
         if (weight := preferred_urls.get(_canonical_path(page.url))) is not None
@@ -1815,7 +1825,6 @@ def _recommend_links(
             )
             paragraph_candidates: list[str] | None = None
             paragraph_candidate_infos: list[AnchorCandidate] | None = None
-            paragraph_guard: CanonicalGuard | None = None
             paragraph_vector_cache: dict[str, np.ndarray] = {}
             accepted_for_paragraph = False
             for stage_order in (order[:initial_targets], order[initial_targets:]):
@@ -1861,13 +1870,12 @@ def _recommend_links(
                         clauses = source.clauses[para_i]
                         if paragraph_candidate_infos is None:
                             paragraph_candidate_infos = _anchor_candidate_infos(_clause_candidates(clauses, rules), rules)
-                            paragraph_guard = _canonical_guard(clauses, rules)
                         used = per_source_texts.setdefault(source_i, {
                             str(item.get("text") or "").strip().casefold() for item in source.manual_links
                         })
                         choice = _html_anchor_for_target(
                             clauses, paragraph_candidate_infos, target, target_infos[target_i],
-                            fit=fit, lift=lift, rules=rules, used=used, guard=paragraph_guard,
+                            fit=fit, lift=lift, rules=rules, used=used, guard=page_guard(source_i),
                         )
                         if choice is not None:
                             stage_candidates.append((target_i, target, target_infos[target_i], fit, lift, is_preferred, choice))
@@ -1880,12 +1888,11 @@ def _recommend_links(
                         paragraph_candidate_infos = _anchor_candidate_infos(paragraph_candidates, rules)
                         if not paragraph_candidate_infos:
                             break
-                        paragraph_guard = _canonical_guard([paragraph], rules)
 
                     target_info = target_infos[target_i]
                     target_candidates = paragraph_candidate_infos or []
-                    if paragraph_guard is not None:
-                        target_candidates = [c for c in target_candidates if not paragraph_guard.blocks(c.phrase, target_info.url_path)]
+                    if (guard := page_guard(source_i)) is not None:
+                        target_candidates = [c for c in target_candidates if not guard.blocks(c.phrase, target_info.url_path)]
                     candidates = _anchor_finalist_infos(target_candidates, target_info, args.max_anchor_candidates, rules)
                     if not candidates:
                         continue
