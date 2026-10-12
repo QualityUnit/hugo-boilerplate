@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Apply Hugo linkbuilding from three sources:
+"""Apply Hugo linkbuilding from four sources:
 
 1. Page-local ``[[lnks_man]]`` frontmatter — hand-authored links that automated
    generation must never touch. Highest priority.
 2. Page-local ``[[lnks]]`` frontmatter — links written by
    ``generate_paragraph_linkbuilding.py``; regenerated on every run.
-3. Global ``data/linkbuilding/<lang>.json`` — manually maintained keyword→URL list.
+3. ``data/linkbuilding/canonical-phrases.toml`` — curated phrases with one owner
+   page each ("help desk software" → /help-desk-software/), optional.
+4. Global ``data/linkbuilding/<lang>.json`` — manually maintained keyword→URL list.
 
 Both are applied in a single pass per HTML file. Global keywords are pre-filtered
 against the HTML source (character references decoded) before BeautifulSoup is
@@ -58,6 +60,7 @@ from linkbuilding_html import (  # noqa: F401
     lang_url_carries_prefix,
     language_html_root,
     linkable_text_nodes,
+    load_canonical_phrases,
 )
 
 
@@ -318,7 +321,7 @@ def dry_run_page(html: str, page_metadata: dict, global_keywords: list[Keyword],
 
 
 def load_global_keywords(linkbuilding_dir: Path, lang: str) -> list[Keyword]:
-    """The global keyword list the injector applies for ``lang`` (data/linkbuilding/<lang>.json)."""
+    """The page-independent keywords the injector applies for ``lang``: canonical-phrases.toml and <lang>.json."""
     return _load_global_keywords(linkbuilding_dir, lang)
 
 
@@ -433,6 +436,9 @@ def _page_max_from_metadata(metadata: dict, source: str = "") -> int | None:
 # and is never rewritten by generate_paragraph_linkbuilding.py, so it wins over a
 # generated ``lnks`` entry that claims the same anchor text.
 PAGE_LINK_KEYS = (("lnks_man", 2000), ("lnks", 1000))
+# canonical-phrases.toml rows: below every page-local entry ([[lnks]] counts down from
+# 1000 by its position on the page) and above every <lang>.json row (0-100 in practice).
+CANONICAL_PRIORITY = 500
 
 
 def _keywords_from_metadata(metadata: dict) -> list[Keyword]:
@@ -521,7 +527,7 @@ def _parse_keyword_items(items: Any) -> list[Keyword]:
 
 
 def _load_global_keywords(linkbuilding_dir: Path, lang: str) -> list[Keyword]:
-    """Load the manually maintained global keywords for this language.
+    """Load the page-independent keywords for this language: canonical phrases and <lang>.json.
 
     Only ``data/linkbuilding/<lang>.json`` is read. A language-independent
     ``all.json`` used to be merged in as well; it pushed English anchors and
@@ -536,6 +542,10 @@ def _load_global_keywords(linkbuilding_dir: Path, lang: str) -> list[Keyword]:
             f"move its rows into the language files or delete it.",
             file=sys.stderr,
         )
+    canonical, problems = load_canonical_phrases(linkbuilding_dir, lang)
+    for problem in problems:
+        print(f"::warning::{problem}", file=sys.stderr)
+    keywords.extend(Keyword(keyword=phrase, url=url, priority=CANONICAL_PRIORITY) for phrase, url in canonical)
     for filename in (f"{lang}.json",):
         path = linkbuilding_dir / filename
         if not path.exists():
@@ -689,7 +699,7 @@ def run(args: argparse.Namespace) -> int:
             global_keywords: list[Keyword] = []  # skip global keywords in dev mode
         else:
             page_keywords, page_meta = _load_page_keywords(content_dir, html_root)
-            # Source 2: global manual keywords from data/linkbuilding/<lang>.json
+            # Source 2: canonical phrases and the global manual keywords from data/linkbuilding/<lang>.json
             # Applied to ALL HTML files; pre-filtered per page against the HTML source before DOM parse.
             global_keywords = _load_global_keywords(linkbuilding_dir, lang)
         global_kw_data = [asdict(kw) for kw in global_keywords]

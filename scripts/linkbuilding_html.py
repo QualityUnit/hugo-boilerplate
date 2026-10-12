@@ -131,10 +131,9 @@ class KeywordPattern:
     def __init__(self, keyword: str) -> None:
         self._literal = re.compile(re.escape(keyword.strip()), re.IGNORECASE)
 
-    def search(self, text: str) -> re.Match[str] | None:
+    def search(self, text: str, pos: int = 0) -> re.Match[str] | None:
         if not self._literal.pattern:  # an empty keyword links nothing (and would never advance)
             return None
-        pos = 0
         while True:
             match = self._literal.search(text, pos)
             if match is None:
@@ -143,6 +142,13 @@ class KeywordPattern:
             if not (start > 0 and _WORD_CONTINUATION_RE.match(text, start - 1)) and not _WORD_CONTINUATION_RE.match(text, end):
                 return match
             pos = start + 1
+
+    def finditer(self, text: str):
+        """Every non-overlapping match, left to right."""
+        pos = 0
+        while (match := self.search(text, pos)) is not None:
+            yield match
+            pos = match.end()
 
 
 def keyword_pattern(keyword: str) -> KeywordPattern:
@@ -230,3 +236,61 @@ def language_html_root(
     if url_carries_prefix():
         return lang_public_dir, public_dir, "shared domain, language in URL"
     return lang_public_dir, lang_public_dir, "per-language domain"
+
+
+# Canonical phrases (QualityUnit/web-issues#4255): a short, curated table that gives a
+# search phrase one owner page — "help desk software" belongs to /help-desk-software/.
+# Read by the generator (only the owner may take the phrase as an anchor) and by the
+# injector (the phrase links to its owner on every page, below [[lnks]] and above the
+# <lang>.json list). A site without the file gets neither.
+CANONICAL_PHRASES_FILE = "canonical-phrases.toml"
+
+
+def load_canonical_phrases(linkbuilding_dir: Path, lang: str) -> tuple[list[tuple[str, str]], list[str]]:
+    """``(rows, problems)`` for ``lang`` from ``<linkbuilding_dir>/canonical-phrases.toml``.
+
+    The file holds one array of tables per language code (``[[en]]``), each row with
+    ``phrase`` and ``url``;
+    any other key (``type``, search data) is for the people who curate it. Rows come
+    back as (phrase, canonical URL path) in file order, ``type: primary`` rows first.
+    A missing file or language gives no rows. A row without a phrase or a URL, or a
+    phrase that a previous row already gave to another URL, is left out and named in
+    ``problems``: the first owner wins, and the caller decides whether that is fatal.
+    """
+    path = Path(linkbuilding_dir) / CANONICAL_PHRASES_FILE
+    if not path.is_file():
+        return [], []
+    try:
+        import tomllib  # Python 3.11+
+    except ModuleNotFoundError:  # pragma: no cover - older interpreters
+        import toml as tomllib
+    try:
+        data = tomllib.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return [], [f"{path}: does not parse ({exc}); no canonical phrases loaded"]
+    items = data.get(lang) or []
+    if not isinstance(items, list):
+        return [], [f"{path}: '{lang}' must be a list of rows"]
+
+    problems: list[str] = []
+    primary: list[tuple[str, str]] = []
+    secondary: list[tuple[str, str]] = []
+    owners: dict[str, str] = {}
+    for idx, item in enumerate(items):
+        if not isinstance(item, dict):
+            problems.append(f"{path}: {lang}[{idx}] is not a mapping")
+            continue
+        phrase = " ".join(str(item.get("phrase") or "").split())
+        url = str(item.get("url") or "").strip()
+        if not phrase or not url:
+            problems.append(f"{path}: {lang}[{idx}] needs both 'phrase' and 'url'")
+            continue
+        url = canonical_path(url)
+        key = phrase.casefold()
+        if key in owners:
+            if owners[key] != url:
+                problems.append(f"{path}: {lang} phrase {phrase!r} is given to {owners[key]} and {url}; keeping {owners[key]}")
+            continue
+        owners[key] = url
+        (primary if str(item.get("type") or "").strip().lower() == "primary" else secondary).append((phrase, url))
+    return primary + secondary, problems
