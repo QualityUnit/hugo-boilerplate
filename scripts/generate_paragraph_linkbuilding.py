@@ -653,9 +653,9 @@ def _exact_labels(page: Page, rules: SiteRules) -> list[tuple[str, str]]:
 
     QualityUnit/web-issues#4253 step 3 orders three tiers: (a) canonical phrases (S8,
     #4255), (b) the target's search queries (S11, #4258), (c) its keywords, title and
-    slug. Neither (a) nor (b) exists yet; they go in front of the list returned here —
-    (b) needs its own matcher (content words in order within a clause, prefix-tolerant)
-    rather than the injector's exact pattern used for (a) and (c).
+    slug. This returns (c); _target_info puts (a) in front of it. (b) does not exist
+    yet and needs its own matcher (content words in order within a clause,
+    prefix-tolerant) rather than the injector's exact pattern used for (a) and (c).
 
     Tier (c): every keyword, every clause of the title ("Help Desk Software | LiveAgent"
     gives "Help Desk Software"), the last slug segment as words. Function words are
@@ -754,20 +754,54 @@ def _reserved_for_another(text: str, target_path: str, rules: SiteRules) -> bool
     return owner is not None and owner != target_path
 
 
-def _inside_foreign_canonical(clause: str, start: int, end: int, target_path: str, rules: SiteRules) -> bool:
-    """Does clause[start:end] sit inside a longer canonical phrase that another page owns?
+class CanonicalGuard:
+    """Where a paragraph's text holds canonical phrases, so no other page's anchor overlaps them.
 
-    "customer service software" in "social media customer service software" belongs to
-    the owner of the longer phrase; the injector links that one there (longest first).
+    QualityUnit/web-issues#4255: an anchor for one page must not overlap a canonical
+    phrase that another page owns, in either direction — neither cut out of it ("desk
+    software" in "help desk software") nor containing it ("reliable call center
+    software"). Otherwise the [[lnks]] entry, which the injector applies first, takes
+    the spot and the phrase never links to its owner there. ``texts`` are the clauses
+    (HTML path) or the paragraph (markdown path); phrases are found with the injector's
+    own word-bounded pattern, so a plural the injector would not link blocks nothing.
     """
-    length = end - start
-    for phrase, owner in rules.canonical_owner.items():
-        if owner == target_path or len(phrase) <= length:
-            continue
-        for match in re.finditer(re.escape(phrase), clause, re.IGNORECASE):
-            if match.start() <= start and end <= match.end():
-                return True
-    return False
+
+    def __init__(self, texts: list[str], rules: SiteRules):
+        self.texts = texts
+        self.rules = rules
+        self.spans = [
+            [(m.start(), m.end(), owner) for phrase, owner in rules.canonical_owner.items()
+             for m in keyword_pattern(phrase).finditer(text)]
+            for text in texts
+        ]
+        self._owners: dict[str, frozenset[str]] = {}
+
+    def span_blocked(self, index: int, start: int, end: int, target_path: str) -> bool:
+        """Does texts[index][start:end] overlap a phrase owned by a page other than ``target_path``?"""
+        return any(s < end and start < e and owner != target_path for s, e, owner in self.spans[index])
+
+    def blocks(self, phrase: str, target_path: str) -> bool:
+        """Does any occurrence of ``phrase`` in the texts overlap a phrase another page owns?"""
+        owners = self._owners.get(phrase)
+        if owners is None:
+            found: set[str] = set()
+            occurs = False
+            pattern = keyword_pattern(phrase)
+            for text, spans in zip(self.texts, self.spans):
+                for m in pattern.finditer(text):
+                    occurs = True
+                    found.update(owner for s, e, owner in spans if s < m.end() and m.start() < e)
+            if not occurs:
+                # Markdown-path n-grams skip digits and symbols ("top help desk" from "top 10
+                # help desk"), so they need not occur verbatim: compare the texts themselves.
+                found.update(owner for canonical, owner in self.rules.canonical_owner.items()
+                             if keyword_pattern(canonical).search(phrase) or keyword_pattern(phrase).search(canonical))
+            owners = self._owners[phrase] = frozenset(found)
+        return bool(owners - {target_path})
+
+
+def _canonical_guard(texts: list[str], rules: SiteRules) -> CanonicalGuard | None:
+    return CanonicalGuard(texts, rules) if rules.canonical_owner else None
 
 
 def _exact_anchor(
@@ -778,14 +812,15 @@ def _exact_anchor(
 ) -> tuple[str, str] | None:
     """The first label found in a clause, with the injector's own pattern: (tier, text as written on the page).
 
-    ``skip(clause, start, end)`` rejects a match, and the label is looked for in the next clause.
+    ``skip(clause_index, start, end)`` rejects a match; the next occurrence of the label
+    is tried, in the same clause and then in the following ones. Without ``skip`` this is
+    the first occurrence, as before.
     """
     for tier, label in labels:
         pattern = keyword_pattern(label)
-        for clause in clauses:
-            match = pattern.search(clause)
-            if match and skip is not None and skip(clause, match.start(), match.end()):
-                continue
+        for index, clause in enumerate(clauses):
+            match = next((m for m in pattern.finditer(clause)
+                          if skip is None or not skip(index, m.start(), m.end())), None)
             if match:
                 text = clause[match.start():match.end()]
                 if text.casefold() not in used:
@@ -1257,6 +1292,7 @@ def _html_anchor_for_target(
     lift: float,
     rules: SiteRules,
     used: set[str],
+    guard: CanonicalGuard | None = None,
 ) -> tuple[str, float, float, str] | None:
     """HTML path: (anchor, score, confidence, source) for one target, or None.
 
@@ -1266,6 +1302,8 @@ def _html_anchor_for_target(
     six windows tied at 0.389, and "point Support" beat "Support Team". ``used`` holds
     the anchor texts the source page already carries (casefolded): the injector links a
     text once per page, so a second entry with the same text is dead on arrival.
+    ``guard`` (canonical phrases in the table) rejects an exact match or a window that
+    overlaps a phrase another page owns.
 
     This is where issue step 6 (one record per anchor text) is enforced, first come
     first served in paragraph order: the first target that takes a text keeps it, not
@@ -1274,9 +1312,9 @@ def _html_anchor_for_target(
     _validate_with_injector is only a safety net behind it.
     """
     skip = None
-    if rules.canonical_owner:
-        def skip(clause: str, start: int, end: int) -> bool:
-            return _inside_foreign_canonical(clause, start, end, target_info.url_path, rules)
+    if guard is not None:
+        def skip(index: int, start: int, end: int) -> bool:
+            return guard.span_blocked(index, start, end, target_info.url_path)
     exact = _exact_anchor(clauses, target_info.exact_labels, used, skip)
     if exact is not None:
         tier, text = exact
@@ -1288,6 +1326,8 @@ def _html_anchor_for_target(
     best_key: tuple[float, int, int] | None = None
     for candidate in candidates:
         if candidate.phrase.casefold() in used or _reserved_for_another(candidate.phrase, target_info.url_path, rules):
+            continue
+        if guard is not None and guard.blocks(candidate.phrase, target_info.url_path):
             continue
         lexical_score, _, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info, rules)
         if lexical_score <= 0 or not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus, rules):
@@ -1775,6 +1815,7 @@ def _recommend_links(
             )
             paragraph_candidates: list[str] | None = None
             paragraph_candidate_infos: list[AnchorCandidate] | None = None
+            paragraph_guard: CanonicalGuard | None = None
             paragraph_vector_cache: dict[str, np.ndarray] = {}
             accepted_for_paragraph = False
             for stage_order in (order[:initial_targets], order[initial_targets:]):
@@ -1820,12 +1861,13 @@ def _recommend_links(
                         clauses = source.clauses[para_i]
                         if paragraph_candidate_infos is None:
                             paragraph_candidate_infos = _anchor_candidate_infos(_clause_candidates(clauses, rules), rules)
+                            paragraph_guard = _canonical_guard(clauses, rules)
                         used = per_source_texts.setdefault(source_i, {
                             str(item.get("text") or "").strip().casefold() for item in source.manual_links
                         })
                         choice = _html_anchor_for_target(
                             clauses, paragraph_candidate_infos, target, target_infos[target_i],
-                            fit=fit, lift=lift, rules=rules, used=used,
+                            fit=fit, lift=lift, rules=rules, used=used, guard=paragraph_guard,
                         )
                         if choice is not None:
                             stage_candidates.append((target_i, target, target_infos[target_i], fit, lift, is_preferred, choice))
@@ -1838,9 +1880,13 @@ def _recommend_links(
                         paragraph_candidate_infos = _anchor_candidate_infos(paragraph_candidates, rules)
                         if not paragraph_candidate_infos:
                             break
+                        paragraph_guard = _canonical_guard([paragraph], rules)
 
                     target_info = target_infos[target_i]
-                    candidates = _anchor_finalist_infos(paragraph_candidate_infos or [], target_info, args.max_anchor_candidates, rules)
+                    target_candidates = paragraph_candidate_infos or []
+                    if paragraph_guard is not None:
+                        target_candidates = [c for c in target_candidates if not paragraph_guard.blocks(c.phrase, target_info.url_path)]
+                    candidates = _anchor_finalist_infos(target_candidates, target_info, args.max_anchor_candidates, rules)
                     if not candidates:
                         continue
                     stage_candidates.append((target_i, target, target_info, fit, lift, is_preferred, candidates))

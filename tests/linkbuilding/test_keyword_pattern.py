@@ -123,5 +123,16 @@ class EquivalenceFuzz(unittest.TestCase):
                              span(old_pattern(keyword).search(text)), (keyword, text))
 
 
+class FindIter(unittest.TestCase):
+    def test_every_word_bounded_match(self):
+        text = "help desk, a helpdesk, Help Desk-like and help desk again"
+        self.assertEqual([m.group(0) for m in lh.keyword_pattern("help desk").finditer(text)],
+                         ["help desk", "help desk"])
+
+    def test_search_from_a_position(self):
+        text = "help desk and help desk"
+        self.assertEqual(lh.keyword_pattern("help desk").search(text, 1).start(), 14)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -131,10 +131,9 @@ class KeywordPattern:
     def __init__(self, keyword: str) -> None:
         self._literal = re.compile(re.escape(keyword.strip()), re.IGNORECASE)
 
-    def search(self, text: str) -> re.Match[str] | None:
+    def search(self, text: str, pos: int = 0) -> re.Match[str] | None:
         if not self._literal.pattern:  # an empty keyword links nothing (and would never advance)
             return None
-        pos = 0
         while True:
             match = self._literal.search(text, pos)
             if match is None:
@@ -143,6 +142,13 @@ class KeywordPattern:
             if not (start > 0 and _WORD_CONTINUATION_RE.match(text, start - 1)) and not _WORD_CONTINUATION_RE.match(text, end):
                 return match
             pos = start + 1
+
+    def finditer(self, text: str):
+        """Every non-overlapping match, left to right."""
+        pos = 0
+        while (match := self.search(text, pos)) is not None:
+            yield match
+            pos = match.end()
 
 
 def keyword_pattern(keyword: str) -> KeywordPattern:
