@@ -80,6 +80,5 @@
     {{ with $height }}height="{{ . }}"{{ end }}
     {{ if or (not $noLazy) $nativeLazy }}loading="lazy"{{ end }}
     decoding="async"
-    data-original-src="{{ $src }}"
   >
 {{ end }}

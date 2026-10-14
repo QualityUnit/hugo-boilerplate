@@ -77,7 +77,7 @@
     {{- if $id }} id="{{ $id }}"{{ end -}}
     {{- if $width }} width="{{ $width }}"{{ end -}}
     {{- if $height }} height="{{ $height }}"{{ end -}}
-    {{- if or (not $noLazy) $nativeLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
+    {{- if or (not $noLazy) $nativeLazy }} loading="lazy"{{ end }} decoding="async">
 {{- else -}}
 {{- $availableWidths := slice 300 1024 -}}
 
@@ -384,11 +384,11 @@
       {{- if and $webpSrcset (ne $fileExt ".webp") -}}
       <source type="image/webp"
         {{- if $noLazy }} srcset="{{ $webpSrcset }}"{{ else }} data-srcset="{{ $webpSrcset }}"{{ end }}
-        sizes="{{ $sizesAttr }}" data-original-src="{{ $src }}">
+        sizes="{{ $sizesAttr }}">
       {{- end -}}
       <source type="{{ $mimeType }}"
         {{- if $noLazy }} srcset="{{ $origSrcset }}"{{ else }} data-srcset="{{ $origSrcset }}"{{ end }}
-        sizes="{{ $sizesAttr }}" data-original-src="{{ $src }}">
+        sizes="{{ $sizesAttr }}">
       <img
         {{- if $noLazy }} src="{{ $fallbackSrcWithDomain }}"{{ else }} src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="{{ $fallbackSrcWithDomain }}"{{ end }}
         alt="{{ $alt }}" class="{{ $imgClassFallback }}"
@@ -396,6 +396,6 @@
         {{- if $finalWidth }} width="{{ $finalWidth }}"{{ end -}}
         {{- if $finalHeight }} height="{{ $finalHeight }}"{{ end -}}
         {{- if $fetchpriority }} fetchpriority="{{ $fetchpriority }}"{{ end -}}
-        {{- if or (not $noLazy) $nativeLazy }} loading="lazy"{{ end }} decoding="async" data-original-src="{{ $src }}">
+        {{- if or (not $noLazy) $nativeLazy }} loading="lazy"{{ end }} decoding="async">
     </picture>
 {{- end -}}
