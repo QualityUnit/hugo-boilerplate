@@ -25,6 +25,7 @@ target the model would prefer.
 |---|---|
 | `test_keyword_pattern.py` | The injector's anchor match: word boundaries for Latin and CJK text, equivalence with the previous regex on text without CJK |
 | `test_word_counts.py` | `estimated_words` and the injector's link cap (CJK words from characters), same count before and after anchors are inserted |
+| `test_threads.py` | `LINKBUILDING_THREADS`: unset or invalid keeps 1 CPU thread, a number or `auto` (every core) raises it |
 | `test_html_paragraphs.py` | HTML path: `_html_blocks`, linkable clauses, clause punctuation, paragraph length |
 | `test_anchor_candidates.py` | `_clause_word_runs`, `_clause_candidates`, `_exact_labels` (Latin and CJK), `_exact_anchor` |
 | `test_cjk_words.py` | Japanese / Chinese word counts (fugashi, jieba) |

@@ -63,10 +63,27 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-os.environ.setdefault("OMP_NUM_THREADS", "1")
-os.environ.setdefault("MKL_NUM_THREADS", "1")
-os.environ.setdefault("VECLIB_MAXIMUM_THREADS", "1")
-os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
+def _thread_count() -> int:
+    """CPU threads for the embedding model and the numeric libraries.
+
+    LINKBUILDING_THREADS sets it: a number, or "auto" for every core the machine has.
+    Unset or not a number keeps the old fixed 1, so a site that does not set it runs
+    exactly as before. Embedding is almost all of a cold run, and it scales with cores.
+    """
+    raw = os.environ.get("LINKBUILDING_THREADS", "").strip().lower()
+    if raw == "auto":
+        return max(1, os.cpu_count() or 1)
+    try:
+        return max(1, int(raw))
+    except ValueError:
+        return 1
+
+
+THREADS = _thread_count()
+# Must be set before numpy/torch/faiss load their thread pools. An explicit value in
+# the environment still wins.
+for _var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
+    os.environ.setdefault(_var, str(THREADS))
 
 import markdown
 import numpy as np
@@ -327,11 +344,11 @@ class LazySentenceTransformer:
             from sentence_transformers import SentenceTransformer
             try:
                 import torch
-                torch.set_num_threads(1)
+                torch.set_num_threads(THREADS)
                 torch.set_num_interop_threads(1)
             except Exception:
                 pass
-            print(f"Loading embedding model once: {self.model_name} on {self.resolved_device} (requested: {self.device})")
+            print(f"Loading embedding model once: {self.model_name} on {self.resolved_device} (requested: {self.device}), {THREADS} CPU thread(s)")
             self._model = SentenceTransformer(self.model_name, trust_remote_code=True, device=self.resolved_device)
         return self._model
 
