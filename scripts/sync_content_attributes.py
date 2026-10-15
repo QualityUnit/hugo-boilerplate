@@ -17,7 +17,7 @@ attributes_to_sync = [
     'getSupportUrl',
     'brandUrl',
     'youtubeVideoID',
-    'date',
+    'date',  # the publish date; `lastmod` is not synced - an English edit does not modify a translation
     'homePageUrl',
     'images',
     'price',
@@ -92,7 +92,9 @@ def process_file(en_file_path):
         return
 
     if 'date' not in en_front_matter:
-        en_front_matter['date'] = (datetime.datetime.now() - datetime.timedelta(hours=6)).strftime('%Y-%m-%d %H:%M:%S')
+        # UTC with a Z: Hugo reads a time without a zone as UTC, so a local
+        # time would put the page into the future and drop it from the build.
+        en_front_matter['date'] = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
         update_front_matter(en_file_path, en_front_matter, remaining_content)
 
     # unset attributes we don't want
