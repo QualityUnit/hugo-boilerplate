@@ -1,0 +1,42 @@
+# Tests for scripts/update-content-dates.py, the pre-commit hook every site on this
+# theme runs: `date` is the publish date, `lastmod` the modified date.
+# Fast (seconds), no dependencies: each test commits into a throwaway git repository.
+#
+# No path filter on purpose: the check is meant to be required for merging, and a
+# required check that a path filter skips stays "expected" and blocks the PR.
+name: Content dates tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: content-dates-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: content dates tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.9 = the oldest Python a site runs the hook on (PostAffiliatePro on macOS);
+        # 3.11 = the Python of the LiveAgent workflows.
+        python: ['3.9', '3.11']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+
+      # -B: no .pyc files from the test run (scripts/__pycache__ also holds tracked ones).
+      - name: Run tests
+        run: python -B -m unittest discover -s tests/content_dates -t tests/content_dates -v
