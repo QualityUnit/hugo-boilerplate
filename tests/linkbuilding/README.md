@@ -31,7 +31,7 @@ target the model would prefer.
 | `test_site_config.py` | `cjk_languages` / `cjk_multiword_terms` in `generator.yaml` |
 | `test_requirements.py` | `tests/linkbuilding/requirements.txt` names each package with the same version bounds as `scripts/requirements.txt` |
 | `test_canonical_phrases.py` | `canonical-phrases.toml`: the loader, the injector's priority (below `[[lnks]]`, above `<lang>.json`), the generator giving a phrase to its owner only, the multi-target report; end to end on the markdown fixture |
-| `test_strict_anchors.py` | `strict_anchor_languages`: an anchor is a canonical phrase or keyword of its target or contains one whole; keywords are not trimmed; title, slug and one-word windows give no link; the markdown path warns and stays unchanged |
+| `test_strict_anchors.py` | `strict_anchor_languages`: an anchor is exactly a canonical phrase or keyword of its target; keywords are kept whole; title, slug and windows give no link; the markdown path warns and stays unchanged |
 | `test_markdown_fixture.py` | Markdown path on 10 English pages: output byte-identical (`fixtures/markdown-en`) |
 | `test_html_cjk_fixture.py` | HTML path end to end on a small Japanese and Chinese site, generator then injector; one-word keywords never get a link (`fixtures/html-cjk`) |
 

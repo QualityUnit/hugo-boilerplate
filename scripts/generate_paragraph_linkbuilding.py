@@ -303,8 +303,8 @@ class SiteRules:
     # without per-language lists keeps the edge-only rule it always had.
     strict_short_windows: bool
     # strict_anchor_languages (QualityUnit/web-issues#4258), HTML path only: an anchor is
-    # a canonical phrase or keyword of its target, or a window that contains one whole;
-    # title and slug labels and the term-overlap windows are off. No such anchor, no link.
+    # a canonical phrase or keyword of its target found in a clause; title and slug
+    # labels and all windows are off. No such anchor, no link.
     strict_anchors: bool = False
     # Japanese / Chinese (cjk_languages): no spaces between words. HTML path only —
     # paragraph length by characters, CJK clause punctuation, CJK exact labels counted
@@ -1323,10 +1323,10 @@ def _html_anchor_for_target(
     the anchor texts the source page already carries (casefolded): the injector links a
     text once per page, so a second entry with the same text is dead on arrival.
     ``guard`` (canonical phrases in the table) rejects an exact match or a window that
-    overlaps a phrase another page owns. With ``rules.strict_anchors`` (#4258) a window
-    must contain one of the target's exact labels (its canonical phrases and keywords)
-    whole, by the injector's pattern: "reliable help desk software" for the keyword
-    "help desk software", not "desk software" or "Agile CRM" for "close crm".
+    overlaps a phrase another page owns. With ``rules.strict_anchors`` (#4258) only the
+    exact labels count (the target's canonical phrases and keywords) and no window is
+    scored: a window around a keyword only added filler ("Help desk typically", "just
+    live chat"), and one sharing a word gave "Agile CRM" for "close crm".
 
     This is where issue step 6 (one record per anchor text) is enforced, first come
     first served in paragraph order: the first target that takes a text keeps it, not
@@ -1334,9 +1334,6 @@ def _html_anchor_for_target(
     anchor instead of producing a duplicate. The lift-ordered dedupe in
     _validate_with_injector is only a safety net behind it.
     """
-    # Before the guard: a window is checked against the guard on its own, so a label
-    # that overlaps a foreign phrase somewhere on the page still qualifies a window.
-    label_patterns = [keyword_pattern(label) for _, label in target_info.exact_labels] if rules.strict_anchors else []
     labels = target_info.exact_labels
     if guard is not None:
         labels = [(tier, label) for tier, label in labels if not guard.blocks(label, target_info.url_path)]
@@ -1347,7 +1344,7 @@ def _html_anchor_for_target(
         score, confidence = _anchor_score_with_fit(lexical_score, fit, lift)
         return text, score, confidence, f"exact:{tier}"
 
-    if rules.strict_anchors and not label_patterns:
+    if rules.strict_anchors:
         return None
     best: tuple[str, float, float, str] | None = None
     best_key: tuple[float, int, int] | None = None
@@ -1355,8 +1352,6 @@ def _html_anchor_for_target(
         if candidate.phrase.casefold() in used or _reserved_for_another(candidate.phrase, target_info.url_path, rules):
             continue
         if guard is not None and guard.blocks(candidate.phrase, target_info.url_path):
-            continue
-        if label_patterns and not any(pattern.search(candidate.phrase) for pattern in label_patterns):
             continue
         lexical_score, _, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info, rules)
         if lexical_score <= 0 or not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus, rules):

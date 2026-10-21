@@ -1,10 +1,11 @@
-"""Strict anchors (QualityUnit/web-issues#4258): an anchor is a keyword of its target or contains one.
+"""Strict anchors (QualityUnit/web-issues#4258): an anchor is a keyword of its target.
 
 strict_anchor_languages in generator.yaml switches it on per language, HTML path only.
-The anchor must be one of the target's canonical phrases or keywords, or a window that
-contains one of them whole; otherwise the target gets no link from that paragraph. The
-two cases from the issue ("Agile CRM" -> /integrations/close/, "plan anytime" ->
-/free-plan/) came from windows that only shared one word with the target.
+The anchor must be one of the target's canonical phrases or keywords; no word window is
+scored, so the target gets no link from a paragraph without one. The two cases from the
+issue ("Agile CRM" -> /integrations/close/, "plan anytime" -> /free-plan/) came from
+windows that only shared one word with the target; measurement run #29 showed that
+windows around a whole keyword mostly add filler ("Help desk typically").
 """
 
 import contextlib
@@ -107,11 +108,13 @@ class Anchor(unittest.TestCase):
         self.assertEqual(choice[0], "help desk software")
         self.assertEqual(choice[3], "exact:keyword")
 
-    def test_window_that_contains_a_whole_keyword(self):
-        # The keyword text is already a link on the page, so the exact match is skipped.
-        choice = self.choose(HELP_DESK, ["Teams pick reliable help desk software"], used=["help desk software"])
-        self.assertEqual(choice[0], "reliable help desk software")
+    def test_no_window_around_a_used_keyword(self):
+        # The keyword text is already a link on the page: the loose rule takes a longer
+        # window around it, the strict one gives no link.
+        clauses = ["Teams pick reliable help desk software"]
+        choice = self.choose(HELP_DESK, clauses, strict=False, used=["help desk software"])
         self.assertEqual(choice[3], "window")
+        self.assertIsNone(self.choose(HELP_DESK, clauses, used=["help desk software"]))
 
     def test_window_cut_out_of_a_keyword_is_rejected(self):
         clauses = ["Agencies compare desk software"]
@@ -140,20 +143,25 @@ class Anchor(unittest.TestCase):
                                            fit=0.9, lift=0.2, rules=rules, used=set())
         self.assertEqual(choice[:1] + choice[3:], ("AI help desk software", "exact:canonical"))
 
-    def test_foreign_phrase_elsewhere_does_not_disqualify_a_window(self):
-        # Another page owns "AI help desk software", which also occurs on the source page.
-        # The exact "help desk software" is blocked there, the window around it is not.
-        rules = theme_rules("en")
-        rules.strict_anchors = True
-        rules.canonical_owner["ai help desk software"] = "/ai-help-desk/"
+    def test_keyword_blocked_by_a_foreign_phrase_gives_no_window(self):
+        # Another page owns "AI help desk software", which also occurs on the source page,
+        # so the exact "help desk software" is blocked there; no window takes its place.
         clauses = ["Teams pick reliable help desk software"]
         source = page("/blog/source/", "Source", [])
         source.linkable_clauses = ["Try AI help desk software today", *clauses]
-        info = g._target_info(HELP_DESK, rules)
-        candidates = g._anchor_candidate_infos(g._clause_candidates(clauses, rules), rules)
-        choice = g._html_anchor_for_target(clauses, candidates, HELP_DESK, info, fit=0.9, lift=0.2, rules=rules,
-                                           used=set(), guard=g._canonical_guard(source, rules))
-        self.assertEqual(choice[0], "reliable help desk software")
+        for strict in (False, True):
+            rules = theme_rules("en")
+            rules.strict_anchors = strict
+            rules.canonical_owner["ai help desk software"] = "/ai-help-desk/"
+            info = g._target_info(HELP_DESK, rules)
+            candidates = g._anchor_candidate_infos(g._clause_candidates(clauses, rules), rules)
+            choice = g._html_anchor_for_target(clauses, candidates, HELP_DESK, info, fit=0.9, lift=0.2, rules=rules,
+                                               used=set(), guard=g._canonical_guard(source, rules))
+            with self.subTest(strict=strict):
+                if strict:
+                    self.assertIsNone(choice)
+                else:
+                    self.assertEqual(choice[3], "window")
 
 
 class MarkdownPath(unittest.TestCase):

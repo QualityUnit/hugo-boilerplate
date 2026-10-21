@@ -58,15 +58,14 @@
 #                        (QualityUnit/web-issues#4258). HTML path (--public-dir) only:
 #                        an anchor is one of the target's canonical phrases or
 #                        keywords found in a clause by the injector's pattern (any
-#                        case, whole words), or a window that contains one of them
-#                        whole. A keyword is used whole, function words at
+#                        case, whole words). A keyword is used whole, function words at
 #                        its edges included ("free help desk", not "help desk"), and
 #                        only when it passes the label rules without them: two or more
 #                        words or one hyphenated word ("free customer" does not). The
-#                        title and slug labels and the windows that only share a word
-#                        with the target are not used; a paragraph without such an
-#                        anchor gives the target no link. Meant for languages whose
-#                        keywords are real search queries.
+#                        title and slug labels and the word windows are not used, not
+#                        even a window around a keyword ("Help desk typically"); a
+#                        paragraph without such an anchor gives the target no link.
+#                        Meant for languages whose keywords are real search queries.
 
 brand_terms: [flowhunt, ai, mcp, llm]
 
