@@ -54,6 +54,19 @@
 # cjk_one_word_terms     CJK labels of one word that the segmenter cuts in two, e.g.
 #                        电子邮件 (e-mail): dropped as a whole label, but an ordinary
 #                        word inside a longer one (电子邮件自动化 "e-mail automation").
+# strict_anchor_languages  content language codes with the strict anchor rule
+#                        (QualityUnit/web-issues#4258). HTML path (--public-dir) only:
+#                        an anchor is one of the target's canonical phrases or
+#                        keywords found in a clause by the injector's pattern (any
+#                        case, whole words), or a window that contains one of them
+#                        whole. A keyword is used whole, function words at
+#                        its edges included ("free help desk", not "help desk"), and
+#                        only when it passes the label rules without them: two or more
+#                        words or one hyphenated word ("free customer" does not). The
+#                        title and slug labels and the windows that only share a word
+#                        with the target are not used; a paragraph without such an
+#                        anchor gives the target no link. Meant for languages whose
+#                        keywords are real search queries.
 
 brand_terms: [flowhunt, ai, mcp, llm]
 
@@ -118,3 +131,5 @@ cjk_languages: {ja: ja, jp: ja, zh: zh, zh-hans: zh}
 cjk_multiword_terms: []
 
 cjk_one_word_terms: []
+
+strict_anchor_languages: []

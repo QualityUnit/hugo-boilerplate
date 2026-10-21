@@ -285,6 +285,7 @@ class SiteConfig:
     cjk_languages: dict[str, str]  # language code -> "ja" | "zh"
     cjk_multiword_terms: frozenset[str]
     cjk_one_word_terms: frozenset[str]
+    strict_anchor_languages: frozenset[str]  # language codes, lower-case
     label: str  # what was loaded, for the log line
 
 
@@ -301,6 +302,10 @@ class SiteRules:
     # anywhere, not only at the edges. Opt-in with stopwords.source: file — a site
     # without per-language lists keeps the edge-only rule it always had.
     strict_short_windows: bool
+    # strict_anchor_languages (QualityUnit/web-issues#4258), HTML path only: an anchor is
+    # a canonical phrase or keyword of its target, or a window that contains one whole;
+    # title and slug labels and the term-overlap windows are off. No such anchor, no link.
+    strict_anchors: bool = False
     # Japanese / Chinese (cjk_languages): no spaces between words. HTML path only —
     # paragraph length by characters, CJK clause punctuation, CJK exact labels counted
     # in words by a segmenter, no word windows (QualityUnit/web-issues#4254).
@@ -667,7 +672,8 @@ def _exact_labels(page: Page, rules: SiteRules) -> list[tuple[str, str]]:
 
     Tier (c): every keyword, every clause of the title ("Help Desk Software | LiveAgent"
     gives "Help Desk Software"), the last slug segment as words. Function words are
-    trimmed off both edges. A label must be two or more words (or one hyphenated
+    trimmed off both edges; with strict_anchors (#4258) a keyword is checked trimmed but
+    kept whole as the label. A label must be two or more words (or one hyphenated
     compound), carry a word that is neither brand, generic nor a function word, and have
     no digit or symbol. Most words first, then most characters; a full tie keeps the
     order keywords, title, slug.
@@ -694,14 +700,23 @@ def _exact_labels(page: Page, rules: SiteRules) -> list[tuple[str, str]]:
     labels: list[tuple[str, str]] = []
     seen: set[str] = set()
     for tier, text in raw:
-        words = _normalize_space(text).split(" ")
+        whole = _normalize_space(text).split(" ")
+        words = list(whole)
         while words and words[0].lower().strip(".'’") in rules.stopwords:
             words.pop(0)
         while words and words[-1].lower().strip(".'’") in rules.stopwords:
             words.pop()
+        # Strict anchors (#4258) check the trimmed words but keep a keyword whole: "free
+        # help desk" trimmed to "help desk" would let a phrase that is no keyword of the
+        # target pass as one, while "free customer" (one word once trimmed) stays out.
+        if words and rules.strict_anchors and tier == "keyword":
+            if not all(_WINDOW_WORD_RE.fullmatch(w) for w in whole):
+                continue
+            label = " ".join(whole)
+        else:
+            label = " ".join(words)
         if not words or not all(_WINDOW_WORD_RE.fullmatch(w) for w in words):
             continue
-        label = " ".join(words)
         cjk_label = rules.cjk and CJK_RE.search(label) is not None
         if not cjk_label and len(words) < 2 and "-" not in words[0]:
             continue
@@ -1040,7 +1055,8 @@ def _target_terms(page: Page, rules: SiteRules) -> set[str]:
 def _target_info(page: Page, rules: SiteRules) -> TargetInfo:
     """A canonical phrase owned by another page is dropped from the keywords (no exact
     bonus) and from the exact labels; the page's own canonical phrases go in front of
-    its exact labels as tier "canonical" (QualityUnit/web-issues#4253 step 3a)."""
+    its exact labels as tier "canonical" (QualityUnit/web-issues#4253 step 3a). With
+    strict_anchors only the canonical and keyword tiers stay (#4258)."""
     url_path = _canonical_path(page.url)
     exact_labels: list[tuple[str, str]] = []
     if page.clauses is not None:
@@ -1051,6 +1067,7 @@ def _target_info(page: Page, rules: SiteRules) -> TargetInfo:
         exact_labels = [("canonical", phrase) for phrase in own] + [
             (tier, label) for tier, label in _exact_labels(page, rules)
             if label.casefold() not in own_lower and not _reserved_for_another(label, url_path, rules)
+            and not (rules.strict_anchors and tier != "keyword")
         ]
     return TargetInfo(
         terms=_target_terms(page, rules),
@@ -1306,7 +1323,10 @@ def _html_anchor_for_target(
     the anchor texts the source page already carries (casefolded): the injector links a
     text once per page, so a second entry with the same text is dead on arrival.
     ``guard`` (canonical phrases in the table) rejects an exact match or a window that
-    overlaps a phrase another page owns.
+    overlaps a phrase another page owns. With ``rules.strict_anchors`` (#4258) a window
+    must contain one of the target's exact labels (its canonical phrases and keywords)
+    whole, by the injector's pattern: "reliable help desk software" for the keyword
+    "help desk software", not "desk software" or "Agile CRM" for "close crm".
 
     This is where issue step 6 (one record per anchor text) is enforced, first come
     first served in paragraph order: the first target that takes a text keeps it, not
@@ -1314,6 +1334,9 @@ def _html_anchor_for_target(
     anchor instead of producing a duplicate. The lift-ordered dedupe in
     _validate_with_injector is only a safety net behind it.
     """
+    # Before the guard: a window is checked against the guard on its own, so a label
+    # that overlaps a foreign phrase somewhere on the page still qualifies a window.
+    label_patterns = [keyword_pattern(label) for _, label in target_info.exact_labels] if rules.strict_anchors else []
     labels = target_info.exact_labels
     if guard is not None:
         labels = [(tier, label) for tier, label in labels if not guard.blocks(label, target_info.url_path)]
@@ -1324,12 +1347,16 @@ def _html_anchor_for_target(
         score, confidence = _anchor_score_with_fit(lexical_score, fit, lift)
         return text, score, confidence, f"exact:{tier}"
 
+    if rules.strict_anchors and not label_patterns:
+        return None
     best: tuple[str, float, float, str] | None = None
     best_key: tuple[float, int, int] | None = None
     for candidate in candidates:
         if candidate.phrase.casefold() in used or _reserved_for_another(candidate.phrase, target_info.url_path, rules):
             continue
         if guard is not None and guard.blocks(candidate.phrase, target_info.url_path):
+            continue
+        if label_patterns and not any(pattern.search(candidate.phrase) for pattern in label_patterns):
             continue
         lexical_score, _, exact_bonus = _lexical_anchor_score_candidate(candidate, target_info, rules)
         if lexical_score <= 0 or not _anchor_candidate_is_target_specific(candidate, target_info.terms, exact_bonus, rules):
@@ -1583,6 +1610,9 @@ def _load_site_config(path: str | Path) -> SiteConfig:
     cjk_languages = merged.get("cjk_languages") or {}
     if not isinstance(cjk_languages, dict) or any(str(s).strip().lower() not in CJK_SCRIPTS for s in cjk_languages.values()):
         raise ValueError(f"{source_path}: 'cjk_languages' must map language codes to {' or '.join(CJK_SCRIPTS)}")
+    strict_languages = merged.get("strict_anchor_languages") or []
+    if not isinstance(strict_languages, list) or not all(isinstance(code, str) for code in strict_languages):
+        raise ValueError(f"{source_path}: 'strict_anchor_languages' must be a list of language codes")
 
     config = SiteConfig(
         brand_terms=_term_set(merged.get("brand_terms"), key="brand_terms", path=source_path),
@@ -1598,6 +1628,7 @@ def _load_site_config(path: str | Path) -> SiteConfig:
         cjk_languages={str(code).strip().lower(): str(script).strip().lower() for code, script in cjk_languages.items()},
         cjk_multiword_terms=frozenset(_term_set(merged.get("cjk_multiword_terms"), key="cjk_multiword_terms", path=source_path)),
         cjk_one_word_terms=frozenset(_term_set(merged.get("cjk_one_word_terms"), key="cjk_one_word_terms", path=source_path)),
+        strict_anchor_languages=frozenset(str(code).strip().lower() for code in strict_languages if str(code).strip()),
         label=label,
     )
     cjk = ", ".join(f"{code}={script}" for code, script in sorted(config.cjk_languages.items())) or "none"
@@ -1605,7 +1636,8 @@ def _load_site_config(path: str | Path) -> SiteConfig:
         f"Generator config: {label} "
         f"(brand {len(config.brand_terms)}, generic {len(config.generic_terms)}, "
         f"shortcode params {len(config.shortcode_param_names)}, nav patterns {len(config.nav_path_patterns)}, "
-        f"stopwords source={source}, cjk languages {cjk}, cjk multi-word terms {len(config.cjk_multiword_terms)}, cjk one-word terms {len(config.cjk_one_word_terms)})"
+        f"stopwords source={source}, cjk languages {cjk}, cjk multi-word terms {len(config.cjk_multiword_terms)}, cjk one-word terms {len(config.cjk_one_word_terms)}, "
+        f"strict anchors {', '.join(sorted(config.strict_anchor_languages)) or 'none'})"
     )
     return config
 
@@ -1644,6 +1676,8 @@ def _site_rules(config: SiteConfig, lang: str) -> SiteRules:
         stopwords = stopwords | extra
         description += f", +{len(extra)} extra"
     print(f"[{lang}] Stopwords: {description}")
+    if lang.lower() in config.strict_anchor_languages:
+        print(f"[{lang}] Strict anchors: canonical phrases and keywords only (with --public-dir)")
     script = config.cjk_languages.get(lang.lower())
     return SiteRules(
         stopwords=stopwords,
@@ -1653,6 +1687,7 @@ def _site_rules(config: SiteConfig, lang: str) -> SiteRules:
         shortcode_param_names=config.shortcode_param_names,
         nav_path_patterns=config.nav_path_patterns,
         strict_short_windows=config.stopwords_source == "file",
+        strict_anchors=lang.lower() in config.strict_anchor_languages,
         cjk=script is not None,
         # The segmenter library loads on the first CJK label; a missing one ends the run.
         cjk_words=CjkWordCounter(script) if script is not None else None,
@@ -2318,6 +2353,9 @@ def _process_language(
         print(f"[{lang}] Paragraphs from built HTML: {layout} -> {html_root}")
         if args.semantic_anchor_fallback:
             print(f"::warning::[{lang}] --semantic-anchor-fallback is a markdown-path option and is ignored with --public-dir", file=sys.stderr)
+    elif rules.strict_anchors:
+        print(f"::warning::[{lang}] strict_anchor_languages applies with --public-dir only; "
+              "the markdown path uses the loose anchor rule", file=sys.stderr)
     pages = _load_pages(content_dir, rules, max_pages=args.max_pages, html_root=html_root)
     if not pages:
         print("No pages found with title/description.", file=sys.stderr)
