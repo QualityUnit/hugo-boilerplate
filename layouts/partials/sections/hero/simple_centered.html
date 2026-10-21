@@ -190,6 +190,7 @@
                       {{ $videoID = replaceRE `.*[?&]v=([a-zA-Z0-9_-]+).*` "$1" $image.src }}
                     {{ end }}
                     {{ partial "components/media/video.html" (dict
+                      "page" $.page
                       "videoID" $videoID
                       "provider" "youtube"
                       "title" (cond (ne $image.alt "") $image.alt "YouTube Video")

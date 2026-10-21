@@ -48,16 +48,7 @@
 {{/* this fell back to now.Format which emitted a fresh timestamp on every */}}
 {{/* build — Google Rich Results then flagged the value as invalid because */}}
 {{/* the date kept changing for the same video.                            */}}
-{{ $uploadDate := "" }}
-{{ with .uploadDate }}
-  {{ $uploadDate = . }}
-{{ else }}
-  {{ with .page }}
-    {{ if not .Date.IsZero }}
-      {{ $uploadDate = .Date.Format "2006-01-02T15:04:05Z07:00" }}
-    {{ end }}
-  {{ end }}
-{{ end }}
+{{ $uploadDate := partial "functions/get-video-upload-date.html" (dict "videoID" $videoID "uploadDate" .uploadDate "page" .page) }}
 
 {{/* Build the schema as a Hugo dict and let jsonify handle the whole      */}}
 {{/* structure. The previous template emitted raw {{ $title }} without    */}}

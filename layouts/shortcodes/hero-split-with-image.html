@@ -162,6 +162,7 @@ Parameters:
 {{ $badgeSlice := partial "helpers/process-badges.html" $badges }}
 
 {{ partial "sections/hero/split_with_image.html" (dict 
+  "page" .Page
   "logo" $logo
   "announcement" $announcement
   "heading" $heading
