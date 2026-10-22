@@ -31,16 +31,7 @@
 {{/* the date kept changing for the same video. Page Date is stable per    */}}
 {{/* page; if absent, the field is omitted (Google accepts schema without  */}}
 {{/* uploadDate, just no Video rich result).                               */}}
-{{ $uploadDate := "" }}
-{{ with .uploadDate }}
-  {{ $uploadDate = . }}
-{{ else }}
-  {{ with .page }}
-    {{ if not .Date.IsZero }}
-      {{ $uploadDate = .Date.Format "2006-01-02T15:04:05Z07:00" }}
-    {{ end }}
-  {{ end }}
-{{ end }}
+{{ $uploadDate := partial "functions/get-video-upload-date.html" (dict "videoID" $videoID "uploadDate" .uploadDate "page" .page) }}
 
 {{/* Build the schema as a dict and let jsonify handle string escaping */}}
 {{/* (the previous template emitted raw {{ $title }} without quoting  */}}

@@ -10,7 +10,7 @@
   - class: Additional CSS classes (optional)
   - width: Video width (optional, default: "100%")
   - height: Video height (optional, default: "auto")
-  - id: Optional ID attribute (optional)
+  - id: Optional ID attribute (optional, none by default)
   - autoplay: Enable autoplay (optional, default: false)
   - loop: Enable loop (optional, default: false)
   - muted: Enable muted (optional, default: false)
@@ -24,6 +24,8 @@
   - playBtnClass: CSS classes for YouTube play button (optional)
   - playBtnInnerClass: CSS classes for YouTube inner play button element (optional)
   - svgClass: CSS classes for YouTube play icon SVG (optional)
+  - uploadDate: Video upload date for the YouTube VideoObject schema (optional, default: page date)
+  - page: Current page, its Date is the fallback uploadDate (optional; without either, uploadDate is omitted)
 @example:
   {{ partial "components/media/video.html" (dict 
       "src" "https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
@@ -56,7 +58,9 @@
 {{ $class := .class | default "" }}
 {{ $width := .width | default "100%" }}
 {{ $height := .height | default "auto" }}
-{{ $id := .id | default (print "video-" (now.UnixNano)) }}
+{{/* No id unless the caller passes one: nothing looks the player up by id, and an
+     id from the build time changed every page with a video on each build. */ -}}
+{{ $id := .id }}
 {{ $autoplay := .autoplay | default false }}
 {{ $loop := .loop | default false }}
 {{ $muted := .muted | default false }}
@@ -118,6 +122,8 @@
 "playBtnInnerClass" .playBtnInnerClass
 "svgClass" .svgClass
 "showPlayButton" $showPlayButton
+"uploadDate" .uploadDate
+"page" .page
 ) }}
 {{ else if eq $provider "custom" }}
 <!-- Load video helper partial for resource management -->

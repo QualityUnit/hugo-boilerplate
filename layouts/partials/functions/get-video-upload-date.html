@@ -1,0 +1,32 @@
+{{/*
+@function: Get Video Upload Date
+@description: Returns the uploadDate for a VideoObject schema: caller-provided date > page Date > empty (omit the field). Never falls back to now: a date that changes on every build is invalid for Google.
+@params:
+  - videoID: YouTube video ID (required)
+  - uploadDate: Explicit upload date, ISO 8601 (optional)
+  - page: Page that embeds the video (optional). Without it the global page function is used, but only when the video ID is in that page's content or front matter: content is rendered once, in the context of the first page that asks for it, so inside shortcodes the global page can be another page (e.g. one that lists this page).
+@returns: ISO 8601 date string, or "" when no reliable date is known
+@example:
+  {{ $uploadDate := partial "functions/get-video-upload-date.html" (dict "videoID" $videoID "uploadDate" .uploadDate "page" .page) }}
+*/}}
+
+{{ $videoID := .videoID | default "" }}
+{{ $result := .uploadDate | default "" }}
+
+{{ if not $result }}
+  {{ $page := .page }}
+  {{ if and (not $page) $videoID }}
+    {{ with page }}
+      {{ if or (strings.Contains .RawContent $videoID) (strings.Contains (jsonify .Params) $videoID) }}
+        {{ $page = . }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+  {{ with $page }}
+    {{ if not .Date.IsZero }}
+      {{ $result = .Date.Format "2006-01-02T15:04:05Z07:00" }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ return $result }}

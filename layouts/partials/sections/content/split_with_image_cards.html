@@ -85,6 +85,7 @@ Example:
                                 <div class="shrink-0">
                                     {{ if eq $cardVideoProvider "youtube" }}
                                         {{ partial "components/media/video.html" (dict
+                                            "page" $.page
                                             "src" $cardVideoUrl
                                             "title" $cardVideoTitle
                                             "poster" $cardVideoPoster
@@ -94,6 +95,7 @@ Example:
                                         ) }}
                                     {{ else }}
                                         {{ partial "components/media/video.html" (dict
+                                            "page" $.page
                                             "src" $cardVideoUrl
                                             "title" $cardVideoTitle
                                             "poster" $cardVideoPoster

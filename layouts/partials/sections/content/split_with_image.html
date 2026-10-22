@@ -119,6 +119,7 @@ Design Tokens:
           <div class="relative flex w-full h-full">
             {{/* Display video */}}
             {{ partial "components/media/video.html" (dict 
+                  "page" $.page
                   "src" $videoUrl 
                   "poster" $poster
                   "posterHeight" $posterHeight

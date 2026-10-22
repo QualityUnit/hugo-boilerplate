@@ -91,6 +91,7 @@ Parameters:
           {{/* Display video */}}
           <div class="relative flex w-full h-full">
             {{ partial "components/media/video.html" (dict 
+                  "page" $page
                   "src" $videoUrl 
                   "poster" $poster
                   "posterHeight" $posterHeight

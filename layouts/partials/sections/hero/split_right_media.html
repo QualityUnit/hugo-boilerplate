@@ -78,6 +78,7 @@
     {{ if and $video $video.enabled }}
       {{/* Display video with popup */}}
       {{ partial "components/media/video.html" (dict 
+          "page" $.page
           "src" $video.src 
           "poster" $video.poster 
           "title" $heading
