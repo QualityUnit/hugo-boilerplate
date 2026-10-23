@@ -25,6 +25,8 @@
         downloadUrl: "https://example.com/download"
         featureList: "Feature 1, Feature 2, Feature 3"
         requirements: "Modern web browser"
+        sameAs:
+          - "https://www.wikidata.org/wiki/Q123456"
         aggregateRating:
           ratingValue: "4.8"
           reviewCount: "250"
@@ -69,6 +71,7 @@
 {{- with $software.fileSize }}{{ $schema = merge $schema (dict "fileSize" .) }}{{ end -}}
 {{- with $software.requirements }}{{ $schema = merge $schema (dict "requirements" .) }}{{ end -}}
 {{- with $software.featureList }}{{ $schema = merge $schema (dict "featureList" .) }}{{ end -}}
+{{- with $software.sameAs }}{{ $schema = merge $schema (dict "sameAs" .) }}{{ end -}}
 {{- with $software.screenshot -}}
   {{- $img := dict "@type" "ImageObject" "url" (partial "functions/get-absolute-static-url.html" (dict "path" .)) -}}
   {{- $schema = merge $schema (dict "screenshot" $img) -}}
