@@ -115,11 +115,6 @@
     try {
       document.dispatchEvent(new CustomEvent('consentUpdate', { detail: window.__consent }));
     } catch (e) { /* non-critical */ }
-
-    if (window.console && console.debug) {
-      console.debug('[consent-core] analytics=' + c.a + ' marketing=' + c.m +
-        ' functional=' + c.f + ' region=' + window.__consent.region + ' source=' + c.src);
-    }
   }
 
   // Hide via the same <html> class geo-consent.js uses (custom.css resolves it).

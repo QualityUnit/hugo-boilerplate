@@ -277,10 +277,6 @@
         var cookieConsentStatus = getCookie('cookie_consent_status');
         globalConsent = cookieConsentStatus === 'all';
         
-        console.log("Checking GDPR consent...");
-        console.log("Video consent:", videoConsent);
-        console.log("Global cookie consent:", cookieConsentStatus);
-        
         return videoConsent || globalConsent;
     }
     
