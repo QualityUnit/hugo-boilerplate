@@ -386,6 +386,58 @@ def repair_toml_frontmatter(text):
     return before + FRONTMATTER_DELIM + candidate + FRONTMATTER_DELIM + body, repaired_lines
 
 
+# The [[lnks]] table holds generated in-text links whose `path` is a URL of the
+# source language. Translated as part of the file, the rows come back with the
+# English paths unchanged, and the deploy injector writes them into the page as
+# they are — on a domain with localized URLs every such link is a 404
+# (QualityUnit/LiveAgent-hugo#1379). The rows belong to the generator
+# (generate_paragraph_linkbuilding.py), which writes them per language with that
+# language's URLs, so a translation carries none. [[lnks_man]] is hand-authored,
+# never regenerated, and stays.
+GENERATED_LINKS_TABLE = '[[lnks]]'
+
+
+def strip_generated_links(text):
+    """
+    Remove every [[lnks]] table from the TOML frontmatter.
+
+    A table runs from its header to the next table header or the end of the
+    frontmatter, as in TOML. Keep in step with _remove_array_table() in
+    generate_paragraph_linkbuilding.py, which writes the table.
+
+    The body and all other keys are left as they are, apart from the blank
+    lines a removed table leaves before the closing +++. A text without TOML
+    frontmatter or without [[lnks]] is returned unchanged.
+    """
+    split = split_toml_frontmatter(text)
+    if split is None:
+        return text
+    before, frontmatter, body = split
+
+    kept = []
+    skipping = removed = False
+    for line in frontmatter.split('\n'):
+        stripped = line.strip()
+        if stripped == GENERATED_LINKS_TABLE:
+            skipping = removed = True
+            continue
+        if skipping and stripped.startswith('[') and stripped.endswith(']'):
+            skipping = False
+        if not skipping:
+            kept.append(line)
+
+    if not removed:
+        return text
+
+    # The table usually closes the frontmatter; drop the blank lines it leaves
+    # in front of the closing +++.
+    newline = '\r\n' if '\r\n' in frontmatter else '\n'
+    while len(kept) > 1 and not kept[-1].strip():
+        kept.pop()
+    frontmatter = '\n'.join(kept).rstrip('\r') + newline
+    return before + FRONTMATTER_DELIM + frontmatter + FRONTMATTER_DELIM + body
+
+
 # Cache of "URLs already claimed", one index per language. Built lazily because
 # it walks ~1500 files per language and most runs touch only a few languages.
 _URL_INDEX_CACHE = {}
@@ -838,7 +890,7 @@ def find_files_for_translation(content_dir, target_langs, only_files=None, force
     for file_path in translatable_files:
         # Read the content of the file
         with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+            content = strip_generated_links(f.read())
 
         # Get the relative path from the English directory
         rel_path = file_path.relative_to(en_dir)
@@ -999,6 +1051,12 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                                 if translated_text.startswith("markdown\n"):
                                     translated_text = translated_text[9:]
                                 translated_text = translated_text.strip()
+
+                                # The source was sent without [[lnks]]; drop any
+                                # the flow returns anyway, before the frontmatter
+                                # check, so a mangled row cannot fail it. See
+                                # strip_generated_links().
+                                translated_text = strip_generated_links(translated_text)
 
                                 # Validate the TOML frontmatter before writing,
                                 # repairing it where the fix is unambiguous. See
@@ -1167,7 +1225,7 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                     if attempts[key] <= MAX_TASK_ATTEMPTS:
                         print(f"[RETRY] {target_file} (attempt {attempts[key]} of {MAX_TASK_ATTEMPTS})")
                         try:
-                            content = file_path.read_text(encoding='utf-8')
+                            content = strip_generated_links(file_path.read_text(encoding='utf-8'))
                         except OSError as exc:
                             print(f"[RETRY] cannot re-read {file_path}: {exc}")
                             continue
