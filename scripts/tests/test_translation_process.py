@@ -56,6 +56,65 @@ class WorkspaceTests(unittest.TestCase):
         api.get_user.assert_called_once()
 
 
+class AttachmentTests(unittest.TestCase):
+    def test_text_upload_preserves_filename_and_utf8_content(self):
+        for suffix, mime in [('.md', 'text/markdown'), ('.MD', 'text/markdown'),
+                             ('.markdown', 'text/markdown'), ('.html', 'text/html'),
+                             ('.yaml', 'text/plain'), ('.yml', 'text/plain'),
+                             ('.txt', 'text/plain')]:
+            with self.subTest(suffix=suffix):
+                api = Mock()
+                api.create_flow_session.return_value.session_id = 'session'
+                path = Path('page' + suffix)
+                content = 'Príliš žltý kôň\n'
+                with patch.object(translator.requests, 'post', return_value=Mock(status_code=200)) as upload, \
+                     contextlib.redirect_stdout(io.StringIO()):
+                    result = translator.create_translation_session(api, path, content, 'fr', 'flow', 'workspace')
+                self.assertEqual('session', result['session_id'])
+                upload.assert_called_once_with(
+                    'https://api.flowhunt.io/v2/flows/sessions/session/attachments',
+                    headers={'Api-Key': translator.api_key},
+                    files={'file': (path.name, content.encode('utf-8'), mime)}, timeout=60)
+                api.invoke_flow_response.assert_called_once()
+
+    def test_upload_error_reports_api_message_and_does_not_invoke(self):
+        response = translator.requests.Response()
+        response.status_code = 400
+        response.reason = 'Bad Request'
+        response._content = b'{"error_code":400,"message":"Error detecting file type..."}'
+        self.assert_failed_upload_reports(response, 'Error detecting file type...')
+
+    def test_upload_error_handles_non_json_response(self):
+        response = translator.requests.Response()
+        response.status_code = 502
+        response.reason = 'Bad Gateway'
+        response._content = b'<html>Bad Gateway</html>'
+        self.assert_failed_upload_reports(response, 'Bad Gateway')
+
+    def assert_failed_upload_reports(self, response, message):
+        api = Mock()
+        output = io.StringIO()
+        with patch.object(translator.requests, 'post', return_value=response), \
+             contextlib.redirect_stdout(output), contextlib.redirect_stderr(io.StringIO()):
+            result = translator.create_translation_session(api, Path('page.md'), 'source', 'fr', 'flow', 'workspace')
+        self.assertIsNone(result)
+        self.assertIn(f'HTTP {response.status_code}', output.getvalue())
+        self.assertIn(message, output.getvalue())
+        api.invoke_flow_response.assert_not_called()
+
+    def test_upload_rate_limit_retries_before_invoking(self):
+        api = Mock()
+        limited = Mock(status_code=429, headers={'retry-after': '1'})
+        with patch.object(translator.requests, 'post', side_effect=[limited, Mock(status_code=200)]) as upload, \
+             patch.object(translator.time, 'sleep') as sleep, contextlib.redirect_stdout(io.StringIO()):
+            result = translator.create_translation_session(api, Path('page.md'), 'source', 'fr', 'flow', 'workspace')
+        self.assertIsNotNone(result)
+        self.assertEqual(2, upload.call_count)
+        self.assertEqual(upload.call_args_list[0], upload.call_args_list[1])
+        sleep.assert_called_once_with(1)
+        api.invoke_flow_response.assert_called_once()
+
+
 class ProcessTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
