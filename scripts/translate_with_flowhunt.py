@@ -556,7 +556,16 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
         # Until the SDK is fixed upstream, post directly with `requests`.
         upload_url = f"https://api.flowhunt.io/v2/flows/sessions/{session_id}/attachments"
         upload_headers = {"Api-Key": api_key}
-        upload_files = {"file": (filename, content.encode("utf-8"), "application/octet-stream")}
+        # FlowHunt uses the part's MIME type to detect the attachment format.
+        # application/octet-stream rejects Markdown with "Error detecting file
+        # type...". All supported translation inputs are UTF-8 text; use plain
+        # text for YAML/TXT rather than platform-dependent MIME guesses.
+        content_type = {
+            '.md': 'text/markdown',
+            '.markdown': 'text/markdown',
+            '.html': 'text/html',
+        }.get(file_path.suffix.lower(), 'text/plain')
+        upload_files = {"file": (filename, content.encode("utf-8"), content_type)}
         for attempt in range(6):
             resp = requests.post(upload_url, headers=upload_headers, files=upload_files, timeout=60)
             abort_on_auth_error(resp.status_code)
@@ -565,7 +574,18 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
                 print(f"[RATE LIMIT] 429 on attachment upload, waiting {wait_time}s (attempt {attempt + 1}/5)")
                 time.sleep(min(wait_time, 60))
                 continue
-            resp.raise_for_status()
+            try:
+                resp.raise_for_status()
+            except requests.HTTPError as exc:
+                # requests' default message omits the API's useful diagnosis.
+                try:
+                    detail = resp.json().get('message') or resp.reason
+                except (ValueError, AttributeError):
+                    detail = resp.reason
+                raise requests.HTTPError(
+                    f"FlowHunt attachment upload failed (HTTP {resp.status_code}): {str(detail)[:500]}",
+                    response=resp,
+                ) from exc
             break
         print(f"[DEBUG] Uploaded file attachment for {filename} to session {session_id}")
 
