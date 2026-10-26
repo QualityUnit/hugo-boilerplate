@@ -122,7 +122,6 @@ function initConsentLegacy() {
   function setConsent(level) {
     CookieManager.set('cookie_consent_status', level, 365);
     updateAnalyticsConsent(level === 'all');
-    console.log('Cookie consent set to:', level); // Pre debugovanie
     
     // If user accepts all cookies, set YouTube GDPR consent too
     if (level === 'all' && window.flowhuntMedia && window.flowhuntMedia.video && typeof window.flowhuntMedia.video.setGdprConsent === 'function') {
@@ -279,8 +278,6 @@ function initConsentV2() {
     CookieManager.set('cookie_consent_status', all ? 'all' : 'necessary', DAYS);
     writeGranular(c);
     updateVendorConsent(c);
-    console.log('Cookie consent set:',
-      'analytics=' + c.analytics + ' marketing=' + c.marketing + ' functional=' + c.functional);
 
     // If any tracking category is granted, set YouTube GDPR consent too
     if ((c.analytics || c.marketing) && window.flowhuntMedia && window.flowhuntMedia.video &&

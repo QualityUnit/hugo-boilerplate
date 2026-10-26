@@ -122,10 +122,6 @@
       document.dispatchEvent(new CustomEvent('geo:ready', { detail: window.__geo }));
     } catch (e) { /* CustomEvent unsupported — non-critical */ }
     applyBanner(region);
-    if (window.console && console.debug) {
-      console.debug('[geo-consent] country=' + (country || '(none)') +
-        ' region=' + (region || '(none)') + ' source=' + source);
-    }
   }
 
   function run() {
