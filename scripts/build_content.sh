@@ -25,11 +25,9 @@ THEME_DIR="$(dirname "$SCRIPT_DIR")"
 HUGO_ROOT="$(dirname "$(dirname "$THEME_DIR")")"
 
 # Load scripts/.env so the settings documented in .env.example actually apply.
-# Both this script (MAX_PARALLEL_EMBED) and the Python steps it spawns
-# (HF_TOKEN, FLOWHUNT_API_KEY) read these from the environment, and only
-# three of the Python scripts call load_dotenv() themselves. Exporting here
-# covers every step uniformly. Values already set in the calling shell win,
-# so `MAX_PARALLEL_EMBED=1 ./build_content.sh` still overrides the file.
+# Python steps read settings such as HF_TOKEN and FLOWHUNT_API_KEY from the
+# environment, and only some scripts call load_dotenv() themselves. Exporting
+# here covers every step uniformly. Values already set in the calling shell win.
 if [ -f "${SCRIPT_DIR}/.env" ]; then
     while IFS= read -r env_line || [ -n "$env_line" ]; do
         # Skip blanks and comments; only accept KEY=value lines
@@ -75,8 +73,6 @@ ALL_STEPS=(
     "generate_translation_urls"
     "generate_amplify_redirects"
     "generate_related_content"
-    "generate_clustering"
-    "generate_site_audit"
     "generate_paragraph_linkbuilding"
     "preprocess_images"
 )
@@ -96,8 +92,6 @@ declare -A STEP_DESCRIPTIONS=(
     ["generate_translation_urls"]="Generate translation URL mappings"
     ["generate_amplify_redirects"]="Generate AWS Amplify redirects"
     ["generate_related_content"]="Generate related content JSON (split by section)"
-    ["generate_clustering"]="Generate website clustering visualization"
-    ["generate_site_audit"]="Generate SEO site audit (focus score, radius, outliers, duplicates)"
     ["generate_paragraph_linkbuilding"]="Generate page-local [[lnks]] linkbuilding frontmatter"
     ["preprocess_images"]="Preprocess images for web delivery"
 )
@@ -130,7 +124,7 @@ install_python_requirements() {
 }
 
 # Steps that should be unchecked by default
-UNCHECKED_BY_DEFAULT=("offload_images" "find_duplicate_images" "generate_clustering" "generate_site_audit" "generate_paragraph_linkbuilding" "preprocess_images" "drop_all_keywords")
+UNCHECKED_BY_DEFAULT=("offload_images" "find_duplicate_images" "generate_paragraph_linkbuilding" "preprocess_images" "drop_all_keywords")
 
 # Interactive checkbox menu function
 show_interactive_menu() {
@@ -355,11 +349,6 @@ fi
 STEPS_TO_RUN=()
 SKIP_MENU=false
 MAX_PARALLEL_TRANSLATIONS=100  # Default value for parallel translation processes
-# Cap for embedding-heavy steps (site_audit, clustering).
-# Each background worker loads a sentence-transformer model (~1–2 GB resident),
-# so fanning out across all 20+ language dirs at once OOMs the machine.
-# Override via env.
-MAX_PARALLEL_EMBED="${MAX_PARALLEL_EMBED:-3}"
 while [[ $# -gt 0 ]]; do
     case $1 in
         --step|--steps)
@@ -387,10 +376,6 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Environment variables:"
             echo "  FLOWHUNT_API_KEY           Required for the 'translate' step (or set in scripts/.env)"
-            echo "  MAX_PARALLEL_EMBED         Cap on parallel embedding workers for ML-heavy steps"
-            echo "                             (clustering, site_audit). Default: 3"
-            echo "                             Each worker loads ~1-2 GB sentence-transformer model — lower"
-            echo "                             this on machines with <32 GB RAM to avoid OOM/swap pressure."
             echo ""
             echo "Available steps:"
             for step in "${ALL_STEPS[@]}"; do
@@ -640,120 +625,6 @@ print(f'Done. Dropped keywords from {dropped} files.')
             "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_related_content.py" --path "${HUGO_ROOT}/content" --hugo-root "${HUGO_ROOT}" --exclude-sections "author"
             echo -e "${GREEN}Related content JSON generation completed!${NC}"
             echo -e "${YELLOW}[DEBUG] Step generate_related_content finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            ;;
-        generate_clustering)
-            echo -e "${BLUE}=== Step 4.2: Generating Website Clustering Visualization ===${NC}"
-            echo -e "${YELLOW}Running clustering generation for all languages...${NC}"
-
-            # Start clustering in parallel, capped at MAX_PARALLEL_EMBED workers
-            # to avoid OOM (each worker loads a ~1–2 GB sentence-transformer model).
-            echo -e "${YELLOW}Starting clustering generation (max ${MAX_PARALLEL_EMBED} parallel)...${NC}"
-            pids=()
-            active=0
-
-            for lang_dir in "${HUGO_ROOT}/content"/*; do
-                if [ -d "$lang_dir" ]; then
-                    lang=$(basename "$lang_dir")
-                    echo -e "${YELLOW}[DEBUG] Starting clustering generation for language: $lang${NC}"
-
-                    # Run clustering in background (with virtual environment)
-                    # Set env vars to avoid multiprocessing semaphore leaks
-                    (
-                        TOKENIZERS_PARALLELISM=false OMP_NUM_THREADS=1 \
-                        "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_clustering.py" \
-                            --lang "$lang" \
-                            --hugo-root "${HUGO_ROOT}" \
-                            --exclude-sections author 2>&1 | \
-                            sed "s/^/[$lang] /"
-
-                        if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                            echo -e "${GREEN}[$lang] Clustering generated successfully${NC}"
-                        else
-                            echo -e "${YELLOW}[$lang] Warning: Failed to generate clustering${NC}"
-                        fi
-                    ) &
-
-                    pids+=($!)
-                    active=$((active + 1))
-                    if (( active >= MAX_PARALLEL_EMBED )); then
-                        wait -n 2>/dev/null || wait "${pids[0]}"
-                        active=$((active - 1))
-                    fi
-                fi
-            done
-
-            # Wait for remaining background processes
-            echo -e "${YELLOW}Waiting for remaining language clustering to complete...${NC}"
-            failed_langs=()
-            for pid in "${pids[@]}"; do
-                wait $pid
-                if [ $? -ne 0 ]; then
-                    failed_langs+=("$pid")
-                fi
-            done
-
-            # Report results
-            if [ ${#failed_langs[@]} -eq 0 ]; then
-                echo -e "${GREEN}All clustering generations completed successfully!${NC}"
-            else
-                echo -e "${YELLOW}Some clustering generations failed, but continuing...${NC}"
-            fi
-
-            echo -e "${GREEN}Clustering generation completed!${NC}"
-            echo -e "${YELLOW}[DEBUG] Step generate_clustering finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            ;;
-        generate_site_audit)
-            echo -e "${BLUE}=== Step 4.3: Generating SEO Site Audit ===${NC}"
-            echo -e "${YELLOW}Computing siteFocusScore, siteRadius, outliers, near-duplicates (max ${MAX_PARALLEL_EMBED} parallel)...${NC}"
-
-            pids=()
-            active=0
-
-            for lang_dir in "${HUGO_ROOT}/content"/*; do
-                if [ -d "$lang_dir" ]; then
-                    lang=$(basename "$lang_dir")
-                    echo -e "${YELLOW}[DEBUG] Starting site audit for language: $lang${NC}"
-
-                    (
-                        TOKENIZERS_PARALLELISM=false OMP_NUM_THREADS=1 \
-                        "${VENV_DIR}/bin/python" "${SCRIPT_DIR}/generate_site_audit.py" \
-                            --lang "$lang" \
-                            --hugo-root "${HUGO_ROOT}" 2>&1 | \
-                            sed "s/^/[$lang] /"
-
-                        if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                            echo -e "${GREEN}[$lang] Site audit generated successfully${NC}"
-                        else
-                            echo -e "${YELLOW}[$lang] Warning: Failed to generate site audit${NC}"
-                        fi
-                    ) &
-
-                    pids+=($!)
-                    active=$((active + 1))
-                    if (( active >= MAX_PARALLEL_EMBED )); then
-                        wait -n 2>/dev/null || wait "${pids[0]}"
-                        active=$((active - 1))
-                    fi
-                fi
-            done
-
-            echo -e "${YELLOW}Waiting for remaining language site audits to complete...${NC}"
-            failed_langs=()
-            for pid in "${pids[@]}"; do
-                wait $pid
-                if [ $? -ne 0 ]; then
-                    failed_langs+=("$pid")
-                fi
-            done
-
-            if [ ${#failed_langs[@]} -eq 0 ]; then
-                echo -e "${GREEN}All site audits completed successfully!${NC}"
-            else
-                echo -e "${YELLOW}Some site audits failed, but continuing...${NC}"
-            fi
-
-            echo -e "${GREEN}Site audit generation completed!${NC}"
-            echo -e "${YELLOW}[DEBUG] Step generate_site_audit finished at $(date '+%Y-%m-%d %H:%M:%S')${NC}"
             ;;
         build_hugo)
             echo -e "${BLUE}=== Step 2: Building Hugo Site (All Languages) ===${NC}"
