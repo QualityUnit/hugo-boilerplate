@@ -14,6 +14,48 @@ with patch.dict(os.environ, {'FLOWHUNT_API_KEY': 'test-not-a-real-key'}):
         import translate_with_flowhunt as translator
 
 
+class WorkspaceTests(unittest.TestCase):
+    def test_cli_override_does_not_query_api(self):
+        with patch.object(translator, 'DEFAULT_WORKSPACE_ID', 'env-workspace'), \
+             patch.object(translator, 'initialize_api_client') as client:
+            self.assertEqual('cli-workspace', translator.get_workspace_id('cli-workspace'))
+        client.assert_not_called()
+
+    def test_env_override_does_not_query_api(self):
+        with patch.object(translator, 'DEFAULT_WORKSPACE_ID', 'env-workspace'), \
+             patch.object(translator, 'initialize_api_client') as client:
+            self.assertEqual('env-workspace', translator.get_workspace_id())
+        client.assert_not_called()
+
+    def test_default_workspace_comes_from_authenticated_key(self):
+        api = Mock()
+        api.get_user.return_value.api_key_workspace_id = 'key-workspace'
+        with patch.object(translator, 'DEFAULT_WORKSPACE_ID', None), \
+             patch.object(translator, 'initialize_api_client'), \
+             patch.object(translator.flowhunt, 'WebAuthApi', return_value=api):
+            self.assertEqual('key-workspace', translator.get_workspace_id())
+        api.get_user.assert_called_once_with(_request_timeout=60)
+
+    def test_missing_workspace_stops_without_hardcoded_fallback(self):
+        api = Mock()
+        api.get_user.return_value.api_key_workspace_id = None
+        with patch.object(translator, 'DEFAULT_WORKSPACE_ID', None), \
+             patch.object(translator, 'initialize_api_client'), \
+             patch.object(translator.flowhunt, 'WebAuthApi', return_value=api):
+            with self.assertRaisesRegex(SystemExit, 'did not return a workspace'):
+                translator.get_workspace_id()
+
+    def test_invalid_key_stops_workspace_discovery(self):
+        api = Mock()
+        api.get_user.side_effect = translator.flowhunt.exceptions.ApiException(status=401)
+        with patch.object(translator, 'DEFAULT_WORKSPACE_ID', None), \
+             patch.object(translator, 'initialize_api_client'), \
+             patch.object(translator.flowhunt, 'WebAuthApi', return_value=api):
+            with self.assertRaisesRegex(SystemExit, 'HTTP 401'):
+                translator.get_workspace_id()
+        api.get_user.assert_called_once()
+
+
 class ProcessTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

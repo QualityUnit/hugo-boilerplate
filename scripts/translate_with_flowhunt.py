@@ -92,18 +92,9 @@ if not api_key:
 # Override with FLOWHUNT_FLOW_ID or --flow-id.
 DEFAULT_FLOW_ID = os.getenv('FLOWHUNT_FLOW_ID', '9df82032-0c90-4a60-8538-5d724590562b')
 
-# Workspace that owns the translation flow.
-#
-# FlowHunt API keys are scoped to a single workspace — a key issued in
-# workspace A cannot act on workspace B, and every workspace-scoped call
-# (create_flow_session, GET /v2/flows/{id}, …) answers 401 while unscoped ones
-# like /v2/credits/balance still return 200. That asymmetry makes it look like
-# a bad key when it is really a workspace mismatch.
-#
-# Hard-coding LiveAgentWP here forced every downstream project to use a key
-# from that one workspace. Override with FLOWHUNT_WORKSPACE_ID or
-# --workspace-id to point at the workspace your own key belongs to.
-DEFAULT_WORKSPACE_ID = os.getenv('FLOWHUNT_WORKSPACE_ID', '70ff1135-5ce6-42a7-8abe-ec03f58e828e')
+# Optional explicit override. Otherwise resolve the workspace linked to the
+# authenticated API key via /v2/auth/me; unrelated hardcoded IDs cause 401s.
+DEFAULT_WORKSPACE_ID = os.getenv('FLOWHUNT_WORKSPACE_ID')
 
 # Map of folder names to full language names
 LANGUAGE_MAP = {
@@ -214,17 +205,23 @@ def retry_on_429(func, *args, max_retries=5, default_wait=2, **kwargs):
 
 
 def get_workspace_id(workspace_id=None):
-    # If a workspace ID is provided, use it directly
+    """Prefer explicit configuration, otherwise use the API key's workspace."""
     if workspace_id:
         return workspace_id
-
-    # Use the default workspace ID for LiveAgent
     if DEFAULT_WORKSPACE_ID:
         return DEFAULT_WORKSPACE_ID
 
-    # No fallback available - DEFAULT_WORKSPACE_ID must be set
-    print("Error: No workspace ID available. DEFAULT_WORKSPACE_ID must be set.")
-    return None
+    with initialize_api_client() as api_client:
+        user = retry_on_429(
+            flowhunt.WebAuthApi(api_client).get_user,
+            _request_timeout=60,
+        )
+    if not user.api_key_workspace_id:
+        raise SystemExit(
+            "FlowHunt did not return a workspace linked to this API key. "
+            "Set FLOWHUNT_WORKSPACE_ID or --workspace-id explicitly."
+        )
+    return user.api_key_workspace_id
     
 
 def is_translatable_file(file_path):
@@ -1350,9 +1347,8 @@ Examples:
     )
     parser.add_argument(
         "--workspace-id",
-        help="FlowHunt workspace that owns the flow. Must be the workspace the "
-             "API key was issued in — a key from another workspace gets 401 on "
-             "every workspace-scoped call (default: %(default)s)",
+        help="FlowHunt workspace override (default: FLOWHUNT_WORKSPACE_ID, "
+             "otherwise detected from the API key via /v2/auth/me)",
         default=DEFAULT_WORKSPACE_ID
     )
     parser.add_argument(
