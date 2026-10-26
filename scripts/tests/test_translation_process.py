@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 with patch.dict(os.environ, {'FLOWHUNT_API_KEY': 'test-not-a-real-key'}):
@@ -70,6 +70,43 @@ class ProcessTests(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 translator.process_translations(self.tasks, 'flow', 'workspace', 1)
         self.assertEqual(1, create.call_count)
+
+    def test_auth_failure_stops_batch_after_first_request(self):
+        for status in (401, 403):
+            with self.subTest(status=status):
+                api = Mock()
+                api.create_flow_session.side_effect = translator.flowhunt.exceptions.ApiException(status=status)
+                with patch.object(translator, 'initialize_api_client'), \
+                     patch.object(translator.flowhunt, 'FlowsApi', return_value=api), \
+                     contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaisesRegex(SystemExit, 'FLOWHUNT_WORKSPACE_ID'):
+                        translator.process_translations(self.tasks, 'flow', 'workspace', 2)
+                self.assertEqual(1, api.create_flow_session.call_count)
+                api.invoke_flow_response.assert_not_called()
+                self.assertFalse(self.tasks[0][3].exists())
+
+    def test_attachment_auth_failure_stops_before_invoke(self):
+        api = Mock()
+        response = Mock(status_code=401)
+        with patch.object(translator.requests, 'post', return_value=response) as upload, \
+             contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(SystemExit, 'HTTP 401'):
+                translator.create_translation_session(api, self.tasks[0][0], 'source', 'fr', 'flow', 'workspace')
+        upload.assert_called_once()
+        api.invoke_flow_response.assert_not_called()
+
+    def test_poll_auth_failure_is_not_swallowed(self):
+        api = Mock()
+        api.poll_flow_response_without_preload_content.side_effect = translator.flowhunt.exceptions.ApiException(status=401)
+        with self.assertRaisesRegex(SystemExit, 'HTTP 401'):
+            translator.check_session_results(api, {'session_id': 'session', 'start_time': translator.time.time()})
+
+    def test_rate_limit_still_retries(self):
+        request = Mock(side_effect=[translator.flowhunt.exceptions.ApiException(status=429), 'ok'])
+        with patch.object(translator.time, 'sleep') as sleep, contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual('ok', translator.retry_on_429(request))
+        self.assertEqual(2, request.call_count)
+        sleep.assert_called_once_with(2)
 
 
 if __name__ == '__main__':

@@ -174,6 +174,19 @@ LANGUAGE_MAP = {
 
 
 
+def abort_on_auth_error(status):
+    """Stop the whole batch: retrying another file cannot fix API access."""
+    if status in (401, 403):
+        raise SystemExit(
+            f"FlowHunt access denied (HTTP {status}). Translation stopped. "
+            "Check FLOWHUNT_API_KEY, FLOWHUNT_WORKSPACE_ID and FLOWHUNT_FLOW_ID "
+            f"in {env_path} (exported environment variables take precedence), "
+            "or --workspace-id / --flow-id. The API key must have access to the "
+            "workspace that owns the translation flow; even a key that passes "
+            "the credits check may be denied access to that workspace."
+        )
+
+
 def retry_on_429(func, *args, max_retries=5, default_wait=2, **kwargs):
     """
     Call func(*args, **kwargs) and retry on 429 (Too Many Requests) errors.
@@ -183,6 +196,7 @@ def retry_on_429(func, *args, max_retries=5, default_wait=2, **kwargs):
         try:
             return func(*args, **kwargs)
         except flowhunt.exceptions.ApiException as e:
+            abort_on_auth_error(e.status)
             if e.status == 429 and attempt < max_retries:
                 # Parse retry-after from headers if available
                 wait_time = default_wait
@@ -548,6 +562,7 @@ def create_translation_session(api_instance, file_path, content, target_lang, fl
         upload_files = {"file": (filename, content.encode("utf-8"), "application/octet-stream")}
         for attempt in range(6):
             resp = requests.post(upload_url, headers=upload_headers, files=upload_files, timeout=60)
+            abort_on_auth_error(resp.status_code)
             if resp.status_code == 429 and attempt < 5:
                 wait_time = max(int(resp.headers.get("retry-after", "2") or "2"), 1)
                 print(f"[RATE LIMIT] 429 on attachment upload, waiting {wait_time}s (attempt {attempt + 1}/5)")
