@@ -77,7 +77,8 @@
 {{ $year := now.Format "2006" }}
 {{ $description := replace (or $page.Params.description $page.Description) "[year]" $year }}
 {{ if not $description }}
-  {{ $description = $page.Summary | plainify | replaceRE `{{<[^>]*>}}` "" | replaceRE `{{[^}]*}}` "" | replaceRE `<[^>]*>` "" | replaceRE `[\r\n\t]+` " " }}
+  {{/* replaceRE turns plainify's safe HTML into a plain string, so unescape it to avoid double escaping */}}
+  {{ $description = $page.Summary | plainify | replaceRE `{{<[^>]*>}}` "" | replaceRE `{{[^}]*}}` "" | replaceRE `<[^>]*>` "" | replaceRE `[\r\n\t]+` " " | htmlUnescape }}
 {{ end }}
 {{ if gt (len $description) $descriptionLength }}
   {{ $description = printf "%.*s..." $descriptionLength $description }}
