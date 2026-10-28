@@ -1,5 +1,9 @@
 {{- $.Scratch.Add "index" slice -}}
+{{- /* [year] in titles and descriptions is replaced like in head.html */ -}}
+{{- $year := now.Format "2006" -}}
 {{- range .Site.RegularPages -}}
+{{- $description := .Params.description -}}
+{{- with $description }}{{ $description = replace . "[year]" $year }}{{ end -}}
 {{- $dir := "" -}}
 {{- if .File -}}
   {{- $path := .File.Dir -}}
@@ -8,11 +12,13 @@
     {{- $dir = replaceRE "/$" "" $dir -}}
   {{- end -}}
 {{- end -}}
-{{- $.Scratch.Add "index" (dict "title" .Title "tags" .Params.tags "categories" .Params.categories "content" .Params.description "permalink" .Permalink "readingTime" .ReadingTime "date" (partial "helpers/format-date.html" (dict "date" .Date)) "dir" $dir "image" .Params.image) -}}
+{{- $.Scratch.Add "index" (dict "title" (replace .Title "[year]" $year) "tags" .Params.tags "categories" .Params.categories "content" $description "permalink" .Permalink "readingTime" .ReadingTime "date" (partial "helpers/format-date.html" (dict "date" .Date)) "dir" $dir "image" .Params.image) -}}
 {{- end -}}
 {{- /* Include taxonomy terms (e.g., components) in the search index */ -}}
 {{- range $taxonomy := .Site.Taxonomies -}}
   {{- range $term := $taxonomy -}}
+    {{- $description := $term.Page.Params.description -}}
+    {{- with $description }}{{ $description = replace . "[year]" $year }}{{ end -}}
     {{- $dir := "" -}}
     {{- if $term.Page.File -}}
       {{- $path := $term.Page.File.Dir -}}
@@ -21,7 +27,7 @@
         {{- $dir = replaceRE "/$" "" $dir -}}
       {{- end -}}
     {{- end -}}
-    {{- $.Scratch.Add "index" (dict "title" $term.Page.Title "tags" $term.Page.Params.tags "categories" $term.Page.Params.categories "content" $term.Page.Params.description "permalink" $term.Page.Permalink "readingTime" $term.Page.ReadingTime "date" (partial "helpers/format-date.html" (dict "date" $term.Page.Date)) "dir" $dir "image" $term.Page.Params.image) -}}
+    {{- $.Scratch.Add "index" (dict "title" (replace $term.Page.Title "[year]" $year) "tags" $term.Page.Params.tags "categories" $term.Page.Params.categories "content" $description "permalink" $term.Page.Permalink "readingTime" $term.Page.ReadingTime "date" (partial "helpers/format-date.html" (dict "date" $term.Page.Date)) "dir" $dir "image" $term.Page.Params.image) -}}
   {{- end -}}
 {{- end -}}
 {{- $.Scratch.Get "index" | jsonify -}}

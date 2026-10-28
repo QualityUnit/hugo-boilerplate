@@ -73,7 +73,9 @@
 {{ $showImages := .showImages | default true }}
 
 {{/* Description */}}
-{{ $description := or $page.Params.description $page.Description }}
+{{/* [year] in title/description is replaced like in head.html; the summary fallback is body text and keeps it */}}
+{{ $year := now.Format "2006" }}
+{{ $description := replace (or $page.Params.description $page.Description) "[year]" $year }}
 {{ if not $description }}
   {{ $description = $page.Summary | plainify | replaceRE `{{<[^>]*>}}` "" | replaceRE `{{[^}]*}}` "" | replaceRE `<[^>]*>` "" | replaceRE `[\r\n\t]+` " " }}
 {{ end }}
@@ -93,14 +95,15 @@
 {{ $icon := .icon | default "" }}
 {{ $iconClass := .iconClass | default "w-5 h-5 text-gray-900 shrink-0" }}
 
-{{ $displayTitle := $page.Params.title_for_list | default $page.Params.term | default $page.Title }}
+{{ $title := replace $page.Title "[year]" $year }}
+{{ $displayTitle := replace ($page.Params.title_for_list | default $page.Params.term | default $page.Title) "[year]" $year }}
 <article class="group relative rounded-2xl flex flex-col surface-secondary shadow-lg border border-gray-primary overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-1 {{ $cardClasses }}">
   <a href="{{ $permalink }}" class="absolute inset-0" aria-label="Read more: {{ $displayTitle }}">
     <span class="sr-only">{{ $displayTitle }}</span>
   </a>
   {{ if and $image $showImages }}
     <div class="{{ $imageWrapperClasses }}">
-      {{ partial "components/media/lazyimg.html" (dict "src" $image "alt" $page.Title "class" $imageClasses "classPicture" $classPicture "loading" "lazy" "decoding" "async") }}
+      {{ partial "components/media/lazyimg.html" (dict "src" $image "alt" $title "class" $imageClasses "classPicture" $classPicture "loading" "lazy" "decoding" "async") }}
     </div>
   {{ end }}
 
