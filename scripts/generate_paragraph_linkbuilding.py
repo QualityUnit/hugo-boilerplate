@@ -929,6 +929,8 @@ def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0, html_ro
     404, and the injector could not apply the page's own links either.
     """
     pages: list[Page] = []
+    # Pages left out still have teaser cards on other pages (description -> url).
+    left_out: dict[str, set[str]] = {}
     not_built = 0
     for file_path in _content_files(content_dir, max_pages=max_pages):
         raw = file_path.read_text(encoding="utf-8")
@@ -939,6 +941,8 @@ def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0, html_ro
         if not title and not description:
             continue
         if _is_hidden_page(meta) or _is_site_noindex(file_path, content_dir):
+            if description and html_root is not None:
+                left_out.setdefault(_teaser_key(description), set()).add(_url_for_file(file_path, content_dir, meta))
             continue
         url = _url_for_file(file_path, content_dir, meta)
         if _is_nav_url(url, rules):
@@ -1006,7 +1010,7 @@ def _load_pages(content_dir: Path, rules: SiteRules, max_pages: int = 0, html_ro
     if not_built:
         print(f"[{content_dir.name}] {not_built} content files have no built page under {html_root}: left out")
     if html_root is not None:
-        _drop_teaser_paragraphs(pages, content_dir.name)
+        _drop_teaser_paragraphs(pages, content_dir.name, left_out)
     return pages
 
 
@@ -1014,7 +1018,7 @@ def _teaser_key(text: str) -> str:
     return _normalize_space(text.replace("’", "'")).casefold()
 
 
-def _drop_teaser_paragraphs(pages: list[Page], lang: str) -> None:
+def _drop_teaser_paragraphs(pages: list[Page], lang: str, left_out: dict[str, set[str]] | None = None) -> None:
     """HTML path: drop paragraphs that are another page's ``description``.
 
     Templates render related-article cards and teaser blocks inside <main>; their text
@@ -1022,8 +1026,11 @@ def _drop_teaser_paragraphs(pages: list[Page], lang: str) -> None:
     prose, such a paragraph fits exactly that page and yields a second link to it
     (1 003 of 42 371 EN paragraphs). The page's own description (the hero line) stays,
     also when another page carries the same description.
+
+    ``left_out`` holds the descriptions of pages kept out of the pool (noindex): their
+    cards are still rendered on other pages and stay without links too.
     """
-    owners: dict[str, set[str]] = {}
+    owners: dict[str, set[str]] = {key: set(urls) for key, urls in (left_out or {}).items()}
     for page in pages:
         if page.description:
             owners.setdefault(_teaser_key(page.description), set()).add(page.url)

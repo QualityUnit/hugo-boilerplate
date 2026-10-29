@@ -71,6 +71,30 @@ class NoindexTargets(unittest.TestCase):
                            '[other]\n  noindexSections = ["landing"]\n')
         self.assertEqual(loaded, {"kept.md", "landing/ad.md"})
 
+    def test_cards_of_left_out_pages_stay_without_links(self):
+        # HTML path: a card on another page shows the left-out page's description; it is
+        # not prose, as for a card of a page that takes part.
+        ad = "Small teams answer every customer from one shared inbox, with live chat, email and calls in one simple help desk."
+        root = Path(self.tmp.name)
+        public = root / "public"
+        (public / "kept").mkdir(parents=True)
+        (public / "kept" / "index.html").write_text(
+            f"<main><p>{BODY.strip()} Agents see the whole history of each customer before they reply to a ticket.</p>"
+            f"<p>{ad}</p></main>", encoding="utf-8")
+        (root / "config" / "_default").mkdir(parents=True)
+        (root / "config" / "_default" / "params.toml").write_text(
+            '[indexing]\n  noindexSections = ["landing"]\n', encoding="utf-8")
+        content = root / "content" / "en"
+        (content / "landing").mkdir(parents=True)
+        (content / "kept.md").write_text(page("Kept"), encoding="utf-8")
+        (content / "landing" / "ad.md").write_text(
+            f'+++\ntitle = "Ad"\ndescription = "{ad}"\nurl = "/landing/ad/"\n+++\n', encoding="utf-8")
+        g._site_indexing.cache_clear()
+        pages = quiet(g._load_pages, content, theme_rules("en"), html_root=public)
+        self.assertEqual([p.rel_path for p in pages], ["kept.md"])
+        self.assertEqual(len(pages[0].paragraphs), 1)
+        self.assertNotIn("shared inbox", pages[0].paragraphs[0])
+
     def test_params_in_hugo_toml_count_too(self):
         loaded = self.load({"kept.md": page("Kept"), "landing/ad.md": page("Ad")},
                            '[params.indexing]\n  noindexSections = ["landing"]\n', config_name="hugo.toml")
