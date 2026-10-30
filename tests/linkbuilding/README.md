@@ -32,6 +32,7 @@ target the model would prefer.
 | `test_requirements.py` | `tests/linkbuilding/requirements.txt` names each package with the same version bounds as `scripts/requirements.txt` |
 | `test_canonical_phrases.py` | `canonical-phrases.toml`: the loader, the injector's priority (below `[[lnks]]`, above `<lang>.json`), the generator giving a phrase to its owner only, the multi-target report; end to end on the markdown fixture |
 | `test_strict_anchors.py` | `strict_anchor_languages`: an anchor is exactly a canonical phrase or keyword of its target; keywords are kept whole; title, slug and windows give no link; the markdown path warns and stays unchanged |
+| `test_noindex_targets.py` | Pages kept out of search results take no part: front matter (`noindex`, `robots`) and the site's `indexing` params (`noindexSections`, `noindexPaths`; section pages, leaf bundles, case like Hugo); their cards on other pages are not prose |
 | `test_markdown_fixture.py` | Markdown path on 10 English pages: output byte-identical (`fixtures/markdown-en`) |
 | `test_html_cjk_fixture.py` | HTML path end to end on a small Japanese and Chinese site, generator then injector; one-word keywords never get a link (`fixtures/html-cjk`) |
 
