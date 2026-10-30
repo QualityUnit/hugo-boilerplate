@@ -319,5 +319,142 @@ class TranslationWithoutGeneratedLinksTests(unittest.TestCase):
         self.assertEqual(PAGE_WITHOUT_LINKS, create.call_args_list[1].args[2])
 
 
+
+PAGE_WITH_HEADINGS = '''+++
+title = "Pricing"
++++
+## Plans
+
+{{< table-simple >}}
+{{< /table-simple >}}
+
+## Testimonials
+
+## FAQ
+'''
+
+
+LANDING_PAGE = '''+++
+title = "Affiliate software"
++++
+{{< hero-split-with-image title="Hero" >}}
+
+{{< scroll-tabs >}}
+Tabs
+{{< /scroll-tabs >}}
+
+{{< testimonials-with-awards title="Reviews" >}}
+
+{{< pricing-two-tiers-with-cta title="Pricing" >}}
+'''
+
+
+class TruncatedTranslationTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.content = Path(self.temp.name) / 'content'
+        self.source = self.content / 'en/pricing.md'
+        self.source.parent.mkdir(parents=True)
+        self.source.write_text(PAGE_WITH_HEADINGS, encoding='utf-8')
+        (self.content / 'de').mkdir()
+        self.target = self.content / 'de/pricing.md'
+        self.report = Path(self.temp.name) / 'report.md'
+
+    def run_process(self, results):
+        tasks = [(self.source, PAGE_WITH_HEADINGS, 'de', self.target)]
+        env = {'TRANSLATION_REPORT_FILE': str(self.report),
+               'GITHUB_STEP_SUMMARY': '', 'TRANSLATION_CHECKPOINT_COMMAND': '',
+               'TRANSLATION_TIME_BUDGET_SECONDS': '0', 'TRANSLATION_DEADLINE_EPOCH': ''}
+        with patch.dict(os.environ, env), \
+             patch.dict(translator._URL_INDEX_CACHE, clear=True), \
+             patch.object(translator, 'initialize_api_client'), \
+             patch.object(translator.flowhunt, 'FlowsApi'), \
+             patch.object(translator, 'create_translation_session', side_effect=[
+                 {'session_id': str(i)} for i in range(len(results))]) as create, \
+             patch.object(translator, 'check_session_results',
+                          side_effect=[(True, r) for r in results]), \
+             patch.object(translator.time, 'sleep'), \
+             contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            translator.process_translations(tasks, 'flow', 'workspace', 1)
+        return create
+
+    def run_landing(self, results):
+        self.source.write_text(LANDING_PAGE, encoding='utf-8')
+        return self.run_process(results)
+
+    def test_landing_page_cut_after_a_shortcode_is_not_written(self):
+        cut = LANDING_PAGE.split('{{< testimonials-with-awards')[0]
+        self.run_landing([cut] * translator.MAX_TASK_ATTEMPTS)
+        self.assertFalse(self.target.exists())
+        self.assertIn('has the first 2 of 4 shortcodes', self.report.read_text())
+
+    def test_landing_page_missing_a_middle_shortcode_is_written(self):
+        # Not a cut-off: the text goes on after the gap. Written and reported.
+        gap = LANDING_PAGE.replace('{{< testimonials-with-awards title="Reviews" >}}\n', '')
+        self.run_landing([gap])
+        self.assertEqual(gap.strip(), self.target.read_text(encoding='utf-8'))
+        self.assertIn('| Structural problems in the body | **1** |', self.report.read_text())
+
+    def test_article_without_its_last_image_is_written(self):
+        # The flow drops images from fully translated articles; that is not a
+        # cut-off, the text after the last kept shortcode is all there.
+        article = LANDING_PAGE + '\n' + 'Long closing paragraph. ' * 20 + \
+            '\n\n{{< lazyimg src="/x.webp" >}}\n'
+        no_image = article.split('{{< lazyimg')[0]
+        self.source.write_text(article, encoding='utf-8')
+        self.run_process([no_image])
+        self.assertEqual(no_image.strip(), self.target.read_text(encoding='utf-8'))
+        self.assertIn('| Truncated, not written | **0** |', self.report.read_text())
+
+    def test_article_cut_mid_sentence_is_not_written(self):
+        article = '+++\ntitle = "Tips"\n+++\nFirst paragraph.\n\nThen we discussed the importance of tracking.\n'
+        cut = article.replace('the importance of tracking.\n', '')
+        self.source.write_text(article, encoding='utf-8')
+        self.run_process([cut] * translator.MAX_TASK_ATTEMPTS)
+        self.assertFalse(self.target.exists())
+        self.assertIn("ends mid-sentence ('Then we discussed')", self.report.read_text())
+
+    def test_list_item_without_full_stop_is_written(self):
+        # Japanese and Korean list items end without a full stop.
+        article = '+++\ntitle = "Tools"\n+++\nIntro.\n\n- **Tableau**: run EDA with charts.\n'
+        translated = '+++\ntitle = "Tools"\n+++\nIntro.\n\n- **Tableau**: 대화형 시각화로 EDA를 수행할 수 있음\n'
+        self.source.write_text(article, encoding='utf-8')
+        self.run_process([translated])
+        self.assertTrue(self.target.exists())
+
+    def truncated(self):
+        return PAGE_WITH_HEADINGS.split('## Testimonials')[0]
+
+    def test_truncated_translation_is_retried_and_never_written(self):
+        create = self.run_process([self.truncated()] * translator.MAX_TASK_ATTEMPTS)
+        self.assertEqual(translator.MAX_TASK_ATTEMPTS, create.call_count)
+        self.assertFalse(self.target.exists())
+        report = self.report.read_text()
+        self.assertIn('| Translated | **0** |', report)
+        self.assertIn('| Truncated, not written | **1** warning |', report)
+        self.assertIn('| Never arrived | **0** |', report)
+        self.assertIn(f'- `de` - `{self.target}`', report)
+        self.assertIn('has 1 H2 heading(s), the english source has 3', report)
+
+    def test_complete_retry_is_written(self):
+        create = self.run_process([self.truncated(), PAGE_WITH_HEADINGS])
+        self.assertEqual(2, create.call_count)
+        self.assertEqual(PAGE_WITH_HEADINGS.strip(), self.target.read_text(encoding='utf-8'))
+        report = self.report.read_text()
+        self.assertIn('| Translated | **1** |', report)
+        self.assertIn('| Truncated, not written | **0** |', report)
+        self.assertIn('| Retried | 1 |', report)
+
+    def test_other_body_problems_are_written_and_reported(self):
+        broken = PAGE_WITH_HEADINGS.replace('{{< /table-simple >}}', '{{< /table-simple > %}')
+        create = self.run_process([broken])
+        self.assertEqual(1, create.call_count)
+        self.assertEqual(broken.strip(), self.target.read_text(encoding='utf-8'))
+        report = self.report.read_text()
+        self.assertIn('| Structural problems in the body | **1** |', report)
+        self.assertIn('malformed shortcode delimiter', report)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -16,6 +16,10 @@ deterministic to repair - a missing brace could belong in several places - so
 this module only reports. The caller writes the file anyway and says loudly
 what is wrong, on the same principle as the frontmatter guard: a broken file
 can be fixed in the PR, a missing one has to be translated again.
+
+The one exception is a truncated translation (see is_truncated()). Nobody
+fixes a missing half of a page by hand in the PR, it ships as it is, so the
+caller retries it and does not write it at all.
 """
 
 import json
@@ -26,6 +30,10 @@ import re
 # Length is NOT such an invariant - Russian runs ~65% longer than English on the
 # same page and Vietnamese ~45%, so comparing sizes would only produce noise.
 _HEADING_RE = re.compile(r'^(#{2,6})\s+\S', re.M)
+
+# Appended to a problem that means the translation stopped part-way;
+# is_truncated() looks for it.
+TRUNCATED_NOTE = ' - the translation looks truncated'
 
 # Opening shortcode: {{< name ... >}} or {{% name ... %}}, closing: {{< /name >}}
 _OPEN_RE = re.compile(r'\{\{[<%]\s*(?!/)([a-zA-Z0-9_-]+)')
@@ -86,6 +94,50 @@ def _heading_counts(text):
     return counts
 
 
+# A translation is 0.9-1.7x as long as the English text, so less than half of
+# the source's text after the last shared shortcode means it stopped there.
+TRUNCATED_TAIL_RATIO = 0.5
+
+
+def _tail_len(text, opens):
+    """Length of the text from the last of ``opens`` to the end."""
+    return len(text) - (opens[-1].start() if opens else 0)
+
+
+def _body(text):
+    """The text below the +++ frontmatter, stripped."""
+    parts = (text or '').split('+++', 2)
+    return (parts[2] if len(parts) == 3 and not parts[0].strip() else text or '').strip()
+
+
+# Closing characters allowed after the full stop that ends the source.
+_CLOSERS = ')]*_"\'”»'
+
+# A list item or table row: "- x", "* x", "+ x", "1. x", "| x |".
+_LIST_OR_TABLE_RE = re.compile(r'\s*([-*+]\s|\d+[.)]\s|\|)')
+
+
+def _ends_mid_sentence(text, reference):
+    """
+    True when the source ends a sentence and the translation stops in one.
+
+    Catches the cut-off neither the heading nor the shortcode check sees: the
+    flow dropping only the last sentence or two of an article, e.g.
+    "...Daarna bespraken we het belang van".
+    """
+    mine, theirs = _body(text), _body(reference)
+    if not theirs:
+        return False
+    if not mine:
+        return True
+    # Only a closing paragraph: list items and table rows end without a full
+    # stop in many languages (Japanese, Korean) even when the English has one.
+    if _LIST_OR_TABLE_RE.match(theirs.splitlines()[-1]):
+        return False
+    return (theirs.rstrip(_CLOSERS)[-1:] in '.!?'
+            and (mine[-1].isalpha() or mine[-1] in ',;—–'))
+
+
 def check_body(text, reference=None):
     """
     Report structural problems in a translated body.
@@ -115,7 +167,7 @@ def check_body(text, reference=None):
             if got != want:
                 problems.append(
                     f'has {got} H{level} heading(s), the english source has {want}'
-                    + (' - the translation looks truncated' if got < want else ''))
+                    + (TRUNCATED_NOTE if got < want else ''))
 
     def counts(t):
         opens = {}
@@ -129,6 +181,28 @@ def check_body(text, reference=None):
     opens, closes = counts(text)
 
     if reference is not None:
+        # Landing pages are built from shortcodes and have no ## headings, so
+        # the heading check above misses a cut-off there. The signal is the
+        # translation having only the first shortcodes of the source AND
+        # stopping soon after the last one. The flow also drops trailing
+        # images or quotes from a fully translated article; there the text
+        # after the last kept shortcode is as long as in the source.
+        mine = list(_OPEN_RE.finditer(text or ''))
+        theirs = list(_OPEN_RE.finditer(reference))
+        if (len(mine) < len(theirs)
+                and [m.group(1) for m in theirs[:len(mine)]] == [m.group(1) for m in mine]
+                and _tail_len(text, mine) < TRUNCATED_TAIL_RATIO * _tail_len(reference, theirs[:len(mine)])):
+            problems.append(
+                f'has the first {len(mine)} of {len(theirs)} shortcodes of the '
+                f'english source, the rest is missing' + TRUNCATED_NOTE)
+        elif _ends_mid_sentence(text, reference):
+            body = _body(text)
+            problems.append(
+                (f'ends mid-sentence ({body.splitlines()[-1][-40:]!r}), the english '
+                 f'source ends a sentence' if body else
+                 'has no text below the frontmatter, the english source has')
+                + TRUNCATED_NOTE)
+
         ref_opens, ref_closes = counts(reference)
         for name in sorted(set(ref_opens) | set(opens)):
             if opens.get(name, 0) != ref_opens.get(name, 0):
@@ -172,3 +246,8 @@ def check_body(text, reference=None):
             problems.append(f'line {line}: JSON parameter does not parse - {err}')
 
     return problems
+
+
+def is_truncated(problems):
+    """True when check_body() found the translation cut off part-way."""
+    return any(p.endswith(TRUNCATED_NOTE) for p in problems)

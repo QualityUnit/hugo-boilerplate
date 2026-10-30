@@ -68,7 +68,7 @@ except ImportError:  # Python < 3.11
         return toml.loads(text)
 
 import translation_url_policy as url_policy
-from translation_body_check import check_body
+from translation_body_check import check_body, is_truncated
 from translation_checkpoint import save_translation
 
 # Load environment variables from .env file
@@ -955,6 +955,10 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
         # Body problems: shortcodes or JSON parameters the flow broke or
         # dropped. Collected per file and reported in the summary.
         body_issues = []
+        # Truncated translations, not written: {task: problems}. Only the last
+        # attempt of a task counts, so a retry that fails for another reason
+        # drops it from here.
+        truncated_tasks = {}
 
         # Process translations while maintaining max_scheduled_tasks in queue
         remaining_tasks = translation_tasks.copy()
@@ -1097,6 +1101,19 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                                     except OSError:
                                         reference = None
                                     body_problems = check_body(translated_text, reference)
+                                    # A truncated page is not written: it
+                                    # would ship with half its sections
+                                    # missing. It goes to the retry pass like
+                                    # a translation that never arrived.
+                                    if is_truncated(body_problems):
+                                        task = (file_path, target_lang, target_file)
+                                        print(f"[TRUNCATED] {target_file}: not written")
+                                        for problem in body_problems:
+                                            print(f"[TRUNCATED]   {problem}")
+                                        truncated_tasks[task] = body_problems
+                                        failed_tasks.append(task)
+                                        all_failed_tasks.append(task)
+                                        continue
                                     if body_problems:
                                         print(f"[BODY] {target_file}: {len(body_problems)} problem(s)")
                                         for problem in body_problems:
@@ -1231,6 +1248,7 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                             continue
                         remaining_tasks.append((file_path, content, target_lang, target_file))
                         all_failed_tasks.remove(task)
+                        truncated_tasks.pop(task, None)
                         retried += 1
                 failed_tasks = []
 
@@ -1268,10 +1286,18 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
             for problem in problems:
                 print(f"[ERROR]     {problem}")
 
-    if all_failed_tasks:
-        print(f"\n[ERROR] {len(all_failed_tasks)} translation(s) never arrived after "
+    never_arrived = [task for task in all_failed_tasks if task not in truncated_tasks]
+
+    if truncated_tasks:
+        print(f"\n[ERROR] {len(truncated_tasks)} translation(s) were still truncated on the "
+              f"last attempt and were NOT written:")
+        for _fp, target_lang, target_file in truncated_tasks:
+            print(f"[ERROR]   {target_lang}: {target_file}")
+
+    if never_arrived:
+        print(f"\n[ERROR] {len(never_arrived)} translation(s) never arrived after "
               f"{MAX_TASK_ATTEMPTS} attempts — those pages are NOT translated:")
-        for file_path, target_lang, target_file in all_failed_tasks:
+        for file_path, target_lang, target_file in never_arrived:
             print(f"[ERROR]   {target_lang}: {target_file}")
         print("[ERROR] Re-run the workflow to pick them up — existing files are skipped, "
               "so only the missing ones are translated.")
@@ -1297,17 +1323,29 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
     report.append(f"| Unfinished (resume on next run) | **{unfinished}** |")
     if stopped_early:
         report.append('| Run status | Partial: soft time limit reached |')
-    report.append(f"| Never arrived | **{len(all_failed_tasks)}**"
-                  f"{' warning' if all_failed_tasks else ''} |")
+    report.append(f"| Never arrived | **{len(never_arrived)}**"
+                  f"{' warning' if never_arrived else ''} |")
+    report.append(f"| Truncated, not written | **{len(truncated_tasks)}**"
+                  f"{' warning' if truncated_tasks else ''} |")
     report.append(f"| Retried | {retried} |")
     report.append(f"| Front matter repaired | {len(repaired_frontmatter)} |")
     report.append(f"| Front matter still invalid | **{len(invalid_frontmatter)}** |")
     report.append(f"| Structural problems in the body | **{len(body_issues)}** |")
     report.append("")
 
-    if all_failed_tasks:
+    if truncated_tasks:
+        report.append("### Truncated - these pages are NOT translated\n")
+        report.append("The flow stopped writing part-way, also on the retries, so the "
+                      "file was not written.\n")
+        for (_fp, lang, tf), ps in truncated_tasks.items():
+            report.append(f"- `{lang}` - `{tf}`")
+            for problem in ps:
+                report.append(f"  - {problem}")
+        report.append("\nRe-run the workflow to try them again.\n")
+
+    if never_arrived:
         report.append("### Never arrived - these pages are NOT translated\n")
-        for _fp, lang, tf in all_failed_tasks:
+        for _fp, lang, tf in never_arrived:
             report.append(f"- `{lang}` - `{tf}`")
         report.append("\nRe-run the workflow to pick them up: existing files are skipped, "
                       "so only the missing ones are translated.\n")
@@ -1319,27 +1357,12 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
         report.append("")
 
     if body_issues:
-        truncated = [(tf, ps) for tf, ps in body_issues
-                     if any('truncated' in p for p in ps)]
-        others = [(tf, ps) for tf, ps in body_issues
-                  if not any('truncated' in p for p in ps)]
-        if truncated:
-            report.append(f"### Truncated - the flow stopped writing part-way "
-                          f"({len(truncated)} page(s))\n")
-            report.append("Content is missing. The markdown is still valid, so the build "
-                          "passes and the loss is invisible without this check.\n")
-            for tf, ps in truncated:
-                report.append(f"- `{tf}`")
-                for problem in ps:
-                    report.append(f"  - {problem}")
-            report.append("")
-        if others:
-            report.append(f"### Other structural problems ({len(others)} page(s))\n")
-            for tf, ps in others:
-                report.append(f"- `{tf}`")
-                for problem in ps:
-                    report.append(f"  - {problem}")
-            report.append("")
+        report.append(f"### Structural problems in the body ({len(body_issues)} page(s))\n")
+        for tf, ps in body_issues:
+            report.append(f"- `{tf}`")
+            for problem in ps:
+                report.append(f"  - {problem}")
+        report.append("")
 
     report_text = "\n".join(report)
 
