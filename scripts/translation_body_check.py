@@ -94,14 +94,39 @@ def _heading_counts(text):
     return counts
 
 
-# A translation is 0.9-1.7x as long as the English text, so less than half of
-# the source's text after the last shared shortcode means it stopped there.
+# Less than half of the source's text after the last shared shortcode means the
+# translation stopped there. The half is scaled by how long this translation
+# runs compared with the English before that shortcode: Chinese is ~0.3x as
+# long, so a fixed half would flag every complete Chinese page that only lost
+# its last image. Longer languages (German ~1.2x) keep the plain half.
 TRUNCATED_TAIL_RATIO = 0.5
 
 
 def _tail_len(text, opens):
     """Length of the text from the last of ``opens`` to the end."""
     return len(text) - (opens[-1].start() if opens else 0)
+
+
+def _body_start(text):
+    """Offset of the first character below the +++ frontmatter."""
+    parts = text.split('+++', 2)
+    return len(text) - len(parts[2]) if len(parts) == 3 and not parts[0].strip() else 0
+
+
+def _length_ratio(text, reference, mine, theirs):
+    """
+    Translation length vs English, from the end of the frontmatter to the last
+    shared shortcode, at most 1. The frontmatter keys are the same in every
+    language and would pull the ratio towards 1. With less than 200 characters
+    of English body to measure, the whole page up to the shortcode is used.
+    """
+    if not mine:
+        return 1.0
+    end_mine, end_theirs = mine[-1].start(), theirs[len(mine) - 1].start()
+    start_mine, start_theirs = _body_start(text), _body_start(reference)
+    if end_theirs - start_theirs < 200 or end_mine <= start_mine:
+        start_mine = start_theirs = 0
+    return min(1.0, (end_mine - start_mine) / max(end_theirs - start_theirs, 1))
 
 
 def _body(text):
@@ -191,7 +216,9 @@ def check_body(text, reference=None):
         theirs = list(_OPEN_RE.finditer(reference))
         if (len(mine) < len(theirs)
                 and [m.group(1) for m in theirs[:len(mine)]] == [m.group(1) for m in mine]
-                and _tail_len(text, mine) < TRUNCATED_TAIL_RATIO * _tail_len(reference, theirs[:len(mine)])):
+                and _tail_len(text, mine) < TRUNCATED_TAIL_RATIO
+                * _length_ratio(text, reference, mine, theirs)
+                * _tail_len(reference, theirs[:len(mine)])):
             problems.append(
                 f'has the first {len(mine)} of {len(theirs)} shortcodes of the '
                 f'english source, the rest is missing' + TRUNCATED_NOTE)

@@ -407,6 +407,30 @@ class TruncatedTranslationTests(unittest.TestCase):
         self.assertEqual(no_image.strip(), self.target.read_text(encoding='utf-8'))
         self.assertIn('| Truncated, not written | **0** |', self.report.read_text())
 
+    def test_chinese_article_without_its_last_image_is_written(self):
+        # Chinese runs ~0.3x as long as the English, so its complete closing
+        # text is shorter than half of the English one.
+        article = ('+++\ntitle = "Tips"\n+++\n' + 'English intro sentence. ' * 20
+                   + '\n\n{{< youtubevideo id="x" >}}\n\n' + 'Long closing paragraph. ' * 20
+                   + '\n\n{{< lazyimg src="/x.webp" >}}\n')
+        chinese = ('+++\ntitle = "提示"\n+++\n' + '中文介绍句子。' * 20
+                   + '\n\n{{< youtubevideo id="x" >}}\n\n' + '很长的结尾段落。' * 20 + '\n')
+        self.source.write_text(article, encoding='utf-8')
+        self.run_process([chinese])
+        self.assertEqual(chinese.strip(), self.target.read_text(encoding='utf-8'))
+        self.assertIn('| Truncated, not written | **0** |', self.report.read_text())
+
+    def test_chinese_article_cut_after_a_shortcode_is_not_written(self):
+        article = ('+++\ntitle = "Tips"\n+++\n' + 'English intro sentence. ' * 20
+                   + '\n\n{{< youtubevideo id="x" >}}\n\n' + 'Long closing paragraph. ' * 20
+                   + '\n\n{{< lazyimg src="/x.webp" >}}\n')
+        cut = ('+++\ntitle = "提示"\n+++\n' + '中文介绍句子。' * 20
+               + '\n\n{{< youtubevideo id="x" >}}\n\n很长的结尾段落。\n')
+        self.source.write_text(article, encoding='utf-8')
+        self.run_process([cut] * translator.MAX_TASK_ATTEMPTS)
+        self.assertFalse(self.target.exists())
+        self.assertIn('has the first 1 of 2 shortcodes', self.report.read_text())
+
     def test_article_cut_mid_sentence_is_not_written(self):
         article = '+++\ntitle = "Tips"\n+++\nFirst paragraph.\n\nThen we discussed the importance of tracking.\n'
         cut = article.replace('the importance of tracking.\n', '')
