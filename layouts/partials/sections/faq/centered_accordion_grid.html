@@ -78,7 +78,7 @@
                 </button>
               </dt>
               <dd class="mt-3" id="faq-two-col-{{ $index }}">
-                <p class="text-base {{ $answerColor }}">{{ .answer | safeHTML }}</p>
+                <div class="faq-answer text-base {{ $answerColor }}">{{ partial "helpers/faq-answer.html" .answer }}</div>
               </dd>
             </div>
             {{ end }}

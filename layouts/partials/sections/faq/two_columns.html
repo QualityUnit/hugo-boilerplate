@@ -13,7 +13,7 @@
   - answerColor: Answer text color class (optional, default: "text-gray-600")
   - faqs: Array of objects with questions and answers (required)
     - question: Question text
-    - answer: Answer text (can include HTML)
+    - answer: Answer text, Markdown (rendered by helpers/faq-answer.html)
   - page: Page context for linkbuilding function (required)
 @example:
   {{ partial "sections/faq/two_columns.html" (dict 
@@ -72,8 +72,8 @@
         {{ range $faqs }}
         <div>
           <dt class="text-base/7 font-semibold {{ $questionColor }}">{{ .question }}</dt>
-          <dd class="mt-2 text-base/7 {{ $answerColor }}">
-            {{ .answer | safeHTML }}
+          <dd class="faq-answer mt-2 text-base/7 {{ $answerColor }}">
+            {{ partial "helpers/faq-answer.html" .answer }}
           </dd>
         </div>
         {{ end }}

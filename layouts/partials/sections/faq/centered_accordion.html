@@ -10,7 +10,7 @@
   - dividerColor: Divider line color class (optional, default: "divide-gray-900/10")
   - faqs: Array of objects with questions and answers (required)
     - question: Question text
-    - answer: Answer text
+    - answer: Answer text, Markdown (rendered by helpers/faq-answer.html)
   - page: Page context for linkbuilding function (required)
 @example:
   {{ partial "sections/faq/centered_accordion.html" (dict 
@@ -79,9 +79,9 @@
             </button>
           </dt>
           <dd class="mt-2 pr-12 hidden" id="faq-{{ $index }}">
-            <p class="text-base/7 {{ $answerColor }}">
-              {{ .answer | safeHTML }}
-            </p>
+            <div class="faq-answer text-base/7 {{ $answerColor }}">
+              {{ partial "helpers/faq-answer.html" .answer }}
+            </div>
           </dd>
         </div>
         {{ end }}

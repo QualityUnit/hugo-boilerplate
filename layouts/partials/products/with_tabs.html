@@ -243,8 +243,8 @@
                 <dl>
                   {{ range $faqIndex, $faq := $tab.content }}
                     <dt class="{{ if eq $faqIndex 0 }}mt-10{{ else }}mt-10{{ end }} font-medium text-gray-900">{{ $faq.question }}</dt>
-                    <dd class="mt-2 text-sm/6 text-gray-500">
-                      <p>{{ $faq.answer }}</p>
+                    <dd class="faq-answer mt-2 text-sm/6 text-gray-500">
+                      {{ partial "helpers/faq-answer.html" $faq.answer }}
                     </dd>
                   {{ end }}
                 </dl>
