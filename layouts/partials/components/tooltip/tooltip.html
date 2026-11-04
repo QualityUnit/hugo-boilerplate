@@ -13,25 +13,35 @@
 
 {{ $tooltipPosition := "" }}
 {{ if eq $position "top" }}
-  {{ $tooltipPosition = "bottom-full left-1/2 -translate-x-1/2 mb-2" }}
+  {{ $tooltipPosition = "md:bottom-full md:left-1/2 md:right-auto md:-translate-x-1/2 md:mb-2" }}
 {{ else if eq $position "bottom" }}
-  {{ $tooltipPosition = "top-full left-1/2 -translate-x-1/2 mt-2" }}
+  {{ $tooltipPosition = "md:top-full md:bottom-auto md:left-1/2 md:right-auto md:-translate-x-1/2 md:mt-2" }}
 {{ else if eq $position "left" }}
-  {{ $tooltipPosition = "right-full top-1/2 transform -translate-y-1/2 mr-2" }}
+  {{ $tooltipPosition = "md:right-full md:left-auto md:top-1/2 md:bottom-auto md:-translate-y-1/2 md:mr-2" }}
 {{ else }}
-  {{ $tooltipPosition = "left-full top-1/2 transform -translate-y-1/2 ml-2" }}
+  {{ $tooltipPosition = "md:left-full md:right-auto md:top-1/2 md:bottom-auto md:-translate-y-1/2 md:ml-2" }}
 {{ end }}
 
+{{/* Unique per feature + text, so aria-describedby always points at this tooltip. */}}
+{{ $id := printf "tooltip-%s" (substr (md5 (printf "%v|%v" .content $text)) 0 10) }}
+
+{{/* Phones: full-width fixed card that tooltips.js places next to the tapped icon,
+     so a narrow or scrolled table cell can never push it off-screen.
+     From md: absolute, anchored on the icon only (not on the label, which can wrap
+     onto two lines); tooltips.js keeps it inside the viewport.
+     group/tip is named so a caller's own `group` (e.g. the pricing <th>) does not
+     reveal it; md:group stays for project scripts that select the wrapper by it. */}}
 <div class="inline-block whitespace-normal hyphens-auto">
-  <span class="md:group md:relative"><span class="pr-2">{{ .content }}</span><button type="button" class="inline-flex focus:outline-hidden align-text-bottom">
-      {{ partial (printf "icons/%s" $icon) (printf "%s cursor-pointer tooltip-trigger %s" $sizeIcon $colorIcon) }}
-    </button>
-    <span
-      class="pointer-events-none absolute left-4 right-4 md:left-1/2 md:right-auto bottom-4 md:bottom-auto {{ $tooltipPosition }} z-9999 md:w-72 rounded-md bg-gray-900 px-4 py-3 text-sm text-white font-normal opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100 tooltip-content leading-relaxed"
+  <span class="group/tip md:group" data-tooltip-wrap><span class="pr-2">{{ .content }}</span><span class="inline-flex align-text-bottom md:relative"><button type="button" class="tooltip-trigger inline-flex rounded-full cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" aria-label="{{ .content | plainify | htmlUnescape }}" aria-describedby="{{ $id }}">
+      {{ partial (printf "icons/%s" $icon) (printf "%s %s" $sizeIcon $colorIcon) }}
+    </button><span
+      id="{{ $id }}"
+      class="no-linkbuilding pointer-events-none fixed inset-x-4 bottom-4 md:absolute {{ $tooltipPosition }} z-9999 md:w-72 rounded-md bg-gray-900 px-4 py-3 text-sm text-white font-normal opacity-0 shadow-xl transition-opacity duration-200 md:group-hover/tip:opacity-100 md:group-focus-within/tip:opacity-100 tooltip-content leading-relaxed"
       data-tooltip
+      data-position="{{ $position }}"
       role="tooltip"
     >
       {{ $text }}
-    </span>
+    </span></span>
   </span>
 </div>
