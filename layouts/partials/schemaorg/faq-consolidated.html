@@ -24,7 +24,12 @@
 {{ if and $allFaqs (gt (len $allFaqs) 0) }}
 {{- $mainEntity := slice -}}
 {{- range $allFaqs -}}
-  {{- $answer := dict "@type" "Answer" "text" .answer -}}
+  {{- /* Same rendering as the visible answer, reduced to plain text: no Markdown markers, no tags.
+       Search engines read acceptedAnswer.text as HTML, so a code example such as `<picture>`
+       keeps its angle brackets escaped and stays text instead of becoming a tag. */ -}}
+  {{- $text := partial "helpers/faq-answer.html" .answer | plainify | htmlUnescape | strings.TrimSpace -}}
+  {{- $text = $text | replaceRE "<" "&lt;" | replaceRE ">" "&gt;" -}}
+  {{- $answer := dict "@type" "Answer" "text" $text -}}
   {{- $question := dict "@type" "Question" "name" .question "acceptedAnswer" $answer -}}
   {{- $mainEntity = $mainEntity | append $question -}}
 {{- end -}}

@@ -1,0 +1,13 @@
+{{/*
+@helper: FAQ Answer
+@description: Renders one FAQ answer (front matter or partial params) as Markdown, so **bold**, `code`, links and lists work, and HTML inside a code span is shown as text instead of becoming a real element.
+@params:
+  . (string): The answer text, Markdown allowed
+@returns: template.HTML — inline HTML for a one-paragraph answer, block HTML (<p>, <ul>, <ol>, <pre>) otherwise
+@example:
+  <dd class="faq-answer text-base/7 text-gray-600">{{ partial "helpers/faq-answer.html" .answer }}</dd>
+@note: Wrap the output in a block element (<div> or <dd>), never in <p>, and give it the `faq-answer` class (assets/css/main.css) for paragraph spacing, list markers and code styling.
+       For the FAQPage schema, schemaorg/faq-consolidated.html reduces the same output to plain text.
+*/}}
+{{- $answer := . | default "" -}}
+{{- return (string $answer | markdownify) -}}
