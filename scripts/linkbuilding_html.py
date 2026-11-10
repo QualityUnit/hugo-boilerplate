@@ -294,3 +294,104 @@ def load_canonical_phrases(linkbuilding_dir: Path, lang: str) -> tuple[list[tupl
         owners[key] = url
         (primary if str(item.get("type") or "").strip().lower() == "primary" else secondary).append((phrase, url))
     return primary + secondary, problems
+
+
+# Protected phrases (QualityUnit/PostAffiliatePro-hugo#983): a multi-word name that a
+# link takes whole or leaves alone. "Post Affiliate Pro" must never become
+# "Post <a>Affiliate</a> Pro" or "<a>Post Affiliate</a> Pro", and an anchor that carries
+# the whole name ("program with Post Affiliate Pro") may only point to the name's own
+# page. The table is language-independent: a brand is spelled the same on every domain.
+# Read by the injector; the generator checks every suggestion with the injector, so
+# it never writes such an anchor either. A site without the file gets neither rule.
+PROTECTED_PHRASES_FILE = "protected-phrases.toml"
+
+
+def load_protected_phrases(linkbuilding_dir: Path) -> tuple[list[tuple[str, str]], list[str]]:
+    """``(rows, problems)`` from ``<linkbuilding_dir>/protected-phrases.toml``.
+
+    The file holds one array of tables, ``[[protected]]``, each row with ``phrase`` and
+    ``url``: the only page a link containing the whole phrase may point to. Rows come
+    back as (phrase, canonical URL path) in file order. A missing file gives no rows; a
+    row without a phrase or a URL, or a phrase repeated with another URL, is left out
+    and named in ``problems``.
+    """
+    path = Path(linkbuilding_dir) / PROTECTED_PHRASES_FILE
+    if not path.is_file():
+        return [], []
+    try:
+        import tomllib  # Python 3.11+
+    except ModuleNotFoundError:  # pragma: no cover - older interpreters
+        import toml as tomllib
+    try:
+        data = tomllib.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return [], [f"{path}: does not parse ({exc}); no protected phrases loaded"]
+    items = data.get("protected") or []
+    if not isinstance(items, list):
+        return [], [f"{path}: 'protected' must be a list of rows"]
+
+    rows: list[tuple[str, str]] = []
+    problems: list[str] = []
+    owners: dict[str, str] = {}
+    for idx, item in enumerate(items):
+        if not isinstance(item, dict):
+            problems.append(f"{path}: protected[{idx}] is not a mapping")
+            continue
+        phrase = " ".join(str(item.get("phrase") or "").split())
+        url = str(item.get("url") or "").strip()
+        if not phrase or not url:
+            problems.append(f"{path}: protected[{idx}] needs both 'phrase' and 'url'")
+            continue
+        url = canonical_path(url)
+        key = phrase.casefold()
+        if key in owners:
+            if owners[key] != url:
+                problems.append(f"{path}: protected phrase {phrase!r} is given to {owners[key]} and {url}; keeping {owners[key]}")
+            continue
+        owners[key] = url
+        rows.append((phrase, url))
+    return rows, problems
+
+
+_PROTECTED_PATTERNS: dict[str, re.Pattern[str]] = {}
+
+
+def _protected_pattern(phrase: str) -> re.Pattern[str]:
+    """Where ``phrase`` occurs as a name: case-insensitive, any whitespace between its
+    words (``&nbsp;`` included), no letter or digit glued to its start.
+
+    An inflection glued to the end stays part of the name: "Post Affiliate Pros" (DE
+    genitive), "Post Affiliate Proban" (HU without the hyphen), and with a hyphen
+    "Post Affiliate Pro-val" or "Post Affiliate Pro-Konto". In all of them
+    "Post Affiliate" must not be linked, so the occurrence runs to the end of that
+    word (a hyphen suffix stays outside: the name is already whole before it).
+    """
+    pattern = _PROTECTED_PATTERNS.get(phrase)
+    if pattern is None:
+        body = r"\s+".join(re.escape(word) for word in phrase.split())
+        pattern = re.compile(rf"(?<!\w){body}\w*", re.IGNORECASE)
+        _PROTECTED_PATTERNS[phrase] = pattern
+    return pattern
+
+
+def cuts_protected_phrase(text: str, start: int, end: int, url: str, protected: Any) -> bool:
+    """Would a link on ``text[start:end]`` to ``url`` break a protected phrase?
+
+    It does when it starts or ends inside an occurrence of the phrase, or when it holds
+    the whole phrase but points anywhere other than the phrase's own URL. ``protected``
+    is a sequence of (phrase, url) as ``load_protected_phrases`` returns. Only the one
+    text node is seen: a name split by inline markup ("Post <b>Affiliate</b> Pro") is
+    not recognised.
+    """
+    target = canonical_path(url)
+    for phrase, owner in protected:
+        for occurrence in _protected_pattern(phrase).finditer(text):
+            p_start, p_end = occurrence.span()
+            if p_end <= start or p_start >= end:
+                continue  # no overlap
+            if start <= p_start and end >= p_end:
+                if target != owner:
+                    return True
+                continue  # the whole name, to its own page
+            return True  # starts or ends inside the name
+    return False

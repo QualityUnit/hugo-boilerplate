@@ -2243,17 +2243,21 @@ def _validate_with_injector(pages: list[Page], recs: list[LinkRec], linkbuilding
     cap — on the page's HTML. A suggestion the injector did not insert is rejected:
     ``dropped_by_prefilter`` when the injector's HTML pre-filter drops it,
     ``text_not_in_linkable_html`` when its text matches no linkable text node at all,
-    ``taken_by_another_link`` when an earlier link took the text or the target URL.
+    ``cuts_protected_phrase`` when its text occurs only inside a protected phrase
+    (protected-phrases.toml: "Affiliate" in "Post Affiliate Pro") or carries the whole
+    phrase to another page, ``taken_by_another_link`` when an earlier link took the
+    text or the target URL.
     Returns the kept suggestions and the rejected counts by reason.
     """
     by_path = {page.path: page for page in pages}
     global_keywords = injector.load_global_keywords(linkbuilding_dir, lang)
+    protected_phrases = injector.load_protected_phrases(linkbuilding_dir)
     grouped: dict[Path, list[LinkRec]] = {}
     for rec in recs:
         grouped.setdefault(rec.source_path, []).append(rec)
     kept: list[LinkRec] = []
     rejected = {"claimed_by_lnks_man": 0, "duplicate_text": 0, "dropped_by_prefilter": 0,
-                "text_not_in_linkable_html": 0, "taken_by_another_link": 0}
+                "cuts_protected_phrase": 0, "text_not_in_linkable_html": 0, "taken_by_another_link": 0}
     for path, page_recs in grouped.items():
         page = by_path[path]
         manual = {str(item.get("text") or "").strip().casefold() for item in page.manual_links}
@@ -2278,12 +2282,15 @@ def _validate_with_injector(pages: list[Page], recs: list[LinkRec], linkbuilding
             "lnks_man": page.manual_links,
             "lnks": [{"text": r.text, "path": r.target_url, "title": r.title or r.target_title} for r in candidates],
         }
-        run = injector.dry_run_page(html, items, global_keywords, page_url=page.url)
+        run = injector.dry_run_page(html, items, global_keywords, page_url=page.url,
+                                    protected_phrases=protected_phrases)
         for rec in candidates:
             if (rec.target_url, rec.text.strip().casefold()) in run.applied:
                 kept.append(rec)
             elif rec.text.strip().casefold() not in run.prefiltered:
                 rejected["dropped_by_prefilter"] += 1
+            elif rec.text.strip().casefold() in run.protected:
+                rejected["cuts_protected_phrase"] += 1
             elif any(keyword_pattern(rec.text).search(text) for text in run.linkable_text):
                 rejected["taken_by_another_link"] += 1
             else:

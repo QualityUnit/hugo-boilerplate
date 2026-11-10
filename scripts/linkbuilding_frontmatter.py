@@ -9,6 +9,10 @@
    page each ("help desk software" → /help-desk-software/), optional.
 4. Global ``data/linkbuilding/<lang>.json`` — manually maintained keyword→URL list.
 
+``data/linkbuilding/protected-phrases.toml`` (optional) holds names a link takes whole
+or leaves alone: no link from any source starts or ends inside "Post Affiliate Pro",
+and a link that holds the whole name points only to the name's own page.
+
 Both are applied in a single pass per HTML file. Global keywords are pre-filtered
 against the HTML source (character references decoded) before BeautifulSoup is
 invoked, so only keywords that actually appear in the page text reach the DOM
@@ -37,7 +41,7 @@ import os
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +57,7 @@ from linkbuilding_html import (  # noqa: F401
     SKIP_TEXT_ANCESTORS,
     SKIP_TEXT_PARENTS,
     canonical_path as _canonical_path,
+    cuts_protected_phrase,
     estimated_words,
     html_path_for_url as _html_path_for_url,
     is_linkbuilding_excluded as _is_linkbuilding_excluded,
@@ -61,6 +66,7 @@ from linkbuilding_html import (  # noqa: F401
     language_html_root,
     linkable_text_nodes,
     load_canonical_phrases,
+    load_protected_phrases as _load_protected_phrases,
 )
 
 
@@ -96,6 +102,9 @@ class LinkConfig:
     links_per_words: int = 0
     links_min: int = 3
     links_max: int = 40
+    # (phrase, url) rows from protected-phrases.toml: a link takes the phrase whole,
+    # to that url only, or leaves it alone. Empty = no phrase is protected.
+    protected_phrases: list[tuple[str, str]] = field(default_factory=list)
 
     def cap_for(self, words: int, page_max: int | None = None) -> int:
         """Total number of prose-links anchors this page may carry.
@@ -122,6 +131,7 @@ class LinkStats:
     pages_at_cap: int = 0          # pages whose cap was reached (pre-existing + added)
     pages_disabled: int = 0        # pages with linkbuilding_max = 0
     self_links_skipped: int = 0    # keyword candidates pointing at the page's own URL
+    protected_skipped: int = 0     # matches left alone because they would break a protected phrase
 
 
 def _add_stats(total: LinkStats, part: dict[str, int]) -> None:
@@ -169,6 +179,9 @@ class LinkBuilder:
         self.page_url = _canonical_path(page_url) if page_url else ""
         # Frontmatter linkbuilding_max for this page, None when not set.
         self.page_max = page_max
+        # Casefolded keywords that were not linked because every match they reached
+        # would break a protected phrase — dry_run_page reports them to the generator.
+        self.protected_texts: set[str] = set()
 
     def process_file(self, html_path: Path) -> bool:
         self.stats.total_files_processed += 1
@@ -228,6 +241,7 @@ class LinkBuilder:
         # After inserting a link, the replaced node is detached (parent → None)
         # and the surrounding text fragments are appended so later keywords can match them.
         valid_nodes: list[NavigableString] = linkable_text_nodes(soup)
+        protected = self.config.protected_phrases
 
         # Linkable prose words. Existing prose-links anchors sit inside <a>, which the
         # list above excludes, so their text is added back — pass 1 and pass 2 must
@@ -250,12 +264,21 @@ class LinkBuilder:
 
             pattern = _keyword_pattern(keyword.keyword)
             new_fragments: list[NavigableString] = []
+            cut_protected = False
+            inserted = False
 
             for text_node in valid_nodes:
                 if text_node.parent is None:  # already replaced by a prior insertion
                     continue
                 text = str(text_node)
-                match = pattern.search(text)
+                match = None
+                for candidate in pattern.finditer(text):
+                    if protected and cuts_protected_phrase(text, candidate.start(), candidate.end(), keyword.url, protected):
+                        self.stats.protected_skipped += 1
+                        cut_protected = True
+                        continue
+                    match = candidate
+                    break
                 if not match:
                     continue
 
@@ -284,8 +307,11 @@ class LinkBuilder:
                 added += 1
                 used_urls[keyword.url] = used_urls.get(keyword.url, 0) + 1
                 used_texts.add(keyword.keyword.lower())
+                inserted = True
                 break
 
+            if cut_protected and not inserted:
+                self.protected_texts.add(keyword.keyword.casefold())
             valid_nodes.extend(new_fragments)
 
         if pre_existing + added >= cap:
@@ -299,30 +325,52 @@ class DryRun:
     applied: set[tuple[str, str]]   # (href, anchor text casefolded) of every link it inserted
     prefiltered: set[str]           # casefolded keywords that passed the HTML pre-filter
     linkable_text: list[str]        # the page's linkable text nodes before insertion
+    protected: set[str] = field(default_factory=set)  # casefolded keywords left unlinked because each match broke a protected phrase
 
 
-def dry_run_page(html: str, page_metadata: dict, global_keywords: list[Keyword], page_url: str = "") -> DryRun:
+def dry_run_page(
+    html: str,
+    page_metadata: dict,
+    global_keywords: list[Keyword],
+    page_url: str = "",
+    protected_phrases: list[tuple[str, str]] | None = None,
+) -> DryRun:
     """Apply the links to an in-memory copy of one page as a deploy would, without a cap.
 
     ``page_metadata`` carries the page's ``lnks_man`` / ``lnks`` tables; they are merged
-    with ``global_keywords`` exactly as _process_file_worker merges them. Nothing is
-    written. generate_paragraph_linkbuilding.py uses this to keep only the suggestions
-    this injector will apply.
+    with ``global_keywords`` exactly as _process_file_worker merges them, and
+    ``protected_phrases`` (``load_protected_phrases``) are honoured as a deploy honours
+    them. Nothing is written. generate_paragraph_linkbuilding.py uses this to keep only
+    the suggestions this injector will apply.
     """
     keywords = _dedupe_keywords(global_keywords + _keywords_from_metadata(page_metadata))
-    builder = LinkBuilder(keywords, LinkConfig(max_links_per_page=10**9), page_url=page_url)
+    config = LinkConfig(max_links_per_page=10**9, protected_phrases=list(protected_phrases or []))
+    builder = LinkBuilder(keywords, config, page_url=page_url)
     prefiltered = builder.applicable_keywords(html)
     soup = BeautifulSoup(html, "lxml")
     linkable = [str(node) for node in linkable_text_nodes(soup)]
     before = {(str(a.get("href") or ""), a.get_text().strip().casefold()) for a in soup.find_all("a", class_="prose-links")}
     builder._apply_links(soup, prefiltered)
     after = {(str(a.get("href") or ""), a.get_text().strip().casefold()) for a in soup.find_all("a", class_="prose-links")}
-    return DryRun(applied=after - before, prefiltered={kw.keyword.casefold() for kw in prefiltered}, linkable_text=linkable)
+    return DryRun(
+        applied=after - before,
+        prefiltered={kw.keyword.casefold() for kw in prefiltered},
+        linkable_text=linkable,
+        protected=builder.protected_texts,
+    )
 
 
 def load_global_keywords(linkbuilding_dir: Path, lang: str) -> list[Keyword]:
     """The page-independent keywords the injector applies for ``lang``: canonical-phrases.toml and <lang>.json."""
     return _load_global_keywords(linkbuilding_dir, lang)
+
+
+def load_protected_phrases(linkbuilding_dir: Path) -> list[tuple[str, str]]:
+    """The (phrase, url) rows of protected-phrases.toml; problems are printed as warnings."""
+    rows, problems = _load_protected_phrases(linkbuilding_dir)
+    for problem in problems:
+        print(f"::warning::{problem}", file=sys.stderr)
+    return rows
 
 
 # Per-worker globals set via initializer — avoids pickling global keywords per file
@@ -642,8 +690,12 @@ def run(args: argparse.Namespace) -> int:
         links_per_words=max(0, int(args.links_per_words)),
         links_min=max(0, int(args.links_min)),
         links_max=max(0, int(args.links_max)),
+        # Read in --file dev mode too: a dev pass must not split a name a deploy keeps whole.
+        protected_phrases=load_protected_phrases(linkbuilding_dir),
     )
     config_data = asdict(config)
+    if config.protected_phrases:
+        print("Protected phrases: " + ", ".join(f"{p!r} -> {u}" for p, u in config.protected_phrases))
     if config.links_per_words > 0:
         print(f"Link cap: 1 per {config.links_per_words} words, clamped to "
               f"[{config.links_min}, {config.links_max}]; frontmatter {PAGE_MAX_KEY} overrides")
@@ -750,6 +802,7 @@ def run(args: argparse.Namespace) -> int:
             f"added {lang_stats.total_links_added} links "
             f"({lang_stats.existing_links} pre-existing, {lang_stats.pages_at_cap} pages at cap, "
             f"{lang_stats.pages_disabled} disabled, {lang_stats.self_links_skipped} self-URL keywords skipped, "
+            f"{lang_stats.protected_skipped} matches inside protected phrases skipped, "
             f"{_links_per_1000_words(lang_stats)} links/1000 words)"
         )
 
@@ -774,6 +827,7 @@ def run(args: argparse.Namespace) -> int:
         "pages_at_cap": totals.pages_at_cap,
         "pages_disabled": totals.pages_disabled,
         "self_links_skipped": totals.self_links_skipped,
+        "protected_skipped": totals.protected_skipped,
         "words": totals.total_words,
         "links_per_1000_words": _links_per_1000_words(totals),
     }
