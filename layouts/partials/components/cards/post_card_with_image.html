@@ -27,6 +27,10 @@
   - contentAlign: Alignment of the content within the card (optional, default: "left")
   - icon: Icon name to display next to the title (optional, e.g., "light-bulb")
   - iconClass: CSS classes for the icon (optional, default: "w-5 h-5 text-gray-900")
+  - imageSizes: `sizes` attribute for the image (optional, default: the card width in a 1 / 2 / 3 column grid inside
+    .wrapper, see $imageSizes below). Pass a different value when the card is rendered wider or narrower.
+  - imageNoLazy: Set to true for the card that holds the LCP image, e.g. the first card of a list (optional)
+  - imageFetchpriority: fetchpriority for the image, e.g. "high" together with imageNoLazy (optional)
 @example:
 {{ partial "components/cards/post_card_with_image.html" . }}
 {{ partial "components/cards/post_card_with_image.html" (dict "cardHeight" 600 "page" .) }}
@@ -68,6 +72,9 @@
 {{ $image := cond (isset $page.Params "image") $page.Params.image (cond (isset . "defaultImage") .defaultImage (cond $page.Params.youtubeVideoID (printf "https://img.youtube.com/vi/%s/hqdefault.jpg" $page.Params.youtubeVideoID) "/placeholder-image.jpg")) }}
 {{ $imageClasses := .imageClasses | default "w-full h-full object-cover" }}
 {{ $classPicture := "w-full h-full object-cover" }}
+{{/* Without sizes the browser assumes a full-viewport image and downloads the largest file for a 384px card.
+     Default: 1 column below md, 2 below xl, 3 from xl (max-w-7xl wrapper, px-4/6/8, gap-x-8). */}}
+{{ $imageSizes := .imageSizes | default "(min-width: 1280px) 384px, (min-width: 768px) calc(50vw - 40px), calc(100vw - 32px)" }}
 
 {{/* Show Images */}}
 {{ $showImages := .showImages | default true }}
@@ -104,7 +111,10 @@
   </a>
   {{ if and $image $showImages }}
     <div class="{{ $imageWrapperClasses }}">
-      {{ partial "components/media/lazyimg.html" (dict "src" $image "alt" $title "class" $imageClasses "classPicture" $classPicture "loading" "lazy" "decoding" "async") }}
+      {{ $imgParams := dict "src" $image "alt" $title "class" $imageClasses "classPicture" $classPicture "sizes" $imageSizes "loading" "lazy" "decoding" "async" }}
+      {{ if .imageNoLazy }}{{ $imgParams = merge $imgParams (dict "noLazy" true) }}{{ end }}
+      {{ with .imageFetchpriority }}{{ $imgParams = merge $imgParams (dict "fetchpriority" .) }}{{ end }}
+      {{ partial "components/media/lazyimg.html" $imgParams }}
     </div>
   {{ end }}
 
