@@ -22,14 +22,19 @@ concurrency:
 jobs:
   test:
     name: content dates tests (Python ${{ matrix.python }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
-        # 3.9 = the oldest Python a site runs the hook on (PostAffiliatePro on macOS);
-        # 3.11 = the Python of the LiveAgent workflows.
-        python: ['3.9', '3.11']
+        include:
+          # The oldest Python a site runs the hook on (PostAffiliatePro on macOS).
+          # ubuntu-latest (26.04) has no Python 3.9 build, so it runs on 24.04.
+          - python: '3.9'
+            os: ubuntu-24.04
+          # The Python of the LiveAgent workflows.
+          - python: '3.11'
+            os: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
