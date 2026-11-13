@@ -534,6 +534,49 @@
   @apply text-primary-500 hover:text-primary-700;
 }
 
+/* FAQ answers, rendered from Markdown by partials/helpers/faq-answer.html.
+   Preflight strips block margins and list markers, so multi-paragraph
+   answers and lists get them back here. Sizes are in em so the rules fit
+   both text-base and text-sm wrappers. Text colour is inherited and the code
+   background is a 10% gray tint, so the rules work on light and dark sections. */
+.faq-answer > * + * {
+  @apply mt-[0.75em];
+}
+
+.faq-answer ul,
+.faq-answer ol {
+  @apply pl-[1.25em];
+}
+
+.faq-answer ul {
+  @apply list-disc;
+}
+
+.faq-answer ol {
+  @apply list-decimal;
+}
+
+.faq-answer li + li {
+  @apply mt-[0.25em];
+}
+
+.faq-answer strong {
+  @apply font-semibold;
+}
+
+.faq-answer code {
+  @apply rounded-[0.25em] bg-gray-500/10 px-[0.3em] py-[0.1em] font-mono text-[0.875em] wrap-anywhere;
+}
+
+/* Fenced code blocks scroll inside the answer column instead of widening it. */
+.faq-answer pre {
+  @apply max-w-full overflow-x-auto rounded-[0.375em] px-[1em] py-[0.75em] text-[0.875em];
+}
+
+.faq-answer pre code {
+  @apply bg-transparent p-0 text-[1em] wrap-normal;
+}
+
 @utility wrapper-narrow {
   @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
 }
