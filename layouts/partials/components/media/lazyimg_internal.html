@@ -11,6 +11,8 @@
   - maxWidth: Maximum image width for loading (optional)
   - noLazy: Set to true to disable lazy loading (for hero images, above-the-fold content) (optional)
   - noAutoWidth: Set to true to prevent automatic use of originalWidth when width is not provided (optional)
+  - sizes: `sizes` attribute for the <source> elements, e.g. "(min-width: 1280px) 384px, 100vw" (optional).
+    Without it, sizes is built from the file widths, which assumes the image fills the viewport.
 @example:
   {{ partial "components/media/lazyimg.html" (dict
       "src" "/images/blog/featured-image.jpg"
@@ -34,6 +36,7 @@
 {{ if $nativeLazy }}{{ $noLazy = true }}{{ end }}
 {{ $noAutoWidth := .noAutoWidth | default false }}
 {{ $fetchpriority := .fetchpriority | default "" }}
+{{ $sizes := .sizes | default "" }}
 
 
 {{- $fileExt := strings.ToLower (path.Ext $src) -}}
@@ -264,6 +267,7 @@
     {{ else }}
         {{ $sizesAttr = printf "%dpx" $largestWidth }}
     {{ end }}
+    {{ if $sizes }}{{ $sizesAttr = $sizes }}{{ end }}
 
     {{ $fallbackSrc := $src }}
     {{ $optimizedOriginalPath := printf "%s%s%s" $processedDirPath $basename $extension }}

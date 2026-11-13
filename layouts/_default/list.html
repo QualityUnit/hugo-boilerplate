@@ -48,9 +48,10 @@
   {{ $paginator := .Paginate $pages $paginationSize }}
 
   <div class="wrapper grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
-    {{ range $paginator.Pages }}
+    {{/* The first card is the LCP image: load it eagerly. */}}
+    {{ range $i, $p := $paginator.Pages }}
       <div>
-        {{ partial "components/cards/post_card_with_image.html" (dict "page" . "cardHeight" $cardHeight) }}
+        {{ partial "components/cards/post_card_with_image.html" (dict "page" $p "cardHeight" $cardHeight "imageNoLazy" (eq $i 0) "imageFetchpriority" (cond (eq $i 0) "high" "")) }}
       </div>
     {{ end }}
   </div>
