@@ -11,7 +11,7 @@
 <meta name="robots" content="noindex, nofollow">
 {{ end }}
 
-<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ printf "%s | %s" (replace .Title "[year]" (now.Format "2006")) site.Title }}{{ end }}</title>
+<title>{{ partial "functions/page-title.html" . }}</title>
 {{ with .Permalink }}<link rel="canonical" href="{{ . }}">{{ end }}
 
 <!-- Generate hreflang alternate links -->

@@ -12,6 +12,7 @@
   "tr" "tr_TR" "uk" "uk_UA" "vi" "vi_VN" "zh-Hans" "zh_CN" "zh-Hant" "zh_TW"
 }}
 {{ $ogLocale := index $ogLocaleMap site.Language.Locale | default (replace site.Language.Locale "-" "_") }}
+{{ $title := partial "functions/page-title.html" . }}
 
 <!-- SEO Meta Tags -->
 <meta name="description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
@@ -23,7 +24,7 @@
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:site_name" content="{{ site.Title }}">
 <meta property="og:locale" content="{{ $ogLocale }}">
-<meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ replace .Title "[year]" (now.Format "2006") }} | {{ site.Title }}{{ end }}">
+<meta property="og:title" content="{{ $title }}">
 <meta property="og:description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
 
 <!-- Image selection logic -->
@@ -56,6 +57,6 @@
 <meta name="twitter:card" content="summary_large_image">
 {{ with site.Params.social.twitter }}<meta name="twitter:site" content="{{ . }}">{{ end }}
 <meta name="twitter:url" content="{{ .Permalink }}">
-<meta name="twitter:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ replace .Title "[year]" (now.Format "2006") }} | {{ site.Title }}{{ end }}">
+<meta name="twitter:title" content="{{ $title }}">
 <meta name="twitter:description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
 <meta name="twitter:image" content="{{ $ogImage }}">

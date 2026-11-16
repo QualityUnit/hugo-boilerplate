@@ -1,0 +1,38 @@
+{{/*
+@function page-title
+@description The page's title for <title>, og:title and twitter:title. It is the
+  page's `seoTitle` (when the SEO title should differ from the H1) or its title,
+  plus "| <site title>" unless the title already names the brand: the site title
+  or `organization.name`, compared without spaces and case ("AmICited" matches
+  "Am I Cited"). A site that sets `titleMaxLength` (e.g. 60, the width search
+  results show) also drops the suffix when the result would be longer; Chinese,
+  Japanese and Korean characters and full-width punctuation count twice. The
+  homepage takes the `homeTitle` param of its language when set.
+@param page: The page (the context)
+@returns: The title string
+*/}}
+{{ $title := "" }}
+{{ if and .IsHome site.Params.homeTitle }}
+  {{ $title = site.Params.homeTitle }}
+{{ else }}
+  {{ $title = replace (.Params.seoTitle | default .Title | default site.Title) "[year]" (now.Format "2006") }}
+  {{ $plain := lower (replace $title " " "") }}
+  {{ $named := false }}
+  {{ $brands := slice site.Title }}
+  {{ with site.Params.organization }}{{ $brands = $brands | append .name }}{{ end }}
+  {{ range $brands }}
+    {{ with . }}
+      {{ if strings.Contains $plain (lower (replace . " " "")) }}{{ $named = true }}{{ end }}
+    {{ end }}
+  {{ end }}
+  {{ if not $named }}
+    {{ $branded := printf "%s | %s" $title site.Title }}
+    {{ $fits := true }}
+    {{ with site.Params.titleMaxLength }}
+      {{ $wide := findRE `[\p{Han}\p{Hangul}\x{3000}-\x{30FF}\x{31F0}-\x{31FF}\x{FF01}-\x{FF60}\x{FFE0}-\x{FFE6}]` $branded }}
+      {{ $fits = le (add (strings.RuneCount $branded) (len $wide)) (int .) }}
+    {{ end }}
+    {{ if $fits }}{{ $title = $branded }}{{ end }}
+  {{ end }}
+{{ end }}
+{{ return $title }}
