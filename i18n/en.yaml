@@ -73,6 +73,7 @@ show_more: "more"
 # Cookie consent translations
 cookie_consent_title: "Cookie Consent"
 cookie_consent_message: "We use cookies to enhance your browsing experience and analyze our traffic."
+cookie_consent_see_our: "See our"
 cookie_consent_accept_all: "Accept All"
 cookie_consent_accept_necessary: "Reject All"
 cookie_consent_settings: "Cookie Settings"

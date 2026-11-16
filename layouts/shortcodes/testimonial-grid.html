@@ -33,7 +33,7 @@
   {{< /testimonial-grid >}}
 
   Parameters:
-  - headingTag: Small text above heading (optional)
+  - headingTag: Small text above heading (optional, default: i18n "ui.testimonials")
   - heading: Main section heading (optional)
   - showHeading: Show/hide heading section (default: "true")
   - limited: Enable testimonial limit (default: "false")
@@ -59,7 +59,7 @@
   Schema: Includes SoftwareApplication structured data for better search engine understanding.
 */ -}}
 
-{{ $headingTag := (.Get "headingTag") | default "" }}
+{{ $headingTag := (.Get "headingTag") | default (i18n "ui.testimonials" | default "Testimonials") }}
 {{ $heading := (.Get "heading") | default "" }}
 {{ $showHeading := (.Get "showHeading") | default "true" }}
 {{ $limited := (.Get "limited") | default "" }}

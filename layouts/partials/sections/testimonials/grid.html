@@ -3,7 +3,7 @@
 @description: A responsive masonry layout for displaying testimonials with optional featured testimonial and headings. Includes structured data for software product reviews.
 @params:
   - showHeading: Whether to display the heading section (optional, default: true)
-  - headingTag: Small text displayed above the main heading (optional, default: "Testimonials")
+  - headingTag: Small text displayed above the main heading (optional, default: i18n "ui.testimonials")
   - heading: Main section heading (optional, default: "We have worked with thousands of amazing people")
   - limited: Enable testimonial limitation (optional, default: false)
   - limit: Maximum number of testimonials to display when limited=true (optional, default: 6, validates against negative values and overflow)
@@ -60,7 +60,7 @@
 
 {{/* Configurable variables */}}
 {{ $showHeading := .showHeading | default true }}
-{{ $headingTag := .headingTag | default "Testimonials" }}
+{{ $headingTag := .headingTag | default (i18n "ui.testimonials" | default "Testimonials") }}
 {{ $heading := .heading | default "We have worked with thousands of amazing people" }}
 
 {{/* Testimonials - will be randomized by JavaScript and optionally limited with validation */}}
@@ -121,7 +121,7 @@
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 flex-none rounded-full bg-gray-50") }}
                     {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
                     {{ else }}
@@ -144,7 +144,7 @@
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 rounded-full bg-gray-50") }}
                     {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
                     {{ else }}
@@ -173,7 +173,7 @@
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-tablet-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 flex-none rounded-full bg-gray-50") }}
                     {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
                     {{ else }}
@@ -196,7 +196,7 @@
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-tablet-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 rounded-full bg-gray-50") }}
                     {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
                     {{ else }}
@@ -225,7 +225,7 @@
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col1-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 flex-none rounded-full bg-gray-50") }}
                     {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
                     {{ else }}
@@ -248,7 +248,7 @@
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col1-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 rounded-full bg-gray-50") }}
                     {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
                     {{ else }}
@@ -286,7 +286,7 @@
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-tablet-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 flex-none rounded-full bg-gray-50") }}
                     {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
                     {{ else }}
@@ -309,7 +309,7 @@
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col2-tablet-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 rounded-full bg-gray-50") }}
                     {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
                     {{ else }}
@@ -338,7 +338,7 @@
                   <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col2-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 flex-none rounded-full bg-gray-50") }}
                     {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
                     {{ else }}
@@ -361,7 +361,7 @@
                   <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col2-desktop-{{ $index }}">
                     {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                     {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                      {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 rounded-full bg-gray-50") }}
                     {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                       {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
                     {{ else }}
@@ -395,7 +395,7 @@
                 <footer class="flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-secondary px-6 py-4 sm:flex-nowrap" id="testimonial-author-col3-{{ $index }}">
                   {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                   {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 flex-none rounded-full bg-gray-50") }}
+                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 flex-none rounded-full bg-gray-50") }}
                   {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                     {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 flex-none rounded-full bg-gray-50 object-contain p-1") }}
                   {{ else }}
@@ -418,7 +418,7 @@
                 <footer class="flex items-center gap-x-4 pt-8" id="testimonial-author-col3-{{ $index }}">
                   {{/* Unified image logic: prefer personImage, fallback to companyLogo, then to icon */}}
                   {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company")) "class" "size-10 rounded-full bg-gray-50") }}
+                    {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s from %s" $testimonial.personName ($testimonial.companyLogoAlt | default "their company"))) "class" "size-10 rounded-full bg-gray-50") }}
                   {{ else if and $testimonial.companyLogo (ne $testimonial.companyLogo "") }}
                     {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.companyLogo "alt" (printf "%s logo - testimonial by %s" ($testimonial.companyLogoAlt | default "Company") $testimonial.personName) "class" "size-10 rounded-full bg-gray-50 object-contain p-1") }}
                   {{ else }}

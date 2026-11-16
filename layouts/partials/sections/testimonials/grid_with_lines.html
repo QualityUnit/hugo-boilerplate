@@ -4,7 +4,7 @@
 */}}
 
 {{ $showHeading := .showHeading | default false }}
-{{ $headingTag := .headingTag | default "Testimonials" }}
+{{ $headingTag := .headingTag | default (i18n "ui.testimonials" | default "Testimonials") }}
 {{ $heading := .heading | default "" }}
 {{ $testimonials := .testimonials | default slice }}
 
@@ -53,7 +53,7 @@
         </blockquote>
         <footer class="mt-8 flex items-center justify-end gap-x-4">
           {{ if and $testimonial.personImage (ne $testimonial.personImage "") }}
-            {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (printf "Profile photo of %s" $testimonial.personName) "class" "size-12 rounded-full bg-gray-50") }}
+            {{ partial "components/media/lazyimg.html" (dict "src" $testimonial.personImage "alt" (i18n "ui.testimonial_photo_alt" (dict "name" $testimonial.personName "company" ($testimonial.companyLogoAlt | default (i18n "ui.testimonial_customer" | default "their company"))) | default (printf "Profile photo of %s" $testimonial.personName)) "class" "size-12 rounded-full bg-gray-50") }}
           {{ else }}
             <div class="size-12 rounded-full bg-gray-100 flex items-center justify-center">
               {{ partial "icons/user-circle-solid.html" (dict "class" "w-8 h-8 text-gray-400") }}
