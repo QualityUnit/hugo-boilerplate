@@ -1,6 +1,6 @@
 {{/*
 @helper: Format Date with i18n support
-@description: Returns a formatted date string. Uses i18n "date_format" key if available, falls back to provided format or "Jan 2, 2006".
+@description: Returns a date formatted in the page language. Uses the i18n "date_format" key if available; otherwise "January 2, 2006" and "Jan 2, 2006" become the locale formats :date_long and :date_medium (native month names and order), any other format is used as given with localized month names.
 @params:
   .date (time.Time): The date to format
   .format (string): Optional fallback Go date format (default: "Jan 2, 2006")
@@ -12,9 +12,6 @@
 
 {{- $date := .date -}}
 {{- $fallback := .format | default "Jan 2, 2006" -}}
-{{- $i18nFormat := i18n "date_format" -}}
-{{- if $i18nFormat -}}
-  {{- $date.Format $i18nFormat -}}
-{{- else -}}
-  {{- $date.Format $fallback -}}
-{{- end -}}
+{{- $localeFormats := dict "January 2, 2006" ":date_long" "Jan 2, 2006" ":date_medium" -}}
+{{- $format := i18n "date_format" | default (index $localeFormats $fallback) | default $fallback -}}
+{{- time.Format $format $date -}}
