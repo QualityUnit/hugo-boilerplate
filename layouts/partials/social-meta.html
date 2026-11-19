@@ -26,9 +26,11 @@
 <meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ replace .Title "[year]" (now.Format "2006") }} | {{ site.Title }}{{ end }}">
 <meta property="og:description" content="{{ with .Params.description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Description }}{{ replace . "[year]" (now.Format "2006") }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}{{ end }}">
 
-<!-- Image selection logic -->
+<!-- Image selection logic: ogImage is used only for og:image and twitter:image -->
 {{ $ogImage := "" }}
-{{ if .Params.image }}
+{{ if .Params.ogImage }}
+  {{ $ogImage = partial "functions/get-static-url.html" (dict "path" .Params.ogImage) }}
+{{ else if .Params.image }}
   {{ $ogImage = partial "functions/get-static-url.html" (dict "path" .Params.image) }}
 {{ else if .Params.youtubeVideoID }}
   {{ $ogImage = printf "https://i.ytimg.com/vi/%s/hqdefault.jpg" .Params.youtubeVideoID }}
