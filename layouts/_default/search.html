@@ -20,8 +20,15 @@
 
 
             <div id="search-results"></div>
-            <div id="search-pagination" class="flex gap-2 py-3 max-w-full"></div> 
+            <div id="search-pagination" class="flex gap-2 py-3 max-w-full"></div>
             <div class="search-loading">{{ i18n "search_loading" }}</div>
+            <script>
+                // A query in the URL means results will appear once the index loads:
+                // reserve a screen of space now so the content below does not jump.
+                if (new URLSearchParams(window.location.search).get('q')) {
+                    document.querySelector('.search-loading').style.minHeight = '100vh';
+                }
+            </script>
             <div id="min-read-translation" class="hidden">{{ i18n "minutes_read" }}</div>
             <div id="contact-url" class="hidden" data-url="{{ partial "helpers/get-translated-url.html" (dict "url" "/contact/") }}"></div> 
 
@@ -51,8 +58,26 @@
                     const loadingIndicator = document.querySelector('.search-loading');
                     const resultTemplate = document.getElementById('search-result-template').innerHTML;
                     const clearBtn = document.getElementById('clear-search');
-                    let searchIndex = null;
+                    const perPage = 30;
+                    const fuseOptions = {
+                        keys: [
+                            { name: 'title', weight: 2 },
+                            { name: 'content', weight: 1 },
+                            { name: 'tags', weight: 1.5 }
+                        ],
+                        includeScore: true,
+                        includeMatches: true,
+                        minMatchCharLength: 2,
+                        threshold: 0.2,
+                        ignoreLocation: true,
+                        distance: 200
+                    };
+                    // Searching thousands of pages takes hundreds of milliseconds, so it runs
+                    // in a worker; `fuse` is the main-thread fallback when no worker can start.
+                    let searchWorker = null;
                     let fuse = null;
+                    let indexReady = false;
+                    let requestId = 0;
                     let debounceTimer;
 
                     const minReadTranslatedText = document.getElementById('min-read-translation').textContent;
@@ -76,6 +101,8 @@
                         searchInput.value = '';
                         //searchInput.focus();
                         toggleClearBtn();
+                        requestId++;
+                        searchResults.style.minHeight = '';
                         searchResults.innerHTML = '';
                         document.getElementById('search-pagination').innerHTML = '';
                         updateURL('');
@@ -217,24 +244,11 @@
                         }).sort((a, b) => a.priorityScore - b.priorityScore);
                     }
 
-                    let lastQuery = '';
-                    function performSearch(query, page = 1) {
-                        lastQuery = query;
-                        const perPage = 30;
-                        if (!query || query.trim() === '') {
-                            searchResults.innerHTML = '';
-                            document.getElementById('search-pagination').innerHTML = '';
-                            updateURL('');
-                            return;
-                        }
-
-                        updateURL(query);
-
-                        if (!fuse) {
-                            loadingIndicator.style.display = 'block';
-                            return;
-                        }
-
+                    /**
+                     * Searches the index and returns all results, best first.
+                     * Also runs inside the worker, so it may only use its arguments and prioritizeResults.
+                     */
+                    function searchIndex(fuse, query) {
                         // Perform multi-token search: search for whole phrase AND individual words
                         let results = fuse.search(query);
 
@@ -259,14 +273,79 @@
                         }
 
                         // Prioritize exact matches and multi-word presence
-                        results = prioritizeResults(results, query);
+                        return prioritizeResults(results, query);
+                    }
 
-                        const total = results.length;
+                    /**
+                     * Worker entry point: loads the index, then answers one page of results per request.
+                     * Runs from its source text, so it may only use globals, searchIndex and prioritizeResults.
+                     */
+                    function searchWorkerMain() {
+                        let fuse = null;
+                        let lastQuery = null;
+                        let lastResults = [];
+                        self.onmessage = function (event) {
+                            const message = event.data;
+                            if (message.type === 'init') {
+                                fetch(message.indexUrl)
+                                    .then(response => {
+                                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        fuse = new Fuse(data, message.options);
+                                        self.postMessage({ type: 'ready' });
+                                    })
+                                    .catch(error => self.postMessage({ type: 'error', message: String(error) }));
+                            } else if (message.type === 'search') {
+                                if (message.query !== lastQuery) {
+                                    lastResults = searchIndex(fuse, message.query);
+                                    lastQuery = message.query;
+                                }
+                                const start = (message.page - 1) * message.perPage;
+                                self.postMessage({
+                                    type: 'results',
+                                    id: message.id,
+                                    query: message.query,
+                                    page: message.page,
+                                    total: lastResults.length,
+                                    results: lastResults.slice(start, start + message.perPage)
+                                        .map(result => ({ item: result.item, refIndex: result.refIndex }))
+                                });
+                            }
+                        };
+                    }
+
+                    let lastQuery = '';
+                    function performSearch(query, page = 1) {
+                        lastQuery = query;
+                        const id = ++requestId;
+                        if (!query || query.trim() === '') {
+                            searchResults.innerHTML = '';
+                            document.getElementById('search-pagination').innerHTML = '';
+                            updateURL('');
+                            return;
+                        }
+
+                        updateURL(query);
+
+                        if (!indexReady) {
+                            loadingIndicator.style.display = 'block';
+                            return;
+                        }
+
+                        if (searchWorker) {
+                            searchWorker.postMessage({ type: 'search', id, query, page, perPage });
+                            return;
+                        }
+
+                        const results = searchIndex(fuse, query);
                         const start = (page - 1) * perPage;
-                        const end = start + perPage;
-                        const pagedResults = results.slice(start, end);
+                        renderResults(query, page, results.length, results.slice(start, start + perPage));
+                    }
 
-                            renderPagination(total, page, perPage);
+                    function renderResults(query, page, total, pagedResults) {
+                        renderPagination(total, page, perPage);
 
                         if (pagedResults.length > 0) {
                             let html = '<div class="border-t border-secondary my-3"></div>';
@@ -361,6 +440,13 @@
                             `;
                             document.getElementById('search-pagination').innerHTML = '';
                         }
+
+                        // Drop the reserved space once the results fill it, so nothing moves.
+                        const lastChild = searchResults.lastElementChild;
+                        if (searchResults.style.minHeight && lastChild &&
+                            lastChild.getBoundingClientRect().bottom - searchResults.getBoundingClientRect().top >= window.innerHeight) {
+                            searchResults.style.minHeight = '';
+                        }
                     }
 
                     // Debounce function to prevent too many searches while typing
@@ -369,41 +455,106 @@
                         debounceTimer = setTimeout(func, delay);
                     }
 
+                    // Builds the worker from the page's own Fuse.js (same file, same integrity) plus the search functions above.
+                    function startWorker() {
+                        const fuseScript = document.querySelector('script[src*="fuse"]');
+                        if (!window.Worker || !window.Blob || !fuseScript) {
+                            return Promise.reject(new Error('no Worker support or no Fuse.js script on the page'));
+                        }
+                        const init = { cache: 'force-cache' };
+                        if (fuseScript.integrity) init.integrity = fuseScript.integrity;
+                        return fetch(fuseScript.src, init)
+                            .then(response => {
+                                if (!response.ok) throw new Error('HTTP ' + response.status);
+                                return response.text();
+                            })
+                            .then(fuseSource => new Promise((resolve, reject) => {
+                                const code = fuseSource + '\n' + prioritizeResults + '\n' + searchIndex + '\n(' + searchWorkerMain + ')();';
+                                const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+                                const worker = new Worker(url);
+                                const fail = error => {
+                                    worker.terminate();
+                                    URL.revokeObjectURL(url);
+                                    reject(error);
+                                };
+                                worker.onerror = fail;
+                                worker.onmessage = event => {
+                                    if (event.data.type === 'ready') {
+                                        URL.revokeObjectURL(url);
+                                        resolve(worker);
+                                    } else if (event.data.type === 'error') {
+                                        fail(new Error(event.data.message));
+                                    }
+                                };
+                                worker.postMessage({
+                                    type: 'init',
+                                    indexUrl: new URL('/index.json', window.location.href).href,
+                                    options: fuseOptions
+                                });
+                            }));
+                    }
+
+                    function loadOnMainThread() {
+                        return fetch('/index.json')
+                            .then(response => response.json())
+                            .then(data => {
+                                fuse = new Fuse(data, fuseOptions);
+                            });
+                    }
+
+                    // The space reserved under the loading text moves to the results in the same frame.
+                    function hideLoading() {
+                        if (loadingIndicator.style.minHeight) {
+                            searchResults.style.minHeight = loadingIndicator.style.minHeight;
+                            loadingIndicator.style.minHeight = '';
+                        }
+                        loadingIndicator.style.display = 'none';
+                    }
+
+                    function onIndexReady() {
+                        indexReady = true;
+                        hideLoading();
+
+                        // If there's an initial query from URL, perform search
+                        if (searchInput.value) {
+                            performSearch(searchInput.value);
+                        }
+                    }
+
+                    function onIndexError(error) {
+                        console.error('Error loading search index:', error);
+                        hideLoading();
+                        searchResults.innerHTML = '<p>Error loading search index. Please try again later.</p>';
+                    }
+
                     // Load search index
                     loadingIndicator.style.display = 'block';
-                    fetch('/index.json')
-                        .then(response => response.json())
-                        .then(data => {
-                            searchIndex = data;
-                            fuse = new Fuse(data, {
-                                keys: [
-                                    { name: 'title', weight: 2 },
-                                    { name: 'content', weight: 1 },
-                                    { name: 'tags', weight: 1.5 }
-                                ],
-                                includeScore: true,
-                                includeMatches: true,
-                                minMatchCharLength: 2,
-                                threshold: 0.2,
-                                ignoreLocation: true,
-                                distance: 200
-                            });
-
-                            loadingIndicator.style.display = 'none';
-
-                            // If there's an initial query from URL, perform search
-                            if (searchInput.value) {
-                                performSearch(searchInput.value);
-                            }
+                    startWorker()
+                        .then(worker => {
+                            searchWorker = worker;
+                            worker.onmessage = event => {
+                                const message = event.data;
+                                if (message.type === 'results' && message.id === requestId) {
+                                    renderResults(message.query, message.page, message.total, message.results);
+                                }
+                            };
+                            // A search that fails inside the worker continues on the main thread.
+                            worker.onerror = event => {
+                                console.error('Search worker failed, searching on the main thread:', event.message);
+                                worker.terminate();
+                                searchWorker = null;
+                                indexReady = false;
+                                loadOnMainThread().then(onIndexReady, onIndexError);
+                            };
+                        }, error => {
+                            console.warn('Search worker unavailable, searching on the main thread:', error);
+                            return loadOnMainThread();
                         })
-                        .catch(error => {
-                            console.error('Error loading search index:', error);
-                            loadingIndicator.style.display = 'none';
-                            searchResults.innerHTML = '<p>Error loading search index. Please try again later.</p>';
-                        });
+                        .then(onIndexReady, onIndexError);
 
                     // Listen for input changes
                     searchInput.addEventListener('input', function() {
+                        searchResults.style.minHeight = '';
                         debounce(() => performSearch(this.value), 300);
                     });
 
