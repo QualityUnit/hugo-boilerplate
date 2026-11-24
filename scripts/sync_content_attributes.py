@@ -44,10 +44,17 @@ import tomllib
 from pathlib import Path
 import datetime
 from toml_frontmatter import safe_toml_dumps
+from taxonomy_keys import load_taxonomy_keys
 
 # Base content directory
 content_dir = Path(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../content')))
 en_content_dir = content_dir / 'en'
+
+# Taxonomy values are identifiers that must match English in every language;
+# the site's own taxonomies are added to the list. See taxonomy_keys.
+for _key in load_taxonomy_keys(content_dir.parent):
+    if _key not in attributes_to_sync:
+        attributes_to_sync.append(_key)
 
 def extract_front_matter(file_path):
     """Extract TOML front matter from markdown file"""

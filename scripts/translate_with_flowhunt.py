@@ -68,6 +68,7 @@ except ImportError:  # Python < 3.11
         return toml.loads(text)
 
 import translation_url_policy as url_policy
+import taxonomy_keys
 from translation_body_check import check_body, is_truncated
 from translation_checkpoint import save_translation
 
@@ -502,6 +503,34 @@ def apply_url_policy(translated_text, source_file, target_file, target_lang):
         note += f' (+ alias {alias})'
     note += f' - {reason}'
     return updated, note
+
+
+def apply_taxonomy_policy(translated_text, source_file, target_file, target_lang):
+    """
+    Give a translated page the English taxonomy values.
+
+    The flow translates them with the rest of the frontmatter, and a
+    translated value is a different term to Hugo, so the page drops out of its
+    taxonomy pages. See taxonomy_keys for why the values stay English.
+
+    Returns (text, note) where note is a one-line log entry, or (text, None)
+    when nothing changed.
+    """
+    lang_dir = next((p for p in target_file.parents if p.name == target_lang), None)
+    if lang_dir is None:
+        return translated_text, None
+    hugo_root = lang_dir.parent.parent
+
+    try:
+        source_text = source_file.read_text(encoding='utf-8-sig')
+    except OSError:
+        return translated_text, None
+
+    updated, restored = taxonomy_keys.restore_taxonomies(
+        translated_text, source_text, taxonomy_keys.load_taxonomy_keys(hugo_root))
+    if not restored:
+        return translated_text, None
+    return updated, f"{target_file}: English value restored for {', '.join(restored)}"
 
 
 def get_target_languages(content_dir):
@@ -1127,6 +1156,12 @@ def process_translations(translation_tasks, flow_id, workspace_id, max_scheduled
                                         translated_text, file_path, target_file, target_lang)
                                     if url_note:
                                         print(f"[URL] {url_note}")
+
+                                    # Taxonomy values are identifiers, not text.
+                                    translated_text, taxonomy_note = apply_taxonomy_policy(
+                                        translated_text, file_path, target_file, target_lang)
+                                    if taxonomy_note:
+                                        print(f"[TAXONOMY] {taxonomy_note}")
 
                                 # Publish only fully processed, atomically saved files.
                                 # Hook failure exits the run, bypassing the per-file
